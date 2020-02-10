@@ -6,13 +6,14 @@
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
   "license": "GPL-3.0-or-later",
   "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/bundle.js",
+    "start": "node dist/main.js",
     "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
   "devDependencies": {
