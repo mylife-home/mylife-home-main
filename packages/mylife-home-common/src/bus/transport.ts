@@ -8,16 +8,21 @@ export class Transport {
   constructor(instanceName: string, serverUrl: string) {
     this.instanceName = instanceName;
     this.client = mqtt.connect(serverUrl, {
-      // will: { topic: `${instanceName}/online`, payload: encoding.writeBool(false), retain: false } TODO: bad payload type
+      // will: { topic: this.buildTopic('online'), payload: encoding.writeBool(false), retain: false } TODO: bad payload type
     });
 
     this.client.on('connect', () => {
-      this.client.publish(`${this.instanceName}/online`, encoding.writeBool(true), { retain: true });
+      this.client.publish(this.buildTopic('online'), encoding.writeBool(true), { retain: true });
     });
   }
 
   terminate(): void {
-    this.client.publish(`${this.instanceName}/online`, encoding.writeBool(false));
+    this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
+  }
+
+  buildTopic(domain: string, ...args: string[]): string {
+    const finalArgs = [domain, ...args];
+    return `${this.instanceName}/${finalArgs.join('/')}`;
   }
 }
 /*
