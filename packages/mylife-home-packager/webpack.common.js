@@ -1,25 +1,25 @@
-const path = require("path");
-const FilterWarningsPlugin = require("webpack-filter-warnings-plugin");
+const path = require('path');
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
-  entry: "./src/index.ts",
+  entry: './src/index.ts',
   module: {
     rules: [
       {
         test: /\.ts$/,
-        use: "ts-loader",
+        use: 'ts-loader',
         exclude: /node_modules/
       },
-      { test: /\.js$/, loader: "shebang-loader" } // npm i -D shebang-loader
+      { test: /\.js$/, loader: 'shebang-loader' } // npm i -D shebang-loader
     ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, 'dist')
   },
-  target: "node",
+  target: 'node',
   plugins: [
     new FilterWarningsPlugin({
       exclude: [
