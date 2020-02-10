@@ -1,8 +1,8 @@
-import mqtt from 'mqtt';
+import mqtt from 'async-mqtt';
 import * as encoding from './encoding';
 
 export class Transport {
-  client: mqtt.Client;
+  client: mqtt.AsyncClient;
   instanceName: string;
 
   constructor(instanceName: string, serverUrl: string) {
@@ -12,12 +12,14 @@ export class Transport {
     });
 
     this.client.on('connect', () => {
+      // TODO async
       this.client.publish(this.buildTopic('online'), encoding.writeBool(true), { retain: true });
     });
   }
 
-  terminate(): void {
-    this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
+  async terminate(): Promise<void> {
+    await this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
+    await this.client.end();
   }
 
   buildTopic(domain: string, ...args: string[]): string {
