@@ -5,7 +5,7 @@
   "author": "vincent-tr <vincent@stoic.com>",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
   "license": "GPL-3.0-or-later",
-  "main": "dist/bundle.js",
+  "main": "dist/main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
