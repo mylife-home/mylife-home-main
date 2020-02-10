@@ -24,5 +24,9 @@
     "webpack-cli": "^3.3.10",
     "webpack-filter-warnings-plugin": "^1.2.1",
     "webpack-merge": "^4.2.2"
+  },
+  "dependencies": {
+    "mylife-home-common": "^1.0.0",
+    "mylife-home-core": "^1.0.0"
   }
 }
