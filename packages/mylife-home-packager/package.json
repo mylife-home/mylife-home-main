@@ -5,22 +5,15 @@
   "author": "vincent-tr <vincent@stoic.com>",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
   "license": "GPL-3.0-or-later",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
-  "files": [
-    "lib"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "bugs": {
-    "url": "https://github.com/mylife-home/mylife-home-main/issues"
+    "build": "webpack --config=webpack.prod.js",
+    "start": "node dist/bundle.js",
+    "watch": "webpack --config=webpack.dev.js --watch",
+    "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",
