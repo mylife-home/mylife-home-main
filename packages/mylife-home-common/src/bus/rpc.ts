@@ -72,7 +72,7 @@ class Service {
 }
 
 export class Rpc {
-  private readonly services: Map<string, Service>;
+  private readonly services: Map<string, Service> = new Map<string, Service>();
 
   constructor(private readonly client: Client) {
   }

@@ -1,6 +1,4 @@
 import { EventEmitter } from 'events';
-import * as encoding from './encoding';
-import { fireAsync } from '../tools';
 import { Client } from './client';
 import { Rpc } from './rpc';
 
@@ -16,6 +14,8 @@ export class Transport extends EventEmitter {
   constructor(private readonly instanceName: string, serverUrl: string) {
     super();
 
+    this.client = new Client(instanceName, serverUrl);
+    
     this.client.on('onlineChange', (online) => this.emit('onlinChange', online));
 
     this.rpc = new Rpc(this.client);
