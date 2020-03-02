@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import * as encoding from '../../src/bus/encoding';
 
-describe('encoding', () => {
+describe('bus/encoding', () => {
   it('should encode bool (true)', () => {
     const buffer = encoding.writeBool(true);
     expect(buffer.toString('hex')).to.equal('01');
