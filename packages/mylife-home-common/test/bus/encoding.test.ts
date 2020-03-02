@@ -30,4 +30,15 @@ describe('encoding', () => {
     const value = encoding.readBool(buffer);
     expect(value).to.equal(false);
   });
+
+  it('should encode json', () => {
+    const buffer = encoding.writeJson({ foo: 'bar' });
+    expect(buffer.toString()).to.equal('{"foo":"bar"}');
+  });
+
+  it('should decode json', () => {
+    const buffer = Buffer.from('{"foo":"bar"}');
+    const value = encoding.readJson(buffer);
+    expect(value).to.deep.equal({ foo: 'bar' });
+  });
 });
