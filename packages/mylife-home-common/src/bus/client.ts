@@ -55,8 +55,13 @@ export class Client extends EventEmitter {
   }
 
   public buildTopic(domain: string, ...args: string[]): string {
-    const finalArgs = [domain, ...args];
-    return `${this.instanceName}/${finalArgs.join('/')}`;
+    const finalArgs = [this.instanceName, domain, ...args];
+    return finalArgs.join('/');
+  }
+
+  public buildRemoteTopic(targetInstance: string, domain: string, ...args: string[]): string {
+    const finalArgs = [targetInstance, domain, ...args];
+    return finalArgs.join('/');
   }
 
   async publish(topic: string, message: string | Buffer, retain:boolean = false) {
