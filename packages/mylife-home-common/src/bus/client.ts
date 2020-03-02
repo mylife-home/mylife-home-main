@@ -6,6 +6,9 @@ import { fireAsync } from '../tools';
 export declare interface Client {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
   once(event: 'onlineChange', cb: (online: boolean) => void): this;
+
+  on (event: 'message', cb: (topic: string, payload: Buffer) => void): this
+  once (event: 'message', cb: (topic: string, payload: Buffer) => void): this
 }
 
 export class Client extends EventEmitter {
@@ -25,11 +28,13 @@ export class Client extends EventEmitter {
       this.onlineChange(true);
     }));
 
+    this.client.on('disconnect', () => this.onlineChange(false));
+
     this.client.on('error', err => {
       console.error('mqtt error', err); // TODO: logging
     });
 
-    this.client.on('disconnect', () => this.onlineChange(false));
+    this.client.on('message', (topic, payload) => this.emit('message', topic, payload));
   }
 
   private onlineChange(value: boolean): void {
