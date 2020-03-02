@@ -55,3 +55,11 @@ export function writeInt32(value: number): Buffer {
   buffer.writeInt32LE(value, 0);
   return buffer;
 }
+
+export function readJson(buffer: Buffer): any {
+  return JSON.parse(readString(buffer));
+}
+
+export function writeJson(value: any): Buffer {
+  return writeString(JSON.stringify(value));
+}
