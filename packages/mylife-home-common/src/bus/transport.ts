@@ -24,7 +24,7 @@ export class Transport extends EventEmitter {
     }));
 
     this.client.on('error', err => {
-      console.error('mqtt error', err);
+      console.error('mqtt error', err); // TODO: logging
     });
   }
 
