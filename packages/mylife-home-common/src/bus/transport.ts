@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events';
-import mqtt from 'async-mqtt';
+import * as mqtt from 'async-mqtt';
 import * as encoding from './encoding';
 import { fireAsync } from '../tools';
 
 export declare interface Transport {
-  on (event: 'status', cb: Function): this;
-  once (event: 'status', cb: Function): this;
+  on(event: 'status', cb: Function): this;
+  once(event: 'status', cb: Function): this;
 }
 
 export class Transport extends EventEmitter {
@@ -14,13 +14,18 @@ export class Transport extends EventEmitter {
   constructor(private readonly instanceName: string, serverUrl: string) {
     super();
 
-    this.client = mqtt.connect(serverUrl, {
-      will: { topic: this.buildTopic('online'), payload: encoding.writeBool(false).toString(), retain: false, qos: 0 } // TODO mqtt release: remove toString()
-    });
+    // TODO mqtt release: remove toString(), qos
+    const qos: mqtt.QoS = 0;
+    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false).toString(), retain: false, qos };
+    this.client = mqtt.connect(serverUrl, { will });
 
-    this.client.on('connect', () => fireAsync(async() => {
+    this.client.on('connect', () => fireAsync(async () => {
       await this.client.publish(this.buildTopic('online'), encoding.writeBool(true), { retain: true, qos: 0 }); // TODO mqtt release: remove qos
     }));
+
+    this.client.on('error', err => {
+      console.error('mqtt error', err);
+    });
   }
 
   async terminate(): Promise<void> {
