@@ -1,6 +1,7 @@
 import net from 'net';
 import aedes from 'aedes';
 import { Transport } from '../../src/bus/transport';
+import { runInThisContext } from 'vm';
 
 const SERVER_PORT = 11883;
 const SERVER_URL = `tcp://localhost:${SERVER_PORT}`;
@@ -18,9 +19,8 @@ export class MqttTestSession {
 
   async terminate() {
     for(const transport of this.transports) {
-      await transport.terminate();
+      await this.closeTransport(transport);
     }
-    this.transports.clear();
 
     await new Promise(resolve => this.aedesServer.close(resolve));
     await new Promise(resolve => this.server.close(resolve));
@@ -33,6 +33,11 @@ export class MqttTestSession {
     await waitForConnected(transport);
     this.transports.add(transport);
     return transport;
+  }
+
+  async closeTransport(transport: Transport): Promise<void> {
+    await transport.terminate();
+    this.transports.delete(transport);
   }
 }
 
