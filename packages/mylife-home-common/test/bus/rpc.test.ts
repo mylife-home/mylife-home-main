@@ -1,11 +1,13 @@
+import net from 'net';
+import util from 'util';
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import mqttServer from 'mqtt-server';
+import aedes from 'aedes';
 import { Transport } from '../../src/bus/transport';
-import util from 'util';
 
-const SERVER_URL = 'tcp://localhost:11883';
+const SERVER_PORT = 11883;
+const SERVER_URL = `tcp://localhost:${SERVER_PORT}`;
 const RPC_ADDRESS = 'testRpc';
 
 describe('bus/rpc', () => {
@@ -32,25 +34,30 @@ describe('bus/rpc', () => {
 
 function setupMqttServer() {
 
-  let server: any;
+  let destroy: () => Promise<void>;
 
   beforeEach('setup mqtt server', async () => {
-    server = mqttServer({ mqtt: SERVER_URL });
-    promisifyMethod(server, 'listen');
-    promisifyMethod(server, 'close');
-    promisifyMethod(server, 'destroy');
-
-    await server.listenAsync();
+    const aedesServer = aedes.Server();
+    const server = net.createServer(aedesServer.handle);
+    destroy = createDestroy(server);
+    await new Promise(resolve => server.listen(SERVER_PORT, resolve));
   });
 
-  afterEach('setup mqtt server', async () => {
-    await server.closeAsync();
-    await server.destroyAsync();
-    server = null;
-  });
-
+  afterEach('setup mqtt server', destroy);
 }
 
-function promisifyMethod(object: any, methodName: string) {
-  object[methodName + 'Async'] = util.promisify(object[methodName].bind(object));
+function createDestroy(server: net.Server): () => Promise<void> {
+  const connections = new Set<net.Socket>();
+
+  server.on('connection', conn => {
+    connections.add(conn);
+    conn.on('close', () => connections.delete(conn));
+  });
+
+  return async () => {
+    for (const conn of connections) {
+      conn.destroy();
+    }
+    await new Promise((resolve, reject) => server.close((err) => err ? reject() : resolve()));
+  }
 }
