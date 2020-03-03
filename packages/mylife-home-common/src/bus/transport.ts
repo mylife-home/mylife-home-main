@@ -18,7 +18,7 @@ export class Transport extends EventEmitter {
 
     this.client = new Client(instanceName, serverUrl);
     
-    this.client.on('onlineChange', (online) => this.emit('onlinChange', online));
+    this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
     this.client.on('error', err => this.emit('error', err));
 
     this.rpc = new Rpc(this.client);
