@@ -31,4 +31,39 @@ describe('bus/rpc', () => {
       await session.terminate();
     }
   });
+
+  it('should fail to register service twice', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+
+      const serverImpl1 = (data:any): any => {};
+      const serverImpl2 = (data:any): any => {};
+      await server.rpc.serve(RPC_ADDRESS, serverImpl1);
+      const fn = await delayError(() => server.rpc.serve(RPC_ADDRESS, serverImpl2));
+      expect(fn).to.throw(`Service with address '${RPC_ADDRESS}' does already exist`);
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
+  it('should not mismatch while using multiple RPC channels', async () => {
+  });
+
+  it('should not mismatch while having multiple RPC clients', async () => {
+  });
 });
+
+async function delayError(target: () => Promise<void>): Promise<() => void> {
+  try {
+    await target();
+  } catch(err) {
+    return () => {
+      throw err;
+    }
+  }
+
+  return () => {};
+}
