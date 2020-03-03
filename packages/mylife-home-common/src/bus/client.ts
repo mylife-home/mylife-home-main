@@ -18,7 +18,7 @@ export class Client extends EventEmitter {
   private readonly client: mqtt.AsyncClient;
   private _online: boolean = false;
 
-  constructor(private readonly instanceName: string, serverUrl: string) {
+  constructor(public readonly instanceName: string, serverUrl: string) {
     super();
 
     // TODO mqtt release: remove toString(), qos
