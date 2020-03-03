@@ -24,7 +24,7 @@ describe('bus/rpc', () => {
 
       const serverImpl = sinon.fake.returns(RESPONSE);
 
-      server.rpc.serve(RPC_ADDRESS, serverImpl);
+      await server.rpc.serve(RPC_ADDRESS, serverImpl);
 
       const result = await client.rpc.call('server', RPC_ADDRESS, REQUEST);
 
