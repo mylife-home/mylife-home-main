@@ -5,6 +5,8 @@ import { Rpc } from './rpc';
 export declare interface Transport {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
   once(event: 'onlineChange', cb: (online: boolean) => void): this;
+  on(event: 'error', cb: (error: Error) => void): this;
+  once(event: 'error', cb: (error: Error) => void): this;
 }
 
 export class Transport extends EventEmitter {
@@ -17,6 +19,7 @@ export class Transport extends EventEmitter {
     this.client = new Client(instanceName, serverUrl);
     
     this.client.on('onlineChange', (online) => this.emit('onlinChange', online));
+    this.client.on('error', err => this.emit('error', err));
 
     this.rpc = new Rpc(this.client);
   }
