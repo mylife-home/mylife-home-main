@@ -99,7 +99,7 @@ export class Rpc {
   }
 
   async call(targetInstance: string, address: string, data: any, timeout: number = 2000): Promise<any> {
-    const id = crypto.randomBytes(12).toString('base64');
+    const id = randomTopicPart();
     const replyTopic = this.client.buildTopic(DOMAIN, REPLIES, id);
     const request: Request = { input: data, replyTopic };
     await this.client.publish(this.client.buildRemoteTopic(targetInstance, DOMAIN, SERVICES, address), encoding.writeJson(request));
@@ -144,4 +144,16 @@ async function waitForMessage(client: Client, topic: string, timeout: number): P
   } finally {
     client.unsubscribe(topic);
   }
+}
+
+const CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const CHARSET_LEN = CHARSET.length;
+const LEN = 16;
+
+function randomTopicPart() {
+  const array = new Array(LEN);
+  for (let i = 0; i < LEN; ++i) {
+    array[i] = CHARSET.charAt(Math.floor(Math.random() * CHARSET_LEN));
+  }
+  return array.join('');
 }
