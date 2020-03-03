@@ -15,18 +15,15 @@ describe('bus/rpc', () => {
       const client = await session.createTransport('client');
       const server = await session.createTransport('server');
 
-      const REQUEST = { foo: 'bar' };
-      const RESPONSE = { foo: 'baz' };
-
-      const serverImpl = sinon.fake.returns(RESPONSE);
+      const serverImpl = sinon.fake.returns({ type: 'response' });
 
       await server.rpc.serve(RPC_ADDRESS, serverImpl);
 
-      const result = await client.rpc.call('server', RPC_ADDRESS, REQUEST);
+      const result = await client.rpc.call('server', RPC_ADDRESS, { type: 'request'});
 
-      expect(result).to.deep.equal(RESPONSE);
+      expect(result).to.deep.equal({ type: 'response' });
       expect(serverImpl.calledOnce).to.be.true;
-      expect(serverImpl.firstCall.args[0]).to.deep.equal(REQUEST);
+      expect(serverImpl.firstCall.args[0]).to.deep.equal({ type: 'request'});
 
     } finally {
       await session.terminate();
