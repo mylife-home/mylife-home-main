@@ -107,7 +107,8 @@ describe('bus/rpc', () => {
 
     } finally {
       await session.terminate();
-    }  });
+    } 
+  });
 });
 
 async function delayError(target: () => Promise<void>): Promise<() => void> {
