@@ -16,7 +16,7 @@ export declare interface Client {
 
 export class Client extends EventEmitter {
   private readonly client: mqtt.AsyncClient;
-  private _online: boolean;
+  private _online: boolean = false;
 
   constructor(private readonly instanceName: string, serverUrl: string) {
     super();
