@@ -1,9 +1,8 @@
 import net from 'net';
-import util from 'util';
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import aedes, { Server } from 'aedes';
+import aedes from 'aedes';
 import { Transport } from '../../src/bus/transport';
 
 const SERVER_PORT = 11883;
@@ -17,6 +16,9 @@ describe('bus/rpc', () => {
     const client = new Transport('client', SERVER_URL);
     const server = new Transport('server', SERVER_URL);
     try {
+      await waitForConnected(client);
+      await waitForConnected(server);
+
       const REQUEST = { foo: 'bar' };
       const RESPONSE = { foo: 'baz' };
 
@@ -51,5 +53,36 @@ function setupMqttServer() {
   afterEach('setup mqtt server', async () => {
     await new Promise(resolve => aedesServer.close(resolve));
     await new Promise(resolve => server.close(resolve));
+  });
+}
+
+async function waitForConnected(transport: Transport) {
+  return new Promise((resolve, reject) => {
+    if (transport.online) {
+      resolve();
+      return;
+    }
+
+    const onEnd = () => {
+      transport.off('onlineChange', onOnlineChange);
+      transport.off('error', onError);
+    };
+
+    const onError = (err: Error) => {
+      onEnd();
+      reject(err);
+    }
+
+    const onOnlineChange = (value: boolean) => {
+      if (!value) {
+        return;
+      }
+
+      onEnd();
+      resolve();
+    };
+
+    transport.on('onlineChange', onOnlineChange);
+    transport.on('error', onError);
   });
 }
