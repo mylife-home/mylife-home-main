@@ -1,15 +1,76 @@
 import net from 'net';
 import aedes from 'aedes';
 import { Transport } from '../../src/bus/transport';
-import { runInThisContext } from 'vm';
 
 const SERVER_PORT = 11883;
-const SERVER_URL = `tcp://localhost:${SERVER_PORT}`;
+const PROXY_PORT_START = 11884;
+
+class Proxy {
+  private static nextServerPort = PROXY_PORT_START;
+  public readonly serverPort = Proxy.nextServerPort++;
+  private _running: boolean = false;
+
+  private listenSocket: net.Server;
+  private serverSocket: net.Socket;
+  private clientSocket: net.Socket;
+
+  constructor(private readonly targetPort: number, private readonly targetHost: string = 'localhost') {
+  }
+
+  get running() {
+    return this._running;
+  }
+
+  async stop() {
+    if(this.clientSocket)  {
+      this.clientSocket.removeAllListeners();
+      this.clientSocket.destroy();
+      this.clientSocket = null;
+    }
+    if(this.serverSocket)  {
+      this.serverSocket.removeAllListeners();
+      this.serverSocket.destroy();
+      this.serverSocket = null;
+    }
+    if(this.listenSocket) {
+      this.listenSocket.removeAllListeners();
+      this.listenSocket.close();
+      this.listenSocket = null;
+    }
+  }
+
+  start() {
+    this.listenSocket = net.createServer(socket => {
+      this.listenSocket.close();
+      this.listenSocket = null;
+
+      this.serverSocket = socket;
+      this.clientSocket = net.connect(this.targetPort, this.targetHost);
+
+      this.clientSocket.on('close', () => this.reset());
+      this.serverSocket.on('close', () => this.reset());
+      this.clientSocket.on('data', data => this.serverSocket.write(data));
+      this.serverSocket.on('data', data => this.clientSocket.write(data));
+    });
+
+    this.listenSocket.listen(this.serverPort);
+  }
+
+  private reset() {
+    this.stop();
+    this.start();
+  }
+}
+
+class TransportData {
+  constructor(public readonly transport: Transport, public readonly proxy: Proxy) {
+  }
+}
 
 export class MqttTestSession {
   private server: net.Server;
   private aedesServer: aedes.Aedes;
-  private readonly transports = new Set<Transport>();
+  private readonly transports = new Map<string, TransportData>();
 
   async init() {
     this.aedesServer = aedes.Server();
@@ -18,7 +79,7 @@ export class MqttTestSession {
   }
 
   async terminate() {
-    for(const transport of this.transports) {
+    for (const transport of this.transports.keys()) {
       await this.closeTransport(transport);
     }
 
@@ -29,15 +90,20 @@ export class MqttTestSession {
   }
 
   async createTransport(instanceName: string) {
-    const transport = new Transport(instanceName, SERVER_URL);
+    const proxy = new Proxy(SERVER_PORT);
+    proxy.start();
+
+    const transport = new Transport(instanceName, `tcp://localhost:${proxy.serverPort}`);
     await waitForConnected(transport);
-    this.transports.add(transport);
+
+    this.transports.set(instanceName, new TransportData(transport, proxy));
     return transport;
   }
 
-  async closeTransport(transport: Transport): Promise<void> {
-    await transport.terminate();
-    this.transports.delete(transport);
+  async closeTransport(instanceName: string): Promise<void> {
+    const transportData = this.transports.get(instanceName);
+    await transportData.transport.terminate();
+    this.transports.delete(instanceName);
   }
 }
 
