@@ -21,7 +21,7 @@ class Proxy {
     return this._running;
   }
 
-  async stop() {
+  stop() {
     if(this.clientSocket)  {
       this.clientSocket.removeAllListeners();
       this.clientSocket.destroy();
@@ -103,11 +103,24 @@ export class MqttTestSession {
   async closeTransport(instanceName: string): Promise<void> {
     const transportData = this.transports.get(instanceName);
     await transportData.transport.terminate();
+    transportData.proxy.stop();
     this.transports.delete(instanceName);
+  }
+
+  async disconnectTransport(instanceName: string) {
+    const transportData = this.transports.get(instanceName);
+    transportData.proxy.stop();
+    await waitForDisconnected(transportData.transport);
+  }
+
+  async reconnectTransport(instanceName: string) {
+    const transportData = this.transports.get(instanceName);
+    transportData.proxy.start();
+    await waitForConnected(transportData.transport);
   }
 }
 
-export async function waitForConnected(transport: Transport) {
+async function waitForConnected(transport: Transport) {
   return new Promise<void>((resolve, reject) => {
     if (transport.online) {
       resolve();
@@ -135,5 +148,26 @@ export async function waitForConnected(transport: Transport) {
 
     transport.on('onlineChange', onOnlineChange);
     transport.on('error', onError);
+  });
+}
+
+
+async function waitForDisconnected(transport: Transport) {
+  return new Promise<void>((resolve, reject) => {
+    if (!transport.online) {
+      resolve();
+      return;
+    }
+
+    const onOnlineChange = (value: boolean) => {
+      if (value) {
+        return;
+      }
+
+      transport.off('onlineChange', onOnlineChange);
+      resolve();
+    };
+
+    transport.on('onlineChange', onOnlineChange);
   });
 }
