@@ -1,7 +1,6 @@
 import { Client } from './client';
 import * as encoding from './encoding';
 import { fireAsync } from '../tools';
-import crypto from 'crypto';
 
 const DOMAIN: string = 'rpc';
 const SERVICES: string = 'services';
