@@ -31,7 +31,7 @@ export class Client extends EventEmitter {
       this.onlineChange(true);
     }));
 
-    this.client.on('disconnect', () => this.onlineChange(false));
+    this.client.on('close', () => this.onlineChange(false));
 
     this.client.on('error', err => {
       console.error('mqtt error', err); // TODO: logging
@@ -54,8 +54,10 @@ export class Client extends EventEmitter {
   }
 
   async terminate(): Promise<void> {
-    await this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
-    await this.client.end();
+    if(this.client.connected) {
+      await this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
+    }
+    await this.client.end(true);
   }
 
   public buildTopic(domain: string, ...args: string[]): string {
