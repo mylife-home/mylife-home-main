@@ -2,6 +2,8 @@ import { EventEmitter } from 'events';
 import { Client } from './client';
 import { Rpc } from './rpc';
 import { Presence } from './presence';
+import { Components } from './components';
+import { Metadata } from './metadata';
 
 export declare interface Transport {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
@@ -14,6 +16,8 @@ export class Transport extends EventEmitter {
   private readonly client: Client;
   public readonly rpc: Rpc;
   public readonly presence: Presence;
+  public readonly components: Components;
+  public readonly metadata: Metadata;
 
   constructor(private readonly instanceName: string, serverUrl: string) {
     super();
@@ -25,6 +29,8 @@ export class Transport extends EventEmitter {
 
     this.rpc = new Rpc(this.client);
     this.presence = new Presence(this.client);
+    this.components = new Components(this.client);
+    this.metadata = new Metadata(this.client);
   }
 
   get online(): boolean {
