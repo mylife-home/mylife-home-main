@@ -5,7 +5,7 @@ import * as encoding from '../../src/bus/encoding';
 import { MqttTestSession, delayError } from './tools';
 
 describe('bus/components', () => {
-  it('should register and unregister component', async () => {
+  it('should register and unregister local component', async () => {
     const session = new MqttTestSession();
     await session.init();
     try {
@@ -23,7 +23,7 @@ describe('bus/components', () => {
     }
   });
 
-  it('should fail to register component twice', async () => {
+  it('should fail to register local component twice', async () => {
     const session = new MqttTestSession();
     await session.init();
     try {
@@ -39,7 +39,7 @@ describe('bus/components', () => {
     }
   });
 
-  it('should fail to register action twice', async () => {
+  it('should fail to register local action twice', async () => {
     const session = new MqttTestSession();
     await session.init();
     try {
@@ -55,7 +55,54 @@ describe('bus/components', () => {
       await session.terminate();
     }
   });
+  it('should register and unregister remote component', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
 
+      const server = await session.createTransport('server');
+
+      const component = server.components.trackRemoteComponent('other', 'test-component');
+      await component.registerStateChange('state', () => { });
+      await component.emitAction('action', encoding.writeBool(false));
+
+      server.components.untrackRemoteComponent(component);
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
+  it('should register remote component twice', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+
+      server.components.trackRemoteComponent('other', 'test-component');
+      server.components.trackRemoteComponent('other', 'test-component');
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
+  it('should fail to register remote state change twice', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+
+      const component = server.components.trackRemoteComponent('other', 'test-component');
+      await component.registerStateChange('state', () => { });
+
+      const fn = await delayError(() => component.registerStateChange('state', () => { }));
+      expect(fn).to.throw(`State 'state' already registered for changes on component 'test-component'`);
+
+    } finally {
+      await session.terminate();
+    }
+  });
   /*
     it('should not mismatch while using multiple RPC channels', async () => {
       const session = new MqttTestSession();
