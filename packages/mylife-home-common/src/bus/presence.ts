@@ -17,6 +17,8 @@ export class Presence extends EventEmitter {
 
     this.client.on('onlineChange', online => this.onOnlineChange(online));
     this.client.on('message', (topic, payload) => this.onMessage(topic, payload));
+
+    fireAsync(() => this.client.subscribe('+/online'));
   }
 
   public isOnline(instanceName: string) {
@@ -28,11 +30,6 @@ export class Presence extends EventEmitter {
   }
 
   private onOnlineChange(online: boolean): void {
-    if (online) {
-      fireAsync(() => this.client.subscribe('+/online'));
-      return;
-    }
-
     // no online instances anymore
     for (const instanceName of this.onlineInstances) {
       this.instanceChange(instanceName, false);
