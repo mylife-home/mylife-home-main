@@ -13,7 +13,7 @@ describe('bus/components', () => {
       const server = await session.createTransport('server');
 
       const component = server.components.addLocalComponent('test-component');
-      await component.addAction('action', () => { });
+      await component.registerAction('action', () => { });
       await component.setState('state', encoding.writeBool(false));
 
       server.components.removeLocalComponent('test-component');
@@ -46,9 +46,9 @@ describe('bus/components', () => {
       const server = await session.createTransport('server');
 
       const component = server.components.addLocalComponent('test-component');
-      await component.addAction('action', () => { });
+      await component.registerAction('action', () => { });
 
-      const fn = await delayError(() => component.addAction('action', () => { }));
+      const fn = await delayError(() => component.registerAction('action', () => { }));
       expect(fn).to.throw(`Action 'action' does already exist on component 'test-component'`);
 
     } finally {
