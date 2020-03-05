@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { Client } from './client';
 import * as encoding from './encoding';
 import { fireAsync } from '../tools';
+import { TransportOptions } from './transport';
 
 export declare interface Presence {
   on(event: 'instanceChange', cb: (instanceName: string, online: boolean) => void): this;
@@ -15,7 +16,7 @@ export class Presence extends EventEmitter {
   private readonly onlineChangeCb = (online: boolean) => this.onOnlineChange(online);
   private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
 
-  constructor(private readonly client: Client) {
+  constructor(private readonly client: Client, options: TransportOptions) {
     super();
   }
 

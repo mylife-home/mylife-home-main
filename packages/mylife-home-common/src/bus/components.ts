@@ -1,4 +1,5 @@
 import { Client } from './client';
+import { TransportOptions } from './transport';
 
 const DOMAIN: string = 'components';
 
@@ -37,7 +38,7 @@ class Component {
 export class Components {
   private readonly components: Map<string, Component> = new Map<string, Component>();
 
-  constructor(private readonly client: Client) {
+  constructor(private readonly client: Client, options: TransportOptions) {
   }
 
   addComponent(id: string) {

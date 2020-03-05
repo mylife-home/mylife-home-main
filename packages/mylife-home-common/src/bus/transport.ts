@@ -5,6 +5,10 @@ import { Presence } from './presence';
 import { Components } from './components';
 import { Metadata } from './metadata';
 
+export interface TransportOptions {
+  presenceTracking?: boolean;
+}
+
 export declare interface Transport {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
   once(event: 'onlineChange', cb: (online: boolean) => void): this;
@@ -19,18 +23,18 @@ export class Transport extends EventEmitter {
   public readonly components: Components;
   public readonly metadata: Metadata;
 
-  constructor(private readonly instanceName: string, serverUrl: string) {
+  constructor(private readonly instanceName: string, serverUrl: string, options: TransportOptions = {}) {
     super();
 
     this.client = new Client(instanceName, serverUrl);
-    
+
     this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
     this.client.on('error', err => this.emit('error', err));
 
-    this.rpc = new Rpc(this.client);
-    this.presence = new Presence(this.client);
-    this.components = new Components(this.client);
-    this.metadata = new Metadata(this.client);
+    this.rpc = new Rpc(this.client, options);
+    this.presence = new Presence(this.client, options);
+    this.components = new Components(this.client, options);
+    this.metadata = new Metadata(this.client, options);
   }
 
   get online(): boolean {
