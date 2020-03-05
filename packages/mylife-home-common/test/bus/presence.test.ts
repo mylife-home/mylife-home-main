@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MqttTestSession } from './tools';
+import { MqttTestSession, sleep } from './tools';
 
 describe('bus/presence', () => {
   it('should see presence of another instance', async () => {
@@ -136,7 +136,3 @@ describe('bus/presence', () => {
     }
   });
 });
-
-async function sleep(delay: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, delay));
-}
