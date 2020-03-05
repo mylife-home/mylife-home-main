@@ -3,7 +3,12 @@ import { TransportOptions } from './transport';
 
 const DOMAIN: string = 'components';
 
-class Component {
+export interface LocalComponent {
+  addAction(name: string, impl: (value: Buffer) => void): Promise<void>;
+  setState(name: string, value: Buffer): Promise<void>;
+}
+
+class LocalComponentImpl implements LocalComponent {
   private readonly actions = new Map<string, (value: Buffer) => void>();
 
   constructor(private readonly client: Client, private readonly id: string) {
@@ -12,13 +17,17 @@ class Component {
 
   async terminate() {
     const topics = Array.from(this.actions.keys());
-    if(topics.length) {
+    if (topics.length) {
       await this.client.unsubscribe(topics);
     }
   }
 
   async addAction(name: string, impl: (value: Buffer) => void) {
     const topic = this.client.buildTopic(DOMAIN, this.id, name);
+    if (this.actions.get(topic)) {
+      throw new Error(`Action '${name}' does already exist on component '${this.id}'`);
+    }
+
     this.actions.set(topic, impl);
     await this.client.subscribe(topic);
   }
@@ -29,43 +38,41 @@ class Component {
 
   private onMessage(topic: string, data: Buffer): void {
     const action = this.actions.get(topic);
-    if(action) {
+    if (action) {
       action(data);
     }
   }
 }
 
 export class Components {
-  private readonly components: Map<string, Component> = new Map<string, Component>();
+  private readonly components: Map<string, LocalComponentImpl> = new Map<string, LocalComponentImpl>();
 
   constructor(private readonly client: Client, options: TransportOptions) {
   }
 
-  addComponent(id: string) {
+  addLocalComponent(id: string): LocalComponent {
     const existing = this.components.get(id);
     if (existing) {
-      throw new Error(`Service with id '${id}' does already exist`);
+      throw new Error(`Component with id '${id}' does already exist`);
     }
 
-    const component = new Component(this.client, id);
+    const component = new LocalComponentImpl(this.client, id);
     this.components.set(id, component);
+    return component;
   }
 
-  async removeCompondent(id: string) {
-    const service = this.components.get(id);
-    if (!service) {
-      throw new Error(`Service with id '${id}' does not exist`);
+  getLocalComponent(id: string): LocalComponent {
+    const component = this.components.get(id);
+    if (!component) {
+      throw new Error(`Component with id '${id}' does not exist`);
     }
+    return component;
+  }
 
-    await service.terminate();
+  async removeLocalComponent(id: string) {
+    const component = this.getLocalComponent(id) as LocalComponentImpl;
+
+    await component.terminate();
     this.components.delete(id);
-  }
-
-  async addAction(componentId: string, name: string, impl: (value: Buffer) => void) {
-
-  }
-
-  async setState(componentId: string, name: string, value: Buffer) {
-
   }
 }
