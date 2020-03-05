@@ -17,6 +17,7 @@ export declare interface Client {
 export class Client extends EventEmitter {
   private readonly client: mqtt.AsyncClient;
   private _online: boolean = false;
+  private readonly subscriptions = new Set<string>();
 
   constructor(public readonly instanceName: string, serverUrl: string) {
     super();
@@ -47,6 +48,14 @@ export class Client extends EventEmitter {
     }
     this._online = value;
     this.emit('onlineChange', value);
+
+    if(this.online) {
+      fireAsync(async () => {
+        if(this.subscriptions.size) {
+          await this.client.subscribe(Array.from(this.subscriptions));
+        }
+      });
+    }
   }
 
   get online(): boolean {
@@ -75,11 +84,27 @@ export class Client extends EventEmitter {
     await this.client.publish(topic, payload, { retain, qos: 0 });
   }
 
-  async subscribe(topic: string | string[], ) {
-    await this.client.subscribe(topic);
+  async subscribe(topic: string | string[]) {
+    if(!Array.isArray(topic)) {
+      topic = [topic];
+    }
+    for(const item of topic) {
+      this.subscriptions.add(item);
+    }
+    if(this.online) {
+      await this.client.subscribe(topic);
+    }
   }
 
   async unsubscribe(topic: string | string[]) {
-    await this.client.unsubscribe(topic);
+    if(!Array.isArray(topic)) {
+      topic = [topic];
+    }
+    for(const item of topic) {
+      this.subscriptions.delete(item);
+    }
+    if(this.online) {
+      await this.client.unsubscribe(topic);
+    }
   }
 }
