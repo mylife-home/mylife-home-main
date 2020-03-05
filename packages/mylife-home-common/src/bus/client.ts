@@ -7,8 +7,8 @@ export declare interface Client {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
   once(event: 'onlineChange', cb: (online: boolean) => void): this;
 
-  on (event: 'message', cb: (topic: string, payload: Buffer) => void): this
-  once (event: 'message', cb: (topic: string, payload: Buffer) => void): this
+  on(event: 'message', cb: (topic: string, payload: Buffer) => void): this;
+  once(event: 'message', cb: (topic: string, payload: Buffer) => void): this;
 
   on(event: 'error', cb: (error: Error) => void): this;
   once(event: 'error', cb: (error: Error) => void): this;
@@ -54,7 +54,7 @@ export class Client extends EventEmitter {
   }
 
   async terminate(): Promise<void> {
-    if(this.client.connected) {
+    if (this.client.connected) {
       await this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
     }
     await this.client.end(true);
@@ -70,12 +70,12 @@ export class Client extends EventEmitter {
     return finalArgs.join('/');
   }
 
-  async publish(topic: string, message: string | Buffer, retain:boolean = false) {
+  async publish(topic: string, payload: Buffer, retain: boolean = false) {
     // TODO mqtt release: remove qos
-    await this.client.publish(topic, message, { retain, qos: 0 });
+    await this.client.publish(topic, payload, { retain, qos: 0 });
   }
 
-  async subscribe(topic: string | string[]) {
+  async subscribe(topic: string | string[], ) {
     await this.client.subscribe(topic);
   }
 
@@ -83,24 +83,3 @@ export class Client extends EventEmitter {
     await this.client.unsubscribe(topic);
   }
 }
-
-/*
-const client = mqtt.connect('mqtt://localhost');
-
-client.on('connect', () => {
-  let status = false;
-  setInterval(() => {
-    status = !status;
-    client.publish('test/status', encoding.writeBool(status), {
-      retain: true,
-      qos: 0
-    });
-  }, 1000);
-
-  client.subscribe('#');
-
-  client.on('message', (topic, message) => {
-    console.log(topic, encoding.readBool(message));
-  });
-});
-*/
