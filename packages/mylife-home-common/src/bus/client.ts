@@ -30,6 +30,10 @@ export class Client extends EventEmitter {
     this.client.on('connect', () => fireAsync(async () => {
       await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
       this.onlineChange(true);
+
+      if(this.subscriptions.size) {
+        await this.client.subscribe(Array.from(this.subscriptions));
+      }
     }));
 
     this.client.on('close', () => this.onlineChange(false));
@@ -48,14 +52,6 @@ export class Client extends EventEmitter {
     }
     this._online = value;
     this.emit('onlineChange', value);
-
-    if(this.online) {
-      fireAsync(async () => {
-        if(this.subscriptions.size) {
-          await this.client.subscribe(Array.from(this.subscriptions));
-        }
-      });
-    }
   }
 
   get online(): boolean {
