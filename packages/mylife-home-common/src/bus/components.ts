@@ -27,6 +27,7 @@ class ComponentBase {
 
     this.subscriptions.set(topic, handler);
     await this.client.subscribe(topic);
+    return true;
   }
 
   private onMessage(topic: string, data: Buffer): void {
