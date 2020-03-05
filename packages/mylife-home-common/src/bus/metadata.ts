@@ -79,18 +79,19 @@ export class Metadata {
   }
 
   async set(path: string, value: any): Promise<void> {
-    const topic = this.client.buildTopic(DOMAIN, ...path);
+    const topic = this.client.buildTopic(DOMAIN, path);
     await this.client.publish(topic, encoding.writeJson(value), true);
   }
 
   async clear(path: string): Promise<void> {
-    const topic = this.client.buildTopic(DOMAIN, ...path);
+    const topic = this.client.buildTopic(DOMAIN, path);
     await this.client.publish(topic, Buffer.allocUnsafe(0));
   }
 
-  async getView(remoteInstanceName: string): Promise<RemoteMetadataView> {
+  async createView(remoteInstanceName: string): Promise<RemoteMetadataView> {
     const view = new RemoteMetadataViewImpl(this.client, remoteInstanceName);
     this.views.add(view);
+    await view.init();
     return view;
   }
 
