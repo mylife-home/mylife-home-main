@@ -47,8 +47,14 @@ class Proxy {
       this.serverSocket = socket;
       this.clientSocket = net.connect(this.targetPort, this.targetHost);
 
+      this.clientSocket.on('end', () => this.reset());
+      this.serverSocket.on('end', () => this.reset());
       this.clientSocket.on('close', () => this.reset());
       this.serverSocket.on('close', () => this.reset());
+
+      this.clientSocket.on('error', (err) => console.error('clientSocket', err));
+      this.serverSocket.on('error', (err) => console.error('serverSocket', err));
+
       this.clientSocket.on('data', data => this.serverSocket.write(data));
       this.serverSocket.on('data', data => this.clientSocket.write(data));
     });
