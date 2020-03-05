@@ -1,6 +1,7 @@
 import { Client } from './client';
 import * as encoding from './encoding';
 import { fireAsync } from '../tools';
+import { TransportOptions } from './transport';
 
 const DOMAIN: string = 'rpc';
 const SERVICES: string = 'services';
@@ -73,7 +74,7 @@ class Service {
 export class Rpc {
   private readonly services: Map<string, Service> = new Map<string, Service>();
 
-  constructor(private readonly client: Client) {
+  constructor(private readonly client: Client, options: TransportOptions) {
   }
 
   async serve(address: string, implementation: (data: any) => Promise<any>): Promise<void> {
