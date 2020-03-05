@@ -177,7 +177,6 @@ describe('bus/components', () => {
     }
   });
 
-
   it('should get state on registration even if server left', async () => {
     const session = new MqttTestSession();
     await session.init();
