@@ -10,8 +10,7 @@ describe('bus/presence', () => {
     try {
 
       const spy = sinon.fake();
-      const tester = await session.createTransport('tester');
-      tester.presence.track = true;
+      const tester = await session.createTransport('tester', { presenceTracking: true });
       tester.presence.on('instanceChange', spy);
 
       const other = await session.createTransport('other');
@@ -40,8 +39,7 @@ describe('bus/presence', () => {
     try {
 
       const spy = sinon.fake();
-      const tester = await session.createTransport('tester');
-      tester.presence.track = true;
+      const tester = await session.createTransport('tester', { presenceTracking: true });
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
@@ -78,8 +76,7 @@ describe('bus/presence', () => {
     try {
 
       const spy = sinon.fake();
-      const tester = await session.createTransport('tester');
-      tester.presence.track = true;
+      const tester = await session.createTransport('tester', { presenceTracking: true });
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
@@ -108,8 +105,7 @@ describe('bus/presence', () => {
     try {
 
       const spy = sinon.fake();
-      const tester = await session.createTransport('tester');
-      tester.presence.track = true;
+      const tester = await session.createTransport('tester', { presenceTracking: true });
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
