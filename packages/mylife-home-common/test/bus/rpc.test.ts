@@ -109,6 +109,30 @@ describe('bus/rpc', () => {
       await session.terminate();
     } 
   });
+
+  it('should be able to register rpc server while offline', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+
+      const client = await session.createTransport('client');
+      const server = await session.createTransport('server');
+
+      await session.disconnectTransport('server');
+      const serverImpl = sinon.fake.returns({ type: 'response' });
+      await server.rpc.serve(RPC_ADDRESS, serverImpl);
+      await session.reconnectTransport('server');
+
+      const result = await client.rpc.call('server', RPC_ADDRESS, { type: 'request'});
+
+      expect(result).to.deep.equal({ type: 'response' });
+      expect(serverImpl.calledOnce).to.be.true;
+      expect(serverImpl.firstCall.args[0]).to.deep.equal({ type: 'request'});
+
+    } finally {
+      await session.terminate();
+    }
+  });
 });
 
 async function delayError(target: () => Promise<void>): Promise<() => void> {
