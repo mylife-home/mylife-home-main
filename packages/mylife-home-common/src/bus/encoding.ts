@@ -41,7 +41,7 @@ export function readUInt32(buffer: Buffer): number {
 }
 
 export function writeUInt32(value: number): Buffer {
-  const buffer = Buffer.allocUnsafe(1);
+  const buffer = Buffer.allocUnsafe(4);
   buffer.writeUInt32LE(value, 0);
   return buffer;
 }
@@ -51,7 +51,7 @@ export function readInt32(buffer: Buffer): number {
 }
 
 export function writeInt32(value: number): Buffer {
-  const buffer = Buffer.allocUnsafe(1);
+  const buffer = Buffer.allocUnsafe(4);
   buffer.writeInt32LE(value, 0);
   return buffer;
 }
