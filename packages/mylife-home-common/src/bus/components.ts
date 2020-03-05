@@ -1,7 +1,7 @@
 import { Client } from './client';
 import { TransportOptions } from './transport';
 
-const DOMAIN: string = 'localComponents';
+const DOMAIN: string = 'components';
 
 export interface LocalComponent {
   registerAction(name: string, impl: (value: Buffer) => void): Promise<void>;
