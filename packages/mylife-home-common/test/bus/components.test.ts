@@ -103,92 +103,72 @@ describe('bus/components', () => {
       await session.terminate();
     }
   });
-  /*
-    it('should not mismatch while using multiple RPC channels', async () => {
-      const session = new MqttTestSession();
-      await session.init();
-      try {
-  
-        const client = await session.createTransport('client');
-        const server = await session.createTransport('server');
-  
-        const serverImpl1 = sinon.fake.returns({ type: 'response', channel: RPC_ADDRESS });
-        const serverImpl2 = sinon.fake.returns({ type: 'response', channel: RPC_ADDRESS2 });
-  
-        await server.rpc.serve(RPC_ADDRESS, serverImpl1);
-        await server.rpc.serve(RPC_ADDRESS2, serverImpl2);
-  
-        const [result1, result2] = await Promise.all([
-          client.rpc.call('server', RPC_ADDRESS, { type: 'request', channel: RPC_ADDRESS }),
-          client.rpc.call('server', RPC_ADDRESS2, { type: 'request', channel: RPC_ADDRESS2 })
-        ]);
-  
-        expect(result1).to.deep.equal({ type: 'response', channel: RPC_ADDRESS });
-        expect(serverImpl1.calledOnce).to.be.true;
-        expect(serverImpl1.firstCall.args[0]).to.deep.equal({ type: 'request', channel: RPC_ADDRESS });
-  
-        expect(result2).to.deep.equal({ type: 'response', channel: RPC_ADDRESS2 });
-        expect(serverImpl2.calledOnce).to.be.true;
-        expect(serverImpl2.firstCall.args[0]).to.deep.equal({ type: 'request', channel: RPC_ADDRESS2 });
-  
-      } finally {
-        await session.terminate();
-      }
-    });
-  
-    it('should not mismatch while having multiple RPC clients', async () => {
-      const session = new MqttTestSession();
-      await session.init();
-      try {
-  
-        const client1 = await session.createTransport('client1');
-        const client2 = await session.createTransport('client2');
-        const server = await session.createTransport('server');
-  
-        const serverImpl = sinon.fake.returns({ type: 'response' });
-  
-        await server.rpc.serve(RPC_ADDRESS, serverImpl);
-  
-        const [result1, result2] = await Promise.all([
-          client1.rpc.call('server', RPC_ADDRESS, { type: 'request' }),
-          client2.rpc.call('server', RPC_ADDRESS, { type: 'request' })
-        ]);
-  
-        expect(result1).to.deep.equal({ type: 'response' });
-        expect(result2).to.deep.equal({ type: 'response' });
-  
-        const calls = serverImpl.getCalls();
-        expect(calls.length).to.equal(2);
-        expect(calls[0].args[0]).to.deep.equal({ type: 'request' });
-        expect(calls[1].args[0]).to.deep.equal({ type: 'request' });
-  
-      } finally {
-        await session.terminate();
-      } 
-    });
-  
-    it('should be able to register rpc server while offline', async () => {
-      const session = new MqttTestSession();
-      await session.init();
-      try {
-  
-        const client = await session.createTransport('client');
-        const server = await session.createTransport('server');
-  
-        await session.disconnectTransport('server');
-        const serverImpl = sinon.fake.returns({ type: 'response' });
-        await server.rpc.serve(RPC_ADDRESS, serverImpl);
-        await session.reconnectTransport('server');
-  
-        const result = await client.rpc.call('server', RPC_ADDRESS, { type: 'request'});
-  
-        expect(result).to.deep.equal({ type: 'response' });
-        expect(serverImpl.calledOnce).to.be.true;
-        expect(serverImpl.firstCall.args[0]).to.deep.equal({ type: 'request'});
-  
-      } finally {
-        await session.terminate();
-      }
-    });
-    */
+
+  it('should transmit action', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+      const client = await session.createTransport('client');
+
+      const local = server.components.addLocalComponent('test-component');
+      const handler = sinon.fake();
+      await local.registerAction('action', handler);
+
+      const remote = client.components.trackRemoteComponent('server', 'test-component');
+      await remote.emitAction('action', encoding.writeInt32(42));
+
+      expect(handler.calledOnce);
+      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
+  it('should transmit state', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+      const client = await session.createTransport('client');
+
+      const remote = client.components.trackRemoteComponent('server', 'test-component');
+      const handler = sinon.fake();
+      await remote.registerStateChange('state', handler);
+
+      const local = server.components.addLocalComponent('test-component');
+      await local.setState('state', encoding.writeInt32(42));
+
+      expect(handler.calledOnce);
+      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
+  it('should get state on registration', async () => {
+    const session = new MqttTestSession();
+    await session.init();
+    try {
+      const server = await session.createTransport('server');
+      const client = await session.createTransport('client');
+
+      const local = server.components.addLocalComponent('test-component');
+      await local.setState('state', encoding.writeInt32(42));
+
+      // register after set state
+      const remote = client.components.trackRemoteComponent('server', 'test-component');
+      const handler = sinon.fake();
+      await remote.registerStateChange('state', handler);
+
+      expect(handler.calledOnce);
+      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+
+    } finally {
+      await session.terminate();
+    }
+  });
+
 });
