@@ -59,7 +59,7 @@ class LocalComponentImpl extends ComponentBase implements LocalComponent {
 
   async setState(name: string, value: Buffer) {
     const topic = this.client.buildTopic(DOMAIN, this.id, name);
-    await this.client.publish(topic, value);
+    await this.client.publish(topic, value, true);
   }
 }
 

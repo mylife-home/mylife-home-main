@@ -118,7 +118,7 @@ describe('bus/components', () => {
       const remote = client.components.trackRemoteComponent('server', 'test-component');
       await remote.emitAction('action', encoding.writeInt32(42));
 
-      expect(handler.calledOnce);
+      expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
 
     } finally {
@@ -140,7 +140,7 @@ describe('bus/components', () => {
       const local = server.components.addLocalComponent('test-component');
       await local.setState('state', encoding.writeInt32(42));
 
-      expect(handler.calledOnce);
+      expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
 
     } finally {
@@ -163,7 +163,7 @@ describe('bus/components', () => {
       const handler = sinon.fake();
       await remote.registerStateChange('state', handler);
 
-      expect(handler.calledOnce);
+      expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
 
     } finally {
