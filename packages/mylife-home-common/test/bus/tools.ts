@@ -177,3 +177,15 @@ async function waitForDisconnected(transport: Transport) {
     transport.on('onlineChange', onOnlineChange);
   });
 }
+
+export async function delayError(target: () => Promise<void>): Promise<() => void> {
+  try {
+    await target();
+  } catch (err) {
+    return () => {
+      throw err;
+    };
+  }
+
+  return () => { };
+}

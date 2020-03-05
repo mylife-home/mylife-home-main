@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MqttTestSession } from './tools';
+import { MqttTestSession, delayError } from './tools';
 
 const RPC_ADDRESS = 'testRpc';
 const RPC_ADDRESS2 = 'testRpc2';
@@ -134,15 +134,3 @@ describe('bus/rpc', () => {
     }
   });
 });
-
-async function delayError(target: () => Promise<void>): Promise<() => void> {
-  try {
-    await target();
-  } catch (err) {
-    return () => {
-      throw err;
-    };
-  }
-
-  return () => { };
-}
