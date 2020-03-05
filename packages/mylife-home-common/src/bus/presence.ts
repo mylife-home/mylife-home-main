@@ -11,36 +11,19 @@ export declare interface Presence {
 
 export class Presence extends EventEmitter {
 
-  private _track: boolean = false;
+  public readonly tracking: boolean;
   private readonly onlineInstances = new Set<string>();
-  private readonly onlineChangeCb = (online: boolean) => this.onOnlineChange(online);
-  private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
 
   constructor(private readonly client: Client, options: TransportOptions) {
     super();
-  }
+    this.tracking = options.presenceTracking || false;
 
-  get track() {
-    return this._track;
-  }
+    if (this.tracking) {
+      this.client.on('onlineChange', (online) => this.onOnlineChange(online));
+      this.client.on('message', (topic, payload) => this.onMessage(topic, payload));
 
-  set track(value: boolean) {
-    if (this._track === value) {
-      return;
-    }
-
-    this._track = value;
-    if (this._track) {
-      this.client.on('onlineChange', this.onlineChangeCb);
-      this.client.on('message', this.messageCb);
-  
       fireAsync(() => this.client.subscribe('+/online'));
-    } else {
-      this.client.off('onlineChange', this.onlineChangeCb);
-      this.client.off('message', this.messageCb);
-      this.onlineInstances.clear();
-  
-      fireAsync(() => this.client.unsubscribe('+/online'));
+
     }
   }
 
