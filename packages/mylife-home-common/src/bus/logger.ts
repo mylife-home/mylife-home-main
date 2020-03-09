@@ -1,6 +1,6 @@
 import { Client } from './client';
 import { TransportOptions } from './transport';
-import { Writable, WritableOptions, Readable, ReadableOptions } from 'stream';
+import { Writable, WritableOptions, Readable, ReadableOptions, PassThrough, TransformOptions } from 'stream';
 import { fireAsync } from '../tools';
 
 const DOMAIN = 'logger';
@@ -17,7 +17,7 @@ class PublishStream extends Writable {
   }
 
   _write(chunk: any, encoding: string, callback: (error?: Error | null) => void) {
-    this.send(chunk).then(() => callback(), reason => callback(reason));
+    promiseToCallback(this.send(chunk), callback);
   }
 
   private async send(chunk: Buffer) {
@@ -52,6 +52,41 @@ class PublishStream extends Writable {
   }
 }
 
+class SubscribeStream extends PassThrough {
+
+  private readonly topic = this.client.buildRemoteTopic('+', DOMAIN);
+  private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
+
+  constructor(private readonly client: Client, options?: TransformOptions) {
+    super(options);
+    fireAsync(async () => this.init());
+  }
+
+  _destroy(error: Error | null, callback: (error?: Error | null) => void): void {
+    promiseToCallback(this.terminate(), callback);
+  }
+
+  private async init() {
+    this.client.on('message', this.messageCb);
+    await this.client.subscribe(this.topic);
+  }
+
+  private async terminate() {
+    this.client.off('message', this.messageCb);
+    await this.client.unsubscribe(this.topic);
+  }
+
+  private onMessage(topic: string, payload: Buffer) {
+    const parts = topic.split('/');
+    if (parts.length !== 2 || parts[1] !== DOMAIN) {
+      return;
+    }
+
+    this.write(payload);
+  }
+
+}
+
 export class Logger {
   constructor(private readonly client: Client, options: TransportOptions) {
   }
@@ -61,6 +96,11 @@ export class Logger {
   }
 
   createAggregatedReadableStream(): Readable {
-    throw new Error('TODO');
+    const stream = new SubscribeStream(this.client);
+    return stream;
   }
+}
+
+function promiseToCallback<T>(promise: Promise<T>, callback: (error?: Error, result?: T) => void) {
+  promise.then(result => callback(null, result), error => callback(error));
 }
