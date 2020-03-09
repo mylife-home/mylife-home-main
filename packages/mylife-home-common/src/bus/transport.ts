@@ -8,6 +8,7 @@ import { Logger } from './logger';
 
 export interface TransportOptions {
   presenceTracking?: boolean;
+  loggerOfflineRetention?: number;
 }
 
 export declare interface Transport {
