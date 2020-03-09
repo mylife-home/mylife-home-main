@@ -10,7 +10,7 @@ class PublishStream extends Writable {
   private readonly offlineQueue: Buffer[] = [];
   private readonly topic = this.client.buildTopic(DOMAIN);
 
-  constructor(private readonly client: Client, private readonly offlineRetention: number = DEFAULT_OFFLINE_RETENTION, options?: WritableOptions) {
+  constructor(private readonly client: Client, private readonly offlineRetention: number, options?: WritableOptions) {
     super(options);
 
     this.client.on('onlineChange', online => this.onOnlineChange(online));
@@ -88,11 +88,14 @@ class SubscribeStream extends PassThrough {
 }
 
 export class Logger {
+  private readonly offlineRetention: number;
+
   constructor(private readonly client: Client, options: TransportOptions) {
+    this.offlineRetention = options.loggerOfflineRetention || DEFAULT_OFFLINE_RETENTION;
   }
 
   createWritableStream(): Writable {
-    return new PublishStream(this.client);
+    return new PublishStream(this.client, this.offlineRetention);
   }
 
   createAggregatedReadableStream(): Readable {
