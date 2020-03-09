@@ -4,6 +4,7 @@ import { Rpc } from './rpc';
 import { Presence } from './presence';
 import { Components } from './components';
 import { Metadata } from './metadata';
+import { Logger } from './logger';
 
 export interface TransportOptions {
   presenceTracking?: boolean;
@@ -22,6 +23,7 @@ export class Transport extends EventEmitter {
   public readonly presence: Presence;
   public readonly components: Components;
   public readonly metadata: Metadata;
+  public readonly logger: Logger;
 
   constructor(private readonly instanceName: string, serverUrl: string, options: TransportOptions = {}) {
     super();
@@ -35,6 +37,7 @@ export class Transport extends EventEmitter {
     this.presence = new Presence(this.client, options);
     this.components = new Components(this.client, options);
     this.metadata = new Metadata(this.client, options);
+    this.logger = new Logger(this.client, options);
   }
 
   get online(): boolean {
