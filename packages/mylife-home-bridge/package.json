@@ -1,8 +1,8 @@
 {
-  "name": "mylife-home-common",
+  "name": "mylife-home-bridge",
   "version": "1.0.0",
-  "description": "MyLife Home Common tools",
-  "author": "vincent-tr <vincent@stoic.com>",
+  "description": "MyLife Home Brige to old IRC bus",
+  "author": "vincent-tr <vincent.tr@gmail.com>",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
   "license": "GPL-3.0-or-later",
   "main": "dist/main.js",
@@ -13,23 +13,22 @@
   },
   "scripts": {
     "build": "tsc",
+    "start": "node dist/main.js",
     "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
+  "bugs": {
+    "url": "https://github.com/mylife-home/mylife-home-main/issues"
+  },
   "devDependencies": {
-    "@types/chai": "^4.2.8",
-    "@types/mocha": "^7.0.1",
-    "@types/mosca": "^2.8.2",
-    "@types/node": "^13.7.0",
-    "@types/sinon": "^7.5.2",
-    "aedes": "^0.40.1",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.11.1",
     "chai": "^4.2.0",
-    "mocha": "^7.0.1",
-    "sinon": "^9.0.0",
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.5"
+    "mocha": "^7.1.1",
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "async-mqtt": "^2.5.0",
-    "bunyan": "^1.8.12"
+    "mylife-home-common": "^1.0.0"
   }
 }
