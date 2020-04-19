@@ -1,7 +1,10 @@
 import 'reflect-metadata';
-import { ComponentType } from './common';
 import { StateOptions, ActionOptions, ComponentOptions } from './decorators';
 import { Type, getPrimitive, getDefaultType } from './types';
+
+interface ComponentType extends Function {
+  new (...args: any[]): any;
+}
 
 const descriptors = new Map<ComponentType, ComponentDescriptor>();
 
@@ -84,6 +87,17 @@ export class ComponentDescriptor {
       this.states.set(descriptor.name, descriptor);
     }
     Object.freeze(this.states);
+  }
+
+  toMetadata(): any {
+    const members: any = {};
+    for (const descriptor of this.actions.values()) {
+      members[descriptor.name] = { member: 'action', type: descriptor.type };
+    }
+    for (const descriptor of this.states.values()) {
+      members[descriptor.name] = { member: 'state', type: descriptor.type };
+    }
+    return { name: this.name, members };
   }
 }
 
