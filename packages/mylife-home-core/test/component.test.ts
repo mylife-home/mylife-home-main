@@ -16,6 +16,6 @@ class TestComponent {
 
 describe('components', () => {
   it('should ...', () => {
-    console.log(getDescriptor(TestComponent));
+    console.log(getDescriptor(TestComponent).toMetadata());
   });
 });
