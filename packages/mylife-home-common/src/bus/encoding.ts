@@ -56,6 +56,16 @@ export function writeInt32(value: number): Buffer {
   return buffer;
 }
 
+export function readFloat(buffer: Buffer): number {
+  return buffer.readFloatLE(0);
+}
+
+export function writeFloat(value: number): Buffer {
+  const buffer = Buffer.allocUnsafe(4);
+  buffer.writeFloatLE(value, 0);
+  return buffer;
+}
+
 export function readJson(buffer: Buffer): any {
   return JSON.parse(readString(buffer));
 }
