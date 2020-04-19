@@ -1,2 +1,3 @@
 export * from './decorators';
-export { getTypes } from './registry';
+export { getDescriptors, getDescriptor, ComponentDescriptor } from './descriptors';
+export { Type } from './types';
