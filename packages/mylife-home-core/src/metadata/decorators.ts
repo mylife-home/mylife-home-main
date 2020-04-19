@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { registerType } from './registry';
+import { addComponent, addAction, addState } from './descriptors';
+import { Type } from './types';
 
 export type Constructor = {
   new (...args: any[]): any;
@@ -16,20 +17,18 @@ export function component(optionsOrTarget: ComponentOptions | Constructor) {
   if (optionsOrTarget instanceof Function) {
     const target = optionsOrTarget;
     const options: ComponentOptions = {};
-    Reflect.defineMetadata('mylife-home:component', options, target);
-    registerType(target);
+    addComponent(target, options);
     return;
   }
 
   const options = optionsOrTarget;
   return (target: Constructor) => {
-    Reflect.defineMetadata('mylife-home:component', options, target);
-    registerType(target);
+    addComponent(target, options);
   };
 }
 
 export interface ActionOptions {
-  readonly type?: string;
+  readonly type?: Type;
 }
 
 export function action(target: any, propertyKey: string): void;
@@ -38,32 +37,32 @@ export function action(optionsOrTarget: any, propertyKey?: string) {
   if (propertyKey) {
     const target = optionsOrTarget;
     const options: ActionOptions = {};
-    Reflect.defineMetadata('mylife-home:component', options, target, propertyKey);
+    addAction(target.constructor, propertyKey, options);
     return;
   }
 
   const options = optionsOrTarget as ActionOptions;
   return (target: any, propertyKey: string) => {
-    Reflect.defineMetadata('mylife-home:component', options, target), propertyKey;
+    addAction(target.constructor, propertyKey, options);
   };
 }
 
 export interface StateOptions {
-  readonly type?: string;
+  readonly type?: Type;
 }
 
 export function state(target: any, propertyKey: string): void;
 export function state(options: StateOptions): (target: any, propertyKey: string) => void;
 export function state(optionsOrTarget: any, propertyKey?: string) {
-  if (optionsOrTarget instanceof Function) {
+  if (propertyKey) {
     const target = optionsOrTarget;
     const options: StateOptions = {};
-    Reflect.defineMetadata('mylife-home:component', options, target, propertyKey);
+    addState(target.constructor, propertyKey, options);
     return;
   }
 
   const options = optionsOrTarget as StateOptions;
   return (target: any, propertyKey: string) => {
-    Reflect.defineMetadata('mylife-home:component', options, target), propertyKey;
+    addState(target.constructor, propertyKey, options);
   };
 }

@@ -1,7 +1,7 @@
 import 'mocha';
-import { expect } from 'chai';
-import { component, state, action, getTypes } from '../src/metadata';
 import 'reflect-metadata';
+import { expect } from 'chai';
+import { component, state, action, getDescriptor, ComponentDescriptor } from '../src/metadata';
 
 @component({ name: 'overridden-name'})
 class TestComponent {
@@ -16,8 +16,6 @@ class TestComponent {
 
 describe('components', () => {
   it('should ...', () => {
-    
-    console.log(getTypes());
-
+    console.log(getDescriptor(TestComponent));
   });
 });
