@@ -75,7 +75,7 @@ export class ComponentDescriptor {
   readonly name: string;
 
   constructor(readonly componentType: ComponentType, options: ComponentOptions, actions: Map<string, ActionOptions>, states: Map<string, StateOptions>) {
-    this.name = formatClassName(componentType.name);
+    this.name = options.name || formatClassName(componentType.name);
     for (const [name, options] of actions.entries()) {
       const descriptor = new ActionDescriptor(componentType, name, options);
       this.actions.set(descriptor.name, descriptor);
