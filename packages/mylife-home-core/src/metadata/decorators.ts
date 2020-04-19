@@ -1,19 +1,10 @@
 import 'reflect-metadata';
+import { registerType } from './registry';
 
 export type Constructor = {
-  new (...args: any[]): any,
-  name: string
+  new (...args: any[]): any;
+  name: string;
 };
-
-const types = new Set<Constructor>();
-
-function registerType(type: Constructor) {
-  types.add(type);
-}
-
-export function getTypes() {
-  return types;
-}
 
 export interface ComponentOptions {
   readonly name?: string;
@@ -22,7 +13,7 @@ export interface ComponentOptions {
 export function component(target: Constructor): void;
 export function component(options: ComponentOptions): (target: Constructor) => void;
 export function component(optionsOrTarget: ComponentOptions | Constructor) {
-  if(optionsOrTarget instanceof Function) {
+  if (optionsOrTarget instanceof Function) {
     const target = optionsOrTarget;
     const options: ComponentOptions = {};
     Reflect.defineMetadata('mylife-home:component', options, target);
@@ -44,7 +35,7 @@ export interface ActionOptions {
 export function action(target: any, propertyKey: string): void;
 export function action(options: ActionOptions): (target: any, propertyKey: string) => void;
 export function action(optionsOrTarget: any, propertyKey?: string) {
-  if(propertyKey) {
+  if (propertyKey) {
     const target = optionsOrTarget;
     const options: ActionOptions = {};
     Reflect.defineMetadata('mylife-home:component', options, target, propertyKey);
@@ -64,7 +55,7 @@ export interface StateOptions {
 export function state(target: any, propertyKey: string): void;
 export function state(options: StateOptions): (target: any, propertyKey: string) => void;
 export function state(optionsOrTarget: any, propertyKey?: string) {
-  if(optionsOrTarget instanceof Function) {
+  if (optionsOrTarget instanceof Function) {
     const target = optionsOrTarget;
     const options: StateOptions = {};
     Reflect.defineMetadata('mylife-home:component', options, target, propertyKey);
