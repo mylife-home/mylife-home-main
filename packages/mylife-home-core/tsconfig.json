@@ -5,6 +5,8 @@
         "module": "commonjs",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "target": "es6",
         "noImplicitAny": true,
         "moduleResolution": "node",
