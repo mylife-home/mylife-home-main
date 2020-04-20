@@ -136,16 +136,30 @@ export class ComponentDescriptor {
   getDesignerMetadata(): any {
     const members: any = {};
     for (const descriptor of this.actions.values()) {
-      members[descriptor.name] = { member: 'action', description: descriptor.description, type: descriptor.type };
+      const meta = { member: 'action', type: descriptor.type };
+      addDescription(meta, descriptor);
+      members[descriptor.name] = meta;
     }
     for (const descriptor of this.states.values()) {
-      members[descriptor.name] = { member: 'state', description: descriptor.description, type: descriptor.type };
+      const meta = { member: 'state', type: descriptor.type };
+      addDescription(meta, descriptor);
+      members[descriptor.name] = meta;
     }
     const config: any = {};
     for (const descriptor of this.configs.values()) {
-      config[descriptor.name] = { description: descriptor.description, type: descriptor.type };
+      const meta = { type: descriptor.type };
+      addDescription(meta, descriptor);
+      config[descriptor.name] = meta;
     }
-    return { name: this.name, description: this.description, members, config };
+    const meta = { name: this.name, members, config };
+    addDescription(meta, this);
+    return meta;
+  }
+}
+
+function addDescription(meta: any, descriptor: { readonly description: string }) {
+  if(descriptor.description) {
+    meta.description = descriptor.description;
   }
 }
 
