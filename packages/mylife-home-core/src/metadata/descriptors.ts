@@ -1,15 +1,23 @@
 import 'reflect-metadata';
-import { StateOptions, ActionOptions, ComponentOptions } from './decorators';
-import { Type, getPrimitive, getDefaultType } from './types';
+import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
+import { NetType, getPrimitive, getDefaultType, ConfigType } from './types';
 
-interface ComponentType extends Function {
-  new (...args: any[]): any;
+export interface ComponentType extends Function {
+  new(...args: any[]): any;
 }
 
 const descriptors = new Map<ComponentType, ComponentDescriptor>();
 
 export function getDescriptors() {
   return new Set(descriptors.values());
+}
+
+export function clearDescriptors() {
+  descriptors.clear();
+}
+
+export function addDescriptor(descriptor: ComponentDescriptor) {
+  descriptors.set(descriptor.componentType, descriptor);
 }
 
 type Primitive = {
@@ -25,9 +33,11 @@ export function getDescriptor(type: ComponentType) {
 }
 
 export class ActionDescriptor {
-  public readonly type: Type;
+  readonly description: string;
+  readonly type: NetType;
 
   constructor(componentType: ComponentType, readonly name: string, options: ActionOptions) {
+    this.description = options.description;
     const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', componentType.prototype, name);
     if (primitives.length !== 1) {
       throw new Error(`Bad action '${name}' on component '${componentType.name}': expected 1 parameter but got ${primitives.length}`);
@@ -43,9 +53,11 @@ export class ActionDescriptor {
 }
 
 export class StateDescriptor {
-  public readonly type: Type;
+  readonly description: string;
+  readonly type: NetType;
 
   constructor(componentType: ComponentType, readonly name: string, options: StateOptions) {
+    this.description = options.description;
     const primitive: Primitive = Reflect.getMetadata('design:type', componentType.prototype, name);
 
     try {
@@ -57,7 +69,7 @@ export class StateDescriptor {
   }
 }
 
-function validateType(primitive: Primitive, providedType?: Type) {
+function validateType(primitive: Primitive, providedType?: NetType) {
   if (providedType) {
     const expectedPrimitive = getPrimitive(providedType);
     if (expectedPrimitive !== primitive.name) {
@@ -69,13 +81,28 @@ function validateType(primitive: Primitive, providedType?: Type) {
   return getDefaultType(primitive.name);
 }
 
+export class ConfigDescriptor {
+  readonly name: string;
+  readonly description: string;
+  readonly type: ConfigType;
+
+  constructor(options: ConfigOptions) {
+    this.name = options.name;
+    this.description = options.description;
+    this.type = options.type;
+  }
+}
+
 export class ComponentDescriptor {
   readonly actions = new Map<string, ActionDescriptor>();
   readonly states = new Map<string, StateDescriptor>();
+  readonly configs = new Map<string, ConfigDescriptor>();
   readonly name: string;
+  readonly description: string;
 
-  constructor(readonly componentType: ComponentType, options: ComponentOptions, actions: Map<string, ActionOptions>, states: Map<string, StateOptions>) {
+  constructor(readonly componentType: ComponentType, options: ComponentOptions, actions: Map<string, ActionOptions>, states: Map<string, StateOptions>, configs: Set<ConfigOptions>) {
     this.name = options.name || formatClassName(componentType.name);
+    this.description = options.description;
     for (const [name, options] of actions.entries()) {
       const descriptor = new ActionDescriptor(componentType, name, options);
       this.actions.set(descriptor.name, descriptor);
@@ -87,9 +114,15 @@ export class ComponentDescriptor {
       this.states.set(descriptor.name, descriptor);
     }
     Object.freeze(this.states);
+
+    for (const options of configs) {
+      const descriptor = new ConfigDescriptor(options);
+      this.configs.set(descriptor.name, descriptor);
+    }
+    Object.freeze(this.configs);
   }
 
-  toMetadata(): any {
+  getNetMetadata(): any {
     const members: any = {};
     for (const descriptor of this.actions.values()) {
       members[descriptor.name] = { member: 'action', type: descriptor.type };
@@ -99,6 +132,21 @@ export class ComponentDescriptor {
     }
     return { name: this.name, members };
   }
+
+  getDesignerMetadata(): any {
+    const members: any = {};
+    for (const descriptor of this.actions.values()) {
+      members[descriptor.name] = { member: 'action', description: descriptor.description, type: descriptor.type };
+    }
+    for (const descriptor of this.states.values()) {
+      members[descriptor.name] = { member: 'state', description: descriptor.description, type: descriptor.type };
+    }
+    const config: any = {};
+    for (const descriptor of this.configs.values()) {
+      config[descriptor.name] = { description: descriptor.description, type: descriptor.type };
+    }
+    return { name: this.name, description: this.description, members, config };
+  }
 }
 
 function formatClassName(name: string) {
@@ -107,55 +155,4 @@ function formatClassName(name: string) {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/\s+/g, '-')
     .toLowerCase();
-}
-
-class DescriptorBuilder {
-  private readonly actions = new Map<string, ActionOptions>();
-  private readonly states = new Map<string, StateOptions>();
-
-  constructor(private readonly type: ComponentType) {}
-
-  private checkType(type: ComponentType, name: string, memberType: string) {
-    if (type !== this.type) {
-      throw new Error(`Wrong type while declaring ${memberType} '${name}' on '${type.name}'. Type '${this.type.name}' should miss the 'component' decorator.`);
-    }
-  }
-
-  addAction(type: ComponentType, name: string, options: ActionOptions) {
-    this.checkType(type, name, 'action');
-    this.actions.set(name, options);
-  }
-
-  addState(type: ComponentType, name: string, options: StateOptions) {
-    this.checkType(type, name, 'state');
-    this.states.set(name, options);
-  }
-
-  build(type: ComponentType, options: ComponentOptions) {
-    const descriptor = new ComponentDescriptor(type, options, this.actions, this.states);
-    descriptors.set(type, descriptor);
-  }
-}
-
-let currentBuilder: DescriptorBuilder;
-
-function getBuilder(type: ComponentType) {
-  if (!currentBuilder) {
-    currentBuilder = new DescriptorBuilder(type);
-  }
-
-  return currentBuilder;
-}
-
-export function addAction(type: ComponentType, name: string, options: ActionOptions) {
-  getBuilder(type).addAction(type, name, options);
-}
-
-export function addState(type: ComponentType, name: string, options: StateOptions) {
-  getBuilder(type).addState(type, name, options);
-}
-
-export function addComponent(type: ComponentType, options: ComponentOptions) {
-  getBuilder(type).build(type, options);
-  currentBuilder = null;
 }

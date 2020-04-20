@@ -1,12 +1,13 @@
 import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { component, state, action, getDescriptor, ComponentDescriptor, Type } from '../src/metadata';
+import { component, config, state, action, getDescriptor, NetType, ConfigType, build } from '../src/metadata';
 
 describe('components', () => {
   it('should produce right medata using basic decorators', () => {
     @component
-    class TestComponent1 {
+    @config({ name: 'config1', type: ConfigType.STRING })
+    class TestComponent {
       @state
       value: number;
 
@@ -16,32 +17,53 @@ describe('components', () => {
       }
     }
 
-    expect(getDescriptor(TestComponent1).toMetadata()).to.deep.equal({
+    build();
+
+    expect(getDescriptor(TestComponent).getNetMetadata()).to.deep.equal({
+      name: 'test-component',
+      members: {
+        value: { member: 'state', type: NetType.FLOAT },
+        setValue: { member: 'action', type: NetType.FLOAT },
+      },
+    });
+
+
+    expect(getDescriptor(TestComponent).getDesignerMetadata()).to.deep.equal({
       name: 'test-component1',
       members: {
-        value: { member: 'state', type: Type.FLOAT },
-        setValue: { member: 'action', type: Type.FLOAT },
+        value: { member: 'state', type: NetType.FLOAT },
+        setValue: { member: 'action', type: NetType.FLOAT },
       },
     });
   });
 
   it('should produce right medata using advanced decorators', () => {
-    @component({ name: 'overridden-name' })
-    class TestComponent2 {
-      @state({ type: Type.INT32 })
+    @component({ name: 'overridden-name', description: 'component description' })
+    class TestComponent {
+      @state({ description: 'state description', type: NetType.INT32 })
       value: number;
 
-      @action({ type: Type.UINT8 })
+      @action({ description: 'action description', type: NetType.UINT8 })
       setValue(newValue: number) {
         this.value = newValue;
       }
     }
 
-    expect(getDescriptor(TestComponent2).toMetadata()).to.deep.equal({
+    build();
+
+    expect(getDescriptor(TestComponent).getNetMetadata()).to.deep.equal({
       name: 'overridden-name',
       members: {
-        value: { member: 'state', type: Type.INT32 },
-        setValue: { member: 'action', type: Type.UINT8 },
+        value: { member: 'state', type: NetType.INT32 },
+        setValue: { member: 'action', type: NetType.UINT8 },
+      },
+    });
+
+    expect(getDescriptor(TestComponent).getDesignerMetadata()).to.deep.equal({
+      name: 'overridden-name',
+      members: {
+        value: { member: 'state', type: NetType.INT32 },
+        setValue: { member: 'action', type: NetType.UINT8 },
       },
     });
   });

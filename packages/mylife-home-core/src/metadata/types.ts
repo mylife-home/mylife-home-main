@@ -1,4 +1,4 @@
-export enum Type {
+export enum NetType {
   STRING = 'string',
   BOOL = 'bool',
   UINT8 = 'uint8',
@@ -8,31 +8,38 @@ export enum Type {
   FLOAT = 'float',
 }
 
-export function getPrimitive(type: Type): string {
+export enum ConfigType {
+  STRING = 'string',
+  BOOL = 'bool',
+  INTEGER = 'integer',
+  FLOAT = 'float',
+}
+
+export function getPrimitive(type: NetType): string {
   switch (type) {
-    case Type.STRING:
+    case NetType.STRING:
       return 'String';
-    case Type.BOOL:
+    case NetType.BOOL:
       return 'Boolean';
-    case Type.UINT8:
-    case Type.INT8:
-    case Type.UINT32:
-    case Type.INT32:
-    case Type.FLOAT:
+    case NetType.UINT8:
+    case NetType.INT8:
+    case NetType.UINT32:
+    case NetType.INT32:
+    case NetType.FLOAT:
       return 'Number';
     default:
       throw new Error(`Unsupported type '${type}'`);
   }
 }
 
-export function getDefaultType(primitive: string) : Type {
+export function getDefaultType(primitive: string) : NetType {
   switch (primitive) {
     case 'String':
-      return Type.STRING;
+      return NetType.STRING;
     case 'Boolean':
-      return Type.BOOL;
+      return NetType.BOOL;
     case 'Number':
-      return Type.FLOAT;
+      return NetType.FLOAT;
     default:
       throw new Error(`Unsupported primitive '${primitive}'`);
   }
