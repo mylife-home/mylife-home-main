@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { addComponent, addAction, addState } from './descriptors';
-import { Type } from './types';
+import { addComponent, addConfig, addAction, addState } from './builder';
+import { NetType, ConfigType } from './types';
 
 export type Constructor = {
   new (...args: any[]): any;
@@ -9,6 +9,7 @@ export type Constructor = {
 
 export interface ComponentOptions {
   readonly name?: string;
+  readonly description?: string;
 }
 
 export function component(target: Constructor): void;
@@ -27,8 +28,21 @@ export function component(optionsOrTarget: ComponentOptions | Constructor) {
   };
 }
 
+export interface ConfigOptions {
+  readonly name: string;
+  readonly description?: string;
+  readonly type: ConfigType;
+}
+
+export function config(options: ConfigOptions) {
+  return (target: Constructor) => {
+    addConfig(target, options);
+  };
+}
+
 export interface ActionOptions {
-  readonly type?: Type;
+  readonly description?: string;
+  readonly type?: NetType;
 }
 
 export function action(target: any, propertyKey: string): void;
@@ -48,7 +62,8 @@ export function action(optionsOrTarget: any, propertyKey?: string) {
 }
 
 export interface StateOptions {
-  readonly type?: Type;
+  readonly description?: string;
+  readonly type?: NetType;
 }
 
 export function state(target: any, propertyKey: string): void;
