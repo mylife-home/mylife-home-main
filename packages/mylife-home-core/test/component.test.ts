@@ -15,16 +15,17 @@ describe('components', () => {
       },
     });
   });
-  
+
   it('should produce right designer medata using basic decorators', () => {
     const descriptor = basic();
 
     expect(descriptor.getDesignerMetadata()).to.deep.equal({
-      name: 'test-component1',
+      name: 'test-component',
       members: {
         value: { member: 'state', type: NetType.FLOAT },
         setValue: { member: 'action', type: NetType.FLOAT },
       },
+      config: {}
     });
   });
 
@@ -45,17 +46,35 @@ describe('components', () => {
 
     expect(descriptor.getDesignerMetadata()).to.deep.equal({
       name: 'overridden-name',
+      description: 'component description',
       members: {
-        value: { member: 'state', type: NetType.INT32 },
-        setValue: { member: 'action', type: NetType.UINT8 },
+        value: { member: 'state', type: NetType.INT32, description: 'state description' },
+        setValue: { member: 'action', type: NetType.UINT8, description: 'action description' },
       },
+      config: {
+        config1: { type: 'string', description: 'config description' },
+        config2: { type: 'integer' },
+      }
     });
+  });
+
+  it('should fail if missing component decorator', () => {
+    class TestComponent {
+      @state
+      value: number;
+
+      @action
+      setValue(newValue: number) {
+        this.value = newValue;
+      }
+    }
+
+    expect(() => build()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
   });
 });
 
 function basic() {
   @component
-  @config({ name: 'config1', type: ConfigType.STRING })
   class TestComponent {
     @state
     value: number;
@@ -73,6 +92,8 @@ function basic() {
 
 function advanced() {
   @component({ name: 'overridden-name', description: 'component description' })
+  @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
+  @config({ name: 'config2', type: ConfigType.INTEGER })
   class TestComponent {
     @state({ description: 'state description', type: NetType.INT32 })
     value: number;
