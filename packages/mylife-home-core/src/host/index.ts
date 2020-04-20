@@ -55,7 +55,9 @@ export class Host extends EventEmitter {
 
   destroy() {
     this.destroyed = true;
-    this.component?.destroy();
+    if(this.component.destroy) {
+      this.component.destroy();
+    }
   }
 
   private checkDestroyed() {
@@ -116,31 +118,36 @@ class Action {
 }
 
 class State extends EventEmitter {
-  public readonly value: any;
+  private _value: any;
+
   constructor(component: Component, descriptor: StateDescriptor, listener: (value: any) => void) {
     super();
 
     const { name } = descriptor;
     const validator = createNetTypeValidator(descriptor.type);
-    this.value = (component as any)[name];
+    this._value = (component as any)[name];
 
     // override component value with property
     Object.defineProperty(component, name, {
-      get() {
-        return this.value;
+      get: () => {
+        return this._value;
       },
 
-      set(newValue: any) {
+      set: (newValue: any) => {
         validator(newValue);
-        if (newValue === this.value) {
+        if (newValue === this._value) {
           return;
         }
 
-        this.value = newValue;
+        this._value = newValue;
         listener(newValue);
       }
     });
   }
+
+  get value() {
+    return this._value;
+  } 
 }
 
 function validateConfigurationItem(value: any, expectedType: ConfigType) {
