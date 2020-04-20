@@ -126,6 +126,7 @@ class State extends EventEmitter {
     const { name } = descriptor;
     const validator = createNetTypeValidator(descriptor.type);
     this._value = (component as any)[name];
+    validator(this._value);
 
     // override component value with property
     Object.defineProperty(component, name, {
