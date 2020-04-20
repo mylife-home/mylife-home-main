@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { expect } from 'chai';
 import { component, config, state, action, getDescriptor, NetType, ConfigType, build } from '../src/metadata';
 
-describe('components', () => {
+describe('metadata', () => {
   it('should produce right net medata using basic decorators', () => {
     const descriptor = basic();
 
