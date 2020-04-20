@@ -1,14 +1,14 @@
 import { EventEmitter } from 'events';
 import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType, NetType } from '../metadata';
 
+interface Component {
+  destroy?: () => void;
+}
+
 export declare interface Host {
   on(event: 'state', listener: (name: string, value: any) => void): this;
   off(event: 'state', listener: (name: string, value: any) => void): this;
   once(event: 'state', listener: (name: string, value: any) => void): this;
-}
-
-interface Component {
-  destroy?: () => void;
 }
 
 export class Host extends EventEmitter {
