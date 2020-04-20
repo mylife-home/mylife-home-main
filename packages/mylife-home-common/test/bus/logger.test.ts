@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as encoding from '../../src/bus/encoding';
+import * as bus from '../../src/bus';
 import { MqttTestSession, sleep } from './tools';
 
 describe('bus/logger', () => {

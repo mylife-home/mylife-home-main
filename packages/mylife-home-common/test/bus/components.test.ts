@@ -1,7 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as encoding from '../../src/bus/encoding';
+import * as bus from '../../src/bus';
 import { MqttTestSession, delayError, sleep } from './tools';
 
 describe('bus/components', () => {
@@ -14,7 +14,7 @@ describe('bus/components', () => {
 
       const component = server.components.addLocalComponent('test-component');
       await component.registerAction('action', () => { });
-      await component.setState('state', encoding.writeBool(false));
+      await component.setState('state', bus.encoding.writeBool(false));
 
       server.components.removeLocalComponent('test-component');
 
@@ -64,7 +64,7 @@ describe('bus/components', () => {
 
       const component = server.components.trackRemoteComponent('other', 'test-component');
       await component.registerStateChange('state', () => { });
-      await component.emitAction('action', encoding.writeBool(false));
+      await component.emitAction('action', bus.encoding.writeBool(false));
 
       server.components.untrackRemoteComponent(component);
 
@@ -116,12 +116,12 @@ describe('bus/components', () => {
       await local.registerAction('action', handler);
 
       const remote = client.components.trackRemoteComponent('server', 'test-component');
-      await remote.emitAction('action', encoding.writeInt32(42));
+      await remote.emitAction('action', bus.encoding.writeInt32(42));
 
       await sleep(20);
 
       expect(handler.calledOnce).to.be.true;
-      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+      expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
 
     } finally {
       await session.terminate();
@@ -140,12 +140,12 @@ describe('bus/components', () => {
       await remote.registerStateChange('state', handler);
 
       const local = server.components.addLocalComponent('test-component');
-      await local.setState('state', encoding.writeInt32(42));
+      await local.setState('state', bus.encoding.writeInt32(42));
 
       await sleep(20);
 
       expect(handler.calledOnce).to.be.true;
-      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+      expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
 
     } finally {
       await session.terminate();
@@ -160,7 +160,7 @@ describe('bus/components', () => {
       const client = await session.createTransport('client');
 
       const local = server.components.addLocalComponent('test-component');
-      await local.setState('state', encoding.writeInt32(42));
+      await local.setState('state', bus.encoding.writeInt32(42));
       await sleep(20);
 
       // register after set state
@@ -170,7 +170,7 @@ describe('bus/components', () => {
       await sleep(20);
 
       expect(handler.calledOnce).to.be.true;
-      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+      expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
 
     } finally {
       await session.terminate();
@@ -184,7 +184,7 @@ describe('bus/components', () => {
       const server = await session.createTransport('server');
 
       const local = server.components.addLocalComponent('test-component');
-      await local.setState('state', encoding.writeInt32(42));
+      await local.setState('state', bus.encoding.writeInt32(42));
       await sleep(20);
 
       await session.closeTransport('server');
@@ -198,7 +198,7 @@ describe('bus/components', () => {
       await sleep(20);
 
       expect(handler.calledOnce).to.be.true;
-      expect(handler.lastCall.args[0]).to.deep.equal(encoding.writeInt32(42));
+      expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
 
     } finally {
       await session.terminate();
