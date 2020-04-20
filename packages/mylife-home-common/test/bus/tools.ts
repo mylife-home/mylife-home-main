@@ -1,6 +1,6 @@
 import net from 'net';
 import aedes from 'aedes';
-import { Transport, TransportOptions } from '../../src/bus/transport';
+import { Transport, TransportOptions } from '../../src/bus';
 
 const SERVER_PORT = 11883;
 const PROXY_PORT_START = 11884;
