@@ -1,10 +1,8 @@
 import { EventEmitter } from 'events';
-import { ComponentDescriptor } from './metadata';
+import { NetComponentDescriptor } from './metadata';
 
 // should have a state of remote components from bus
 // home-core should be able to add its local components
-
-// should have actions, states, and metadata of each component
 
 export interface Component extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
@@ -13,7 +11,7 @@ export interface Component extends EventEmitter {
 
   readonly instanceName: string; // or null for local
   readonly id: string;
-  readonly descriptor: ComponentDescriptor;
+  readonly descriptor: NetComponentDescriptor;
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
@@ -48,8 +46,4 @@ export class Registry extends EventEmitter implements Registry {
     this.store.delete(component);
     this.emit('remove', component);
   }
-}
-
-class BusComponentsPublisher {
-
 }
