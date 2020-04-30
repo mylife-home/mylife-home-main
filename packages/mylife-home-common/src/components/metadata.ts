@@ -8,17 +8,17 @@ export const enum NetType {
   FLOAT = 'float',
 }
 
-export const enum MemberType {
+export const enum NetMemberType {
   ACTION = 'action',
   STATE = 'state',
 }
 
-export interface MemberDescriptor {
-  readonly member: MemberType;
+export interface NetMemberDescriptor {
+  readonly member: NetMemberType;
   readonly type: NetType;
 }
 
-export interface ComponentDescriptor {
+export interface NetComponentDescriptor {
   readonly name: string;
-  readonly members: { [name: string]: MemberDescriptor; };
+  readonly members: { [name: string]: NetMemberDescriptor; };
 }

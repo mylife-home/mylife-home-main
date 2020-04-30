@@ -1,5 +1,8 @@
 import { EventEmitter } from 'events';
-import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType, NetType } from '../metadata';
+import { components } from 'mylife-home-common';
+import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType } from '../metadata';
+
+import NetType = components.NetType;
 
 interface Component {
   destroy?: () => void;

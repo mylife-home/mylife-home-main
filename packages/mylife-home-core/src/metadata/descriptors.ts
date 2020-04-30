@@ -4,6 +4,7 @@ import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './
 import { getPrimitive, getDefaultType, ConfigType } from './types';
 
 import NetType = components.NetType;
+import NetComponentDescriptor = components.NetComponentDescriptor;
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
@@ -125,7 +126,7 @@ export class ComponentDescriptor {
     Object.freeze(this.configs);
   }
 
-  getNetMetadata(): any {
+  getNetMetadata(): NetComponentDescriptor {
     const members: any = {};
     for (const descriptor of this.actions.values()) {
       members[descriptor.name] = { member: 'action', type: descriptor.type };
