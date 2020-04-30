@@ -1,14 +1,8 @@
-export enum NetType {
-  STRING = 'string',
-  BOOL = 'bool',
-  UINT8 = 'uint8',
-  INT8 = 'int8',
-  UINT32 = 'uint32',
-  INT32 = 'int32',
-  FLOAT = 'float',
-}
+import { components } from 'mylife-home-common';
 
-export enum ConfigType {
+import NetType = components.NetType;
+
+export const enum ConfigType {
   STRING = 'string',
   BOOL = 'bool',
   INTEGER = 'integer',
@@ -32,7 +26,7 @@ export function getPrimitive(type: NetType): string {
   }
 }
 
-export function getDefaultType(primitive: string) : NetType {
+export function getDefaultType(primitive: string): NetType {
   switch (primitive) {
     case 'String':
       return NetType.STRING;

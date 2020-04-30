@@ -1,6 +1,9 @@
 import 'reflect-metadata';
+import { components } from 'mylife-home-common';
 import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
-import { NetType, getPrimitive, getDefaultType, ConfigType } from './types';
+import { getPrimitive, getDefaultType, ConfigType } from './types';
+
+import NetType = components.NetType;
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
