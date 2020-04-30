@@ -5,7 +5,7 @@ interface Component {
   destroy?: () => void;
 }
 
-export declare interface Host {
+export declare interface Host extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
   off(event: 'state', listener: (name: string, value: any) => void): this;
   once(event: 'state', listener: (name: string, value: any) => void): this;

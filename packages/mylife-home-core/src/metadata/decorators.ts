@@ -1,6 +1,9 @@
 import 'reflect-metadata';
+import { components } from 'mylife-home-common';
 import { addComponent, addConfig, addAction, addState } from './builder';
-import { NetType, ConfigType } from './types';
+import { ConfigType } from './types';
+
+import NetType = components.NetType;
 
 export type Constructor = {
   new (...args: any[]): any;
