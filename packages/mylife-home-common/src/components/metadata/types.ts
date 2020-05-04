@@ -76,6 +76,10 @@ export class Range implements Type {
       throw new Error(`Bad max value for range: ${max}`);
     }
 
+    if (min >= max) {
+      throw new Error(`Min >= max for range: min=${min}, max=${max}`);
+    }
+
     this.primitive = computePrimitive(min, max);
   }
 
