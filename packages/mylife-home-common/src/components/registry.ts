@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { NetComponentDescriptor } from './metadata';
+import { NetComponentDescriptor } from './metadata/metadata';
 
 // should have a state of remote components from bus
 // home-core should be able to add its local components
