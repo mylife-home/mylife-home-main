@@ -1,0 +1,151 @@
+export const enum Primitive {
+  STRING = 'string',
+  BOOL = 'bool',
+  UINT8 = 'uint8',
+  INT8 = 'int8',
+  UINT32 = 'uint32',
+  INT32 = 'int32',
+  FLOAT = 'float',
+}
+
+export interface Type {
+  readonly primitive: Primitive;
+  toString(): string;
+}
+
+const parser = /([a-z]*)(.*)/g;
+const rangeParser = /\[(-?\d+);(-?\d+)\]/g;
+const enumParser = /{(.[\w_\-,]+)}/g;
+
+export function parseType(value: string): Type {
+  const [type, args] = runRegex(parser, value, value);
+
+  switch (type) {
+    case 'range': {
+      const [min, max] = runRegex(rangeParser, args, value);
+      return new Range(Number.parseInt(min), Number.parseInt(max));
+    }
+
+    case 'text':
+      return new Text();
+
+    case 'float':
+      return new Float();
+
+    case 'bool':
+      return new Bool();
+
+    case 'enum': {
+      const [values] = runRegex(enumParser, args, value);
+      if (!values) {
+        throw new Error('Bad values for enum');
+      }
+      return new Enum(...values.split(','));
+    }
+
+    default: throw new Error(`Unknown type: '${type}'`);
+  }
+}
+
+function runRegex(regex: RegExp, input: string, inputType: string) {
+  const result = regex.exec(input);
+  if (!result) {
+    throw new Error(`Invalid type: '${inputType}'`);
+  }
+
+  const [full, ...output] = result;
+  return output;
+}
+
+
+const INT8_MIN = -128;
+const INT8_MAX = 127;
+const UINT8_MAX = 255;
+const INT32_MIN = -2147483648;
+const INT32_MAX = 2147483647;
+const UINT32_MAX = 4294967295;
+
+export class Range implements Type {
+  public readonly primitive: Primitive;
+  constructor(public readonly min: number, public readonly max: number) {
+    if (!Number.isInteger(min)) {
+      throw new Error(`Bad min value for range: ${min}`);
+    }
+
+    if (!Number.isInteger(max)) {
+      throw new Error(`Bad max value for range: ${max}`);
+    }
+
+    this.primitive = computePrimitive(min, max);
+  }
+
+  toString() {
+    return `range[${this.min};${this.max}]`;
+  }
+}
+
+function computePrimitive(min: number, max: number) {
+  if (min >= 0 && max <= UINT8_MAX) {
+    return Primitive.UINT8;
+  }
+
+  if (min >= INT8_MIN && max <= INT8_MAX) {
+    return Primitive.INT8;
+  }
+
+  if (min >= 0 && max <= UINT32_MAX) {
+    return Primitive.UINT32;
+  }
+
+  if (min >= INT32_MIN && max <= INT32_MAX) {
+    return Primitive.INT32;
+  }
+
+  throw new Error(`Cannot represent range type with min=${min} and max=${max} because bounds are too big`);
+}
+
+export class Text implements Type {
+  toString() {
+    return 'text';
+  }
+
+  get primitive() {
+    return Primitive.STRING;
+  }
+}
+
+export class Float implements Type {
+  toString() {
+    return 'float';
+  }
+
+  get primitive() {
+    return Primitive.FLOAT;
+  }
+}
+
+export class Bool implements Type {
+  toString() {
+    return 'bool';
+  }
+
+  get primitive() {
+    return Primitive.BOOL;
+  }
+}
+
+export class Enum implements Type {
+  public readonly values: readonly string[];
+
+  constructor(...values: string[]) {
+    this.values = values;
+  }
+
+  toString() {
+    return `enum{${this.values.join(',')}}`;
+  }
+
+  get primitive() {
+    return Primitive.UINT8;
+  }
+}
