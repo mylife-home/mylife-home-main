@@ -1,7 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as bus from '../../src/bus';
 import { MqttTestSession, sleep } from './tools';
 
 describe('bus/metadata', () => {
