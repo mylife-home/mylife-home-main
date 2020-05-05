@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { Registry, Component } from './registry';
 import { Transport, RemoteMetadataView } from '../bus';
 import { fireAsync } from '../tools';
@@ -7,6 +7,18 @@ import * as metadata from './metadata';
 class BusComponent extends EventEmitter implements Component {
   constructor(metadata: metadata.Component) {
     super();
+  }
+
+  executeAction(name: string, value: any) {
+    throw new Error('Method not implemented.');
+  }
+
+  getState(name: string) {
+    throw new Error('Method not implemented.');
+  }
+
+  getStates(): { [name: string]: any; } {
+    throw new Error('Method not implemented.');
   }
 
   id: string;
