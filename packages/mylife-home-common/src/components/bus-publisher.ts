@@ -2,14 +2,15 @@ import EventEmitter from 'events';
 import { Registry, Component } from './registry';
 import { Transport, RemoteMetadataView } from '../bus';
 import { fireAsync } from '../tools';
+import * as metadata from './metadata';
 
 class BusComponent extends EventEmitter implements Component {
-  constructor() {
+  constructor(metadata: metadata.Component) {
     super();
   }
 
   id: string;
-  plugin: import("./metadata").Plugin;
+  plugin: metadata.Plugin;
 
   close() {
 
@@ -35,11 +36,11 @@ class BusInstance {
     const [type, id] = path.split('/');
     switch (type) {
       case 'plugins':
-        this.registry.addPlugin(this.instanceName, value as Plugin);
+        this.registry.addPlugin(this.instanceName, value as metadata.Plugin);
         break;
 
       case 'components':
-        const component = new BusComponent();
+        const component = new BusComponent(value as metadata.Component);
         this.registry.addComponent(this.instanceName, component);
     }
   }
@@ -53,17 +54,17 @@ class BusInstance {
         break;
 
       case 'components':
-        const component = this.registry.getComponent(this.instanceName, id) as BusComponent;
+        const component = this.registry.getComponent(this.instanceName, id);
         this.registry.removeComponent(this.instanceName, component);
-        component.close();
+        (component as BusComponent).close();
         break;
     }
   }
 
   close() {
-    for (const component as BusComponent of this.registry.getComponents(this.instanceName)) {
+    for (const component of this.registry.getComponents(this.instanceName)) {
       this.registry.removeComponent(this.instanceName, component);
-      component.close();
+      (component as BusComponent).close();
     }
 
     for (const plugin of this.registry.getPlugins(this.instanceName)) {
