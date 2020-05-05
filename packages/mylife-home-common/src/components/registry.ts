@@ -6,18 +6,12 @@ export interface Component extends EventEmitter {
   off(event: 'state', listener: (name: string, value: any) => void): this;
   once(event: 'state', listener: (name: string, value: any) => void): this;
 
-  readonly instanceName: string; // or null for local
   readonly id: string;
   readonly plugin: Plugin;
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
   getStates(): { [name: string]: any; };
-}
-
-class InstancePlugin {
-  constructor(public readonly instanceName: string, public readonly plugin: Plugin) {
-  }
 }
 
 export interface Registry extends EventEmitter {
@@ -31,46 +25,76 @@ export interface Registry extends EventEmitter {
 }
 
 export class Registry extends EventEmitter implements Registry {
-  private readonly components = new Set<Component>();
-  private readonly plugins = new Set<InstancePlugin>();
+  private readonly components = new Map<string, Component>();
+  private readonly plugins = new Map<string, Plugin>();
 
-  addPlugin(plugin: InstancePlugin) {
-    if (this.plugins.has(plugin)) {
-      throw new Error(`Plugin ${buildPluginId(plugin)} does already exist in the registry`);
+  addPlugin(instanceName: string, plugin: Plugin) {
+    const key = this.buildPluginId(instanceName, plugin);
+    if (this.plugins.get(key)) {
+      throw new Error(`Plugin ${key} does already exist in the registry`);
     }
-    this.plugins.add(plugin);
-    this.emit('plugin.add', plugin);
+    this.plugins.set(key, plugin);
+    this.emit('plugin.add', instanceName, plugin);
   }
 
-  removePlugin(plugin: InstancePlugin) {
-    if (!this.plugins.has(plugin)) {
-      throw new Error(`Plugin ${buildPluginId(plugin)} does not exist in the registry`);
+  removePlugin(instanceName: string, plugin: Plugin) {
+    const key = this.buildPluginId(instanceName, plugin);
+    if (!this.plugins.get(key)) {
+      throw new Error(`Plugin ${key} does not exist in the registry`);
     }
-    this.plugins.delete(plugin);
-    this.emit('plugin.remove', plugin);
+    this.plugins.delete(key);
+    this.emit('plugin.remove', instanceName, plugin);
   }
 
-  addComponent(component: Component) {
-    if (this.components.has(component)) {
-      throw new Error(`Component ${buildComponentId(component)} does already exist in the registry`);
+  getPlugin(instanceName: string, id: string) {
+    const key = `${instanceName || 'local'}:${id}`;
+    const plugin = this.plugins.get(key);
+    if (!plugin) {
+      throw new Error(`Plugin ${key} does not exist in the registry`);
     }
-    this.components.add(component);
-    this.emit('component.add', component);
+    return plugin;
   }
 
-  removeComponent(component: Component) {
-    if (!this.components.has(component)) {
-      throw new Error(`Component ${buildComponentId(component)} does not exist in the registry`);
-    }
-    this.components.delete(component);
-    this.emit('component.remove', component);
+  getPlugins(instanceName: string): Set<Plugin> {
+    // TODO
   }
-}
 
-function buildPluginId(plugin: InstancePlugin) {
-  return `${plugin.instanceName || 'local'}:${plugin.plugin.module}.${plugin.plugin.name}`;
-}
+  private buildPluginId(instanceName: string, plugin: Plugin) {
+    return `${instanceName || 'local'}:${plugin.module}.${plugin.name}`;
+  }
 
-function buildComponentId(component: Component) {
-  return `${component.instanceName || 'local'}:${component.id}`;
+  addComponent(instanceName: string, component: Component) {
+    const id = this.buildComponentId(instanceName, component);
+    if (this.components.get(id)) {
+      throw new Error(`Component ${id} does already exist in the registry`);
+    }
+    this.components.set(id, component);
+    this.emit('component.add', instanceName, component);
+  }
+
+  removeComponent(instanceName: string, component: Component) {
+    const id = this.buildComponentId(instanceName, component);
+    if (!this.components.get(id)) {
+      throw new Error(`Component ${id} does not exist in the registry`);
+    }
+    this.components.delete(id);
+    this.emit('component.remove', instanceName, component);
+  }
+
+  getComponent(instanceName: string, id: string) {
+    const key = `${instanceName || 'local'}:${id}`;
+    const component = this.components.get(key);
+    if (!component) {
+      throw new Error(`Component ${key} does not exist in the registry`);
+    }
+    return component;
+  }
+
+  getComponents(instanceName: string): Set<Component> {
+    // TODO
+  }
+
+  private buildComponentId(instanceName: string, component: Component) {
+    return `${instanceName || 'local'}:${component.id}`;
+  }
 }
