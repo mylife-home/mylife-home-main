@@ -6,6 +6,7 @@ export const enum Primitive {
   UINT32 = 'uint32',
   INT32 = 'int32',
   FLOAT = 'float',
+  JSON = 'json',
 }
 
 export interface Type {
@@ -13,9 +14,9 @@ export interface Type {
   toString(): string;
 }
 
-const parser = /([a-z]*)(.*)/g;
-const rangeParser = /\[(-?\d+);(-?\d+)\]/g;
-const enumParser = /{(.[\w_\-,]+)}/g;
+const parser = /([a-z]+)(.*)/;
+const rangeParser = /\[(-?\d+);(-?\d+)\]/;
+const enumParser = /{(.[\w_\-,]+)}/;
 
 export function parseType(value: string): Type {
   const [type, args] = runRegex(parser, value, value);
@@ -27,12 +28,15 @@ export function parseType(value: string): Type {
     }
 
     case 'text':
+      checkNoArgs(args, type);
       return new Text();
 
     case 'float':
+      checkNoArgs(args, type);
       return new Float();
 
     case 'bool':
+      checkNoArgs(args, type);
       return new Bool();
 
     case 'enum': {
@@ -43,18 +47,30 @@ export function parseType(value: string): Type {
       return new Enum(...values.split(','));
     }
 
-    default: throw new Error(`Unknown type: '${type}'`);
+    case 'complex':
+      checkNoArgs(args, type);
+      return new Complex();
+
+    default:
+      throw new Error(`Unknown type: '${type}'`);
   }
 }
 
 function runRegex(regex: RegExp, input: string, inputType: string) {
-  const result = regex.exec(input);
+  const result = input.match(regex);
   if (!result) {
     throw new Error(`Invalid type: '${inputType}'`);
   }
 
   const [full, ...output] = result;
   return output;
+}
+
+function checkNoArgs(args: string, type: string) {
+  if (args) {
+    throw new Error(`Type '${type}' requires no argument but got '${args}'`);
+  }
+
 }
 
 
@@ -151,5 +167,15 @@ export class Enum implements Type {
 
   get primitive() {
     return Primitive.UINT8;
+  }
+}
+
+export class Complex implements Type {
+  toString() {
+    return 'complex';
+  }
+
+  get primitive() {
+    return Primitive.JSON;
   }
 }
