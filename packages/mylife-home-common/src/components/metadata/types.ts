@@ -1,12 +1,21 @@
-export const enum Primitive {
-  STRING = 'string',
-  BOOL = 'bool',
-  UINT8 = 'uint8',
-  INT8 = 'int8',
-  UINT32 = 'uint32',
-  INT32 = 'int32',
-  FLOAT = 'float',
-  JSON = 'json',
+import { encoding } from '../../bus';
+
+export interface Primitive {
+  readonly id: string;
+
+  encode(value: any): Buffer;
+  decode(data: Buffer): any;
+}
+
+export namespace Primitives {
+  export const STRING: Primitive = { id: 'string', encode: encoding.writeString, decode: encoding.readString };
+  export const BOOL: Primitive = { id: 'bool', encode: encoding.writeBool, decode: encoding.readBool };
+  export const UINT8: Primitive = { id: 'uint8', encode: encoding.writeUInt8, decode: encoding.readUInt8 };
+  export const INT8: Primitive = { id: 'int8', encode: encoding.writeInt8, decode: encoding.readInt8 };
+  export const UINT32: Primitive = { id: 'uint32', encode: encoding.writeUInt32, decode: encoding.readUInt32 };
+  export const INT32: Primitive = { id: 'int32', encode: encoding.writeInt32, decode: encoding.readInt32 };
+  export const FLOAT: Primitive = { id: 'float', encode: encoding.writeFloat, decode: encoding.readFloat };
+  export const JSON: Primitive = { id: 'json', encode: encoding.writeJson, decode: encoding.readJson };
 }
 
 export interface Type {
@@ -70,9 +79,7 @@ function checkNoArgs(args: string, type: string) {
   if (args) {
     throw new Error(`Type '${type}' requires no argument but got '${args}'`);
   }
-
 }
-
 
 const INT8_MIN = -128;
 const INT8_MAX = 127;
@@ -106,19 +113,19 @@ export class Range implements Type {
 
 function computePrimitive(min: number, max: number) {
   if (min >= 0 && max <= UINT8_MAX) {
-    return Primitive.UINT8;
+    return Primitives.UINT8;
   }
 
   if (min >= INT8_MIN && max <= INT8_MAX) {
-    return Primitive.INT8;
+    return Primitives.INT8;
   }
 
   if (min >= 0 && max <= UINT32_MAX) {
-    return Primitive.UINT32;
+    return Primitives.UINT32;
   }
 
   if (min >= INT32_MIN && max <= INT32_MAX) {
-    return Primitive.INT32;
+    return Primitives.INT32;
   }
 
   throw new Error(`Cannot represent range type with min=${min} and max=${max} because bounds are too big`);
@@ -130,7 +137,7 @@ export class Text implements Type {
   }
 
   get primitive() {
-    return Primitive.STRING;
+    return Primitives.STRING;
   }
 }
 
@@ -140,7 +147,7 @@ export class Float implements Type {
   }
 
   get primitive() {
-    return Primitive.FLOAT;
+    return Primitives.FLOAT;
   }
 }
 
@@ -150,7 +157,7 @@ export class Bool implements Type {
   }
 
   get primitive() {
-    return Primitive.BOOL;
+    return Primitives.BOOL;
   }
 }
 
@@ -158,6 +165,9 @@ export class Enum implements Type {
   public readonly values: readonly string[];
 
   constructor(...values: string[]) {
+    if (values.length < 2) {
+      throw new Error('Cannot build an enum without at least 2 values');
+    }
     this.values = values;
   }
 
@@ -166,7 +176,7 @@ export class Enum implements Type {
   }
 
   get primitive() {
-    return Primitive.UINT8;
+    return Primitives.STRING;
   }
 }
 
@@ -176,6 +186,6 @@ export class Complex implements Type {
   }
 
   get primitive() {
-    return Primitive.JSON;
+    return Primitives.JSON;
   }
 }
