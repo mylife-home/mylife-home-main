@@ -1,8 +1,5 @@
 import { EventEmitter } from 'events';
-import { NetComponentDescriptor } from './metadata/metadata';
-
-// should have a state of remote components from bus
-// home-core should be able to add its local components
+import { Plugin } from './metadata';
 
 export interface Component extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
@@ -11,11 +8,16 @@ export interface Component extends EventEmitter {
 
   readonly instanceName: string; // or null for local
   readonly id: string;
-  readonly descriptor: NetComponentDescriptor;
+  readonly plugin: Plugin;
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
   getStates(): { [name: string]: any; };
+}
+
+class InstancePlugin {
+  constructor(public readonly instanceName: string, public readonly plugin: Plugin) {
+  }
 }
 
 export interface Registry extends EventEmitter {
@@ -29,21 +31,46 @@ export interface Registry extends EventEmitter {
 }
 
 export class Registry extends EventEmitter implements Registry {
-  private readonly store = new Set<Component>();
+  private readonly components = new Set<Component>();
+  private readonly plugins = new Set<InstancePlugin>();
+
+  addPlugin(plugin: InstancePlugin) {
+    if (this.plugins.has(plugin)) {
+      throw new Error(`Plugin ${buildPluginId(plugin)} does already exist in the registry`);
+    }
+    this.plugins.add(plugin);
+    this.emit('plugin.add', plugin);
+  }
+
+  removePlugin(plugin: InstancePlugin) {
+    if (!this.plugins.has(plugin)) {
+      throw new Error(`Plugin ${buildPluginId(plugin)} does not exist in the registry`);
+    }
+    this.plugins.delete(plugin);
+    this.emit('plugin.remove', plugin);
+  }
 
   addComponent(component: Component) {
-    if (this.store.has(component)) {
-      throw new Error(`Component ${component.instanceName}:${component.id} does already exist in the store`);
+    if (this.components.has(component)) {
+      throw new Error(`Component ${buildComponentId(component)} does already exist in the registry`);
     }
-    this.store.add(component);
-    this.emit('add', component);
+    this.components.add(component);
+    this.emit('component.add', component);
   }
 
   removeComponent(component: Component) {
-    if (!this.store.has(component)) {
-      throw new Error(`Component ${component.instanceName}:${component.id} does not exist in the store`);
+    if (!this.components.has(component)) {
+      throw new Error(`Component ${buildComponentId(component)} does not exist in the registry`);
     }
-    this.store.delete(component);
-    this.emit('remove', component);
+    this.components.delete(component);
+    this.emit('component.remove', component);
   }
+}
+
+function buildPluginId(plugin: InstancePlugin) {
+  return `${plugin.instanceName || 'local'}:${plugin.plugin.module}.${plugin.plugin.name}`;
+}
+
+function buildComponentId(component: Component) {
+  return `${component.instanceName || 'local'}:${component.id}`;
 }
