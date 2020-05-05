@@ -1,15 +1,33 @@
 import { EventEmitter } from 'events';
 import { Registry, Component } from './registry';
-import { Transport, RemoteMetadataView } from '../bus';
+import { Transport, RemoteMetadataView, RemoteComponent } from '../bus';
 import { fireAsync } from '../tools';
 import * as metadata from './metadata';
 
 class BusComponent extends EventEmitter implements Component {
-  constructor(metadata: metadata.Component) {
+  readonly id: string;
+  readonly plugin: metadata.Plugin;
+  private readonly remoteComponent: RemoteComponent;
+
+  constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, metadata: metadata.Component) {
     super();
+
+    this.id = metadata.id;
+    this.plugin = this.registry.getPlugin(this.instanceName, metadata.plugin);
+
+    this.remoteComponent = this.transport.components.trackRemoteComponent(this.instanceName, this.id);
+    // TODO
+    // this.remoteComponent.registerStateChange()
+  }
+
+  close() {
+    fireAsync(async () => {
+      await this.transport.components.untrackRemoteComponent(this.remoteComponent);
+    });
   }
 
   executeAction(name: string, value: any) {
+    //     this.remoteComponent.emitAction()
     throw new Error('Method not implemented.');
   }
 
@@ -19,13 +37,6 @@ class BusComponent extends EventEmitter implements Component {
 
   getStates(): { [name: string]: any; } {
     throw new Error('Method not implemented.');
-  }
-
-  id: string;
-  plugin: metadata.Plugin;
-
-  close() {
-
   }
 }
 
@@ -52,7 +63,7 @@ class BusInstance {
         break;
 
       case 'components':
-        const component = new BusComponent(value as metadata.Component);
+        const component = new BusComponent(this.transport, this.registry, this.instanceName, value as metadata.Component);
         this.registry.addComponent(this.instanceName, component);
     }
   }
@@ -80,7 +91,7 @@ class BusInstance {
     }
 
     for (const plugin of this.registry.getPlugins(this.instanceName)) {
-      this.registry.removePlugin(this.instanceName, component);
+      this.registry.removePlugin(this.instanceName, plugin);
     }
 
     fireAsync(async () => {
