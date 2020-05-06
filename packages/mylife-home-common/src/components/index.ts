@@ -1,2 +1,2 @@
-export { NetType, NetMemberType, NetMemberDescriptor, NetComponentDescriptor } from './metadata/metadata';
+export * as metadata from './metadata';
 export { Component, Registry } from './registry';

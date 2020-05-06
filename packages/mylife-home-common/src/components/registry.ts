@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 import { Plugin } from './metadata';
+import { BusPublisher } from './bus-publisher';
+import { Transport } from '../bus';
 
 export interface Component extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
@@ -11,7 +13,7 @@ export interface Component extends EventEmitter {
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
-  getStates(): { [name: string]: any; };
+  getStates(): { [name: string]: any };
 }
 
 export interface Registry extends EventEmitter {
@@ -24,9 +26,33 @@ export interface Registry extends EventEmitter {
   once(event: 'remove', listener: (component: Component) => void): this;
 }
 
+export interface RegistryOptions {
+  readonly transport?: Transport;
+  readonly publishRemoteComponent?: boolean;
+}
+
 export class Registry extends EventEmitter implements Registry {
   private readonly components = new Map<string, Component>();
   private readonly plugins = new Map<string, Plugin>();
+  private readonly publisher: BusPublisher;
+
+  constructor(options: RegistryOptions = {}) {
+    super();
+
+    if (options.publishRemoteComponent) {
+      this.publisher = new BusPublisher(options.transport, this);
+    }
+  }
+
+  close() {
+    if (this.publisher) {
+      this.publisher.close();
+    }
+  }
+
+  get publishingRemoteComponents() {
+    return !!this.publisher;
+  }
 
   addPlugin(instanceName: string, plugin: Plugin) {
     const key = this.buildPluginId(instanceName, plugin);
