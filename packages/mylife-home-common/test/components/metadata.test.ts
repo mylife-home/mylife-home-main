@@ -73,5 +73,64 @@ describe('components/metadata', () => {
       expect(type.primitive.id).to.equal('string');
       expect(type.toString()).to.equal(`enum{${values.join(',')}}`);
     }
+
+    it(`should validate 'a' using type text`, () => testValidate(new metadata.Text(), 'a', true));
+    it(`should not validate 12 using type text`, () => testValidate(new metadata.Text(), 12, false));
+    it(`should not validate true using type text`, () => testValidate(new metadata.Text(), true, false));
+    it(`should not validate null using type text`, () => testValidate(new metadata.Text(), null, false));
+    it(`should not validate undefined using type text`, () => testValidate(new metadata.Text(), undefined, false));
+
+    it(`should validate 12 using type float`, () => testValidate(new metadata.Float(), 12, true));
+    it(`should validate -12 using type float`, () => testValidate(new metadata.Float(), -12, true));
+    it(`should validate 12.34 using type float`, () => testValidate(new metadata.Float(), 12.34, true));
+    it(`should not validate true using type float`, () => testValidate(new metadata.Float(), true, false));
+    it(`should not validate '12' using type float`, () => testValidate(new metadata.Float(), '12', false));
+    it(`should not validate null using type float`, () => testValidate(new metadata.Float(), null, false));
+    it(`should not validate undefined using type float`, () => testValidate(new metadata.Float(), undefined, false));
+
+    it(`should validate true using type bool`, () => testValidate(new metadata.Bool(), true, true));
+    it(`should validate false using type bool`, () => testValidate(new metadata.Bool(), false, true));
+    it(`should not validate 'true' using type bool`, () => testValidate(new metadata.Bool(), 'true', false));
+    it(`should not validate 1 using type bool`, () => testValidate(new metadata.Bool(), 1, false));
+    it(`should not validate null using type bool`, () => testValidate(new metadata.Bool(), null, false));
+    it(`should not validate undefined using type bool`, () => testValidate(new metadata.Bool(), undefined, false));
+
+    it(`should validate true using type complex`, () => testValidate(new metadata.Complex(), true, true));
+    it(`should validate false using type complex`, () => testValidate(new metadata.Complex(), false, true));
+    it(`should validate 'a' using type complex`, () => testValidate(new metadata.Complex(), 'a', true));
+    it(`should validate 1 using type complex`, () => testValidate(new metadata.Complex(), 1, true));
+    it(`should validate 12 using type complex`, () => testValidate(new metadata.Complex(), 12, true));
+    it(`should validate -12.4 using type complex`, () => testValidate(new metadata.Complex(), -12.4, true));
+    it(`should validate ['a', 'b'] using type complex`, () => testValidate(new metadata.Complex(), ['a', 'b'], true));
+    it(`should validate {a: 1, b: 2} using type complex`, () => testValidate(new metadata.Complex(), { a: 1, b: 2 }, true));
+    it(`should validate null using type complex`, () => testValidate(new metadata.Complex(), null, true));
+    it(`should not validate undefined using type complex`, () => testValidate(new metadata.Complex(), undefined, false));
+
+    it(`should validate 1 using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), 1, true));
+    it(`should validate 0 using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), 0, true));
+    it(`should validate -1 using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), -1, true));
+    it(`should validate 2 using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), 2, true));
+    it(`should not validate 0.5 using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), 0.5, false));
+    it(`should not validate true using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), true, false));
+    it(`should not validate '12' using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), '12', false));
+    it(`should not validate null using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), null, false));
+    it(`should not validate undefined using type range[-1;2]`, () => testValidate(new metadata.Range(-1, 2), undefined, false));
+
+    it(`should validate 'a' using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), 'a', true));
+    it(`should validate 'b' using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), 'a', true));
+    it(`should not validate 'c' using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), 'c', false));
+    it(`should not validate 12 using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), 12, false));
+    it(`should not validate true using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), true, false));
+    it(`should not validate null using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), null, false));
+    it(`should not validate undefined using type enum{a,b}`, () => testValidate(new metadata.Enum('a', 'b'), undefined, false));
+
+    function testValidate(type: metadata.Type, value: any, passing: boolean) {
+      const action = () => type.validate(value);
+      if (passing) {
+        expect(action).to.not.throw();
+      } else {
+        expect(action).to.throw(`Wrong value '${value}' for type '${type.toString()}'`);
+      }
+    }
   });
 });
