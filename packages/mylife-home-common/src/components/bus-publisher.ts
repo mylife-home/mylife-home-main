@@ -8,16 +8,22 @@ class BusComponent extends EventEmitter implements Component {
   readonly id: string;
   readonly plugin: metadata.Plugin;
   private readonly remoteComponent: RemoteComponent;
+  private readonly states: { [name: string]: any; } = {};
 
-  constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, metadata: metadata.Component) {
+  constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, componentMetadata: metadata.Component) {
     super();
 
-    this.id = metadata.id;
-    this.plugin = this.registry.getPlugin(this.instanceName, metadata.plugin);
+    this.id = componentMetadata.id;
+    this.plugin = this.registry.getPlugin(this.instanceName, componentMetadata.plugin);
 
     this.remoteComponent = this.transport.components.trackRemoteComponent(this.instanceName, this.id);
-    // TODO
-    // this.remoteComponent.registerStateChange()
+
+    for (const [name, member] of Object.entries(this.plugin.members)) {
+      if (member.memberType === metadata.MemberType.STATE) {
+        this.states[name] = null;
+        fireAsync(() => this.remoteComponent.registerStateChange(name, (value) => this.stateChange(name, value)));
+      }
+    }
   }
 
   close() {
@@ -26,17 +32,35 @@ class BusComponent extends EventEmitter implements Component {
     });
   }
 
+  private stateChange(name: string, data: Buffer) {
+    const member = this.plugin.members[name];
+    const value = member.valueType.primitive.decode(data);
+    this.states[name] = value;
+    this.emit('state', name, value);
+  }
+
   executeAction(name: string, value: any) {
+    const member = this.plugin.members[name];
+    if(!member || member.memberType !== metadata.MemberType.ACTION) {
+      throw new Error(`Unknown action '${name}' on component '${this.instanceName}:${this.id}' (plugin=${this.plugin.module}.${this.plugin.name})`);
+    }
+    const type = member.valueType;
+    type.validate(value);
     //     this.remoteComponent.emitAction()
     throw new Error('Method not implemented.');
   }
 
   getState(name: string) {
-    throw new Error('Method not implemented.');
+    const value = this.states[name];
+    if (value === undefined) {
+      throw new Error(`Unknown state '${name}' on component '${this.instanceName}:${this.id}' (plugin=${this.plugin.module}.${this.plugin.name})`);
+    }
+
+    return value;
   }
 
   getStates(): { [name: string]: any; } {
-    throw new Error('Method not implemented.');
+    return this.states;
   }
 }
 
