@@ -2,24 +2,24 @@ import { EventEmitter } from 'events';
 import { Registry, Component } from './registry';
 import { Transport, RemoteMetadataView, RemoteComponent } from '../bus';
 import { fireAsync } from '../tools';
-import * as metadata from './metadata';
+import { Plugin, MemberType, NetComponent, NetPlugin, decodePlugin } from './metadata';
 
 class BusComponent extends EventEmitter implements Component {
   readonly id: string;
-  readonly plugin: metadata.Plugin;
+  readonly plugin: Plugin;
   private readonly remoteComponent: RemoteComponent;
   private readonly states: { [name: string]: any; } = {};
 
-  constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, componentMetadata: metadata.Component) {
+  constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, netComponent: NetComponent) {
     super();
 
-    this.id = componentMetadata.id;
-    this.plugin = this.registry.getPlugin(this.instanceName, componentMetadata.plugin);
+    this.id = netComponent.id;
+    this.plugin = this.registry.getPlugin(this.instanceName, netComponent.plugin);
 
     this.remoteComponent = this.transport.components.trackRemoteComponent(this.instanceName, this.id);
 
     for (const [name, member] of Object.entries(this.plugin.members)) {
-      if (member.memberType === metadata.MemberType.STATE) {
+      if (member.memberType === MemberType.STATE) {
         this.states[name] = null;
         fireAsync(() => this.remoteComponent.registerStateChange(name, (value) => this.stateChange(name, value)));
       }
@@ -41,7 +41,7 @@ class BusComponent extends EventEmitter implements Component {
 
   executeAction(name: string, value: any) {
     const member = this.plugin.members[name];
-    if(!member || member.memberType !== metadata.MemberType.ACTION) {
+    if (!member || member.memberType !== MemberType.ACTION) {
       throw new Error(`Unknown action '${name}' on component '${this.instanceName}:${this.id}' (plugin=${this.plugin.module}.${this.plugin.name})`);
     }
     const type = member.valueType;
@@ -83,11 +83,12 @@ class BusInstance {
     const [type, id] = path.split('/');
     switch (type) {
       case 'plugins':
-        this.registry.addPlugin(this.instanceName, value as metadata.Plugin);
+        const plugin = decodePlugin(value as NetPlugin);
+        this.registry.addPlugin(this.instanceName, plugin);
         break;
 
       case 'components':
-        const component = new BusComponent(this.transport, this.registry, this.instanceName, value as metadata.Component);
+        const component = new BusComponent(this.transport, this.registry, this.instanceName, value as NetComponent);
         this.registry.addComponent(this.instanceName, component);
     }
   }
