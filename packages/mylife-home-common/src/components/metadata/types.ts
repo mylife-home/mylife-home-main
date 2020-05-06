@@ -21,6 +21,7 @@ export namespace Primitives {
 export interface Type {
   readonly primitive: Primitive;
   toString(): string;
+  validate(value: any): void;
 }
 
 const parser = /([a-z]+)(.*)/;
@@ -109,6 +110,12 @@ export class Range implements Type {
   toString() {
     return `range[${this.min};${this.max}]`;
   }
+
+  validate(value: any) {
+    if (!Number.isInteger(value) || value < this.min || value > this.max) {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
+  }
 }
 
 function computePrimitive(min: number, max: number) {
@@ -139,6 +146,12 @@ export class Text implements Type {
   get primitive() {
     return Primitives.STRING;
   }
+
+  validate(value: any) {
+    if (typeof value !== 'string') {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
+  }
 }
 
 export class Float implements Type {
@@ -149,6 +162,12 @@ export class Float implements Type {
   get primitive() {
     return Primitives.FLOAT;
   }
+
+  validate(value: any) {
+    if (typeof value !== 'number') {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
+  }
 }
 
 export class Bool implements Type {
@@ -158,6 +177,12 @@ export class Bool implements Type {
 
   get primitive() {
     return Primitives.BOOL;
+  }
+
+  validate(value: any) {
+    if (typeof value !== 'boolean') {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
   }
 }
 
@@ -178,6 +203,12 @@ export class Enum implements Type {
   get primitive() {
     return Primitives.STRING;
   }
+
+  validate(value: any) {
+    if (!this.values.includes(value)) {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
+  }
 }
 
 export class Complex implements Type {
@@ -187,5 +218,9 @@ export class Complex implements Type {
 
   get primitive() {
     return Primitives.JSON;
+  }
+
+  validate(value: any) {
+    // let's consider all is valid
   }
 }
