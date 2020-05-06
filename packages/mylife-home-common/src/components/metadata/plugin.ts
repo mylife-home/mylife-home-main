@@ -1,4 +1,5 @@
-import { Type } from './types';
+import { Type, parseType } from './types';
+import { NetPlugin, NetMember } from './net';
 
 export const enum MemberType {
   ACTION = 'action',
@@ -19,9 +20,39 @@ export const enum PluginUsage {
 }
 
 export interface Plugin {
+  readonly id: string;
   readonly name: string;
-  readonly description: string;
-  readonly usage: PluginUsage;
   readonly module: string;
+  readonly usage: PluginUsage;
+  readonly version: string;
+  readonly description: string;
   readonly members: { [name: string]: Member; };
+}
+
+export function encodePlugin(plugin: Plugin): NetPlugin {
+  const { id, members, ...commonsProps } = plugin;
+
+  const netNembers: { [name: string]: NetMember; } = {};
+  for (const [name, member] of Object.entries(members)) {
+    const { valueType, ...commonsProps } = member;
+    const netValueType = valueType.toString();
+    netNembers[name] = { ...commonsProps, valueType: netValueType };
+  }
+
+  return { ...commonsProps, members: netNembers };
+}
+
+export function decodePlugin(netPlugin: NetPlugin): Plugin {
+  const { members: netMembers, ...commonsProps } = netPlugin;
+
+  const members: { [name: string]: Member; } = {};
+  for (const [name, member] of Object.entries(netMembers)) {
+    const { valueType: netValueType, ...commonsProps } = member;
+    const valueType = parseType(netValueType);
+    members[name] = { ...commonsProps, valueType };
+  }
+
+  const id = `${commonsProps.module}.${commonsProps.name}`;
+
+  return { ...commonsProps, id, members };
 }
