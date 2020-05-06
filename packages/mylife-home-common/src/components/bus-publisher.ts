@@ -46,8 +46,8 @@ class BusComponent extends EventEmitter implements Component {
     }
     const type = member.valueType;
     type.validate(value);
-    //     this.remoteComponent.emitAction()
-    throw new Error('Method not implemented.');
+    const data = type.primitive.encode(value);
+    fireAsync(() => this.remoteComponent.emitAction(name, data));
   }
 
   getState(name: string) {
