@@ -221,6 +221,8 @@ export class Complex implements Type {
   }
 
   validate(value: any) {
-    // let's consider all is valid
+    if (value === undefined) {
+      throw new Error(`Wrong value '${value}' for type '${this.toString()}'`);
+    }
   }
 }
