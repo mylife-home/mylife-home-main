@@ -39,9 +39,15 @@ export interface RegistryOptions {
   readonly publishRemoteComponent?: boolean;
 }
 
+interface InstanceData {
+  readonly plugins: Set<Plugin>;
+  readonly components: Set<Component>;
+}
+
 export class Registry extends EventEmitter implements Registry {
   private readonly components = new Map<string, Component>();
   private readonly plugins = new Map<string, Plugin>();
+  private readonly instances = new Map<string, InstanceData>();
   private readonly publisher: BusPublisher;
 
   constructor(options: RegistryOptions = {}) {
@@ -62,12 +68,29 @@ export class Registry extends EventEmitter implements Registry {
     return !!this.publisher;
   }
 
+  private updateInstance(instanceName: string, callback: (instanceData: InstanceData) => void) {
+    let instanceData = this.instances.get(instanceName);
+    if (!instanceData) {
+      instanceData = { plugins: new Set<Plugin>(), components: new Set<Component>() };
+      this.instances.set(instanceName, instanceData);
+    }
+
+    callback(instanceData);
+
+    if (!instanceData.plugins.size && !instanceData.components.size) {
+      this.instances.delete(instanceName);
+    }
+  }
+
   addPlugin(instanceName: string, plugin: Plugin) {
     const key = this.buildPluginId(instanceName, plugin);
     if (this.plugins.get(key)) {
       throw new Error(`Plugin ${key} does already exist in the registry`);
     }
+
     this.plugins.set(key, plugin);
+    this.updateInstance(instanceName, ({ plugins }) => plugins.add(plugin));
+
     this.emit('plugin.add', instanceName, plugin);
   }
 
@@ -76,7 +99,10 @@ export class Registry extends EventEmitter implements Registry {
     if (!this.plugins.get(key)) {
       throw new Error(`Plugin ${key} does not exist in the registry`);
     }
+
     this.plugins.delete(key);
+    this.updateInstance(instanceName, ({ plugins }) => plugins.delete(plugin));
+
     this.emit('plugin.remove', instanceName, plugin);
   }
 
@@ -90,8 +116,8 @@ export class Registry extends EventEmitter implements Registry {
   }
 
   getPlugins(instanceName: string): Set<Plugin> {
-    throw new Error('TODO');
-    // TODO
+    const instanceData = this.instances.get(instanceName);
+    return instanceData ? instanceData.plugins : new Set<Plugin>();
   }
 
   private buildPluginId(instanceName: string, plugin: Plugin) {
@@ -103,7 +129,10 @@ export class Registry extends EventEmitter implements Registry {
     if (this.components.get(id)) {
       throw new Error(`Component ${id} does already exist in the registry`);
     }
+
     this.components.set(id, component);
+    this.updateInstance(instanceName, ({ components }) => components.add(component));
+
     this.emit('component.add', instanceName, component);
   }
 
@@ -112,7 +141,10 @@ export class Registry extends EventEmitter implements Registry {
     if (!this.components.get(id)) {
       throw new Error(`Component ${id} does not exist in the registry`);
     }
+
     this.components.delete(id);
+    this.updateInstance(instanceName, ({ components }) => components.delete(component));
+
     this.emit('component.remove', instanceName, component);
   }
 
@@ -126,8 +158,8 @@ export class Registry extends EventEmitter implements Registry {
   }
 
   getComponents(instanceName: string): Set<Component> {
-    throw new Error('TODO');
-    // TODO
+    const instanceData = this.instances.get(instanceName);
+    return instanceData ? instanceData.components : new Set<Component>();
   }
 
   private buildComponentId(instanceName: string, component: Component) {
