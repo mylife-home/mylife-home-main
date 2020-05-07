@@ -120,5 +120,53 @@ describe('components/registry', () => {
     expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']); // we still have the plugin
   });
 
-  // TODO: test bus-publisher
+  describe('bus-publisher', () => {
+    it('should publish remote plugin', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+
+        await sleep(20);
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
+
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        await sleep(20);
+
+        expect(registry.getPlugin('remote', 'module.name')).to.deep.equal(TEST_PLUGIN);
+        expect(Array.from(registry.getPlugins('remote'))).to.deep.equal([TEST_PLUGIN]);
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal(['remote']);
+
+        await remoteTransport.metadata.clear(`plugins/${TEST_PLUGIN.id}`);
+        await sleep(20);
+
+        expect(() => registry.getPlugin('remote', 'module.name')).to.throw('Plugin remote:module.name does not exist in the registry');
+        expect(Array.from(registry.getPlugins('remote'))).to.deep.equal([]);
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
+
+      } finally {
+        await session.terminate();
+      }
+    });
+
+    it('should publish remote component', async () => {
+
+    });
+
+    it('should transmit action to remote component', async () => {
+
+    });
+
+    it('should transmit state updates from remote component', async () => {
+
+    });
+
+    it('should handle local disconnection', async () => {
+    });
+
+    it('should handle remote disconnection', async () => {
+    });
+  });
 });
