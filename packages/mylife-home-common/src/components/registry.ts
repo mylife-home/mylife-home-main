@@ -165,4 +165,8 @@ export class Registry extends EventEmitter implements Registry {
   private buildComponentId(instanceName: string, component: Component) {
     return `${instanceName || 'local'}:${component.id}`;
   }
+
+  getInstanceNames() {
+    return new Set(this.instances.keys());
+  }
 }
