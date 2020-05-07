@@ -1,9 +1,8 @@
 import 'reflect-metadata';
 import { components } from 'mylife-home-common';
 import { addComponent, addConfig, addAction, addState } from './builder';
-import { ConfigType } from './types';
 
-import Type = components.metadata.Type;
+import metadata = components.metadata;
 
 export type Constructor = {
   new (...args: any[]): any;
@@ -13,8 +12,10 @@ export type Constructor = {
 export interface ComponentOptions {
   readonly name?: string;
   readonly description?: string;
+  readonly usage: metadata.PluginUsage;
 }
 
+// TODO: options mandatory
 export function component(target: Constructor): void;
 export function component(options: ComponentOptions): (target: Constructor) => void;
 export function component(optionsOrTarget: ComponentOptions | Constructor) {
@@ -34,7 +35,7 @@ export function component(optionsOrTarget: ComponentOptions | Constructor) {
 export interface ConfigOptions {
   readonly name: string;
   readonly description?: string;
-  readonly type: ConfigType;
+  readonly type: metadata.ConfigType;
 }
 
 export function config(options: ConfigOptions) {
@@ -45,7 +46,7 @@ export function config(options: ConfigOptions) {
 
 export interface ActionOptions {
   readonly description?: string;
-  readonly type?: Type;
+  readonly type?: metadata.Type;
 }
 
 export function action(target: any, propertyKey: string): void;
@@ -66,7 +67,7 @@ export function action(optionsOrTarget: any, propertyKey?: string) {
 
 export interface StateOptions {
   readonly description?: string;
-  readonly type?: Type;
+  readonly type?: metadata.Type;
 }
 
 export function state(target: any, propertyKey: string): void;
