@@ -131,6 +131,10 @@ export class BusPublisher {
   private readonly instances = new Map<string, BusInstance>();
 
   constructor(private readonly transport: Transport, private readonly registry: Registry) {
+    if (!transport.presence.tracking) {
+      throw new Error(`Cannot use 'BusPublisher' with presence tracking disabled`);
+    }
+
     this.transport.presence.on('instanceChange', this.onInstanceChange);
   }
 
