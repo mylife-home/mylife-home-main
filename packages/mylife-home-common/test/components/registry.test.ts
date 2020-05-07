@@ -305,9 +305,87 @@ describe('components/registry', () => {
     });
 
     it('should handle local disconnection', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const boolType = new metadata.Bool();
+
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteComponent.setState('myState', boolType.primitive.encode(true));
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        await sleep(50);
+
+        expectState();
+
+        await session.disconnectTransport('registry');
+        await sleep(20);
+
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
+
+        await session.reconnectTransport('registry');
+        await sleep(50);
+
+        // expect same state than earlier
+        expectState();
+
+        function expectState() {
+          const plugin = registry.getPlugin('remote', 'module.name');
+          const busComponent = registry.getComponent('remote', 'my-component');
+          expect(busComponent.id).to.equal('my-component');
+          expect(busComponent.plugin).to.equal(plugin);
+          expect(busComponent.getStates()).to.deep.equal({ myState: true });
+        }
+
+      } finally {
+        await session.terminate();
+      }
     });
 
     it('should handle remote disconnection', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const boolType = new metadata.Bool();
+
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteComponent.setState('myState', boolType.primitive.encode(true));
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        await sleep(50);
+
+        expectState();
+
+        await session.disconnectTransport('remote');
+        await sleep(20);
+
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
+
+        await session.reconnectTransport('remote');
+        await sleep(50);
+
+        // expect same state than earlier
+        expectState();
+
+        function expectState() {
+          const plugin = registry.getPlugin('remote', 'module.name');
+          const busComponent = registry.getComponent('remote', 'my-component');
+          expect(busComponent.id).to.equal('my-component');
+          expect(busComponent.plugin).to.equal(plugin);
+          expect(busComponent.getStates()).to.deep.equal({ myState: true });
+        }
+
+      } finally {
+        await session.terminate();
+      }
     });
   });
 });
