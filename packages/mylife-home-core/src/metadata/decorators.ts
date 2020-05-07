@@ -3,7 +3,7 @@ import { components } from 'mylife-home-common';
 import { addComponent, addConfig, addAction, addState } from './builder';
 import { ConfigType } from './types';
 
-import NetType = components.NetType;
+import Type = components.metadata.Type;
 
 export type Constructor = {
   new (...args: any[]): any;
@@ -45,7 +45,7 @@ export function config(options: ConfigOptions) {
 
 export interface ActionOptions {
   readonly description?: string;
-  readonly type?: NetType;
+  readonly type?: Type;
 }
 
 export function action(target: any, propertyKey: string): void;
@@ -66,7 +66,7 @@ export function action(optionsOrTarget: any, propertyKey?: string) {
 
 export interface StateOptions {
   readonly description?: string;
-  readonly type?: NetType;
+  readonly type?: Type;
 }
 
 export function state(target: any, propertyKey: string): void;

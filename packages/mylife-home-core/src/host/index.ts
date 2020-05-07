@@ -1,8 +1,5 @@
 import { EventEmitter } from 'events';
-import { components } from 'mylife-home-common';
-import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType } from '../metadata';
-
-import NetType = components.NetType;
+import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType, Type } from '../metadata';
 
 interface Component {
   destroy?: () => void;
@@ -25,8 +22,8 @@ export class Host extends EventEmitter {
 
     this.validateConfiguration(config);
 
-    const Type = this.descriptor.componentType;
-    this.component = new Type(config);
+    const ComponentType = this.descriptor.componentType;
+    this.component = new ComponentType(config);
 
     for (const descriptor of this.descriptor.actions.values()) {
       this.actions.set(descriptor.name, new Action(this.component, descriptor));
@@ -104,10 +101,10 @@ export class Host extends EventEmitter {
 
 class Action {
   private readonly target: (value: any) => void;
-  private readonly validator: (value: any) => void;
+  private readonly type: Type;
 
   constructor(component: Component, descriptor: ActionDescriptor) {
-    this.validator = createNetTypeValidator(descriptor.type);
+    this.type = descriptor.type;
     const { name } = descriptor;
     this.target = (value: any) => {
       (component as any)[name](value);
@@ -115,21 +112,22 @@ class Action {
   }
 
   execute(value: any) {
-    this.validator(value);
+    validateValue(value, this.type);
     this.target(value);
   }
 }
 
 class State extends EventEmitter {
   private _value: any;
+  private readonly type: Type;
 
   constructor(component: Component, descriptor: StateDescriptor, listener: (value: any) => void) {
     super();
 
+    this.type = descriptor.type;
     const { name } = descriptor;
-    const validator = createNetTypeValidator(descriptor.type);
     this._value = (component as any)[name];
-    validator(this._value);
+    validateValue(this._value, this.type);
 
     // override component value with property
     Object.defineProperty(component, name, {
@@ -138,7 +136,7 @@ class State extends EventEmitter {
       },
 
       set: (newValue: any) => {
-        validator(newValue);
+        validateValue(newValue, this.type);
         if (newValue === this._value) {
           return;
         }
@@ -151,7 +149,14 @@ class State extends EventEmitter {
 
   get value() {
     return this._value;
-  } 
+  }
+}
+
+function validateValue(value: any, expectedType: Type) {
+  if(value === null) {
+    throw new Error('Got null value');
+  }
+  expectedType.validate(value);
 }
 
 function validateConfigurationItem(value: any, expectedType: ConfigType) {
@@ -191,60 +196,5 @@ function validateConfigurationItem(value: any, expectedType: ConfigType) {
 
     default:
       throw new Error(`Unsupported config type: '${expectedType}`);
-  }
-}
-
-const UINT32_MAX = 0xFFFFFFFF;
-const INT32_MIN = - 0x80000000;
-const INT32_MAX = 0x7FFFFFFF;
-
-function createNetTypeValidator(type: NetType) {
-  const basicValidator = (expectedType: string) => (value: any) => {
-    if (value == null) {
-      throw new Error('got null value');
-    }
-    const valueType = typeof value;
-    if (valueType !== expectedType) {
-      throw new Error(`expected value of type '${expectedType}' but got '${valueType}'`);
-    }
-  };
-
-  const integerValidator = (min: number, max: number) => (value: any) => {
-    if (value == null) {
-      throw new Error('got null value');
-    }
-    const valueType = typeof value;
-    if (valueType !== 'number') {
-      throw new Error(`expected value of type 'number' but got '${valueType}'`);
-    }
-    if (value % 1 !== 0) {
-      throw new Error(`expected integer value but got '${value}' which has decimal part`);
-    }
-
-    if (value < min) {
-      throw new Error(`expected value >= ${min} but got ${value}`);
-    }
-    if (value > max) {
-      throw new Error(`expected value <= ${max} but got ${value}`);
-    }
-  };
-
-  switch (type) {
-    case NetType.STRING:
-      return basicValidator('string');
-    case NetType.BOOL:
-      return basicValidator('boolean');
-    case NetType.FLOAT:
-      return basicValidator('number');
-    case NetType.UINT8:
-      return integerValidator(0, 255);
-    case NetType.INT8:
-      return integerValidator(-128, 127);
-    case NetType.UINT32:
-      return integerValidator(0, UINT32_MAX);
-    case NetType.INT32:
-      return integerValidator(INT32_MIN, INT32_MAX);
-    default:
-      throw new Error(`Unsupported net type: '${type}`);
   }
 }
