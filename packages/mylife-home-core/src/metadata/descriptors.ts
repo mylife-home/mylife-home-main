@@ -3,6 +3,7 @@ import { components } from 'mylife-home-common';
 import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
 
 import metadata = components.metadata;
+import { Metadata } from 'mylife-home-common/dist/bus';
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
@@ -155,4 +156,39 @@ function formatClassName(name: string) {
     .replace(/([a-z])([A-Z])/g, '$1-$2')
     .replace(/\s+/g, '-')
     .toLowerCase();
+}
+
+// FIXME
+function getPrimitive(type: metadata.Type): string {
+  switch (type.primitive) {
+    case metadata.Primitives.STRING:
+      return 'String';
+    case metadata.Primitives.BOOL:
+      return 'Boolean';
+    case metadata.Primitives.UINT8:
+    case metadata.Primitives.INT8:
+    case metadata.Primitives.UINT32:
+    case metadata.Primitives.INT32:
+    case metadata.Primitives.FLOAT:
+      return 'Number';
+    case metadata.Primitives.JSON:
+      return 'Object';
+    default:
+      throw new Error(`Unsupported type '${type}'`);
+  }
+}
+
+function getDefaultType(primitive: string): metadata.Type {
+  switch (primitive) {
+    case 'String':
+      return new metadata.Text();
+    case 'Boolean':
+      return new metadata.Bool();
+    case 'Number':
+      return new metadata.Float();
+    case 'Object':
+      return new metadata.Complex();
+    default:
+      throw new Error(`Unsupported primitive '${primitive}'`);
+  }
 }
