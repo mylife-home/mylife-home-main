@@ -171,8 +171,11 @@ describe('components/registry', () => {
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
         await sleep(20);
 
-        expect(registry.getComponent('remote', 'my-component')).to.deep.equal(TEST_PLUGIN);
-        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([TEST_PLUGIN]);
+        const plugin = registry.getPlugin('remote', 'module.name');
+        const busComponent = registry.getComponent('remote', 'my-component');
+        expect(busComponent.id).to.equal('my-component');
+        expect(busComponent.plugin).to.equal(plugin);
+        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([busComponent]);
         expect(Array.from(registry.getInstanceNames())).to.deep.equal(['remote']);
 
         // must unpublish component runtime after its meta
@@ -180,7 +183,7 @@ describe('components/registry', () => {
         await remoteTransport.components.removeLocalComponent('my-component');
         await sleep(20);
 
-        expect(() => registry.getComponent('remote', 'my-component')).to.throw('Plugin remote:module.name does not exist in the registry');
+        expect(() => registry.getComponent('remote', 'my-component')).to.throw('Component remote:my-component does not exist in the registry');
         expect(Array.from(registry.getComponents('remote'))).to.deep.equal([]);
 
       } finally {
