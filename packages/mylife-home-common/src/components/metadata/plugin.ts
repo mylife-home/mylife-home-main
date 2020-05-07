@@ -12,6 +12,18 @@ export interface Member {
   readonly valueType: Type;
 }
 
+export const enum ConfigType {
+  STRING = 'string',
+  BOOL = 'bool',
+  INTEGER = 'integer',
+  FLOAT = 'float',
+}
+
+export interface ConfigItem {
+  readonly description: string;
+  readonly valueType: ConfigType;
+}
+
 export const enum PluginUsage {
   SENSOR = 'sensor',
   ACTUATOR = 'actuator',
@@ -27,19 +39,20 @@ export interface Plugin {
   readonly version: string;
   readonly description: string;
   readonly members: { [name: string]: Member; };
+  readonly config: { [name: string]: ConfigItem; };
 }
 
 export function encodePlugin(plugin: Plugin): NetPlugin {
   const { id, members, ...commonsProps } = plugin;
 
-  const netNembers: { [name: string]: NetMember; } = {};
+  const netMembers: { [name: string]: NetMember; } = {};
   for (const [name, member] of Object.entries(members)) {
     const { valueType, ...commonsProps } = member;
     const netValueType = valueType.toString();
-    netNembers[name] = { ...commonsProps, valueType: netValueType };
+    netMembers[name] = { ...commonsProps, valueType: netValueType };
   }
 
-  return { ...commonsProps, members: netNembers };
+  return { ...commonsProps, members: netMembers };
 }
 
 export function decodePlugin(netPlugin: NetPlugin): Plugin {

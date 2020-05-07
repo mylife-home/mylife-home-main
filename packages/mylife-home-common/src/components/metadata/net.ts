@@ -1,4 +1,4 @@
-import { PluginUsage, MemberType } from './plugin';
+import { PluginUsage, MemberType, ConfigItem } from './plugin';
 
 export interface NetComponent {
   readonly id: string;
@@ -18,4 +18,5 @@ export interface NetPlugin {
   readonly version: string;
   readonly description: string;
   readonly members: { [name: string]: NetMember; };
+  readonly config: { [name: string]: ConfigItem; };
 }
