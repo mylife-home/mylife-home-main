@@ -54,6 +54,7 @@ describe('components/registry', () => {
     expect(onOther.notCalled).to.be.true;
     expect(registry.getPlugin('my-instance', 'module.name')).to.equal(TEST_PLUGIN);
     expect(Array.from(registry.getPlugins('my-instance'))).to.deep.equal([TEST_PLUGIN]);
+    expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']);
   });
 
   it('should remove plugin', () => {
@@ -73,6 +74,7 @@ describe('components/registry', () => {
     expect(onOther.notCalled).to.be.true;
     expect(() => registry.getPlugin('my-instance', 'module.name')).to.throw('Plugin my-instance:module.name does not exist in the registry');
     expect(Array.from(registry.getPlugins('my-instance'))).to.deep.equal([]);
+    expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
   });
 
   it('should add component', () => {
@@ -93,6 +95,7 @@ describe('components/registry', () => {
     expect(onOther.notCalled).to.be.true;
     expect(registry.getComponent('my-instance', 'my-component')).to.equal(testComponent);
     expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([testComponent]);
+    expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']);
   });
 
   it('should remove component', () => {
@@ -114,6 +117,7 @@ describe('components/registry', () => {
     expect(onOther.notCalled).to.be.true;
     expect(() => registry.getComponent('my-instance', 'my-component')).to.throw('Component my-instance:my-component does not exist in the registry');
     expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([]);
+    expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']); // we still have the plugin
   });
 
   // TODO: test bus-publisher
