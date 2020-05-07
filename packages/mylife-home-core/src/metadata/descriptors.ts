@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { components } from 'mylife-home-common';
 import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
-import { getPrimitive, getDefaultType, ConfigType } from './types';
+import { getDefaultType, ConfigType } from './types';
 
-import NetType = components.NetType;
-import NetComponentDescriptor = components.NetComponentDescriptor;
+import Type = components.metadata.Type;
+import Plugin = components.metadata.Plugin;
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
@@ -38,7 +38,7 @@ export function getDescriptor(type: ComponentType) {
 
 export class ActionDescriptor {
   readonly description: string;
-  readonly type: NetType;
+  readonly type: Type;
 
   constructor(componentType: ComponentType, readonly name: string, options: ActionOptions) {
     this.description = options.description;
@@ -58,7 +58,7 @@ export class ActionDescriptor {
 
 export class StateDescriptor {
   readonly description: string;
-  readonly type: NetType;
+  readonly type: Type;
 
   constructor(componentType: ComponentType, readonly name: string, options: StateOptions) {
     this.description = options.description;
@@ -73,7 +73,7 @@ export class StateDescriptor {
   }
 }
 
-function validateType(primitive: Primitive, providedType?: NetType) {
+function validateType(primitive: Primitive, providedType?: Type) {
   if (providedType) {
     const expectedPrimitive = getPrimitive(providedType);
     if (expectedPrimitive !== primitive.name) {
@@ -126,18 +126,7 @@ export class ComponentDescriptor {
     Object.freeze(this.configs);
   }
 
-  getNetMetadata(): NetComponentDescriptor {
-    const members: any = {};
-    for (const descriptor of this.actions.values()) {
-      members[descriptor.name] = { member: 'action', type: descriptor.type };
-    }
-    for (const descriptor of this.states.values()) {
-      members[descriptor.name] = { member: 'state', type: descriptor.type };
-    }
-    return { name: this.name, members };
-  }
-
-  getDesignerMetadata(): any {
+  getMetadata(): Plugin {
     const members: any = {};
     for (const descriptor of this.actions.values()) {
       const meta = { member: 'action', type: descriptor.type };

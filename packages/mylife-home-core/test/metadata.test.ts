@@ -1,7 +1,7 @@
 import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { component, config, state, action, getDescriptor, NetType, ConfigType, build } from '../src/metadata';
+import { component, config, state, action, getDescriptor, Float, Range, Enum, ConfigType, build } from '../src/metadata';
 
 describe('metadata', () => {
   it('should produce right net medata using basic decorators', () => {
@@ -10,8 +10,8 @@ describe('metadata', () => {
     expect(descriptor.getNetMetadata()).to.deep.equal({
       name: 'test-component',
       members: {
-        value: { member: 'state', type: NetType.FLOAT },
-        setValue: { member: 'action', type: NetType.FLOAT },
+        value: { member: 'state', type: new Float() },
+        setValue: { member: 'action', type: new Float() },
       },
     });
   });
@@ -22,8 +22,8 @@ describe('metadata', () => {
     expect(descriptor.getDesignerMetadata()).to.deep.equal({
       name: 'test-component',
       members: {
-        value: { member: 'state', type: NetType.FLOAT },
-        setValue: { member: 'action', type: NetType.FLOAT },
+        value: { member: 'state', type: new Float() },
+        setValue: { member: 'action', type: new Float() },
       },
       config: {}
     });
@@ -35,8 +35,8 @@ describe('metadata', () => {
     expect(descriptor.getNetMetadata()).to.deep.equal({
       name: 'overridden-name',
       members: {
-        value: { member: 'state', type: NetType.INT32 },
-        setValue: { member: 'action', type: NetType.UINT8 },
+        value: { member: 'state', type: new Range(-10, 10) },
+        setValue: { member: 'action', type: new Enum('a', 'b', 'c') },
       },
     });
   });
@@ -48,8 +48,8 @@ describe('metadata', () => {
       name: 'overridden-name',
       description: 'component description',
       members: {
-        value: { member: 'state', type: NetType.INT32, description: 'state description' },
-        setValue: { member: 'action', type: NetType.UINT8, description: 'action description' },
+        value: { member: 'state', type: new Range(-10, 10), description: 'state description' },
+        setValue: { member: 'action', type: new Enum('a', 'b', 'c'), description: 'action description' },
       },
       config: {
         config1: { type: 'string', description: 'config description' },
@@ -95,10 +95,10 @@ function advanced() {
   @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
   @config({ name: 'config2', type: ConfigType.INTEGER })
   class TestComponent {
-    @state({ description: 'state description', type: NetType.INT32 })
+    @state({ description: 'state description', type: new Range(-10, 10) })
     value: number;
 
-    @action({ description: 'action description', type: NetType.UINT8 })
+    @action({ description: 'action description', type: new Enum('a', 'b', 'c') })
     setValue(newValue: number) {
       this.value = newValue;
     }
