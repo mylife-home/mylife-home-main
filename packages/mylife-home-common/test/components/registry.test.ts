@@ -128,8 +128,8 @@ describe('components/registry', () => {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
         const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
-
         await sleep(20);
+
         expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
@@ -152,7 +152,40 @@ describe('components/registry', () => {
     });
 
     it('should publish remote component', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const boolType = new metadata.Bool();
 
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        await sleep(20);
+
+        expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([]);
+
+        // must publish component runtime before its meta
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteComponent.setState('myState', boolType.primitive.encode(false));
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        await sleep(20);
+
+        expect(registry.getComponent('remote', 'my-component')).to.deep.equal(TEST_PLUGIN);
+        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([TEST_PLUGIN]);
+        expect(Array.from(registry.getInstanceNames())).to.deep.equal(['remote']);
+
+        // must unpublish component runtime after its meta
+        await remoteTransport.metadata.clear('components/my-component');
+        await remoteTransport.components.removeLocalComponent('my-component');
+        await sleep(20);
+
+        expect(() => registry.getComponent('remote', 'my-component')).to.throw('Plugin remote:module.name does not exist in the registry');
+        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([]);
+
+      } finally {
+        await session.terminate();
+      }
     });
 
     it('should transmit action to remote component', async () => {
