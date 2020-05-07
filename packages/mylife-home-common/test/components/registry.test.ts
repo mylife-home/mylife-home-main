@@ -15,6 +15,9 @@ const TEST_PLUGIN: metadata.Plugin = Object.freeze({
   members: {
     myAction: { description: 'My action', memberType: metadata.MemberType.ACTION, valueType: new metadata.Bool() },
     myState: { description: 'My state', memberType: metadata.MemberType.STATE, valueType: new metadata.Bool() },
+  },
+  config: {
+    myConf: { description: 'My conf', valueType: metadata.ConfigType.FLOAT }
   }
 });
 
