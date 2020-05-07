@@ -181,7 +181,7 @@ describe('components/registry', () => {
         // must unpublish component runtime after its meta
         await remoteTransport.metadata.clear('components/my-component');
         await remoteTransport.components.removeLocalComponent('my-component');
-        await sleep(20);
+        await sleep(50);
 
         expect(() => registry.getComponent('remote', 'my-component')).to.throw('Component remote:my-component does not exist in the registry');
         expect(Array.from(registry.getComponents('remote'))).to.deep.equal([]);
@@ -192,7 +192,37 @@ describe('components/registry', () => {
     });
 
     it('should transmit action to remote component', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const boolType = new metadata.Bool();
 
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteComponent.setState('myState', boolType.primitive.encode(false));
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        await sleep(20);
+
+        const busComponent = registry.getComponent('remote', 'my-component');
+        const onChange = sinon.fake();
+        busComponent.on('state', onChange);
+
+        expect(busComponent.getState('myState')).to.equal(false);
+        expect(busComponent.getStates()).to.deep.equal({ myState: false });
+
+        await remoteComponent.setState('myState', boolType.primitive.encode(true));
+        await sleep(20);
+
+        expect(busComponent.getState('myState')).to.equal(true);
+        expect(busComponent.getStates()).to.deep.equal({ myState: true });
+        expect(onChange.calledOnceWithExactly('myState', true)).to.be.true;
+
+      } finally {
+        await session.terminate();
+      }
     });
 
     it('should transmit state updates from remote component', async () => {
