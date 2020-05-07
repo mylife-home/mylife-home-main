@@ -191,7 +191,7 @@ describe('components/registry', () => {
       }
     });
 
-    it('should transmit action to remote component', async () => {
+    it('should transmit state updates from remote component', async () => {
       const session = new MqttTestSession();
       await session.init();
       try {
@@ -225,8 +225,83 @@ describe('components/registry', () => {
       }
     });
 
-    it('should transmit state updates from remote component', async () => {
+    it('should transmit action to remote component', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const boolType = new metadata.Bool();
 
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        const onAction = sinon.fake();
+        await remoteComponent.registerAction('myAction', onAction);
+        await sleep(20);
+
+        const busComponent = registry.getComponent('remote', 'my-component');
+        busComponent.executeAction('myAction', true);
+        await sleep(20);
+
+        expect(onAction.calledOnceWithExactly(boolType.primitive.encode(true))).to.be.true;
+
+      } finally {
+        await session.terminate();
+      }
+    });
+
+    it('should fail to transmit bad action to remote component', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        const onAction = sinon.fake();
+        await remoteComponent.registerAction('myAction', onAction);
+        await sleep(20);
+
+        const busComponent = registry.getComponent('remote', 'my-component');
+        expect(() => busComponent.executeAction('boom', true)).to.throw(`Unknown action 'boom' on component 'remote:my-component' (plugin=module.name)`);
+        await sleep(20);
+
+        expect(onAction.notCalled).to.be.true;
+
+      } finally {
+        await session.terminate();
+      }
+    });
+
+    it('should fail to transmit action with bad arguments to remote component', async () => {
+      const session = new MqttTestSession();
+      await session.init();
+      try {
+        const registryTransport = await session.createTransport('registry', { presenceTracking: true });
+        const remoteTransport = await session.createTransport('remote');
+        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+
+        await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
+        const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
+        await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
+        const onAction = sinon.fake();
+        await remoteComponent.registerAction('myAction', onAction);
+        await sleep(20);
+
+        const busComponent = registry.getComponent('remote', 'my-component');
+        expect(() => busComponent.executeAction('myAction', 42)).to.throw(`Wrong value '42' for type 'bool'`);
+        await sleep(20);
+
+        expect(onAction.called).to.be.false;
+
+      } finally {
+        await session.terminate();
+      }
     });
 
     it('should handle local disconnection', async () => {
