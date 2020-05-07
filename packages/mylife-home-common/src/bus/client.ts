@@ -25,7 +25,7 @@ export class Client extends EventEmitter {
     // TODO mqtt release: remove toString(), qos
     const qos: mqtt.QoS = 0;
     const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false).toString(), retain: false, qos };
-    this.client = mqtt.connect(serverUrl, { will });
+    this.client = mqtt.connect(serverUrl, { will, resubscribe: false });
 
     this.client.on('connect', () => fireAsync(async () => {
       await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
