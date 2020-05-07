@@ -1,2 +1,4 @@
-export * as metadata from './metadata';
+import * as metadata from './metadata';
+export { metadata };
+
 export { Component, Registry } from './registry';
