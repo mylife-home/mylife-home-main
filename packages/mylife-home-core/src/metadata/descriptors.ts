@@ -1,10 +1,8 @@
 import 'reflect-metadata';
 import { components } from 'mylife-home-common';
 import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
-import { getDefaultType, ConfigType } from './types';
 
-import Type = components.metadata.Type;
-import Plugin = components.metadata.Plugin;
+import metadata = components.metadata;
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
@@ -38,7 +36,7 @@ export function getDescriptor(type: ComponentType) {
 
 export class ActionDescriptor {
   readonly description: string;
-  readonly type: Type;
+  readonly type: metadata.Type;
 
   constructor(componentType: ComponentType, readonly name: string, options: ActionOptions) {
     this.description = options.description;
@@ -58,7 +56,7 @@ export class ActionDescriptor {
 
 export class StateDescriptor {
   readonly description: string;
-  readonly type: Type;
+  readonly type: metadata.Type;
 
   constructor(componentType: ComponentType, readonly name: string, options: StateOptions) {
     this.description = options.description;
@@ -73,7 +71,7 @@ export class StateDescriptor {
   }
 }
 
-function validateType(primitive: Primitive, providedType?: Type) {
+function validateType(primitive: Primitive, providedType?: metadata.Type) {
   if (providedType) {
     const expectedPrimitive = getPrimitive(providedType);
     if (expectedPrimitive !== primitive.name) {
@@ -88,7 +86,7 @@ function validateType(primitive: Primitive, providedType?: Type) {
 export class ConfigDescriptor {
   readonly name: string;
   readonly description: string;
-  readonly type: ConfigType;
+  readonly type: metadata.ConfigType;
 
   constructor(options: ConfigOptions) {
     this.name = options.name;
@@ -103,10 +101,12 @@ export class ComponentDescriptor {
   readonly configs = new Map<string, ConfigDescriptor>();
   readonly name: string;
   readonly description: string;
+  readonly usage: metadata.PluginUsage;
 
   constructor(readonly componentType: ComponentType, options: ComponentOptions, actions: Map<string, ActionOptions>, states: Map<string, StateOptions>, configs: Set<ConfigOptions>) {
     this.name = options.name || formatClassName(componentType.name);
     this.description = options.description;
+    this.usage = options.usage;
     for (const [name, options] of actions.entries()) {
       const descriptor = new ActionDescriptor(componentType, name, options);
       this.actions.set(descriptor.name, descriptor);
@@ -126,33 +126,26 @@ export class ComponentDescriptor {
     Object.freeze(this.configs);
   }
 
-  getMetadata(): Plugin {
-    const members: any = {};
+  getMetadata(): metadata.Plugin {
+    const members: { [name: string]: metadata.Member; } = {};
     for (const descriptor of this.actions.values()) {
-      const meta = { member: 'action', type: descriptor.type };
-      addDescription(meta, descriptor);
-      members[descriptor.name] = meta;
+      members[descriptor.name] = { memberType: metadata.MemberType.ACTION, description: descriptor.description, valueType: descriptor.type };
     }
     for (const descriptor of this.states.values()) {
-      const meta = { member: 'state', type: descriptor.type };
-      addDescription(meta, descriptor);
-      members[descriptor.name] = meta;
+      members[descriptor.name] = { memberType: metadata.MemberType.STATE, description: descriptor.description, valueType: descriptor.type };
     }
-    const config: any = {};
-    for (const descriptor of this.configs.values()) {
-      const meta = { type: descriptor.type };
-      addDescription(meta, descriptor);
-      config[descriptor.name] = meta;
-    }
-    const meta = { name: this.name, members, config };
-    addDescription(meta, this);
-    return meta;
-  }
-}
 
-function addDescription(meta: any, descriptor: { readonly description: string }) {
-  if(descriptor.description) {
-    meta.description = descriptor.description;
+    const config: { [name: string]: metadata.ConfigItem; } = {};
+    for (const descriptor of this.configs.values()) {
+      config[descriptor.name] = { description: descriptor.description, valueType: descriptor.type };
+    }
+
+    // TODO
+    const module = 'module-TODO';
+    const version = '1.0.0-TODO';
+
+    const id = `${module}.${name}`;
+    return { id, module, name: this.name, usage: this.usage, version, description: this.description, members, config };
   }
 }
 
