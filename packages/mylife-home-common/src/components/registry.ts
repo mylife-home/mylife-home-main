@@ -13,17 +13,25 @@ export interface Component extends EventEmitter {
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
-  getStates(): { [name: string]: any };
+  getStates(): { [name: string]: any; };
 }
 
 export interface Registry extends EventEmitter {
-  on(event: 'add', listener: (component: Component) => void): this;
-  off(event: 'add', listener: (component: Component) => void): this;
-  once(event: 'add', listener: (component: Component) => void): this;
+  on(event: 'component.add', listener: (instanceName: string, component: Component) => void): this;
+  off(event: 'component.add', listener: (instanceName: string, component: Component) => void): this;
+  once(event: 'component.add', listener: (instanceName: string, component: Component) => void): this;
 
-  on(event: 'remove', listener: (component: Component) => void): this;
-  off(event: 'remove', listener: (component: Component) => void): this;
-  once(event: 'remove', listener: (component: Component) => void): this;
+  on(event: 'component.remove', listener: (instanceName: string, component: Component) => void): this;
+  off(event: 'component.remove', listener: (instanceName: string, component: Component) => void): this;
+  once(event: 'component.remove', listener: (instanceName: string, component: Component) => void): this;
+
+  on(event: 'plugin.add', listener: (instanceName: string, plugin: Plugin) => void): this;
+  off(event: 'plugin.add', listener: (instanceName: string, plugin: Plugin) => void): this;
+  once(event: 'plugin.add', listener: (instanceName: string, plugin: Plugin) => void): this;
+
+  on(event: 'plugin.remove', listener: (instanceName: string, plugin: Plugin) => void): this;
+  off(event: 'plugin.remove', listener: (instanceName: string, plugin: Plugin) => void): this;
+  once(event: 'plugin.remove', listener: (instanceName: string, plugin: Plugin) => void): this;
 }
 
 export interface RegistryOptions {
@@ -82,6 +90,7 @@ export class Registry extends EventEmitter implements Registry {
   }
 
   getPlugins(instanceName: string): Set<Plugin> {
+    throw new Error('TODO');
     // TODO
   }
 
@@ -117,6 +126,7 @@ export class Registry extends EventEmitter implements Registry {
   }
 
   getComponents(instanceName: string): Set<Component> {
+    throw new Error('TODO');
     // TODO
   }
 
