@@ -5,9 +5,9 @@ import { component, config, state, action, getDescriptor, Text, Float, Range, Pl
 
 describe('metadata', () => {
   it('should produce right medata using basic decorators', () => {
-    const descriptor = basic();
+    const plugin = basic();
 
-    expect(descriptor.getMetadata()).to.deep.equal({
+    expect(plugin).to.deep.equal({
       id: 'module-TODO.test-component',
       name: 'test-component',
       module: 'module-TODO',
@@ -23,9 +23,9 @@ describe('metadata', () => {
   });
 
   it('should produce right medata using advanced decorators', () => {
-    const descriptor = advanced();
+    const plugin = advanced();
 
-    expect(descriptor.getMetadata()).to.deep.equal({
+    expect(plugin).to.deep.equal({
       id: 'module-TODO.overridden-name',
       name: 'overridden-name',
       module: 'module-TODO',
@@ -86,7 +86,7 @@ function basic() {
 
   build();
 
-  return getDescriptor(TestComponent);
+  return getDescriptor(TestComponent).getMetadata();
 }
 
 function advanced() {
@@ -105,5 +105,5 @@ function advanced() {
 
   build();
 
-  return getDescriptor(TestComponent);
+  return getDescriptor(TestComponent).getMetadata();
 }
