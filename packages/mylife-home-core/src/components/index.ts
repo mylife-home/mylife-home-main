@@ -1,6 +1,6 @@
 import * as metadata from './metadata';
 export { metadata };
 
-export { Host } from './host';
-export { BusPublisher } from './bus-publisher';
-export { Binding } from './binding';
+export * from './host';
+export * from './bus-publisher';
+export * from './binding';
