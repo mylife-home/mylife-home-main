@@ -1,25 +1,13 @@
 import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { component, config, state, action, getDescriptor, Float, Range, Enum, ConfigType, build } from '../src/metadata';
+import { component, config, state, action, getDescriptor, Float, Range, Enum, PluginUsage, ConfigType, build } from '../src/metadata';
 
 describe('metadata', () => {
-  it('should produce right net medata using basic decorators', () => {
+  it('should produce right medata using basic decorators', () => {
     const descriptor = basic();
 
-    expect(descriptor.getNetMetadata()).to.deep.equal({
-      name: 'test-component',
-      members: {
-        value: { member: 'state', type: new Float() },
-        setValue: { member: 'action', type: new Float() },
-      },
-    });
-  });
-
-  it('should produce right designer medata using basic decorators', () => {
-    const descriptor = basic();
-
-    expect(descriptor.getDesignerMetadata()).to.deep.equal({
+    expect(descriptor.getMetadata()).to.deep.equal({
       name: 'test-component',
       members: {
         value: { member: 'state', type: new Float() },
@@ -29,22 +17,10 @@ describe('metadata', () => {
     });
   });
 
-  it('should produce right net medata using advanced decorators', () => {
+  it('should produce right medata using advanced decorators', () => {
     const descriptor = advanced();
 
-    expect(descriptor.getNetMetadata()).to.deep.equal({
-      name: 'overridden-name',
-      members: {
-        value: { member: 'state', type: new Range(-10, 10) },
-        setValue: { member: 'action', type: new Enum('a', 'b', 'c') },
-      },
-    });
-  });
-
-  it('should produce right designer medata using advanced decorators', () => {
-    const descriptor = advanced();
-
-    expect(descriptor.getDesignerMetadata()).to.deep.equal({
+    expect(descriptor.getMetadata()).to.deep.equal({
       name: 'overridden-name',
       description: 'component description',
       members: {
@@ -74,7 +50,7 @@ describe('metadata', () => {
 });
 
 function basic() {
-  @component
+  @component({ usage: PluginUsage.LOGIC })
   class TestComponent {
     @state
     value: number;
@@ -91,7 +67,7 @@ function basic() {
 }
 
 function advanced() {
-  @component({ name: 'overridden-name', description: 'component description' })
+  @component({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
   @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
   @config({ name: 'config2', type: ConfigType.INTEGER })
   class TestComponent {
