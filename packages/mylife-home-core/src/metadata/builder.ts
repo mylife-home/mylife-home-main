@@ -1,51 +1,142 @@
 import { ActionOptions, StateOptions, ComponentOptions, ConfigOptions } from './decorators';
-import { ComponentDescriptor } from './descriptors';
 import { components } from 'mylife-home-common';
 
 import Registry = components.Registry;
-import Plugin = components.metadata.Plugin;
+import metadata = components.metadata;
 
 export interface ComponentType extends Function {
   new (...args: any[]): any;
 }
 
-export interface LocalPlugin extends Plugin {
+type Primitive = {
+  name: string;
+};
+
+export interface LocalPlugin extends metadata.Plugin {
   readonly componentType: ComponentType;
 }
 
 class DescriptorBuilder {
-  private options: ComponentOptions;
-  private readonly configs = new Set<ConfigOptions>();
-  private readonly actions = new Map<string, ActionOptions>();
-  private readonly states = new Map<string, StateOptions>();
+  private name: string;
+  private description: string;
+  private usage: metadata.PluginUsage;
+  private readonly members: { [name: string]: metadata.Member } = {};
+  private readonly config: { [name: string]: metadata.ConfigItem } = {};
 
   constructor(private readonly type: ComponentType) {}
 
   addComponent(options: ComponentOptions) {
-    this.options = options;
+    this.name = options.name || this.formatClassName(this.type.name);
+    this.description = options.description;
+    this.usage = options.usage;
   }
 
   addConfig(options: ConfigOptions) {
-    this.configs.add(options);
+    this.config[options.name] = { description: options.description, valueType: options.type };
   }
 
   addAction(name: string, options: ActionOptions) {
-    this.actions.set(name, options);
+    const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.type.prototype, name);
+    if (primitives.length !== 1) {
+      throw new Error(`Bad action '${name}' on component '${this.type.name}': expected 1 parameter but got ${primitives.length}`);
+    }
+
+    let valueType: metadata.Type;
+    try {
+      valueType = this.validateType(primitives[0], options.type);
+    } catch (err) {
+      err.message = `Bad action '${name}' on component '${this.type.name}':  ${err.message}`;
+      throw err;
+    }
+
+    this.members[name] = { memberType: metadata.MemberType.ACTION, description: options.description, valueType };
   }
 
   addState(name: string, options: StateOptions) {
-    this.states.set(name, options);
+    const primitive: Primitive = Reflect.getMetadata('design:type', this.type.prototype, name);
+
+    let valueType: metadata.Type;
+    try {
+      valueType = this.validateType(primitive, options.type);
+    } catch (err) {
+      err.message = `Bad action '${name}' on component '${this.type.name}':  ${err.message}`;
+      throw err;
+    }
+
+    this.members[name] = { memberType: metadata.MemberType.STATE, description: options.description, valueType };
   }
 
-  build(module: string, version: string, registry: Registry) {
-    if (!this.options) {
+  private validateType(primitive: Primitive, providedType?: metadata.Type) {
+    if (providedType) {
+      const expectedPrimitive = this.getPrimitive(providedType);
+      if (expectedPrimitive !== primitive.name) {
+        throw new Error(`Expected primitive '${expectedPrimitive}' but got '${primitive.name}'`);
+      }
+      return providedType;
+    }
+
+    return this.getDefaultType(primitive.name);
+  }
+
+  private formatClassName(name: string) {
+    // https://gist.github.com/thevangelist/8ff91bac947018c9f3bfaad6487fa149
+    return name
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+  }
+
+  private getPrimitive(type: metadata.Type): string {
+    switch (type.primitive) {
+      case metadata.Primitives.STRING:
+        return 'String';
+      case metadata.Primitives.BOOL:
+        return 'Boolean';
+      case metadata.Primitives.UINT8:
+      case metadata.Primitives.INT8:
+      case metadata.Primitives.UINT32:
+      case metadata.Primitives.INT32:
+      case metadata.Primitives.FLOAT:
+        return 'Number';
+      case metadata.Primitives.JSON:
+        return 'Object';
+      default:
+        throw new Error(`Unsupported type '${type}'`);
+    }
+  }
+
+  private getDefaultType(primitive: string): metadata.Type {
+    switch (primitive) {
+      case 'String':
+        return new metadata.Text();
+      case 'Boolean':
+        return new metadata.Bool();
+      case 'Number':
+        return new metadata.Float();
+      case 'Object':
+        return new metadata.Complex();
+      default:
+        throw new Error(`Unsupported primitive '${primitive}'`);
+    }
+  }
+
+  build(module: string, version: string): LocalPlugin {
+    if (!this.name) {
       throw new Error(`Class '${this.type.name}' looks like component but @component decorator is missing`);
     }
 
-    const descriptor = new ComponentDescriptor(this.type, this.options, this.actions, this.states, this.configs);
-    const plugin = descriptor.getMetadata();
-    const finalPlugin: LocalPlugin = { ...plugin, module, version, componentType: this.type };
-    registry.addPlugin(null, finalPlugin);
+    return {
+      componentType: this.type,
+
+      id: `${module}.${this.name}`,
+      name: this.name,
+      module,
+      usage: this.usage,
+      version,
+      description: this.description,
+      members: this.members,
+      config: this.config,
+    };
   }
 }
 
@@ -104,9 +195,9 @@ export function build() {
   }
 
   for (const builder of context.builders.values()) {
-    builder.build(context.module, context.version, context.registry);
+    const plugin = builder.build(context.module, context.version);
+    context.registry.addPlugin(null, plugin);
   }
- 
 }
 
 export function terminate() {
