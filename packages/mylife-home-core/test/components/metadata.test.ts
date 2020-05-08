@@ -2,9 +2,9 @@ import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
 import { components } from 'mylife-home-common';
-import { plugin, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../src/metadata';
+import { plugin, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../../src/components/metadata';
 
-describe('metadata', () => {
+describe('components/metadata', () => {
   it('should produce right medata using basic decorators', () => {
     const plugin = basic();
 
