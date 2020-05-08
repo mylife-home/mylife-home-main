@@ -1,7 +1,7 @@
 import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { component, config, state, action, getDescriptor, Text, Float, Range, Enum, PluginUsage, ConfigType, build } from '../src/metadata';
+import { component, config, state, action, getDescriptor, Text, Float, Range, PluginUsage, ConfigType, build } from '../src/metadata';
 
 describe('metadata', () => {
   it('should produce right medata using basic decorators', () => {
