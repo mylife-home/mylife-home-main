@@ -38,14 +38,14 @@ class DescriptorBuilder {
   addAction(name: string, options: ActionOptions) {
     const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.implementation.prototype, name);
     if (primitives.length !== 1) {
-      throw new Error(`Bad action '${name}' on component '${this.implementation.name}': expected 1 parameter but got ${primitives.length}`);
+      throw new Error(`Bad action '${name}' on plugin '${this.implementation.name}': expected 1 parameter but got ${primitives.length}`);
     }
 
     let valueType: metadata.Type;
     try {
       valueType = this.validateType(primitives[0], options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.implementation.name}':  ${err.message}`;
+      err.message = `Bad action '${name}' on plugin '${this.implementation.name}':  ${err.message}`;
       throw err;
     }
 
@@ -59,7 +59,7 @@ class DescriptorBuilder {
     try {
       valueType = this.validateType(primitive, options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.implementation.name}':  ${err.message}`;
+      err.message = `Bad state '${name}' on plugin '${this.implementation.name}':  ${err.message}`;
       throw err;
     }
 
@@ -151,7 +151,7 @@ let context: Context;
 
 function getBuilder(type: PluginImplementation) {
   if (!context) {
-    throw new Error('Cannot publish component outside of loading context');
+    throw new Error('Cannot publish plugin outside of loading context');
   }
 
   const existing = context.builders.get(type);
