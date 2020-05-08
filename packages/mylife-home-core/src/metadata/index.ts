@@ -11,7 +11,7 @@ import ConfigType = components.metadata.ConfigType;
 
 export { Type, Range, Text, Float, Bool, Enum, Complex, PluginUsage, ConfigType };
 
-export { component, config, action, state } from './decorators';
+export { plugin, config, action, state } from './decorators';
 export { LocalPlugin } from './builder';
 
 import * as importBuilder from './builder';

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { components } from 'mylife-home-common';
-import { addComponent, addConfig, addAction, addState } from './builder';
+import { addPlugin, addConfig, addAction, addState } from './builder';
 
 import metadata = components.metadata;
 
@@ -9,15 +9,15 @@ export type Constructor = {
   name: string;
 };
 
-export interface ComponentOptions {
+export interface PluginOptions {
   readonly name?: string;
   readonly description?: string;
   readonly usage: metadata.PluginUsage;
 }
 
-export function component(options: ComponentOptions) {
+export function plugin(options: PluginOptions) {
   return (target: Constructor) => {
-    addComponent(target, options);
+    addPlugin(target, options);
   };
 }
 
