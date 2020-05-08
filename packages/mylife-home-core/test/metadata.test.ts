@@ -66,6 +66,7 @@ describe('metadata', () => {
   it('should fail if wrong action type', () => {
     const testBuild = () =>
       build(() => {
+        @component({ usage: PluginUsage.LOGIC })
         class TestComponent {
           @state
           value: number;
@@ -77,7 +78,7 @@ describe('metadata', () => {
         }
       });
 
-    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
+    expect(() => testBuild()).to.throw(`Bad action 'setValue' on component 'TestComponent':  Expected primitive 'String' but got 'Number'`);
   });
 });
 
