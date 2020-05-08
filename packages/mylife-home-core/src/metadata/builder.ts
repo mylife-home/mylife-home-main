@@ -23,10 +23,10 @@ class DescriptorBuilder {
   private readonly members: { [name: string]: metadata.Member } = {};
   private readonly config: { [name: string]: metadata.ConfigItem } = {};
 
-  constructor(private readonly type: ComponentType) {}
+  constructor(private readonly componentType: ComponentType) {}
 
   addComponent(options: ComponentOptions) {
-    this.name = options.name || this.formatClassName(this.type.name);
+    this.name = options.name || this.formatClassName(this.componentType.name);
     this.description = options.description;
     this.usage = options.usage;
   }
@@ -36,16 +36,16 @@ class DescriptorBuilder {
   }
 
   addAction(name: string, options: ActionOptions) {
-    const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.type.prototype, name);
+    const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.componentType.prototype, name);
     if (primitives.length !== 1) {
-      throw new Error(`Bad action '${name}' on component '${this.type.name}': expected 1 parameter but got ${primitives.length}`);
+      throw new Error(`Bad action '${name}' on component '${this.componentType.name}': expected 1 parameter but got ${primitives.length}`);
     }
 
     let valueType: metadata.Type;
     try {
       valueType = this.validateType(primitives[0], options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.type.name}':  ${err.message}`;
+      err.message = `Bad action '${name}' on component '${this.componentType.name}':  ${err.message}`;
       throw err;
     }
 
@@ -53,13 +53,13 @@ class DescriptorBuilder {
   }
 
   addState(name: string, options: StateOptions) {
-    const primitive: Primitive = Reflect.getMetadata('design:type', this.type.prototype, name);
+    const primitive: Primitive = Reflect.getMetadata('design:type', this.componentType.prototype, name);
 
     let valueType: metadata.Type;
     try {
       valueType = this.validateType(primitive, options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.type.name}':  ${err.message}`;
+      err.message = `Bad action '${name}' on component '${this.componentType.name}':  ${err.message}`;
       throw err;
     }
 
@@ -122,11 +122,11 @@ class DescriptorBuilder {
 
   build(module: string, version: string): LocalPlugin {
     if (!this.name) {
-      throw new Error(`Class '${this.type.name}' looks like component but @component decorator is missing`);
+      throw new Error(`Class '${this.componentType.name}' looks like component but @component decorator is missing`);
     }
 
     return {
-      componentType: this.type,
+      componentType: this.componentType,
 
       id: `${module}.${this.name}`,
       name: this.name,
