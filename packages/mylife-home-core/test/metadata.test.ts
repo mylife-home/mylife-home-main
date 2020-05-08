@@ -1,17 +1,19 @@
 import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { component, config, state, action, getDescriptor, Text, Float, Range, PluginUsage, ConfigType, build } from '../src/metadata';
+import { components } from 'mylife-home-common';
+import { component, config, state, action, getDescriptor, Text, Float, Range, PluginUsage, ConfigType, initBuilder, terminateBuilder, LocalPlugin } from '../src/metadata';
 
 describe('metadata', () => {
   it('should produce right medata using basic decorators', () => {
     const plugin = basic();
 
     expect(plugin).to.deep.equal({
-      id: 'module-TODO.test-component',
+      componentType: plugin.componentType, // will assert that on host checks
+      id: 'test-module.test-component',
       name: 'test-component',
-      module: 'module-TODO',
-      version: '1.0.0-TODO',
+      module: 'test-module',
+      version: 'test-version',
       usage: 'logic',
       description: undefined,
       members: {
@@ -26,10 +28,11 @@ describe('metadata', () => {
     const plugin = advanced();
 
     expect(plugin).to.deep.equal({
-      id: 'module-TODO.overridden-name',
+      componentType: plugin.componentType, // will assert that on host checks
+      id: 'test-module.overridden-name',
       name: 'overridden-name',
-      module: 'module-TODO',
-      version: '1.0.0-TODO',
+      module: 'test-module',
+      version: 'test-version',
       usage: 'logic',
       description: 'component description',
       members: {
@@ -44,6 +47,41 @@ describe('metadata', () => {
   });
 
   it('should fail if missing component decorator', () => {
+    const testBuild = () => build(() => {
+      class TestComponent {
+        @state
+        value: number;
+
+        @action
+        setValue(newValue: number) {
+          this.value = newValue;
+        }
+      }
+    });
+
+    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
+  });
+
+  it('should fail if wrong action type', () => {
+    const testBuild = () => build(() => {
+      class TestComponent {
+        @state
+        value: number;
+  
+        @action({ type: new Text() })
+        setValue(newValue: number) {
+          this.value = newValue;
+        }
+      }
+    });
+
+    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
+  });
+});
+
+function basic() {
+  return build(() => {
+    @component({ usage: PluginUsage.LOGIC })
     class TestComponent {
       @state
       value: number;
@@ -53,57 +91,35 @@ describe('metadata', () => {
         this.value = newValue;
       }
     }
-
-    expect(() => build()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
   });
+}
 
-  it('should fail if wrong action type', () => {
+function advanced() {
+  return build(() => {
+    @component({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
+    @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
+    @config({ name: 'config2', type: ConfigType.INTEGER })
     class TestComponent {
-      @state
+      @state({ description: 'state description', type: new Range(-10, 10) })
       value: number;
 
-      @action({ type: new Text() })
+      @action({ description: 'action description', type: new Range(-10, 10) })
       setValue(newValue: number) {
         this.value = newValue;
       }
     }
-
-    expect(() => build()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
   });
-});
-
-function basic() {
-  @component({ usage: PluginUsage.LOGIC })
-  class TestComponent {
-    @state
-    value: number;
-
-    @action
-    setValue(newValue: number) {
-      this.value = newValue;
-    }
-  }
-
-  build();
-
-  return getDescriptor(TestComponent).getMetadata();
 }
 
-function advanced() {
-  @component({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
-  @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
-  @config({ name: 'config2', type: ConfigType.INTEGER })
-  class TestComponent {
-    @state({ description: 'state description', type: new Range(-10, 10) })
-    value: number;
-
-    @action({ description: 'action description', type: new Range(-10, 10) })
-    setValue(newValue: number) {
-      this.value = newValue;
-    }
+function build(callback: () => void) {
+  const registry = new components.Registry();
+  initBuilder('test-module', 'test-version', registry);
+  try {
+    callback();
+  } finally {
+    terminateBuilder();
   }
 
-  build();
-
-  return getDescriptor(TestComponent).getMetadata();
+  const plugins = registry.getPlugins(null);
+  return Array.from(plugins)[0] as LocalPlugin;
 }
