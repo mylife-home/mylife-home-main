@@ -10,8 +10,8 @@ describe('metadata', () => {
 
     expect(plugin).to.deep.equal({
       implementation: plugin.implementation, // will assert that on host checks
-      id: 'test-module.test-component',
-      name: 'test-component',
+      id: 'test-module.test-plugin',
+      name: 'test-plugin',
       module: 'test-module',
       version: 'test-version',
       usage: 'logic',
@@ -49,7 +49,7 @@ describe('metadata', () => {
   it('should fail if missing component decorator', () => {
     const testBuild = () =>
       build(() => {
-        class TestComponent {
+        class TestPlugin {
           @state
           value: number;
 
@@ -60,14 +60,14 @@ describe('metadata', () => {
         }
       });
 
-    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like plugin but @plugin decorator is missing`);
+    expect(() => testBuild()).to.throw(`Class 'TestPlugin' looks like plugin but @plugin decorator is missing`);
   });
 
   it('should fail if wrong action type', () => {
     const testBuild = () =>
       build(() => {
         @plugin({ usage: PluginUsage.LOGIC })
-        class TestComponent {
+        class TestPlugin {
           @state
           value: number;
 
@@ -78,14 +78,14 @@ describe('metadata', () => {
         }
       });
 
-    expect(() => testBuild()).to.throw(`Bad action 'setValue' on component 'TestComponent':  Expected primitive 'String' but got 'Number'`);
+    expect(() => testBuild()).to.throw(`Bad action 'setValue' on plugin 'TestPlugin':  Expected primitive 'String' but got 'Number'`);
   });
 });
 
 function basic() {
   return build(() => {
     @plugin({ usage: PluginUsage.LOGIC })
-    class TestComponent {
+    class TestPlugin {
       @state
       value: number;
 
@@ -102,7 +102,7 @@ function advanced() {
     @plugin({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
     @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
     @config({ name: 'config2', type: ConfigType.INTEGER })
-    class TestComponent {
+    class TestPlugin {
       @state({ description: 'state description', type: new Range(-10, 10) })
       value: number;
 
