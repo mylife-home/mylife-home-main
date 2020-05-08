@@ -2,7 +2,7 @@ import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
 import { components } from 'mylife-home-common';
-import { plugin, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../../src/components/metadata';
+import { metadata } from '../../src/components';
 
 describe('components/metadata', () => {
   it('should produce right medata using basic decorators', () => {
@@ -17,8 +17,8 @@ describe('components/metadata', () => {
       usage: 'logic',
       description: undefined,
       members: {
-        value: { memberType: 'state', valueType: new Float(), description: undefined },
-        setValue: { memberType: 'action', valueType: new Float(), description: undefined },
+        value: { memberType: 'state', valueType: new metadata.Float(), description: undefined },
+        setValue: { memberType: 'action', valueType: new metadata.Float(), description: undefined },
       },
       config: {},
     });
@@ -36,8 +36,8 @@ describe('components/metadata', () => {
       usage: 'logic',
       description: 'component description',
       members: {
-        value: { memberType: 'state', valueType: new Range(-10, 10), description: 'state description' },
-        setValue: { memberType: 'action', valueType: new Range(-10, 10), description: 'action description' },
+        value: { memberType: 'state', valueType: new metadata.Range(-10, 10), description: 'state description' },
+        setValue: { memberType: 'action', valueType: new metadata.Range(-10, 10), description: 'action description' },
       },
       config: {
         config1: { valueType: 'string', description: 'config description' },
@@ -50,10 +50,10 @@ describe('components/metadata', () => {
     const testBuild = () =>
       build(() => {
         class TestPlugin {
-          @state
+          @metadata.state
           value: number;
 
-          @action
+          @metadata.action
           setValue(newValue: number) {
             this.value = newValue;
           }
@@ -66,12 +66,12 @@ describe('components/metadata', () => {
   it('should fail if wrong action type', () => {
     const testBuild = () =>
       build(() => {
-        @plugin({ usage: PluginUsage.LOGIC })
+        @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
         class TestPlugin {
-          @state
+          @metadata.state
           value: number;
 
-          @action({ type: new Text() })
+          @metadata.action({ type: new metadata.Text() })
           setValue(newValue: number) {
             this.value = newValue;
           }
@@ -84,12 +84,12 @@ describe('components/metadata', () => {
 
 function basic() {
   return build(() => {
-    @plugin({ usage: PluginUsage.LOGIC })
+    @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
     class TestPlugin {
-      @state
+      @metadata.state
       value: number;
 
-      @action
+      @metadata.action
       setValue(newValue: number) {
         this.value = newValue;
       }
@@ -99,14 +99,14 @@ function basic() {
 
 function advanced() {
   return build(() => {
-    @plugin({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
-    @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
-    @config({ name: 'config2', type: ConfigType.INTEGER })
+    @metadata.plugin({ name: 'overridden-name', usage: metadata.PluginUsage.LOGIC, description: 'component description' })
+    @metadata.config({ name: 'config1', description: 'config description', type: metadata.ConfigType.STRING })
+    @metadata.config({ name: 'config2', type: metadata.ConfigType.INTEGER })
     class TestPlugin {
-      @state({ description: 'state description', type: new Range(-10, 10) })
+      @metadata.state({ description: 'state description', type: new metadata.Range(-10, 10) })
       value: number;
 
-      @action({ description: 'action description', type: new Range(-10, 10) })
+      @metadata.action({ description: 'action description', type: new metadata.Range(-10, 10) })
       setValue(newValue: number) {
         this.value = newValue;
       }
@@ -116,14 +116,14 @@ function advanced() {
 
 function build(callback: () => void) {
   const registry = new components.Registry();
-  builder.init('test-module', 'test-version', registry);
+  metadata.builder.init('test-module', 'test-version', registry);
   try {
     callback();
-    builder.build();
+    metadata.builder.build();
   } finally {
-    builder.terminate();
+    metadata.builder.terminate();
   }
 
   const plugins = registry.getPlugins(null);
-  return Array.from(plugins)[0] as LocalPlugin;
+  return Array.from(plugins)[0] as metadata.LocalPlugin;
 }
