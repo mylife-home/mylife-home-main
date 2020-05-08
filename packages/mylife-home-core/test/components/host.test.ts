@@ -3,14 +3,13 @@ import 'reflect-metadata';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { components } from 'mylife-home-common';
-import { Host } from '../../src/components/host';
-import { plugin, config, state, action, ConfigType, builder, LocalPlugin, PluginUsage, Range } from '../../src/components/metadata';
+import { metadata, Host } from '../../src/components';
 
 describe('components/host', () => {
   it('should host component', () => {
-    const lplugin = createPlugin();
+    const plugin = createPlugin();
 
-    const host = new Host('id', lplugin, { config1: 'my-config' });
+    const host = new Host('id', plugin, { config1: 'my-config' });
 
     expect(host.getStates()).to.deep.equal({
       config: 'my-config',
@@ -28,60 +27,60 @@ describe('components/host', () => {
   });
 
   it('should forbid to give wrong config', () => {
-    const lplugin = createPlugin();
-    const tester = () => new Host('id', lplugin, { config1: 42 });
+    const plugin = createPlugin();
+    const tester = () => new Host('id', plugin, { config1: 42 });
     expect(tester).to.throw(`Invalid configuration for component 'id' of plugin 'test-module.test-plugin' for configuration entry 'config1': expected type 'string' but got 'number'`);
   });
 
   it('should forbid to init state to a wrong value', () => {
-    const lplugin = build(() => {
-      @plugin({ usage: PluginUsage.LOGIC })
+    const plugin = build(() => {
+      @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
       class TestPlugin {
-        @state({ type: new Range(0, 100) })
+        @metadata.state({ type: new metadata.Range(0, 100) })
         value: number = 400;
       }
     });
 
-    const tester = () => new Host('id', lplugin, {});
+    const tester = () => new Host('id', plugin, {});
     expect(tester).to.throw(`Wrong value '400' for type 'range[0;100]'`);
   });
 
   it('should forbid to set state to a wrong value', () => {
-    const lplugin = build(() => {
-      @plugin({ usage: PluginUsage.LOGIC })
+    const plugin = build(() => {
+      @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
       class TestPlugin {
-        @state({ type: new Range(0, 100) })
+        @metadata.state({ type: new metadata.Range(0, 100) })
         value: number = 42;
 
-        @action
+        @metadata.action
         fail(newValue: number) {
           this.value = 400;
         }
       }
     });
 
-    const host = new Host('id', lplugin, {});
+    const host = new Host('id', plugin, {});
     const tester = () => host.executeAction('fail', 42);
     expect(tester).to.throw(`Wrong value '400' for type 'range[0;100]'`);
   });
 
   it('should forbid to execute action with a wrong value', () => {
-    const lplugin = createPlugin();
-    const host = new Host('id', lplugin, { config1: 'my-config' });
+    const plugin = createPlugin();
+    const host = new Host('id', plugin, { config1: 'my-config' });
     const tester = () => host.executeAction('setValue', 'wrong');
     expect(tester).to.throw(`Wrong value 'wrong' for type 'float'`);
   });
 
   it('should call destroy on component', () => {
     const handler = sinon.fake();
-    const lplugin = build(() => {
-      @plugin({ usage: PluginUsage.LOGIC })
+    const plugin = build(() => {
+      @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
       class TestPlugin {
         destroy = handler;
       }
     });
 
-    const host = new Host('id', lplugin, {});
+    const host = new Host('id', plugin, {});
     expect(handler.calledOnce).to.be.false;
     host.destroy();
     expect(handler.calledOnce).to.be.true;
@@ -90,20 +89,20 @@ describe('components/host', () => {
 
 function createPlugin() {
   return build(() => {
-    @plugin({ usage: PluginUsage.LOGIC })
-    @config({ name: 'config1', type: ConfigType.STRING })
+    @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
+    @metadata.config({ name: 'config1', type: metadata.ConfigType.STRING })
     class TestPlugin {
       constructor({ config1 }: { config1: string }) {
         this.config = config1;
       }
 
-      @state
+      @metadata.state
       config: string;
 
-      @state
+      @metadata.state
       value: number = 42;
 
-      @action
+      @metadata.action
       setValue(newValue: number) {
         this.value = newValue;
       }
@@ -113,13 +112,13 @@ function createPlugin() {
 
 function build(callback: () => void) {
   const registry = new components.Registry();
-  builder.init('test-module', 'test-version', registry);
+  metadata.builder.init('test-module', 'test-version', registry);
   try {
     callback();
-    builder.build();
+    metadata.builder.build();
   } finally {
-    builder.terminate();
+    metadata.builder.terminate();
   }
 
-  return registry.getPlugin(null, 'test-module.test-plugin') as LocalPlugin;
+  return registry.getPlugin(null, 'test-module.test-plugin') as metadata.LocalPlugin;
 }
