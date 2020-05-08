@@ -2,7 +2,7 @@ import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
 import { components } from 'mylife-home-common';
-import { component, config, state, action, getDescriptor, Text, Float, Range, PluginUsage, ConfigType, initBuilder, terminateBuilder, LocalPlugin } from '../src/metadata';
+import { component, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../src/metadata';
 
 describe('metadata', () => {
   it('should produce right medata using basic decorators', () => {
@@ -47,33 +47,35 @@ describe('metadata', () => {
   });
 
   it('should fail if missing component decorator', () => {
-    const testBuild = () => build(() => {
-      class TestComponent {
-        @state
-        value: number;
+    const testBuild = () =>
+      build(() => {
+        class TestComponent {
+          @state
+          value: number;
 
-        @action
-        setValue(newValue: number) {
-          this.value = newValue;
+          @action
+          setValue(newValue: number) {
+            this.value = newValue;
+          }
         }
-      }
-    });
+      });
 
     expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
   });
 
   it('should fail if wrong action type', () => {
-    const testBuild = () => build(() => {
-      class TestComponent {
-        @state
-        value: number;
-  
-        @action({ type: new Text() })
-        setValue(newValue: number) {
-          this.value = newValue;
+    const testBuild = () =>
+      build(() => {
+        class TestComponent {
+          @state
+          value: number;
+
+          @action({ type: new Text() })
+          setValue(newValue: number) {
+            this.value = newValue;
+          }
         }
-      }
-    });
+      });
 
     expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
   });
@@ -113,11 +115,12 @@ function advanced() {
 
 function build(callback: () => void) {
   const registry = new components.Registry();
-  initBuilder('test-module', 'test-version', registry);
+  builder.init('test-module', 'test-version', registry);
   try {
     callback();
+    builder.build();
   } finally {
-    terminateBuilder();
+    builder.terminate();
   }
 
   const plugins = registry.getPlugins(null);

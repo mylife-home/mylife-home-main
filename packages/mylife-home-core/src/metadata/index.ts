@@ -13,4 +13,7 @@ export { Type, Range, Text, Float, Bool, Enum, Complex, PluginUsage, ConfigType 
 
 export { component, config, action, state } from './decorators';
 export { getDescriptors, getDescriptor, ComponentDescriptor, ActionDescriptor, StateDescriptor } from './descriptors';
-export { LocalPlugin, init as initBuilder, terminate as terminateBuilder } from './builder';
+export { LocalPlugin } from './builder';
+
+import * as importBuilder from './builder';
+export const builder = { init: importBuilder.init, terminate: importBuilder.terminate, build: importBuilder.build };

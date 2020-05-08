@@ -98,14 +98,21 @@ export function init(module: string, version: string, registry: Registry) {
   context = { module, version, registry, builders };
 }
 
-export function terminate() {
+export function build() {
   if (!context) {
-    throw new Error('Cannot terminate context with no context');
+    throw new Error('Cannot build context with no context');
   }
 
   for (const builder of context.builders.values()) {
     builder.build(context.module, context.version, context.registry);
   }
-  
+ 
+}
+
+export function terminate() {
+  if (!context) {
+    throw new Error('Cannot terminate context with no context');
+  }
+
   context = null;
 }
