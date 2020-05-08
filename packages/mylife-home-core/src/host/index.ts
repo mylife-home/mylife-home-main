@@ -1,5 +1,8 @@
 import { EventEmitter } from 'events';
-import { ComponentDescriptor, ActionDescriptor, StateDescriptor, ConfigType, Type } from '../metadata';
+import { LocalPlugin, ConfigType, Type } from '../metadata';
+import { components } from 'mylife-home-common';
+
+import metadata = components.metadata;
 
 interface Component {
   destroy?: () => void;
@@ -17,37 +20,43 @@ export class Host extends EventEmitter {
   private readonly states = new Map<string, State>();
   private destroyed = false;
 
-  constructor(private readonly id: string, private readonly descriptor: ComponentDescriptor, config: any) {
+  constructor(private readonly id: string, private readonly plugin: LocalPlugin, config: any) {
     super();
 
     this.validateConfiguration(config);
 
-    const ComponentType = this.descriptor.componentType;
+    const ComponentType = this.plugin.implementation;
     this.component = new ComponentType(config);
 
-    for (const descriptor of this.descriptor.actions.values()) {
-      this.actions.set(descriptor.name, new Action(this.component, descriptor));
-    }
+    for (const [name, member] of Object.entries(this.plugin.members)) {
+      const type = member.valueType;
+      switch (member.memberType) {
+        case metadata.MemberType.ACTION:
+          this.actions.set(name, new Action(this.component, name, type));
+          break;
 
-    for (const descriptor of this.descriptor.states.values()) {
-      const { name } = descriptor;
-      const listener = (value: any) => {
-        if (!this.destroyed) {
-          this.emit('state', name, value);
+        case metadata.MemberType.STATE: {
+          const listener = (value: any) => {
+            if (!this.destroyed) {
+              this.emit('state', name, value);
+            }
+          };
+
+          this.states.set(name, new State(this.component, name, type, listener));
+
+          break;
         }
-      };
-
-      this.states.set(name, new State(this.component, descriptor, listener));
+      }
     }
   }
 
   private validateConfiguration(config: any) {
-    for (const [key, desc] of this.descriptor.configs.entries()) {
+    for (const [key, item] of Object.entries(this.plugin.config)) {
       try {
         const value = config[key];
-        validateConfigurationItem(value, desc.type);
+        validateConfigurationItem(value, item.valueType);
       } catch (err) {
-        err.message = `Invalid configuration for component '${this.id}' of type '${this.descriptor.name} for configuration entry ${key}: ${err.message}`;
+        err.message = `Invalid configuration for component '${this.id}' of plugin '${this.plugin.id}' for configuration entry '${key}': ${err.message}`;
         throw err;
       }
     }
@@ -55,7 +64,7 @@ export class Host extends EventEmitter {
 
   destroy() {
     this.destroyed = true;
-    if(this.component.destroy) {
+    if (this.component.destroy) {
       this.component.destroy();
     }
   }
@@ -71,7 +80,7 @@ export class Host extends EventEmitter {
 
     const action = this.actions.get(name);
     if (!action) {
-      throw new Error(`No such action: '${name}' on component '${this.id}' of type '${this.descriptor.name}`);
+      throw new Error(`No such action: '${name}' on component '${this.id}' of plugin '${this.plugin.id}`);
     }
 
     action.execute(value);
@@ -82,7 +91,7 @@ export class Host extends EventEmitter {
 
     const state = this.states.get(name);
     if (!state) {
-      throw new Error(`No such state: '${name}' on component '${this.id}' of type '${this.descriptor.name}`);
+      throw new Error(`No such state: '${name}' on component '${this.id}' of plugin '${this.plugin.id}`);
     }
 
     return state.value;
@@ -101,11 +110,8 @@ export class Host extends EventEmitter {
 
 class Action {
   private readonly target: (value: any) => void;
-  private readonly type: Type;
 
-  constructor(component: Component, descriptor: ActionDescriptor) {
-    this.type = descriptor.type;
-    const { name } = descriptor;
+  constructor(component: Component, name: string, private readonly type: Type) {
     this.target = (value: any) => {
       (component as any)[name](value);
     };
@@ -119,13 +125,10 @@ class Action {
 
 class State extends EventEmitter {
   private _value: any;
-  private readonly type: Type;
 
-  constructor(component: Component, descriptor: StateDescriptor, listener: (value: any) => void) {
+  constructor(component: Component, name: string, private readonly type: Type, listener: (value: any) => void) {
     super();
 
-    this.type = descriptor.type;
-    const { name } = descriptor;
     this._value = (component as any)[name];
     validateValue(this._value, this.type);
 
@@ -143,7 +146,7 @@ class State extends EventEmitter {
 
         this._value = newValue;
         listener(newValue);
-      }
+      },
     });
   }
 
@@ -153,7 +156,7 @@ class State extends EventEmitter {
 }
 
 function validateValue(value: any, expectedType: Type) {
-  if(value === null) {
+  if (value === null) {
     throw new Error('Got null value');
   }
   expectedType.validate(value);
