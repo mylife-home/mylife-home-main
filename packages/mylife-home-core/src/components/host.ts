@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { LocalPlugin, ConfigType, Type } from '../metadata';
+import { LocalPlugin, ConfigType, Type } from './metadata';
 import { components } from 'mylife-home-common';
 
 import metadata = components.metadata;

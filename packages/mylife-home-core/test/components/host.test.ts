@@ -3,10 +3,10 @@ import 'reflect-metadata';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { components } from 'mylife-home-common';
-import { Host } from '../src/host';
-import { plugin, config, state, action, ConfigType, builder, LocalPlugin, PluginUsage, Range } from '../src/metadata';
+import { Host } from '../../src/components/host';
+import { plugin, config, state, action, ConfigType, builder, LocalPlugin, PluginUsage, Range } from '../../src/components/metadata';
 
-describe('host', () => {
+describe('components/host', () => {
   it('should host component', () => {
     const lplugin = createPlugin();
 
