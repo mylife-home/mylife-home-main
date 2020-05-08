@@ -2,14 +2,14 @@ import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
 import { components } from 'mylife-home-common';
-import { component, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../src/metadata';
+import { plugin, config, state, action, Text, Float, Range, PluginUsage, ConfigType, builder, LocalPlugin } from '../src/metadata';
 
 describe('metadata', () => {
   it('should produce right medata using basic decorators', () => {
     const plugin = basic();
 
     expect(plugin).to.deep.equal({
-      componentType: plugin.componentType, // will assert that on host checks
+      implementation: plugin.implementation, // will assert that on host checks
       id: 'test-module.test-component',
       name: 'test-component',
       module: 'test-module',
@@ -28,7 +28,7 @@ describe('metadata', () => {
     const plugin = advanced();
 
     expect(plugin).to.deep.equal({
-      componentType: plugin.componentType, // will assert that on host checks
+      implementation: plugin.implementation, // will assert that on host checks
       id: 'test-module.overridden-name',
       name: 'overridden-name',
       module: 'test-module',
@@ -60,13 +60,13 @@ describe('metadata', () => {
         }
       });
 
-    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like component but @component decorator is missing`);
+    expect(() => testBuild()).to.throw(`Class 'TestComponent' looks like plugin but @plugin decorator is missing`);
   });
 
   it('should fail if wrong action type', () => {
     const testBuild = () =>
       build(() => {
-        @component({ usage: PluginUsage.LOGIC })
+        @plugin({ usage: PluginUsage.LOGIC })
         class TestComponent {
           @state
           value: number;
@@ -84,7 +84,7 @@ describe('metadata', () => {
 
 function basic() {
   return build(() => {
-    @component({ usage: PluginUsage.LOGIC })
+    @plugin({ usage: PluginUsage.LOGIC })
     class TestComponent {
       @state
       value: number;
@@ -99,7 +99,7 @@ function basic() {
 
 function advanced() {
   return build(() => {
-    @component({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
+    @plugin({ name: 'overridden-name', usage: PluginUsage.LOGIC, description: 'component description' })
     @config({ name: 'config1', description: 'config description', type: ConfigType.STRING })
     @config({ name: 'config2', type: ConfigType.INTEGER })
     class TestComponent {

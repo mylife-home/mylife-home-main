@@ -1,10 +1,10 @@
-import { ActionOptions, StateOptions, ComponentOptions, ConfigOptions } from './decorators';
+import { ActionOptions, StateOptions, PluginOptions, ConfigOptions } from './decorators';
 import { components } from 'mylife-home-common';
 
 import Registry = components.Registry;
 import metadata = components.metadata;
 
-export interface ComponentType extends Function {
+export interface PluginImplementation extends Function {
   new (...args: any[]): any;
 }
 
@@ -13,7 +13,7 @@ type Primitive = {
 };
 
 export interface LocalPlugin extends metadata.Plugin {
-  readonly componentType: ComponentType;
+  readonly implementation: PluginImplementation;
 }
 
 class DescriptorBuilder {
@@ -23,10 +23,10 @@ class DescriptorBuilder {
   private readonly members: { [name: string]: metadata.Member } = {};
   private readonly config: { [name: string]: metadata.ConfigItem } = {};
 
-  constructor(private readonly componentType: ComponentType) {}
+  constructor(private readonly implementation: PluginImplementation) {}
 
-  addComponent(options: ComponentOptions) {
-    this.name = options.name || this.formatClassName(this.componentType.name);
+  addPlugin(options: PluginOptions) {
+    this.name = options.name || this.formatClassName(this.implementation.name);
     this.description = options.description;
     this.usage = options.usage;
   }
@@ -36,16 +36,16 @@ class DescriptorBuilder {
   }
 
   addAction(name: string, options: ActionOptions) {
-    const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.componentType.prototype, name);
+    const primitives: Primitive[] = Reflect.getMetadata('design:paramtypes', this.implementation.prototype, name);
     if (primitives.length !== 1) {
-      throw new Error(`Bad action '${name}' on component '${this.componentType.name}': expected 1 parameter but got ${primitives.length}`);
+      throw new Error(`Bad action '${name}' on component '${this.implementation.name}': expected 1 parameter but got ${primitives.length}`);
     }
 
     let valueType: metadata.Type;
     try {
       valueType = this.validateType(primitives[0], options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.componentType.name}':  ${err.message}`;
+      err.message = `Bad action '${name}' on component '${this.implementation.name}':  ${err.message}`;
       throw err;
     }
 
@@ -53,13 +53,13 @@ class DescriptorBuilder {
   }
 
   addState(name: string, options: StateOptions) {
-    const primitive: Primitive = Reflect.getMetadata('design:type', this.componentType.prototype, name);
+    const primitive: Primitive = Reflect.getMetadata('design:type', this.implementation.prototype, name);
 
     let valueType: metadata.Type;
     try {
       valueType = this.validateType(primitive, options.type);
     } catch (err) {
-      err.message = `Bad action '${name}' on component '${this.componentType.name}':  ${err.message}`;
+      err.message = `Bad action '${name}' on component '${this.implementation.name}':  ${err.message}`;
       throw err;
     }
 
@@ -122,11 +122,11 @@ class DescriptorBuilder {
 
   build(module: string, version: string): LocalPlugin {
     if (!this.name) {
-      throw new Error(`Class '${this.componentType.name}' looks like component but @component decorator is missing`);
+      throw new Error(`Class '${this.implementation.name}' looks like plugin but @plugin decorator is missing`);
     }
 
     return {
-      componentType: this.componentType,
+      implementation: this.implementation,
 
       id: `${module}.${this.name}`,
       name: this.name,
@@ -144,12 +144,12 @@ interface Context {
   readonly module: string;
   readonly version: string;
   readonly registry: Registry;
-  readonly builders: Map<ComponentType, DescriptorBuilder>;
+  readonly builders: Map<PluginImplementation, DescriptorBuilder>;
 }
 
 let context: Context;
 
-function getBuilder(type: ComponentType) {
+function getBuilder(type: PluginImplementation) {
   if (!context) {
     throw new Error('Cannot publish component outside of loading context');
   }
@@ -164,19 +164,19 @@ function getBuilder(type: ComponentType) {
   return builder;
 }
 
-export function addComponent(type: ComponentType, options: ComponentOptions) {
-  getBuilder(type).addComponent(options);
+export function addPlugin(type: PluginImplementation, options: PluginOptions) {
+  getBuilder(type).addPlugin(options);
 }
 
-export function addConfig(type: ComponentType, options: ConfigOptions) {
+export function addConfig(type: PluginImplementation, options: ConfigOptions) {
   getBuilder(type).addConfig(options);
 }
 
-export function addAction(type: ComponentType, name: string, options: ActionOptions) {
+export function addAction(type: PluginImplementation, name: string, options: ActionOptions) {
   getBuilder(type).addAction(name, options);
 }
 
-export function addState(type: ComponentType, name: string, options: StateOptions) {
+export function addState(type: PluginImplementation, name: string, options: StateOptions) {
   getBuilder(type).addState(name, options);
 }
 
@@ -185,7 +185,7 @@ export function init(module: string, version: string, registry: Registry) {
     throw new Error('Cannot init context while another one in use');
   }
 
-  const builders = new Map<ComponentType, DescriptorBuilder>();
+  const builders = new Map<PluginImplementation, DescriptorBuilder>();
   context = { module, version, registry, builders };
 }
 
