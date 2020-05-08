@@ -14,13 +14,13 @@ export declare interface Host extends EventEmitter {
   once(event: 'state', listener: (name: string, value: any) => void): this;
 }
 
-export class Host extends EventEmitter {
+export class Host extends EventEmitter implements components.Component {
   private readonly component: Component;
   private readonly actions = new Map<string, Action>();
   private readonly states = new Map<string, State>();
   private destroyed = false;
 
-  constructor(private readonly id: string, private readonly plugin: LocalPlugin, config: any) {
+  constructor(public readonly id: string, public readonly plugin: LocalPlugin, config: any) {
     super();
 
     this.validateConfiguration(config);
