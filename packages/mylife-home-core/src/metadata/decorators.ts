@@ -15,18 +15,7 @@ export interface ComponentOptions {
   readonly usage: metadata.PluginUsage;
 }
 
-// TODO: options mandatory
-export function component(target: Constructor): void;
-export function component(options: ComponentOptions): (target: Constructor) => void;
-export function component(optionsOrTarget: ComponentOptions | Constructor) {
-  if (optionsOrTarget instanceof Function) {
-    const target = optionsOrTarget;
-    const options: ComponentOptions = {};
-    addComponent(target, options);
-    return;
-  }
-
-  const options = optionsOrTarget;
+export function component(options: ComponentOptions) {
   return (target: Constructor) => {
     addComponent(target, options);
   };

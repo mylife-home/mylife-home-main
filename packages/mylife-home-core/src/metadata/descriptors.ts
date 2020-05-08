@@ -3,7 +3,6 @@ import { components } from 'mylife-home-common';
 import { StateOptions, ActionOptions, ComponentOptions, ConfigOptions } from './decorators';
 
 import metadata = components.metadata;
-import { Metadata } from 'mylife-home-common/dist/bus';
 
 export interface ComponentType extends Function {
   new(...args: any[]): any;
@@ -145,7 +144,7 @@ export class ComponentDescriptor {
     const module = 'module-TODO';
     const version = '1.0.0-TODO';
 
-    const id = `${module}.${name}`;
+    const id = `${module}.${this.name}`;
     return { id, module, name: this.name, usage: this.usage, version, description: this.description, members, config };
   }
 }
