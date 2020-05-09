@@ -9,6 +9,7 @@ import { Logger } from './logger';
 export interface TransportOptions {
   presenceTracking?: boolean;
   loggerOfflineRetention?: number;
+  residentStateDelay?: number;
 }
 
 export declare interface Transport {
@@ -29,7 +30,7 @@ export class Transport extends EventEmitter {
   constructor(private readonly instanceName: string, serverUrl: string, options: TransportOptions = {}) {
     super();
 
-    this.client = new Client(instanceName, serverUrl);
+    this.client = new Client(instanceName, serverUrl, options.residentStateDelay);
 
     this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
     this.client.on('error', err => this.emit('error', err));

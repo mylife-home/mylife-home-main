@@ -14,25 +14,24 @@ class Proxy {
   private serverSocket: net.Socket;
   private clientSocket: net.Socket;
 
-  constructor(private readonly targetPort: number, private readonly targetHost: string = 'localhost') {
-  }
+  constructor(private readonly targetPort: number, private readonly targetHost: string = 'localhost') {}
 
   get running() {
     return this._running;
   }
 
   stop() {
-    if(this.clientSocket)  {
+    if (this.clientSocket) {
       this.clientSocket.removeAllListeners();
       this.clientSocket.destroy();
       this.clientSocket = null;
     }
-    if(this.serverSocket)  {
+    if (this.serverSocket) {
       this.serverSocket.removeAllListeners();
       this.serverSocket.destroy();
       this.serverSocket = null;
     }
-    if(this.listenSocket) {
+    if (this.listenSocket) {
       this.listenSocket.removeAllListeners();
       this.listenSocket.close();
       this.listenSocket = null;
@@ -40,7 +39,7 @@ class Proxy {
   }
 
   start() {
-    this.listenSocket = net.createServer(socket => {
+    this.listenSocket = net.createServer((socket) => {
       this.listenSocket.close();
       this.listenSocket = null;
 
@@ -55,8 +54,8 @@ class Proxy {
       this.clientSocket.on('error', (err) => console.error('clientSocket', err));
       this.serverSocket.on('error', (err) => console.error('serverSocket', err));
 
-      this.clientSocket.on('data', data => this.serverSocket.write(data));
-      this.serverSocket.on('data', data => this.clientSocket.write(data));
+      this.clientSocket.on('data', (data) => this.serverSocket.write(data));
+      this.serverSocket.on('data', (data) => this.clientSocket.write(data));
     });
 
     this.listenSocket.listen(this.serverPort);
@@ -69,8 +68,7 @@ class Proxy {
 }
 
 class TransportData {
-  constructor(public readonly transport: Transport, public readonly proxy: Proxy) {
-  }
+  constructor(public readonly transport: Transport, public readonly proxy: Proxy) {}
 }
 
 export class MqttTestSession {
@@ -81,7 +79,7 @@ export class MqttTestSession {
   async init() {
     this.aedesServer = aedes.Server();
     this.server = net.createServer(this.aedesServer.handle);
-    await new Promise(resolve => this.server.listen(SERVER_PORT, resolve));
+    await new Promise((resolve) => this.server.listen(SERVER_PORT, resolve));
   }
 
   async terminate() {
@@ -89,8 +87,8 @@ export class MqttTestSession {
       await this.closeTransport(transport);
     }
 
-    await new Promise(resolve => this.aedesServer.close(resolve));
-    await new Promise(resolve => this.server.close(resolve));
+    await new Promise((resolve) => this.aedesServer.close(resolve));
+    await new Promise((resolve) => this.server.close(resolve));
     this.server = null;
     this.aedesServer = null;
   }
@@ -98,6 +96,12 @@ export class MqttTestSession {
   async createTransport(instanceName: string, options?: TransportOptions) {
     const proxy = new Proxy(SERVER_PORT);
     proxy.start();
+
+    options = options || {};
+    if (!options.residentStateDelay) {
+      // reduce delay for tests
+      options.residentStateDelay = 10;
+    }
 
     const transport = new Transport(instanceName, `tcp://localhost:${proxy.serverPort}`, options);
     await waitForConnected(transport);
@@ -157,7 +161,6 @@ async function waitForConnected(transport: Transport) {
   });
 }
 
-
 async function waitForDisconnected(transport: Transport) {
   return new Promise<void>((resolve, reject) => {
     if (!transport.online) {
@@ -187,9 +190,9 @@ export async function delayError(target: () => Promise<void>): Promise<() => voi
     };
   }
 
-  return () => { };
+  return () => {};
 }
 
 export async function sleep(delay: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, delay));
+  return new Promise<void>((resolve) => setTimeout(resolve, delay));
 }
