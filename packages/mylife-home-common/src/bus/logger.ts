@@ -55,7 +55,6 @@ class PublishStream extends Writable {
 class SubscribeStream extends PassThrough {
 
   private readonly topic = this.client.buildRemoteTopic('+', DOMAIN);
-  private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
 
   constructor(private readonly client: Client, options?: TransformOptions) {
     super(options);
@@ -67,16 +66,16 @@ class SubscribeStream extends PassThrough {
   }
 
   private async init() {
-    this.client.on('message', this.messageCb);
+    this.client.on('message', this.onMessage);
     await this.client.subscribe(this.topic);
   }
 
   private async terminate() {
-    this.client.off('message', this.messageCb);
+    this.client.off('message', this.onMessage);
     await this.client.unsubscribe(this.topic);
   }
 
-  private onMessage(topic: string, payload: Buffer) {
+  private readonly onMessage = (topic: string, payload: Buffer) => {
     const parts = topic.split('/');
     if (parts.length !== 2 || parts[1] !== DOMAIN) {
       return;

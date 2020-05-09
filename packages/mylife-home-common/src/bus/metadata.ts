@@ -20,7 +20,6 @@ export interface RemoteMetadataView extends EventEmitter {
 
 class RemoteMetadataViewImpl extends EventEmitter implements RemoteMetadataView {
   private readonly registry = new Map<string, any>();
-  private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
 
   constructor(private readonly client: Client, readonly remoteInstanceName: string) {
     super();
@@ -31,16 +30,16 @@ class RemoteMetadataViewImpl extends EventEmitter implements RemoteMetadataView 
   }
 
   async init() {
-    this.client.on('message', this.messageCb);
+    this.client.on('message', this.onMessage);
     await this.client.subscribe(this.listenTopic);
   }
 
   async terminate() {
     await this.client.unsubscribe(this.listenTopic);
-    this.client.off('message', this.messageCb);
+    this.client.off('message', this.onMessage);
   }
 
-  private onMessage(topic: string, payload: Buffer) {
+  private readonly onMessage = (topic: string, payload: Buffer) => {
     const [instanceName, domain, ...parts] = topic.split('/');
     if (instanceName !== this.remoteInstanceName || domain !== DOMAIN) {
       return;

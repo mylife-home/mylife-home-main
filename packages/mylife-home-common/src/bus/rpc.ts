@@ -28,23 +28,22 @@ class RpcError extends Error {
 
 class Service {
   private readonly topic: string;
-  private readonly messageCb = (topic: string, payload: Buffer) => this.onMessage(topic, payload);
 
   constructor(private readonly client: Client, private readonly address: string, private readonly implementation: (data: any) => Promise<any>) {
     this.topic = this.client.buildTopic(DOMAIN, SERVICES, this.address);
   }
 
   async init() {
-    this.client.on('message', this.messageCb);
+    this.client.on('message', this.onMessage);
     await this.client.subscribe(this.topic);
   }
 
   async terminate() {
     await this.client.unsubscribe(this.topic);
-    this.client.off('message', this.messageCb);
+    this.client.off('message', this.onMessage);
   }
 
-  private onMessage(topic: string, input: Buffer): void {
+  private readonly onMessage = (topic: string, input: Buffer) => {
     if (topic !== this.topic) {
       return;
     }
