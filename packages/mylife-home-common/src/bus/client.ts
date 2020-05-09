@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import * as mqtt from 'async-mqtt';
 import * as encoding from './encoding';
-import { fireAsync } from '../tools';
+import { fireAsync, sleep } from '../tools';
 
 export declare interface Client {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
@@ -19,7 +19,7 @@ export class Client extends EventEmitter {
   private _online: boolean = false;
   private readonly subscriptions = new Set<string>();
 
-  constructor(public readonly instanceName: string, serverUrl: string) {
+  constructor(public readonly instanceName: string, serverUrl: string, private readonly residentStateDelay: number = 1000) {
     super();
 
     // TODO mqtt release: remove toString(), qos
@@ -27,23 +27,43 @@ export class Client extends EventEmitter {
     const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false).toString(), retain: false, qos };
     this.client = mqtt.connect(serverUrl, { will, resubscribe: false });
 
-    this.client.on('connect', () => fireAsync(async () => {
-      await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
-      this.onlineChange(true);
+    this.client.on('connect', () =>
+      fireAsync(async () => {
+        await this.clearResidentState();
+        await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
+        this.onlineChange(true);
 
-      if(this.subscriptions.size) {
-        await this.client.subscribe(Array.from(this.subscriptions));
-      }
-    }));
+        if (this.subscriptions.size) {
+          await this.client.subscribe(Array.from(this.subscriptions));
+        }
+      })
+    );
 
     this.client.on('close', () => this.onlineChange(false));
 
-    this.client.on('error', err => {
+    this.client.on('error', (err) => {
       console.error('mqtt error', err); // TODO: logging
       this.emit('error', err);
     });
 
     this.client.on('message', (topic, payload) => this.emit('message', topic, payload));
+  }
+
+  private async clearResidentState() {
+    // register on self state for 1 sec, and remove on every message received
+    const zeroBuffer = Buffer.allocUnsafe(0);
+    const clearTopic = (topic: string, payload: Buffer) => {
+      if (topic.startsWith(this.instanceName + '/')) {
+        fireAsync(() => this.publish(topic, zeroBuffer));
+      }
+    };
+
+    const selfStateTopic = this.buildTopic('#');
+    this.client.on('message', clearTopic);
+    await this.subscribe(selfStateTopic);
+    await sleep(this.residentStateDelay);
+    this.client.off('message', clearTopic);
+    await this.unsubscribe(selfStateTopic);
   }
 
   private onlineChange(value: boolean): void {
@@ -81,25 +101,25 @@ export class Client extends EventEmitter {
   }
 
   async subscribe(topic: string | string[]) {
-    if(!Array.isArray(topic)) {
+    if (!Array.isArray(topic)) {
       topic = [topic];
     }
-    for(const item of topic) {
+    for (const item of topic) {
       this.subscriptions.add(item);
     }
-    if(this.online) {
+    if (this.online) {
       await this.client.subscribe(topic);
     }
   }
 
   async unsubscribe(topic: string | string[]) {
-    if(!Array.isArray(topic)) {
+    if (!Array.isArray(topic)) {
       topic = [topic];
     }
-    for(const item of topic) {
+    for (const item of topic) {
       this.subscriptions.delete(item);
     }
-    if(this.online) {
+    if (this.online) {
       await this.client.unsubscribe(topic);
     }
   }
