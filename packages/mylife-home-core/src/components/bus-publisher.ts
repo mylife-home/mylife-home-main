@@ -46,6 +46,8 @@ class BusComponent extends BusMeta {
   constructor(private readonly component: components.Component, transport: bus.Transport) {
     super('components', buildNetComponent(component), transport);
 
+    this.component.on('state', this.onStateChange);
+
     if (this.transport.online) {
       this.onOnlineChange(true);
     }
@@ -53,6 +55,8 @@ class BusComponent extends BusMeta {
 
   close() {
     this.unpublishMeta();
+
+    this.component.off('state', this.onStateChange);
 
     if (this.transport.online) {
       this.onOnlineChange(false);
@@ -69,10 +73,38 @@ class BusComponent extends BusMeta {
 
   private readonly setOnline = async () => {
     this.transportComponent = this.transport.components.addLocalComponent(this.component.id);
-    await this.transportComponent.setState();
-    await this.transportComponent.registerAction();
+
+    for (const [name, member] of Object.entries(this.component.plugin.members)) {
+      switch (member.memberType) {
+        case components.metadata.MemberType.ACTION:
+          {
+            await this.transportComponent.registerAction('name', (data: Buffer) => {
+              const value = member.valueType.primitive.decode(data);
+              this.component.executeAction(name, value);
+            });
+          }
+          break;
+
+        case components.metadata.MemberType.STATE:
+          {
+            const value = this.component.getState(name);
+            this.onStateChange(name, value);
+          }
+          break;
+      }
+    }
 
     this.publishMeta();
+  };
+
+  private readonly onStateChange = (name: string, value: any) => {
+    if (!this.transport.online) {
+      return;
+    }
+
+    const member = this.component.plugin.members[name];
+    const data = member.valueType.primitive.encode(value);
+    tools.fireAsync(() => this.transportComponent.setState(name, data));
   };
 
   private readonly setOffline = async () => {
