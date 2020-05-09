@@ -126,8 +126,6 @@ class BusInstance {
 }
 
 export class BusPublisher {
-  private readonly onInstanceChange = (instanceName: string, online: boolean) => this.instanceChange(instanceName, online);
-
   private readonly instances = new Map<string, BusInstance>();
 
   constructor(private readonly transport: Transport, private readonly registry: Registry) {
@@ -142,7 +140,7 @@ export class BusPublisher {
     this.transport.presence.off('instanceChange', this.onInstanceChange);
   }
 
-  private instanceChange(instanceName: string, online: boolean) {
+  private readonly onInstanceChange = (instanceName: string, online: boolean) => {
     if (online) {
       const instance = new BusInstance(this.transport, this.registry, instanceName);
       this.instances.set(instanceName, instance);
