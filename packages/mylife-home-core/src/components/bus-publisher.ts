@@ -1,19 +1,90 @@
-import { components, bus } from 'mylife-home-common';
+import { components, bus, tools } from 'mylife-home-common';
 
-class BusPlugin {
-  constructor(private readonly plugin: components.metadata.Plugin, private readonly transport: bus.Transport) {}
-
-  close() {}
-
-  onOnlineChange(online: boolean) {}
+interface MetaWithId {
+  readonly id: string;
 }
 
-class BusComponent {
-  constructor(private readonly component: components.Component, private readonly transport: bus.Transport) {}
+class BusMeta {
+  private readonly path: string;
 
-  close() {}
+  constructor(metaType: string, private readonly meta: MetaWithId, protected readonly transport: bus.Transport) {
+    this.path = `${metaType}/${this.meta.id}`;
+  }
 
-  onOnlineChange(online: boolean) {}
+  protected publishMeta() {
+    tools.fireAsync(() => this.transport.metadata.set(this.path, this.meta));
+  }
+
+  protected unpublishMeta() {
+    tools.fireAsync(() => this.transport.metadata.clear(this.path));
+  }
+}
+
+class BusPlugin extends BusMeta {
+  constructor(plugin: components.metadata.Plugin, transport: bus.Transport) {
+    super('plugins', plugin, transport);
+
+    if (this.transport.online) {
+      this.onOnlineChange(true);
+    }
+  }
+
+  close() {
+    this.unpublishMeta();
+  }
+
+  onOnlineChange(online: boolean) {
+    if (online) {
+      this.publishMeta();
+    }
+  }
+}
+
+class BusComponent extends BusMeta {
+  private transportComponent: bus.LocalComponent;
+
+  constructor(private readonly component: components.Component, transport: bus.Transport) {
+    super('components', buildNetComponent(component), transport);
+
+    if (this.transport.online) {
+      this.onOnlineChange(true);
+    }
+  }
+
+  close() {
+    this.unpublishMeta();
+
+    if (this.transport.online) {
+      this.onOnlineChange(false);
+    }
+  }
+
+  onOnlineChange(online: boolean) {
+    if (online) {
+      tools.fireAsync(this.setOnline);
+    } else {
+      tools.fireAsync(this.setOffline);
+    }
+  }
+
+  private readonly setOnline = async () => {
+    this.transportComponent = this.transport.components.addLocalComponent(this.component.id);
+    await this.transportComponent.setState();
+    await this.transportComponent.registerAction();
+
+    this.publishMeta();
+  };
+
+  private readonly setOffline = async () => {
+    this.transportComponent = null;
+    await this.transport.components.removeLocalComponent(this.component.id);
+
+    // no need to unpublish meta offline
+  };
+}
+
+function buildNetComponent(component: components.Component): components.metadata.NetComponent {
+  return { id: component.id, plugin: component.plugin.id };
 }
 
 /**
