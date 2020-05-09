@@ -8,13 +8,13 @@ interface Component {
   destroy?: () => void;
 }
 
-export declare interface Host extends EventEmitter {
+export declare interface ComponentHost extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
   off(event: 'state', listener: (name: string, value: any) => void): this;
   once(event: 'state', listener: (name: string, value: any) => void): this;
 }
 
-export class Host extends EventEmitter implements components.Component {
+export class ComponentHost extends EventEmitter implements components.Component {
   private readonly component: Component;
   private readonly actions = new Map<string, Action>();
   private readonly states = new Map<string, State>();

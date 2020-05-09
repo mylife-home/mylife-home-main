@@ -3,13 +3,13 @@ import 'reflect-metadata';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { components } from 'mylife-home-common';
-import { metadata, Host } from '../../src/components';
+import { metadata, ComponentHost } from '../../src/components';
 
 describe('components/host', () => {
   it('should host component', () => {
     const plugin = createPlugin();
 
-    const host = new Host('id', plugin, { config1: 'my-config' });
+    const host = new ComponentHost('id', plugin, { config1: 'my-config' });
 
     expect(host.getStates()).to.deep.equal({
       config: 'my-config',
@@ -28,7 +28,7 @@ describe('components/host', () => {
 
   it('should forbid to give wrong config', () => {
     const plugin = createPlugin();
-    const tester = () => new Host('id', plugin, { config1: 42 });
+    const tester = () => new ComponentHost('id', plugin, { config1: 42 });
     expect(tester).to.throw(`Invalid configuration for component 'id' of plugin 'test-module.test-plugin' for configuration entry 'config1': expected type 'string' but got 'number'`);
   });
 
@@ -41,7 +41,7 @@ describe('components/host', () => {
       }
     });
 
-    const tester = () => new Host('id', plugin, {});
+    const tester = () => new ComponentHost('id', plugin, {});
     expect(tester).to.throw(`Wrong value '400' for type 'range[0;100]'`);
   });
 
@@ -59,14 +59,14 @@ describe('components/host', () => {
       }
     });
 
-    const host = new Host('id', plugin, {});
+    const host = new ComponentHost('id', plugin, {});
     const tester = () => host.executeAction('fail', 42);
     expect(tester).to.throw(`Wrong value '400' for type 'range[0;100]'`);
   });
 
   it('should forbid to execute action with a wrong value', () => {
     const plugin = createPlugin();
-    const host = new Host('id', plugin, { config1: 'my-config' });
+    const host = new ComponentHost('id', plugin, { config1: 'my-config' });
     const tester = () => host.executeAction('setValue', 'wrong');
     expect(tester).to.throw(`Wrong value 'wrong' for type 'float'`);
   });
@@ -80,7 +80,7 @@ describe('components/host', () => {
       }
     });
 
-    const host = new Host('id', plugin, {});
+    const host = new ComponentHost('id', plugin, {});
     expect(handler.calledOnce).to.be.false;
     host.destroy();
     expect(handler.calledOnce).to.be.true;
