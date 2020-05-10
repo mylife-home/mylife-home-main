@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { components, bus, tools } from 'mylife-home-common';
 import { metadata, ComponentHost, BusPublisher } from '../../src/components';
-import { MqttTestSession } from 'mylife-home-common/test/bus/tools';
+import { MqttTestSession } from './tools';
 
 describe('components/host', () => {
   it('should publish component', async () => {
