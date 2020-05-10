@@ -7,7 +7,7 @@ interface MetaWithId {
 class BusMeta {
   private readonly path: string;
 
-  constructor(metaType: string, private readonly meta: MetaWithId, protected readonly transport: bus.Transport) {
+  constructor(metaType: string, id: string, private readonly meta: any, protected readonly transport: bus.Transport) {
     this.path = `${metaType}/${this.meta.id}`;
   }
 
@@ -22,7 +22,7 @@ class BusMeta {
 
 class BusPlugin extends BusMeta {
   constructor(plugin: components.metadata.Plugin, transport: bus.Transport) {
-    super('plugins', plugin, transport);
+    super('plugins', plugin.id, components.metadata.encodePlugin(plugin), transport);
 
     if (this.transport.online) {
       this.onOnlineChange(true);
@@ -44,7 +44,7 @@ class BusComponent extends BusMeta {
   private transportComponent: bus.LocalComponent;
 
   constructor(private readonly component: components.Component, transport: bus.Transport) {
-    super('components', buildNetComponent(component), transport);
+    super('components', component.id, buildNetComponent(component), transport);
 
     this.component.on('state', this.onStateChange);
 
