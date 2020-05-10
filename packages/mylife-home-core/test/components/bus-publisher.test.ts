@@ -53,7 +53,7 @@ describe('components/bus-publisher', () => {
 
       expect(observer.registry.getInstanceNames()).to.be.empty;
 
-      session.reconnectTransport('tester');
+      await session.reconnectTransport('tester');
       await tools.sleep(50);
 
       const remotePlugin = observer.registry.getPlugin('tester', 'test-module.test-plugin');
