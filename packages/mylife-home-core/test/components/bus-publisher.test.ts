@@ -6,7 +6,7 @@ import { components, bus, tools } from 'mylife-home-common';
 import { metadata, ComponentHost, BusPublisher } from '../../src/components';
 import { MqttTestSession } from './tools';
 
-describe('components/host', () => {
+describe('components/bus-publisher', () => {
   it('should publish component', async () => {
     const session = new MqttTestSession();
     await session.init();
