@@ -17,7 +17,7 @@ class ComponentBase {
   private readonly subscriptions = new Map<string, (value: Buffer) => void>();
   
   constructor(protected readonly client: Client) {
-    this.client.on('message', (topic: string, payload: Buffer) => this.onMessage(topic, payload));
+    this.client.on('message', this.onMessage);
   }
 
   async addSubscription(topic: string, handler: (value: Buffer) => void) {
@@ -30,7 +30,7 @@ class ComponentBase {
     return true;
   }
 
-  private onMessage(topic: string, data: Buffer): void {
+  private readonly onMessage = (topic: string, data: Buffer) => {
     const handler = this.subscriptions.get(topic);
     if (handler) {
       handler(data);
@@ -38,6 +38,8 @@ class ComponentBase {
   }
 
   async terminate() {
+    this.client.off('message', this.onMessage);
+
     const topics = Array.from(this.subscriptions.keys());
     if (topics.length) {
       await this.client.unsubscribe(topics);
