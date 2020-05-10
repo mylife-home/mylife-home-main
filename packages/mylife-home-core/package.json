@@ -21,6 +21,7 @@
     "@types/mocha": "^7.0.1",
     "@types/node": "^13.7.0",
     "@types/sinon": "^9.0.0",
+    "aedes": "^0.41.0",
     "chai": "^4.2.0",
     "mocha": "^7.0.1",
     "sinon": "^9.0.2",
