@@ -5,25 +5,25 @@ import sinon from 'sinon';
 import { components } from 'mylife-home-common';
 import { metadata, ComponentHost } from '../../src/components';
 
-describe('components/host', () => {
+describe('components/component-host', () => {
   it('should host component', () => {
     const plugin = createPlugin();
 
-    const host = new ComponentHost('id', plugin, { config1: 'my-config' });
+    const component = new ComponentHost('id', plugin, { config1: 'my-config' });
 
-    expect(host.getStates()).to.deep.equal({
+    expect(component.getStates()).to.deep.equal({
       config: 'my-config',
       value: 42,
     });
 
-    host.executeAction('setValue', 73);
+    component.executeAction('setValue', 73);
 
-    expect(host.getStates()).to.deep.equal({
+    expect(component.getStates()).to.deep.equal({
       config: 'my-config',
       value: 73,
     });
 
-    host.destroy();
+    component.destroy();
   });
 
   it('should forbid to give wrong config', () => {
@@ -59,15 +59,15 @@ describe('components/host', () => {
       }
     });
 
-    const host = new ComponentHost('id', plugin, {});
-    const tester = () => host.executeAction('fail', 42);
+    const component = new ComponentHost('id', plugin, {});
+    const tester = () => component.executeAction('fail', 42);
     expect(tester).to.throw(`Wrong value '400' for type 'range[0;100]'`);
   });
 
   it('should forbid to execute action with a wrong value', () => {
     const plugin = createPlugin();
-    const host = new ComponentHost('id', plugin, { config1: 'my-config' });
-    const tester = () => host.executeAction('setValue', 'wrong');
+    const component = new ComponentHost('id', plugin, { config1: 'my-config' });
+    const tester = () => component.executeAction('setValue', 'wrong');
     expect(tester).to.throw(`Wrong value 'wrong' for type 'float'`);
   });
 
@@ -80,9 +80,9 @@ describe('components/host', () => {
       }
     });
 
-    const host = new ComponentHost('id', plugin, {});
+    const component = new ComponentHost('id', plugin, {});
     expect(handler.calledOnce).to.be.false;
-    host.destroy();
+    component.destroy();
     expect(handler.calledOnce).to.be.true;
   });
 });
