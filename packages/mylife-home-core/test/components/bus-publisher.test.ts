@@ -24,7 +24,7 @@ describe('components/bus-publisher', () => {
       const { implementation, ...basePlugin } = plugin;
       expect(remotePlugin).to.deep.equal(basePlugin);
 
-      const remoteComponent = observer.registry.getComponent('tester', 'my-component');
+      const remoteComponent = observer.registry.getComponent('my-component');
       expect(remoteComponent).to.exist;
 
       expect(remoteComponent.getStates()).to.deep.equal({ value: 42 });
@@ -60,7 +60,7 @@ describe('components/bus-publisher', () => {
       const { implementation, ...basePlugin } = plugin;
       expect(remotePlugin).to.deep.equal(basePlugin);
 
-      const remoteComponent = observer.registry.getComponent('tester', 'my-component');
+      const remoteComponent = observer.registry.getComponent('my-component');
       expect(remoteComponent).to.exist;
 
       expect(remoteComponent.getStates()).to.deep.equal({ value: 42 });
@@ -112,7 +112,6 @@ async function createObserverAndTesterWithComponent(session: MqttTestSession) {
 
       @metadata.action({ description: 'My action' })
       setValue(newValue: number) {
-        console.trace('setValue');
         actionHandler(newValue);
         this.value = newValue;
       }
