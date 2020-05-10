@@ -8,7 +8,7 @@ class BusComponent extends EventEmitter implements Component {
   readonly id: string;
   readonly plugin: Plugin;
   private readonly remoteComponent: RemoteComponent;
-  private readonly states: { [name: string]: any; } = {};
+  private readonly states: { [name: string]: any } = {};
 
   constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, netComponent: NetComponent) {
     super();
@@ -42,7 +42,7 @@ class BusComponent extends EventEmitter implements Component {
   executeAction(name: string, value: any) {
     const member = this.plugin.members[name];
     if (!member || member.memberType !== MemberType.ACTION) {
-      throw new Error(`Unknown action '${name}' on component '${this.instanceName}:${this.id}' (plugin=${this.plugin.module}.${this.plugin.name})`);
+      throw new Error(`Unknown action '${name}' on component '${this.id}' (plugin=${this.instanceName}:${this.plugin.module}.${this.plugin.name})`);
     }
     const type = member.valueType;
     type.validate(value);
@@ -59,7 +59,7 @@ class BusComponent extends EventEmitter implements Component {
     return value;
   }
 
-  getStates(): { [name: string]: any; } {
+  getStates(): { [name: string]: any } {
     return this.states;
   }
 }
@@ -102,7 +102,7 @@ class BusInstance {
         break;
 
       case 'components':
-        const component = this.registry.getComponent(this.instanceName, id);
+        const component = this.registry.getComponent(id);
         this.registry.removeComponent(this.instanceName, component);
         (component as BusComponent).close();
         break;
@@ -110,7 +110,11 @@ class BusInstance {
   }
 
   close() {
-    for (const component of this.registry.getComponents(this.instanceName)) {
+    for (const { instanceName, component } of this.registry.getComponentsData()) {
+      if (instanceName != this.instanceName) {
+        continue;
+      }
+
       this.registry.removeComponent(this.instanceName, component);
       (component as BusComponent).close();
     }
@@ -150,5 +154,5 @@ export class BusPublisher {
     const instance = this.instances.get(instanceName);
     instance.close();
     this.instances.delete(instanceName);
-  }
+  };
 }

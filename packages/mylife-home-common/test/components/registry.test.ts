@@ -98,8 +98,8 @@ describe('components/registry', () => {
 
     expect(onComponentAdd.calledOnceWithExactly('my-instance', testComponent)).to.be.true;
     expect(onOther.notCalled).to.be.true;
-    expect(registry.getComponent('my-instance', 'my-component')).to.equal(testComponent);
-    expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([testComponent]);
+    expect(registry.getComponent('my-component')).to.equal(testComponent);
+    expect(Array.from(registry.getComponents())).to.deep.equal([testComponent]);
     expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']);
   });
 
@@ -120,8 +120,8 @@ describe('components/registry', () => {
 
     expect(onComponentRemove.calledOnceWithExactly('my-instance', testComponent)).to.be.true;
     expect(onOther.notCalled).to.be.true;
-    expect(() => registry.getComponent('my-instance', 'my-component')).to.throw('Component my-instance:my-component does not exist in the registry');
-    expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([]);
+    expect(() => registry.getComponent('my-component')).to.throw('Component my-component does not exist in the registry');
+    expect(Array.from(registry.getComponents())).to.deep.equal([]);
     expect(Array.from(registry.getInstanceNames())).to.deep.equal(['my-instance']); // we still have the plugin
   });
 
@@ -168,7 +168,7 @@ describe('components/registry', () => {
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
         await tools.sleep(20);
 
-        expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([]);
+        expect(Array.from(registry.getComponents())).to.deep.equal([]);
 
         // must publish component runtime before its meta
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
@@ -177,10 +177,10 @@ describe('components/registry', () => {
         await tools.sleep(20);
 
         const plugin = registry.getPlugin('remote', 'module.name');
-        const busComponent = registry.getComponent('remote', 'my-component');
+        const busComponent = registry.getComponent('my-component');
         expect(busComponent.id).to.equal('my-component');
         expect(busComponent.plugin).to.equal(plugin);
-        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([busComponent]);
+        expect(Array.from(registry.getComponents())).to.deep.equal([busComponent]);
         expect(Array.from(registry.getInstanceNames())).to.deep.equal(['remote']);
 
         // must unpublish component runtime after its meta
@@ -188,8 +188,8 @@ describe('components/registry', () => {
         await remoteTransport.components.removeLocalComponent('my-component');
         await tools.sleep(50);
 
-        expect(() => registry.getComponent('remote', 'my-component')).to.throw('Component remote:my-component does not exist in the registry');
-        expect(Array.from(registry.getComponents('remote'))).to.deep.equal([]);
+        expect(() => registry.getComponent('my-component')).to.throw('Component my-component does not exist in the registry');
+        expect(Array.from(registry.getComponents())).to.deep.equal([]);
 
       } finally {
         await session.terminate();
@@ -211,7 +211,7 @@ describe('components/registry', () => {
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
         await tools.sleep(20);
 
-        const busComponent = registry.getComponent('remote', 'my-component');
+        const busComponent = registry.getComponent('my-component');
         const onChange = sinon.fake();
         busComponent.on('state', onChange);
 
@@ -246,7 +246,7 @@ describe('components/registry', () => {
         await remoteComponent.registerAction('myAction', onAction);
         await tools.sleep(20);
 
-        const busComponent = registry.getComponent('remote', 'my-component');
+        const busComponent = registry.getComponent('my-component');
         busComponent.executeAction('myAction', true);
         await tools.sleep(20);
 
@@ -272,8 +272,8 @@ describe('components/registry', () => {
         await remoteComponent.registerAction('myAction', onAction);
         await tools.sleep(20);
 
-        const busComponent = registry.getComponent('remote', 'my-component');
-        expect(() => busComponent.executeAction('boom', true)).to.throw(`Unknown action 'boom' on component 'remote:my-component' (plugin=module.name)`);
+        const busComponent = registry.getComponent('my-component');
+        expect(() => busComponent.executeAction('boom', true)).to.throw(`Unknown action 'boom' on component 'my-component' (plugin=remote:module.name)`);
         await tools.sleep(20);
 
         expect(onAction.notCalled).to.be.true;
@@ -298,7 +298,7 @@ describe('components/registry', () => {
         await remoteComponent.registerAction('myAction', onAction);
         await tools.sleep(20);
 
-        const busComponent = registry.getComponent('remote', 'my-component');
+        const busComponent = registry.getComponent('my-component');
         expect(() => busComponent.executeAction('myAction', 42)).to.throw(`Wrong value '42' for type 'bool'`);
         await tools.sleep(20);
 
@@ -340,7 +340,7 @@ describe('components/registry', () => {
 
         function expectState() {
           const plugin = registry.getPlugin('remote', 'module.name');
-          const busComponent = registry.getComponent('remote', 'my-component');
+          const busComponent = registry.getComponent('my-component');
           expect(busComponent.id).to.equal('my-component');
           expect(busComponent.plugin).to.equal(plugin);
           expect(busComponent.getStates()).to.deep.equal({ myState: true });
@@ -382,7 +382,7 @@ describe('components/registry', () => {
 
         function expectState() {
           const plugin = registry.getPlugin('remote', 'module.name');
-          const busComponent = registry.getComponent('remote', 'my-component');
+          const busComponent = registry.getComponent('my-component');
           expect(busComponent.id).to.equal('my-component');
           expect(busComponent.plugin).to.equal(plugin);
           expect(busComponent.getStates()).to.deep.equal({ myState: true });
