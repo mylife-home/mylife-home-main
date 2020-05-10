@@ -46,7 +46,7 @@ describe('components/bus-publisher', () => {
       const component = new ComponentHost('my-component', plugin, {});
       tester.registry.addComponent(null, component);
 
-      await tools.sleep(20);
+      await tools.sleep(50);
 
       const remotePlugin = observer.registry.getPlugin('tester', 'test-module.test-plugin');
       const { implementation, ...basePlugin } = plugin;
@@ -60,7 +60,7 @@ describe('components/bus-publisher', () => {
 
       remoteComponent.executeAction('setValue', 43);
 
-      await tools.sleep(20);
+      await tools.sleep(50);
 
       expect(remoteComponent.getStates()).to.deep.equal({ value: 43 });
       expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
