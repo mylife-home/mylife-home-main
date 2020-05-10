@@ -8,7 +8,7 @@ class BusMeta {
   private readonly path: string;
 
   constructor(metaType: string, id: string, private readonly meta: any, protected readonly transport: bus.Transport) {
-    this.path = `${metaType}/${this.meta.id}`;
+    this.path = `${metaType}/${id}`;
   }
 
   protected publishMeta() {
@@ -78,7 +78,7 @@ class BusComponent extends BusMeta {
       switch (member.memberType) {
         case components.metadata.MemberType.ACTION:
           {
-            await this.transportComponent.registerAction('name', (data: Buffer) => {
+            await this.transportComponent.registerAction(name, (data: Buffer) => {
               const value = member.valueType.primitive.decode(data);
               this.component.executeAction(name, value);
             });
