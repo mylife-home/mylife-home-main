@@ -28,14 +28,14 @@ describe('components/bus-publisher', () => {
       const actionHandler = sinon.fake();
 
       const plugin = build(tester.registry, () => {
-        @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
+        @metadata.plugin({ description: 'My plugin', usage: metadata.PluginUsage.LOGIC })
         class TestPlugin {
           constructor() {}
 
-          @metadata.state
+          @metadata.state({ description: 'My state' })
           value: number = 42;
 
-          @metadata.action
+          @metadata.action({ description: 'My action' })
           setValue(newValue: number) {
             actionHandler(newValue);
             this.value = newValue;
@@ -49,7 +49,8 @@ describe('components/bus-publisher', () => {
       await tools.sleep(20);
 
       const remotePlugin = observer.registry.getPlugin('tester', 'test-module.test-plugin');
-      expect(remotePlugin).to.deep.equal(plugin);
+      const { implementation, ...basePlugin } = plugin;
+      expect(remotePlugin).to.deep.equal(basePlugin);
 
       const remoteComponent = observer.registry.getComponent('tester', 'my-component');
       expect(remoteComponent).to.exist;
@@ -59,12 +60,16 @@ describe('components/bus-publisher', () => {
 
       remoteComponent.executeAction('setValue', 43);
 
+      await tools.sleep(20);
+
       expect(remoteComponent.getStates()).to.deep.equal({ value: 43 });
       expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
     } finally {
       await session.terminate();
     }
   });
+
+  // TODO: handle disconnections
 });
 
 function build(registry: components.Registry, callback: () => void) {
