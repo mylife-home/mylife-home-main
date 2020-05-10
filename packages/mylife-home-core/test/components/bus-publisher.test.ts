@@ -72,7 +72,6 @@ describe('components/bus-publisher', () => {
 
       expect(remoteComponent.getStates()).to.deep.equal({ value: 43 });
       expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
-
     } finally {
       await session.terminate();
     }
