@@ -1,8 +1,8 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as bus from '../../src/bus';
-import { MqttTestSession, sleep } from './tools';
+import { tools } from '../../src/main';
+import { MqttTestSession } from './tools';
 
 describe('bus/logger', () => {
   it('should stream data between 2 instances', async () => {
@@ -19,13 +19,13 @@ describe('bus/logger', () => {
       destStream.on('data', handler);
 
       const sourceStream = source.logger.createWritableStream();
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('abc'));
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('def'));
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledTwice).to.be.true;
       expect(handler.getCall(0).args[0]).to.deep.equal(Buffer.from('abc'));
@@ -52,13 +52,13 @@ describe('bus/logger', () => {
 
       const sourceStream1 = source1.logger.createWritableStream();
       const sourceStream2 = source2.logger.createWritableStream();
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream1.write(Buffer.from('abc'));
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream2.write(Buffer.from('def'));
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledTwice).to.be.true;
       expect(handler.getCall(0).args[0]).to.deep.equal(Buffer.from('abc'));
@@ -86,16 +86,16 @@ describe('bus/logger', () => {
       await session.disconnectTransport('source');
 
       const sourceStream = source.logger.createWritableStream();
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('abc'));
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('def'));
-      await sleep(20);
+      await tools.sleep(20);
 
       await session.reconnectTransport('source');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledTwice).to.be.true;
       expect(handler.getCall(0).args[0]).to.deep.equal(Buffer.from('abc'));
@@ -121,16 +121,16 @@ describe('bus/logger', () => {
       await session.disconnectTransport('source');
 
       const sourceStream = source.logger.createWritableStream();
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('abc'));
-      await sleep(20);
+      await tools.sleep(20);
 
       sourceStream.write(Buffer.from('def'));
-      await sleep(20);
+      await tools.sleep(20);
 
       await session.reconnectTransport('source');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledOnce).to.be.true;
       expect(handler.getCall(0).args[0]).to.deep.equal(Buffer.from('abc'));

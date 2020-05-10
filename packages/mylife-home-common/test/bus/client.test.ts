@@ -1,8 +1,7 @@
 import 'mocha';
 import { expect } from 'chai';
-import sinon from 'sinon';
-import * as bus from '../../src/bus';
-import { MqttTestSession, sleep } from './tools';
+import { tools } from '../../src/main';
+import { MqttTestSession } from './tools';
 
 describe('bus/client', () => {
   it('should clean resident state on connection', async () => {
@@ -21,7 +20,7 @@ describe('bus/client', () => {
 
       async function expectMetaPaths(expectedPaths: string[]) {
         const meta = await observer.metadata.createView('tester');
-        await sleep(20);
+        await tools.sleep(20);
         expect(Array.from(meta.paths)).to.deep.equal(expectedPaths);
         await observer.metadata.closeView(meta);
       }

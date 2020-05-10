@@ -1,8 +1,8 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import * as bus from '../../src/bus';
-import { MqttTestSession, delayError, sleep } from './tools';
+import { bus, tools } from '../../src/main';
+import { MqttTestSession, delayError } from './tools';
 
 describe('bus/components', () => {
   it('should register and unregister local component', async () => {
@@ -118,7 +118,7 @@ describe('bus/components', () => {
       const remote = client.components.trackRemoteComponent('server', 'test-component');
       await remote.emitAction('action', bus.encoding.writeInt32(42));
 
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
@@ -142,7 +142,7 @@ describe('bus/components', () => {
       const local = server.components.addLocalComponent('test-component');
       await local.setState('state', bus.encoding.writeInt32(42));
 
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
@@ -161,13 +161,13 @@ describe('bus/components', () => {
 
       const local = server.components.addLocalComponent('test-component');
       await local.setState('state', bus.encoding.writeInt32(42));
-      await sleep(20);
+      await tools.sleep(20);
 
       // register after set state
       const remote = client.components.trackRemoteComponent('server', 'test-component');
       const handler = sinon.fake();
       await remote.registerStateChange('state', handler);
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));
@@ -185,17 +185,17 @@ describe('bus/components', () => {
 
       const local = server.components.addLocalComponent('test-component');
       await local.setState('state', bus.encoding.writeInt32(42));
-      await sleep(20);
+      await tools.sleep(20);
 
       await session.closeTransport('server');
-      await sleep(20);
+      await tools.sleep(20);
 
       const client = await session.createTransport('client');
 
       const remote = client.components.trackRemoteComponent('server', 'test-component');
       const handler = sinon.fake();
       await remote.registerStateChange('state', handler);
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(handler.calledOnce).to.be.true;
       expect(handler.lastCall.args[0]).to.deep.equal(bus.encoding.writeInt32(42));

@@ -1,7 +1,8 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MqttTestSession, sleep } from './tools';
+import { tools } from '../../src/main';
+import { MqttTestSession } from './tools';
 
 describe('bus/presence', () => {
   it('should see presence of another instance', async () => {
@@ -14,7 +15,7 @@ describe('bus/presence', () => {
       tester.presence.on('instanceChange', spy);
 
       const other = await session.createTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
@@ -22,7 +23,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.closeTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal([]);
       expect(spy.calledOnce);
@@ -43,7 +44,7 @@ describe('bus/presence', () => {
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
@@ -51,7 +52,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.disconnectTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal([]);
       expect(spy.calledOnce);
@@ -59,7 +60,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.reconnectTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
@@ -80,7 +81,7 @@ describe('bus/presence', () => {
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
@@ -88,7 +89,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.closeTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal([]);
       expect(spy.calledOnce);
@@ -109,7 +110,7 @@ describe('bus/presence', () => {
       tester.presence.on('instanceChange', spy);
 
       await session.createTransport('other');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
@@ -117,7 +118,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.disconnectTransport('tester');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal([]);
       expect(spy.calledOnce);
@@ -125,7 +126,7 @@ describe('bus/presence', () => {
 
       spy.resetHistory();
       await session.reconnectTransport('tester');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(tester.presence.getOnlines()).to.deep.equal(['other']);
       expect(spy.calledOnce);
