@@ -1,7 +1,8 @@
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MqttTestSession, sleep } from './tools';
+import { tools } from '../../src/main';
+import { MqttTestSession } from './tools';
 
 describe('bus/metadata', () => {
   it('should set and clear local metadata', async () => {
@@ -12,9 +13,9 @@ describe('bus/metadata', () => {
       const server = await session.createTransport('server');
 
       server.metadata.set('test', { value: 42 });
-      await sleep(20);
+      await tools.sleep(20);
       server.metadata.clear('test');
-      await sleep(20);
+      await tools.sleep(20);
 
     } finally {
       await session.terminate();
@@ -30,10 +31,10 @@ describe('bus/metadata', () => {
       const client = await session.createTransport('client');
 
       server.metadata.set('test', { value: 42 });
-      await sleep(20);
+      await tools.sleep(20);
 
       const view = await client.metadata.createView('server');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(Array.from(view.paths)).to.deep.equal(['test']);
       expect(view.getValue('test')).to.deep.equal({ value: 42 });
@@ -44,7 +45,7 @@ describe('bus/metadata', () => {
       view.on('clear', clearHandler);
 
       server.metadata.set('test', { value: 43 });
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(Array.from(view.paths)).to.deep.equal(['test']);
       expect(view.getValue('test')).to.deep.equal({ value: 43 });
@@ -56,7 +57,7 @@ describe('bus/metadata', () => {
       clearHandler.resetHistory();
 
       server.metadata.clear('test');
-      await sleep(20);
+      await tools.sleep(20);
 
       expect(Array.from(view.paths)).to.deep.equal([]);
       expect(setHandler.called).to.be.false;

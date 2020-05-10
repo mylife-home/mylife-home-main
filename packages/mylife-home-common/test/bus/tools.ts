@@ -192,7 +192,3 @@ export async function delayError(target: () => Promise<void>): Promise<() => voi
 
   return () => {};
 }
-
-export async function sleep(delay: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, delay));
-}

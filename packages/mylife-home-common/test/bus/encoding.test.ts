@@ -1,6 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-import * as bus from '../../src/bus';
+import { bus } from '../../src/main';
 
 describe('bus/encoding', () => {
   it('should encode bool (true)', () => {

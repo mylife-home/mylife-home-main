@@ -2,8 +2,10 @@ import { EventEmitter } from 'events';
 import 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { MqttTestSession, delayError, sleep } from '../bus/tools';
-import { Registry, metadata, Component } from '../../src/components';
+import { MqttTestSession } from '../bus/tools';
+import { components, tools } from '../../src/main';
+
+import metadata = components.metadata;
 
 const TEST_PLUGIN: metadata.Plugin = Object.freeze({
   id: 'module.name',
@@ -21,7 +23,7 @@ const TEST_PLUGIN: metadata.Plugin = Object.freeze({
   }
 });
 
-class TestComponent extends EventEmitter implements Component {
+class TestComponent extends EventEmitter implements components.Component {
   constructor(public readonly id: string, public readonly plugin: metadata.Plugin = TEST_PLUGIN) {
     super();
   }
@@ -42,7 +44,7 @@ class TestComponent extends EventEmitter implements Component {
 
 describe('components/registry', () => {
   it('should add plugin', () => {
-    const registry = new Registry();
+    const registry = new components.Registry();
 
     const onPluginAdd = sinon.fake();
     const onOther = sinon.fake();
@@ -61,7 +63,7 @@ describe('components/registry', () => {
   });
 
   it('should remove plugin', () => {
-    const registry = new Registry();
+    const registry = new components.Registry();
     registry.addPlugin('my-instance', TEST_PLUGIN);
 
     const onPluginRemove = sinon.fake();
@@ -81,7 +83,7 @@ describe('components/registry', () => {
   });
 
   it('should add component', () => {
-    const registry = new Registry();
+    const registry = new components.Registry();
     registry.addPlugin('my-instance', TEST_PLUGIN);
     const testComponent = new TestComponent('my-component');
 
@@ -102,7 +104,7 @@ describe('components/registry', () => {
   });
 
   it('should remove component', () => {
-    const registry = new Registry();
+    const registry = new components.Registry();
     registry.addPlugin('my-instance', TEST_PLUGIN);
     const testComponent = new TestComponent('my-component');
     registry.addComponent('my-instance', testComponent);
@@ -130,20 +132,20 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
-        await sleep(20);
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
+        await tools.sleep(20);
 
         expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(registry.getPlugin('remote', 'module.name')).to.deep.equal(TEST_PLUGIN);
         expect(Array.from(registry.getPlugins('remote'))).to.deep.equal([TEST_PLUGIN]);
         expect(Array.from(registry.getInstanceNames())).to.deep.equal(['remote']);
 
         await remoteTransport.metadata.clear(`plugins/${TEST_PLUGIN.id}`);
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(() => registry.getPlugin('remote', 'module.name')).to.throw('Plugin remote:module.name does not exist in the registry');
         expect(Array.from(registry.getPlugins('remote'))).to.deep.equal([]);
@@ -160,11 +162,11 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
         const boolType = new metadata.Bool();
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(Array.from(registry.getComponents('my-instance'))).to.deep.equal([]);
 
@@ -172,7 +174,7 @@ describe('components/registry', () => {
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteComponent.setState('myState', boolType.primitive.encode(false));
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
-        await sleep(20);
+        await tools.sleep(20);
 
         const plugin = registry.getPlugin('remote', 'module.name');
         const busComponent = registry.getComponent('remote', 'my-component');
@@ -184,7 +186,7 @@ describe('components/registry', () => {
         // must unpublish component runtime after its meta
         await remoteTransport.metadata.clear('components/my-component');
         await remoteTransport.components.removeLocalComponent('my-component');
-        await sleep(50);
+        await tools.sleep(50);
 
         expect(() => registry.getComponent('remote', 'my-component')).to.throw('Component remote:my-component does not exist in the registry');
         expect(Array.from(registry.getComponents('remote'))).to.deep.equal([]);
@@ -200,14 +202,14 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
         const boolType = new metadata.Bool();
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteComponent.setState('myState', boolType.primitive.encode(false));
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
-        await sleep(20);
+        await tools.sleep(20);
 
         const busComponent = registry.getComponent('remote', 'my-component');
         const onChange = sinon.fake();
@@ -217,7 +219,7 @@ describe('components/registry', () => {
         expect(busComponent.getStates()).to.deep.equal({ myState: false });
 
         await remoteComponent.setState('myState', boolType.primitive.encode(true));
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(busComponent.getState('myState')).to.equal(true);
         expect(busComponent.getStates()).to.deep.equal({ myState: true });
@@ -234,7 +236,7 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
         const boolType = new metadata.Bool();
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
@@ -242,11 +244,11 @@ describe('components/registry', () => {
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
         const onAction = sinon.fake();
         await remoteComponent.registerAction('myAction', onAction);
-        await sleep(20);
+        await tools.sleep(20);
 
         const busComponent = registry.getComponent('remote', 'my-component');
         busComponent.executeAction('myAction', true);
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(onAction.calledOnceWithExactly(boolType.primitive.encode(true))).to.be.true;
 
@@ -261,18 +263,18 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
         const onAction = sinon.fake();
         await remoteComponent.registerAction('myAction', onAction);
-        await sleep(20);
+        await tools.sleep(20);
 
         const busComponent = registry.getComponent('remote', 'my-component');
         expect(() => busComponent.executeAction('boom', true)).to.throw(`Unknown action 'boom' on component 'remote:my-component' (plugin=module.name)`);
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(onAction.notCalled).to.be.true;
 
@@ -287,18 +289,18 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
         const onAction = sinon.fake();
         await remoteComponent.registerAction('myAction', onAction);
-        await sleep(20);
+        await tools.sleep(20);
 
         const busComponent = registry.getComponent('remote', 'my-component');
         expect(() => busComponent.executeAction('myAction', 42)).to.throw(`Wrong value '42' for type 'bool'`);
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(onAction.called).to.be.false;
 
@@ -313,7 +315,7 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
         const boolType = new metadata.Bool();
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
@@ -321,17 +323,17 @@ describe('components/registry', () => {
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteComponent.setState('myState', boolType.primitive.encode(true));
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
-        await sleep(50);
+        await tools.sleep(50);
 
         expectState();
 
         await session.disconnectTransport('registry');
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
 
         await session.reconnectTransport('registry');
-        await sleep(50);
+        await tools.sleep(50);
 
         // expect same state than earlier
         expectState();
@@ -355,7 +357,7 @@ describe('components/registry', () => {
       try {
         const registryTransport = await session.createTransport('registry', { presenceTracking: true });
         const remoteTransport = await session.createTransport('remote');
-        const registry = new Registry({ transport: registryTransport, publishRemoteComponent: true });
+        const registry = new components.Registry({ transport: registryTransport, publishRemoteComponents: true });
         const boolType = new metadata.Bool();
 
         await remoteTransport.metadata.set(`plugins/${TEST_PLUGIN.id}`, metadata.encodePlugin(TEST_PLUGIN));
@@ -363,17 +365,17 @@ describe('components/registry', () => {
         const remoteComponent = remoteTransport.components.addLocalComponent('my-component');
         await remoteComponent.setState('myState', boolType.primitive.encode(true));
         await remoteTransport.metadata.set('components/my-component', { id: 'my-component', plugin: TEST_PLUGIN.id });
-        await sleep(50);
+        await tools.sleep(50);
 
         expectState();
 
         await session.disconnectTransport('remote');
-        await sleep(20);
+        await tools.sleep(20);
 
         expect(Array.from(registry.getInstanceNames())).to.deep.equal([]);
 
         await session.reconnectTransport('remote');
-        await sleep(50);
+        await tools.sleep(50);
 
         // expect same state than earlier
         expectState();

@@ -36,7 +36,7 @@ export interface Registry extends EventEmitter {
 
 export interface RegistryOptions {
   readonly transport?: Transport;
-  readonly publishRemoteComponent?: boolean;
+  readonly publishRemoteComponents?: boolean;
 }
 
 interface InstanceData {
@@ -53,7 +53,7 @@ export class Registry extends EventEmitter implements Registry {
   constructor(options: RegistryOptions = {}) {
     super();
 
-    if (options.publishRemoteComponent) {
+    if (options.publishRemoteComponents) {
       this.publisher = new BusPublisher(options.transport, this);
     }
   }
