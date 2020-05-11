@@ -67,7 +67,10 @@ export class Binding {
 
     const { sourceState, targetAction } = this.config;
     const value = this.source.getState(sourceState);
-    this.target.executeAction(targetAction, value);
+    if (value !== null) {
+      // not provided yet, don't bind null values
+      this.target.executeAction(targetAction, value);
+    }
   }
 
   private readonly onSourceStateChange = (name: string, value: any) => {
