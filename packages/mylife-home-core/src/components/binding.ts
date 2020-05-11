@@ -43,6 +43,8 @@ export class Binding {
         this.target = component;
         break;
     }
+
+    this.initBindingValue();
   };
 
   private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
@@ -58,13 +60,24 @@ export class Binding {
     }
   };
 
+  private initBindingValue() {
+    if (!this.source || !this.target) {
+      return;
+    }
+
+    const { sourceState, targetAction } = this.config;
+    const value = this.source.getState(sourceState);
+    this.target.executeAction(targetAction, value);
+  }
+
   private readonly onSourceStateChange = (name: string, value: any) => {
-    if (name !== this.config.sourceId) {
+    const { sourceState, targetAction } = this.config;
+    if (name !== sourceState) {
       return;
     }
 
     if (this.target) {
-      this.target.executeAction(this.config.targetId, value);
+      this.target.executeAction(targetAction, value);
     }
   };
 }
