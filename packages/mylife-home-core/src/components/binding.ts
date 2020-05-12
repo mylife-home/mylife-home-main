@@ -95,20 +95,20 @@ export class Binding {
     const errors = [];
 
     if (!sourceMember) {
-      errors.push(`State '${sourceState}' does not exist on component '${this.source.component.id}' (plugin='${this.source.instanceName}:${sourcePlugin.id})`);
+      errors.push(`State '${sourceState}' does not exist on component ${buildComponentFullId(this.source)}`);
     }
 
     if (!targetMember) {
-      errors.push(`Action '${targetAction}' does not exist on component '${this.target.component.id}' (plugin='${this.target.instanceName}:${targetPlugin.id})`);
+      errors.push(`Action '${targetAction}' does not exist on component ${buildComponentFullId(this.target)}`);
     }
 
     if (sourceMember && targetMember) {
       const sourceType = sourceMember.valueType.toString();
       const targetType = targetMember.valueType.toString();
       if (sourceType !== targetType) {
-        const sourceDesc = `State '${sourceState}' on component '${this.source.component.id}' (plugin='${this.source.instanceName}:${sourcePlugin.id})`;
-        const targetDesc = `action '${targetAction}' on component '${this.target.component.id}' (plugin='${this.target.instanceName}:${targetPlugin.id})`;
-        errors.push(`${sourceDesc} has type '${sourceType}, which is different from type '${targetType}' for ${targetDesc}`);
+        const sourceDesc = `State '${sourceState}' on component ${buildComponentFullId(this.source)}`;
+        const targetDesc = `action '${targetAction}' on component ${buildComponentFullId(this.target)}`;
+        errors.push(`${sourceDesc} has type '${sourceType}', which is different from type '${targetType}' for ${targetDesc}`);
       }
     }
 
@@ -159,4 +159,8 @@ function findMember(plugin: components.metadata.Plugin, name: string, type: comp
   }
 
   return member;
+}
+
+function buildComponentFullId(componentData: components.ComponentData) {
+  return `'${componentData.component.id}' (plugin='${componentData.instanceName || 'local'}:${componentData.component.plugin.id}')`;
 }
