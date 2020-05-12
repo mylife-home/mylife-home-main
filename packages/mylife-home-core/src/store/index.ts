@@ -22,7 +22,7 @@ export class Store {
 
   async close() {
     // TODO: clear scheduled sync (if needed)
-    if(this.dirty) {
+    if (this.dirty) {
       await this.sync();
     }
   }
