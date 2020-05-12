@@ -1,5 +1,4 @@
 import { components, logger } from 'mylife-home-common';
-
 import { BindingConfig } from '../store';
 
 const log = logger.createLogger('mylife:home:core:components:binding');
