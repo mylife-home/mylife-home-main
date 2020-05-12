@@ -44,7 +44,7 @@ interface InstanceData {
   readonly components: Set<Component>;
 }
 
-interface ComponentData {
+export interface ComponentData {
   readonly instanceName: string;
   readonly component: Component;
 }
