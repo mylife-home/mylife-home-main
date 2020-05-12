@@ -16,11 +16,12 @@ export class Store {
   private readonly bindings = new Map<string, BindingConfig>();
   private dirty = false;
 
-  constructor() {
-
+  async init() {
+    // TODO
   }
 
   async close() {
+    // TODO: clear scheduled sync (if needed)
     if(this.dirty) {
       await this.sync();
     }
