@@ -1,4 +1,6 @@
-import { components } from 'mylife-home-common';
+import { components, logger } from 'mylife-home-common';
+
+const log = logger.createLogger('mylife:home:core:components:binding');
 
 export interface BindingConfiguration {
   readonly sourceId: string;
@@ -8,8 +10,21 @@ export interface BindingConfiguration {
 }
 
 export class Binding {
-  private source: components.Component;
-  private target: components.Component;
+  private source: components.ComponentData;
+  private target: components.ComponentData;
+  private _errors: string[];
+
+  public get error() {
+    return !!this._errors.length;
+  }
+
+  public get errors(): readonly string[] {
+    return this._errors;
+  }
+
+  public get active() {
+    return this.source && this.target && !this.error;
+  }
 
   constructor(private readonly registry: components.Registry, private readonly config: BindingConfiguration) {
     this.registry.on('component.add', this.onComponentAdd);
@@ -18,6 +33,8 @@ export class Binding {
     for (const component of this.registry.getComponents()) {
       this.onComponentAdd(null, component);
     }
+
+    log.info(`Binding '${JSON.stringify(this.config)}' created`);
   }
 
   close() {
@@ -25,52 +42,102 @@ export class Binding {
     this.registry.off('component.remove', this.onComponentRemove);
 
     if (this.source) {
-      this.onComponentRemove(null, this.source);
+      this.onComponentRemove(this.source.instanceName, this.source.component);
     }
     if (this.target) {
-      this.onComponentRemove(null, this.target);
+      this.onComponentRemove(this.target.instanceName, this.target.component);
     }
+
+    log.info(`Binding '${JSON.stringify(this.config)}' closed`);
   }
 
   private readonly onComponentAdd = (instanceName: string, component: components.Component) => {
     switch (component.id) {
       case this.config.sourceId:
-        this.source = component;
-        this.source.on('state', this.onSourceStateChange);
+        this.source = { instanceName, component };
+        this.initBinding();
         break;
 
       case this.config.targetId:
-        this.target = component;
+        this.target = { instanceName, component };
+        this.initBinding();
         break;
     }
-
-    this.initBindingValue();
   };
 
   private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
-    switch (component.id) {
-      case this.config.sourceId:
-        this.source.off('state', this.onSourceStateChange);
+    switch (component) {
+      case this.source?.component:
+        this.terminateBinding();
         this.source = null;
         break;
 
-      case this.config.targetId:
+      case this.target?.component:
+        this.terminateBinding();
         this.target = null;
         break;
     }
   };
 
-  private initBindingValue() {
+  private initBinding() {
     if (!this.source || !this.target) {
       return;
     }
 
     const { sourceState, targetAction } = this.config;
-    const value = this.source.getState(sourceState);
+
+    // assert that props exists and type matches
+    const sourcePlugin = this.source.component.plugin;
+    const targetPlugin = this.target.component.plugin;
+    const sourceMember = findMember(sourcePlugin, sourceState, components.metadata.MemberType.STATE);
+    const targetMember = findMember(targetPlugin, targetAction, components.metadata.MemberType.ACTION);
+
+    const errors = [];
+
+    if (!sourceMember) {
+      errors.push(`State '${sourceState}' does not exist on component '${this.source.component.id}' (plugin='${this.source.instanceName}:${sourcePlugin.id})`);
+    }
+
+    if (!targetMember) {
+      errors.push(`Action '${targetAction}' does not exist on component '${this.target.component.id}' (plugin='${this.target.instanceName}:${targetPlugin.id})`);
+    }
+
+    if (sourceMember && targetMember) {
+      const sourceType = sourceMember.valueType.toString();
+      const targetType = targetMember.valueType.toString();
+      if (sourceType !== targetType) {
+        const sourceDesc = `State '${sourceState}' on component '${this.source.component.id}' (plugin='${this.source.instanceName}:${sourcePlugin.id})`;
+        const targetDesc = `action '${targetAction}' on component '${this.target.component.id}' (plugin='${this.target.instanceName}:${targetPlugin.id})`;
+        errors.push(`${sourceDesc} has type '${sourceType}, which is different from type '${targetType}' for ${targetDesc}`);
+      }
+    }
+
+    this._errors = errors;
+    if (errors.length) {
+      // we have errors, do not activate binding
+      log.error(`Binding '${JSON.stringify(this.config)}' errors: ${this.errors.join(', ')}`);
+      return;
+    }
+
+    this.source.component.on('state', this.onSourceStateChange);
+
+    const value = this.source.component.getState(sourceState);
     if (value !== null) {
       // not provided yet, don't bind null values
-      this.target.executeAction(targetAction, value);
+      this.target.component.executeAction(targetAction, value);
     }
+
+    log.debug(`Binding '${JSON.stringify(this.config)}' activated`);
+  }
+
+  private terminateBinding() {
+    if (this.active) {
+      this.source.component.off('state', this.onSourceStateChange);
+    }
+
+    this._errors = [];
+
+    log.debug(`Binding '${JSON.stringify(this.config)}' deactivated`);
   }
 
   private readonly onSourceStateChange = (name: string, value: any) => {
@@ -80,7 +147,16 @@ export class Binding {
     }
 
     if (this.target) {
-      this.target.executeAction(targetAction, value);
+      this.target.component.executeAction(targetAction, value);
     }
   };
+}
+
+function findMember(plugin: components.metadata.Plugin, name: string, type: components.metadata.MemberType): components.metadata.Member {
+  const member = plugin.members[name];
+  if (!member || member.memberType !== type) {
+    return;
+  }
+
+  return member;
 }
