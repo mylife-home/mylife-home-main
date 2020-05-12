@@ -1,8 +1,10 @@
 import { EventEmitter } from 'events';
+import { components, logger } from 'mylife-home-common';
 import { LocalPlugin, ConfigType, Type } from './metadata';
-import { components } from 'mylife-home-common';
 
 import metadata = components.metadata;
+
+const log = logger.createLogger('mylife:home:core:components:component-host');
 
 interface Component {
   destroy?: () => void;
@@ -48,6 +50,8 @@ export class ComponentHost extends EventEmitter implements components.Component 
         }
       }
     }
+
+    log.info(`Component host '${this.id}' created`);
   }
 
   private validateConfiguration(config: any) {
@@ -67,6 +71,8 @@ export class ComponentHost extends EventEmitter implements components.Component 
     if (this.component.destroy) {
       this.component.destroy();
     }
+
+    log.info(`Component host '${this.id}' destroyed`);
   }
 
   private checkDestroyed() {
@@ -83,6 +89,7 @@ export class ComponentHost extends EventEmitter implements components.Component 
       throw new Error(`No such action: '${name}' on component '${this.id}' of plugin '${this.plugin.id}`);
     }
 
+    log.debug(`Component host '${this.id}' executing action '${name}' with '${JSON.stringify(value)}'`);
     action.execute(value);
   }
 

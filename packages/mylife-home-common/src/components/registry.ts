@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 import { Plugin } from './metadata';
 import { BusPublisher } from './bus-publisher';
 import { Transport } from '../bus';
+import * as logger from '../logger';
+
+const log = logger.createLogger('mylife:home:common:components:registry');
 
 export interface Component extends EventEmitter {
   on(event: 'state', listener: (name: string, value: any) => void): this;
@@ -96,6 +99,7 @@ export class Registry extends EventEmitter implements Registry {
     this.pluginsPerInstance.set(key, plugin);
     this.updateInstance(instanceName, ({ plugins }) => plugins.add(plugin));
 
+    log.debug(`Plugin '${key}' added`);
     this.emit('plugin.add', instanceName, plugin);
   }
 
@@ -108,6 +112,7 @@ export class Registry extends EventEmitter implements Registry {
     this.pluginsPerInstance.delete(key);
     this.updateInstance(instanceName, ({ plugins }) => plugins.delete(plugin));
 
+    log.debug(`Plugin '${key}' removed`);
     this.emit('plugin.remove', instanceName, plugin);
   }
 
@@ -138,6 +143,7 @@ export class Registry extends EventEmitter implements Registry {
     this.components.set(id, { instanceName, component });
     this.updateInstance(instanceName, ({ components }) => components.add(component));
 
+    log.debug(`Component '${instanceName}:${id}' added`);
     this.emit('component.add', instanceName, component);
   }
 
@@ -150,6 +156,7 @@ export class Registry extends EventEmitter implements Registry {
     this.components.delete(id);
     this.updateInstance(instanceName, ({ components }) => components.delete(component));
 
+    log.debug(`Component '${instanceName}:${id}' removed`);
     this.emit('component.remove', instanceName, component);
   }
 
