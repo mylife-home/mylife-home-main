@@ -22,7 +22,7 @@ export class ComponentHost extends EventEmitter implements components.Component 
   private readonly states = new Map<string, State>();
   private destroyed = false;
 
-  constructor(public readonly id: string, public readonly plugin: LocalPlugin, config: any) {
+  constructor(public readonly id: string, public readonly plugin: LocalPlugin, config: { [name: string]: any; }) {
     super();
 
     this.validateConfiguration(config);
