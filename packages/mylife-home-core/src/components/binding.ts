@@ -1,13 +1,8 @@
 import { components, logger } from 'mylife-home-common';
 
-const log = logger.createLogger('mylife:home:core:components:binding');
+import { BindingConfig } from '../store';
 
-export interface BindingConfiguration {
-  readonly sourceId: string;
-  readonly sourceState: string;
-  readonly targetId: string;
-  readonly targetAction: string;
-}
+const log = logger.createLogger('mylife:home:core:components:binding');
 
 export class Binding {
   private source: components.ComponentData;
@@ -26,7 +21,7 @@ export class Binding {
     return this.source && this.target && !this.error;
   }
 
-  constructor(private readonly registry: components.Registry, private readonly config: BindingConfiguration) {
+  constructor(private readonly registry: components.Registry, private readonly config: BindingConfig) {
     this.registry.on('component.add', this.onComponentAdd);
     this.registry.on('component.remove', this.onComponentRemove);
 
