@@ -9,22 +9,21 @@ import { MqttTestSession } from './tools';
 describe('components/binding', () => {
   it('should transmit source state to target action on local registry', () => {
     const registry = new components.Registry();
-    const { emitSource, actionHandler, sourceHost, targetHost } = createSourceAndTarget(registry);
-
-    registry.addComponent(null, sourceHost);
-    registry.addComponent(null, targetHost);
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    registry.addComponent(null, createComponentHost('source', 'source'));
+    registry.addComponent(null, createComponentHost('target', 'target'));
 
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
     const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
 
-    expect(actionHandler.calledOnceWithExactly(42)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
 
     actionHandler.resetHistory();
 
     emitSource(43);
-    expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 43)).to.be.true;
 
     actionHandler.resetHistory();
     binding.close();
@@ -35,7 +34,9 @@ describe('components/binding', () => {
 
   it('should bind when source join back', () => {
     const registry = new components.Registry();
-    const { emitSource, actionHandler, sourceHost, targetHost } = createSourceAndTarget(registry);
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    const sourceHost = createComponentHost('source', 'source');
+    const targetHost = createComponentHost('target', 'target');
 
     registry.addComponent(null, targetHost);
     emitSource(42);
@@ -44,7 +45,7 @@ describe('components/binding', () => {
     expect(actionHandler.notCalled).to.be.true;
 
     registry.addComponent(null, sourceHost);
-    expect(actionHandler.calledOnceWithExactly(42)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
 
     actionHandler.resetHistory();
 
@@ -52,7 +53,7 @@ describe('components/binding', () => {
     emitSource(43);
     registry.addComponent(null, sourceHost);
 
-    expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 43)).to.be.true;
 
     binding.close();
   });
@@ -60,7 +61,9 @@ describe('components/binding', () => {
 
   it('should bind when target join back', () => {
     const registry = new components.Registry();
-    const { emitSource, actionHandler, sourceHost, targetHost } = createSourceAndTarget(registry);
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    const sourceHost = createComponentHost('source', 'source');
+    const targetHost = createComponentHost('target', 'target');
 
     registry.addComponent(null, sourceHost);
     emitSource(42);
@@ -69,7 +72,7 @@ describe('components/binding', () => {
     expect(actionHandler.notCalled).to.be.true;
 
     registry.addComponent(null, targetHost);
-    expect(actionHandler.calledOnceWithExactly(42)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
 
     actionHandler.resetHistory();
 
@@ -77,10 +80,183 @@ describe('components/binding', () => {
     emitSource(43);
     registry.addComponent(null, targetHost);
 
-    expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 43)).to.be.true;
 
     binding.close();
   });
+
+  it('should report error on type mismatch', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    registry.addComponent(null, createComponentHost('source', 'source'));
+    registry.addComponent(null, createComponentHost('target', 'target-other-type'));
+
+    emitSource(42);
+    expect(actionHandler.notCalled).to.be.true;
+
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`State 'value' on component 'source' (plugin='local:test-module.source') has type 'float', which is different from type 'text' for action 'setValue' on component 'target' (plugin='local:test-module.target-other-type')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report error on type mismatch after leave/back', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    const sourceHost = createComponentHost('source', 'source');
+    const targetHost = createComponentHost('target', 'target');
+
+    registry.addComponent(null, sourceHost);
+    registry.addComponent(null, targetHost);
+
+    emitSource(42);
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
+    expect(binding.active).to.be.true;
+    expect(binding.error).to.be.false;
+
+    actionHandler.resetHistory();
+
+    registry.removeComponent(null, targetHost);
+    const otherTargetHost = createComponentHost('target', 'target-other-type');
+    registry.addComponent(null, otherTargetHost);
+
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`State 'value' on component 'source' (plugin='local:test-module.source') has type 'float', which is different from type 'text' for action 'setValue' on component 'target' (plugin='local:test-module.target-other-type')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report error on missing source state', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    registry.addComponent(null, createComponentHost('source', 'other-source'));
+    registry.addComponent(null, createComponentHost('target', 'target'));
+
+    emitSource(42);
+    expect(actionHandler.notCalled).to.be.true;
+
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`State 'value' does not exist on component 'source' (plugin='local:test-module.other-source')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report error on missing source state after leave/back', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    const sourceHost = createComponentHost('source', 'source');
+    const targetHost = createComponentHost('target', 'target');
+
+    registry.addComponent(null, sourceHost);
+    registry.addComponent(null, targetHost);
+
+    emitSource(42);
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
+    expect(binding.active).to.be.true;
+    expect(binding.error).to.be.false;
+
+    actionHandler.resetHistory();
+
+    registry.removeComponent(null, sourceHost);
+    const otherSourceHost = createComponentHost('source', 'other-source');
+    registry.addComponent(null, otherSourceHost);
+
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`State 'value' does not exist on component 'source' (plugin='local:test-module.other-source')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report error on missing target action', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    registry.addComponent(null, createComponentHost('source', 'source'));
+    registry.addComponent(null, createComponentHost('target', 'other-target'));
+
+    emitSource(42);
+    expect(actionHandler.notCalled).to.be.true;
+
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`Action 'setValue' does not exist on component 'target' (plugin='local:test-module.other-target')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report error on missing target action after leave/back', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    const sourceHost = createComponentHost('source', 'source');
+    const targetHost = createComponentHost('target', 'target');
+
+    registry.addComponent(null, sourceHost);
+    registry.addComponent(null, targetHost);
+
+    emitSource(42);
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+
+    expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
+    expect(binding.active).to.be.true;
+    expect(binding.error).to.be.false;
+
+    actionHandler.resetHistory();
+
+    registry.removeComponent(null, targetHost);
+    const otherTargetHost = createComponentHost('target', 'other-target');
+    registry.addComponent(null, otherTargetHost);
+
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([`Action 'setValue' does not exist on component 'target' (plugin='local:test-module.other-target')`]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+  });
+
+  it('should report if both source and target props are wrong', () => {
+    const registry = new components.Registry();
+    const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(registry);
+    registry.addComponent(null, createComponentHost('source', 'other-source'));
+    registry.addComponent(null, createComponentHost('target', 'other-target'));
+
+    emitSource(42);
+    expect(actionHandler.notCalled).to.be.true;
+
+    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    expect(actionHandler.notCalled).to.be.true;
+    expect(binding.active).to.be.false;
+    expect(binding.error).to.be.true;
+    expect(binding.errors).to.deep.equal([
+      `State 'value' does not exist on component 'source' (plugin='local:test-module.other-source')`,
+      `Action 'setValue' does not exist on component 'target' (plugin='local:test-module.other-target')`
+    ]);
+
+    emitSource(43);
+    expect(actionHandler.notCalled).to.be.true;
+
+  })
 
   it('should have same behavior on remote components', async () => {
     const session = new MqttTestSession();
@@ -93,9 +269,9 @@ describe('components/binding', () => {
       const binderTransport = await session.createTransport('binder', { presenceTracking: true });
       const binderRegistry = new components.Registry({ transport: binderTransport, publishRemoteComponents: true });
 
-      const { emitSource, actionHandler, sourceHost, targetHost } = createSourceAndTarget(providerRegistry);
-      providerRegistry.addComponent(null, sourceHost);
-      providerRegistry.addComponent(null, targetHost);
+      const { emitSource, actionHandler, createComponentHost } = createSourceAndTarget(providerRegistry);
+      providerRegistry.addComponent(null, createComponentHost('source', 'source'));
+      providerRegistry.addComponent(null, createComponentHost('target', 'target'));
 
       emitSource(42);
       expect(actionHandler.notCalled).to.be.true;
@@ -103,13 +279,13 @@ describe('components/binding', () => {
       const binding = new Binding(binderRegistry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
 
       await tools.sleep(100);
-      expect(actionHandler.calledOnceWithExactly(42)).to.be.true;
+      expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
 
       actionHandler.resetHistory();
 
       emitSource(43);
       await tools.sleep(100);
-      expect(actionHandler.calledOnceWithExactly(43)).to.be.true;
+      expect(actionHandler.calledOnceWithExactly('Target.setValue', 43)).to.be.true;
 
       actionHandler.resetHistory();
 
@@ -136,16 +312,22 @@ function build(registry: components.Registry, callback: () => void) {
 }
 
 function createSourceAndTarget(registry: components.Registry) {
-  let emitSource: (value: number) => void;
+  const sourceEmitters = new Set<(value: number) => void>();
+  const emitSource = (value: number) => {
+    for (const emitter of sourceEmitters) {
+      emitter(value);
+    }
+  };
+
   const actionHandler = sinon.fake();
 
   build(registry, () => {
     @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
     class Source {
       constructor() {
-        emitSource = (value: number) => {
+        sourceEmitters.add((value: number) => {
           this.value = value;
-        };
+        });
       }
 
       @metadata.state
@@ -157,16 +339,45 @@ function createSourceAndTarget(registry: components.Registry) {
 
       @metadata.action
       setValue(value: number) {
-        actionHandler(value);
+        actionHandler('Target.setValue', value);
+      }
+    }
+
+    @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
+    class OtherSource {
+      constructor() {
+        sourceEmitters.add((value: number) => {
+          this.otherValue = value;
+        });
+      }
+
+      @metadata.state
+      otherValue: number = 42;
+    }
+
+    @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
+    class OtherTarget {
+
+      @metadata.action
+      setOtherValue(value: number) {
+        actionHandler('OtherTarget.setOtherValue', value);
+      }
+    }
+
+    @metadata.plugin({ usage: metadata.PluginUsage.LOGIC })
+    class TargetOtherType {
+
+      @metadata.action
+      setValue(value: string) {
+        actionHandler('TargetOtherType.setValue', value);
       }
     }
   });
 
-  const sourcePlugin = registry.getPlugin(null, 'test-module.source') as metadata.LocalPlugin;
-  const targetPlugin = registry.getPlugin(null, 'test-module.target') as metadata.LocalPlugin;
+  const createComponentHost = (id: string, pluginName: string) => {
+    const plugin = registry.getPlugin(null, `test-module.${pluginName}`) as metadata.LocalPlugin;
+    return new ComponentHost(id, plugin, {});
+  };
 
-  const sourceHost = new ComponentHost('source', sourcePlugin, {});
-  const targetHost = new ComponentHost('target', targetPlugin, {});
-
-  return { emitSource, actionHandler, sourceHost, targetHost };
+  return { emitSource, actionHandler, createComponentHost };
 }
