@@ -16,6 +16,7 @@
     "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
   "devDependencies": {
+    "@types/bunyan": "^1.8.6",
     "@types/chai": "^4.2.8",
     "@types/mocha": "^7.0.1",
     "@types/mosca": "^2.8.2",
