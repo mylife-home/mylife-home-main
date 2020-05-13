@@ -50,7 +50,7 @@ export class Store {
       }
     }
 
-    log.info(`${items.length} loaded`);
+    log.info(`${items.length} items loaded`);
   }
 
   async save() {
@@ -66,7 +66,7 @@ export class Store {
 
     await this.operations.save(items);
 
-    log.info(`${items.length} saved`);
+    log.info(`${items.length} items saved`);
   };
 
   setComponent(config: ComponentConfig) {
