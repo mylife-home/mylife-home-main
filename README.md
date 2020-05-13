@@ -5,6 +5,8 @@ MyLife Home main
 
 ### common
  - nrpe binding
+   - https://www.npmjs.com/package/jnrpe-lib
+   - https://github.com/stockholmuniversity/Nagios-NRPE/blob/master/share/protocol-nrpe.md
  - publish os/app state
  - config access
  - logger
