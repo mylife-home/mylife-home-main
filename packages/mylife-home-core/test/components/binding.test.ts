@@ -2,7 +2,7 @@ import 'mocha';
 import 'reflect-metadata';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { components, bus, tools } from 'mylife-home-common';
+import { components, tools } from 'mylife-home-common';
 import { metadata, ComponentHost, BusPublisher, Binding } from '../../src/components';
 import { MqttTestSession } from './tools';
 
