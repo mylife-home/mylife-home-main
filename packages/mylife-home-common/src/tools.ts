@@ -1,5 +1,9 @@
+import * as logger from './logger';
+
+const log = logger.createLogger('mylife:home:common:tools');
+
 export function fireAsync(target: () => Promise<void>): void {
-  target().catch((err) => console.error(err)); // TODO: logging
+  target().catch((err) => log.error(err, 'Error on fireAsync'));
 }
 
 export async function sleep(delay: number) {

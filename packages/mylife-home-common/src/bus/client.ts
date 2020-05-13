@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 import * as mqtt from 'async-mqtt';
 import * as encoding from './encoding';
 import { fireAsync, sleep } from '../tools';
+import * as logger from '../logger';
+
+const log = logger.createLogger('mylife:home:common:bus:client');
 
 export declare interface Client {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
@@ -42,7 +45,7 @@ export class Client extends EventEmitter {
     this.client.on('close', () => this.onlineChange(false));
 
     this.client.on('error', (err) => {
-      console.error('mqtt error', err); // TODO: logging
+      log.error(err, 'mqtt error');
       this.emit('error', err);
     });
 
