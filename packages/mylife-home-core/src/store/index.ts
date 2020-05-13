@@ -14,51 +14,14 @@ export interface BindingConfig {
   readonly targetAction: string;
 }
 
-class SyncManager {
-  private timeout: NodeJS.Timeout = null;
-  private dirty = false;
-
-  constructor(private readonly delay: number, private readonly handler: () => Promise<void>) {
-  }
-
-  private clearTimeout() {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-      this.timeout = null;
-    }
-  }
-
-  changed() {
-    this.dirty = true;
-    this.clearTimeout();
-    this.timeout = setTimeout(() => tools.fireAsync(() => this.sync()), this.delay);
-  }
-
-  async sync() {
-    this.clearTimeout();
-    await this.handler();
-    this.dirty = false;
-  }
-
-  async close() {
-    this.clearTimeout();
-
-    if (this.dirty) {
-      await this.sync();
-    }
-  }
-}
-
 export class Store {
   private readonly components = new Map<string, ComponentConfig>();
   private readonly bindings = new Map<string, BindingConfig>();
-  private readonly syncManager: SyncManager;
 
-  constructor(private readonly operations: StoreOperations, delay: number) {
-    this.syncManager = new SyncManager(delay, this.sync);
+  constructor(private readonly operations: StoreOperations) {
   }
 
-  async init() {
+  async load() {
     const items = await this.operations.load();
     for (const item of items) {
       switch (item.type) {
@@ -81,11 +44,7 @@ export class Store {
     }
   }
 
-  async close() {
-    await this.syncManager.close();
-  }
-
-  private readonly sync = async () => {
+  async save() {
     const items: StoreItem[] = [];
 
     for (const config of this.components.values()) {
@@ -101,24 +60,20 @@ export class Store {
 
   setComponent(config: ComponentConfig) {
     this.components.set(config.id, config);
-    this.syncManager.changed();
   }
 
   removeComponent(id: string) {
     this.components.delete(id);
-    this.syncManager.changed();
   }
 
   addBinding(config: BindingConfig) {
     const key = this.buildBindingKey(config);
     this.bindings.set(key, config);
-    this.syncManager.changed();
   }
 
   removeBinding(config: BindingConfig) {
     const key = this.buildBindingKey(config);
     this.bindings.delete(key);
-    this.syncManager.changed();
   }
 
   private buildBindingKey(config: BindingConfig) {
