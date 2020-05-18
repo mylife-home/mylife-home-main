@@ -10,6 +10,7 @@ MyLife Home main
  - publish os/app state
  - config access
  - logger
+ - metadata: capabilities (keep compat with arduino) eg: osinfo, configurecomponents, ...
 
 ### core
  - engine api (create/delete component, get its config)
