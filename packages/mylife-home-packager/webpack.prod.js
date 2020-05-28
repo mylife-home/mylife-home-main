@@ -4,7 +4,7 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'production',
   output: {
-    filename: 'bundle.prod.js'
+    filename: '[name].prod.js'
   },
   devtool: 'source-map'
 });

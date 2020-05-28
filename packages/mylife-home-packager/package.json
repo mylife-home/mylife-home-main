@@ -11,15 +11,12 @@
   },
   "scripts": {
     "build": "webpack --config=webpack.prod.js",
-    "start": "node dist/bundle.js",
     "watch": "webpack --config=webpack.dev.js --watch",
-    "test": "mocha -r ts-node/register test/**/*.test.ts"
+    "start-core": "node dist/core.prod.js",
+    "start-core:dev": "node dist/core.dev.js"
   },
   "devDependencies": {
-    "@types/node": "^13.7.0",
     "shebang-loader": "0.0.1",
-    "ts-loader": "^6.2.1",
-    "typescript": "^3.7.5",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-filter-warnings-plugin": "^1.2.1",
