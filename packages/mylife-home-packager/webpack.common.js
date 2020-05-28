@@ -2,19 +2,13 @@ const path = require('path');
 const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: {
+    core: 'mylife-home-core'
+  },
   module: {
     rules: [
-      {
-        test: /\.ts$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
       { test: /\.js$/, loader: 'shebang-loader' } // npm i -D shebang-loader
     ]
-  },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
     path: path.resolve(__dirname, 'dist')
