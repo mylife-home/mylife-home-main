@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "mylife-home-common": "^1.0.0",
-    "mylife-home-core": "^1.0.0"
+    "mylife-home-core": "^1.0.0",
+    "mylife-home-core-plugins-irc": "^1.0.0"
   }
 }
