@@ -1,10 +1,9 @@
-const path = require('path');
 const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
   entry: {
-    core: 'mylife-home-core',
-    'core-plugins-irc': 'mylife-home-core-plugins-irc'
+    'core/bin': 'mylife-home-core',
+    'core/plugins/irc': 'mylife-home-core-plugins-irc'
   },
   module: {
     rules: [
@@ -12,7 +11,7 @@ module.exports = {
     ]
   },
   output: {
-    path: path.resolve(__dirname, 'dist')
+    filename: '[name].js'
   },
   target: 'node',
   plugins: [
