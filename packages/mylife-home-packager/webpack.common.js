@@ -3,7 +3,8 @@ const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 module.exports = {
   entry: {
-    core: 'mylife-home-core'
+    core: 'mylife-home-core',
+    'core-plugins-irc': 'mylife-home-core-plugins-irc'
   },
   module: {
     rules: [
