@@ -1,8 +1,8 @@
 {
   "name": "mylife-home-packager",
   "version": "1.0.0",
-  "description": "> TODO: description",
-  "author": "vincent-tr <vincent@stoic.com>",
+  "description": "MyLife Home Packager",
+  "author": "Vincent Trumpff",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
   "license": "GPL-3.0-or-later",
   "repository": {
