@@ -21,13 +21,12 @@ module.exports = {
     new DefinePlugin({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),
     }),
-    new FilterWarningsPlugin({
-      exclude: [
-        /Module not found\: Error\: Can't resolve 'bufferutil' in '\/Users\/vincent\/workspace\/private\/sandbox\/home\-mqtt\/node_modules\/ws\/lib'/,
-        /Module not found\: Error\: Can't resolve 'utf-8-validate' in '\/Users\/vincent\/workspace\/private\/sandbox\/home\-mqtt\/node_modules\/ws\/lib'/,
-      ],
-    }),
   ],
+  stats: {
+    warningsFilter: [
+      
+    ]
+  }
 };
 
 function createBuildInfo() {
