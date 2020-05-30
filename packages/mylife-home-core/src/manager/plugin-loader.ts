@@ -19,12 +19,12 @@ export function loadPlugins(registry: components.Registry) {
 
 function loadPlugin(registry: components.Registry, filePath: string) {
   const bi = buildInfo.getInfo();
-  const pluginName = path.parse(filePath).name;
-  const pluginVersion = bi.modules[`mylife-home-core-plugins-${pluginName}`].version;
+  const moduleName = path.parse(filePath).name;
+  const pluginVersion = bi.modules[`mylife-home-core-plugins-${moduleName}`].version;
 
-  log.info(`loading plugin ${pluginName} v${pluginVersion}`);
+  log.info(`loading module ${moduleName} v${pluginVersion}`);
 
-  metadata.builder.init(pluginName, pluginVersion, registry);
+  metadata.builder.init(moduleName, pluginVersion, registry);
   try {
     __non_webpack_require__(filePath);
     metadata.builder.build();
