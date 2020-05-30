@@ -23,7 +23,9 @@ module.exports = {
   ],
   stats: {
     warningsFilter: [
-
+      /Module not found: Error: Can\'t resolve \'utf-8-validate\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/ws\/lib\'/,
+      /Module not found: Error: Can\'t resolve \'bufferutil\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/ws\/lib\'/,
+      /Module not found: Error: Can\'t resolve \'.\/src\/build\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/dtrace-provider\'/,
     ]
   }
 };
