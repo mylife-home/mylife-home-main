@@ -1,5 +1,7 @@
 import { ActionOptions, StateOptions, PluginOptions, ConfigOptions } from './decorators';
-import { components } from 'mylife-home-common';
+import { components, logger } from 'mylife-home-common';
+
+const log = logger.createLogger('mylife:home:core:components:metadata:builder');
 
 import Registry = components.Registry;
 import metadata = components.metadata;
@@ -196,6 +198,7 @@ export function build() {
 
   for (const builder of context.builders.values()) {
     const plugin = builder.build(context.module, context.version);
+    log.info(`Plugin loaded: ${plugin.id}`);
     context.registry.addPlugin(null, plugin);
   }
 }
