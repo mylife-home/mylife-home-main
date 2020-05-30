@@ -4,7 +4,7 @@ const { DefinePlugin } = require('webpack');
 module.exports = {
   entry: {
     'core/bin': 'mylife-home-core/dist/bin',
-    'core/plugins/irc': 'mylife-home-core-plugins-irc',
+    'core/plugins/irc': { import: 'mylife-home-core-plugins-irc', dependOn: 'core/bin' },
   },
   module: {
     rules: [{ test: /\.js$/, use: ['source-map-loader', 'shebang-loader'] }],
@@ -15,7 +15,7 @@ module.exports = {
   target: 'node',
   node: {
     __dirname: false,
-    __filename: false
+    __filename: false,
   },
   plugins: [
     new DefinePlugin({
