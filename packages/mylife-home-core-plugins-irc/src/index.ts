@@ -1,1 +1,1 @@
-console.log('loaded mylife-home-core-plugins-irc');
+import './ui-button';
