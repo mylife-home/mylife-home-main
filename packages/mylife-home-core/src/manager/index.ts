@@ -7,7 +7,7 @@ export class Manager {
   constructor() {
     // read-config
     const instanceName = os.hostname();
-    this.transport = new bus.Transport(instanceName, "localhost", { presenceTracking: false });
+    this.transport = new bus.Transport(instanceName, "tcp://localhost", { presenceTracking: false });
   }
 
   async terminate() {
