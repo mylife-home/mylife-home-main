@@ -14,7 +14,6 @@ MyLife Home main
 
 ### core
  - engine api (create/delete component, get its config)
- - plugins loader
  - load/save config
  - store/mounted-fs
 
