@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "shebang-loader": "0.0.1",
+    "source-map-support": "^0.5.19",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-filter-warnings-plugin": "^1.2.1",
