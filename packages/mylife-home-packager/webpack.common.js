@@ -7,7 +7,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.js$/, loader: 'shebang-loader' } // npm i -D shebang-loader
+      { test: /\.js$/, use: ['source-map-loader', 'shebang-loader'] }
     ]
   },
   output: {

@@ -10,13 +10,15 @@
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "scripts": {
+    "clean": "rm -rf dist",
     "build": "webpack --config=webpack.prod.js",
     "watch": "webpack --config=webpack.dev.js --watch",
-    "start-core": "node dist/core.prod.js",
-    "start-core:dev": "node dist/core.dev.js"
+    "start-core": "node dist/prod/core/bin.js",
+    "start-core:dev": "node dist/dev/core/bin.jss"
   },
   "devDependencies": {
     "shebang-loader": "0.0.1",
+    "source-map-loader": "^1.0.0",
     "source-map-support": "^0.5.19",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
