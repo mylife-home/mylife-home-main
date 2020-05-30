@@ -22,7 +22,6 @@
     "source-map-support": "^0.5.19",
     "webpack": "^5.0.0-beta.16",
     "webpack-cli": "^3.3.10",
-    "webpack-filter-warnings-plugin": "^1.2.1",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
