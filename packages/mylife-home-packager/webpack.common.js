@@ -13,6 +13,10 @@ module.exports = {
     filename: '[name].js',
   },
   target: 'node',
+  node: {
+    __dirname: false,
+    __filename: false
+  },
   plugins: [
     new DefinePlugin({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),

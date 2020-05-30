@@ -7,8 +7,6 @@ export class Manager {
   private readonly registry: components.Registry
 
   constructor() {
-    console.log(buildInfo.getInfo());
-
     // read-config
     const instanceName = os.hostname();
     this.transport = new bus.Transport(instanceName, "tcp://localhost", { presenceTracking: false });
