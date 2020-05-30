@@ -1,4 +1,3 @@
-const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 const { DefinePlugin } = require('webpack');
 
 module.exports = {
@@ -24,7 +23,7 @@ module.exports = {
   ],
   stats: {
     warningsFilter: [
-      
+
     ]
   }
 };
