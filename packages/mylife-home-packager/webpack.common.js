@@ -3,7 +3,7 @@ const { DefinePlugin } = require('webpack');
 
 module.exports = {
   entry: {
-    'core/bin': 'mylife-home-core',
+    'core/bin': 'mylife-home-core/dist/bin',
     'core/plugins/irc': 'mylife-home-core-plugins-irc',
   },
   module: {

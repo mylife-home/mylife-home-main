@@ -1,6 +1,3 @@
-import 'source-map-support/register';
-import { Manager } from './manager';
+import * as components from './components';
 
-const manager = new Manager();
-
-// TODO terminate
+export { components };
