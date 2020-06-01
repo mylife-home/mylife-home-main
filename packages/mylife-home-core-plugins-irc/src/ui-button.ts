@@ -1,12 +1,21 @@
 import { components } from 'mylife-home-core';
 
-@components.metadata.plugin({ usage: components.metadata.PluginUsage.UI })
+import plugin = components.metadata.plugin;
+import config = components.metadata.config;
+import state = components.metadata.state;
+import action = components.metadata.action;
+import ConfigType = components.metadata.ConfigType;
+import PluginUsage = components.metadata.PluginUsage;
+
+@plugin({ usage: PluginUsage.UI })
+@config({ name: 'ircConfigKey', type: ConfigType.STRING })
+@config({ name: 'ircComponent', type: ConfigType.STRING })
 export class UiButton {
 
-  @components.metadata.state
+  @state
   value: boolean;
 
-  @components.metadata.action
+  @action
   action(value: boolean) {
 
   }
