@@ -5,3 +5,11 @@ export function readBool(raw: string): boolean {
 export function writeBool(value: boolean): string {
   return value ? 'on' : 'off';
 }
+
+export function readRange(raw: string): number {
+  return parseInt(raw);
+}
+
+export function writeRange(value: number): string {
+  return value.toString();
+}
