@@ -1,5 +1,10 @@
+export interface PluginConfiguration {
+  readonly configKey: string;
+  readonly ircComponent: string;
+}
+
 export abstract class BasePlugin {
-  constructor(readonly configKey: string) {
+  constructor(config: PluginConfiguration) {
 
   }
 
