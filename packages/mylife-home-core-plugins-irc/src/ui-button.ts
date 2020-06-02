@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-core';
-import { BasePlugin } from './engine/base-plugin';
+import { BasePlugin, PluginConfiguration } from './engine/base-plugin';
 import * as encoding from './engine/encoding';
 
 import m = components.metadata;
@@ -8,8 +8,8 @@ import m = components.metadata;
 @m.config({ name: 'configKey', type: m.ConfigType.STRING })
 @m.config({ name: 'ircComponent', type: m.ConfigType.STRING })
 export class UiButton extends BasePlugin {
-  constructor({ configKey, ircComponent }: { configKey: string; ircComponent: string; }) {
-    super(configKey);
+  constructor(config: PluginConfiguration) {
+    super(config);
   }
 
   @m.state
