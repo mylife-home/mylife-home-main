@@ -25,9 +25,8 @@ export class Client extends EventEmitter {
   constructor(public readonly instanceName: string, serverUrl: string, private readonly residentStateDelay: number = 1000) {
     super();
 
-    // TODO mqtt release: remove toString(), qos
     const qos: mqtt.QoS = 0;
-    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false).toString(), retain: false, qos };
+    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false), retain: false, qos };
     this.client = mqtt.connect(serverUrl, { will, resubscribe: false });
 
     this.client.on('connect', () =>
@@ -99,8 +98,7 @@ export class Client extends EventEmitter {
   }
 
   async publish(topic: string, payload: Buffer, retain: boolean = false) {
-    // TODO mqtt release: remove qos
-    await this.client.publish(topic, payload, { retain, qos: 0 });
+    await this.client.publish(topic, payload, { retain });
   }
 
   async subscribe(topic: string | string[]) {
