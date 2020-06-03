@@ -1,4 +1,5 @@
 const { DefinePlugin, IgnorePlugin } = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -20,6 +21,8 @@ module.exports = {
     new DefinePlugin({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),
     }),
+
+    new CleanWebpackPlugin(),
 
     ignore(/^utf-8-validate$/, /mylife-home-common\/node_modules\/ws\/lib$/),
     ignore(/^bufferutil$/, /mylife-home-common\/node_modules\/ws\/lib$/),
