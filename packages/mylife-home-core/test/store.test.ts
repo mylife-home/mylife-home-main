@@ -1,11 +1,12 @@
 import 'mocha';
 import { expect } from 'chai';
-import { MemoryStoreOperations, Store } from '../src/store';
+import { Store, StoreItem } from '../src/store';
 
 describe('store', () => {
   it('should execute various binding operations on store', () => {
-    const operations = new MemoryStoreOperations();
-    const store = new Store(operations);
+    const items: StoreItem[] = [];
+    const config = { type: 'memory', items };
+    const store = new Store(config);
 
     const binding = { sourceId: 'sourceId', sourceState: 'sourceState', targetId: 'targetId', targetAction: 'targetAction' };
     store.addBinding(binding);
@@ -30,8 +31,9 @@ describe('store', () => {
   });
 
   it('should execute various components operations on store', () => {
-    const operations = new MemoryStoreOperations();
-    const store = new Store(operations);
+    const items: StoreItem[] = [];
+    const config = { type: 'memory', items };
+    const store = new Store(config);
 
     const component = { id: 'my-comp', plugin: 'my-plugin', config: { toto: 42 } };
     store.setComponent(component);
@@ -52,8 +54,9 @@ describe('store', () => {
   });
 
   it('should load and save', async () => {
-    const operations = new MemoryStoreOperations();
-    const store = new Store(operations);
+    const items: StoreItem[] = [];
+    const config = { type: 'memory', items };
+    const store = new Store(config);
 
     await store.load();
 
@@ -62,16 +65,15 @@ describe('store', () => {
     const component = { id: 'my-comp', plugin: 'my-plugin', config: { toto: 42 } };
     store.setComponent(component);
 
-    expect(operations.items).to.deep.equal([]);
+    expect(items).to.deep.equal([]);
 
     await store.save();
 
-    expect(operations.items).to.deep.equal([{ type: 'component', config: component }]);
+    expect(items).to.deep.equal([{ type: 'component', config: component }]);
     expect(Array.from(store.getComponents())).to.deep.equal([component]);
 
-    const otherOperations = new MemoryStoreOperations();
-    const otherStore = new Store(otherOperations);
-    otherOperations.items = operations.items;
+    const otherConfig = { type: 'memory', items };
+    const otherStore = new Store(otherConfig);
 
     await otherStore.load();
 

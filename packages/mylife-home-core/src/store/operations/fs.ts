@@ -1,11 +1,12 @@
 import { StoreOperations, StoreItem, StoreConfiguration } from '../common';
 
-interface MountedFsStoreConfiguration extends StoreConfiguration {
+interface FsStoreConfiguration extends StoreConfiguration {
+  readonly path: string;
 }
 
-export class MountedFsStoreOperations implements StoreOperations {
+export class FsStoreOperations implements StoreOperations {
   constructor(configuration: StoreConfiguration) {
-    const typedConfig = configuration as MountedFsStoreConfiguration;
+    const typedConfig = configuration as FsStoreConfiguration;
     throw new Error('TODO');
   }
 

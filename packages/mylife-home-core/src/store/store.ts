@@ -1,12 +1,26 @@
 import { logger } from 'mylife-home-common';
-import { StoreOperations, StoreItemType, StoreItem } from './common';
+import { StoreOperations, StoreItemType, StoreItem, StoreConfiguration } from './common';
+
+import { MemoryStoreOperations } from './operations/memory';
+import { MountedFsStoreOperations } from './operations/mounted-fs';
+import { FsStoreOperations } from './operations/fs';
 
 const log = logger.createLogger('mylife:home:core:store');
+
+interface StoreOperationsType extends Function {
+  new (configuration: StoreConfiguration): StoreOperations;
+}
+
+const operationTypes: { [type: string]: StoreOperationsType } = {
+  memory: MemoryStoreOperations,
+  'mounted-fs': MountedFsStoreOperations,
+  fs: FsStoreOperations,
+};
 
 export interface ComponentConfig {
   readonly id: string;
   readonly plugin: string;
-  readonly config: { [name: string]: any; };
+  readonly config: { [name: string]: any };
 }
 
 export interface BindingConfig {
@@ -16,16 +30,18 @@ export interface BindingConfig {
   readonly targetAction: string;
 }
 
-export interface StoreOptions {
-  readonly operations: string;
-  readonly operationsConfig?: any;
-}
-
 export class Store {
+  private readonly operations: StoreOperations;
   private readonly components = new Map<string, ComponentConfig>();
   private readonly bindings = new Map<string, BindingConfig>();
 
-  constructor(private readonly operations: StoreOperations) {
+  constructor(configuration: StoreConfiguration) {
+    const OperationsType = operationTypes[configuration.type];
+    if (!OperationsType) {
+      throw new Error(`Invalid store operations type: '${configuration.type}'`);
+    }
+
+    this.operations = new OperationsType(configuration);
   }
 
   async load() {
@@ -67,7 +83,7 @@ export class Store {
     await this.operations.save(items);
 
     log.info(`${items.length} items saved`);
-  };
+  }
 
   setComponent(config: ComponentConfig) {
     this.components.set(config.id, config);
