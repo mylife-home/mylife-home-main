@@ -73,7 +73,7 @@ export class Client extends EventEmitter {
       return;
     }
     this._online = value;
-    log.debug(`online: ${value}`);
+    log.info(`online: ${value}`);
     this.emit('onlineChange', value);
   }
 
