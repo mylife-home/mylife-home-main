@@ -14,8 +14,7 @@
     "build": "webpack --config=webpack.prod.js",
     "build:dev": "webpack --config=webpack.dev.js",
     "watch": "webpack --config=webpack.dev.js --watch",
-    "start-core": "node dist/prod/core/bin.js",
-    "start-core:dev": "node dist/dev/core/bin.js"
+    "start:irc-bridge": "node test/irc-bridge/bin.js"
   },
   "devDependencies": {
     "shebang-loader": "0.0.1",
