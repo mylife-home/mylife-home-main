@@ -1,22 +1,25 @@
 import { StoreOperations, StoreItem, StoreConfiguration } from '../common';
+import { promises as fs } from 'fs';
 
 interface FsStoreConfiguration extends StoreConfiguration {
   readonly path: string;
 }
 
 export class FsStoreOperations implements StoreOperations {
+  private readonly path: string;
+
   constructor(configuration: StoreConfiguration) {
     const typedConfig = configuration as FsStoreConfiguration;
-    throw new Error('TODO');
+    this.path = typedConfig.path;
   }
 
   async load() {
-    throw new Error('TODO');
-    const array: StoreItem[] = [];
-    return array;
+    const content = await fs.readFile(this.path, 'utf-8');
+    return JSON.parse(content) as StoreItem[];
   }
 
   async save(items: StoreItem[]) {
-    throw new Error('TODO');
+    const content = JSON.stringify(items);
+    await fs.writeFile(this.path, content);
   }
 }
