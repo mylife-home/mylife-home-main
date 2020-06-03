@@ -1,4 +1,4 @@
-import { logger } from 'mylife-home-common';
+import { logger, tools } from 'mylife-home-common';
 import { StoreOperations, StoreItemType, StoreItem, StoreConfiguration } from './common';
 
 import { MemoryStoreOperations } from './operations/memory';
@@ -16,6 +16,10 @@ const operationTypes: { [type: string]: StoreOperationsType } = {
   'mounted-fs': MountedFsStoreOperations,
   fs: FsStoreOperations,
 };
+
+interface StoreConfigurationBlock {
+  readonly store: StoreConfiguration;
+}
 
 export interface ComponentConfig {
   readonly id: string;
@@ -35,7 +39,10 @@ export class Store {
   private readonly components = new Map<string, ComponentConfig>();
   private readonly bindings = new Map<string, BindingConfig>();
 
-  constructor(configuration: StoreConfiguration) {
+  constructor() {
+    const mainConfig = tools.getConfig() as StoreConfigurationBlock;
+    const configuration = mainConfig.store;
+    
     const OperationsType = operationTypes[configuration.type];
     if (!OperationsType) {
       throw new Error(`Invalid store operations type: '${configuration.type}'`);
