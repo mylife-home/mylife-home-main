@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "start": "node dist/main.js",
-    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha -r test/init 'test/**/*.test.ts'"
   },
   "devDependencies": {
     "@types/chai": "^4.2.8",
