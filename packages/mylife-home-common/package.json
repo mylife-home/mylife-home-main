@@ -12,7 +12,7 @@
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/ && tsc",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
   },
   "devDependencies": {
