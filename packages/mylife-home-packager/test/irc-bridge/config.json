@@ -1,3 +1,4 @@
 {
-  
+  "serverUrl": "tcp://localhost",
+  "listenRemote": false
 }
