@@ -1,3 +1,5 @@
 export * from './store';
-export * from './operations/memory';
-export * from './operations/mounted-fs';
+
+import { StoreConfiguration, StoreItem } from './common';
+
+export { StoreConfiguration, StoreItem };
