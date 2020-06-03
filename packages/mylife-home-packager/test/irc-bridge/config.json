@@ -1,4 +1,8 @@
 {
   "serverUrl": "tcp://localhost",
-  "listenRemote": false
+  "listenRemote": false,
+  "store": {
+    "type": "fs",
+    "path": "test/irc-bridge/store.json"
+  }
 }
