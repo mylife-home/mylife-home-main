@@ -1,5 +1,6 @@
 const { DefinePlugin, IgnorePlugin, BannerPlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ChmodWebpackPlugin = require('chmod-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -23,12 +24,9 @@ module.exports = {
     }),
 
     new CleanWebpackPlugin(),
-
-    new BannerPlugin({
-      banner: '#!/usr/bin/env node',
-      raw: true,
-      include: /bin.js$/
-    }),
+    
+    new BannerPlugin({ banner: '#!/usr/bin/env node', raw: true, include: /bin.js$/ }),
+    new ChmodWebpackPlugin({ path: 'dist/**/bin.js', mode: 755 }),
 
     ignore(/^utf-8-validate$/, /mylife-home-common\/node_modules\/ws\/lib$/),
     ignore(/^bufferutil$/, /mylife-home-common\/node_modules\/ws\/lib$/),
