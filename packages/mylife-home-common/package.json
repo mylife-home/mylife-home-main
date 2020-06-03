@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/ && tsc",
-    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha -r test/init 'test/**/*.test.ts'"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.6",
