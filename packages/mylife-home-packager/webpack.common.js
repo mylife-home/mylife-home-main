@@ -1,4 +1,4 @@
-const { DefinePlugin } = require('webpack');
+const { DefinePlugin, IgnorePlugin } = require('webpack');
 
 module.exports = {
   entry: {
@@ -20,14 +20,15 @@ module.exports = {
     new DefinePlugin({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),
     }),
+
+    ignore(/^utf-8-validate$/, /mylife-home-common\/node_modules\/ws\/lib$/),
+    ignore(/^bufferutil$/, /mylife-home-common\/node_modules\/ws\/lib$/),
+    ignore(/^.\/src\/build$/, /mylife-home-common\/node_modules\/dtrace-provider$/),
+
+    // irc optional encoding
+    ignore(/^node-icu-charset-detector$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
+    ignore(/^iconv$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
   ],
-  stats: {
-    warningsFilter: [
-      /Module not found: Error: Can\'t resolve \'utf-8-validate\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/ws\/lib\'/,
-      /Module not found: Error: Can\'t resolve \'bufferutil\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/ws\/lib\'/,
-      /Module not found: Error: Can\'t resolve \'.\/src\/build\' in \'(.*)\/mylife-home-main\/packages\/mylife-home-common\/node_modules\/dtrace-provider\'/,
-    ]
-  }
 };
 
 function createBuildInfo() {
@@ -46,4 +47,8 @@ function createBuildInfo() {
   }
 
   return { timestamp: Date.now(), modules };
+}
+
+function ignore(resourceRegExp, contextRegExp) {
+  return new IgnorePlugin({ resourceRegExp, contextRegExp });
 }
