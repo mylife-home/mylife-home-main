@@ -32,6 +32,15 @@ module.exports = {
     ignore(/^node-icu-charset-detector$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
     ignore(/^iconv$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
   ],
+  stats: {
+    // https://github.com/yargs/yargs/blob/HEAD/docs/webpack.md#webpack-configuration
+    // Ignore warnings due to yarg's dynamic module loading
+    warningsFilter: [
+      /mylife-home-common\/node_modules\/yargs/,
+      /mylife-home-common\/node_modules\/get-caller-file/,
+      /mylife-home-common\/node_modules\/require-main-filename/,
+    ],
+  },
 };
 
 function createBuildInfo() {

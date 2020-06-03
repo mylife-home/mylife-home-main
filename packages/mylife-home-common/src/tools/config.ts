@@ -21,7 +21,8 @@ export function injectConfig(value: any) {
 
 function loadConfig(): any {
   // __dirname correspond to root directory in bundle
-  const configFile = path.resolve(__dirname, getArg('config', 'config.json'));
+  const defaultConfig = path.join(__dirname, 'config.json');
+  const configFile = path.resolve(getArg('config', defaultConfig));
   log.debug(`reading configuration in '${configFile}'`);
   return readConfig(configFile);
 }
