@@ -31,7 +31,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "async-mqtt": "^2.5.0",
+    "async-mqtt": "^2.6.0",
     "bunyan": "^1.8.12",
     "read-config": "^2.0.0",
     "yargs": "^15.3.1"
