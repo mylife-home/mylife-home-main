@@ -1,12 +1,14 @@
 import 'mocha';
 import { expect } from 'chai';
-import { Store, StoreItem } from '../src/store';
+import { tools } from 'mylife-home-common';
+import { Store } from '../src/store';
+import { StoreItem } from '../src/store/common'; // private interface but we need it for testing purpose
 
 describe('store', () => {
   it('should execute various binding operations on store', () => {
     const items: StoreItem[] = [];
-    const config = { type: 'memory', items };
-    const store = new Store(config);
+    tools.injectConfig({ store: { type: 'memory', items } });
+    const store = new Store();
 
     const binding = { sourceId: 'sourceId', sourceState: 'sourceState', targetId: 'targetId', targetAction: 'targetAction' };
     store.addBinding(binding);
@@ -32,8 +34,8 @@ describe('store', () => {
 
   it('should execute various components operations on store', () => {
     const items: StoreItem[] = [];
-    const config = { type: 'memory', items };
-    const store = new Store(config);
+    tools.injectConfig({ store: { type: 'memory', items } });
+    const store = new Store();
 
     const component = { id: 'my-comp', plugin: 'my-plugin', config: { toto: 42 } };
     store.setComponent(component);
@@ -55,8 +57,8 @@ describe('store', () => {
 
   it('should load and save', async () => {
     const items: StoreItem[] = [];
-    const config = { type: 'memory', items };
-    const store = new Store(config);
+    tools.injectConfig({ store: { type: 'memory', items } });
+    const store = new Store();
 
     await store.load();
 
@@ -72,8 +74,8 @@ describe('store', () => {
     expect(items).to.deep.equal([{ type: 'component', config: component }]);
     expect(Array.from(store.getComponents())).to.deep.equal([component]);
 
-    const otherConfig = { type: 'memory', items };
-    const otherStore = new Store(otherConfig);
+    tools.injectConfig({ store: { type: 'memory', items } });
+    const otherStore = new Store();
 
     await otherStore.load();
 
