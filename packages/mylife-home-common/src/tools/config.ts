@@ -1,16 +1,9 @@
 import path from 'path';
 import readConfig from 'read-config';
-import * as logger from './logger';
+import { getArg } from './args';
+import * as logger from '../logger';
 
-const log = logger.createLogger('mylife:home:common:tools');
-
-export function fireAsync(target: () => Promise<void>): void {
-  target().catch((err) => log.error(err, 'Error on fireAsync'));
-}
-
-export async function sleep(delay: number) {
-  await new Promise(resolve => setTimeout(resolve, delay));
-}
+const log = logger.createLogger('mylife:home:common:tools:config');
 
 let cachedConfig: any;
 
@@ -28,7 +21,7 @@ export function injectConfig(value: any) {
 
 function loadConfig(): any {
   // __dirname correspond to root directory in bundle
-  const configFile = path.join(__dirname, 'config.json');
+  const configFile = path.resolve(__dirname, getArg('config', 'config.json'));
   log.debug(`reading configuration in '${configFile}'`);
   return readConfig(configFile);
 }
