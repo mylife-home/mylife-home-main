@@ -1,4 +1,4 @@
-const { DefinePlugin, IgnorePlugin } = require('webpack');
+const { DefinePlugin, IgnorePlugin, BannerPlugin } = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
@@ -23,6 +23,12 @@ module.exports = {
     }),
 
     new CleanWebpackPlugin(),
+
+    new BannerPlugin({
+      banner: '#!/usr/bin/env node',
+      raw: true,
+      include: /bin.js$/
+    }),
 
     ignore(/^utf-8-validate$/, /mylife-home-common\/node_modules\/ws\/lib$/),
     ignore(/^bufferutil$/, /mylife-home-common\/node_modules\/ws\/lib$/),
