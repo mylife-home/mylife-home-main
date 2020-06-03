@@ -8,7 +8,7 @@ module.exports = merge(common, {
   output: {
     path: path.resolve(__dirname, 'dist', 'prod'),
   },
-  devtool: 'source-map',
+  devtool: 'nosources-source-map',
   optimization: {
     minimizer: [
       new TerserPlugin({
