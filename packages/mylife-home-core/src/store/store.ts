@@ -17,10 +17,6 @@ const operationTypes: { [type: string]: StoreOperationsType } = {
   fs: FsStoreOperations,
 };
 
-interface StoreConfigurationBlock {
-  readonly store: StoreConfiguration;
-}
-
 export interface ComponentConfig {
   readonly id: string;
   readonly plugin: string;
@@ -40,8 +36,7 @@ export class Store {
   private readonly bindings = new Map<string, BindingConfig>();
 
   constructor() {
-    const mainConfig = tools.getConfig() as StoreConfigurationBlock;
-    const configuration = mainConfig.store;
+    const configuration = tools.getConfigItem<StoreConfiguration>('store');
     
     const OperationsType = operationTypes[configuration.type];
     if (!OperationsType) {

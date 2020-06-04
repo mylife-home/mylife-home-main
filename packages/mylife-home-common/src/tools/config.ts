@@ -5,7 +5,7 @@ import * as logger from '../logger';
 
 const log = logger.createLogger('mylife:home:common:tools:config');
 
-let cachedConfig: any;
+let cachedConfig: { [name: string]: any; };
 
 export function getConfig() {
   if (!cachedConfig) {
@@ -15,7 +15,15 @@ export function getConfig() {
   return cachedConfig;
 }
 
-export function injectConfig(value: any) {
+export function getConfigItem<T>(name: string): T {
+  const item = getConfig()[name];
+  if (item === undefined) {
+    throw new Error(`Missing configuration item: '${name}'`);
+  }
+  return item as T;
+}
+
+export function injectConfig(value: { [name: string]: any; }) {
   cachedConfig = value;
 }
 
