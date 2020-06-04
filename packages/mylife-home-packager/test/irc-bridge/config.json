@@ -1,5 +1,7 @@
 {
-  "serverUrl": "tcp://localhost",
+  "bus": {
+    "serverUrl": "tcp://localhost"
+  },
   "listenRemote": false,
   "store": {
     "type": "fs",

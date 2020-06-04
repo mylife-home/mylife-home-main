@@ -1,3 +1,4 @@
+import os from 'os';
 import { EventEmitter } from 'events';
 import { Client } from './client';
 import { Rpc } from './rpc';
@@ -5,6 +6,12 @@ import { Presence } from './presence';
 import { Components } from './components';
 import { Metadata } from './metadata';
 import { Logger } from './logger';
+import { getConfigItem, getDefine } from '../tools';
+
+interface BusConfiguration {
+  readonly serverUrl: string;
+  readonly instanceName?: string;
+}
 
 export interface TransportOptions {
   presenceTracking?: boolean;
@@ -27,10 +34,13 @@ export class Transport extends EventEmitter {
   public readonly metadata: Metadata;
   public readonly logger: Logger;
 
-  constructor(private readonly instanceName: string, serverUrl: string, options: TransportOptions = {}) {
+  constructor(options: TransportOptions = {}) {
     super();
 
-    this.client = new Client(instanceName, serverUrl, options.residentStateDelay);
+    const config = getConfigItem<BusConfiguration>('bus');
+    const instanceName = config.instanceName || `${os.hostname()}-${getDefine('main-component')}`;
+
+    this.client = new Client(instanceName, config.serverUrl, options.residentStateDelay);
 
     this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
     this.client.on('error', err => this.emit('error', err));
