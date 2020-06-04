@@ -2,6 +2,7 @@ import * as logger from '../logger';
 
 export * from './config';
 export * from './args';
+export * from './defines';
 
 const log = logger.createLogger('mylife:home:common:tools');
 
