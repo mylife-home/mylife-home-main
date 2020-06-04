@@ -1,6 +1,6 @@
 import net from 'net';
 import aedes from 'aedes';
-import { bus } from 'mylife-home-common';
+import { bus, tools } from 'mylife-home-common';
 
 import Transport = bus.Transport;
 import TransportOptions = bus.TransportOptions;
@@ -106,7 +106,8 @@ export class MqttTestSession {
       options.residentStateDelay = 10;
     }
 
-    const transport = new Transport(instanceName, `tcp://localhost:${proxy.serverPort}`, options);
+    tools.injectConfig({ bus: { instanceName, serverUrl: `tcp://localhost:${proxy.serverPort}` } });
+    const transport = new Transport(options);
     await waitForConnected(transport);
 
     this.transports.set(instanceName, new TransportData(transport, proxy));
