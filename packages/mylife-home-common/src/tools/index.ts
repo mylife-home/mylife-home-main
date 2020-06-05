@@ -1,4 +1,7 @@
+import os from 'os';
 import * as logger from '../logger';
+import { setDefine } from './defines';
+import { getConfig } from './config';
 
 export * from './config';
 export * from './args';
@@ -12,4 +15,11 @@ export function fireAsync(target: () => Promise<void>): void {
 
 export async function sleep(delay: number) {
   await new Promise(resolve => setTimeout(resolve, delay));
+}
+
+export function init(mainComponent: string) {
+  setDefine('main-component', mainComponent);
+
+  const instanceName = getConfig().instanceName || `${os.hostname()}-${mainComponent}`;
+  setDefine('instance-name', instanceName);
 }

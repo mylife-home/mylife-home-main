@@ -38,7 +38,7 @@ export class Transport extends EventEmitter {
     super();
 
     const config = getConfigItem<BusConfiguration>('bus');
-    const instanceName = config.instanceName || `${os.hostname()}-${getDefine('main-component')}`;
+    const instanceName = getDefine<string>('instance-name');
 
     this.client = new Client(instanceName, config.serverUrl, options.residentStateDelay);
 
