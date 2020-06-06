@@ -6,4 +6,6 @@ tools.init('core');
 
 const manager = new Manager();
 
+/*await*/ manager.init();
+
 // TODO terminate
