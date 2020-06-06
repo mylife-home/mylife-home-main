@@ -14,7 +14,7 @@
     "build": "webpack --config=webpack.prod.js",
     "build:dev": "webpack --config=webpack.dev.js",
     "watch": "webpack --config=webpack.dev.js --watch",
-    "start:irc-bridge": "node dist/prod/core/bin.js --config=test/irc-bridge/config.json"
+    "start:irc-bridge": "node dist/prod/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",
