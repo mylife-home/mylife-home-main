@@ -22,4 +22,7 @@ export function init(mainComponent: string) {
 
   const instanceName = getConfig().instanceName || `${os.hostname()}-${mainComponent}`;
   setDefine('instance-name', instanceName);
+
+  logger.addField('instanceName', instanceName);
+  logger.readConfig();
 }
