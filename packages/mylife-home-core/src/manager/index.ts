@@ -1,79 +1,49 @@
-import { bus, components, tools } from 'mylife-home-common';
-import { Store } from '../store';
-import { ComponentHost, metadata, Binding } from '../components';
-import { loadPlugins } from './plugin-loader';
+import { bus, tools } from 'mylife-home-common';
+import { ComponentManager } from './component-manager';
+import { BindingConfig } from '../store';
 
 export class Manager {
-  private readonly supportsBindings: boolean;
   private readonly transport: bus.Transport;
-  private readonly registry: components.Registry;
-  private readonly store = new Store();
-  private readonly components = new Map<string, ComponentHost>();
-  private readonly bindings = new Set<Binding>();
+  private readonly componentManager: ComponentManager;
 
   constructor() {
-    this.supportsBindings = tools.getConfigItem<boolean>('supportsBindings', true) || false;
-    this.transport = new bus.Transport({ presenceTracking: this.supportsBindings });
-    this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: this.supportsBindings });
+    const supportsBindings = tools.getConfigItem<boolean>('supportsBindings', true) || false;
+    this.transport = new bus.Transport({ presenceTracking: supportsBindings });
+    this.componentManager = new ComponentManager(this.transport);
   }
 
   async init() {
-    loadPlugins(this.registry);
+    await this.componentManager.init();
 
-    await this.store.load();
-
-    if (this.supportsBindings && this.store.hasBindings()) {
-      throw new Error('Store has binding but configuration does not activate its support');
+    interface ComponentsAddRequest {
+      readonly id: string;
+      readonly plugin: string;
+      readonly config: { [name: string]: any };
     }
 
-    for (const config of this.store.getComponents()) {
-      const plugin = this.registry.getPlugin(null, config.plugin) as metadata.LocalPlugin;
-      const component = new ComponentHost(config.id, plugin, config.config);
-      this.components.set(component.id, component);
-      this.registry.addComponent(null, component);
-    }
+    await this.transport.rpc.serve('components.add', async ({ id, plugin, config }: ComponentsAddRequest) => this.componentManager.addComponent(id, plugin, config));
+    await this.transport.rpc.serve('components.remove', async ({ id }: { id: string }) => this.componentManager.removeComponent(id));
+    await this.transport.rpc.serve('components.list', async () => this.componentManager.getComponents());
 
-    for (const config of this.store.getBindings()) {
-      this.bindings.add(new Binding(this.registry, config));
-    }
+    await this.transport.rpc.serve('bindings.add', async (config: BindingConfig) => this.componentManager.addBinding(config));
+    await this.transport.rpc.serve('bindings.remove', async (config: BindingConfig) => this.componentManager.removeBinding(config));
+    await this.transport.rpc.serve('bindings.list', async () => this.componentManager.getBindings());
+
+    await this.transport.rpc.serve('store.save', async () => this.componentManager.save());
   }
 
   async terminate() {
-    for (const binding of this.bindings) {
-      binding.close();
-    }
-    this.bindings.clear();
+    await this.transport.rpc.unserve('components.add');
+    await this.transport.rpc.unserve('components.remove');
+    await this.transport.rpc.unserve('components.list');
 
-    for (const component of this.components.values()) {
-      this.registry.removeComponent(null, component);
-      component.destroy();
-    }
-    this.components.clear();
+    await this.transport.rpc.unserve('bindings.add');
+    await this.transport.rpc.unserve('bindings.remove');
+    await this.transport.rpc.unserve('bindings.list');
 
+    await this.transport.rpc.unserve('store.save');
+
+    await this.componentManager.terminate();
     await this.transport.terminate();
-  }
-
-  addComponent(id: string, plugin: string, config: { [name: string]: any }) {
-    if (this.components.get(id)) {
-      throw new Error(`Component id duplicate: '${id}'`);
-    }
-
-    const pluginInstance = this.registry.getPlugin(null, plugin) as metadata.LocalPlugin;
-    const component = new ComponentHost(id, pluginInstance, config);
-    this.components.set(component.id, component);
-    this.registry.addComponent(null, component);
-    this.store.setComponent({ id, plugin, config });
-  }
-
-  removeComponent(id: string) {
-    const component = this.components.get(id);
-    if (!component) {
-      throw new Error(`Component id does not exist: '${id}'`);
-    }
-
-    this.registry.removeComponent(null, component);
-    component.destroy();
-    this.components.delete(id);
-    this.store.removeComponent(id);
   }
 }
