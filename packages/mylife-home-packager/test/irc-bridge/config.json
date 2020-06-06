@@ -5,7 +5,6 @@
   "bus": {
     "serverUrl": "tcp://localhost"
   },
-  "listenRemote": false,
   "store": {
     "type": "fs",
     "path": "test/irc-bridge/store.json"

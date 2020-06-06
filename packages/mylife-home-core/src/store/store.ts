@@ -116,4 +116,8 @@ export class Store {
   getBindings() {
     return new Set(this.bindings.values());
   }
+
+  hasBindings() {
+    return this.bindings.size > 0;
+  }
 }
