@@ -29,9 +29,28 @@ export function addStream(stream: Logger.Stream) {
 }
 
 export function readConfig() {
-  const config = getConfigItem<RotatingFileStream.options>('logging', true);
-  if(!config) {
+  interface LoggingConfig {
+    readonly console?: boolean;
+    readonly file?: RotatingFileStream.options;
+  }
+
+  const config = getConfigItem<LoggingConfig>('logging', true);
+  if (!config) {
     return;
   }
-  addStream({ stream: new RotatingFileStream(config) });
+
+  if (config.console) {
+    addStream({
+      stream: process.stdout,
+      closeOnExit: false,
+      level: Logger.DEBUG,
+    });
+  }
+
+  if (config.file) {
+    addStream({
+      stream: new RotatingFileStream(config.file),
+      level: Logger.DEBUG,
+    });
+  }
 }
