@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "irc-home",
+      "plugin": "irc.network",
+      "config": {
+        "networkKey": "home",
+        "server": "rpi2-home-core",
+        "channel": "mylife-core"
+      }
+    }
+  }
+]
