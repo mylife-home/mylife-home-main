@@ -12,9 +12,9 @@ export function getConfig() {
   return cachedConfig;
 }
 
-export function getConfigItem<T>(name: string): T {
+export function getConfigItem<T>(name: string, optional: boolean = false): T {
   const item = getConfig()[name];
-  if (item === undefined) {
+  if (item === undefined && !optional) {
     throw new Error(`Missing configuration item: '${name}'`);
   }
   return item as T;
