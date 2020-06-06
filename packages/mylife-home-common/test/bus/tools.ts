@@ -104,7 +104,8 @@ export class MqttTestSession {
       options.residentStateDelay = 10;
     }
 
-    tools.injectConfig({ bus: { instanceName, serverUrl: `tcp://localhost:${proxy.serverPort}` } });
+    tools.injectConfig({ bus: { serverUrl: `tcp://localhost:${proxy.serverPort}` } });
+    tools.setDefine('instance-name', instanceName);
     const transport = new Transport(options);
     await waitForConnected(transport);
 
