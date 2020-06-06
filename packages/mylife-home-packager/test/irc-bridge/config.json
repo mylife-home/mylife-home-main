@@ -1,4 +1,7 @@
 {
+  "logging": {
+    "console": true
+  },
   "bus": {
     "serverUrl": "tcp://localhost"
   },
