@@ -10,7 +10,7 @@ const modes = {
 };
 
 const binaries = [
-  require('./core')
+  require('./core'),
 ];
 
 module.exports = function (env, argv) {
@@ -19,5 +19,19 @@ module.exports = function (env, argv) {
     throw new Error(`Unsupported mode: ${env.mode}`);
   }
 
-  return binaries.map(binary => merge(base, mode, binary));
+  const configurations = [];
+
+  const createConfiguration = (binary) => {
+    configurations.push(merge(base, mode, binary));
+  };
+
+  for (const binary of binaries) {
+    if (Array.isArray(binary)) {
+      binary.forEach(createConfiguration);
+    } else {
+      createConfiguration(binary);
+    }
+  }
+
+  return binaries.map((binary) => merge(base, mode, binary));
 };
