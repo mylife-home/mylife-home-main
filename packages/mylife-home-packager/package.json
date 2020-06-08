@@ -11,9 +11,12 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "webpack --config=webpack.prod.js",
-    "build:dev": "webpack --config=webpack.dev.js",
-    "watch": "webpack --config=webpack.dev.js --watch",
+    "__build": "webpack --config=webpack.prod.js",
+    "__build:dev": "webpack --config=webpack.dev.js",
+    "__watch": "webpack --config=webpack.dev.js --watch",
+    "build": "webpack --config=webpack.config --env.mode=prod",
+    "build:dev": "webpack --config=webpack.config --env.mode=dev",
+    "watch": "webpack --config=webpack.config --env.mode=dev --watch",
     "start:irc-bridge": "node dist/prod/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan"
   },
   "devDependencies": {
