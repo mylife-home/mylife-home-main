@@ -40,8 +40,12 @@ function webPackRequireChunk(chunkPath: string) {
   // require on the output chunk returns { id: any ids: [any], modules: [list of files, with the first === entry point]}
   // let's add it to the modules repository, and call require the first one
   const chunk = __non_webpack_require__(chunkPath);
-  const entryKey = Object.keys(chunk.modules)[0];
 
   Object.assign(__webpack_modules__, chunk.modules);
-  __webpack_require__(entryKey);
+
+  // require everything
+  // TODO: identify module entry
+  for(const moduleId of Object.keys(chunk.modules)) {
+    __webpack_require__(moduleId);
+  }
 }
