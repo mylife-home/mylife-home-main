@@ -2,7 +2,11 @@
 
 const { DefinePlugin, IgnorePlugin } = require('webpack');
 
-module.exports = {
+module.exports = (paths) => ({
+  output: {
+    path: paths.output,
+    filename: '[name].js',
+  },
   module: {
     rules: [{ test: /\.js$/, use: ['source-map-loader', 'shebang-loader'] }],
   },
@@ -33,7 +37,7 @@ module.exports = {
       /mylife-home-common\/node_modules\/require-main-filename/,
     ],
   },
-};
+});
 
 function createBuildInfo() {
   const modules = {};
