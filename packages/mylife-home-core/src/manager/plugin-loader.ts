@@ -12,7 +12,7 @@ declare function __webpack_require__(id: any): any;
 export function loadPlugins(registry: components.Registry) {
   const pluginDirectory = path.join(__dirname, 'plugins');
   for(const fileName of fs.readdirSync(pluginDirectory)) {
-    if(fileName.endsWith('.js') && !fileName.endsWith('.map.js')) {
+    if(fileName.endsWith('.js')) {
       const filePath = path.join(pluginDirectory, fileName);
       loadPlugin(registry, filePath);
     }
@@ -28,24 +28,24 @@ function loadPlugin(registry: components.Registry, filePath: string) {
 
   metadata.builder.init(moduleName, pluginVersion, registry);
   try {
-    webPackRequireChunk(filePath);
+    webPackLoadDll(filePath);
     metadata.builder.build();
   } finally {
     metadata.builder.terminate();
   }
 }
 
-function webPackRequireChunk(chunkPath: string) {
-  // for now when we call configure the chunk entry point with "dependOn":
-  // require on the output chunk returns { id: any ids: [any], modules: [list of files, with the first === entry point]}
-  // let's add it to the modules repository, and call require the first one
-  const chunk = __non_webpack_require__(chunkPath);
-
-  Object.assign(__webpack_modules__, chunk.modules);
-
-  // require everything
-  // TODO: identify module entry
-  for(const moduleId of Object.keys(chunk.modules)) {
-    __webpack_require__(moduleId);
+function webPackLoadDll(dllPath: string) {
+  // retrieve entry module id from manifest
+  const manifest = JSON.parse(fs.readFileSync(dllPath + '.manifest', 'utf-8'));
+  const entries = Object.keys(manifest.content);
+  if(entries.length !== 1) {
+    throw new Error(`Cannot load module '${dllPath}': entries.length = ${entries.length}`);
   }
+  const moduleId = manifest.content[entries[0]].id;
+
+  // reproduce DllReference loading
+  const dllId = `dll ${dllPath}`;
+  __webpack_modules__[dllId] = (module: any) => module.exports = __non_webpack_require__(dllPath);
+  __webpack_require__(dllId)(moduleId);
 }
