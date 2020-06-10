@@ -10,5 +10,25 @@
         "channel": "mylife-core"
       }
     }
+  }, {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_main_uilight"
+      }
+    }
+  }, {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uibutton",
+      "plugin": "irc.ui-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_main_uibutton"
+      }
+    }
   }
 ]
