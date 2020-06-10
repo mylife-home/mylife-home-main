@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/ && tsc",
-    "start": "node dist/main.js",
+    "start": "node dist/bin.js",
     "test": "mocha -r test/init 'test/**/*.test.ts'"
   },
   "devDependencies": {
