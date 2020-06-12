@@ -1,7 +1,7 @@
 'use strict';
 
-import { constants, selectors } from '../common';
-
+import { actionTypes } from '../constants';
+import { getWindow } from '../selectors';
 import browser from '../utils/detect-browser.js';
 import viewport from '../utils/viewport.js';
 
@@ -15,9 +15,9 @@ function factory() {
     next(action);
 
     switch (action.type) {
-      case constants.actionTypes.VIEW_CHANGE: {
+      case actionTypes.VIEW_CHANGE: {
         const state = store.getState();
-        const window = selectors.getWindow(state, { window : action.payload });
+        const window = getWindow(state, { window : action.payload });
         viewport.setDimensions(window.width, window.height);
       }
     }

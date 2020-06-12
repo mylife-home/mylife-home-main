@@ -1,7 +1,7 @@
 'use strict';
 
 import request from 'superagent';
-import { actionTypes } from '../constants/index';
+import { actionTypes } from '../constants';
 import { getLocation } from '../utils/location';
 import { resourceGet } from '../actions/resources';
 

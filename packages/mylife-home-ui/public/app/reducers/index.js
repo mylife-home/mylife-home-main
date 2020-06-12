@@ -2,14 +2,20 @@
 
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { reducers } from '../common';
+
+import errors from './errors';
+import online from './online';
+import repository from './repository';
+import resources from './resources';
+import view from './view';
+import windows from './windows';
 
 export default combineReducers({
-  errors: reducers.errors,
-  online: reducers.online,
-  repository: reducers.repository,
-  resources: reducers.resources,
-  view: reducers.view,
-  windows: reducers.windows,
+  errors: errors,
+  online: online,
+  repository: repository,
+  resources: resources,
+  view: view,
+  windows: windows,
   routing: routerReducer
 });

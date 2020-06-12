@@ -1,7 +1,7 @@
 'use strict';
 
 import io from 'socket.io-client';
-import { actionTypes } from '../constants/index';
+import { actionTypes } from '../constants';
 import { getLocation } from '../utils/location';
 import { socketConnect, socketDisconnect } from '../actions/online';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';

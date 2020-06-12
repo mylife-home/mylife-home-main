@@ -1,7 +1,7 @@
 'use strict';
 
 import { handleActions } from 'redux-actions';
-import { actionTypes } from '../constants/index';
+import { actionTypes } from '../constants';
 import Immutable from 'immutable';
 
 export default handleActions({

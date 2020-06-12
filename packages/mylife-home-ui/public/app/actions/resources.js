@@ -2,7 +2,7 @@
 
 import { createAction } from 'redux-actions';
 import { actionTypes } from '../constants';
-import { getResource } from '../selectors/resources';
+import { getResource } from '../selectors';
 
 const internalResourceQuery = createAction(actionTypes.RESOURCE_QUERY);
 const internalResourceGet = createAction(actionTypes.RESOURCE_GET);
