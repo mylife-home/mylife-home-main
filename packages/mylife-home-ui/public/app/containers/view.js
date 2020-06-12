@@ -1,7 +1,7 @@
 'use strict';
 
 import { connect } from 'react-redux';
-import { selectors } from 'mylife-home-ui-common';
+import { selectors } from '../common';
 import { actionPrimary, actionSecondary } from '../actions/actions';
 import { viewClose } from '../actions/view';
 

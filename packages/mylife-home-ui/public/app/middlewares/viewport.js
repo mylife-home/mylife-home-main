@@ -1,6 +1,6 @@
 'use strict';
 
-import { constants, selectors } from 'mylife-home-ui-common';
+import { constants, selectors } from '../common';
 
 import browser from '../utils/detect-browser.js';
 import viewport from '../utils/viewport.js';

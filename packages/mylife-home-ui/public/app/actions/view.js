@@ -2,7 +2,7 @@
 
 import { createAction } from 'redux-actions';
 import { push as routerPush } from 'react-router-redux';
-import { constants, actions, selectors } from 'mylife-home-ui-common';
+import { constants, actions, selectors } from '../common';
 
 import browser from '../utils/detect-browser.js';
 
