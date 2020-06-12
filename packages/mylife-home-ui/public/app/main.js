@@ -11,7 +11,7 @@ import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { syncHistoryWithStore, routerMiddleware } from 'react-router-redux';
 
-import { middlewares } from 'mylife-home-ui-common';
+import { middlewares } from './common';
 
 import navigationMiddleware from './middlewares/navigation';
 import viewportMiddleware from './middlewares/viewport';

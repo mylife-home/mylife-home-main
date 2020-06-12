@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { utils } from 'mylife-home-ui-common';
+import { utils } from '../common';
 
 function getStyleSizePosition(control) {
   const { left, top, height, width } = control;

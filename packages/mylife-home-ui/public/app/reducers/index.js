@@ -2,7 +2,7 @@
 
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { reducers } from 'mylife-home-ui-common';
+import { reducers } from '../common';
 
 export default combineReducers({
   errors: reducers.errors,
