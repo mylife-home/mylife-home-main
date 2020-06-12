@@ -1,11 +1,10 @@
 # `mylife-home-ui`
 
-> TODO: description
-
-## Usage
-
-```
-const mylifeHomeUi = require('mylife-home-ui');
-
-// TODO: DEMONSTRATE API
-```
+## TODO
+ - update dependencies
+ - update webpack build
+ - switch to preact
+ - switch to websocket
+ - switch to typescript
+ - switch to new model to observe components
+ - switch to new model to server data (images, window specs, ...)
