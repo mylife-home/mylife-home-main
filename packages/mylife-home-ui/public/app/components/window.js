@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import WindowContent from './window-content';
 
@@ -56,11 +57,11 @@ const Window = ({ online, view, onActionPrimary, onActionSecondary, onWindowClos
 );
 
 Window.propTypes = {
-  online            : React.PropTypes.bool.isRequired,
-  view              : React.PropTypes.object,
-  onActionPrimary   : React.PropTypes.func.isRequired,
-  onActionSecondary : React.PropTypes.func.isRequired,
-  onWindowClose     : React.PropTypes.func.isRequired,
+  online            : PropTypes.bool.isRequired,
+  view              : PropTypes.object,
+  onActionPrimary   : PropTypes.func.isRequired,
+  onActionSecondary : PropTypes.func.isRequired,
+  onWindowClose     : PropTypes.func.isRequired,
 };
 
 export default Window;
