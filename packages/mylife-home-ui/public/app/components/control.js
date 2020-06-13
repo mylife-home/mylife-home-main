@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import InputManager from '../utils/input-manager';
 
@@ -50,9 +51,9 @@ class Control extends React.PureComponent {
 }
 
 Control.propTypes = {
-  control           : React.PropTypes.object.isRequired,
-  onActionPrimary   : React.PropTypes.func.isRequired,
-  onActionSecondary : React.PropTypes.func.isRequired,
+  control           : PropTypes.object.isRequired,
+  onActionPrimary   : PropTypes.func.isRequired,
+  onActionSecondary : PropTypes.func.isRequired,
 };
 
 export default Control;

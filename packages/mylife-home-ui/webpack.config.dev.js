@@ -5,52 +5,50 @@ const BUILD_DIR = path.resolve(__dirname, 'public');
 const APP_DIR   = path.resolve(__dirname, 'public/app');
 
 const config = {
-  entry: APP_DIR + '/main.js',
+  mode: 'development',
+  entry: [ 'babel-polyfill', APP_DIR + '/main.js' ],
   output: {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
   module : {
-    loaders : [
+    rules : [
       {
-        test : /\.jsx?/,
-        include : APP_DIR,
-        loader : 'babel',
-        query: {
-          presets:[ 'es2015', 'react', 'stage-2' ]
-        }
+        test : /\.js$/,
+        use : [{
+          loader : 'babel-loader',
+          //include : [ entryPoint ],
+          query : {
+            presets: [
+              [ require.resolve('@babel/preset-env'), { targets : 'last 2 versions' } ],
+              require.resolve('@babel/preset-react')
+            ],
+            plugins: [
+              require.resolve('@babel/plugin-proposal-export-default-from'),
+              require.resolve('@babel/plugin-proposal-export-namespace-from'),
+              require.resolve('@babel/plugin-proposal-class-properties')
+            ]
+          }
+        }]
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader"
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
       },
       {
         test: /\.less$/,
-        loader: "style!css!less"
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ]
       },
       {
-        test: /\.png$/,
-        loader: "url-loader?limit=100000"
-      },
-      {
-        test: /\.jpg$/,
-        loader: "file-loader"
-      },
-      {
-        test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=application/font-woff'
-      },
-      {
-        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=application/octet-stream'
-      },
-      {
-        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'file'
-      },
-      {
-        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url?limit=10000&mimetype=image/svg+xml'
+        test: /\.(png|jpg|gif|svg|eot|woff|woff2|ttf|ico)$/,
+        use: [ 'file-loader' ]
       }
     ]
   },

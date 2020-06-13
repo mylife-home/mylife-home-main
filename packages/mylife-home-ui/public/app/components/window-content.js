@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import Control from './control';
 
@@ -20,9 +21,9 @@ const WindowContent = ({ window, onActionPrimary, onActionSecondary }) => (
 );
 
 WindowContent.propTypes = {
-  window            : React.PropTypes.object.isRequired,
-  onActionPrimary   : React.PropTypes.func.isRequired,
-  onActionSecondary : React.PropTypes.func.isRequired,
+  window            : PropTypes.object.isRequired,
+  onActionPrimary   : PropTypes.func.isRequired,
+  onActionSecondary : PropTypes.func.isRequired,
 };
 
 export default WindowContent;

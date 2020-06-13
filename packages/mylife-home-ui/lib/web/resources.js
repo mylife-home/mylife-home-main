@@ -1,11 +1,11 @@
 'use strict';
 
 const express = require('express');
-const LRU     = require('lru-cache');
+const LRUCache     = require('lru-cache');
 
 module.exports = function(netJPacketClient, webConfig) {
 
-  const cache = LRU({
+  const cache = new LRUCache({
     max    : webConfig.cacheSize || 10 *1024 * 1024,
     length : n => n.data.length
   });

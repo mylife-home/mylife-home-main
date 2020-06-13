@@ -2,13 +2,13 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, IndexRoute, hashHistory } from 'react-router';
+import { Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import injectTapEventPlugin from 'react-tap-event-plugin';
+import { createHashHistory } from 'history';
 
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import { syncHistoryWithStore, routerMiddleware } from 'react-router-redux';
 
 import socketMiddleware from './middlewares/socket';
@@ -23,13 +23,9 @@ import View from './containers/view';
 
 import { viewInit } from './actions/view';
 
-import /*css from*/ '../app.less';
+import '../app.less';
 
-//Needed for onTouchTap
-//Can go away when react 1.0 release
-//Check this repo:
-//https://github.com/zilverline/react-tap-event-plugin
-injectTapEventPlugin();
+const hashHistory = createHashHistory();
 
 const store = createStore(
   reducer,
@@ -42,12 +38,12 @@ store.dispatch(viewInit());
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history}>
-        <Route path="/" component={Application}>
-          <IndexRoute component={Bootstrap} />
-          <Route path=":window" component={View} />
-        </Route>
+    <Application>
+      <Router history={history}>
+        <Route path="/" exact  component={Bootstrap} />
+        <Route path="/:window" component={View} />
       </Router>
+    </Application>
   </Provider>,
   document.getElementById('content')
 );
