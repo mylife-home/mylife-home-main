@@ -1,7 +1,6 @@
 # `mylife-home-ui`
 
 ## TODO
- - update webpack build
  - switch to preact
  - switch to websocket
  - switch to typescript
