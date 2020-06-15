@@ -28,6 +28,9 @@ const config = {
     filename: 'bundle.js'
   },
 
+  resolve: {
+    extensions: ['.wasm', '.mjs', '.js', '.ts', '.json']
+  },
 
   module : {
     rules : [
