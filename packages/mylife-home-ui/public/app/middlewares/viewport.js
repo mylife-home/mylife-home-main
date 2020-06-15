@@ -2,12 +2,12 @@
 
 import { actionTypes } from '../constants';
 import { getWindow } from '../selectors';
-import browser from '../utils/detect-browser';
+import { isMobile } from '../utils/detect-browser';
 import { setDimensions } from '../utils/viewport';
 
 function factory() {
   // nothing to do on desktop
-  if(!browser.isMobile) {
+  if(!isMobile) {
     return (/*store*/) => next => action => next(action);
   }
 

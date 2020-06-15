@@ -14,6 +14,8 @@ when you hit refresh or rotate your device.
 Please use this code freely.  Credit is appreciated, but not required!
 */
 
+import { isMobile, isIOS } from './detect-browser';
+
 interface Size {
   readonly width: number;
   readonly height: number;
@@ -39,30 +41,30 @@ function insertViewport() {
     return;
 
   const viewPortTag = document.createElement('meta');
-  viewPortTag.id      ='viewport';
-  viewPortTag.name    = 'viewport';
+  viewPortTag.id = 'viewport';
+  viewPortTag.name = 'viewport';
   viewPortTag.content = 'width=max-device-width, height=max-device-height,initial-scale=1.0';
   document.getElementsByTagName('head')[0].appendChild(viewPortTag);
 }
 
 function adjustViewport() {
-  if(!requiredSize) {
-    return;
-  }
-
-  if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  if (!requiredSize || !isMobile) {
     return;
   }
 
   const actualSize = getDisplaySize();
-  const ratio        = Math.min(actualSize.width / requiredSize.width, actualSize.height / requiredSize.height);
+  const ratio = Math.min(actualSize.width / requiredSize.width, actualSize.height / requiredSize.height);
 
   console.log(`setting viewport width=${actualSize.width} ratio=${ratio}`); // eslint-disable-line no-console
   document.querySelector('meta[name="viewport"]').setAttribute('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', user-scalable=yes, width=' + actualSize.width);
 }
 
+function getDisplaySize() {
+  return (!isIOS || isPortraitOrientation()) ? screen : rotate(screen);
+}
+
 function isPortraitOrientation() {
-  switch(window.orientation) {
+  switch (window.orientation) {
     case -90:
     case 90:
       return false;
@@ -71,14 +73,6 @@ function isPortraitOrientation() {
   return true;
 }
 
-function rotate(size: Size) : Size {
-  return { width : size.height, height: size.width };
-}
-
-function getDisplaySize() {
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    return isPortraitOrientation() ? screen : rotate(screen);
-  }
-
-  return screen;
+function rotate(size: Size): Size {
+  return { width: size.height, height: size.width };
 }
