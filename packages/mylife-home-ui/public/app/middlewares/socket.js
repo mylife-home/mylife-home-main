@@ -2,12 +2,11 @@
 
 import io from 'socket.io-client';
 import { actionTypes } from '../constants';
-import { getLocation } from '../utils/location';
 import { socketConnect, socketDisconnect } from '../actions/online';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
 
 const middleware = (/*store*/) => next => {
-  const socket = io(getLocation());
+  const socket = io();
 
   socket.on('connect',    () => next(socketConnect()));
   socket.on('disconnect', () => next(socketDisconnect()));
