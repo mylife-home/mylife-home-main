@@ -1,5 +1,3 @@
-'use strict';
-
 import { Middleware } from 'redux';
 import io from 'socket.io-client';
 import { actionTypes } from '../constants';
