@@ -7,7 +7,7 @@ import { getView } from '../selectors';
 import { resourceQuery } from './resources';
 import { windowLoad } from './windows';
 
-import browser from '../utils/detect-browser';
+import { isMobile } from '../utils/detect-browser';
 
 const internalViewPopup  = createAction(actionTypes.VIEW_POPUP);
 const internalViewClose  = createAction(actionTypes.VIEW_CLOSE);
@@ -25,7 +25,7 @@ function getDefaultView(dispatch, done) {
   return dispatch(resourceQuery({ resource: 'default_window', done: (err, data) => {
     if(err) { return done(err); } // eslint-disable-line no-console
     const windows = JSON.parse(data);
-    return done(null, browser.isMobile ? windows.mobile : windows.desktop);
+    return done(null, isMobile ? windows.mobile : windows.desktop);
   }}));
 }
 
