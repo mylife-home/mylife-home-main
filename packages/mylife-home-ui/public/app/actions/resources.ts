@@ -1,5 +1,7 @@
 'use strict';
 
+import { AnyAction } from 'redux';
+import { ThunkAction } from 'redux-thunk';
 import { createAction } from 'redux-actions';
 import { actionTypes } from '../constants';
 import { getResource } from '../selectors';
@@ -7,12 +9,17 @@ import { getResource } from '../selectors';
 const internalResourceQuery = createAction(actionTypes.RESOURCE_QUERY);
 const internalResourceGet = createAction(actionTypes.RESOURCE_GET);
 
-const resourceGet = ({ resource, content, done }) => (dispatch) => {
+// FIXME: real types
+type ThunkResult<R> = ThunkAction<R, {}, {}, AnyAction>;
+
+// FIXME: no any
+const resourceGet = ({ resource, content, done }: { resource: any, content: any, done: any }): ThunkResult<void> => (dispatch) => {
   dispatch(internalResourceGet({ resource, content, done }));
   done && done(null, content);
 };
 
-const resourceQuery = ({ resource, done }) => (dispatch, getState) => {
+// FIXME: no any
+const resourceQuery = ({ resource, done }: { resource: any, done: any }): ThunkResult<void> => (dispatch, getState) => {
   const state   = getState();
   const content = getResource(state, { resource });
   if(content) {
