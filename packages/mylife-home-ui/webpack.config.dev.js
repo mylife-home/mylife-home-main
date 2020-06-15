@@ -4,32 +4,40 @@ const webpack = require('webpack');
 const BUILD_DIR = path.resolve(__dirname, 'public');
 const APP_DIR   = path.resolve(__dirname, 'public/app');
 
+const babelQuery = {
+
+  presets: [
+    [ require.resolve('@babel/preset-env'), { targets : 'last 2 versions' } ],
+    require.resolve('@babel/preset-react')
+  ],
+  plugins: [
+    require.resolve('@babel/plugin-proposal-export-default-from'),
+    require.resolve('@babel/plugin-proposal-export-namespace-from'),
+    require.resolve('@babel/plugin-proposal-class-properties')
+  ]
+
+};
+
 const config = {
   mode: 'development',
 
-  entry: APP_DIR + '/main.js',
+  entry: [ 'babel-polyfill', APP_DIR + '/main.js' ],
 
   output: {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
 
-  resolve: {
-    extensions: ['.ts', '.tsx']
-  },
 
   module : {
     rules : [
-        {
-          test: /\.ts(x?)$/,
-          exclude: /node_modules/,
-          use: [ 'ts-loader' ]
+      {
+        test : /\.ts$/,
+        use : [{ loader : 'babel-loader', query : babelQuery }, 'ts-loader' ]
       },
       {
-        // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-        enforce: 'pre',
-        test: /\.js$/,
-        loader: 'source-map-loader'
+        test : /\.js$/,
+        use : [{ loader : 'babel-loader', query : babelQuery }]
       },
       {
         test: /\.css$/,
