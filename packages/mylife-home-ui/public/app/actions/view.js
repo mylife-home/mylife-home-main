@@ -7,7 +7,7 @@ import { getView } from '../selectors';
 import { resourceQuery } from './resources';
 import { windowLoad } from './windows';
 
-import browser from '../utils/detect-browser.js';
+import browser from '../utils/detect-browser';
 
 const internalViewPopup  = createAction(actionTypes.VIEW_POPUP);
 const internalViewClose  = createAction(actionTypes.VIEW_CLOSE);

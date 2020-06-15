@@ -2,8 +2,8 @@
 
 import { actionTypes } from '../constants';
 import { getWindow } from '../selectors';
-import browser from '../utils/detect-browser.js';
-import viewport from '../utils/viewport.js';
+import browser from '../utils/detect-browser';
+import { setDimensions } from '../utils/viewport';
 
 function factory() {
   // nothing to do on desktop
@@ -18,7 +18,7 @@ function factory() {
       case actionTypes.VIEW_CHANGE: {
         const state = store.getState();
         const window = getWindow(state, { window : action.payload });
-        viewport.setDimensions(window.width, window.height);
+        setDimensions(window.width, window.height);
       }
     }
   };
