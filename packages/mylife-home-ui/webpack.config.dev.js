@@ -6,45 +6,38 @@ const APP_DIR   = path.resolve(__dirname, 'public/app');
 
 const config = {
   mode: 'development',
-  entry: [ 'babel-polyfill', APP_DIR + '/main.js' ],
+
+  entry: APP_DIR + '/main.js',
+
   output: {
     path: BUILD_DIR,
     filename: 'bundle.js'
   },
+
+  resolve: {
+    extensions: ['.ts', '.tsx']
+  },
+
   module : {
     rules : [
+        {
+          test: /\.ts(x?)$/,
+          exclude: /node_modules/,
+          use: [ 'ts-loader' ]
+      },
       {
-        test : /\.js$/,
-        use : [{
-          loader : 'babel-loader',
-          //include : [ entryPoint ],
-          query : {
-            presets: [
-              [ require.resolve('@babel/preset-env'), { targets : 'last 2 versions' } ],
-              require.resolve('@babel/preset-react')
-            ],
-            plugins: [
-              require.resolve('@babel/plugin-proposal-export-default-from'),
-              require.resolve('@babel/plugin-proposal-export-namespace-from'),
-              require.resolve('@babel/plugin-proposal-class-properties')
-            ]
-          }
-        }]
+        // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+        enforce: 'pre',
+        test: /\.js$/,
+        loader: 'source-map-loader'
       },
       {
         test: /\.css$/,
-        use: [
-          'style-loader',
-          'css-loader'
-        ]
+        use: [ 'style-loader', 'css-loader' ]
       },
       {
         test: /\.less$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'less-loader'
-        ]
+        use: [ 'style-loader', 'css-loader', 'less-loader' ]
       },
       {
         test: /\.(png|jpg|gif|svg|eot|woff|woff2|ttf|ico)$/,
@@ -52,6 +45,7 @@ const config = {
       }
     ]
   },
+
   devtool: 'eval'
 };
 
