@@ -3,6 +3,7 @@
 import wrap from './constant-wrapper';
 
 export default wrap({
+  NOOP : null,
   CLEAR_ERROR       : null,
 
   SOCKET_CONNECT    : null,
