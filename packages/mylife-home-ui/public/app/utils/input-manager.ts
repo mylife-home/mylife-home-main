@@ -2,11 +2,13 @@
 
 class InputManager {
 
+  private readonly config: { [event: string]: () => void} = {};
+  private eventStack: string = '';
+  private endWait: number = null;
+  private lastDown: number = null;
+
   constructor() {
-    this.config     = {};
     this.lastDown   = null;
-    this.eventStack = '';
-    this.endWait    = null;
   }
 
   executeEvents() {
@@ -16,7 +18,7 @@ class InputManager {
     fn && fn();
   }
 
-  down(e) {
+  down(e: Event) {
     e && e.preventDefault();
 
     // no input end for now
@@ -24,12 +26,10 @@ class InputManager {
       window.clearTimeout(this.endWait);
     }
 
-    this.lastDown = {
-      timestamp: new Date().getTime()
-    };
+    this.lastDown = Date.now();
   }
 
-  up(e) {
+  up(e: Event) {
     e && e.preventDefault();
 
     // no input end for now
@@ -44,8 +44,8 @@ class InputManager {
     }
 
     // Prise en compte de l'event
-    const downTs = this.lastDown.timestamp;
-    const upTs = new Date().getTime();
+    const downTs = this.lastDown;
+    const upTs = Date.now();
     this.lastDown = null;
 
     // Ajout de l'event
