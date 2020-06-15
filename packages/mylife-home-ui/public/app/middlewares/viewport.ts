@@ -1,5 +1,3 @@
-'use strict';
-
 import { Middleware } from 'redux';
 import { actionTypes } from '../constants';
 import { getWindow } from '../selectors';
