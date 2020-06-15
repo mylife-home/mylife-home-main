@@ -11,7 +11,7 @@ import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { syncHistoryWithStore, routerMiddleware } from 'react-router-redux';
 
-import socketMiddleware from './middlewares/socket';
+import { socketMiddleware } from './middlewares/socket';
 import resourcesMiddleware from './middlewares/resources';
 import navigationMiddleware from './middlewares/navigation';
 import { createViewportMiddleware } from './middlewares/viewport';
