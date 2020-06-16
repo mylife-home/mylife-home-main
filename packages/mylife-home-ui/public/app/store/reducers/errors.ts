@@ -1,8 +1,9 @@
 'use strict';
 
+import { Action } from 'redux-actions';
 import * as actionTypes from '../constants/action-types';
 
-export default function(state = null, action) {
+export default function(state: Error = null, action: Action<Error>) {
   if(action.error) {
     return action.payload;
   }
