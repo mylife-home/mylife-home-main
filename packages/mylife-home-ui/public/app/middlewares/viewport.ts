@@ -2,7 +2,6 @@ import { Middleware } from 'redux';
 import { actionTypes } from '../constants';
 import { getWindow } from '../selectors';
 import { isMobile, isIOS } from '../utils/detect-browser';
-import { setDimensions } from '../utils/viewport';
 
 export function createViewportMiddleware(): Middleware {
   // nothing to do on desktop
