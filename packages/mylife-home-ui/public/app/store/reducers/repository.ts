@@ -1,8 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map } from 'immutable';
 import * as actionTypes from '../constants/action-types';
-import { RepositoryReset, RepositoryAdd, RepositoryRemove, RepositoryChange, Attributes } from '../actions/repository';
-import { AttributesState } from '../types/repository';
+import { RepositoryReset, RepositoryAdd, RepositoryRemove, RepositoryChange, Attributes, AttributesState } from '../types/repository';
 
 function createAttributes(raw: Attributes): AttributesState {
   return Map<string, string>().withMutations((map) => {
