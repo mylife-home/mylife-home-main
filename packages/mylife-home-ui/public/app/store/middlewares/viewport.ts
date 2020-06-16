@@ -1,5 +1,5 @@
 import { Middleware } from 'redux';
-import * as actionTypes from '../constants/action-types';
+import { VIEW_CHANGE } from '../types/view';
 import { getWindow } from '../selectors/windows';
 import { isMobile, isIOS } from '../../utils/detect-browser';
 
@@ -41,7 +41,7 @@ function createMobileMiddleware(): Middleware {
 
   return (store) => (next) => (action) => {
     switch (action.type) {
-      case actionTypes.VIEW_CHANGE: {
+      case VIEW_CHANGE: {
         const state = store.getState();
         const window = getWindow(state, { window: action.payload });
         setDimensions(window.width, window.height);
