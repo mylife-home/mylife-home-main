@@ -6,7 +6,7 @@ import { WINDOW_NEW } from '../types/windows';
 import { resourceQuery } from './resources';
 import { getWindow } from '../selectors/windows';
 
-const internalWindowNew = createAction(actionTypes.WINDOW_NEW);
+const internalWindowNew = createAction(WINDOW_NEW);
 
 function addImage(resources, id) {
   if(!id) { return; }
