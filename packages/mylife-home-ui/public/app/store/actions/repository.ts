@@ -1,5 +1,3 @@
-'use strict';
-
 import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 

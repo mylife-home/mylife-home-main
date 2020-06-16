@@ -1,14 +1,11 @@
-'use strict';
-
 import { Middleware, Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import request from 'superagent';
 import * as actionTypes from '../constants/action-types';
 import { resourceGet, ResourceQuery } from '../actions/resources';
-import { ThunkDispatch } from 'redux-thunk';
-import { RootState } from '../reducers';
+import { AppThunkDispatch } from '../types';
 
-export const resourcesMiddleware: Middleware = (store) => (next: ThunkDispatch<RootState, void, Action>) => (action: Action) => {
+export const resourcesMiddleware: Middleware = (store) => (next: AppThunkDispatch) => (action: Action) => {
   switch (action.type) {
     case actionTypes.RESOURCE_QUERY:
       const typedAction = action as PayloadAction<ResourceQuery>;

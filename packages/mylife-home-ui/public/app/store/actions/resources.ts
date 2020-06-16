@@ -1,15 +1,9 @@
 'use strict';
 
-import { AnyAction } from 'redux';
-import { ThunkAction } from 'redux-thunk';
 import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import { getResource } from '../selectors/resources';
-import { RootState } from '../reducers';
-
-
-// FIXME: real types
-type ThunkResult<R = void> = ThunkAction<R, RootState, void, AnyAction>;
+import { AppThunkAction } from '../types';
 
 type Content = any;
 type ResourceCallback = (err: Error, content: Content) => void;
@@ -27,7 +21,7 @@ export interface ResourceGet extends ResourceQuery {
 const internalResourceQuery = createAction<ResourceQuery>(actionTypes.RESOURCE_QUERY);
 const internalResourceGet = createAction<ResourceGet>(actionTypes.RESOURCE_GET);
 
-const resourceGet = (args: ResourceGet): ThunkResult => (dispatch) => {
+const resourceGet = (args: ResourceGet): AppThunkAction => (dispatch) => {
   dispatch(internalResourceGet(args));
   
   if(args.done) {
@@ -35,7 +29,7 @@ const resourceGet = (args: ResourceGet): ThunkResult => (dispatch) => {
   }
 };
 
-const resourceQuery = ({ resource, done }: ResourceQuery): ThunkResult => (dispatch, getState) => {
+const resourceQuery = ({ resource, done }: ResourceQuery): AppThunkAction => (dispatch, getState) => {
   const state = getState();
   const content = getResource(state, { resource });
   if (content) {

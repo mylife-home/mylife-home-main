@@ -1,11 +1,8 @@
-'use strict';
-
-import { Middleware, Action } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
+import { Middleware } from 'redux';
 import { viewNavigationChange } from '../actions/view';
+import { AppThunkDispatch } from '../types';
 
-// FIXME: real types
-export const navigationMiddleware: Middleware = (store) => (next: ThunkDispatch<{}, {}, Action>) => (action) => {
+export const navigationMiddleware: Middleware = (store) => (next: AppThunkDispatch) => (action) => {
   switch (action.type) {
     case '@@router/LOCATION_CHANGE': {
       let { pathname } = action.payload;
