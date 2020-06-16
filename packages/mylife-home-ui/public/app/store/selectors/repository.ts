@@ -1,3 +1,3 @@
-import { RootState } from '../reducers';
+import { AppState } from '../types';
 
-export const getRepository = (state: RootState) => state.repository;
+export const getRepository = (state: AppState) => state.repository;

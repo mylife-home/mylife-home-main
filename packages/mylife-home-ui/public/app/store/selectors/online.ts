@@ -1,3 +1,3 @@
-import { RootState } from '../reducers';
+import { AppState } from '../types';
 
-export const getOnline = (state: RootState) => state.online;
+export const getOnline = (state: AppState) => state.online;
