@@ -4,7 +4,7 @@ import { Middleware, Action } from 'redux';
 import request from 'superagent';
 import * as actionTypes from '../constants/action-types';
 import { resourceGet } from '../actions/resources';
-import { noop } from '../actions/errors';
+import { noop } from '../actions/system';
 import { ThunkDispatch } from 'redux-thunk';
 
 // FIXME: real types
