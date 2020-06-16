@@ -15,5 +15,3 @@ export const VIEW_CLOSE = 'view-close';
 export const VIEW_CHANGE = 'view-change';
 
 export const ACTION_COMPONENT = 'action-component';
-
-export const SCREEN_RESIZE = 'screen-resize';
