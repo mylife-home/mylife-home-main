@@ -1,13 +1,12 @@
 'use strict';
 
 import { createAction } from '@reduxjs/toolkit';
-import * as actionTypes from '../constants/action-types';
-import { getResource } from '../selectors/resources';
 import { AppThunkAction } from '../types';
-import { ResourceQuery, ResourceGet } from '../types/resources';
+import { ResourceQuery, ResourceGet, RESOURCE_QUERY, RESOURCE_GET } from '../types/resources';
+import { getResource } from '../selectors/resources';
 
-const internalResourceQuery = createAction<ResourceQuery>(actionTypes.RESOURCE_QUERY);
-const internalResourceGet = createAction<ResourceGet>(actionTypes.RESOURCE_GET);
+const internalResourceQuery = createAction<ResourceQuery>(RESOURCE_QUERY);
+const internalResourceGet = createAction<ResourceGet>(RESOURCE_GET);
 
 const resourceGet = (args: ResourceGet): AppThunkAction => (dispatch) => {
   dispatch(internalResourceGet(args));
