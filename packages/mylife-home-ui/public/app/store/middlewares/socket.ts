@@ -1,7 +1,7 @@
 import { Middleware } from 'redux';
 import io from 'socket.io-client';
 import * as actionTypes from '../constants/action-types';
-import { setOnline } from '../actions/system';
+import { setOnline } from '../actions/online';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
 
 export const socketMiddleware: Middleware = (store) => (next) => {
