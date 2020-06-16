@@ -5,27 +5,43 @@ import { ThunkAction } from 'redux-thunk';
 import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import { getResource } from '../selectors/resources';
+import { RootState } from '../reducers';
+
 
 // FIXME: real types
-const internalResourceQuery = createAction<any>(actionTypes.RESOURCE_QUERY);
-const internalResourceGet = createAction<any>(actionTypes.RESOURCE_GET);
+type ThunkResult<R = void> = ThunkAction<R, RootState, void, AnyAction>;
+
+type Content = any;
+type ResourceCallback = (err: Error, content: Content) => void;
+
+export interface ResourceQuery {
+  readonly resource: string;
+  readonly done: ResourceCallback;
+}
+
+export interface ResourceGet extends ResourceQuery {
+  readonly content: Content;
+}
 
 // FIXME: real types
-type ThunkResult<R> = ThunkAction<R, any, any, AnyAction>;
+const internalResourceQuery = createAction<ResourceQuery>(actionTypes.RESOURCE_QUERY);
+const internalResourceGet = createAction<ResourceGet>(actionTypes.RESOURCE_GET);
 
-// FIXME: no any
-const resourceGet = ({ resource, content, done }: { resource: any, content: any, done: any }): ThunkResult<void> => (dispatch) => {
-  dispatch(internalResourceGet({ resource, content, done }));
-  done && done(null, content);
+const resourceGet = (args: ResourceGet): ThunkResult => (dispatch) => {
+  dispatch(internalResourceGet(args));
+  
+  if(args.done) {
+    args.done(null, args.content);
+  }
 };
 
-// FIXME: no any
-const resourceQuery = ({ resource, done }: { resource: any, done: any }): ThunkResult<void> => (dispatch, getState) => {
-  const state   = getState();
+const resourceQuery = ({ resource, done }: ResourceQuery): ThunkResult => (dispatch, getState) => {
+  const state = getState();
   const content = getResource(state, { resource });
-  if(content) {
+  if (content) {
     return dispatch(resourceGet({ resource, done, content }));
   }
+
   return dispatch(internalResourceQuery({ resource, done }));
 };
 
