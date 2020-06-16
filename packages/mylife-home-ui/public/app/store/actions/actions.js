@@ -1,6 +1,6 @@
 'use strict';
 
-import { createAction } from 'redux-actions';
+import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import { getWindowControl } from '../selectors';
 import { viewChange, viewPopup } from './view';

@@ -1,6 +1,6 @@
 'use strict';
 
-import { handleActions } from 'redux-actions';
+import { createReducer } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import Immutable from 'immutable';
 
@@ -74,13 +74,11 @@ function createWindow(raw) {
   };
 }
 
-export default handleActions({
+export default createReducer(Immutable.Map(), {
 
-  [actionTypes.WINDOW_NEW] : {
-    next : (state, action) => {
-      const window = createWindow(action.payload);
-      return state.set(window.id, window);
-    }
+  [actionTypes.WINDOW_NEW] : (state, action) => {
+    const window = createWindow(action.payload);
+    return state.set(window.id, window);
   }
 
-}, Immutable.Map());
+});

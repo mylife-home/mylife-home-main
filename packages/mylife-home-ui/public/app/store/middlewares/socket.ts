@@ -2,7 +2,7 @@ import { Middleware } from 'redux';
 import io from 'socket.io-client';
 import * as actionTypes from '../constants/action-types';
 import { setOnline } from '../actions/online';
-import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
+import { repositoryReset, repositoryAdd, repositoryRemove, repositoryChange, RepositoryReset, RepositoryAdd, RepositoryRemove, RepositoryChange } from '../actions/repository';
 
 export const socketMiddleware: Middleware = (store) => (next) => {
   const socket = io();
@@ -10,11 +10,10 @@ export const socketMiddleware: Middleware = (store) => (next) => {
   socket.on('connect', () => next(setOnline(true)));
   socket.on('disconnect', () => next(setOnline(false)));
 
-  // FIXME: types
-  socket.on('state', (data: any) => next(repositoryState(data)));
-  socket.on('add', (data: any) => next(repositoryAdd(data)));
-  socket.on('remove', (data: any) => next(repositoryRemove(data)));
-  socket.on('change', (data: any) => next(repositoryChange(data)));
+  socket.on('state', (data: RepositoryReset) => next(repositoryReset(data)));
+  socket.on('add', (data: RepositoryAdd) => next(repositoryAdd(data)));
+  socket.on('remove', (data: RepositoryRemove) => next(repositoryRemove(data)));
+  socket.on('change', (data: RepositoryChange) => next(repositoryChange(data)));
 
   return (action) => {
     switch (action.type) {

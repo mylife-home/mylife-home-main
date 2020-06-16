@@ -1,6 +1,6 @@
 'use strict';
 
-import { createAction } from 'redux-actions';
+import { createAction } from '@reduxjs/toolkit';
 import { push as routerPush } from 'react-router-redux';
 import * as actionTypes from '../constants/action-types';
 import { getView } from '../selectors';
