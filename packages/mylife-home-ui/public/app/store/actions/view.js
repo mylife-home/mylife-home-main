@@ -2,16 +2,16 @@
 
 import { createAction } from '@reduxjs/toolkit';
 import { push as routerPush } from 'react-router-redux';
-import * as actionTypes from '../constants/action-types';
+import { VIEW_POPUP, VIEW_CLOSE, VIEW_CHANGE } from '../types/view';
 import { getView } from '../selectors/view';
 import { resourceQuery } from './resources';
 import { windowLoad } from './windows';
 
 import { isMobile } from '../../utils/detect-browser';
 
-const internalViewPopup  = createAction(actionTypes.VIEW_POPUP);
-const internalViewClose  = createAction(actionTypes.VIEW_CLOSE);
-const internalViewChange = createAction(actionTypes.VIEW_CHANGE);
+const internalViewPopup  = createAction(VIEW_POPUP);
+const internalViewClose  = createAction(VIEW_CLOSE);
+const internalViewChange = createAction(VIEW_CHANGE);
 
 function getPathView(state) {
   const routingState = state.routing.locationBeforeTransitions;
