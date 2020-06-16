@@ -1,10 +1,9 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import * as actionTypes from '../constants/action-types';
-import { ControlDisplay, ControlText, Action, Control, Window } from '../types/windows';
+import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW } from '../types/windows';
 
 export default createReducer(Map<string, Window>(), {
-  [actionTypes.WINDOW_NEW]: (state, action: PayloadAction<any>) => {
+  [WINDOW_NEW]: (state, action: PayloadAction<any>) => {
     const window = createWindow(action.payload);
     return state.set(window.id, window);
   },

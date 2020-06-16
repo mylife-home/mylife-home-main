@@ -1,11 +1,11 @@
 'use strict';
 
 import { createAction } from '@reduxjs/toolkit';
-import * as actionTypes from '../constants/action-types';
+import { ACTION_COMPONENT } from '../types/actions';
 import { getWindowControl } from '../selectors/windows';
 import { viewChange, viewPopup } from './view';
 
-const actionComponent = createAction(actionTypes.ACTION_COMPONENT);
+const actionComponent = createAction(ACTION_COMPONENT);
 
 function dispatchAction(dispatch, action) {
   if(!action) { return; }
