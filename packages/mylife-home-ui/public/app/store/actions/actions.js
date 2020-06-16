@@ -2,7 +2,7 @@
 
 import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
-import { getWindowControl } from '../selectors';
+import { getWindowControl } from '../selectors/windows';
 import { viewChange, viewPopup } from './view';
 
 const actionComponent = createAction(actionTypes.ACTION_COMPONENT);

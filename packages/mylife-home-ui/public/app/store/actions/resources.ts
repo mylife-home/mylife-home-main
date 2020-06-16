@@ -4,7 +4,7 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
-import { getResource } from '../selectors';
+import { getResource } from '../selectors/resources';
 
 // FIXME: real types
 const internalResourceQuery = createAction<any>(actionTypes.RESOURCE_QUERY);

@@ -5,7 +5,7 @@ import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 
 import { resourceQuery } from './resources';
-import { getWindow } from '../selectors';
+import { getWindow } from '../selectors/windows';
 
 const internalWindowNew = createAction(actionTypes.WINDOW_NEW);
 
