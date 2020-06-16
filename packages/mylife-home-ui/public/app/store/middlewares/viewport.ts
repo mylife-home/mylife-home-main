@@ -1,5 +1,5 @@
 import { Middleware } from 'redux';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 import { getWindow } from '../selectors';
 import { isMobile, isIOS } from '../../utils/detect-browser';
 

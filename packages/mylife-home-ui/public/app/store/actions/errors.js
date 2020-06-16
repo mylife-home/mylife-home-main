@@ -1,7 +1,7 @@
 'use strict';
 
 import { createAction } from 'redux-actions';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 
 export const clearError = createAction(actionTypes.CLEAR_ERROR);
 

@@ -2,7 +2,7 @@
 
 import async from 'async';
 import { createAction } from 'redux-actions';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 
 import { resourceQuery } from './resources';
 import { getWindow } from '../selectors';
