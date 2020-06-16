@@ -9,7 +9,7 @@ import resources from './resources';
 import view from './view';
 import windows from './windows';
 
-export default combineReducers({
+const reducer = combineReducers({
   online,
   repository,
   resources,
@@ -17,3 +17,7 @@ export default combineReducers({
   windows,
   routing: routerReducer
 });
+
+export type RootState = ReturnType<typeof reducer>
+
+export default reducer;

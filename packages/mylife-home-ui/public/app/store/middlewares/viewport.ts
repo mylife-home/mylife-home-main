@@ -1,6 +1,6 @@
 import { Middleware } from 'redux';
 import * as actionTypes from '../constants/action-types';
-import { getWindow } from '../selectors';
+import { getWindow } from '../selectors/windows';
 import { isMobile, isIOS } from '../../utils/detect-browser';
 
 export function createViewportMiddleware(): Middleware {
