@@ -1,4 +1,4 @@
 import { createAction } from '@reduxjs/toolkit';
-import * as actionTypes from '../constants/action-types';
+import { ONLINE_SET } from '../types/online';
 
-export const setOnline = createAction<boolean>(actionTypes.SET_ONLINE);
+export const onlineSet = createAction<boolean>(ONLINE_SET);

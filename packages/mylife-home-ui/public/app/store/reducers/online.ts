@@ -1,8 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
-import * as actionTypes from '../constants/action-types';
+import { ONLINE_SET } from '../types/online';
 
 export default createReducer(false, {
-
-  [actionTypes.SET_ONLINE] :  (state, action) => action.payload
-
+  [ONLINE_SET]: (state, action) => action.payload,
 });

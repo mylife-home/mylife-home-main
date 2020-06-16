@@ -1,5 +1,3 @@
-export const SET_ONLINE = 'set-online';
-
 export const RESOURCE_QUERY = 'resource-query';
 export const RESOURCE_GET = 'resource-get';
 
