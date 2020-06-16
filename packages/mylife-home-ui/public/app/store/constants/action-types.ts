@@ -3,11 +3,6 @@ export const SET_ONLINE = 'set-online';
 export const RESOURCE_QUERY = 'resource-query';
 export const RESOURCE_GET = 'resource-get';
 
-export const REPOSITORY_STATE = 'repository-state';
-export const REPOSITORY_ADD = 'repository-add';
-export const REPOSITORY_REMOVE = 'repository-remove';
-export const REPOSITORY_CHANGE = 'repository-change';
-
 export const WINDOW_NEW = 'window-new';
 
 export const VIEW_POPUP = 'view-popup';
