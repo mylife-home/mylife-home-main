@@ -1,0 +1,13 @@
+import { createReducer, PayloadAction } from '@reduxjs/toolkit';
+import * as actionTypes from '../constants/action-types';
+import { List } from 'immutable';
+
+export default createReducer(List<string>(), {
+
+  [actionTypes.VIEW_POPUP] : (state, action: PayloadAction<string>) => state.push(action.payload),
+
+  [actionTypes.VIEW_CLOSE] : (state, action) => state.pop(),
+
+  [actionTypes.VIEW_CHANGE] : (state, action: PayloadAction<string>) => state.clear().push(action.payload)
+
+});
