@@ -9,12 +9,12 @@ function popups(view, onActionPrimary, onActionSecondary, onWindowClose) {
   const components = [];
 
   for(const [index, popup] of view.popups.entries()) {
-    components.push(<div key={`${index}_overlay`} className="mylife-overlay" onTouchTap={onWindowClose} />);
+    components.push(<div key={`${index}_overlay`} className="mylife-overlay" onClick={onWindowClose} />);
     components.push(
       <div key={`${index}_dialog`} className="mylife-window-popup">
         <div className="modal-content" title={popup.id}>
           <div className="modal-header">
-            <button onTouchTap={onWindowClose} className="close">x</button>
+            <button onClick={onWindowClose} className="close">x</button>
             <h4 className="modal-title">{popup.id}</h4>
           </div>
           <div className="modal-body">
