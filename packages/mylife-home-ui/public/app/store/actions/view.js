@@ -2,7 +2,7 @@
 
 import { createAction } from 'redux-actions';
 import { push as routerPush } from 'react-router-redux';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 import { getView } from '../selectors';
 import { resourceQuery } from './resources';
 import { windowLoad } from './windows';

@@ -3,7 +3,7 @@
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { createAction } from 'redux-actions';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 import { getResource } from '../selectors';
 
 const internalResourceQuery = createAction(actionTypes.RESOURCE_QUERY);

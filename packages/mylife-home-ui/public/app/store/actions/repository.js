@@ -1,7 +1,7 @@
 'use strict';
 
 import { createAction } from 'redux-actions';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 
 export const repositoryState  = createAction(actionTypes.REPOSITORY_STATE);
 export const repositoryAdd    = createAction(actionTypes.REPOSITORY_ADD);

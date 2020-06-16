@@ -1,6 +1,6 @@
 import { Middleware } from 'redux';
 import io from 'socket.io-client';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 import { socketConnect, socketDisconnect } from '../actions/online';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
 

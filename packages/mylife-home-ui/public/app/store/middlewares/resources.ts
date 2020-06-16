@@ -2,7 +2,7 @@
 
 import { Middleware, Action } from 'redux';
 import request from 'superagent';
-import { actionTypes } from '../constants';
+import * as actionTypes from '../constants/action-types';
 import { resourceGet } from '../actions/resources';
 import { noop } from '../actions/errors';
 import { ThunkDispatch } from 'redux-thunk';
