@@ -2,8 +2,7 @@
 
 import async from 'async';
 import { createAction } from '@reduxjs/toolkit';
-import * as actionTypes from '../constants/action-types';
-
+import { WINDOW_NEW } from '../types/windows';
 import { resourceQuery } from './resources';
 import { getWindow } from '../selectors/windows';
 
