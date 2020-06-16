@@ -7,7 +7,7 @@ import { getView } from '../selectors';
 import { resourceQuery } from './resources';
 import { windowLoad } from './windows';
 
-import { isMobile } from '../utils/detect-browser';
+import { isMobile } from '../../utils/detect-browser';
 
 const internalViewPopup  = createAction(actionTypes.VIEW_POPUP);
 const internalViewClose  = createAction(actionTypes.VIEW_CLOSE);
