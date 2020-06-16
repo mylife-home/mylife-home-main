@@ -1,14 +1,14 @@
 import { Middleware } from 'redux';
 import io from 'socket.io-client';
 import * as actionTypes from '../constants/action-types';
-import { socketConnect, socketDisconnect } from '../actions/online';
+import { setOnline } from '../actions/system';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
 
 export const socketMiddleware: Middleware = (store) => (next) => {
   const socket = io();
 
-  socket.on('connect', () => next(socketConnect()));
-  socket.on('disconnect', () => next(socketDisconnect()));
+  socket.on('connect', () => next(setOnline(true)));
+  socket.on('disconnect', () => next(setOnline(false)));
 
   // FIXME: types
   socket.on('state', (data: any) => next(repositoryState(data)));

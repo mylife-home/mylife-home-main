@@ -5,12 +5,8 @@ import * as actionTypes from '../constants/action-types';
 
 export default handleActions({
 
-  [actionTypes.SOCKET_CONNECT] : {
-    next : () => true
+  [actionTypes.SET_ONLINE] : {
+    next : (state, action) => action.payload
   },
-
-  [actionTypes.SOCKET_DISCONNECT] : {
-    next : () => false
-  }
 
 }, false);
