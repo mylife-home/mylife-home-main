@@ -1,22 +1,24 @@
 'use strict';
 
 import { Middleware, Action } from 'redux';
+import { PayloadAction } from '@reduxjs/toolkit';
 import request from 'superagent';
 import * as actionTypes from '../constants/action-types';
-import { resourceGet } from '../actions/resources';
+import { resourceGet, ResourceQuery } from '../actions/resources';
 import { ThunkDispatch } from 'redux-thunk';
+import { RootState } from '../reducers';
 
-// FIXME: real types
-export const resourcesMiddleware: Middleware = (store) => (next: ThunkDispatch<{}, {}, Action>) => (action) => {
+export const resourcesMiddleware: Middleware = (store) => (next: ThunkDispatch<RootState, void, Action>) => (action: Action) => {
   switch (action.type) {
     case actionTypes.RESOURCE_QUERY:
-      request.get(`/resources/get/${action.payload.resource}`).end((err, res) => {
+      const typedAction = action as PayloadAction<ResourceQuery>;
+      request.get(`/resources/get/${typedAction.payload.resource}`).end((err, res) => {
         if (err) {
-          console.error('Error fetching resource', action.payload.resource, err);
+          console.error('Error fetching resource', typedAction.payload.resource, err);
           return;
         }
         
-        return next(resourceGet({ ...action.payload, content: JSON.parse(res.text) }));
+        return next(resourceGet({ ...typedAction.payload, content: JSON.parse(res.text) }));
       });
       break;
   }
