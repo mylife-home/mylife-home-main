@@ -3,8 +3,8 @@ import { Map } from 'immutable';
 import * as actionTypes from '../constants/action-types';
 import { RepositoryReset, RepositoryAdd, RepositoryRemove, RepositoryChange, Attributes } from '../actions/repository';
 
-type AttributesState = Map<string, string>;
-type RepositoryState = Map<string, AttributesState>;
+export type AttributesState = Map<string, string>;
+export type RepositoryState = Map<string, AttributesState>;
 
 function createAttributes(raw: Attributes): AttributesState {
   return Map<string, string>().withMutations(map => {
