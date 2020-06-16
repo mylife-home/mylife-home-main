@@ -2,7 +2,8 @@ import { Middleware, Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import request from 'superagent';
 import * as actionTypes from '../constants/action-types';
-import { resourceGet, ResourceQuery } from '../actions/resources';
+import { ResourceQuery } from '../types/resources';
+import { resourceGet } from '../actions/resources';
 import { AppThunkDispatch } from '../types';
 
 export const resourcesMiddleware: Middleware = (store) => (next: AppThunkDispatch) => (action: Action) => {
