@@ -1,6 +1,3 @@
-export const RESOURCE_QUERY = 'resource-query';
-export const RESOURCE_GET = 'resource-get';
-
 export const WINDOW_NEW = 'window-new';
 
 export const VIEW_POPUP = 'view-popup';
