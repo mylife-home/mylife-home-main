@@ -1,9 +1,9 @@
 'use strict';
 
 import { connect } from 'react-redux';
-import { getOnline, getViewDisplay } from '../selectors';
-import { actionPrimary, actionSecondary } from '../actions/actions';
-import { viewClose } from '../actions/view';
+import { getOnline, getViewDisplay } from '../store/selectors';
+import { actionPrimary, actionSecondary } from '../store/actions/actions';
+import { viewClose } from '../store/actions/view';
 
 import Window from '../components/window';
 
