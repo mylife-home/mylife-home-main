@@ -4,7 +4,7 @@ import { actionTypes } from '../constants';
 import { socketConnect, socketDisconnect } from '../actions/online';
 import { repositoryState, repositoryAdd, repositoryRemove, repositoryChange } from '../actions/repository';
 
-export const socketMiddleware: Middleware = store => next => {
+export const socketMiddleware: Middleware = (store) => (next) => {
   const socket = io();
 
   socket.on('connect', () => next(socketConnect()));
@@ -16,8 +16,7 @@ export const socketMiddleware: Middleware = store => next => {
   socket.on('remove', (data: any) => next(repositoryRemove(data)));
   socket.on('change', (data: any) => next(repositoryChange(data)));
 
-  return action => {
-
+  return (action) => {
     switch (action.type) {
       case actionTypes.ACTION_COMPONENT:
         socket.emit('action', action.payload);
