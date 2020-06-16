@@ -1,10 +1,10 @@
+import { List } from 'immutable';
+import { AppState } from '../types';
+import { RepositoryState } from '../types/repository';
+import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem } from '../types/windows';
 import { getResources } from './resources';
 import { getRepository } from './repository';
-import { AppState } from '../types';
-import { RepositoryState } from '../reducers/repository';
-import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem } from '../reducers/windows';
-import { ResourcesState } from '../reducers/resources';
-import { List } from 'immutable';
+import { ResourcesState } from '../types/resources';
 
 export const getWindows = (state: AppState) => state.windows;
 export const getWindow = (state: AppState, { window }: { window: string }) => getWindows(state).get(window);
