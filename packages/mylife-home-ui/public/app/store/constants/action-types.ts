@@ -1,7 +1,4 @@
-export const NOOP = 'noop';
-export const CLEAR_ERROR = 'clear-error';
 export const SET_ONLINE = 'set-online';
-export const SOCKET_DISCONNECT = 'socket-disconnect';
 
 export const RESOURCE_QUERY = 'resource-query';
 export const RESOURCE_GET = 'resource-get';
