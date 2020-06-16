@@ -1,7 +1,7 @@
 'use strict';
 
 import async from 'async';
-import { createAction } from 'redux-actions';
+import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 
 import { resourceQuery } from './resources';

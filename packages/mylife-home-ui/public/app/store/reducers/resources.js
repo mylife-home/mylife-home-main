@@ -1,13 +1,11 @@
 'use strict';
 
-import { handleActions } from 'redux-actions';
+import { createReducer } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import Immutable from 'immutable';
 
-export default handleActions({
+export default createReducer(Immutable.Map(), {
 
-  [actionTypes.RESOURCE_GET] : {
-    next : (state, action) => state.set(action.payload.resource, action.payload.content)
-  }
+  [actionTypes.RESOURCE_GET] :  (state, action) => state.set(action.payload.resource, action.payload.content)
 
-}, Immutable.Map());
+});

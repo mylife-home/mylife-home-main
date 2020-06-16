@@ -1,12 +1,10 @@
 'use strict';
 
-import { handleActions } from 'redux-actions';
+import { createReducer } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 
-export default handleActions({
+export default createReducer(false, {
 
-  [actionTypes.SET_ONLINE] : {
-    next : (state, action) => action.payload
-  },
+  [actionTypes.SET_ONLINE] :  (state, action) => action.payload
 
-}, false);
+});

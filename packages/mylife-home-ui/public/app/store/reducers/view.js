@@ -1,21 +1,15 @@
 'use strict';
 
-import { handleActions } from 'redux-actions';
+import { createReducer } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import Immutable from 'immutable';
 
-export default handleActions({
+export default createReducer(Immutable.List(), {
 
-  [actionTypes.VIEW_POPUP] : {
-    next : (state, action) => state.push(action.payload)
-  },
+  [actionTypes.VIEW_POPUP] : (state, action) => state.push(action.payload),
 
-  [actionTypes.VIEW_CLOSE] : {
-    next : (state/*, action*/) => state.pop()
-  },
+  [actionTypes.VIEW_CLOSE] : (state/*, action*/) => state.pop(),
 
-  [actionTypes.VIEW_CHANGE] : {
-    next : (state, action) => state.clear().push(action.payload)
-  }
+  [actionTypes.VIEW_CHANGE] : (state, action) => state.clear().push(action.payload)
 
-}, Immutable.List());
+});

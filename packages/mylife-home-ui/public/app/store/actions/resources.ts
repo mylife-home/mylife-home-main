@@ -2,15 +2,16 @@
 
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
-import { createAction } from 'redux-actions';
+import { createAction } from '@reduxjs/toolkit';
 import * as actionTypes from '../constants/action-types';
 import { getResource } from '../selectors';
 
-const internalResourceQuery = createAction(actionTypes.RESOURCE_QUERY);
-const internalResourceGet = createAction(actionTypes.RESOURCE_GET);
+// FIXME: real types
+const internalResourceQuery = createAction<any>(actionTypes.RESOURCE_QUERY);
+const internalResourceGet = createAction<any>(actionTypes.RESOURCE_GET);
 
 // FIXME: real types
-type ThunkResult<R> = ThunkAction<R, {}, {}, AnyAction>;
+type ThunkResult<R> = ThunkAction<R, any, any, AnyAction>;
 
 // FIXME: no any
 const resourceGet = ({ resource, content, done }: { resource: any, content: any, done: any }): ThunkResult<void> => (dispatch) => {
