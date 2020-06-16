@@ -25,7 +25,7 @@ export interface ControlTextContextItem {
 export interface ControlText {
   readonly context: List<ControlTextContextItem>;
   readonly format: string;
-  readonly func: (args: []) => string;
+  readonly func: (args: string[]) => string;
 }
 
 export interface Action {
@@ -77,9 +77,9 @@ function createText(raw: any): ControlText {
   const { context, format, ...others } = raw;
 
   const argNames = context.map((item: any) => item.id).join(',');
-  let func;
+  let func: (args: string[]) => string;
   try {
-    func = new Function(argNames, format);
+    func = new Function(argNames, format) as (args: string[]) => string;
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
     func = () => err.message;
