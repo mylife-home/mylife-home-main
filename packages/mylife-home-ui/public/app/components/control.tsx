@@ -1,12 +1,11 @@
-import React from 'react';
-import InputManager from '../utils/input-manager';
+import React, { PureComponent } from 'react';
 import { VControl } from '../store/types/windows';
+import InputManager from '../utils/input-manager';
 
 type ControlProps = {
   control           : VControl
   onActionPrimary   : () => void,
   onActionSecondary : () => void,
-
 }
 
 function getStyleSizePosition(control: VControl) {
@@ -14,7 +13,7 @@ function getStyleSizePosition(control: VControl) {
   return { left, top, height, width };
 }
 
-class Control extends React.PureComponent<ControlProps> {
+class Control extends PureComponent<ControlProps> {
   private readonly inputManager = new InputManager();
 
   constructor(props: ControlProps) {
@@ -38,9 +37,6 @@ class Control extends React.PureComponent<ControlProps> {
 
   render() {
     const { control } = this.props;
-    let e: React.TouchEvent;
-    let e2: React.MouseEvent;
-
     return (
       <div title={control.id}
            style={getStyleSizePosition(control)}
