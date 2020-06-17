@@ -1,29 +1,33 @@
-'use strict';
-
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import InputManager from '../utils/input-manager';
+import { VControl } from '../store/types/windows';
 
-function getStyleSizePosition(control) {
+type ControlProps = {
+  control           : VControl
+  onActionPrimary   : () => void,
+  onActionSecondary : () => void,
+
+}
+
+function getStyleSizePosition(control: VControl) {
   const { left, top, height, width } = control;
   return { left, top, height, width };
 }
 
-class Control extends React.PureComponent {
+class Control extends React.PureComponent<ControlProps> {
+  private readonly inputManager = new InputManager();
 
-  constructor(props) {
+  constructor(props: ControlProps) {
     super(props);
 
-    this.inputManager = new InputManager();
     this.configureInputManager(props);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: ControlProps) {
     this.configureInputManager(nextProps);
   }
 
-  configureInputManager(props) {
+  configureInputManager(props: ControlProps) {
     const { onActionPrimary, onActionSecondary } = props;
     this.inputManager.config = {
       s  : onActionPrimary,
@@ -34,26 +38,22 @@ class Control extends React.PureComponent {
 
   render() {
     const { control } = this.props;
+    let e: React.TouchEvent;
+    let e2: React.MouseEvent;
 
     return (
       <div title={control.id}
            style={getStyleSizePosition(control)}
            className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
-           onTouchStart={(e) => this.inputManager.down(e)}
-           onTouchEnd={(e) => this.inputManager.up(e)}
-           onMouseDown={(e) => this.inputManager.down(e)}
-           onMouseUp={(e) => this.inputManager.up(e)}>
+           onTouchStart={(e) => { e.preventDefault(); this.inputManager.down(); }}
+           onTouchEnd={(e) => { e.preventDefault(); this.inputManager.up(); }}
+           onMouseDown={(e) => { e.preventDefault(); this.inputManager.down(); }}
+           onMouseUp={(e) => { e.preventDefault(); this.inputManager.up(); }}>
         {control.display && <img src={`data:image/png;base64,${control.display}`} />}
         {control.text && <p>{control.text}</p>}
       </div>
     );
   }
 }
-
-Control.propTypes = {
-  control           : PropTypes.object.isRequired,
-  onActionPrimary   : PropTypes.func.isRequired,
-  onActionSecondary : PropTypes.func.isRequired,
-};
 
 export default Control;
