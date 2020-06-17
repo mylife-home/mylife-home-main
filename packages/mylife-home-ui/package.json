@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/ && tsc",
+    "build:client": "webpack",
     "start": "node dist/bin.js",
     "test": "mocha -r test/init 'test/**/*.test.ts'",
     "start:old": "node bin/server.js --dev"
