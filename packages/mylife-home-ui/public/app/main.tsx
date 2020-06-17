@@ -1,4 +1,7 @@
-'use strict';
+// FIXME: stop to use this legacy
+declare module 'react-router-redux' {
+  function syncHistoryWithStore(...args: any[]): any;
+}
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -18,13 +21,14 @@ import { hashHistory, store } from './store/store';
 
 const history = syncHistoryWithStore(hashHistory, store);
 
-store.dispatch(viewInit());
+// TODO: proper cast: AppThunkAction => AnyAction
+store.dispatch(viewInit() as any);
 
 ReactDOM.render(
   <Provider store={store}>
     <Application>
       <Router history={history}>
-        <Route path="/" exact  component={Bootstrap} />
+        <Route path="/" exact component={Bootstrap} />
         <Route path="/:window" component={View} />
       </Router>
     </Application>

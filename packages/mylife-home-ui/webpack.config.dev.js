@@ -21,7 +21,7 @@ const babelQuery = {
 const config = {
   mode: 'development',
 
-  entry: [ 'babel-polyfill', APP_DIR + '/main.js' ],
+  entry: [ 'babel-polyfill', APP_DIR + '/main' ],
 
   output: {
     path: BUILD_DIR,
