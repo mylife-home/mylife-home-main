@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "build:client": "webpack --config=webpack.config.prod",
-    "build:stats": "webpack --config=webpack.config.prod --profile --json > stats.json && webpack-bundle-analyzer --host 0.0.0.0 stats.json public",
+    "build:stats": "webpack --config=webpack.config.prod --profile --json > dist-public/stats.json && webpack-bundle-analyzer --host 0.0.0.0 dist-public/stats.json dist-public",
     "start": "node dist/bin.js",
     "test": "mocha -r test/init 'test/**/*.test.ts'",
     "start:old": "node bin/server.js --dev"

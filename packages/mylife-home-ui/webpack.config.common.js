@@ -1,6 +1,6 @@
 const path    = require('path');
 
-const BUILD_DIR = path.resolve(__dirname, 'public');
+const BUILD_DIR = path.resolve(__dirname, 'dist-public');
 const APP_DIR   = path.resolve(__dirname, 'public/app');
 
 const babelQuery = {
