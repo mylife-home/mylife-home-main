@@ -2,7 +2,7 @@
 
 class InputManager {
 
-  private readonly config: { [event: string]: () => void} = {};
+  config: { [event: string]: () => void} = {};
   private eventStack: string = '';
   private endWait: number = null;
   private lastDown: number = null;
