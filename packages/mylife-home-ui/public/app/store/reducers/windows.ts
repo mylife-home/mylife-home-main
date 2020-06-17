@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW } from '../types/windows';
+import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WindowRaw, ControlRaw, ControlDisplayRaw, ControlTextRaw, ActionRaw } from '../types/windows';
 
 export default createReducer(Map<string, Window>(), {
   [WINDOW_NEW]: (state, action: PayloadAction<any>) => {
@@ -9,12 +9,12 @@ export default createReducer(Map<string, Window>(), {
   },
 });
 
-function createWindow(raw: any): Window {
+function createWindow(raw: WindowRaw): Window {
   const { background_resource_id, controls, ...others } = raw;
   return {
     resource: `image.${background_resource_id}`,
     controls: Map(
-      controls.map((item: any) => {
+      controls.map((item) => {
         const ctrl = createControl(item);
         return [ctrl.id, ctrl];
       })
@@ -23,7 +23,7 @@ function createWindow(raw: any): Window {
   };
 }
 
-function createControl(raw: any): Control {
+function createControl(raw: ControlRaw): Control {
   const { display, text, primary_action, secondary_action, ...others } = raw;
   return {
     display: createDisplay(display),
@@ -34,7 +34,7 @@ function createControl(raw: any): Control {
   };
 }
 
-function createDisplay(raw: any): ControlDisplay {
+function createDisplay(raw: ControlDisplayRaw): ControlDisplay {
   if (!raw) {
     return null;
   }
@@ -44,7 +44,7 @@ function createDisplay(raw: any): ControlDisplay {
     attribute: component_attribute,
     resource: `image.${default_resource_id}`,
     map: List(
-      map.map((item: any) => {
+      map.map((item) => {
         const { resource_id, ...others } = item;
         return { resource: `image.${resource_id}`, ...others };
       })
@@ -53,13 +53,13 @@ function createDisplay(raw: any): ControlDisplay {
   };
 }
 
-function createText(raw: any): ControlText {
+function createText(raw: ControlTextRaw): ControlText {
   if (!raw) {
     return null;
   }
   const { context, format, ...others } = raw;
 
-  const argNames = context.map((item: any) => item.id).join(',');
+  const argNames = context.map((item) => item.id).join(',');
   let func: (args: string[]) => string;
   try {
     func = new Function(argNames, format) as (args: string[]) => string;
@@ -70,7 +70,7 @@ function createText(raw: any): ControlText {
 
   return {
     context: List(
-      context.map((item: any) => {
+      context.map((item) => {
         const { component_id, component_attribute, ...others } = item;
         return { component: component_id, attribute: component_attribute, ...others };
       })
@@ -81,7 +81,7 @@ function createText(raw: any): ControlText {
   };
 }
 
-function createAction(raw: any): Action {
+function createAction(raw: ActionRaw): Action {
   if (!raw) {
     return null;
   }
