@@ -1,5 +1,3 @@
-'use strict';
-
 import React, { FunctionComponent } from 'react';
 
 const Application: FunctionComponent = ({ children }) => (
