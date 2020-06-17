@@ -43,9 +43,9 @@ export interface Control {
   readonly x: number;
   readonly y: number;
   readonly display: ControlDisplay;
+  readonly text: ControlText;
   readonly primaryAction: Action;
   readonly secondaryAction: Action;
-  readonly text: ControlText;
 }
 
 export interface Window {
@@ -58,3 +58,65 @@ export interface Window {
 }
 
 export type WindowsState = Map<string, Window>;
+
+export interface ControlDisplayMapItemRaw {
+  readonly min: number;
+  readonly max: number;
+  readonly value: string;
+  readonly resource_id: string;
+}
+
+export interface ControlDisplayRaw {
+  readonly component_id: string;
+  readonly component_attribute: string;
+  readonly default_resource_id: string;
+  readonly map: ControlDisplayMapItemRaw[];
+}
+
+export interface ControlTextContextItemRaw {
+  readonly id: string;
+  readonly component_id: string;
+  readonly component_attribute: string;
+}
+
+export interface ControlTextRaw {
+  readonly context: ControlTextContextItemRaw[];
+  readonly format: string;
+}
+
+export interface ActionComponentRaw {
+  readonly component_id: string;
+  readonly component_action: string;
+}
+
+export interface ActionWindowRaw {
+  readonly id: string;
+  readonly popup: boolean;
+}
+
+export interface ActionRaw {
+  readonly component: ActionComponentRaw;
+  readonly window: ActionWindowRaw;
+}
+
+export interface ControlRaw {
+  readonly id: string;
+  readonly style: string;
+  readonly height: number;
+  readonly width: number;
+  readonly x: number;
+  readonly y: number;
+  readonly display: ControlDisplayRaw;
+  readonly text: ControlTextRaw;
+  readonly primary_action: ActionRaw;
+  readonly secondary_action: ActionRaw;
+}
+
+export interface WindowRaw {
+  readonly id: string;
+  readonly style: string;
+  readonly height: number;
+  readonly width: number;
+  readonly background_resource_id: string;
+  readonly controls: ControlRaw[];
+}
