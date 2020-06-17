@@ -29,13 +29,13 @@ const config = {
   },
 
   resolve: {
-    extensions: ['.wasm', '.mjs', '.js', '.ts', '.json']
+    extensions: ['.wasm', '.mjs', '.js', '.ts', '.tsx', '.json']
   },
 
   module : {
     rules : [
       {
-        test : /\.ts$/,
+        test : /\.ts(x?)$/,
         use : [{ loader : 'babel-loader', query : babelQuery }, 'ts-loader' ]
       },
       {
