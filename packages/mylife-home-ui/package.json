@@ -14,6 +14,7 @@
   "scripts": {
     "build": "rm -rf dist/ && tsc",
     "build:client": "webpack --config=webpack.config.prod",
+    "build:stats": "webpack --config=webpack.config.prod --profile --json > stats.json && webpack-bundle-analyzer --host 0.0.0.0 stats.json public",
     "start": "node dist/bin.js",
     "test": "mocha -r test/init 'test/**/*.test.ts'",
     "start:old": "node bin/server.js --dev"
@@ -39,6 +40,7 @@
     "ts-loader": "^7.0.5",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
+    "webpack-bundle-analyzer": "^3.8.0",
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
