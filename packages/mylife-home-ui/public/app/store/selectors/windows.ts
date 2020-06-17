@@ -1,7 +1,7 @@
 import { List } from 'immutable';
 import { AppState } from '../types';
 import { RepositoryState } from '../types/repository';
-import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem } from '../types/windows';
+import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem, VWindow, VControl } from '../types/windows';
 import { getResources } from './resources';
 import { getRepository } from './repository';
 import { ResourcesState } from '../types/resources';
@@ -56,14 +56,14 @@ function prepareText(resources: ResourcesState, repository: RepositoryState, tex
     .toArray();
 
   try {
-    return text.func.apply(null, args);
+    return text.func(args);
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
-    return err.message;
+    return err.message as string;
   }
 }
 
-function prepareControl(resources: ResourcesState, repository: RepositoryState, window: Window, control: Control) {
+function prepareControl(resources: ResourcesState, repository: RepositoryState, window: Window, control: Control): VControl {
   const { id, width, height, display, text, primaryAction } = control;
 
   return {
@@ -78,7 +78,7 @@ function prepareControl(resources: ResourcesState, repository: RepositoryState, 
   };
 }
 
-function prepareWindow(resources: ResourcesState, repository: RepositoryState, window: Window) {
+function prepareWindow(resources: ResourcesState, repository: RepositoryState, window: Window): VWindow {
   const { resource, controls, ...others } = window;
   return {
     resource: resource && resources.get(resource),
