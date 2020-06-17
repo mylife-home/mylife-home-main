@@ -3,10 +3,10 @@ import { VControl } from '../store/types/windows';
 import InputManager from '../utils/input-manager';
 
 type ControlProps = {
-  control           : VControl
-  onActionPrimary   : () => void,
-  onActionSecondary : () => void,
-}
+  control: VControl;
+  onActionPrimary: () => void;
+  onActionSecondary: () => void;
+};
 
 function getStyleSizePosition(control: VControl) {
   const { left, top, height, width } = control;
@@ -29,22 +29,36 @@ class Control extends PureComponent<ControlProps> {
   configureInputManager(props: ControlProps) {
     const { onActionPrimary, onActionSecondary } = props;
     this.inputManager.config = {
-      s  : onActionPrimary,
-      l  : onActionSecondary,
-      ss : onActionSecondary
+      s: onActionPrimary,
+      l: onActionSecondary,
+      ss: onActionSecondary,
     };
   }
 
   render() {
     const { control } = this.props;
     return (
-      <div title={control.id}
-           style={getStyleSizePosition(control)}
-           className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
-           onTouchStart={(e) => { e.preventDefault(); this.inputManager.down(); }}
-           onTouchEnd={(e) => { e.preventDefault(); this.inputManager.up(); }}
-           onMouseDown={(e) => { e.preventDefault(); this.inputManager.down(); }}
-           onMouseUp={(e) => { e.preventDefault(); this.inputManager.up(); }}>
+      <div
+        title={control.id}
+        style={getStyleSizePosition(control)}
+        className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
+        onTouchStart={(e) => {
+          e.preventDefault();
+          this.inputManager.down();
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          this.inputManager.up();
+        }}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          this.inputManager.down();
+        }}
+        onMouseUp={(e) => {
+          e.preventDefault();
+          this.inputManager.up();
+        }}
+      >
         {control.display && <img src={`data:image/png;base64,${control.display}`} />}
         {control.text && <p>{control.text}</p>}
       </div>
