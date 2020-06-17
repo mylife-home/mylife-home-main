@@ -1,9 +1,10 @@
 import { AppState } from '../types';
+import { VView } from '../types/view';
 import { getWindowDisplay } from './windows';
 
 export const getView = (state: AppState) => state.view;
 
-export const getViewDisplay = (state: AppState) => {
+export const getViewDisplay = (state: AppState): VView => {
   const view = getView(state);
   if(!view.size) { return null; }
   return {

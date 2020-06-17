@@ -1,20 +1,32 @@
 'use strict';
 
-import React from 'react';
-import PropTypes from 'prop-types';
-
+import React, { FunctionComponent } from 'react';
+import { VView } from '../store/types/view';
 import WindowContent from './window-content';
 
-function popups(view, onActionPrimary, onActionSecondary, onWindowClose) {
+type ActionCallback = (window: string, control: string) => void;
+type CloseCallback = () => void;
+
+type WindowProps = {
+  online: boolean;
+  view: VView;
+  onActionPrimary: ActionCallback;
+  onActionSecondary: ActionCallback;
+  onWindowClose: CloseCallback;
+};
+
+function popups(view: VView, onActionPrimary: ActionCallback, onActionSecondary: ActionCallback, onWindowClose: CloseCallback) {
   const components = [];
 
-  for(const [index, popup] of view.popups.entries()) {
+  for (const [index, popup] of view.popups.entries()) {
     components.push(<div key={`${index}_overlay`} className="mylife-overlay" onClick={onWindowClose} />);
     components.push(
       <div key={`${index}_dialog`} className="mylife-window-popup">
         <div className="modal-content" title={popup.id}>
           <div className="modal-header">
-            <button onClick={onWindowClose} className="close">x</button>
+            <button onClick={onWindowClose} className="close">
+              x
+            </button>
             <h4 className="modal-title">{popup.id}</h4>
           </div>
           <div className="modal-body">
@@ -28,11 +40,11 @@ function popups(view, onActionPrimary, onActionSecondary, onWindowClose) {
   return components;
 }
 
-const Window = ({ online, view, onActionPrimary, onActionSecondary, onWindowClose }) => (
+const Window: FunctionComponent<WindowProps> = ({ online, view, onActionPrimary, onActionSecondary, onWindowClose }) => (
   <div className="mylife-window-root">
     {/* preload images */}
-    <img src="images/spinner.gif" style={{display: 'none'}} />
-    <img src="images/connecting.jpg" style={{display: 'none'}} />
+    <img src="images/spinner.gif" style={{ display: 'none' }} />
+    <img src="images/connecting.jpg" style={{ display: 'none' }} />
 
     {!online && (
       <div className="mylife-overlay-connecting">
@@ -55,13 +67,5 @@ const Window = ({ online, view, onActionPrimary, onActionSecondary, onWindowClos
     {online && view && popups(view, onActionPrimary, onActionSecondary, onWindowClose)}
   </div>
 );
-
-Window.propTypes = {
-  online            : PropTypes.bool.isRequired,
-  view              : PropTypes.object,
-  onActionPrimary   : PropTypes.func.isRequired,
-  onActionSecondary : PropTypes.func.isRequired,
-  onWindowClose     : PropTypes.func.isRequired,
-};
 
 export default Window;
