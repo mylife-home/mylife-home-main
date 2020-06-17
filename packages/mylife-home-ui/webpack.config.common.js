@@ -1,23 +1,23 @@
 const path    = require('path');
-const webpack = require('webpack');
 
 const BUILD_DIR = path.resolve(__dirname, 'public');
 const APP_DIR   = path.resolve(__dirname, 'public/app');
 
-const config = {
-  mode: 'production',
-  devtool: 'nosources-source-map',
-  optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true,
-        },
-      }),
-    ],
-  },
-  
+const babelQuery = {
+
+  presets: [
+    [ require.resolve('@babel/preset-env'), { targets : 'last 2 versions' } ],
+    require.resolve('@babel/preset-react')
+  ],
+  plugins: [
+    require.resolve('@babel/plugin-proposal-export-default-from'),
+    require.resolve('@babel/plugin-proposal-export-namespace-from'),
+    require.resolve('@babel/plugin-proposal-class-properties')
+  ]
+
+};
+
+module.exports = {
   entry: [ 'babel-polyfill', APP_DIR + '/main' ],
 
   output: {
@@ -54,5 +54,3 @@ const config = {
     ]
   },
 };
-
-module.exports = config;
