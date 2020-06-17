@@ -120,3 +120,23 @@ export interface WindowRaw {
   readonly background_resource_id: string;
   readonly controls: ControlRaw[];
 }
+
+export interface VControl {
+  readonly id: string;
+  readonly height: number;
+  readonly width: number;
+  readonly left: number;
+  readonly top: number;
+  readonly display: any;
+  readonly text: string;
+  readonly active: boolean;
+}
+
+export interface VWindow {
+  readonly id: string;
+  readonly style: string;
+  readonly height: number;
+  readonly width: number;
+  readonly resource: any;
+  readonly controls: VControl[];
+}
