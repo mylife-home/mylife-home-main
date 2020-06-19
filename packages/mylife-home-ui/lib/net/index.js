@@ -2,6 +2,6 @@
 
 module.exports = {
   Client       : require('./client').default,
-  RemoteObject : require('./remote-object'),
+  RemoteObject : require('./remote-object').default,
   Repository   : require('./repository')
 };

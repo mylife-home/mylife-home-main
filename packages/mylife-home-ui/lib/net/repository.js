@@ -2,7 +2,7 @@
 
 const EventEmitter = require('events');
 const log4js       = require('log4js');
-const RemoteObject = require('./remote-object');
+const RemoteObject = require('./remote-object').default;
 const logger       = log4js.getLogger('net.repository');
 
 module.exports = class extends EventEmitter {
