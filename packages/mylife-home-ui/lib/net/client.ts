@@ -1,17 +1,17 @@
-'use strict';
+import { EventEmitter } from 'events';
+import * as irc from 'irc';
+import log4js from 'log4js';
 
-const EventEmitter = require('events');
-const irc = require('irc');
-const log4js = require('log4js');
 const logger = log4js.getLogger('net.Client');
 
 export default class Client extends EventEmitter {
-  constructor(netConfig: { host: string; port: string; }, nick: string) {
+  private connecting: boolean;
+  private currentNick: string;
+  private irc: irc.Client;
+
+  constructor(netConfig: { host: string; port: number; }, nick: string) {
     super();
 
-    this.netConfig = netConfig;
-    this.channels = ['#mylife-ui'];
-    this.defaultChannel = '#mylife-ui';
     this.currentNick = nick;
     this.connecting = true;
 
@@ -19,13 +19,10 @@ export default class Client extends EventEmitter {
       server: netConfig.host,
       port: netConfig.port,
       autoRejoign: true,
-      channels: this.channels,
+      channels: ['#mylife-ui'],
       nick: nick,
       userName: nick,
-      realName: 'Mylife Home',
-      millisecondsOfSilenceBeforePingSent: 60 * 1000,
-      millisecondsBeforePingTimeout: 180 * 1000,
-      //debug: true
+      realName: 'Mylife Home'
     };
     this.irc = new irc.Client(null, null, opt);
 
@@ -51,7 +48,7 @@ export default class Client extends EventEmitter {
     if (!this.irc) { return; }
 
     if (!this.irc.nick) { return; } // not connected/not registered
-    this.irc.say(this.defaultChannel, text);
+    this.irc.say('#mylife-ui', text);
   }
 
   nick(nick: string) {
