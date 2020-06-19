@@ -21,7 +21,8 @@
             ]
         },
 
-        "allowJs": true
+        "allowJs": true,
+        "resolveJsonModule": true
     },
     "include": [
         "src/**/*"

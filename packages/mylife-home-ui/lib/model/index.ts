@@ -1,14 +1,16 @@
 'use strict';
 
-const raw = require('./ui_main.json');
+import raw from './ui_main.json';
 
-const model = {};
+export type Model = { [id: string]: string; };
 
-for(const window of raw.Windows) {
+export const model: Model = {};
+
+for (const window of raw.Windows) {
   model[`window.${window.id}`] = JSON.stringify({ window });
 }
 
-for(const { Id, Content } of raw.Images) {
+for (const { Id, Content } of raw.Images) {
   model[`image.${Id}`] = Content;
 }
 
@@ -16,5 +18,3 @@ model.default_window = JSON.stringify({
   desktop: raw.DesktopDefaultWindow,
   mobile: raw.MobileDefaultWindow,
 });
-
-module.exports = model;
