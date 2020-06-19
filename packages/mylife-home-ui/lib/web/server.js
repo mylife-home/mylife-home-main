@@ -30,7 +30,7 @@ module.exports = class extends EventEmitter {
     }
     app.use(favicon(path.join(publicDirectory, 'images/favicon.ico')));
     app.use('/repository', createRepository(netRepository));
-    app.use('/resources', createResources(netJPacketClient, webConfig));
+    app.use('/resources', createResources());
     app.use(serveStatic(publicDirectory));
 
     this._server = http.Server(app);
