@@ -7,7 +7,7 @@ import Client from './client';
 
 const logger = log4js.getLogger('net.repository');
 
-module.exports = class extends EventEmitter {
+export default class Repository extends EventEmitter {
   private readonly _objects = new Map<string, RemoteObject>();
 
   constructor(private readonly client: Client) {
