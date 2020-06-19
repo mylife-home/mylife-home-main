@@ -1,5 +1,3 @@
-'use strict';
-
 import raw from './ui_main.json';
 
 export type Model = { [id: string]: string; };

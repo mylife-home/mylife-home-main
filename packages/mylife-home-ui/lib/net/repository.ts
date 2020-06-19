@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter } from 'events';
 import log4js from 'log4js';
 import RemoteObject from './remote-object';
