@@ -1,5 +1,3 @@
-'use strict';
-
 import path from 'path';
 import { EventEmitter } from 'events';
 import http from 'http';
