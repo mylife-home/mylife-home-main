@@ -16,7 +16,7 @@ const webpackMiddleware = require('webpack-dev-middleware');
 const webpackConfig     = require('../../webpack.config.dev.js');
 
 module.exports = class extends EventEmitter {
-  constructor(netRepository, netJPacketClient, sessionCreator, webConfig, dev) {
+  constructor(netRepository, sessionCreator, webConfig, dev) {
     super();
     const app = express();
     app.use(bodyParser.urlencoded({ extended: true }));
