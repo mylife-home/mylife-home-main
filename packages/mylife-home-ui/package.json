@@ -17,7 +17,7 @@
     "build:stats": "webpack --config=webpack.config.prod --profile --json > dist-public/stats.json && webpack-bundle-analyzer --host 0.0.0.0 dist-public/stats.json dist-public",
     "start": "node dist/bin.js",
     "test": "mocha -r test/init 'test/**/*.test.ts'",
-    "start:old": "ts-node bin/server.js --dev"
+    "start:old": "ts-node bin/server --dev"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "^1.3.6",
