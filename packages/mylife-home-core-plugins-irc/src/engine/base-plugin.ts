@@ -39,8 +39,8 @@ export abstract class BasePlugin {
 
   protected abstract onStateChanged(name: string, value: string): void;
 
-  protected executeAction(actionName: string, argument: string) {
-    registry.executeAction(this.networkKey, this.componentId, actionName, argument);
+  protected executeAction(actionName: string, ...args: string[]) {
+    registry.executeAction(this.networkKey, this.componentId, actionName, args);
   }
 }
 
