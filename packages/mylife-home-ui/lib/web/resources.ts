@@ -1,9 +1,9 @@
 'use strict';
 
-const express = require('express');
-const model = require('../model');
+import express from 'express';
+import { model } from '../model';
 
-module.exports = function() {
+export function createResources() {
   const router = express.Router();
   router.route('/enum').get((req, res) => res.json(Object.keys(model)));
   router.route('/get/:key').get((req, res) => res.json(model[req.params.key]));
