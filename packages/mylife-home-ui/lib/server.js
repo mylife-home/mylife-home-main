@@ -74,75 +74,9 @@ module.exports = class {
     const webConfig        = this._webConfig = config.web;
     this._netAgent         = new net.Client(netConfig, 'ui-agent');
     this._netRepository    = new net.Repository(this._netAgent);
-    this._netJpacketClient = new net.jpacket.Client(this._netAgent);
-    this._adminClient      = new admin.Client(netConfig, this._adminNick(), this._createAdminDefinition());
-    this._adminExecutor    = new net.jpacket.Executor(this._adminClient);
-    this._webServer        = new web.Server(this._netRepository, this._netJpacketClient,  this._createSession.bind(this), webConfig, dev);
+    this._webServer        = new web.Server(this._netRepository, this._createSession.bind(this), webConfig, dev);
     this._sessions         = new Map();
     this._idGenerator      = 0;
-
-    this._adminExecutor.on('session_list', this._executeSessionList.bind(this));
-    this._adminExecutor.on('session_kill', this._executeSessionKill.bind(this));
-    this._adminExecutor.on('sysinfo',      this._executeSysInfo.bind(this));
-  }
-
-  _adminNick() {
-    return 'mylife-home-ui_' + os.hostname().split('.')[0];
-  }
-
-  _createAdminDefinition() {
-    const self = this;
-    return {
-      session: {
-        desc: 'Session management',
-        children: {
-          list: {
-            desc: 'List current sessions',
-            impl: (w) => {
-              w('Session list:');
-              for(let session of self._sessions.values()) {
-                w('ID: ' + session.id + ', Remote address: ' + session.remoteAddress);
-              }
-              w('---');
-            }
-          },
-          kill: {
-            desc: 'Kill a session by id',
-            impl: (w, m) => {
-              if(!m || m === '') { return w('No session provided'); }
-              const session = self._sessions.get(m);
-              if(!session) { return w('Session not found: ' + m); }
-              session.kill(() => w('Session ' + m + ' killed'));
-            }
-          }
-        }
-      },
-      system: admin.SysInfo.definition
-    };
-  }
-
-  _executeSessionList(req, cb) {
-    const factory = net.jpacket.Factory;
-    const list = [];
-    for(let session of this._sessions.values()) {
-      list.push({ id: session.id, remoteAddress: session.remoteAddress });
-    }
-    return setImmediate(cb, undefined, factory.createSessionList(list));
-  }
-
-  _executeSessionKill(req, cb) {
-    const factory = net.jpacket.Factory;
-    const session = this._sessions.get(req.sessionId);
-    if(!session) { return setImmediate(cb, new Error('Session not found: ' + req.sessionId)); }
-    session.kill(() => setImmediate(cb, undefined, factory.createSuccess()));
-  }
-
-  _executeSysInfo(req, cb) {
-    const factory = net.jpacket.Factory;
-    admin.SysInfo.getInfo((err, res) => {
-      if(err) { return cb(err); }
-      setImmediate(cb, undefined, factory.createSysInfo(res));
-    });
   }
 
   _createSession(socket) {
@@ -160,8 +94,7 @@ module.exports = class {
   close(cb) {
     const array = [
       (cb) => this._webServer.close(cb),
-      (cb) => this._netAgent.close(cb),
-      (cb) => this._adminClient.close(cb)
+      (cb) => this._netAgent.close(cb)
     ];
     for(let session of this._sessions.values()) {
       array.push(this._closeSession(session));
