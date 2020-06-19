@@ -1,10 +1,8 @@
 'use strict';
 
 const EventEmitter = require('events');
-const os           = require('os');
 const async        = require('async');
 const net          = require('./net');
-const admin          = require('./admin');
 const web          = require('./web');
 
 class Session extends EventEmitter {
