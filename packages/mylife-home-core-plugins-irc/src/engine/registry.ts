@@ -13,8 +13,8 @@ export interface IrcComponent {
 export class Registry extends EventEmitter {
   private _networks: Networks;
 
-  executeAction(networkKey: string, componentId: string, actionName: string, argument: string) {
-    this.emit('execute-action', networkKey, componentId, actionName, argument);
+  executeAction(networkKey: string, componentId: string, actionName: string, args: string[]) {
+    this.emit('execute-action', networkKey, componentId, actionName, args);
   }
 
   createNetwork(networkKey: string) {

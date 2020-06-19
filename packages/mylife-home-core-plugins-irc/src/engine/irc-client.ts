@@ -33,9 +33,9 @@ export class IrcClient {
     tools.fireAsync(() => new Promise(resolve => this.irc.disconnect('Closing', resolve)));
   }
 
-  private readonly onExecuteAction = (networkKey: string, componentId: string, actionName: string, argument: string) => {
+  private readonly onExecuteAction = (networkKey: string, componentId: string, actionName: string, args: string[]) => {
     if (networkKey === this.networkKey) {
-      this.irc.say(this.channel, `${componentId} ${actionName} ${argument}`);
+      this.irc.say(this.channel, `${componentId} ${actionName}${args.map(a => ' ' + a)}`);
     }
   };
 
