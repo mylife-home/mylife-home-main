@@ -7,7 +7,7 @@ const logger = log4js.getLogger('net.Client');
 export default class Client extends EventEmitter {
   private connecting: boolean;
   private currentNick: string;
-  private irc: irc.Client;
+  public irc: irc.Client;
 
   constructor(netConfig: { host: string; port: number; }, nick: string) {
     super();
