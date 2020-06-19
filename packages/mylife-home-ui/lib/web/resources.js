@@ -18,7 +18,6 @@ module.exports = function(netJPacketClient, webConfig) {
 
     netJPacketClient.resourcesGet(key, (err, data) => {
       if(err) { return res.status(500).json(err); }
-      cache.set(key, { hash, data });
       res.json(data);
     });
   });
