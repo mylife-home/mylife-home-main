@@ -1,26 +1,11 @@
 'use strict';
 
 const express = require('express');
+const model = require('../model');
 
-module.exports = function(netJPacketClient, webConfig) {
-
+module.exports = function() {
   const router = express.Router();
-
-  router.route('/enum').get(function(req, res) {
-    netJPacketClient.resourcesEnum((err, list) => {
-      if(err) { return res.status(500).json(err); }
-      res.json(list);
-    });
-  });
-
-  router.route('/get/:key').get(function(req, res) {
-    const key = req.params.key;
-
-    netJPacketClient.resourcesGet(key, (err, data) => {
-      if(err) { return res.status(500).json(err); }
-      res.json(data);
-    });
-  });
-
+  router.route('/enum').get((req, res) => res.json(Object.keys(model)));
+  router.route('/get/:key').get((req, res) => res.json(model[req.params.key]));
   return router;
 };
