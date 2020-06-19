@@ -1,14 +1,8 @@
 'use strict';
 
 const express = require('express');
-const LRUCache     = require('lru-cache');
 
 module.exports = function(netJPacketClient, webConfig) {
-
-  const cache = new LRUCache({
-    max    : webConfig.cacheSize || 10 *1024 * 1024,
-    length : n => n.data.length
-  });
 
   const router = express.Router();
 
@@ -21,21 +15,11 @@ module.exports = function(netJPacketClient, webConfig) {
 
   router.route('/get/:key').get(function(req, res) {
     const key = req.params.key;
-    netJPacketClient.resourcesHash([ key ], (err, data) => {
+
+    netJPacketClient.resourcesGet(key, (err, data) => {
       if(err) { return res.status(500).json(err); }
-      const hash = data[key];
-
-      const item = cache.get(key);
-      if(item && item.hash === hash) {
-        return res.json(item.data);
-      }
-
-      netJPacketClient.resourcesGet(key, (err, data) => {
-        if(err) { return res.status(500).json(err); }
-        cache.set(key, { hash, data });
-        res.json(data);
-      });
-
+      cache.set(key, { hash, data });
+      res.json(data);
     });
   });
 
