@@ -94,6 +94,7 @@
     "superagent": "^5.2.2",
     "url-loader": "^4.1.0",
     "webpack": "^4.43.0",
-    "webpack-dev-middleware": "^3.7.2"
+    "webpack-dev-middleware": "^3.7.2",
+    "mylife-home-common": "^1.0.0"
   }
 }
