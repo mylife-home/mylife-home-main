@@ -3,7 +3,7 @@
 const EventEmitter = require('events');
 const async = require('async');
 const net = require('./net');
-const web = require('./web');
+const WebServer = require('./web/server').default;
 
 class Session extends EventEmitter {
   constructor(socket, netRepository) {
@@ -54,7 +54,7 @@ module.exports = class {
     const webConfig = (this._webConfig = config.web);
     this._netAgent = new net.Client(netConfig, 'ui-agent');
     this._netRepository = new net.Repository(this._netAgent);
-    this._webServer = new web.Server(this._netRepository, this._createSession.bind(this), webConfig, dev);
+    this._webServer = new WebServer(this._netRepository, this._createSession.bind(this), webConfig, dev);
     this._sessions = new Map();
     this._idGenerator = 0;
   }
