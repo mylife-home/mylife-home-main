@@ -33,7 +33,7 @@ module.exports = {
     rules : [
       {
         test : /\.ts(x?)$/,
-        use : [{ loader : 'babel-loader', query : babelQuery }, { loader: 'ts-loader', options: { configFile: path.resolve(__dirname, 'public/ts-config.json') } } ]
+        use : [{ loader : 'babel-loader', query : babelQuery }, { loader: 'ts-loader', options: { configFile: path.resolve(__dirname, 'public/tsconfig.json') } } ]
       },
       {
         test : /\.js$/,
