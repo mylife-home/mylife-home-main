@@ -1,4 +1,7 @@
-import raw from './ui_main.json';
+import path from 'path';
+import fs from 'fs';
+
+const raw = JSON.parse(fs.readFileSync(path.join(__dirname, 'ui_main.json'), 'utf-8'));
 
 export type Model = { [id: string]: string; };
 
