@@ -48,10 +48,10 @@ export default class Server {
   private readonly netRepository: net.Repository;
   private readonly webServer: WebServer;
 
-  constructor(config: any, dev: boolean) {
+  constructor(config: any) {
     this.netAgent = new net.Client(config.net, 'ui-agent');
     this.netRepository = new net.Repository(this.netAgent);
-    this.webServer = new WebServer(this.netRepository, (socket) => this.createSession(socket), config.web, dev);
+    this.webServer = new WebServer(this.netRepository, (socket) => this.createSession(socket), config.web);
   }
 
   private createSession(socket: io.Socket) {
