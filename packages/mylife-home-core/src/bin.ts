@@ -6,6 +6,23 @@ tools.init('core');
 
 const manager = new Manager();
 
-/*await*/ manager.init();
+init();
 
-// TODO terminate
+process.on('SIGINT', terminate);
+process.on('SIGTERM', terminate);
+
+async function init() {
+  try {
+    await manager.init();
+  } catch(err) {
+    console.error('init error', err);
+  }
+}
+
+async function terminate() {
+  try {
+    await manager.terminate();
+  } catch(err) {
+    console.error('terminate error', err);
+  }
+}
