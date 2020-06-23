@@ -8,7 +8,9 @@ module.exports = (paths) => ({
     filename: '[name].js',
   },
   module: {
-    rules: [{ test: /\.js$/, use: ['source-map-loader', 'shebang-loader'] }],
+    rules: [
+      { test: /\.js$/, use: ['source-map-loader', 'shebang-loader'] }
+    ],
   },
   target: 'node',
   node: {
@@ -25,8 +27,8 @@ module.exports = (paths) => ({
     ignore(/^.\/src\/build$/, /mylife-home-common\/node_modules\/dtrace-provider$/),
 
     // irc optional encoding
-    ignore(/^node-icu-charset-detector$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
-    ignore(/^iconv$/, /mylife-home-core-plugins-irc\/node_modules\/irc\/lib$/),
+    ignore(/^node-icu-charset-detector$/, /node_modules\/irc\/lib$/),
+    ignore(/^iconv$/, /node_modules\/irc\/lib$/),
   ],
   stats: {
     // https://github.com/yargs/yargs/blob/HEAD/docs/webpack.md#webpack-configuration
