@@ -15,6 +15,6 @@
   },
   "web": {
     "port"     : 8001,
-    "staticDirectory": "../../../test/ui/static"
+    "staticDirectory": "./static"
   }
 }
