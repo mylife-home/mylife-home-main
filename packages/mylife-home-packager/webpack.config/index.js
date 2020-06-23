@@ -8,6 +8,7 @@ const modes = require('./modes');
 
 const binaries = [
   require('./core'),
+  require('./ui'),
 ];
 
 module.exports = function (env, argv) {

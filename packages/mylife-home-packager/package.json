@@ -13,7 +13,8 @@
     "clean": "rm -rf dist",
     "build": "webpack --config=webpack.config --env.mode=prod",
     "build:dev": "webpack --config=webpack.config --env.mode=dev",
-    "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan"
+    "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
+    "start:ui": "node dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan"
   },
   "devDependencies": {
     "before-build-webpack": "^0.2.9",
