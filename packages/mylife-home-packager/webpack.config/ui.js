@@ -5,7 +5,7 @@ const path = require('path');
 module.exports = (paths) => {
   return [(env, argv) => {
     const config = getClientConfig(env.mode);
-    config.output.path = path.join(paths.output, 'static');
+    config.output.path = path.join(paths.output, 'ui/static');
     return config;
   }, {
     entry: {
