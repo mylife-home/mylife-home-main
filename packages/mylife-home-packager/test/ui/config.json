@@ -14,7 +14,7 @@
     "resources_nick" : "mylife-home-resources"
   },
   "web": {
-    "headerIp" : "x-real-ip",
-    "port"     : 8001
+    "port"     : 8001,
+    "staticDirectory": "../../../test/ui/static"
   }
 }
