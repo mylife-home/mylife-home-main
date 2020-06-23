@@ -27,7 +27,8 @@ module.exports = function (env, argv) {
   const configurations = [];
 
   const createConfiguration = (binary) => {
-    configurations.push(merge(ibase, mode, binary));
+    const config = typeof binary === 'function' ? binary(env, argv) : merge(ibase, mode, binary);
+    configurations.push(config);
   };
 
   for (const binary of binaries) {
