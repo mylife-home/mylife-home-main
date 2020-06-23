@@ -3,10 +3,10 @@ const path = require('path');
 const BUILD_DIR = path.resolve(__dirname, 'dist-public');
 const APP_DIR   = path.resolve(__dirname, 'public/app');
 
-const babelQuery = {
+const babelOptions = {
 
   presets: [
-    [ require.resolve('@babel/preset-env'), { targets : 'last 2 versions' } ],
+    [ require.resolve('@babel/preset-env'), { targets: 'last 2 versions' } ],
     require.resolve('@babel/preset-react')
   ],
   plugins: [
@@ -29,15 +29,15 @@ module.exports = {
     extensions: ['.wasm', '.mjs', '.js', '.ts', '.tsx', '.json']
   },
 
-  module : {
-    rules : [
+  module: {
+    rules: [
       {
-        test : /\.ts(x?)$/,
-        use : [{ loader : 'babel-loader', query : babelQuery }, { loader: 'ts-loader', options: { configFile: path.resolve(__dirname, 'public/tsconfig.json') } } ]
+        test: /\.ts(x?)$/,
+        use: [{ loader: 'babel-loader', options: babelOptions }, { loader: 'ts-loader', options: { configFile: path.resolve(__dirname, 'public/tsconfig.json') } } ]
       },
       {
-        test : /\.js$/,
-        use : [{ loader : 'babel-loader', query : babelQuery }]
+        test: /\.js$/,
+        use: [{ loader: 'babel-loader', options: babelOptions }]
       },
       {
         test: /\.css$/,
