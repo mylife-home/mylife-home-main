@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
 import async from 'async';
 import io from 'socket.io';
-import * as net from './net';
-import WebServer from './web/server';
+import * as net from '../net';
+import WebServer from '../web/server';
+import { tools } from 'mylife-home-common';
 
 class Session extends EventEmitter {
   constructor(private readonly socket: io.Socket, private readonly netRepository: net.Repository) {
@@ -19,7 +20,7 @@ class Session extends EventEmitter {
   }
 
   private objAttributes(obj: net.RemoteObject) {
-    const attrs: { [id: string]: string } = {};
+    const attrs: { [id: string]: string; } = {};
     for (const name of obj.attributes) {
       attrs[name] = obj.attribute(name);
     }
@@ -27,7 +28,7 @@ class Session extends EventEmitter {
   }
 
   private sendState() {
-    const data: { [id: string]: { [id: string]: string } } = {};
+    const data: { [id: string]: { [id: string]: string; }; } = {};
     for (const id of this.netRepository.objects) {
       const obj = this.netRepository.object(id);
       data[id] = this.objAttributes(obj);
@@ -41,17 +42,25 @@ class Session extends EventEmitter {
   }
 }
 
-export default class Server {
+export class Manager {
   private readonly sessions = new Map<string, Session>();
   private idGenerator = 0;
   private readonly netAgent: net.Client;
   private readonly netRepository: net.Repository;
   private readonly webServer: WebServer;
 
-  constructor(config: any) {
-    this.netAgent = new net.Client(config.net, 'ui-agent');
+  constructor() {
+    type NetConfig = { host: string; port: number; };
+    type WebConfig = { port: number; staticDirectory: string };
+    const netConfig = tools.getConfigItem<NetConfig>('net');
+    const webConfig = tools.getConfigItem<WebConfig>('web');
+
+    this.netAgent = new net.Client(netConfig, 'ui-agent');
     this.netRepository = new net.Repository(this.netAgent);
-    this.webServer = new WebServer(this.netRepository, (socket) => this.createSession(socket), config.web);
+    this.webServer = new WebServer(this.netRepository, (socket) => this.createSession(socket), webConfig);
+  }
+
+  async init() {
   }
 
   private createSession(socket: io.Socket) {
@@ -61,12 +70,15 @@ export default class Server {
     session.on('close', () => this.sessions.delete(id));
   }
 
-  close(cb: (err?: Error) => void) {
-    const array = [(cb: (err?: Error) => void) => this.webServer.close(cb), (cb: (err?: Error) => void) => this.netAgent.close(cb)];
-    for (const session of this.sessions.values()) {
-      array.push((cb) => session.kill(cb));
-    }
+  async terminate() {
+    await new Promise((resolve, reject) => {
 
-    async.parallel(array, cb);
+      const array = [(cb: (err?: Error) => void) => this.webServer.close(cb), (cb: (err?: Error) => void) => this.netAgent.close(cb)];
+      for (const session of this.sessions.values()) {
+        array.push((cb) => session.kill(cb));
+      }
+
+      async.parallel(array, (err) => err ? reject(err) : resolve());
+    });
   }
 }

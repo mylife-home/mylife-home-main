@@ -1,18 +1,28 @@
-import path from 'path';
-import Server from './server';
+import 'source-map-support/register';
+import { tools } from 'mylife-home-common';
+import { Manager } from './manager';
 
-let configFile = path.join(__dirname, '../conf/config.json');
-if (process.argv[2]) {
-  configFile = process.argv[2];
-}
-configFile = path.resolve(configFile);
-const config = require(configFile);
+tools.init('ui');
 
-const server = new Server(config);
+const manager = new Manager();
 
-function terminate() {
-  server.close(() => process.exit());
-}
+init();
 
 process.on('SIGINT', terminate);
 process.on('SIGTERM', terminate);
+
+async function init() {
+  try {
+    await manager.init();
+  } catch(err) {
+    console.error('init error', err);
+  }
+}
+
+async function terminate() {
+  try {
+    await manager.terminate();
+  } catch(err) {
+    console.error('terminate error', err);
+  }
+}

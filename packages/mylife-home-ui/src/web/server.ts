@@ -15,13 +15,13 @@ import { Repository } from '../net';
 export default class WebServer extends EventEmitter {
   private _server: http.Server;
 
-  constructor(netRepository: Repository, sessionCreator: (socket: io.Socket) => void, webConfig: { port: number }) {
+  constructor(netRepository: Repository, sessionCreator: (socket: io.Socket) => void, webConfig: { port: number, staticDirectory: string }) {
     super();
     const app = express();
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
 
-    const publicDirectory = path.resolve(path.join(__dirname, '../../public'));
+    const publicDirectory = path.resolve(__dirname, webConfig.staticDirectory);
 
     app.use(favicon(path.join(publicDirectory, 'images/favicon.ico')));
     app.use('/repository', createRepository(netRepository));
