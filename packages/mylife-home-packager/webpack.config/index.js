@@ -17,16 +17,16 @@ module.exports = function (env, argv) {
     output: path.resolve(__dirname, '..', 'dist', env.mode)
   };
 
-  const mode = modes(paths)[env.mode];
-  if (!mode) {
-    throw new Error(`Unsupported mode: ${env.mode}`);
-  }
-
-  const ibase = base(paths);
-
   const configurations = [];
 
   const createConfiguration = (binary) => {
+    const mode = modes(paths)[env.mode];
+    if (!mode) {
+      throw new Error(`Unsupported mode: ${env.mode}`);
+    }
+  
+    const ibase = base(paths);
+  
     const config = typeof binary === 'function' ? binary(env, argv) : merge(ibase, mode, binary);
     configurations.push(config);
   };
