@@ -13,6 +13,7 @@
     "clean": "rm -rf dist",
     "build:prod": "webpack --config=webpack.config --env.mode=prod",
     "build:dev": "webpack --config=webpack.config --env.mode=dev",
+    "start:serve-dist": "http-server -c-1 ./dist",
     "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan"
   },
