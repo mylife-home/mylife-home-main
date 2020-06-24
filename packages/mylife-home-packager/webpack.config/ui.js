@@ -1,7 +1,9 @@
 'use strict';
 
 const path = require('path');
+const merge = require('webpack-merge');
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (paths) => {
   return [
@@ -22,6 +24,9 @@ function createClientConfiguration(env, argv, paths) {
     ]
   };
 
+  const repoPath = path.dirname(require.resolve('mylife-home-ui/package.json'));
+  const sourcePath = path.join(repoPath, 'public');
+
   const base = {
     entry: 'mylife-home-ui/public/app/main',
 
@@ -40,7 +45,7 @@ function createClientConfiguration(env, argv, paths) {
           test: /\.ts(x?)$/,
           use: [
             { loader: 'babel-loader', options: babelOptions },
-            { loader: 'ts-loader', options: { configFile: require.resolve('mylife-home-ui/public/tsconfig.json') } },
+            { loader: 'ts-loader', options: { configFile: path.join(sourcePath, 'tsconfig.json') } },
           ],
         },
         { test: /\.js$/, use: [{ loader: 'babel-loader', options: babelOptions }] },
@@ -49,11 +54,19 @@ function createClientConfiguration(env, argv, paths) {
         { test: /\.(png|jpg|gif|svg|eot|woff|woff2|ttf|ico)$/, use: ['file-loader'] },
       ],
     },
+
+    plugins: [
+      new CopyPlugin({
+        patterns: [
+          { from: path.join(sourcePath, 'index.html') },
+          { from: path.join(sourcePath, 'images'), to: 'images' },
+        ],
+      })
+    ]
   };
 
   const modes = {
     dev: {
-      ...base,
       mode: 'development',
       devtool: 'inline-source-map',
       /*
@@ -75,7 +88,6 @@ function createClientConfiguration(env, argv, paths) {
     */
     },
     prod: {
-      ...base,
       mode: 'production',
       devtool: 'nosources-source-map',
       optimization: {
@@ -91,10 +103,10 @@ function createClientConfiguration(env, argv, paths) {
     },
   };
 
-  const config = modes[env.mode];
-  if (!config) {
+  const mode = modes[env.mode];
+  if (!mode) {
     throw new Error(`Unsupported mode: '${env.mode}`);
   }
 
-  return config;
+  return merge(base, mode);
 }
