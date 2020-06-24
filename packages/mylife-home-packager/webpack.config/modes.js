@@ -1,6 +1,7 @@
 'use strict';
 
 const TerserPlugin = require('terser-webpack-plugin');
+const CustomizedBundleAnalyzerPlugin = require('./customized-bundle-analyzer-plugin');
 
 module.exports = (paths) => ({
   prod: {
@@ -16,9 +17,12 @@ module.exports = (paths) => ({
         }),
       ],
     },
+    plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })],
   },
   dev: {
     mode: 'development',
     devtool: 'inline-source-map',
   },
 });
+
+

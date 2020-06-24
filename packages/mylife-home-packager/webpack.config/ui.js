@@ -4,6 +4,7 @@ const path = require('path');
 const merge = require('webpack-merge');
 const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const CustomizedBundleAnalyzerPlugin = require('./customized-bundle-analyzer-plugin');
 
 module.exports = (paths) => {
   return [
@@ -100,6 +101,7 @@ function createClientConfiguration(env, argv, paths) {
           }),
         ],
       },
+      plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static'})],
     },
   };
 
