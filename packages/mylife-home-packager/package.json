@@ -11,7 +11,7 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build:prod": "mkdir -p dist/prod && webpack --config=webpack.config --env.mode=prod --profile --json > dist/prod/compilation-stats.json",
+    "build:prod": "mkdir -p dist/prod && webpack --config=webpack.config --env.mode=prod",
     "build:dev": "mkdir -p dist/dev && webpack --config=webpack.config --env.mode=dev",
     "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan"

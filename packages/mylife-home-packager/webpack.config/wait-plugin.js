@@ -1,25 +1,23 @@
 // https://www.viget.com/articles/run-multiple-webpack-configs-sequentially/
-const WebpackBeforeBuildPlugin = require('before-build-webpack')
-const fs = require('fs')
+const WebpackBeforeBuildPlugin = require('before-build-webpack');
+const fs = require('fs');
 
-class WaitPlugin extends WebpackBeforeBuildPlugin {
+module.exports = class WaitPlugin extends WebpackBeforeBuildPlugin {
   constructor(file, interval = 100, timeout = 100000) {
-    super(function(stats, callback) {
-      let start = Date.now()
+    super(function (stats, callback) {
+      let start = Date.now();
 
       function poll() {
         if (fs.existsSync(file)) {
-          callback()
+          callback();
         } else if (Date.now() - start > timeout) {
-          throw Error("Maybe it just wasn't meant to be.")
+          throw Error("Maybe it just wasn't meant to be.");
         } else {
-          setTimeout(poll, interval)
+          setTimeout(poll, interval);
         }
       }
 
-      poll()
-    })
+      poll();
+    });
   }
-}
-
-module.exports = WaitPlugin
+};

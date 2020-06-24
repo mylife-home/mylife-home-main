@@ -13,9 +13,6 @@
   },
   "scripts": {
     "build:ts": "rm -rf dist/ && tsc",
-    "start:dev-client": "webpack-dev-server --watch --config=webpack.config.dev",
-    "build:client": "webpack --config=webpack.config.prod --profile --json > dist-public/stats.json",
-    "bundle-stats": "webpack-bundle-analyzer --host 0.0.0.0 dist-public/stats.json dist-public",
     "test": "mocha -r test/init 'test/**/*.test.ts'"
   },
   "devDependencies": {
