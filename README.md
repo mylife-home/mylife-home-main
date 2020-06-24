@@ -1,6 +1,11 @@
 # mylife-home-main
 MyLife Home main
 
+## Update packages
+ - lerna clean
+ - lerna exec -- npm update
+ - lerna bootstrap
+
 ## TODO
 
 ### common
