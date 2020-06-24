@@ -24,5 +24,3 @@ module.exports = (paths) => ({
     devtool: 'inline-source-map',
   },
 });
-
-
