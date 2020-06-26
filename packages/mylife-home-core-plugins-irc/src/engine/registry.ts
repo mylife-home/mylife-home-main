@@ -57,7 +57,8 @@ export class Registry extends EventEmitter {
   }
 
   findState(networkKey: string, componentId: string) {
-    return this.networks[networkKey][componentId];
+    const network = this.networks[networkKey];
+    return network && network[componentId];
   }
 
   findComponents(networkKey: string) {
