@@ -1,4 +1,7 @@
 import { EventEmitter } from 'events';
+import { logger } from 'mylife-home-common';
+
+const log = logger.createLogger('mylife:home:core:plugins:irc:engine:registry');
 
 export type State = { readonly [name: string]: string; };
 export type Components = { readonly [id: string]: State; };
@@ -11,27 +14,31 @@ export interface IrcComponent {
 }
 
 export class Registry extends EventEmitter {
-  private _networks: Networks;
+  private _networks: Networks = {};
 
   executeAction(networkKey: string, componentId: string, actionName: string, args: string[]) {
     this.emit('execute-action', networkKey, componentId, actionName, args);
   }
 
   createNetwork(networkKey: string) {
+    log.debug(`create network '${networkKey}'`);
     this.change({ ...this.networks, [networkKey]: {} });
   }
 
   deleteNetwork(networkKey: string) {
+    log.debug(`delete network '${networkKey}'`);
     const { [networkKey]: removed, ...newNetworks } = this.networks;
     this.change(newNetworks);
   }
 
   setComponent(networkKey: string, componentId: string, state: { [name: string]: string; }) {
+    log.debug(`set component '${componentId}' on network '${networkKey}' with state ${JSON.stringify(state)}`);
     const newNetwork = { ... this.networks[networkKey], [componentId]: state };
     this.change({ ...this.networks, [networkKey]: newNetwork });
   }
 
   deleteComponent(networkKey: string, componentId: string) {
+    log.debug(`delete component '${componentId}' on network '${networkKey}'`);
     const { [componentId]: removed, ...newNetwork } = this.networks[networkKey];
     this.change({ ...this.networks, [networkKey]: newNetwork });
   }
