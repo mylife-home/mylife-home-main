@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 import async from 'async';
 import io from 'socket.io';
+import { bus, tools, components } from 'mylife-home-common';
 import * as net from '../net';
 import WebServer from '../web/server';
-import { tools } from 'mylife-home-common';
 
 class Session extends EventEmitter {
   constructor(private readonly socket: io.Socket, private readonly netRepository: net.Repository) {
@@ -43,6 +43,9 @@ class Session extends EventEmitter {
 }
 
 export class Manager {
+  private readonly transport: bus.Transport;
+  private readonly registry: components.Registry;
+
   private readonly sessions = new Map<string, Session>();
   private idGenerator = 0;
   private readonly netAgent: net.Client;
@@ -50,6 +53,9 @@ export class Manager {
   private readonly webServer: WebServer;
 
   constructor() {
+    this.transport = new bus.Transport({ presenceTracking: true });
+    this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
+
     type NetConfig = { host: string; port: number; };
     type WebConfig = { port: number; staticDirectory: string };
     const netConfig = tools.getConfigItem<NetConfig>('net');
@@ -57,7 +63,7 @@ export class Manager {
 
     this.netAgent = new net.Client(netConfig, 'ui-agent');
     this.netRepository = new net.Repository(this.netAgent);
-    this.webServer = new WebServer(this.netRepository, (socket) => this.createSession(socket), webConfig);
+    this.webServer = new WebServer(this.registry, this.netRepository, (socket) => this.createSession(socket), webConfig);
   }
 
   async init() {
@@ -80,5 +86,7 @@ export class Manager {
 
       async.parallel(array, (err) => err ? reject(err) : resolve());
     });
+
+    await this.transport.terminate();
   }
 }
