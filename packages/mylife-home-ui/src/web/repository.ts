@@ -1,47 +1,29 @@
 import express from 'express';
+import { components } from 'mylife-home-common';
 import { Repository } from '../net';
 
-export function createRepository(netRepository: Repository) {
+export function createRepository(registry: components.Registry, netRepository: Repository) {
 
   const router = express.Router();
 
-  function objectData(id: string) {
-    const object = netRepository.object(id);
-    const attributes: { [id: string]: string; } = {};
-    for (const name of object.attributes) {
-      attributes[name] = object.attribute(name);
-    }
-
-    return { id: object.id, attributes };
-  }
-
-  router.route('/action/:object/:action/:arg').get(function (req, res) {
-    netRepository.action(req.params.object, req.params.action, [req.params.arg]);
-    res.json('ok');
+  router.route('/action/:componentId/:actionName').get((req, res) => {
+    const { componentId, actionName } = req.params;
+    const component = registry.getComponent(componentId);
+    component.executeAction(actionName, true);
+    component.executeAction(actionName, false);
+    return res.status(200);
   });
 
-  router.route('/action/:object/:action').get(function (req, res) {
-    netRepository.action(req.params.object, req.params.action, []);
-    res.json('ok');
+  router.route('/components').get((req, res) => {
+    const result = Array.from(registry.getComponents()).map(component => component.id);
+    return res.json(result);
   });
 
-  router.route('/objects').get(function (req, res) {
-    const data = [];
-    for (const id of netRepository.objects) {
-      data.push(objectData(id));
-    }
-    res.json(data);
-  });
-
-  router.route('/object/:object').get(function (req, res) {
-    const data = objectData(req.params.object);
-    res.json(data);
-  });
-
-  router.route('/object/:object/:attribute').get(function (req, res) {
-    const object = netRepository.object(req.params.object);
-    const prop = object.attribute(req.params.attribute);
-    res.json(prop);
+  router.route('/state/:componentId').get((req, res) => {
+    const { componentId } = req.params;
+    const component = registry.getComponent(componentId);
+    const result = component.getStates();
+    return res.json(result);
   });
 
   return router;
