@@ -5,7 +5,7 @@ import gulp = require('gulp');
 import ts = require('gulp-typescript');
 import merge = require('merge2');
 
-export class TsProject {
+export class TsBuild {
   private readonly modulePath: string;
   private readonly project: ts.Project;
 
@@ -14,21 +14,18 @@ export class TsProject {
     this.project = ts.createProject(path.join(this.modulePath, 'tsconfig.json'));
   }
 
-  globs() {
-    const ret = this.project.config.include.map(item => path.join(this.modulePath, item));
-    console.log(ret);
-    return ret;
+  get globs() {
+    return this.project.config.include.map(item => path.join(this.modulePath, item));
   }
 
-  createTask() {
+  readonly task = () => {
+
+    const result = this.project.src().pipe(this.project());
+
     const outputPath = path.join(this.modulePath, 'dist');
-
-    return () => {
-      const result = this.project.src().pipe(this.project());
-      return merge([
-        result.dts.pipe(gulp.dest(outputPath)),
-        result.js.pipe(gulp.dest(outputPath))
-      ]);
-    }
-  }
+    return merge([
+      result.dts.pipe(gulp.dest(outputPath)),
+      result.js.pipe(gulp.dest(outputPath))
+    ]);
+  };
 }
