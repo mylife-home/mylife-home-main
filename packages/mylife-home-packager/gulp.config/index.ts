@@ -1,23 +1,17 @@
 'use strict';
 
-import path = require('path');
-import gulp = require('gulp');
-import ts = require('gulp-typescript');
-import merge = require('merge2');
+import * as gulp from 'gulp';
+import { TsProject } from './ts-build';
 
-const modulePath = path.dirname(require.resolve('mylife-home-common/package.json'));
-
-const tsProject = ts.createProject(path.join(modulePath, 'tsconfig.json'));
+const commonProject = new TsProject('mylife-home-common');
 
 export = {
-  default: function (cb) {
-    var tsResult = tsProject.src() // or tsProject.src()
-      .pipe(tsProject());
+  default: () => {
+    const tsBuildTask = commonProject.createTask();
+    return gulp.src(commonProject.globs()).pipe(tsBuildTask());
+  },
 
-    const outputPath = path.join(modulePath, 'dist');
-    return merge([
-      tsResult.dts.pipe(gulp.dest(outputPath)),
-      tsResult.js.pipe(gulp.dest(outputPath))
-    ]);
+  watch: () => {
+    return gulp.watch(commonProject.globs(), commonProject.createTask());
   }
 };
