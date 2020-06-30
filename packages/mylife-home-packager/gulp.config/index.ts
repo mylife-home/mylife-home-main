@@ -1,17 +1,16 @@
 'use strict';
 
 import * as gulp from 'gulp';
-import { TsProject } from './ts-build';
+import { TsBuild } from './ts-build';
 
-const commonProject = new TsProject('mylife-home-common');
+const commonProject = new TsBuild('mylife-home-common');
 
 export = {
   default: () => {
-    const tsBuildTask = commonProject.createTask();
-    return gulp.src(commonProject.globs()).pipe(tsBuildTask());
+    return gulp.src(commonProject.globs).pipe(commonProject.task());
   },
 
   watch: () => {
-    return gulp.watch(commonProject.globs(), commonProject.createTask());
+    return gulp.watch(commonProject.globs, commonProject.task);
   }
 };
