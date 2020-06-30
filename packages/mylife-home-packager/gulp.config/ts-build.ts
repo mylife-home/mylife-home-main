@@ -1,9 +1,9 @@
 'use strict';
 
-import path = require('path');
-import gulp = require('gulp');
-import ts = require('gulp-typescript');
-import merge = require('merge2');
+import path from 'path';
+import gulp from 'gulp';
+import ts from 'gulp-typescript';
+import merge from 'merge2';
 
 export class TsBuild {
   private readonly modulePath: string;
