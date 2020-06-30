@@ -1,8 +1,7 @@
-'use strict';
+import { DefinePlugin, IgnorePlugin, Configuration } from 'webpack';
+import { Paths } from './types';
 
-const { DefinePlugin, IgnorePlugin } = require('webpack');
-
-module.exports = (paths) => ({
+export default (paths: Paths) => ({
   output: {
     path: paths.output,
     filename: '[name].js',
@@ -39,10 +38,14 @@ module.exports = (paths) => ({
       /mylife-home-common\/node_modules\/require-main-filename/,
     ],
   },
-});
+}) as Configuration;
+
+interface ModuleInfo {
+  readonly version: string;
+}
 
 function createBuildInfo() {
-  const modules = {};
+  const modules: { [name: string]: ModuleInfo; } = {};
 
   const { name, version, dependencies } = require('../package.json');
   modules[name] = { version };
@@ -59,6 +62,6 @@ function createBuildInfo() {
   return { timestamp: Date.now(), modules };
 }
 
-function ignore(resourceRegExp, contextRegExp) {
+function ignore(resourceRegExp: RegExp, contextRegExp: RegExp) {
   return new IgnorePlugin({ resourceRegExp, contextRegExp });
 }

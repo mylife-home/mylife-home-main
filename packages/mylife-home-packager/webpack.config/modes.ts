@@ -1,9 +1,9 @@
-'use strict';
+import { Configuration } from 'webpack';
+import TerserPlugin from 'terser-webpack-plugin';
+import { Paths, ConfigurationByMode } from './types';
+import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
 
-const TerserPlugin = require('terser-webpack-plugin');
-const CustomizedBundleAnalyzerPlugin = require('./customized-bundle-analyzer-plugin');
-
-module.exports = (paths) => ({
+export default (paths: Paths) => ({
   prod: {
     mode: 'production',
     devtool: 'nosources-source-map',
@@ -18,9 +18,9 @@ module.exports = (paths) => ({
       ],
     },
     plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })],
-  },
+  } as Configuration,
   dev: {
     mode: 'development',
     devtool: 'inline-source-map',
-  },
-});
+  } as Configuration,
+}) as ConfigurationByMode;

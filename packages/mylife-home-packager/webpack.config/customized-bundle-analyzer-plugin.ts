@@ -1,12 +1,13 @@
-'use strict';
+import { Compiler } from 'webpack';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-
-module.exports = class CustomizedBundleAnalyzerPlugin extends BundleAnalyzerPlugin {
-  apply(compiler) {
+export default class CustomizedBundleAnalyzerPlugin extends BundleAnalyzerPlugin {
+  apply(compiler: Compiler) {
     const name = Object.keys(compiler.options.entry)[0];
-    this.opts.reportFilename = `${name}.report.html`;
-    this.opts.reportTitle = `${name} [${currentTime()}]`;
+    
+    // opts are not public on BundleAnalyzerPlugin
+    (this as any).opts.reportFilename = `${name}.report.html`;
+    (this as any).opts.reportTitle = `${name} [${currentTime()}]`;
     
     return super.apply(compiler);
   }
