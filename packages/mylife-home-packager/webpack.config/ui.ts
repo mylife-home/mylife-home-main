@@ -1,14 +1,14 @@
-'use strict';
+import path from 'path';
+import merge from 'webpack-merge';
+import TerserPlugin from 'terser-webpack-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
+import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
+import { Paths, Arguments, Environment, ConfigurationByMode } from './types';
+import { Configuration } from 'webpack';
 
-const path = require('path');
-const merge = require('webpack-merge');
-const TerserPlugin = require('terser-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const CustomizedBundleAnalyzerPlugin = require('./customized-bundle-analyzer-plugin');
-
-module.exports = (paths) => {
+export default (paths: Paths) => {
   return [
-    (env, argv) => createClientConfiguration(env, argv, paths),
+    (env: Environment, argv: Arguments) => createClientConfiguration(env, argv, paths),
     {
       entry: {
         'ui/bin': 'mylife-home-ui/dist/bin',
@@ -17,7 +17,7 @@ module.exports = (paths) => {
   ];
 };
 
-function createClientConfiguration(env, argv, paths) {
+function createClientConfiguration(env: Environment, argv: Arguments, paths: Paths) {
   const babelOptions = {
     presets: [
       [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],
@@ -87,7 +87,7 @@ function createClientConfiguration(env, argv, paths) {
       }
     }
     */
-    },
+    } as Configuration,
     prod: {
       mode: 'production',
       devtool: 'nosources-source-map',
@@ -101,9 +101,9 @@ function createClientConfiguration(env, argv, paths) {
           }),
         ],
       },
-      plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static'})],
-    },
-  };
+      plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })],
+    } as Configuration,
+  } as ConfigurationByMode;
 
   const mode = modes[env.mode];
   if (!mode) {

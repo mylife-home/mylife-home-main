@@ -1,10 +1,9 @@
-'use strict';
+import path from 'path';
+import { DllPlugin, DllReferencePlugin, Configuration } from 'webpack';
+import WaitPlugin from './wait-plugin';
+import { Paths } from './types';
 
-const path = require('path');
-const { DllPlugin, DllReferencePlugin } = require('webpack');
-const WaitPlugin = require('./wait-plugin');
-
-module.exports = (paths) => {
+export default (paths: Paths) => {
   const libManifest = path.join(paths.output, 'core/lib.js.manifest');
   
   return [{
@@ -20,7 +19,7 @@ module.exports = (paths) => {
         path: libManifest
       })
     ],
-   }, {
+   } as Configuration, {
     entry: {
       'core/bin': 'mylife-home-core/dist/bin',
     },
@@ -33,7 +32,7 @@ module.exports = (paths) => {
         name: './lib',
       }),
     ]
-  }, ...listPlugins().map(pluginName => ({
+  } as Configuration, ...listPlugins().map(pluginName => ({
     entry: {
       [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
     },
@@ -53,7 +52,7 @@ module.exports = (paths) => {
         path: path.join(paths.output, `core/plugins/${pluginName}.js.manifest`)
       })
     ],
-  }))];
+  }) as Configuration)];
 };
 
 function listPlugins() {
@@ -65,7 +64,7 @@ function listPlugins() {
     .map(dependency => dependency.substring(prefix.length));
 }
 
-function kebabCaseToUpperCamelCase(str) {
+function kebabCaseToUpperCamelCase(str: string) {
   return str
     .split('-')
     .map(item => item.charAt(0).toUpperCase() + item.slice(1))
