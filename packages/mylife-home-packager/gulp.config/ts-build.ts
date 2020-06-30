@@ -12,6 +12,7 @@ export class TsBuild {
   constructor(moduleName: string) {
     this.modulePath = path.dirname(require.resolve(`${moduleName}/package.json`));
     this.project = ts.createProject(path.join(this.modulePath, 'tsconfig.json'));
+    Object.assign(this.task, { displayName: `ts-build - ${moduleName}` });
   }
 
   get globs() {
