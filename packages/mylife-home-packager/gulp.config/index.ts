@@ -4,13 +4,19 @@ import * as gulp from 'gulp';
 import { TsBuild } from './ts-build';
 
 const commonProject = new TsBuild('mylife-home-common');
+const coreProject = new TsBuild('mylife-home-core');
+const corePluginsIrcProject = new TsBuild('mylife-home-core-plugins-irc');
+const uiProject = new TsBuild('mylife-home-ui');
+
+const core = gulp.series(coreProject.task, gulp.parallel(corePluginsIrcProject.task));
+const all = gulp.series(commonProject.task, gulp.parallel(core, uiProject.task));
+
+const watch = gulp.parallel(() => gulp.watch(commonProject.globs, commonProject.task), () => gulp.watch(coreProject.globs, coreProject.task))
 
 export = {
-  default: () => {
-    return gulp.src(commonProject.globs).pipe(commonProject.task());
-  },
+  default: all,
 
-  watch: () => {
-    return gulp.watch(commonProject.globs, commonProject.task);
-  }
+  'build:ts': all,
+
+  watch
 };
