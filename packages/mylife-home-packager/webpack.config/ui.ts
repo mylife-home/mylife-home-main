@@ -3,12 +3,12 @@ import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
-import { Paths, Arguments, Environment, ConfigurationByMode } from './types';
+import { Paths, Environment, ConfigurationByMode } from './types';
 import { Configuration } from 'webpack';
 
 export default (paths: Paths) => {
   return [
-    (env: Environment, argv: Arguments) => createClientConfiguration(env, argv, paths),
+    (env: Environment) => createClientConfiguration(env, paths),
     {
       entry: {
         'ui/bin': 'mylife-home-ui/dist/bin',
@@ -17,7 +17,7 @@ export default (paths: Paths) => {
   ];
 };
 
-function createClientConfiguration(env: Environment, argv: Arguments, paths: Paths) {
+function createClientConfiguration(env: Environment, paths: Paths) {
   const babelOptions = {
     presets: [
       [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],

@@ -6,7 +6,6 @@ export interface Paths {
 }
 
 export type Environment = { [name: string]: string; };
-export type Arguments = string[];
-export type ConfigurationFactory = (env: Environment, argv: Arguments) => Configuration;
+export type ConfigurationFactory = (env: Environment) => Configuration;
 
 export type ConfigurationByMode = { [mode: string]: Configuration; };
