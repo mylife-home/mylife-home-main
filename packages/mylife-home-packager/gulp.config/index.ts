@@ -1,7 +1,6 @@
-'use strict';
-
 import * as gulp from 'gulp';
 import { TsBuild } from './ts-build';
+import { createWebpackTask } from './webpack-build';
 
 const commonProject = new TsBuild('mylife-home-common');
 const coreProject = new TsBuild('mylife-home-core');
@@ -11,12 +10,18 @@ const uiProject = new TsBuild('mylife-home-ui');
 const core = gulp.series(coreProject.task, gulp.parallel(corePluginsIrcProject.task));
 const all = gulp.series(commonProject.task, gulp.parallel(core, uiProject.task));
 
-const watch = gulp.parallel(() => gulp.watch(commonProject.globs, commonProject.task), () => gulp.watch(coreProject.globs, coreProject.task))
+const watch = gulp.parallel(() => gulp.watch(commonProject.globs, commonProject.task), () => gulp.watch(coreProject.globs, coreProject.task));
+
+const webpackDevUi = createWebpackTask('ui', 'dev');
+
+const devUi = gulp.series(webpackDevUi);
 
 export = {
   default: all,
 
   'build:ts': all,
+
+  'build:dev:ui': devUi,
 
   watch
 };
