@@ -2,6 +2,20 @@ import * as gulp from 'gulp';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 
+const binaries = {
+  core: ['mylife-home-core', 'mylife-core-plugins-*'],
+  ui: ['mylife-home-ui']
+};
+
+export = {
+  'build:dev:ui': null,
+  'watch:ui': null,
+  'build:dev:core': null,
+  'watch:core': null,
+  'build:prod': null,
+};
+
+/*
 const commonProject = new TsBuild('mylife-home-common');
 const coreProject = new TsBuild('mylife-home-core');
 const corePluginsIrcProject = new TsBuild('mylife-home-core-plugins-irc');
@@ -25,3 +39,4 @@ export = {
 
   watch
 };
+*/
