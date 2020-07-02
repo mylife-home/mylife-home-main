@@ -1,6 +1,6 @@
 import * as gulp from 'gulp';
 import { TsBuild } from './ts-build';
-import { createWebpackTask } from './webpack-build';
+import { WebpackBuild } from './webpack-build';
 
 const commonProject = new TsBuild('mylife-home-common');
 const coreProject = new TsBuild('mylife-home-core');
@@ -12,9 +12,9 @@ const all = gulp.series(commonProject.task, gulp.parallel(core, uiProject.task))
 
 const watch = gulp.parallel(() => gulp.watch(commonProject.globs, commonProject.task), () => gulp.watch(coreProject.globs, coreProject.task));
 
-const webpackDevUi = createWebpackTask('ui', 'dev');
+const webpackDevUi = new WebpackBuild('ui', 'dev');
 
-const devUi = gulp.series(webpackDevUi);
+const devUi = gulp.series(webpackDevUi.task);
 
 export = {
   default: all,
