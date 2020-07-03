@@ -1,9 +1,10 @@
 import { Configuration } from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
-import { Paths, ConfigurationByMode } from './types';
+import { ConfigurationByMode } from './types';
+import { Context } from './context';
 import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
 
-export default (paths: Paths) => ({
+export default (context: Context) => ({
   prod: {
     mode: 'production',
     devtool: 'nosources-source-map',
