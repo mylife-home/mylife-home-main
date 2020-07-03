@@ -4,22 +4,20 @@ import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
-import { ConfigurationByMode } from './types';
+import { ConfigurationByMode, ConfigurationFile } from './types';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';
 
-export default (context: Context) => {
-  return [
-    createClientConfiguration(context),
-    prepareServerConfiguration(context, {
-      entry: {
-        'ui/bin': 'mylife-home-ui/dist/bin',
-      },
-    }),
-  ];
-};
+const parts: ConfigurationFile = {};
+export default parts;
 
-function createClientConfiguration(context: Context) {
+parts.server = (context: Context) => prepareServerConfiguration(context, {
+  entry: {
+    'ui/bin': 'mylife-home-ui/dist/bin',
+  },
+});
+
+parts.client = (context: Context) => {
   const babelOptions = {
     presets: [
       [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],
@@ -96,4 +94,4 @@ function createClientConfiguration(context: Context) {
   }
 
   return merge(base, mode);
-}
+};

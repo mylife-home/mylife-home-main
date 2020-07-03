@@ -1,39 +1,46 @@
 import path from 'path';
-import { DllPlugin, DllReferencePlugin, Configuration } from 'webpack';
+import { DllPlugin, DllReferencePlugin } from 'webpack';
 import WaitPlugin from './wait-plugin';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';
+import { ConfigurationFile } from './types';
 
-export default (context: Context) => {
-  const libManifest = path.join(context.outputPath, 'core/lib.js.manifest');
-  
-  return [prepareServerConfiguration(context, {
-    entry: {
-      'core/lib': ['mylife-home-core', 'mylife-home-common', 'mylife-home-core/dist/bin'],
-    },
-    output: {
-      libraryTarget: 'commonjs2'
-    },
-    plugins: [
-      new DllPlugin({ 
-        name: 'CoreLib',
-        path: libManifest
-      })
-    ],
-   }), prepareServerConfiguration(context, {
-    entry: {
-      'core/bin': 'mylife-home-core/dist/bin',
-    },
-    plugins: [
-      new WaitPlugin(libManifest),
-      new DllReferencePlugin({
-        context: context.basePath,
-        manifest: libManifest,
-        sourceType: 'commonjs2',
-        name: './lib',
-      }),
-    ]
-  }), ...listPlugins().map(pluginName => prepareServerConfiguration(context, {
+const parts: ConfigurationFile = {};
+export default parts;
+
+parts.lib = (context: Context) => prepareServerConfiguration(context, {
+  entry: {
+    'core/lib': ['mylife-home-core', 'mylife-home-common', 'mylife-home-core/dist/bin'],
+  },
+  output: {
+    libraryTarget: 'commonjs2'
+  },
+  plugins: [
+    new DllPlugin({ 
+      name: 'CoreLib',
+      path: libManifest(context)
+    })
+  ],
+});
+
+parts.core = (context: Context) => prepareServerConfiguration(context, {
+  entry: {
+    'core/bin': 'mylife-home-core/dist/bin',
+  },
+  plugins: [
+    new WaitPlugin(libManifest(context)),
+    new DllReferencePlugin({
+      context: context.basePath,
+      manifest: libManifest(context),
+      sourceType: 'commonjs2',
+      name: './lib',
+    }),
+  ]
+});
+
+for(const pluginName of listPlugins()) {
+  const key = `plugins-${kebabCaseToUpperCamelCase(pluginName)}`;
+  parts[key] = (context: Context) => prepareServerConfiguration(context, {
     entry: {
       [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
     },
@@ -41,10 +48,10 @@ export default (context: Context) => {
       libraryTarget: 'commonjs2'
     },
     plugins: [
-      new WaitPlugin(libManifest),
+      new WaitPlugin(libManifest(context)),
       new DllReferencePlugin({
         context: context.basePath,
-        manifest: libManifest,
+        manifest: libManifest(context),
         sourceType: 'commonjs2',
         name: '../lib',
       }),
@@ -53,8 +60,12 @@ export default (context: Context) => {
         path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
       })
     ],
-  }))];
+  });
 };
+
+function libManifest(context: Context) {
+  return path.join(context.outputPath, 'core/lib.js.manifest');
+}
 
 function listPlugins() {
   const prefix = 'mylife-home-core-plugins-';
