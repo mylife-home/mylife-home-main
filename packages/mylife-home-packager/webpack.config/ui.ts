@@ -1,23 +1,25 @@
 import path from 'path';
+import { Configuration } from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
-import { Paths, Environment, ConfigurationByMode } from './types';
-import { Configuration } from 'webpack';
+import { ConfigurationByMode } from './types';
+import { Context } from './context';
+import { prepareServerConfiguration } from './tools';
 
-export default (paths: Paths) => {
+export default (context: Context) => {
   return [
-    (env: Environment) => createClientConfiguration(env, paths),
-    {
+    createClientConfiguration(context),
+    prepareServerConfiguration(context, {
       entry: {
         'ui/bin': 'mylife-home-ui/dist/bin',
       },
-    },
+    }),
   ];
 };
 
-function createClientConfiguration(env: Environment, paths: Paths) {
+function createClientConfiguration(context: Context) {
   const babelOptions = {
     presets: [
       [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],
@@ -32,7 +34,7 @@ function createClientConfiguration(env: Environment, paths: Paths) {
     entry: 'mylife-home-ui/public/app/main',
 
     output: {
-      path: path.join(paths.output, 'ui/static'),
+      path: path.join(context.outputPath, 'ui/static'),
       filename: 'bundle.js',
     },
 
@@ -70,23 +72,6 @@ function createClientConfiguration(env: Environment, paths: Paths) {
     dev: {
       mode: 'development',
       devtool: 'inline-source-map',
-      /*
-    devServer: {
-      contentBase: path.join(__dirname, 'public'),
-      host: '0.0.0.0',
-      port: 8002,
-      disableHostCheck: true,
-      proxy: {
-        '/resources': {
-          target: 'http://localhost:8001'
-        },
-        '/socket.io': {
-          target: 'http://localhost:8001',
-          ws: true,
-        }
-      }
-    }
-    */
     } as Configuration,
     prod: {
       mode: 'production',
@@ -105,9 +90,9 @@ function createClientConfiguration(env: Environment, paths: Paths) {
     } as Configuration,
   } as ConfigurationByMode;
 
-  const mode = modes[env.mode];
+  const mode = modes[context.env.mode];
   if (!mode) {
-    throw new Error(`Unsupported mode: '${env.mode}`);
+    throw new Error(`Unsupported mode: '${context.env.mode}`);
   }
 
   return merge(base, mode);

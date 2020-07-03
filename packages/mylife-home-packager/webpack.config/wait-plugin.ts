@@ -1,8 +1,9 @@
+import { WebpackPluginInstance, Compiler } from 'webpack';
 // https://www.viget.com/articles/run-multiple-webpack-configs-sequentially/
-const WebpackBeforeBuildPlugin = require('before-build-webpack'); // no types on it
+const WebpackBeforeBuildPlugin = require('before-build-webpack'); // no types
 import fs from 'fs';
 
-export default class WaitPlugin extends WebpackBeforeBuildPlugin {
+export default class WaitPlugin extends WebpackBeforeBuildPlugin implements WebpackPluginInstance {
   constructor(file: string, interval = 100, timeout = 100000) {
     super(function (stats: any, callback: () => void) {
       let start = Date.now();
@@ -19,5 +20,9 @@ export default class WaitPlugin extends WebpackBeforeBuildPlugin {
 
       poll();
     });
+  }
+
+  apply(compiler: Compiler) {
+    super.apply(compiler);
   }
 };

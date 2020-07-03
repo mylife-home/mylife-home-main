@@ -1,11 +1,6 @@
 import { Configuration } from 'webpack';
+import { Context } from './context';
 
-export interface Paths {
-  readonly base: string;
-  readonly output: string;
-}
-
-export type Environment = { [name: string]: string; };
-export type ConfigurationFactory = (env: Environment) => Configuration;
+export type ConfigurationFactory = (context: Context) => Configuration;
 
 export type ConfigurationByMode = { [mode: string]: Configuration; };

@@ -1,9 +1,9 @@
 import { DefinePlugin, IgnorePlugin, Configuration } from 'webpack';
-import { Paths } from './types';
+import { Context } from './context';
 
-export default (paths: Paths) => ({
+export default (context: Context) => ({
   output: {
-    path: paths.output,
+    path: context.outputPath,
     filename: '[name].js',
   },
   module: {

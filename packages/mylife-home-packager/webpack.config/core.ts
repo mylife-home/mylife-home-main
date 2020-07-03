@@ -1,12 +1,13 @@
 import path from 'path';
 import { DllPlugin, DllReferencePlugin, Configuration } from 'webpack';
 import WaitPlugin from './wait-plugin';
-import { Paths } from './types';
+import { Context } from './context';
+import { prepareServerConfiguration } from './tools';
 
-export default (paths: Paths) => {
-  const libManifest = path.join(paths.output, 'core/lib.js.manifest');
+export default (context: Context) => {
+  const libManifest = path.join(context.outputPath, 'core/lib.js.manifest');
   
-  return [{
+  return [prepareServerConfiguration(context, {
     entry: {
       'core/lib': ['mylife-home-core', 'mylife-home-common', 'mylife-home-core/dist/bin'],
     },
@@ -19,20 +20,20 @@ export default (paths: Paths) => {
         path: libManifest
       })
     ],
-   } as Configuration, {
+   }), prepareServerConfiguration(context, {
     entry: {
       'core/bin': 'mylife-home-core/dist/bin',
     },
     plugins: [
       new WaitPlugin(libManifest),
       new DllReferencePlugin({
-        context: paths.base,
+        context: context.basePath,
         manifest: libManifest,
         sourceType: 'commonjs2',
         name: './lib',
       }),
     ]
-  } as Configuration, ...listPlugins().map(pluginName => ({
+  }), ...listPlugins().map(pluginName => prepareServerConfiguration(context, {
     entry: {
       [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
     },
@@ -42,17 +43,17 @@ export default (paths: Paths) => {
     plugins: [
       new WaitPlugin(libManifest),
       new DllReferencePlugin({
-        context: paths.base,
+        context: context.basePath,
         manifest: libManifest,
         sourceType: 'commonjs2',
         name: '../lib',
       }),
       new DllPlugin({ 
         name: `Plugins${kebabCaseToUpperCamelCase(pluginName)}`,
-        path: path.join(paths.output, `core/plugins/${pluginName}.js.manifest`)
+        path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
       })
     ],
-  }) as Configuration)];
+  }))];
 };
 
 function listPlugins() {
