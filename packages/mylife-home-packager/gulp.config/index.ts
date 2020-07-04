@@ -1,4 +1,6 @@
-import { series, parallel } from 'gulp';
+import path from 'path';
+import { series, parallel, watch } from 'gulp';
+import del from 'del';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 
@@ -40,6 +42,12 @@ const projects = {
   }
 };
 
+const globs = {
+  dist: pathAbs('dist'),
+  distDev: pathAbs('dist', 'dev'),
+  distProd: pathAbs('dist', 'prod'),
+}
+
 const buildProd = parallel(
   projects.ui.client.prod.task,
   series(
@@ -67,18 +75,29 @@ const buildProd = parallel(
   )
 );
 
-const binaries = {
-  core: ['mylife-home-core', 'mylife-core-plugins-*'],
-  ui: ['mylife-home-ui']
-};
+const buildDevUi = parallel(
+  projects.ui.client.dev.task,
+  series(
+    projects.common.ts.task,
+    projects.ui.ts.task,
+    projects.ui.bin.dev.task
+  )
+);
 
 export = {
-  'build:dev:ui': null,
+  'clean': () => del(globs.dist),
+  'clean:prod': () => del(globs.distProd),
+  'clean:dev': () => del(globs.distDev),
+  'build:dev:ui': buildDevUi,
   'watch:ui': null,
   'build:dev:core': null,
   'watch:core': null,
   'build:prod': buildProd,
 };
+
+function pathAbs(...parts: string[]) {
+  return path.join(path.resolve(path.join(__dirname, '..')), ...parts);
+}
 
 /*
 const commonProject = new TsBuild('mylife-home-common');
