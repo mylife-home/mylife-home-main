@@ -1,6 +1,5 @@
 import { Configuration } from 'webpack';
-import { createContext } from './context';
-import { getConfigurationFactories } from './binaries';
+import { createContext, getConfigurationFactories } from '.';
 
 export default (env: { [name: string]: any }) => {
   const { mode, ...options } = env;
