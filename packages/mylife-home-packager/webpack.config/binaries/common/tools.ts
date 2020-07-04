@@ -5,9 +5,9 @@ import modes from './modes';
 import { Context } from '../../context';
 
 export function prepareServerConfiguration(context: Context, partialConfiguration: Configuration) : Configuration {
-  const modeConfiguration = modes(context)[context.env.mode];
+  const modeConfiguration = modes(context)[context.mode];
   if (!modeConfiguration) {
-    throw new Error(`Unsupported mode: ${context.env.mode}`);
+    throw new Error(`Unsupported mode: ${context.mode}`);
   }
 
   const baseConfiguration = base(context);

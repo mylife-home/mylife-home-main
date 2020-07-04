@@ -1,15 +1,17 @@
 import path from 'path';
 
-export type Environment = { [name: string]: string; };
+export type Options = { [name: string]: any };
+export type Mode = 'prod' | 'dev';
 
 export interface Context {
   readonly basePath: string;
   readonly outputPath: string;
-  readonly env: Environment;
+  readonly mode: Mode;
+  readonly options: Options;
 }
 
-export function createContext(env: Environment): Context {
+export function createContext(mode: Mode, options: Options = {}): Context {
   const basePath = path.resolve(__dirname, '..');
-  const outputPath = path.resolve(__dirname, '..', 'dist', env.mode)
-  return { basePath, outputPath, env };
+  const outputPath = path.resolve(__dirname, '..', 'dist', mode);
+  return { basePath, outputPath, mode, options };
 }

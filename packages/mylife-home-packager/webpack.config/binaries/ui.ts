@@ -4,7 +4,7 @@ import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from '../plugins/customized-bundle-analyzer-plugin';
-import { ConfigurationByMode } from '../types';
+import { ConfigurationByMode } from './common/types';
 import { Context } from '../context';
 import { prepareServerConfiguration } from './common/tools';
 
@@ -85,9 +85,9 @@ export const client = (context: Context) => {
     } as Configuration,
   } as ConfigurationByMode;
 
-  const mode = modes[context.env.mode];
+  const mode = modes[context.mode];
   if (!mode) {
-    throw new Error(`Unsupported mode: '${context.env.mode}`);
+    throw new Error(`Unsupported mode: '${context.mode}`);
   }
 
   return merge(base, mode);

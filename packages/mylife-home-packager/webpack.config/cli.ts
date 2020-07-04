@@ -1,14 +1,15 @@
 import { Configuration } from 'webpack';
-import { Environment, createContext } from './context';
+import { createContext } from './context';
 import { getConfigurationFactories } from './binaries';
 
-export default (env: Environment) => {
-  const context = createContext(env);
+export default (env: { [name: string]: any }) => {
+  const { mode, ...options } = env;
+  const context = createContext(mode, options);
 
   const configurations: Configuration[] = [];
-  for(const configurationFactory of getConfigurationFactories()) {
+  for (const configurationFactory of getConfigurationFactories()) {
     configurations.push(configurationFactory(context));
   }
-  
+
   return configurations;
 };
