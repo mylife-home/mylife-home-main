@@ -1,14 +1,14 @@
-import webpack, { Configuration, MultiCompiler } from 'webpack';
-import configFactory from '../webpack.config';
-
-export type Binary = string;
-export type Mode = 'prod' | 'dev';
+import webpack, { Compiler } from 'webpack';
+import { Mode, getConfigurationFactory, createContext } from '../webpack.config';
 
 export class WebpackBuild {
-  private readonly compiler: MultiCompiler;
+  private readonly compiler: Compiler;
 
-  constructor(binary: Binary, mode: Mode) {
-    const config = configFactory({ binary, mode });
+  constructor(binary: string, part: string, mode: Mode) {
+    const context = createContext(mode);
+    const configurationFactory = getConfigurationFactory(binary, part);
+    const config = configurationFactory(context);
+
     this.compiler = webpack(config);
     Object.assign(this.task, { displayName: `webpack-build - ${binary} (${mode})` });
   }
@@ -19,25 +19,17 @@ export class WebpackBuild {
         if (err) {
           return reject(err);
         }
-  
+
         if (stats.hasErrors()) {
-          const errors: string[] = [];
-          for (const { compilation } of stats.stats) {
-            for (const error of compilation.errors) {
-              errors.push(error.toString());
-            }
-          }
-          return reject(new Error(errors.join('\n')));
+          return reject(new Error(stats.compilation.errors.join('\n')));
         }
-  
+
         if (stats.hasWarnings) {
-          for (const { compilation } of stats.stats) {
-            for (const warning of compilation.warnings) {
-              console.log(warning.toString());
-            }
+          for (const warning of stats.compilation.warnings) {
+            console.log(warning.toString());
           }
         }
-  
+
         resolve();
       });
     });
