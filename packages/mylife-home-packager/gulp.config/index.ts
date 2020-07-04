@@ -28,8 +28,15 @@ const projects = {
     bin: {
       dev: new WebpackBuild('core', 'bin', 'dev'),
       prod: new WebpackBuild('core', 'bin', 'prod'),
+    },
+    plugins: {
+      irc: {
+        ts: new TsBuild('mylife-home-core-plugins-irc'),
+        dev: new WebpackBuild('core', 'plugins-irc', 'dev'),
+        prod: new WebpackBuild('core', 'plugins-irc', 'prod'),
+      }
+      // other plugins
     }
-    // TODO: plugins
   }
 };
 
@@ -47,6 +54,13 @@ const buildProd = parallel(
         parallel(
           projects.core.lib.prod.task,
           projects.core.bin.prod.task
+        ),
+        parallel(
+          series(
+            projects.core.plugins.irc.ts.task,
+            projects.core.plugins.irc.prod.task
+          )
+          // other plugins
         )
       )
     )
