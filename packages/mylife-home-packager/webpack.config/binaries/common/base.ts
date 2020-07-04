@@ -1,5 +1,5 @@
 import { DefinePlugin, IgnorePlugin, Configuration } from 'webpack';
-import { Context } from './context';
+import { Context } from '../../context';
 
 export default (context: Context) => ({
   output: {

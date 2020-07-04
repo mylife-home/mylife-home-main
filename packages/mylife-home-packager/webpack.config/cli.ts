@@ -1,8 +1,8 @@
 import { Configuration } from 'webpack';
 import { Environment, createContext } from './context';
 
-import * as core from './core';
-import * as ui from './ui';
+import * as core from './binaries/core';
+import * as ui from './binaries/ui';
 
 export default (env: Environment) => {
   const context = createContext(env);
