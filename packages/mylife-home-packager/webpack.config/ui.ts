@@ -4,20 +4,17 @@ import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from './plugins/customized-bundle-analyzer-plugin';
-import { ConfigurationByMode, ConfigurationFile } from './types';
+import { ConfigurationByMode } from './types';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';
 
-const parts: ConfigurationFile = {};
-export default parts;
-
-parts.server = (context: Context) => prepareServerConfiguration(context, {
+export const server = (context: Context) => prepareServerConfiguration(context, {
   entry: {
     'ui/bin': 'mylife-home-ui/dist/bin',
   },
 });
 
-parts.client = (context: Context) => {
+export const client = (context: Context) => {
   const babelOptions = {
     presets: [
       [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],

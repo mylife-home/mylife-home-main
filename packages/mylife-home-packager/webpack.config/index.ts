@@ -1,4 +1,4 @@
-import core from './core';
-import ui from './ui';
+import * as core from './core';
+import * as ui from './ui';
 
 export { core, ui };

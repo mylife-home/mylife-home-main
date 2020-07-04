@@ -3,12 +3,8 @@ import { DllPlugin, DllReferencePlugin } from 'webpack';
 import WaitPlugin from './plugins/wait-plugin';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';
-import { ConfigurationFile } from './types';
 
-const parts: ConfigurationFile = {};
-export default parts;
-
-parts.lib = (context: Context) => prepareServerConfiguration(context, {
+export const lib = (context: Context) => prepareServerConfiguration(context, {
   entry: {
     'core/lib': ['mylife-home-core', 'mylife-home-common', 'mylife-home-core/dist/bin'],
   },
@@ -23,7 +19,7 @@ parts.lib = (context: Context) => prepareServerConfiguration(context, {
   ],
 });
 
-parts.core = (context: Context) => prepareServerConfiguration(context, {
+export const core = (context: Context) => prepareServerConfiguration(context, {
   entry: {
     'core/bin': 'mylife-home-core/dist/bin',
   },
@@ -38,36 +34,29 @@ parts.core = (context: Context) => prepareServerConfiguration(context, {
   ]
 });
 
-for(const pluginName of listPlugins()) {
-  const key = `plugins-${kebabCaseToUpperCamelCase(pluginName)}`;
-  parts[key] = (context: Context) => prepareServerConfiguration(context, {
-    entry: {
-      [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
-    },
-    output: {
-      libraryTarget: 'commonjs2'
-    },
-    plugins: [
-      context.env.wait && new WaitPlugin(libManifest(context)),
-      new DllReferencePlugin({
-        context: context.basePath,
-        manifest: libManifest(context),
-        sourceType: 'commonjs2',
-        name: '../lib',
-      }),
-      new DllPlugin({ 
-        name: `Plugins${kebabCaseToUpperCamelCase(pluginName)}`,
-        path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
-      })
-    ],
-  });
-};
+export const plugin = (context: Context, pluginName: string) =>  prepareServerConfiguration(context, {
+  entry: {
+    [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
+  },
+  output: {
+    libraryTarget: 'commonjs2'
+  },
+  plugins: [
+    context.env.wait && new WaitPlugin(libManifest(context)),
+    new DllReferencePlugin({
+      context: context.basePath,
+      manifest: libManifest(context),
+      sourceType: 'commonjs2',
+      name: '../lib',
+    }),
+    new DllPlugin({ 
+      name: `Plugins${kebabCaseToUpperCamelCase(pluginName)}`,
+      path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
+    })
+  ],
+});
 
-function libManifest(context: Context) {
-  return path.join(context.outputPath, 'core/lib.js.manifest');
-}
-
-function listPlugins() {
+export function listPlugins() {
   const prefix = 'mylife-home-core-plugins-';
   const { dependencies } = require('../package.json');
 
@@ -75,6 +64,11 @@ function listPlugins() {
     .filter(dependency => dependency.startsWith(prefix))
     .map(dependency => dependency.substring(prefix.length));
 }
+
+function libManifest(context: Context) {
+  return path.join(context.outputPath, 'core/lib.js.manifest');
+}
+
 
 function kebabCaseToUpperCamelCase(str: string) {
   return str
