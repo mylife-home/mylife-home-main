@@ -1,6 +1,6 @@
 import path from 'path';
 import { DllPlugin, DllReferencePlugin } from 'webpack';
-import WaitPlugin from './wait-plugin';
+import WaitPlugin from './plugins/wait-plugin';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';
 import { ConfigurationFile } from './types';

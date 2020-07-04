@@ -3,7 +3,7 @@ import { Configuration } from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
-import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
+import CustomizedBundleAnalyzerPlugin from './plugins/customized-bundle-analyzer-plugin';
 import { ConfigurationByMode, ConfigurationFile } from './types';
 import { Context } from './context';
 import { prepareServerConfiguration } from './tools';

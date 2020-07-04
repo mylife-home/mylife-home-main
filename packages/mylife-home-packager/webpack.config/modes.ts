@@ -2,7 +2,7 @@ import { Configuration } from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
 import { ConfigurationByMode } from './types';
 import { Context } from './context';
-import CustomizedBundleAnalyzerPlugin from './customized-bundle-analyzer-plugin';
+import CustomizedBundleAnalyzerPlugin from './plugins/customized-bundle-analyzer-plugin';
 
 export default (context: Context) => ({
   prod: {
