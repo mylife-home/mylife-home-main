@@ -91,18 +91,21 @@ const buildDevUi = parallel(
   )
 );
 
-const watchUi = series(buildDevUi, function watches() {
-  watch(globs.ui.client, projects.ui.client.dev.task);
-  watch(globs.common, series(
-    projects.common.ts.task,
-    projects.ui.ts.task,
-    projects.ui.bin.dev.task
-  ));
-  watch(globs.ui.bin, series(
-    projects.ui.ts.task,
-    projects.ui.bin.dev.task
-  ));
-});
+const watchUi = series(
+  buildDevUi,
+  function watches() {
+    watch(globs.ui.client, projects.ui.client.dev.task);
+    watch(globs.common, series(
+      projects.common.ts.task,
+      projects.ui.ts.task,
+      projects.ui.bin.dev.task
+    ));
+    watch(globs.ui.bin, series(
+      projects.ui.ts.task,
+      projects.ui.bin.dev.task
+    ));
+  }
+);
 
 export = {
   'clean': () => del(globs.dist.all),
