@@ -66,10 +66,8 @@ const buildProd = parallel(
       ),
       series(
         projects.core.ts.task, 
-        parallel(
-          projects.core.lib.prod.task,
-          projects.core.bin.prod.task
-        ),
+        projects.core.lib.prod.task,
+        projects.core.bin.prod.task,
         parallel(
           series(
             projects.core.plugins.irc.ts.task,
