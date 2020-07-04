@@ -28,7 +28,7 @@ parts.core = (context: Context) => prepareServerConfiguration(context, {
     'core/bin': 'mylife-home-core/dist/bin',
   },
   plugins: [
-    new WaitPlugin(libManifest(context)),
+    context.env.wait && new WaitPlugin(libManifest(context)),
     new DllReferencePlugin({
       context: context.basePath,
       manifest: libManifest(context),
@@ -48,7 +48,7 @@ for(const pluginName of listPlugins()) {
       libraryTarget: 'commonjs2'
     },
     plugins: [
-      new WaitPlugin(libManifest(context)),
+      context.env.wait && new WaitPlugin(libManifest(context)),
       new DllReferencePlugin({
         context: context.basePath,
         manifest: libManifest(context),
