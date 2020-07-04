@@ -24,7 +24,7 @@ export const core = (context: Context) => prepareServerConfiguration(context, {
     'core/bin': 'mylife-home-core/dist/bin',
   },
   plugins: [
-    context.env.wait && new WaitPlugin(libManifest(context)),
+    context.options.wait && new WaitPlugin(libManifest(context)),
     new DllReferencePlugin({
       context: context.basePath,
       manifest: libManifest(context),
@@ -42,7 +42,7 @@ export const plugin = (context: Context, pluginName: string) =>  prepareServerCo
     libraryTarget: 'commonjs2'
   },
   plugins: [
-    context.env.wait && new WaitPlugin(libManifest(context)),
+    context.options.wait && new WaitPlugin(libManifest(context)),
     new DllReferencePlugin({
       context: context.basePath,
       manifest: libManifest(context),

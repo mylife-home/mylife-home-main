@@ -1,6 +1,8 @@
-import { ConfigurationFactory } from '../types';
+import { ConfigurationFactory } from './common/types';
 import * as core from './core';
 import * as ui from './ui';
+
+export { ConfigurationFactory };
 
 const configurationFactories = new Map<string, ConfigurationFactory>();
 configurationFactories.set(makeKey('ui', 'server'), ui.server);
