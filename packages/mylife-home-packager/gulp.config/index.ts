@@ -43,9 +43,16 @@ const projects = {
 };
 
 const globs = {
-  dist: pathAbs('dist'),
-  distDev: pathAbs('dist', 'dev'),
-  distProd: pathAbs('dist', 'prod'),
+  dist: {
+    all: pathAsGlobs('dist'),
+    dev: pathAsGlobs('dist/dev'),
+    prod: pathAsGlobs('dist/prod'),
+  },
+  common: projects.common.ts.globs,
+  ui: {
+    bin: projects.ui.ts.globs,
+    client: packagePublicGlobs('mylife-home-ui')
+  }
 }
 
 const buildProd = parallel(
@@ -84,43 +91,39 @@ const buildDevUi = parallel(
   )
 );
 
+const watchUi = () => {
+  watch(globs.ui.client, projects.ui.client.dev.task);
+  watch(globs.common, series(
+    projects.common.ts.task,
+    projects.ui.ts.task,
+    projects.ui.bin.dev.task
+  ));
+  watch(globs.ui.bin, series(
+    projects.ui.ts.task,
+    projects.ui.bin.dev.task
+  ));
+};
+
 export = {
-  'clean': () => del(globs.dist),
-  'clean:prod': () => del(globs.distProd),
-  'clean:dev': () => del(globs.distDev),
+  'clean': () => del(globs.dist.all),
+  'clean:prod': () => del(globs.dist.prod),
+  'clean:dev': () => del(globs.dist.dev),
+
   'build:dev:ui': buildDevUi,
-  'watch:ui': null,
-  'build:dev:core': null,
-  'watch:core': null,
+  'watch:ui': watchUi,
+  
+  'build:dev:core': null, // TODO
+  'watch:core': null, // TODO
+
   'build:prod': buildProd,
 };
 
-function pathAbs(...parts: string[]) {
-  return path.join(path.resolve(path.join(__dirname, '..')), ...parts);
+function pathAsGlobs(part: string) {
+  const basePath = path.resolve(path.join(__dirname, '..'));
+  return [path.join(basePath, `${part}/**`)];
 }
 
-/*
-const commonProject = new TsBuild('mylife-home-common');
-const coreProject = new TsBuild('mylife-home-core');
-const corePluginsIrcProject = new TsBuild('mylife-home-core-plugins-irc');
-const uiProject = new TsBuild('mylife-home-ui');
-
-const core = gulp.series(coreProject.task, gulp.parallel(corePluginsIrcProject.task));
-const all = gulp.series(commonProject.task, gulp.parallel(core, uiProject.task));
-
-const watch = gulp.parallel(() => gulp.watch(commonProject.globs, commonProject.task), () => gulp.watch(coreProject.globs, coreProject.task));
-
-const webpackDevUi = new WebpackBuild('ui', 'dev');
-
-const devUi = gulp.series(webpackDevUi.task);
-
-export = {
-  default: all,
-
-  'build:ts': all,
-
-  'build:dev:ui': devUi,
-
-  watch
-};
-*/
+function packagePublicGlobs(packageName: string) {
+  const packagePath = path.dirname(require.resolve(`${packageName}/package.json`));
+  return [path.join(packagePath, 'public/**')];
+}
