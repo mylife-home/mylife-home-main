@@ -109,6 +109,7 @@ export = {
   'clean': () => del(globs.dist.all),
   'clean:prod': () => del(globs.dist.prod),
   'clean:dev': () => del(globs.dist.dev),
+  // TODO: clean ts builds
 
   'build:dev:ui': buildDevUi,
   'watch:ui': watchUi,
