@@ -10,7 +10,7 @@ export class WebpackBuild {
     const config = configurationFactory(context);
 
     this.compiler = webpack(config);
-    Object.assign(this.task, { displayName: `webpack-build - ${binary} (${mode})` });
+    Object.assign(this.task, { displayName: `webpack-build - ${binary}/${part} (${mode})` });
   }
 
   readonly task = async () => {
