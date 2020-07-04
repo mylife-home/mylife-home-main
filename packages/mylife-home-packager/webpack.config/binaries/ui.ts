@@ -8,7 +8,7 @@ import { ConfigurationByMode } from './common/types';
 import { Context } from '../context';
 import { prepareServerConfiguration } from './common/tools';
 
-export const server = (context: Context) => prepareServerConfiguration(context, {
+export const bin = (context: Context) => prepareServerConfiguration(context, {
   entry: {
     'ui/bin': 'mylife-home-ui/dist/bin',
   },

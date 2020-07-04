@@ -19,7 +19,7 @@ export const lib = (context: Context) => prepareServerConfiguration(context, {
   ],
 });
 
-export const core = (context: Context) => prepareServerConfiguration(context, {
+export const bin = (context: Context) => prepareServerConfiguration(context, {
   entry: {
     'core/bin': 'mylife-home-core/dist/bin',
   },
