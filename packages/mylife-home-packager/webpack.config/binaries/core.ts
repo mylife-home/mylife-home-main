@@ -1,6 +1,7 @@
 import path from 'path';
 import { DllPlugin, DllReferencePlugin } from 'webpack';
 import WaitPlugin from '../plugins/wait-plugin';
+import NoopPlugin from '../plugins/noop-plugin';
 import { Context } from '../context';
 import { prepareServerConfiguration } from './common/tools';
 
@@ -24,7 +25,7 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
     'core/bin': 'mylife-home-core/dist/bin',
   },
   plugins: [
-    context.options.wait && new WaitPlugin(libManifest(context)),
+    createWait(context),
     new DllReferencePlugin({
       context: context.basePath,
       manifest: libManifest(context),
@@ -42,7 +43,7 @@ export const plugin = (context: Context, pluginName: string) =>  prepareServerCo
     libraryTarget: 'commonjs2'
   },
   plugins: [
-    context.options.wait && new WaitPlugin(libManifest(context)),
+    createWait(context),
     new DllReferencePlugin({
       context: context.basePath,
       manifest: libManifest(context),
@@ -76,3 +77,8 @@ function kebabCaseToUpperCamelCase(str: string) {
     .map(item => item.charAt(0).toUpperCase() + item.slice(1))
     .join('');
 }
+
+function createWait(context: Context) {
+  return context.options.wait ? new WaitPlugin(libManifest(context)) : new NoopPlugin();
+}
+
