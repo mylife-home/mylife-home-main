@@ -58,7 +58,7 @@ export const plugin = (context: Context, pluginName: string) =>  prepareServerCo
 
 export function listPlugins() {
   const prefix = 'mylife-home-core-plugins-';
-  const { dependencies } = require('../package.json');
+  const { dependencies } = require('../../package.json');
 
   return Object.keys(dependencies)
     .filter(dependency => dependency.startsWith(prefix))

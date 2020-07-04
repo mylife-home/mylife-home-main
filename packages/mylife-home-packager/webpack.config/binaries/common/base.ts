@@ -47,7 +47,7 @@ interface ModuleInfo {
 function createBuildInfo() {
   const modules: { [name: string]: ModuleInfo; } = {};
 
-  const { name, version, dependencies } = require('../package.json');
+  const { name, version, dependencies } = require('../../../package.json');
   modules[name] = { version };
 
   for (const dependency of Object.keys(dependencies)) {
