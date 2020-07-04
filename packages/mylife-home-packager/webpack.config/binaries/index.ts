@@ -5,10 +5,10 @@ import * as ui from './ui';
 export { ConfigurationFactory };
 
 const configurationFactories = new Map<string, ConfigurationFactory>();
-configurationFactories.set(makeKey('ui', 'server'), ui.server);
+configurationFactories.set(makeKey('ui', 'bin'), ui.bin);
 configurationFactories.set(makeKey('ui', 'client'), ui.client);
 configurationFactories.set(makeKey('core', 'lib'), core.lib);
-configurationFactories.set(makeKey('core', 'core'), core.core);
+configurationFactories.set(makeKey('core', 'bin'), core.bin);
 
 for (const pluginName of core.listPlugins()) {
   configurationFactories.set(makeKey('core', 'plugins-' + pluginName), (context) => core.plugin(context, pluginName));
