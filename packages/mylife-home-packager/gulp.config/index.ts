@@ -53,7 +53,7 @@ const globs = {
     bin: projects.ui.ts.globs,
     client: packagePublicGlobs('mylife-home-ui')
   }
-}
+};
 
 const buildProd = parallel(
   projects.ui.client.prod.task,
