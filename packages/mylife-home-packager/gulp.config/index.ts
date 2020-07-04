@@ -91,7 +91,7 @@ const buildDevUi = parallel(
   )
 );
 
-const watchUi = () => {
+const watchUi = series(buildDevUi, function watches() {
   watch(globs.ui.client, projects.ui.client.dev.task);
   watch(globs.common, series(
     projects.common.ts.task,
@@ -102,7 +102,7 @@ const watchUi = () => {
     projects.ui.ts.task,
     projects.ui.bin.dev.task
   ));
-};
+});
 
 export = {
   'clean': () => del(globs.dist.all),
@@ -111,7 +111,7 @@ export = {
 
   'build:dev:ui': buildDevUi,
   'watch:ui': watchUi,
-  
+
   'build:dev:core': null, // TODO
   'watch:core': null, // TODO
 
