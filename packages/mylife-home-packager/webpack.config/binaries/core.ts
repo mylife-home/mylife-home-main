@@ -1,8 +1,8 @@
 import path from 'path';
 import { DllPlugin, DllReferencePlugin } from 'webpack';
-import WaitPlugin from './plugins/wait-plugin';
-import { Context } from './context';
-import { prepareServerConfiguration } from './tools';
+import WaitPlugin from '../plugins/wait-plugin';
+import { Context } from '../context';
+import { prepareServerConfiguration } from './common/tools';
 
 export const lib = (context: Context) => prepareServerConfiguration(context, {
   entry: {
