@@ -1,3 +1,4 @@
+import { tools } from 'mylife-home-common';
 import { registry, State } from './registry';
 
 export interface PluginConfiguration {
@@ -15,6 +16,8 @@ export abstract class BasePlugin {
     this.componentId = config.ircComponent;
 
     registry.on('change', this.onChange);
+
+    tools.fireAsync(async () => this.onChange());
   }
 
   destroy() {
