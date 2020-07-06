@@ -1,11 +1,12 @@
 import { bus, components, tools } from 'mylife-home-common';
 import { Store, BindingConfig } from '../store';
-import { ComponentHost, metadata, Binding } from '../components';
+import { ComponentHost, metadata, Binding, BusPublisher } from '../components';
 import { loadPlugins } from './plugin-loader';
 
 export class ComponentManager {
   private readonly supportsBindings: boolean;
   private readonly registry: components.Registry;
+  private readonly publisher: BusPublisher;
   private readonly store = new Store();
   private readonly components = new Map<string, ComponentHost>();
   private readonly bindings = new Map<string, Binding>();
@@ -13,6 +14,7 @@ export class ComponentManager {
   constructor(private readonly transport: bus.Transport) {
     this.supportsBindings = this.transport.presence.tracking;
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: this.supportsBindings });
+    this.publisher = new BusPublisher(this.registry, transport);
   }
 
   async init() {
@@ -48,6 +50,7 @@ export class ComponentManager {
     }
     this.components.clear();
 
+    this.publisher.close();
     this.registry.close();
   }
 
