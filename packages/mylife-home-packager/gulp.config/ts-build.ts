@@ -11,9 +11,7 @@ export class TsBuild {
 
   constructor(packageName: string) {
     this.packagePath = path.dirname(require.resolve(`${packageName}/package.json`));
-    this.project = ts.createProject(path.join(this.packagePath, 'tsconfig.json'), { isolatedModules: true });
-    // isolatedModules set declaration to false, see: https://github.com/ivogabe/gulp-typescript/issues/648
-    this.project.options.declaration = true;
+    this.project = ts.createProject(path.join(this.packagePath, 'tsconfig.json'));
     
     Object.assign(this.task, { displayName: `ts-build - ${packageName}` });
   }
