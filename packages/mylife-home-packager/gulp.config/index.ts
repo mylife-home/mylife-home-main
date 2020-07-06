@@ -129,40 +129,29 @@ export = {
 
 function corePluginsListNames() {
   const userPlugins = argv.plugins as string;
-  const noPlugin = argv.plugin === false;
-  const allPlugin = argv.allPlugins === true;
+  const allPlugins = argv.allPlugins === true;
   const list = new Set(Object.keys(projects.core.plugins));
 
-  let setCount = 0;
-  if (userPlugins) {
-    ++setCount;
-  }
-  if (noPlugin) {
-    ++setCount;
-  }
-  if (allPlugin) {
-    ++setCount;
+  if (userPlugins && allPlugins) {
+    throw new Error(`You must specify only one of: '--all-plugins', '--plugins=plug1,plug2' (if none, no plugin will be built)`);
   }
 
-  if (setCount !== 1) {
-    throw new Error(`You must specify one of: '--no-plugin', '--all-plugins', '--plugins=plug1,plug2'`);
-  }
-
-  if (noPlugin) {
-    return [];
-  }
-
-  if (allPlugin) {
+  if (allPlugins) {
     return Array.from(list);
   }
 
-  const userList = userPlugins.split(',').map(item => item.trim());
-  for (const name of userList) {
-    if (!list.has(name)) {
-      throw new Error(`Unknown plugin '${name}'`);
+  if(userPlugins) {
+    const userList = userPlugins.split(',').map(item => item.trim());
+    for (const name of userList) {
+      if (!list.has(name)) {
+        throw new Error(`Unknown plugin '${name}'`);
+      }
     }
+    return userList;
   }
-  return userList;
+
+  // no plugin
+  return [];
 }
 
 async function noop() {
