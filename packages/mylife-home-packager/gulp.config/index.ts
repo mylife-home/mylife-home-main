@@ -5,6 +5,20 @@ import { projects, globs } from './definitions';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 
+type CorePluginDefinition = {
+  readonly ts: TsBuild;
+  readonly dev: WebpackBuild;
+  readonly prod: WebpackBuild;
+};
+
+type CorePluginsDefinition = {
+  [name: string]: CorePluginDefinition;
+};
+
+type CorePluginsGlobs = {
+  [name: string]: string[];
+};
+
 const buildProd = parallel(
   projects.ui.client.prod.task,
   series(
@@ -57,32 +71,45 @@ const watchUi = series(
 const buildDevCore = series(
   projects.common.ts.task,
   projects.core.ts.task,
-  projects.core.lib.prod.task,
-  projects.core.bin.prod.task,
+  projects.core.lib.dev.task,
+  projects.core.bin.dev.task,
   createDevCorePluginsTask()
 );
 
-function createDevCorePluginsTask() {
+const watchCore = series(
+  buildDevCore,
+  function watches() {
+    watch(globs.common, buildDevCore);
+    watch(globs.core.main, series(
+      projects.core.ts.task,
+      projects.core.lib.dev.task,
+      projects.core.bin.dev.task,
+      createDevCorePluginsTask()
+    ));
 
-  type CorePluginDefinition = {
-    readonly ts: TsBuild;
-    readonly dev: WebpackBuild;
-    readonly prod: WebpackBuild;
-  };
-  
-  type CorePluginsDefinition = {
-    [name: string]: CorePluginDefinition
+    const names = corePluginsListNames();
+    const pluginsGlobs = globs.core.plugins as CorePluginsGlobs;
+
+    for (const name of names) {
+      watch(pluginsGlobs[name], createDevCorePluginTask(name));
+    }
   }
-  
+);
+
+function createDevCorePluginsTask() {
   const names = corePluginsListNames();
+  if (!names.length) {
+    return noop;
+  }
+
+  const list = names.map(createDevCorePluginTask);
+  return parallel(...list);
+}
+
+function createDevCorePluginTask(name: string) {
   const plugins = projects.core.plugins as CorePluginsDefinition;
-
-  const list = names.map(name => {
-    const plugin = plugins[name];
-    return series(plugin.ts.task, plugin.prod.task);
-  });
-
-  return list.length ? parallel(...list) : noop;
+  const plugin = plugins[name];
+  return series(plugin.ts.task, plugin.dev.task);
 }
 
 export = {
@@ -95,7 +122,7 @@ export = {
   'watch:ui': watchUi,
 
   'build:dev:core': buildDevCore,
-  'watch:core': null, // TODO
+  'watch:core': watchCore,
 
   'build:prod': buildProd,
 };
@@ -138,5 +165,5 @@ function corePluginsListNames() {
   return userList;
 }
 
-async function noop() {    
+async function noop() {
 }
