@@ -50,6 +50,13 @@ export const globs = {
   ui: {
     bin: projects.ui.ts.globs,
     client: packagePublicGlobs('mylife-home-ui')
+  },
+  core: {
+    main: projects.core.ts.globs,
+    plugins: {
+      irc: projects.core.plugins.irc.ts.globs
+      // other plugins
+    }
   }
 };
 
