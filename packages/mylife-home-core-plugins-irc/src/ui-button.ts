@@ -18,7 +18,11 @@ export class UiButton extends BasePlugin {
   @m.action
   action(value: boolean) {
     // irc ui-button does not take a status, it already changes its state to true then false
-    this.executeAction('action');
+    if (value) {
+      this.executeAction('action');
+    }
+
+    this.value = value;
   }
 
   protected onStateChanged(name: string, value: string) {
