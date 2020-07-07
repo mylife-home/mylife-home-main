@@ -16,7 +16,7 @@ export interface Component extends EventEmitter {
 
   executeAction(name: string, value: any): void;
   getState(name: string): any;
-  getStates(): { [name: string]: any };
+  getStates(): { [name: string]: any; };
 }
 
 export interface Registry extends EventEmitter {
@@ -160,12 +160,20 @@ export class Registry extends EventEmitter implements Registry {
     this.emit('component.remove', instanceName, component);
   }
 
+  findComponent(id: string) {
+    return this.findComponentData(id)?.component;
+  }
+
   getComponent(id: string) {
     return this.getComponentData(id).component;
   }
 
+  findComponentData(id: string) {
+    return this.components.get(id);
+  }
+
   getComponentData(id: string) {
-    const componentData = this.components.get(id);
+    const componentData = this.findComponentData(id);
     if (!componentData) {
       throw new Error(`Component ${id} does not exist in the registry`);
     }
