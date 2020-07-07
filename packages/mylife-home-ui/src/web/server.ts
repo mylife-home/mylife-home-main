@@ -9,7 +9,6 @@ import serveStatic from 'serve-static';
 import { components } from 'mylife-home-common';
 import { createRepository } from './repository';
 import { createResources } from './resources';
-import { Repository } from '../net';
 
 export default class WebServer {
   private _server: http.Server;

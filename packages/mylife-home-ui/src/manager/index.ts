@@ -2,7 +2,6 @@ import { EventEmitter } from 'events';
 import async from 'async';
 import io from 'socket.io';
 import { bus, tools, components, logger } from 'mylife-home-common';
-import * as net from '../net';
 import WebServer from '../web/server';
 
 const log = logger.createLogger('mylife:home:ui:manager');
