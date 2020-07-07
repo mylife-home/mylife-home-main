@@ -94,34 +94,27 @@ export class Manager {
   private readonly transport: bus.Transport;
   private readonly registry: components.Registry;
 
-  private readonly sessions = new Map<string, Session>();
-  private idGenerator = 0;
+  private readonly sessions = new Set<Session>();
   private readonly webServer: WebServer;
 
   constructor() {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
 
-    type NetConfig = { host: string; port: number };
-    type WebConfig = { port: number; staticDirectory: string };
-    const netConfig = tools.getConfigItem<NetConfig>('net');
-    const webConfig = tools.getConfigItem<WebConfig>('web');
-
-    this.webServer = new WebServer(this.registry, (socket) => this.createSession(socket), webConfig);
+    this.webServer = new WebServer(this.registry, (socket) => this.createSession(socket));
   }
 
   async init() {}
 
   private createSession(socket: io.Socket) {
-    const id = (++this.idGenerator).toString();
     const session = new Session(socket, this.registry);
-    this.sessions.set(id, session);
-    session.on('close', () => this.sessions.delete(id));
+    this.sessions.add(session);
+    session.on('close', () => this.sessions.delete(session));
   }
 
   async terminate() {
     await this.webServer.close();
-    await Promise.all(Array.from(this.sessions.values()).map((session) => session.kill()));
+    await Promise.all(Array.from(this.sessions).map((session) => session.kill()));
     await this.transport.terminate();
   }
 }
