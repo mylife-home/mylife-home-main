@@ -21,8 +21,6 @@ export class UiButton extends BasePlugin {
     if (value) {
       this.executeAction('action');
     }
-
-    this.value = value;
   }
 
   protected onStateChanged(name: string, value: string) {
