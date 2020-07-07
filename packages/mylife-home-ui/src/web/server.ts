@@ -6,13 +6,16 @@ import enableDestroy from 'server-destroy';
 import bodyParser from 'body-parser';
 import favicon from 'serve-favicon';
 import serveStatic from 'serve-static';
-import { components } from 'mylife-home-common';
+import { components, tools } from 'mylife-home-common';
 import { model } from '../model';
 
 export default class WebServer {
   private _server: http.Server;
 
-  constructor(registry: components.Registry, sessionCreator: (socket: io.Socket) => void, webConfig: { port: number, staticDirectory: string; }) {
+  constructor(registry: components.Registry, sessionCreator: (socket: io.Socket) => void) {
+    type WebConfig = { port: number; staticDirectory: string };
+    const webConfig = tools.getConfigItem<WebConfig>('web');
+
     const app = express();
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
