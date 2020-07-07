@@ -19,8 +19,12 @@ class Session extends EventEmitter {
     this.registry.on('component.add', this.onComponentAdd);
     this.registry.on('component.remove', this.onComponentRemove);
 
-    const data: { [id: string]: { [id: string]: any; }; } = {};
+    const data: { [id: string]: { [id: string]: any } } = {};
     for (const component of this.registry.getComponents()) {
+      if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
+        continue;
+      }
+
       this.startListenChanges(component);
       data[component.id] = component.getStates();
     }
@@ -50,11 +54,19 @@ class Session extends EventEmitter {
   }
 
   private readonly onComponentAdd = (instanceName: string, component: components.Component) => {
+    if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
+      return;
+    }
+
     this.startListenChanges(component);
     this.socket.emit('add', { id: component.id, attributes: component.getStates() });
   };
 
   private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
+    if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
+      return;
+    }
+
     this.stopListenChanges(component);
     this.socket.emit('remove', { id: component.id });
   };
@@ -71,7 +83,7 @@ class Session extends EventEmitter {
   }
 
   async kill() {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       this.once('close', resolve);
       this.socket.disconnect();
     });
@@ -90,16 +102,15 @@ export class Manager {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
 
-    type NetConfig = { host: string; port: number; };
-    type WebConfig = { port: number; staticDirectory: string; };
+    type NetConfig = { host: string; port: number };
+    type WebConfig = { port: number; staticDirectory: string };
     const netConfig = tools.getConfigItem<NetConfig>('net');
     const webConfig = tools.getConfigItem<WebConfig>('web');
 
     this.webServer = new WebServer(this.registry, (socket) => this.createSession(socket), webConfig);
   }
 
-  async init() {
-  }
+  async init() {}
 
   private createSession(socket: io.Socket) {
     const id = (++this.idGenerator).toString();
@@ -110,7 +121,7 @@ export class Manager {
 
   async terminate() {
     await this.webServer.close();
-    await Promise.all(Array.from(this.sessions.values()).map(session => session.kill()));
+    await Promise.all(Array.from(this.sessions.values()).map((session) => session.kill()));
     await this.transport.terminate();
   }
 }
