@@ -61,9 +61,6 @@ class Session extends EventEmitter {
   };
 
   private executeAction(componentId: string, actionName: string) {
-    // FIXME: no name transform
-    componentId = componentId.replace(/_/g, '-');
-
     const component = this.registry.findComponent(componentId);
     if (!component) {
       log.info(`executeAction: component '${componentId}' not found`);
