@@ -17,6 +17,7 @@ export class Registry extends EventEmitter {
   private _networks: Networks = {};
 
   executeAction(networkKey: string, componentId: string, actionName: string, args: string[]) {
+    log.debug(`execute action on network '${networkKey}' on component '${componentId}' with name '${actionName}' and args '${JSON.stringify(args)}'`);
     this.emit('execute-action', networkKey, componentId, actionName, args);
   }
 
