@@ -14,7 +14,7 @@ import { Repository } from '../net';
 export default class WebServer {
   private _server: http.Server;
 
-  constructor(private readonly registry: components.Registry, netRepository: Repository, sessionCreator: (socket: io.Socket) => void, webConfig: { port: number, staticDirectory: string }) {
+  constructor(registry: components.Registry, sessionCreator: (socket: io.Socket) => void, webConfig: { port: number, staticDirectory: string }) {
     const app = express();
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
