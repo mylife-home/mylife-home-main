@@ -3,14 +3,14 @@ import { Map } from 'immutable';
 import { RepositoryReset, RepositoryAdd, RepositoryRemove, RepositoryChange, Attributes, AttributesState, REPOSITORY_RESET, REPOSITORY_ADD, REPOSITORY_REMOVE, REPOSITORY_CHANGE } from '../types/repository';
 
 function createAttributes(raw: Attributes): AttributesState {
-  return Map<string, string>().withMutations((map) => {
+  return Map<string, any>().withMutations((map) => {
     for (const name of Object.keys(raw)) {
       map.set(name, raw[name]);
     }
   });
 }
 
-export default createReducer(Map<string, Map<string, string>>(), {
+export default createReducer(Map<string, Map<string, any>>(), {
   [REPOSITORY_RESET]: (state, action: PayloadAction<RepositoryReset>) =>
     state.clear().withMutations((map) => {
       for (const id of Object.keys(action.payload)) {

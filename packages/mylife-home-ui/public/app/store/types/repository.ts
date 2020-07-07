@@ -6,7 +6,7 @@ export const REPOSITORY_REMOVE = 'repository/remove';
 export const REPOSITORY_CHANGE = 'repository/change';
 
 export interface Attributes {
-  [id: string]: string;
+  [id: string]: any;
 }
 
 export interface RepositoryReset {
@@ -28,5 +28,5 @@ export interface RepositoryChange {
   readonly value: string;
 }
 
-export type AttributesState = Map<string, string>;
+export type AttributesState = Map<string, any>;
 export type RepositoryState = Map<string, AttributesState>;
