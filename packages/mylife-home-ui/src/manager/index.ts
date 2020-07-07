@@ -1,22 +1,44 @@
 import { EventEmitter } from 'events';
 import async from 'async';
 import io from 'socket.io';
-import { bus, tools, components } from 'mylife-home-common';
+import { bus, tools, components, logger } from 'mylife-home-common';
 import * as net from '../net';
 import WebServer from '../web/server';
 
+const log = logger.createLogger('mylife:home:ui:manager');
+
 class Session extends EventEmitter {
-  constructor(private readonly socket: io.Socket, private readonly netRepository: net.Repository) {
+  constructor(private readonly socket: io.Socket, private readonly netRepository: net.Repository, private readonly registry: components.Registry) {
     super();
 
-    this.socket.on('disconnect', () => this.emit('close'));
-    this.socket.on('action', (data) => this.netRepository.action(data.id, data.name, data.args));
+    log.debug(`New session '${socket.id}' from '${socket.conn.remoteAddress}'`);
+
+    this.socket.on('disconnect', () => {
+      log.debug(`Session closed '${socket.id}'`);
+      this.emit('close');
+    });
+
+    this.socket.on('action', (data) => this.executeAction(data.id, data.name));
 
     this.netRepository.on('add', (id: string, obj: net.RemoteObject) => this.socket.emit('add', { id: id, attributes: this.objAttributes(obj) }));
     this.netRepository.on('remove', (id: string) => this.socket.emit('remove', { id: id }));
     this.netRepository.on('change', (id: string, name: string, value: string) => this.socket.emit('change', { id: id, name: name, value: value }));
 
     this.sendState();
+  }
+
+  private executeAction(componentId: string, actionName: string) {
+    // FIXME: no name transform
+    componentId = componentId.replace(/_/g, '-');
+
+    const component = this.registry.findComponent(componentId);
+    if (!component) {
+      log.info(`executeAction: component '${componentId}' not found`);
+      return;
+    }
+
+    component.executeAction(actionName, true);
+    component.executeAction(actionName, false);
   }
 
   private objAttributes(obj: net.RemoteObject) {
@@ -57,7 +79,7 @@ export class Manager {
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
 
     type NetConfig = { host: string; port: number; };
-    type WebConfig = { port: number; staticDirectory: string };
+    type WebConfig = { port: number; staticDirectory: string; };
     const netConfig = tools.getConfigItem<NetConfig>('net');
     const webConfig = tools.getConfigItem<WebConfig>('web');
 
@@ -71,7 +93,7 @@ export class Manager {
 
   private createSession(socket: io.Socket) {
     const id = (++this.idGenerator).toString();
-    const session = new Session(socket, this.netRepository);
+    const session = new Session(socket, this.netRepository, this.registry);
     this.sessions.set(id, session);
     session.on('close', () => this.sessions.delete(id));
   }
