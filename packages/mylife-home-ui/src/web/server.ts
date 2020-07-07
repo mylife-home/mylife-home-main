@@ -31,8 +31,8 @@ export default class WebServer {
     this._server.listen(webConfig.port);
   }
 
-  close(callback: (err?: Error) => void) {
-    this._server.close(callback);
+  async close() {
+    await new Promise((resolve, reject) => this._server.close((err) => err ? reject(err) : resolve()));
     this._server.destroy();
   }
 }

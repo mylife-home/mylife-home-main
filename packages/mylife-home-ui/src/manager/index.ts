@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import async from 'async';
 import io from 'socket.io';
 import { bus, tools, components, logger } from 'mylife-home-common';
 import WebServer from '../web/server';
@@ -71,9 +70,11 @@ class Session extends EventEmitter {
     component.executeAction(actionName, false);
   }
 
-  kill(cb: (err?: Error) => void) {
-    this.once('close', cb);
-    this.socket.disconnect();
+  async kill() {
+    await new Promise(resolve => {
+      this.once('close', resolve);
+      this.socket.disconnect();
+    });
   }
 }
 
@@ -108,16 +109,8 @@ export class Manager {
   }
 
   async terminate() {
-    await new Promise((resolve, reject) => {
-
-      const tasks = [(cb: (err?: Error) => void) => this.webServer.close(cb)];
-      for (const session of this.sessions.values()) {
-        tasks.push((cb) => session.kill(cb));
-      }
-
-      async.parallel(tasks, (err) => err ? reject(err) : resolve());
-    });
-
+    await this.webServer.close();
+    await Promise.all(Array.from(this.sessions.values()).map(session => session.kill()));
     await this.transport.terminate();
   }
 }
