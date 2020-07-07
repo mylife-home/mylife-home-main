@@ -7,6 +7,7 @@
  - better webpack packaging (inline bundle, icons, ...)
  - resources caching (resource url === content hash)
  - server-side window model (only render what is shown to client, no repository, no raw window resources, etc)
+  => this is pourrite because if a component (eg roller shutter) changes state, it will be updated on mobile_window, desktop_window, rollershutter_popup. A component is always unique so its state change is sent only once
 
 ## Client-side model
 
