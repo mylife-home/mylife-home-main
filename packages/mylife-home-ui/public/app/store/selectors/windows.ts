@@ -11,13 +11,12 @@ export const getWindow = (state: AppState, { window }: { window: string }) => ge
 export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string }) => getWindow(state, { window }).controls.get(control);
 export const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(getResources(state), getRepository(state), getWindow(state, { window }));
 
-function findDisplayItem(map: List<ControlDisplayMapItem>, value: string) {
-  if (typeof map.get(0).value === 'string') {
-    return map.find((item) => item.value === value) || null;
+function findDisplayItem(map: List<ControlDisplayMapItem>, value: any) {
+  if (typeof value === 'number') {
+    return map.find((item) => item.min <= value && value <= item.max) || null;
   }
 
-  const ivalue = parseInt(value);
-  return map.find((item) => item.min <= ivalue && ivalue <= item.max) || null;
+  return map.find((item) => item.value === value) || null;
 }
 
 function prepareDisplay(resources: ResourcesState, repository: RepositoryState, display: ControlDisplay) {
