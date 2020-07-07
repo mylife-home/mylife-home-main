@@ -3,12 +3,10 @@
 ## TODO
  - switch to preact
  - switch to websocket
- - switch to new model to observe components
  - switch to new model to server data (images, window specs, ...)
  - better webpack packaging (inline bundle, icons, ...)
  - resources caching (resource url === content hash)
  - server-side window model (only render what is shown to client, no repository, no raw window resources, etc)
-
 
 ## Client-side model
 
