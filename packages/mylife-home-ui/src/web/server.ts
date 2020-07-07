@@ -22,7 +22,7 @@ export default class WebServer {
     const publicDirectory = path.resolve(__dirname, webConfig.staticDirectory);
 
     app.use(favicon(path.join(publicDirectory, 'images/favicon.ico')));
-    app.use('/repository', createRepository(registry, netRepository));
+    app.use('/repository', createRepository(registry));
     app.use('/resources', createResources());
     app.use(serveStatic(publicDirectory));
 

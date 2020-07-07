@@ -2,7 +2,7 @@ import express from 'express';
 import { components } from 'mylife-home-common';
 import { Repository } from '../net';
 
-export function createRepository(registry: components.Registry, netRepository: Repository) {
+export function createRepository(registry: components.Registry) {
 
   const router = express.Router();
 
