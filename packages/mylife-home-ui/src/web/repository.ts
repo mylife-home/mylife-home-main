@@ -1,6 +1,5 @@
 import express from 'express';
 import { components } from 'mylife-home-common';
-import { Repository } from '../net';
 
 export function createRepository(registry: components.Registry) {
 
