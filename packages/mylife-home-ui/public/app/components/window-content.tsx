@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { VWindow } from '../store/types/windows';
+import { VWindow } from '../store/types/model';
 import Control from './control';
 
 type WindowContentProps = {

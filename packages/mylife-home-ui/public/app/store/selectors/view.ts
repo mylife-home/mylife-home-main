@@ -1,6 +1,6 @@
 import { AppState } from '../types';
 import { VView } from '../types/view';
-import { getWindowDisplay } from './windows';
+import { getWindowDisplay } from './model';
 
 export const getView = (state: AppState) => state.view;
 

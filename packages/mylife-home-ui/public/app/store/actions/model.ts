@@ -1,9 +1,13 @@
 'use strict';
 
+import { createAction } from '@reduxjs/toolkit';
 import { AppThunkAction } from '../types';
+import { WINDOW_NEW, WINDOW_CLEAR, WindowRaw } from '../types/model';
 import { resourceQuery } from './resources';
-import { windowClear, windowNew } from './windows';
 import { viewInit } from './view';
+
+const windowNew = createAction<WindowRaw>(WINDOW_NEW);
+const windowClear = createAction(WINDOW_CLEAR);
 
 export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getState) => {
   console.log('modelInit with modelHash', modelHash); // eslint-disable-line no-console
