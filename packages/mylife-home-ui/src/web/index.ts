@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import http from 'http';
-import { Socket } from 'net';
 import io from 'socket.io';
 import express from 'express';
 import enableDestroy from 'server-destroy';
