@@ -59,7 +59,7 @@ class Control extends PureComponent<ControlProps> {
           this.inputManager.up();
         }}
       >
-        {control.display && <img src={`data:image/png;base64,${control.display}`} />}
+        {control.display && <img src={`/resources/${control.display}`} />}
         {control.text && <p>{control.text}</p>}
       </div>
     );

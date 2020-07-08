@@ -9,7 +9,7 @@ export const resourcesMiddleware: Middleware = (store) => (next: AppThunkDispatc
   switch (action.type) {
     case RESOURCE_QUERY:
       const typedAction = action as PayloadAction<ResourceQuery>;
-      request.get(`/resources/get/${typedAction.payload.resource}`).end((err, res) => {
+      request.get(`/resources/${typedAction.payload.resource}`).end((err, res) => {
         if (err) {
           console.error('Error fetching resource', typedAction.payload.resource, err);
           return;

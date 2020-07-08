@@ -13,16 +13,11 @@ import Application from './components/application';
 import Bootstrap from './components/bootstrap';
 import View from './containers/view';
 
-import { viewInit } from './store/actions/view';
-
 import '../app.less';
 
 import { hashHistory, store } from './store/store';
 
 const history = syncHistoryWithStore(hashHistory, store);
-
-// TODO: proper cast: AppThunkAction => AnyAction
-store.dispatch(viewInit() as any);
 
 ReactDOM.render(
   <Provider store={store}>

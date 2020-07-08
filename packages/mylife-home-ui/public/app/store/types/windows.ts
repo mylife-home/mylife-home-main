@@ -1,6 +1,7 @@
 import { Map, List } from 'immutable';
 
 export const WINDOW_NEW = 'window/new';
+export const WINDOW_CLEAR = 'window/clear';
 
 export interface ControlDisplayMapItem {
   readonly min: number;
