@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import path from 'path';
 import http from 'http';
+import { Socket } from 'net';
 import io from 'socket.io';
 import express from 'express';
 import enableDestroy from 'server-destroy';
@@ -21,7 +22,7 @@ export class WebServer extends EventEmitter {
   constructor(registry: components.Registry) {
     super();
 
-    type WebConfig = { port: number; staticDirectory: string };
+    type WebConfig = { port: number; staticDirectory: string; };
     const webConfig = tools.getConfigItem<WebConfig>('web');
 
     const app = express();
@@ -43,8 +44,7 @@ export class WebServer extends EventEmitter {
   }
 
   async terminate() {
-    await new Promise((resolve, reject) => this.httpServer.close((err) => err ? reject(err) : resolve()));
-    this.httpServer.destroy();
+    await new Promise((resolve) => this.httpServer.destroy(resolve));
   }
 }
 
