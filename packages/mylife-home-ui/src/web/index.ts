@@ -77,8 +77,8 @@ function createRepository(registry: components.Registry) {
 function createResources(model: ModelManager) {
   const router = express.Router();
 
-  router.route('/:hash').get((req, res) => {
-    const hash = req.params.hash;
+  router.route('/*').get((req, res) => {
+    const hash = req.params[0];
     const resoure = model.getResource(hash);
     sendResource(res, resoure);
   });

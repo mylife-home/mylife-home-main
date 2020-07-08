@@ -1,18 +1,20 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WindowRaw, ControlRaw, ControlDisplayRaw, ControlTextRaw, ActionRaw } from '../types/windows';
+import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WINDOW_CLEAR, WindowRaw, ControlRaw, ControlDisplayRaw, ControlTextRaw, ActionRaw } from '../types/windows';
 
 export default createReducer(Map<string, Window>(), {
   [WINDOW_NEW]: (state, action: PayloadAction<any>) => {
     const window = createWindow(action.payload);
     return state.set(window.id, window);
   },
+
+  [WINDOW_CLEAR]: (state, action) => state.clear(),
 });
 
 function createWindow(raw: WindowRaw): Window {
   const { background_resource_id, controls, ...others } = raw;
   return {
-    resource: `image.${background_resource_id}`,
+    resource: background_resource_id,
     controls: Map(
       controls.map((item) => {
         const ctrl = createControl(item);
@@ -42,11 +44,11 @@ function createDisplay(raw: ControlDisplayRaw): ControlDisplay {
   return {
     component: component_id,
     attribute: component_attribute,
-    resource: `image.${default_resource_id}`,
+    resource: default_resource_id,
     map: List(
       map.map((item) => {
         const { resource_id, ...others } = item;
-        return { resource: `image.${resource_id}`, ...others };
+        return { resource: resource_id, ...others };
       })
     ),
     ...others,
