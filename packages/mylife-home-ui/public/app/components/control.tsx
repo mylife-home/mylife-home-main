@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { VControl } from '../store/types/windows';
+import { VControl } from '../store/types/model';
 import InputManager from '../utils/input-manager';
 
 type ControlProps = {

@@ -1,10 +1,10 @@
 import { List } from 'immutable';
 import { AppState } from '../types';
 import { RepositoryState } from '../types/repository';
-import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem, VWindow, VControl } from '../types/windows';
+import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem, VWindow, VControl } from '../types/model';
 import { getRepository } from './repository';
 
-export const getWindows = (state: AppState) => state.windows;
+export const getWindows = (state: AppState) => state.model;
 export const getWindow = (state: AppState, { window }: { window: string; }) => getWindows(state).get(window);
 export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.get(control);
 export const getWindowDisplay = (state: AppState, { window }: { window: string; }) => prepareWindow(getRepository(state), getWindow(state, { window }));

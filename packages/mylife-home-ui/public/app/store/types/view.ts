@@ -1,4 +1,4 @@
-import { VWindow } from './windows';
+import { VWindow } from './model';
 
 export const VIEW_POPUP = 'view/popup';
 export const VIEW_CLOSE = 'view/close';

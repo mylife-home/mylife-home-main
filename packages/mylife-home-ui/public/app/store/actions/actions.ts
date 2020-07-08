@@ -3,8 +3,8 @@
 import { createAction } from '@reduxjs/toolkit';
 import { AppThunkAction, AppThunkDispatch } from '../types';
 import { ACTION_COMPONENT, ComponentAction } from '../types/actions';
-import { Action } from '../types/windows';
-import { getWindowControl } from '../selectors/windows';
+import { Action } from '../types/model';
+import { getWindowControl } from '../selectors/model';
 import { viewChange, viewPopup } from './view';
 
 const actionComponent = createAction<ComponentAction>(ACTION_COMPONENT);
