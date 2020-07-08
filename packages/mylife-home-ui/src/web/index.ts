@@ -10,7 +10,6 @@ import serveStatic from 'serve-static';
 import { components, tools } from 'mylife-home-common';
 import { model } from '../model';
 
-
 export declare interface WebServer extends EventEmitter {
   on(event: 'io.connection', listener: (socket: io.Socket) => void): this;
   off(event: 'io.connection', listener: (socket: io.Socket) => void): this;
