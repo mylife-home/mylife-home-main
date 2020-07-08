@@ -1,17 +1,30 @@
 import { Middleware } from 'redux';
+import { createHashHistory, Location } from 'history';
 import { viewNavigationChange } from '../actions/view';
-import { AppThunkDispatch } from '../types';
+import { NAVIGATION_PUSH } from '../types/navigation';
 
-export const navigationMiddleware: Middleware = (store) => (next: AppThunkDispatch) => (action) => {
-  switch (action.type) {
-    case '@@router/LOCATION_CHANGE': {
-      let { pathname } = action.payload;
-      pathname = pathname.substr(1);
-      if (pathname) {
-        next(viewNavigationChange(pathname));
+export const navigationMiddleware: Middleware = (store) => (next) => {
+  const history = createHashHistory();
+
+  const onLocationChanged = (location: Location) => {
+    const pathname = location.pathname;
+    const viewId = pathname.substr(1);
+    if (viewId) {
+      next(viewNavigationChange(viewId));
+    }
+  };
+
+  history.listen(onLocationChanged);
+  onLocationChanged(history.location);
+
+  return (action) => {
+    switch (action.type) {
+      case NAVIGATION_PUSH: {
+        history.push(action.payload);
+        break;
       }
     }
-  }
 
-  return next(action);
+    return next(action);
+  };
 };

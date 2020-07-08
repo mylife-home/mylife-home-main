@@ -5,9 +5,9 @@ import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem, VW
 import { getRepository } from './repository';
 
 export const getWindows = (state: AppState) => state.windows;
-export const getWindow = (state: AppState, { window }: { window: string }) => getWindows(state).get(window);
-export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string }) => getWindow(state, { window }).controls.get(control);
-export const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(getRepository(state), getWindow(state, { window }));
+export const getWindow = (state: AppState, { window }: { window: string; }) => getWindows(state).get(window);
+export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.get(control);
+export const getWindowDisplay = (state: AppState, { window }: { window: string; }) => prepareWindow(getRepository(state), getWindow(state, { window }));
 
 function findDisplayItem(map: List<ControlDisplayMapItem>, value: any) {
   if (typeof value === 'number') {
@@ -76,6 +76,9 @@ function prepareControl(repository: RepositoryState, window: Window, control: Co
 }
 
 function prepareWindow(repository: RepositoryState, window: Window): VWindow {
+  if (!window) {
+    return null;
+  }
   const { controls, ...others } = window;
   return {
     controls: controls.toArray().map((ctrl) => prepareControl(repository, window, ctrl)),
