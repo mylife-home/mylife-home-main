@@ -23,7 +23,6 @@ export class WebpackBuild {
         if (stats.hasErrors() || stats.hasWarnings()) {
           // seen in https://github.com/webpack/webpack-cli/blob/next/packages/webpack-cli/lib/utils/CompilerOutput.js
           process.stdout.write(stats.toString() + '\n');
-          return reject(new Error(stats.compilation.errors.join('\n')));
         }
 
         if (stats.hasErrors()) {
