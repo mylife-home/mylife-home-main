@@ -20,14 +20,14 @@ export class WebpackBuild {
           return reject(err);
         }
 
-        if (stats.hasErrors()) {
+        if (stats.hasErrors() || stats.hasWarnings()) {
+          // seen in https://github.com/webpack/webpack-cli/blob/next/packages/webpack-cli/lib/utils/CompilerOutput.js
+          process.stdout.write(stats.toString() + '\n');
           return reject(new Error(stats.compilation.errors.join('\n')));
         }
 
-        if (stats.hasWarnings) {
-          for (const warning of stats.compilation.warnings) {
-            console.log(warning.toString());
-          }
+        if (stats.hasErrors()) {
+          return reject(new Error('Compilation errors'));
         }
 
         resolve();
