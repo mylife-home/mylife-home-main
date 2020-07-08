@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import { components, logger } from 'mylife-home-common';
 
-const log = logger.createLogger('mylife:home:ui:manager:sessions-registry-connector');
+const log = logger.createLogger('mylife:home:ui:sessions:registry-connector');
 
 export class SessionsRegistryConnector {
   private readonly sockets = new Set<io.Socket>();

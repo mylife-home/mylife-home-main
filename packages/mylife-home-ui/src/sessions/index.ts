@@ -1,10 +1,8 @@
-import { EventEmitter } from 'events';
 import io from 'socket.io';
-import { bus, components, logger } from 'mylife-home-common';
-import WebServer from '../web/server';
-import { SessionsRegistryConnector } from './sessions-registry-connector';
+import { components, logger } from 'mylife-home-common';
+import { SessionsRegistryConnector } from './registry-connector';
 
-const log = logger.createLogger('mylife:home:ui:manager:sessions-manager');
+const log = logger.createLogger('mylife:home:ui:sessions:manager');
 
 export class SessionsManager {
   private readonly sessionsRegistry: SessionsRegistryConnector;

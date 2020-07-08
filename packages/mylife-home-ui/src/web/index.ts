@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import path from 'path';
 import http from 'http';
 import io from 'socket.io';
@@ -9,10 +10,20 @@ import serveStatic from 'serve-static';
 import { components, tools } from 'mylife-home-common';
 import { model } from '../model';
 
-export default class WebServer {
-  private _server: http.Server;
 
-  constructor(registry: components.Registry, sessionCreator: (socket: io.Socket) => void) {
+export declare interface WebServer extends EventEmitter {
+  on(event: 'io.connection', listener: (socket: io.Socket) => void): this;
+  off(event: 'io.connection', listener: (socket: io.Socket) => void): this;
+  once(event: 'io.connection', listener: (socket: io.Socket) => void): this;
+}
+
+export class WebServer extends EventEmitter {
+  private readonly httpServer: http.Server;
+  private readonly ioServer: io.Server;
+
+  constructor(registry: components.Registry) {
+    super();
+
     type WebConfig = { port: number; staticDirectory: string };
     const webConfig = tools.getConfigItem<WebConfig>('web');
 
@@ -27,16 +38,19 @@ export default class WebServer {
     app.use('/resources', createResources());
     app.use(serveStatic(publicDirectory));
 
-    this._server = new http.Server(app);
-    enableDestroy(this._server);
-    io(this._server, { serveClient: false }).on('connection', sessionCreator)
+    this.httpServer = new http.Server(app);
+    enableDestroy(this.httpServer);
 
-    this._server.listen(webConfig.port);
+    this.ioServer = io(this.httpServer, { serveClient: false });
+    this.ioServer.on('connection', (socket) => this.emit('io.connection', socket));
+
+    this.httpServer.listen(webConfig.port);
   }
 
-  async close() {
-    await new Promise((resolve, reject) => this._server.close((err) => err ? reject(err) : resolve()));
-    this._server.destroy();
+  async terminate() {
+    await new Promise(resolve => this.ioServer.close(resolve));
+    await new Promise((resolve, reject) => this.httpServer.close((err) => err ? reject(err) : resolve()));
+    this.httpServer.destroy();
   }
 }
 

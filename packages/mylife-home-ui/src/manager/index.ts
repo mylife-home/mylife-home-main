@@ -1,6 +1,6 @@
 import { bus, components } from 'mylife-home-common';
-import WebServer from '../web/server';
-import { SessionsManager } from './sessions-manager';
+import { WebServer } from '../web';
+import { SessionsManager } from '../sessions';
 
 export class Manager {
   private readonly transport: bus.Transport;
@@ -12,13 +12,14 @@ export class Manager {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
     this.sessionsManager = new SessionsManager(this.registry);
-    this.webServer = new WebServer(this.registry, (socket) => this.sessionsManager.addClient(socket));
+    this.webServer = new WebServer(this.registry);
+    this.webServer.on('io.connection', socket => this.sessionsManager.addClient(socket));
   }
 
   async init() {}
 
   async terminate() {
-    await this.webServer.close();
+    await this.webServer.terminate();
     await this.sessionsManager.terminate();
     await this.transport.terminate();
   }
