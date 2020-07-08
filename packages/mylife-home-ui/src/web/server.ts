@@ -29,7 +29,7 @@ export default class WebServer {
 
     this._server = new http.Server(app);
     enableDestroy(this._server);
-    io(this._server, { serveClient: false }).on('connection', sessionCreator);
+    io(this._server, { serveClient: false }).on('connection', sessionCreator)
 
     this._server.listen(webConfig.port);
   }

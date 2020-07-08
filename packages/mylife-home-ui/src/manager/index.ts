@@ -1,120 +1,25 @@
-import { EventEmitter } from 'events';
-import io from 'socket.io';
-import { bus, tools, components, logger } from 'mylife-home-common';
+import { bus, components } from 'mylife-home-common';
 import WebServer from '../web/server';
-
-const log = logger.createLogger('mylife:home:ui:manager');
-
-class Session extends EventEmitter {
-  private readonly stateListeners = new Map<string, (name: string, value: any) => void>();
-
-  constructor(private readonly socket: io.Socket, private readonly registry: components.Registry) {
-    super();
-
-    log.debug(`New session '${socket.id}' from '${socket.conn.remoteAddress}'`);
-
-    this.socket.on('disconnect', this.onClose);
-    this.socket.on('action', (data) => this.executeAction(data.id, data.name));
-
-    this.registry.on('component.add', this.onComponentAdd);
-    this.registry.on('component.remove', this.onComponentRemove);
-
-    const data: { [id: string]: { [id: string]: any } } = {};
-    for (const component of this.registry.getComponents()) {
-      if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
-        continue;
-      }
-
-      this.startListenChanges(component);
-      data[component.id] = component.getStates();
-    }
-    this.socket.emit('state', data);
-  }
-
-  private readonly onClose = () => {
-    this.registry.off('component.add', this.onComponentAdd);
-    this.registry.off('component.remove', this.onComponentRemove);
-
-    log.debug(`Session closed '${this.socket.id}'`);
-    this.emit('close');
-  };
-
-  private startListenChanges(component: components.Component) {
-    const { id } = component;
-    const listener = (name: string, value: any) => this.socket.emit('change', { id, name, value });
-    component.on('state', listener);
-    this.stateListeners.set(id, listener);
-  }
-
-  private stopListenChanges(component: components.Component) {
-    const { id } = component;
-    const listener = this.stateListeners.get(id);
-    component.off('state', listener);
-    this.stateListeners.delete(id);
-  }
-
-  private readonly onComponentAdd = (instanceName: string, component: components.Component) => {
-    if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
-      return;
-    }
-
-    this.startListenChanges(component);
-    this.socket.emit('add', { id: component.id, attributes: component.getStates() });
-  };
-
-  private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
-    if (component.plugin.usage !== components.metadata.PluginUsage.UI) {
-      return;
-    }
-
-    this.stopListenChanges(component);
-    this.socket.emit('remove', { id: component.id });
-  };
-
-  private executeAction(componentId: string, actionName: string) {
-    const component = this.registry.findComponent(componentId);
-    if (!component) {
-      log.info(`executeAction: component '${componentId}' not found`);
-      return;
-    }
-
-    component.executeAction(actionName, true);
-    component.executeAction(actionName, false);
-  }
-
-  async kill() {
-    await new Promise((resolve) => {
-      this.once('close', resolve);
-      this.socket.disconnect();
-    });
-  }
-}
+import { SessionsManager } from './sessions-manager';
 
 export class Manager {
   private readonly transport: bus.Transport;
   private readonly registry: components.Registry;
-
-  private readonly sessions = new Set<Session>();
+  private readonly sessionsManager: SessionsManager;
   private readonly webServer: WebServer;
 
   constructor() {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
-
-    this.webServer = new WebServer(this.registry, (socket) => this.createSession(socket));
+    this.sessionsManager = new SessionsManager(this.registry);
+    this.webServer = new WebServer(this.registry, (socket) => this.sessionsManager.addClient(socket));
   }
 
   async init() {}
 
-  private createSession(socket: io.Socket) {
-    const session = new Session(socket, this.registry);
-    this.sessions.add(session);
-    session.on('close', () => this.sessions.delete(session));
-  }
-
   async terminate() {
     await this.webServer.close();
-    await Promise.all(Array.from(this.sessions).map((session) => session.kill()));
+    await this.sessionsManager.terminate();
     await this.transport.terminate();
   }
 }
