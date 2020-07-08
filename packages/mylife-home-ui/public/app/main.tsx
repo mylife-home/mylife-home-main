@@ -1,31 +1,18 @@
-// FIXME: stop to use this legacy
-declare module 'react-router-redux' {
-  function syncHistoryWithStore(...args: any[]): any;
-}
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { syncHistoryWithStore } from 'react-router-redux';
 
 import Application from './components/application';
-import Bootstrap from './components/bootstrap';
 import View from './containers/view';
 
 import '../app.less';
 
-import { hashHistory, store } from './store/store';
-
-const history = syncHistoryWithStore(hashHistory, store);
+import { store } from './store/store';
 
 ReactDOM.render(
   <Provider store={store}>
     <Application>
-      <Router history={history}>
-        <Route path="/" exact component={Bootstrap} />
-        <Route path="/:window" component={View} />
-      </Router>
+      <View />
     </Application>
   </Provider>,
   document.getElementById('content')

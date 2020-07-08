@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { routerReducer } from 'react-router-redux';
 
 import online from './online';
 import repository from './repository';
@@ -12,6 +11,5 @@ export default combineReducers({
   repository,
   resources,
   view,
-  windows,
-  routing: routerReducer
+  windows
 });
