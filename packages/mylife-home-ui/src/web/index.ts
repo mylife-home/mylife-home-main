@@ -7,7 +7,7 @@ import enableDestroy from 'server-destroy';
 import favicon from 'serve-favicon';
 import serveStatic from 'serve-static';
 import { components, tools } from 'mylife-home-common';
-import { model } from '../model';
+import { ModelManager, Resource } from '../model';
 
 export declare interface WebServer extends EventEmitter {
   on(event: 'io.connection', listener: (socket: io.Socket) => void): this;
@@ -18,7 +18,7 @@ export declare interface WebServer extends EventEmitter {
 export class WebServer extends EventEmitter {
   private readonly httpServer: http.Server;
 
-  constructor(registry: components.Registry) {
+  constructor(registry: components.Registry, model: ModelManager) {
     super();
 
     type WebConfig = { port: number; staticDirectory: string; };
@@ -30,7 +30,7 @@ export class WebServer extends EventEmitter {
 
     app.use(favicon(path.join(publicDirectory, 'images/favicon.ico')));
     app.use('/repository', createRepository(registry));
-    app.use('/resources', createResources());
+    app.use('/resources', createResources(model));
     app.use(serveStatic(publicDirectory));
 
     this.httpServer = new http.Server(app);
@@ -74,9 +74,21 @@ function createRepository(registry: components.Registry) {
   return router;
 }
 
-function createResources() {
+function createResources(model: ModelManager) {
   const router = express.Router();
-  router.route('/enum').get((req, res) => res.json(Object.keys(model)));
-  router.route('/get/:key').get((req, res) => res.json(model[req.params.key]));
+
+  router.route('/:hash').get((req, res) => {
+    const hash = req.params.hash;
+    const resoure = model.getResource(hash);
+    sendResource(res, resoure);
+  });
+
   return router;
+
+  function sendResource(res: express.Response, resource: Resource) {
+    const { mime, data } = resource;
+    res.set('Content-Type', mime);
+    res.send(data);
+  }
 }
+
