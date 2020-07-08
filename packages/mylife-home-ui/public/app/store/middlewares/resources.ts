@@ -1,22 +1,14 @@
-import { Middleware, Action } from 'redux';
+import { Middleware } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import request from 'superagent';
 import { ResourceQuery, RESOURCE_QUERY } from '../types/resources';
-import { resourceGet } from '../actions/resources';
-import { AppThunkDispatch } from '../types';
 
-export const resourcesMiddleware: Middleware = (store) => (next: AppThunkDispatch) => (action: Action) => {
+export const resourcesMiddleware: Middleware = (store) => (next) => (action) => {
   switch (action.type) {
     case RESOURCE_QUERY:
       const typedAction = action as PayloadAction<ResourceQuery>;
-      request.get(`/resources/${typedAction.payload.resource}`).end((err, res) => {
-        if (err) {
-          console.error('Error fetching resource', typedAction.payload.resource, err);
-          return;
-        }
-        
-        return next(resourceGet({ ...typedAction.payload, content: JSON.parse(res.text) }));
-      });
+      const { done, resource } = typedAction.payload;
+      request.get(`/resources/${resource}`).end((err, res) => err ? done(err) : done(null, res.text));
       break;
   }
 
