@@ -85,10 +85,11 @@ function createResources(model: ModelManager) {
 
   return router;
 
-  function sendResource(res: express.Response, resource: Resource) {
+  function sendResource(response: express.Response, resource: Resource) {
     const { mime, data } = resource;
-    res.set('Content-Type', mime);
-    res.send(data);
+    response.set('Content-Type', mime);
+    response.set('Cache-Control', 'public, max-age=31557600, s-maxage=31557600'); // 1 year
+    response.send(data);
   }
 }
 
