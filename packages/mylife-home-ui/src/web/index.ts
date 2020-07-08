@@ -4,7 +4,6 @@ import http from 'http';
 import io from 'socket.io';
 import express from 'express';
 import enableDestroy from 'server-destroy';
-import bodyParser from 'body-parser';
 import favicon from 'serve-favicon';
 import serveStatic from 'serve-static';
 import { components, tools } from 'mylife-home-common';
@@ -18,7 +17,6 @@ export declare interface WebServer extends EventEmitter {
 
 export class WebServer extends EventEmitter {
   private readonly httpServer: http.Server;
-  private readonly ioServer: io.Server;
 
   constructor(registry: components.Registry) {
     super();
@@ -27,8 +25,6 @@ export class WebServer extends EventEmitter {
     const webConfig = tools.getConfigItem<WebConfig>('web');
 
     const app = express();
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(bodyParser.json());
 
     const publicDirectory = path.resolve(__dirname, webConfig.staticDirectory);
 
@@ -40,14 +36,13 @@ export class WebServer extends EventEmitter {
     this.httpServer = new http.Server(app);
     enableDestroy(this.httpServer);
 
-    this.ioServer = io(this.httpServer, { serveClient: false });
-    this.ioServer.on('connection', (socket) => this.emit('io.connection', socket));
+    const ioServer = io(this.httpServer, { serveClient: false });
+    ioServer.on('connection', (socket) => this.emit('io.connection', socket));
 
     this.httpServer.listen(webConfig.port);
   }
 
   async terminate() {
-    await new Promise(resolve => this.ioServer.close(resolve));
     await new Promise((resolve, reject) => this.httpServer.close((err) => err ? reject(err) : resolve()));
     this.httpServer.destroy();
   }
