@@ -1,9 +1,12 @@
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
+import { logger } from 'mylife-home-common';
 import { definition as staticDefinition } from './definition';
 import { Model, Control, Window } from './model-types';
 
 export * as model from './model-types';
+
+const log = logger.createLogger('mylife:home:ui:model:model-manager');
 
 type Definition = typeof staticDefinition;
 
@@ -37,6 +40,7 @@ export class ModelManager extends EventEmitter {
       const data = new Buffer(image.Content, 'base64');
       const hash = this.setResource('image/png', data); // for now all png
       resourceTranslation.set(image.Id, hash);
+      log.info(`Creating resource from image id '${image.Id}': hash='${hash}', size='${data.length}'`);
     }
 
     const model: Model = {
@@ -49,6 +53,7 @@ export class ModelManager extends EventEmitter {
 
     const data = Buffer.from(JSON.stringify(model));
     this._modelHash = this.setResource('application/json', data);
+    log.info(`Creating resource from model: hash='${this._modelHash}', size='${data.length}'`);
 
     this.emit('update');
   }
