@@ -1,6 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WINDOW_CLEAR, WindowRaw, ControlRaw, ControlDisplayRaw, ControlTextRaw, ActionRaw } from '../types/model';
+import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WINDOW_CLEAR } from '../types/model';
+import * as shared from '../../../../shared/model';
 
 export default createReducer(Map<string, Window>(), {
   [WINDOW_NEW]: (state, action: PayloadAction<any>) => {
@@ -11,7 +12,7 @@ export default createReducer(Map<string, Window>(), {
   [WINDOW_CLEAR]: (state, action) => state.clear(),
 });
 
-function createWindow(raw: WindowRaw): Window {
+function createWindow(raw: shared.Window): Window {
   const { background_resource_id, controls, ...others } = raw;
   return {
     resource: background_resource_id,
@@ -25,7 +26,7 @@ function createWindow(raw: WindowRaw): Window {
   };
 }
 
-function createControl(raw: ControlRaw): Control {
+function createControl(raw: shared.Control): Control {
   const { display, text, primary_action, secondary_action, ...others } = raw;
   return {
     display: createDisplay(display),
@@ -36,7 +37,7 @@ function createControl(raw: ControlRaw): Control {
   };
 }
 
-function createDisplay(raw: ControlDisplayRaw): ControlDisplay {
+function createDisplay(raw: shared.ControlDisplay): ControlDisplay {
   if (!raw) {
     return null;
   }
@@ -55,7 +56,7 @@ function createDisplay(raw: ControlDisplayRaw): ControlDisplay {
   };
 }
 
-function createText(raw: ControlTextRaw): ControlText {
+function createText(raw: shared.ControlText): ControlText {
   if (!raw) {
     return null;
   }
@@ -83,7 +84,7 @@ function createText(raw: ControlTextRaw): ControlText {
   };
 }
 
-function createAction(raw: ActionRaw): Action {
+function createAction(raw: shared.Action): Action {
   if (!raw) {
     return null;
   }
