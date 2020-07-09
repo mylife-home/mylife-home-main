@@ -18,5 +18,5 @@ export interface ComponentRemove {
 export interface StateChange {
   readonly id: string;
   readonly name: string;
-  readonly value: string;
+  readonly value: any;
 }

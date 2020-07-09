@@ -1,5 +1,7 @@
 import io from 'socket.io';
 import { components, logger } from 'mylife-home-common';
+import { ComponentAction } from '../../shared/actions';
+import { Reset, StateChange, ComponentAdd, ComponentRemove } from '../../shared/registry';
 
 const log = logger.createLogger('mylife:home:ui:sessions:registry-connector');
 
@@ -35,14 +37,14 @@ export class SessionsRegistryConnector {
     socket.off('action', this.onAction);
   }
 
-  private broadcast(eventName: string, arg: any) {
+  private broadcast(eventName: string, message: any) {
     for (const socket of this.sockets) {
-      socket.emit(eventName, arg);
+      socket.emit(eventName, message);
     }
   }
 
   private sendState(socket: io.Socket) {
-    const state: { [id: string]: { [id: string]: any } } = {};
+    const state: Reset = {};
     for (const component of this.registry.getComponents()) {
       if (component.plugin.usage === components.metadata.PluginUsage.UI) {
         state[component.id] = component.getStates();
@@ -54,7 +56,12 @@ export class SessionsRegistryConnector {
 
   private startListenChanges(component: components.Component) {
     const { id } = component;
-    const listener = (name: string, value: any) => this.broadcast('change', { id, name, value });
+
+    const listener = (name: string, value: any) => {
+      const message: StateChange = { id, name, value };
+      this.broadcast('change', message);
+    };
+
     component.on('state', listener);
     this.registryStateListeners.set(id, listener);
   }
@@ -72,7 +79,9 @@ export class SessionsRegistryConnector {
     }
 
     this.startListenChanges(component);
-    this.broadcast('add', { id: component.id, attributes: component.getStates() });
+
+    const message: ComponentAdd = { id: component.id, attributes: component.getStates() };
+    this.broadcast('add', message);
   };
 
   private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
@@ -81,10 +90,12 @@ export class SessionsRegistryConnector {
     }
 
     this.stopListenChanges(component);
-    this.broadcast('remove', { id: component.id });
+
+    const message: ComponentRemove = { id: component.id };
+    this.broadcast('remove', message);
   };
 
-  private readonly onAction = (data: { id: string; name: string }) => {
+  private readonly onAction = (data: ComponentAction) => {
     this.executeAction(data.id, data.name);
   };
 
