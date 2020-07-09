@@ -10,7 +10,7 @@ import { prepareServerConfiguration } from './common/tools';
 
 export const bin = (context: Context) => prepareServerConfiguration(context, {
   entry: {
-    'ui/bin': 'mylife-home-ui/dist/bin',
+    'ui/bin': 'mylife-home-ui/dist/src/bin',
   },
 });
 
