@@ -1,8 +1,9 @@
 'use strict';
 
 import { createAction } from '@reduxjs/toolkit';
+import { ComponentAction } from '../../../../shared/actions';
 import { AppThunkAction, AppThunkDispatch } from '../types';
-import { ACTION_COMPONENT, ComponentAction } from '../types/actions';
+import { ACTION_COMPONENT } from '../types/actions';
 import { Action } from '../types/model';
 import { getWindowControl } from '../selectors/model';
 import { viewChange, viewPopup } from './view';
