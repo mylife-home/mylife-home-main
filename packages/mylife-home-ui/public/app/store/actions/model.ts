@@ -1,12 +1,11 @@
-'use strict';
-
 import { createAction } from '@reduxjs/toolkit';
+import { Window } from '../../../../shared/model';
 import { AppThunkAction } from '../types';
-import { WINDOW_NEW, WINDOW_CLEAR, WindowRaw } from '../types/model';
+import { WINDOW_NEW, WINDOW_CLEAR } from '../types/model';
 import { resourceQuery } from './resources';
 import { viewInit } from './view';
 
-const windowNew = createAction<WindowRaw>(WINDOW_NEW);
+const windowNew = createAction<Window>(WINDOW_NEW);
 const windowClear = createAction(WINDOW_CLEAR);
 
 export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getState) => {
