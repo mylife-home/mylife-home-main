@@ -1,15 +1,18 @@
+export type Style = string;
+export type Resource = string;
+
 export interface Window {
   readonly id: string;
-  readonly style: string;
+  readonly style: Style;
   readonly height: number;
   readonly width: number;
-  readonly background_resource_id: string;
+  readonly background_resource_id: Resource;
   readonly controls: Control[];
 }
 
 export interface Control {
   readonly id: string;
-  readonly style: string;
+  readonly style: Style;
   readonly height: number;
   readonly width: number;
   readonly x: number;
@@ -23,7 +26,7 @@ export interface Control {
 export interface ControlDisplay {
   readonly component_id: string;
   readonly component_attribute: string;
-  readonly default_resource_id: string;
+  readonly default_resource_id: Resource;
   readonly map: ControlDisplayMapItem[];
 }
 
@@ -31,7 +34,7 @@ export interface ControlDisplayMapItem {
   readonly min: number;
   readonly max: number;
   readonly value: string;
-  readonly resource_id: string;
+  readonly resource_id: Resource;
 }
 
 export interface ControlText {
