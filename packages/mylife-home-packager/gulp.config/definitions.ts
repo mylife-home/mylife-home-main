@@ -3,11 +3,11 @@ import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 
 export const projects = {
-  common : {
+  common: {
     ts: new TsBuild('mylife-home-common')
   },
 
-  ui : {
+  ui: {
     ts: new TsBuild('mylife-home-ui'),
     bin: {
       dev: new WebpackBuild('ui', 'bin', 'dev'),
@@ -19,7 +19,7 @@ export const projects = {
     }
   },
 
-  core : {
+  core: {
     ts: new TsBuild('mylife-home-core'),
     lib: {
       dev: new WebpackBuild('core', 'lib', 'dev'),
@@ -67,5 +67,5 @@ function pathAsGlobs(part: string) {
 
 function packagePublicGlobs(packageName: string) {
   const packagePath = path.dirname(require.resolve(`${packageName}/package.json`));
-  return [path.join(packagePath, 'public/**')];
+  return ['public/**', 'shared/**'].map(item => path.join(packagePath, item));
 }
