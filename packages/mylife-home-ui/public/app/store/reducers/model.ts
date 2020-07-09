@@ -1,15 +1,18 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Action, Control, Window, WINDOW_NEW, WINDOW_CLEAR } from '../types/model';
+import { ControlDisplay, ControlText, Action, Control, Window, MODEL_SET } from '../types/model';
 import * as shared from '../../../../shared/model';
 
 export default createReducer(Map<string, Window>(), {
-  [WINDOW_NEW]: (state, action: PayloadAction<any>) => {
-    const window = createWindow(action.payload);
-    return state.set(window.id, window);
-  },
-
-  [WINDOW_CLEAR]: (state, action) => state.clear(),
+  [MODEL_SET]: (state, action: PayloadAction<shared.Window[]>) => {
+    return state.withMutations(map => {
+      map.clear();
+      for (const rawWindow of action.payload) {
+        const window = createWindow(rawWindow);
+        map.set(window.id, window);
+      }
+    });
+  }
 });
 
 function createWindow(raw: shared.Window): Window {

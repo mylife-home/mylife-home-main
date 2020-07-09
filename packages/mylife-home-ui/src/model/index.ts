@@ -2,9 +2,9 @@ import { EventEmitter } from 'events';
 import crypto from 'crypto';
 import { logger } from 'mylife-home-common';
 import { definition as staticDefinition } from './definition';
-import { Model, Control, Window } from './model-types';
+import { Model, Control, Window } from '../../shared/model';
 
-export * as model from './model-types';
+export * as model from '../../shared/model';
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
 

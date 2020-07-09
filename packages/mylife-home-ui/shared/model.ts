@@ -1,6 +1,11 @@
 export type Style = string;
 export type Resource = string;
 
+export interface Model {
+  windows: Window[];
+  defaultWindow: { [type: string]: string; };
+}
+
 export interface Window {
   readonly id: string;
   readonly style: Style;
