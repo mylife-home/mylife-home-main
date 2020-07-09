@@ -1,5 +1,3 @@
-'use strict';
-
 import { createAction } from '@reduxjs/toolkit';
 import { ComponentAction } from '../../../../shared/actions';
 import { AppThunkAction, AppThunkDispatch } from '../types';

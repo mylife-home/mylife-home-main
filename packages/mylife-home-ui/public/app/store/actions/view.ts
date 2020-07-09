@@ -1,7 +1,5 @@
-'use strict';
-
 import { createAction } from '@reduxjs/toolkit';
-import { AppThunkAction, AppState } from '../types';
+import { AppThunkAction } from '../types';
 import { VIEW_POPUP, VIEW_CLOSE, VIEW_CHANGE } from '../types/view';
 import { getView } from '../selectors/view';
 import { isMobile } from '../../utils/detect-browser';
