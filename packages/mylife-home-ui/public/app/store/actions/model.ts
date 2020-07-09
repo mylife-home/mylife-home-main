@@ -1,12 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
-import { Window } from '../../../../shared/model';
+import { Window, Model } from '../../../../shared/model';
 import { AppThunkAction } from '../types';
-import { WINDOW_NEW, WINDOW_CLEAR } from '../types/model';
+import { MODEL_SET } from '../types/model';
 import { resourceQuery } from './resources';
 import { viewInit } from './view';
 
-const windowNew = createAction<Window>(WINDOW_NEW);
-const windowClear = createAction(WINDOW_CLEAR);
+const modelSet = createAction<Window[]>(MODEL_SET);
 
 export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getState) => {
   console.log('modelInit with modelHash', modelHash); // eslint-disable-line no-console
@@ -14,13 +13,9 @@ export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getSt
   return dispatch(resourceQuery({
     resource: modelHash, done: (err, data) => {
       if (err) { return console.error(err); } // eslint-disable-line no-console
-      const model = JSON.parse(data);
+      const model = JSON.parse(data) as Model;
 
-      dispatch(windowClear());
-      for (const window of model.windows) {
-        dispatch(windowNew(window));
-      }
-
+      dispatch(modelSet(model.windows));
       dispatch(viewInit(model.defaultWindow));
     }
   }));
