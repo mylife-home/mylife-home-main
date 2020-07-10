@@ -1,32 +1,17 @@
 import { Map, List } from 'immutable';
-import { Action } from '../../../../shared/model';
+import { Action, ControlDisplayMapItem, ControlTextContextItem } from '../../../../shared/model';
 
 export const MODEL_SET = 'model/set';
 
-export interface ControlDisplayMapItem {
-  readonly min: number;
-  readonly max: number;
-  readonly value: string;
-  readonly resource: string;
-}
+export type WindowsState = Map<string, Window>;
 
-export interface ControlDisplay {
-  readonly componentId: string;
-  readonly componentState: string;
-  readonly defaultResource: string;
-  readonly map: List<ControlDisplayMapItem>;
-}
-
-export interface ControlTextContextItem {
+export interface Window {
   readonly id: string;
-  readonly component: string;
-  readonly attribute: string;
-}
-
-export interface ControlText {
-  readonly context: List<ControlTextContextItem>;
-  readonly format: string;
-  readonly func: (args: string[]) => string;
+  readonly style: string;
+  readonly height: number;
+  readonly width: number;
+  readonly backgroundResource: string;
+  readonly controls: Map<string, Control>;
 }
 
 export interface Control {
@@ -42,16 +27,18 @@ export interface Control {
   readonly secondaryAction: Action;
 }
 
-export interface Window {
-  readonly id: string;
-  readonly style: string;
-  readonly height: number;
-  readonly width: number;
-  readonly backgroundResource: string;
-  readonly controls: Map<string, Control>;
+export interface ControlDisplay {
+  readonly componentId: string;
+  readonly componentState: string;
+  readonly defaultResource: string;
+  readonly map: List<ControlDisplayMapItem>;
 }
 
-export type WindowsState = Map<string, Window>;
+export interface ControlText {
+  readonly context: List<ControlTextContextItem>;
+  readonly format: string;
+  readonly func: (args: string[]) => string;
+}
 
 export interface VControl {
   readonly id: string;

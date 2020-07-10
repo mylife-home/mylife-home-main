@@ -43,12 +43,7 @@ function createDisplay(raw: shared.ControlDisplay): ControlDisplay {
   }
   const { map, ...others } = raw;
   return {
-    map: List(
-      map.map((item) => {
-        const { resource, ...others } = item;
-        return { resource: resource, ...others };
-      })
-    ),
+    map: List(map),
     ...others,
   };
 }
@@ -69,12 +64,7 @@ function createText(raw: shared.ControlText): ControlText {
   }
 
   return {
-    context: List(
-      context.map((item) => {
-        const { componentId, componentState, ...others } = item;
-        return { component: componentId, attribute: componentState, ...others };
-      })
-    ),
+    context: List(context),
     format,
     func,
     ...others,
