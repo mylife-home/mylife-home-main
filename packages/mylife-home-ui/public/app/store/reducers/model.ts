@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Action, Control, Window, MODEL_SET } from '../types/model';
+import { ControlDisplay, ControlText, Control, Window, MODEL_SET } from '../types/model';
 import * as shared from '../../../../shared/model';
 
 export default createReducer(Map<string, Window>(), {
@@ -29,12 +29,10 @@ function createWindow(raw: shared.Window): Window {
 }
 
 function createControl(raw: shared.Control): Control {
-  const { display, text, primaryAction, secondaryAction, ...others } = raw;
+  const { display, text, ...others } = raw;
   return {
     display: createDisplay(display),
     text: createText(text),
-    primaryAction: createAction(primaryAction),
-    secondaryAction: createAction(secondaryAction),
     ...others,
   };
 }
@@ -80,18 +78,5 @@ function createText(raw: shared.ControlText): ControlText {
     format,
     func,
     ...others,
-  };
-}
-
-function createAction(raw: shared.Action): Action {
-  if (!raw) {
-    return null;
-  }
-  const { component, window } = raw;
-  return {
-    component: component && component.id,
-    action: component && component.action,
-    window: window && window.id,
-    popup: window && window.popup,
   };
 }

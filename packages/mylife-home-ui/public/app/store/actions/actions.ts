@@ -1,30 +1,29 @@
 import { createAction } from '@reduxjs/toolkit';
-import { ComponentAction } from '../../../../shared/actions';
+import { Action, ActionComponent } from '../../../../shared/model';
 import { AppThunkAction, AppThunkDispatch } from '../types';
 import { ACTION_COMPONENT } from '../types/actions';
-import { Action } from '../types/model';
 import { getWindowControl } from '../selectors/model';
 import { viewChange, viewPopup } from './view';
 
-const actionComponent = createAction<ComponentAction>(ACTION_COMPONENT);
+const actionComponent = createAction<ActionComponent>(ACTION_COMPONENT);
 
 function dispatchAction(dispatch: AppThunkDispatch, action: Action) {
   if (!action) {
     return;
   }
 
-  if (action.window) {
-    if (action.popup) {
-      dispatch(viewPopup(action.window));
+  const { window, component } = action;
+  if (window) {
+    if (window.popup) {
+      dispatch(viewPopup(window.id));
     } else {
-      dispatch(viewChange(action.window));
+      dispatch(viewChange(window.id));
     }
     return;
   }
 
-  if (action.component) {
-    const payload = { id: action.component, name: action.action };
-    dispatch(actionComponent(payload));
+  if (component) {
+    dispatch(actionComponent(component));
     return;
   }
 }

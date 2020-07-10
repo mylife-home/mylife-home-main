@@ -2,7 +2,7 @@ import { Middleware } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import io from 'socket.io-client';
 import { Reset, ComponentAdd, ComponentRemove, StateChange } from '../../../../shared/registry';
-import { ComponentAction } from '../../../../shared/actions';
+import { ActionComponent } from '../../../../shared/model';
 import { ACTION_COMPONENT } from '../types/actions';
 import { onlineSet } from '../actions/online';
 import { reset, componentAdd, componentRemove, attributeChange } from '../actions/registry';
@@ -23,7 +23,7 @@ export const socketMiddleware: Middleware = (store) => (next) => {
   return (action) => {
     switch (action.type) {
       case ACTION_COMPONENT:
-        const typedAction = action as PayloadAction<ComponentAction>;
+        const typedAction = action as PayloadAction<ActionComponent>;
         socket.emit('action', typedAction.payload);
         break;
     }

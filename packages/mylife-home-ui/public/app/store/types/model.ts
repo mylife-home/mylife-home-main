@@ -1,4 +1,5 @@
 import { Map, List } from 'immutable';
+import { Action } from '../../../../shared/model';
 
 export const MODEL_SET = 'model/set';
 
@@ -26,13 +27,6 @@ export interface ControlText {
   readonly context: List<ControlTextContextItem>;
   readonly format: string;
   readonly func: (args: string[]) => string;
-}
-
-export interface Action {
-  readonly component: string;
-  readonly action: string;
-  readonly window: string;
-  readonly popup: boolean;
 }
 
 export interface Control {
