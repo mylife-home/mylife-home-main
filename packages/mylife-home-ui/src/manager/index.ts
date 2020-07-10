@@ -19,7 +19,7 @@ export class Manager {
     this.webServer = new WebServer(this.registry, this.model);
     this.webServer.on('io.connection', socket => this.sessionsManager.addClient(socket));
 
-    this.model.update(staticDefinition);
+    this.model.setDefinition(staticDefinition);
   }
 
   async init() { }

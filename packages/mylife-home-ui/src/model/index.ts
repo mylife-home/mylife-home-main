@@ -38,7 +38,7 @@ export class ModelManager extends EventEmitter {
     super();
   }
 
-  update(definition: Definition) {
+  setDefinition(definition: Definition) {
     this.resources.clear();
     const resourceTranslation = new Map<string, string>();
 
