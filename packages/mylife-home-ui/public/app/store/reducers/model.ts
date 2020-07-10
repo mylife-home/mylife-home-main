@@ -16,9 +16,9 @@ export default createReducer(Map<string, Window>(), {
 });
 
 function createWindow(raw: shared.Window): Window {
-  const { background_resource_id, controls, ...others } = raw;
+  const { backgroundResource, controls, ...others } = raw;
   return {
-    resource: background_resource_id,
+    resource: backgroundResource,
     controls: Map(
       controls.map((item) => {
         const ctrl = createControl(item);
@@ -30,12 +30,12 @@ function createWindow(raw: shared.Window): Window {
 }
 
 function createControl(raw: shared.Control): Control {
-  const { display, text, primary_action, secondary_action, ...others } = raw;
+  const { display, text, primaryAction, secondaryAction, ...others } = raw;
   return {
     display: createDisplay(display),
     text: createText(text),
-    primaryAction: createAction(primary_action),
-    secondaryAction: createAction(secondary_action),
+    primaryAction: createAction(primaryAction),
+    secondaryAction: createAction(secondaryAction),
     ...others,
   };
 }
@@ -44,15 +44,15 @@ function createDisplay(raw: shared.ControlDisplay): ControlDisplay {
   if (!raw) {
     return null;
   }
-  const { component_attribute, component_id, default_resource_id, map, ...others } = raw;
+  const { componentState, componentId, defaultResource, map, ...others } = raw;
   return {
-    component: component_id,
-    attribute: component_attribute,
-    resource: default_resource_id,
+    component: componentId,
+    attribute: componentState,
+    resource: defaultResource,
     map: List(
       map.map((item) => {
-        const { resource_id, ...others } = item;
-        return { resource: resource_id, ...others };
+        const { resource, ...others } = item;
+        return { resource: resource, ...others };
       })
     ),
     ...others,
@@ -77,8 +77,8 @@ function createText(raw: shared.ControlText): ControlText {
   return {
     context: List(
       context.map((item) => {
-        const { component_id, component_attribute, ...others } = item;
-        return { component: component_id, attribute: component_attribute, ...others };
+        const { componentId, componentState, ...others } = item;
+        return { component: componentId, attribute: componentState, ...others };
       })
     ),
     format,
@@ -93,8 +93,8 @@ function createAction(raw: shared.Action): Action {
   }
   const { component, window } = raw;
   return {
-    component: component && component.component_id,
-    action: component && component.component_action,
+    component: component && component.id,
+    action: component && component.action,
     window: window && window.id,
     popup: window && window.popup,
   };
