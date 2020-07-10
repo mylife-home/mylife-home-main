@@ -1,7 +1,8 @@
 import { List } from 'immutable';
+import { ControlDisplayMapItem } from '../../../../shared/model';
 import { AppState } from '../types';
 import { RepositoryState } from '../types/registry';
-import { Window, Control, ControlDisplay, ControlText, ControlDisplayMapItem, VWindow, VControl } from '../types/model';
+import { Window, Control, ControlDisplay, ControlText, VWindow, VControl } from '../types/model';
 import { getRegistry } from './registry';
 
 export const getWindows = (state: AppState) => state.model;
@@ -47,8 +48,8 @@ function prepareText(repository: RepositoryState, text: ControlText) {
 
   const args = text.context
     .map((item) => {
-      const component = repository.get(item.component);
-      return component && component.get(item.attribute);
+      const component = repository.get(item.componentId);
+      return component && component.get(item.componentState);
     })
     .toArray();
 
