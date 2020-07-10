@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import { components, logger } from 'mylife-home-common';
-import { ComponentAction } from '../../shared/actions';
+import { ActionComponent } from '../../shared/model';
 import { Reset, StateChange, ComponentAdd, ComponentRemove } from '../../shared/registry';
 
 const log = logger.createLogger('mylife:home:ui:sessions:registry-connector');
@@ -95,8 +95,8 @@ export class SessionsRegistryConnector {
     this.broadcast('remove', message);
   };
 
-  private readonly onAction = (data: ComponentAction) => {
-    this.executeAction(data.id, data.name);
+  private readonly onAction = (data: ActionComponent) => {
+    this.executeAction(data.id, data.action);
   };
 
   private executeAction(componentId: string, actionName: string) {
