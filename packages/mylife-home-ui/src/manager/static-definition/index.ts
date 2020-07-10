@@ -1,17 +1,5 @@
 import raw from './ui_main.json';
-import { Window } from '../../shared/model';
-
-export interface Definition {
-  readonly resources: DefinitionResource[];
-  readonly windows: Window[];
-  readonly defaultWindow: { [type: string]: string; };
-}
-
-export interface DefinitionResource {
-  readonly id: string;
-  readonly mime: string;
-  readonly data: string;
-}
+import { model, Definition, DefinitionResource } from '../../model';
 
 export const staticDefinition = prepareDefinition();
 
@@ -35,7 +23,7 @@ function prepareResource(raw: any): DefinitionResource {
   };
 }
 
-function prepareWindow(raw: any): Window {
+function prepareWindow(raw: any): model.Window {
   // replaceKey(window, 'background_resource_id', 'backgroundResource');
 
   for (const control of raw.controls) {
