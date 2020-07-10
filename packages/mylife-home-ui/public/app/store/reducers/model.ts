@@ -16,9 +16,8 @@ export default createReducer(Map<string, Window>(), {
 });
 
 function createWindow(raw: shared.Window): Window {
-  const { backgroundResource, controls, ...others } = raw;
+  const { controls, ...others } = raw;
   return {
-    resource: backgroundResource,
     controls: Map(
       controls.map((item) => {
         const ctrl = createControl(item);
@@ -44,11 +43,8 @@ function createDisplay(raw: shared.ControlDisplay): ControlDisplay {
   if (!raw) {
     return null;
   }
-  const { componentState, componentId, defaultResource, map, ...others } = raw;
+  const { map, ...others } = raw;
   return {
-    component: componentId,
-    attribute: componentState,
-    resource: defaultResource,
     map: List(
       map.map((item) => {
         const { resource, ...others } = item;

@@ -22,16 +22,16 @@ function prepareDisplay(repository: RepositoryState, display: ControlDisplay) {
     return null;
   }
 
-  const defaultResource = display.resource;
+  const { defaultResource } = display;
 
-  if (!display.component || !display.map || !display.map.size) {
+  if (!display.componentId || !display.map || !display.map.size) {
     return defaultResource;
   }
-  const component = repository.get(display.component);
-  if (!component || !component.has(display.attribute)) {
+  const component = repository.get(display.componentId);
+  if (!component || !component.has(display.componentState)) {
     return defaultResource;
   }
-  const value = component.get(display.attribute);
+  const value = component.get(display.componentState);
   const item = findDisplayItem(display.map, value);
   if (!item) {
     return defaultResource;

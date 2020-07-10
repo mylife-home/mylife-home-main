@@ -10,9 +10,9 @@ export interface ControlDisplayMapItem {
 }
 
 export interface ControlDisplay {
-  readonly component: string;
-  readonly attribute: string;
-  readonly resource: string;
+  readonly componentId: string;
+  readonly componentState: string;
+  readonly defaultResource: string;
   readonly map: List<ControlDisplayMapItem>;
 }
 
@@ -53,7 +53,7 @@ export interface Window {
   readonly style: string;
   readonly height: number;
   readonly width: number;
-  readonly resource: string;
+  readonly backgroundResource: string;
   readonly controls: Map<string, Control>;
 }
 
@@ -65,7 +65,7 @@ export interface VControl {
   readonly width: number;
   readonly left: number;
   readonly top: number;
-  readonly display: any;
+  readonly display: string;
   readonly text: string;
   readonly active: boolean;
 }
@@ -75,6 +75,6 @@ export interface VWindow {
   readonly style: string;
   readonly height: number;
   readonly width: number;
-  readonly resource: any;
+  readonly backgroundResource: string;
   readonly controls: VControl[];
 }

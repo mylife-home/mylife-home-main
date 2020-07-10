@@ -15,7 +15,7 @@ function getStyleSize(window: VWindow) {
 
 const WindowContent: FunctionComponent<WindowContentProps> = ({ window, onActionPrimary, onActionSecondary }) => (
   <div style={getStyleSize(window)} className="mylife-window-container">
-    <img src={window.resource && `/resources/${window.resource}`} />
+    <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
     {window.controls.map((control) => (
       <Control
         key={control.id}
