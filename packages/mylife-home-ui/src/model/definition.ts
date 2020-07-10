@@ -1,16 +1,16 @@
 import raw from './ui_main.json';
 import { Window } from '../../shared/model';
 
-export interface Resource {
+export interface Definition {
+  readonly resources: DefinitionResource[];
+  readonly windows: Window[];
+  readonly defaultWindow: { [type: string]: string; };
+}
+
+export interface DefinitionResource {
   readonly id: string;
   readonly mime: string;
   readonly data: string;
-}
-
-export interface Definition {
-  readonly resources: Resource[];
-  readonly windows: Window[];
-  readonly defaultWindow: { [type: string]: string; };
 }
 
 export const staticDefinition = prepareDefinition();
@@ -27,7 +27,7 @@ function prepareDefinition(): Definition {
   return { resources, windows, defaultWindow };
 }
 
-function prepareResource(raw: any): Resource {
+function prepareResource(raw: any): DefinitionResource {
   return {
     id: raw.Id,
     mime: 'image/png',
