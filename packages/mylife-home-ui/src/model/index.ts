@@ -1,14 +1,12 @@
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
 import { logger } from 'mylife-home-common';
-import { definition as staticDefinition } from './definition';
+import { staticDefinition, Definition } from './definition';
 import { Model, Control, Window } from '../../shared/model';
 
 export * as model from '../../shared/model';
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
-
-type Definition = typeof staticDefinition;
 
 export interface Resource {
   readonly mime: string;
@@ -36,19 +34,16 @@ export class ModelManager extends EventEmitter {
     this.resources.clear();
     const resourceTranslation = new Map<string, string>();
 
-    for (const image of definition.Images) {
-      const data = new Buffer(image.Content, 'base64');
-      const hash = this.setResource('image/png', data); // for now all png
-      resourceTranslation.set(image.Id, hash);
-      log.info(`Creating resource from image id '${image.Id}': hash='${hash}', size='${data.length}'`);
+    for (const resource of definition.resources) {
+      const data = new Buffer(resource.data, 'base64');
+      const hash = this.setResource(resource.mime, data); // for now all png
+      resourceTranslation.set(resource.id, hash);
+      log.info(`Creating resource from id '${resource.id}': hash='${hash}', size='${data.length}'`);
     }
 
     const model: Model = {
-      windows: translateWindows(definition.Windows, resourceTranslation),
-      defaultWindow: {
-        mobile: definition.MobileDefaultWindow,
-        desktop: definition.DesktopDefaultWindow
-      }
+      windows: translateWindows(definition.windows, resourceTranslation),
+      defaultWindow: definition.defaultWindow
     };
 
     const data = Buffer.from(JSON.stringify(model));
