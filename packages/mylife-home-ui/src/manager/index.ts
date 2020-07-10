@@ -2,6 +2,7 @@ import { bus, components } from 'mylife-home-common';
 import { WebServer } from '../web';
 import { SessionsManager } from '../sessions';
 import { ModelManager } from '../model';
+import { staticDefinition } from './static-definition';
 
 export class Manager {
   private readonly transport: bus.Transport;
@@ -17,9 +18,11 @@ export class Manager {
     this.sessionsManager = new SessionsManager(this.registry, this.model);
     this.webServer = new WebServer(this.registry, this.model);
     this.webServer.on('io.connection', socket => this.sessionsManager.addClient(socket));
+
+    this.model.update(staticDefinition);
   }
 
-  async init() {}
+  async init() { }
 
   async terminate() {
     await this.webServer.terminate();

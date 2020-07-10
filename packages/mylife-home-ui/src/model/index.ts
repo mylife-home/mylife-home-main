@@ -1,12 +1,23 @@
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
 import { logger } from 'mylife-home-common';
-import { staticDefinition, Definition } from './definition';
 import { Model, Control, Window } from '../../shared/model';
 
 export * as model from '../../shared/model';
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
+
+export interface Definition {
+  readonly resources: DefinitionResource[];
+  readonly windows: Window[];
+  readonly defaultWindow: { [type: string]: string; };
+}
+
+export interface DefinitionResource {
+  readonly id: string;
+  readonly mime: string;
+  readonly data: string;
+}
 
 export interface Resource {
   readonly mime: string;
@@ -25,9 +36,6 @@ export class ModelManager extends EventEmitter {
 
   constructor() {
     super();
-
-    // FIXME: remove this
-    this.update(staticDefinition);
   }
 
   update(definition: Definition) {
