@@ -88,7 +88,7 @@ function computeHash(data: Buffer) {
 function translateWindows(windows: Window[], resourceTranslation: Map<string, string>) {
   return windows.map(window => ({
     ...window,
-    background_resource_id: translateResource(window.background_resource_id, resourceTranslation),
+    backgroundResource: translateResource(window.backgroundResource, resourceTranslation),
     controls: translateControls(window.controls, resourceTranslation)
   }));
 }
@@ -99,8 +99,8 @@ function translateControls(controls: Control[], resourceTranslation: Map<string,
       return control;
     }
 
-    const newMap = control.display.map.map((item: any) => ({ ...item, resource_id: translateResource(item.resource_id, resourceTranslation) }));
-    const newDisplay = { ...control.display, map: newMap, default_resource_id: translateResource(control.display.default_resource_id, resourceTranslation) };
+    const newMap = control.display.map.map((item: any) => ({ ...item, resource: translateResource(item.resource, resourceTranslation) }));
+    const newDisplay = { ...control.display, map: newMap, defaultResource: translateResource(control.display.defaultResource, resourceTranslation) };
     return { ...control, display: newDisplay };
   });
 }

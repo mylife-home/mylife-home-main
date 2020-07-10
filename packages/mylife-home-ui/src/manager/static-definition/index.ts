@@ -24,25 +24,39 @@ function prepareResource(raw: any): DefinitionResource {
 }
 
 function prepareWindow(raw: any): model.Window {
-  // replaceKey(window, 'background_resource_id', 'backgroundResource');
+  replaceKey(raw, 'background_resource_id', 'backgroundResource');
 
   for (const control of raw.controls) {
+    replaceKey(control, 'primary_action', 'primaryAction');
+    replaceKey(control, 'secondary_action', 'secondaryAction');
+    replaceKey(control.display, 'default_resource_id', 'defaultResource');
+    replaceKey(control.display, 'component_id', 'componentId');
+    replaceKey(control.display, 'component_attribute', 'componentState');
+    replaceKey(control.primaryAction?.component, 'component_id', 'id');
+    replaceKey(control.primaryAction?.component, 'component_action', 'action');
+    replaceKey(control.secondaryAction?.component, 'component_id', 'id');
+    replaceKey(control.secondaryAction?.component, 'component_action', 'action');
+
     // replace ids comp_id with comp-id
-    replaceComponentId(control.primary_action?.component, 'component_id');
-    replaceComponentId(control.secondary_action?.component, 'component_id');
-    replaceComponentId(control.display, 'component_id');
+    replaceComponentId(control.primaryAction?.component, 'id');
+    replaceComponentId(control.secondaryAction?.component, 'id');
+    replaceComponentId(control.display, 'componentId');
 
     const context = control.text?.context;
     if (context) {
       for (const item of context) {
-        replaceComponentId(item, 'component_id');
+        replaceKey(item, 'component_id', 'componentId');
+        replaceKey(item, 'component_attribute', 'componentState');
+        replaceComponentId(item, 'componentId');
       }
     }
 
-    // replace 'off' 'on' with true false
     const map = control.display?.map;
     if (map) {
       for (const item of map) {
+        replaceKey(item, 'resource_id', 'resource');
+
+        // replace 'off' 'on' with true false
         switch (item.value) {
           case 'on':
             item.value = true;

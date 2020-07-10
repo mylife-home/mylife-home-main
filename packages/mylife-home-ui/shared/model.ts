@@ -11,7 +11,7 @@ export interface Window {
   readonly style: Style;
   readonly height: number;
   readonly width: number;
-  readonly background_resource_id: Resource;
+  readonly backgroundResource: Resource;
   readonly controls: Control[];
 }
 
@@ -24,14 +24,14 @@ export interface Control {
   readonly y: number;
   readonly display: ControlDisplay;
   readonly text: ControlText;
-  readonly primary_action: Action;
-  readonly secondary_action: Action;
+  readonly primaryAction: Action;
+  readonly secondaryAction: Action;
 }
 
 export interface ControlDisplay {
-  readonly component_id: string;
-  readonly component_attribute: string;
-  readonly default_resource_id: Resource;
+  readonly componentId: string;
+  readonly componentState: string;
+  readonly defaultResource: Resource;
   readonly map: ControlDisplayMapItem[];
 }
 
@@ -39,7 +39,7 @@ export interface ControlDisplayMapItem {
   readonly min: number;
   readonly max: number;
   readonly value: string;
-  readonly resource_id: Resource;
+  readonly resource: Resource;
 }
 
 export interface ControlText {
@@ -49,8 +49,8 @@ export interface ControlText {
 
 export interface ControlTextContextItem {
   readonly id: string;
-  readonly component_id: string;
-  readonly component_attribute: string;
+  readonly componentId: string;
+  readonly componentState: string;
 }
 
 export interface Action {
@@ -59,8 +59,8 @@ export interface Action {
 }
 
 export interface ActionComponent {
-  readonly component_id: string;
-  readonly component_action: string;
+  readonly id: string;
+  readonly action: string;
 }
 
 export interface ActionWindow {
