@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import { AppState } from '../types';
 import { Window, Control } from '../types/model';
 
-export const getWindows = (state: AppState) => state.model;
+const getWindows = (state: AppState) => state.model;
 export const getWindow = (state: AppState, windowId: string) => getWindowById(state)(windowId);
 export const getWindowControl = (state: AppState, windowId: string, controlId: string) => getWindowControlById(state)(windowId, controlId);
 
