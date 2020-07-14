@@ -1,8 +1,8 @@
 import { List } from 'immutable';
-import { ControlDisplayMapItem } from '../../../../shared/model';
+import { ControlDisplay, ControlDisplayMapItem } from '../../../../shared/model';
 import { AppState } from '../types';
 import { RepositoryState } from '../types/registry';
-import { Window, Control, ControlDisplay, ControlText, VWindow, VControl } from '../types/model';
+import { Window, Control, ControlText, VWindow, VControl } from '../types/model';
 import { getRegistry } from './registry';
 
 export const getWindows = (state: AppState) => state.model;
@@ -10,7 +10,7 @@ export const getWindow = (state: AppState, { window }: { window: string; }) => g
 export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.get(control);
 export const getWindowDisplay = (state: AppState, { window }: { window: string; }) => prepareWindow(getRegistry(state), getWindow(state, { window }));
 
-function findDisplayItem(map: List<ControlDisplayMapItem>, value: any) {
+function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
   if (typeof value === 'number') {
     return map.find((item) => item.min <= value && value <= item.max) || null;
   }
@@ -25,7 +25,7 @@ function prepareDisplay(repository: RepositoryState, display: ControlDisplay) {
 
   const { defaultResource } = display;
 
-  if (!display.componentId || !display.map || !display.map.size) {
+  if (!display.componentId || !display.map || !display.map.length) {
     return defaultResource;
   }
   const component = repository.get(display.componentId);
