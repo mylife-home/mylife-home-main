@@ -3,6 +3,7 @@ import { AppState } from '../types';
 import { Window, Control } from '../types/model';
 
 const getWindows = (state: AppState) => state.model;
+export const hasWindows = (state: AppState) => getWindows(state).length > 0;
 export const getWindow = (state: AppState, windowId: string) => getWindowById(state)(windowId);
 export const getWindowControl = (state: AppState, windowId: string, controlId: string) => getWindowControlById(state)(windowId, controlId);
 
