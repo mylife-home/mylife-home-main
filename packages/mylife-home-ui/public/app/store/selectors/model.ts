@@ -1,12 +1,11 @@
 import { AppState } from '../types';
-import { RepositoryState } from '../types/registry';
 import { VWindow, VControl, Window, Control, ControlText, ControlDisplay, ControlDisplayMapItem } from '../types/model';
-import { getRegistry } from './registry';
+import { getComponentState } from './registry';
 
 export const getWindows = (state: AppState) => state.model;
-export const getWindow = (state: AppState, { window }: { window: string; }) => getWindows(state).find(w => w.id === window); // TODO: index
-export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.find(c => c.id === control); // TODO: index
-export const getWindowDisplay = (state: AppState, { window }: { window: string; }) => prepareWindow(getRegistry(state), getWindow(state, { window }));
+export const getWindow = (state: AppState, { window }: { window: string }) => getWindows(state).find((w) => w.id === window); // TODO: index
+export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string }) => getWindow(state, { window }).controls.find((c) => c.id === control); // TODO: index
+export const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(state, getWindow(state, { window }));
 
 function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
   if (typeof value === 'number') {
@@ -16,21 +15,17 @@ function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
   return map.find((item) => item.value === value) || null;
 }
 
-function prepareDisplay(repository: RepositoryState, display: ControlDisplay) {
+function prepareDisplay(state: AppState, display: ControlDisplay) {
   if (!display) {
     return null;
   }
 
   const { defaultResource } = display;
 
-  if (!display.componentId || !display.map || !display.map.length) {
+  const value = getComponentState(state, display.componentId, display.componentState);
+  if (value === undefined) {
     return defaultResource;
   }
-  const component = repository[display.componentId];
-  if (!component || !component.hasOwnProperty(display.componentState)) {
-    return defaultResource;
-  }
-  const value = component[display.componentState];
   const item = findDisplayItem(display.map, value);
   if (!item) {
     return defaultResource;
@@ -39,16 +34,12 @@ function prepareDisplay(repository: RepositoryState, display: ControlDisplay) {
   return item.resource;
 }
 
-function prepareText(repository: RepositoryState, text: ControlText) {
+function prepareText(state: AppState, text: ControlText) {
   if (!text) {
     return null;
   }
 
-  const args = text.context
-    .map((item) => {
-      const component = repository[item.componentId];
-      return component && component[item.componentState];
-    });
+  const args = text.context.map((item) => getComponentState(state, item.componentId, item.componentState));
 
   // TODO: cache function
   const argNames = text.context.map((item) => item.id).join(',');
@@ -60,7 +51,7 @@ function prepareText(repository: RepositoryState, text: ControlText) {
     func = () => err.message;
   }
   // ---
-  
+
   try {
     return func(args);
   } catch (err) {
@@ -69,7 +60,7 @@ function prepareText(repository: RepositoryState, text: ControlText) {
   }
 }
 
-function prepareControl(repository: RepositoryState, window: Window, control: Control): VControl {
+function prepareControl(state: AppState, window: Window, control: Control): VControl {
   const { id, width, height, display, text, primaryAction } = control;
 
   return {
@@ -78,19 +69,19 @@ function prepareControl(repository: RepositoryState, window: Window, control: Co
     height,
     left: window.width * control.x - width / 2,
     top: window.height * control.y - height / 2,
-    display: prepareDisplay(repository, display),
-    text: prepareText(repository, text),
+    display: prepareDisplay(state, display),
+    text: prepareText(state, text),
     active: !!primaryAction,
   };
 }
 
-function prepareWindow(repository: RepositoryState, window: Window): VWindow {
+function prepareWindow(state: AppState, window: Window): VWindow {
   if (!window) {
     return null;
   }
   const { controls, ...others } = window;
   return {
-    controls: controls.map((ctrl) => prepareControl(repository, window, ctrl)),
+    controls: controls.map((ctrl) => prepareControl(state, window, ctrl)),
     ...others,
   };
 }

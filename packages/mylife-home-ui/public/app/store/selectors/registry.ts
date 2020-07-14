@@ -1,3 +1,4 @@
 import { AppState } from '../types';
 
-export const getRegistry = (state: AppState) => state.registry;
+const getRegistry = (state: AppState) => state.registry;
+export const getComponentState = (state: AppState, componentId: string, stateName: string) => getRegistry(state)?.[componentId]?.[stateName];
