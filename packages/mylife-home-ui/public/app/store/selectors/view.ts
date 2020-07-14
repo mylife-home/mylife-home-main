@@ -88,7 +88,7 @@ function prepareControl(state: AppState, window: Window, control: Control): VCon
     height,
     left: window.width * control.x - width / 2,
     top: window.height * control.y - height / 2,
-    display: prepareDisplay(state, display),
+    displayResource: prepareDisplay(state, display),
     text: prepareText(state, text),
     active: !!primaryAction,
   };

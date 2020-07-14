@@ -11,7 +11,7 @@ export interface VControl {
   readonly width: number;
   readonly left: number;
   readonly top: number;
-  readonly display: string;
+  readonly displayResource: string;
   readonly text: string;
   readonly active: boolean;
 }

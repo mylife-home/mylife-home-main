@@ -20,7 +20,7 @@ const Control: FunctionComponent<ControlProps> = ({ control, onActionPrimary, on
     onMouseDown={onMouseDown}
     onMouseUp={onMouseUp}
   >
-    {control.display && <img src={`/resources/${control.display}`} />}
+    {control.displayResource && <img src={`/resources/${control.displayResource}`} />}
     {control.text && <p>{control.text}</p>}
   </div>
   )
