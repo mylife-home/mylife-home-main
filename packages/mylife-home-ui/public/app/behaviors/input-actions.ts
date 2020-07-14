@@ -11,23 +11,23 @@ export function useInputActions(onActionPrimary: InputActionCallback, onActionSe
       l: onActionSecondary,
       ss: onActionSecondary,
     };
-    
-    const onTouchStart=(e: React.TouchEvent) => {
+
+    const onTouchStart = (e: React.TouchEvent) => {
       e.preventDefault();
       inputManager.down();
     };
 
-    const onTouchEnd=(e: React.TouchEvent) => {
+    const onTouchEnd = (e: React.TouchEvent) => {
       e.preventDefault();
       inputManager.up();
     };
 
-    const onMouseDown=(e: React.MouseEvent) => {
+    const onMouseDown = (e: React.MouseEvent) => {
       e.preventDefault();
       inputManager.down();
     };
 
-    const onMouseUp=(e: React.MouseEvent) => {
+    const onMouseUp = (e: React.MouseEvent) => {
       e.preventDefault();
       inputManager.up();
     };
@@ -35,4 +35,3 @@ export function useInputActions(onActionPrimary: InputActionCallback, onActionSe
     return { onTouchStart, onTouchEnd, onMouseDown, onMouseUp };
   }, [onActionPrimary, onActionSecondary]);
 }
-
