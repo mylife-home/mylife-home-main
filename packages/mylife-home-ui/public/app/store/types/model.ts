@@ -1,5 +1,5 @@
 import { Map, List } from 'immutable';
-import { Action, ControlDisplayMapItem, ControlTextContextItem } from '../../../../shared/model';
+import { Action, ControlDisplay, ControlDisplayMapItem, ControlTextContextItem } from '../../../../shared/model';
 
 export const MODEL_SET = 'model/set';
 
@@ -25,13 +25,6 @@ export interface Control {
   readonly text: ControlText;
   readonly primaryAction: Action;
   readonly secondaryAction: Action;
-}
-
-export interface ControlDisplay {
-  readonly componentId: string;
-  readonly componentState: string;
-  readonly defaultResource: string;
-  readonly map: List<ControlDisplayMapItem>;
 }
 
 export interface ControlText {

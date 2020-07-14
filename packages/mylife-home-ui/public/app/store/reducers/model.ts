@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { Map, List } from 'immutable';
-import { ControlDisplay, ControlText, Control, Window, MODEL_SET } from '../types/model';
+import { ControlText, Control, Window, MODEL_SET } from '../types/model';
 import * as shared from '../../../../shared/model';
 
 export default createReducer(Map<string, Window>(), {
@@ -29,21 +29,9 @@ function createWindow(raw: shared.Window): Window {
 }
 
 function createControl(raw: shared.Control): Control {
-  const { display, text, ...others } = raw;
+  const { text, ...others } = raw;
   return {
-    display: createDisplay(display),
     text: createText(text),
-    ...others,
-  };
-}
-
-function createDisplay(raw: shared.ControlDisplay): ControlDisplay {
-  if (!raw) {
-    return null;
-  }
-  const { map, ...others } = raw;
-  return {
-    map: List(map),
     ...others,
   };
 }
