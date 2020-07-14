@@ -26,11 +26,11 @@ function prepareDisplay(repository: RepositoryState, display: ControlDisplay) {
   if (!display.componentId || !display.map || !display.map.length) {
     return defaultResource;
   }
-  const component = repository.get(display.componentId);
-  if (!component || !component.has(display.componentState)) {
+  const component = repository[display.componentId];
+  if (!component || !component.hasOwnProperty(display.componentState)) {
     return defaultResource;
   }
-  const value = component.get(display.componentState);
+  const value = component[display.componentState];
   const item = findDisplayItem(display.map, value);
   if (!item) {
     return defaultResource;
@@ -46,8 +46,8 @@ function prepareText(repository: RepositoryState, text: ControlText) {
 
   const args = text.context
     .map((item) => {
-      const component = repository.get(item.componentId);
-      return component && component.get(item.componentState);
+      const component = repository[item.componentId];
+      return component && component[item.componentState];
     });
 
   // TODO: cache function
