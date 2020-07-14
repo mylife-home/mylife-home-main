@@ -10,19 +10,21 @@ export const isViewPopup = (state: AppState) => getView(state).length > 1;
 
 export const getViewDisplay = (state: AppState): VView => {
   const view = getView(state);
-  if (!view.length) { return null; }
+  if (!view.length) {
+    return null;
+  }
 
-  const main = getWindowDisplay(state, { window: view[0] });
+  const main = getWindowDisplay(state, view[0]);
   if (!main) {
     // we have a location, but the model is not loaded
     return null;
   }
 
-  const popups = view.slice(1, view.length).map(window => getWindowDisplay(state, { window }));
+  const popups = view.slice(1, view.length).map((windowId) => getWindowDisplay(state, windowId));
   return { main, popups };
 };
 
-const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(state, getWindow(state, window));
+const getWindowDisplay = (state: AppState, windowId: string) => prepareWindow(state, getWindow(state, windowId));
 
 function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
   if (typeof value === 'number') {
