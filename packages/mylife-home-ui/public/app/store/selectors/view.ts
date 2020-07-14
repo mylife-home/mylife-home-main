@@ -1,6 +1,6 @@
 import { AppState } from '../types';
 import { VView } from '../types/view';
-import { getWindow } from './model';
+import { hasWindows, getWindow } from './model';
 import { VWindow, VControl, Window, Control, ControlText, ControlDisplay, ControlDisplayMapItem } from '../types/model';
 import { getComponentState } from './registry';
 
@@ -14,12 +14,12 @@ export const getViewDisplay = (state: AppState): VView => {
     return null;
   }
 
-  const main = getWindowDisplay(state, view[0]);
-  if (!main) {
+  if (!hasWindows(state)) {
     // we have a location, but the model is not loaded
     return null;
   }
 
+  const main = getWindowDisplay(state, view[0]);
   const popups = view.slice(1, view.length).map((windowId) => getWindowDisplay(state, windowId));
   return { main, popups };
 };
