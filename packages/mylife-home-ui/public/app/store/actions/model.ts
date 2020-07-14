@@ -9,7 +9,7 @@ const modelSet = createAction<Window[]>(MODEL_SET);
 export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getState) => {
   console.log('modelInit with modelHash', modelHash); // eslint-disable-line no-console
 
-  return dispatch(resourceQuery({
+  dispatch(resourceQuery({
     resource: modelHash, done: (err, data) => {
       if (err) { return console.error(err); } // eslint-disable-line no-console
       const model = JSON.parse(data) as Model;

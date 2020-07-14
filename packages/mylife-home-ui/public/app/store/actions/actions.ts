@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
-import { Action, ActionComponent } from '../../../../shared/model';
 import { AppThunkAction, AppThunkDispatch } from '../types';
+import { Action, ActionComponent } from '../types/model';
 import { ACTION_COMPONENT } from '../types/actions';
 import { getWindowControl } from '../selectors/model';
 import { viewChange, viewPopup } from './view';
