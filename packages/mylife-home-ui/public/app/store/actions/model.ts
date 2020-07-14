@@ -1,7 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
-import { Window, Model } from '../../../../shared/model';
 import { AppThunkAction } from '../types';
-import { MODEL_SET } from '../types/model';
+import { MODEL_SET, Window, Model } from '../types/model';
 import { resourceQuery } from './resources';
 import { viewInit } from './view';
 
