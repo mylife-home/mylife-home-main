@@ -1,6 +1,6 @@
-import React, { PureComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { VControl } from '../store/types/model';
-import InputManager from '../utils/input-manager';
+import { useInputActions } from '../behaviors/input-actions';
 
 type ControlProps = {
   control: VControl;
@@ -8,62 +8,28 @@ type ControlProps = {
   onActionSecondary: () => void;
 };
 
+const Control: FunctionComponent<ControlProps> = ({ control, onActionPrimary, onActionSecondary }) => {
+  const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp } = useInputActions(onActionPrimary, onActionSecondary);
+  return (
+    <div
+    title={control.id}
+    style={getStyleSizePosition(control)}
+    className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
+    onTouchStart={onTouchStart}
+    onTouchEnd={onTouchEnd}
+    onMouseDown={onMouseDown}
+    onMouseUp={onMouseUp}
+  >
+    {control.display && <img src={`/resources/${control.display}`} />}
+    {control.text && <p>{control.text}</p>}
+  </div>
+  )
+};
+
+
 function getStyleSizePosition(control: VControl) {
   const { left, top, height, width } = control;
   return { left, top, height, width };
-}
-
-class Control extends PureComponent<ControlProps> {
-  private readonly inputManager = new InputManager();
-
-  constructor(props: ControlProps) {
-    super(props);
-
-    this.configureInputManager(props);
-  }
-
-  componentWillReceiveProps(nextProps: ControlProps) {
-    this.configureInputManager(nextProps);
-  }
-
-  configureInputManager(props: ControlProps) {
-    const { onActionPrimary, onActionSecondary } = props;
-    this.inputManager.config = {
-      s: onActionPrimary,
-      l: onActionSecondary,
-      ss: onActionSecondary,
-    };
-  }
-
-  render() {
-    const { control } = this.props;
-    return (
-      <div
-        title={control.id}
-        style={getStyleSizePosition(control)}
-        className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          this.inputManager.down();
-        }}
-        onTouchEnd={(e) => {
-          e.preventDefault();
-          this.inputManager.up();
-        }}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          this.inputManager.down();
-        }}
-        onMouseUp={(e) => {
-          e.preventDefault();
-          this.inputManager.up();
-        }}
-      >
-        {control.display && <img src={`/resources/${control.display}`} />}
-        {control.text && <p>{control.text}</p>}
-      </div>
-    );
-  }
 }
 
 export default Control;
