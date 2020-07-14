@@ -43,7 +43,8 @@ function createMobileMiddleware(): Middleware {
     switch (action.type) {
       case VIEW_CHANGE: {
         const state = store.getState();
-        const window = getWindow(state, { window: action.payload });
+        const windowId = action.payload;
+        const window = getWindow(state, windowId);
         setDimensions(window.width, window.height);
       }
     }

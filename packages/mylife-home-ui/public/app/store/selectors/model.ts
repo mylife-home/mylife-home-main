@@ -3,8 +3,8 @@ import { AppState } from '../types';
 import { Window, Control } from '../types/model';
 
 export const getWindows = (state: AppState) => state.model;
-export const getWindow = (state: AppState, { window }: { window: string }) => getWindowById(state)(window);
-export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string }) => getWindowControlById(state)(window, control);
+export const getWindow = (state: AppState, windowId: string) => getWindowById(state)(windowId);
+export const getWindowControl = (state: AppState, windowId: string, controlId: string) => getWindowControlById(state)(windowId, controlId);
 
 const getWindowById = createSelector(getWindows, (windows) => {
   const windowsById: { [id: string]: Window } = {};

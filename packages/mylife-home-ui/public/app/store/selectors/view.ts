@@ -22,7 +22,7 @@ export const getViewDisplay = (state: AppState): VView => {
   return { main, popups };
 };
 
-const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(state, getWindow(state, { window }));
+const getWindowDisplay = (state: AppState, { window }: { window: string }) => prepareWindow(state, getWindow(state, window));
 
 function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
   if (typeof value === 'number') {
