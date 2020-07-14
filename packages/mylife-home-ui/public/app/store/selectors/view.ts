@@ -4,7 +4,7 @@ import { getWindow } from './model';
 import { VWindow, VControl, Window, Control, ControlText, ControlDisplay, ControlDisplayMapItem } from '../types/model';
 import { getComponentState } from './registry';
 
-export const getView = (state: AppState) => state.view;
+const getView = (state: AppState) => state.view;
 export const hasView = (state: AppState) => !!getView(state)[0];
 export const isViewPopup = (state: AppState) => getView(state).length > 1;
 
