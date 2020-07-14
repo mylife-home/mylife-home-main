@@ -1,37 +1,9 @@
-import { Map, List } from 'immutable';
-import { Action, ControlDisplay, ControlDisplayMapItem, ControlTextContextItem } from '../../../../shared/model';
+export * from '../../../../shared/model';
+import { Window } from '../../../../shared/model';
 
 export const MODEL_SET = 'model/set';
 
-export type WindowsState = Map<string, Window>;
-
-export interface Window {
-  readonly id: string;
-  readonly style: string;
-  readonly height: number;
-  readonly width: number;
-  readonly backgroundResource: string;
-  readonly controls: Map<string, Control>;
-}
-
-export interface Control {
-  readonly id: string;
-  readonly style: string;
-  readonly height: number;
-  readonly width: number;
-  readonly x: number;
-  readonly y: number;
-  readonly display: ControlDisplay;
-  readonly text: ControlText;
-  readonly primaryAction: Action;
-  readonly secondaryAction: Action;
-}
-
-export interface ControlText {
-  readonly context: List<ControlTextContextItem>;
-  readonly format: string;
-  readonly func: (args: string[]) => string;
-}
+export type WindowsState = Window[];
 
 export interface VControl {
   readonly id: string;

@@ -1,13 +1,11 @@
-import { List } from 'immutable';
-import { ControlDisplay, ControlDisplayMapItem } from '../../../../shared/model';
 import { AppState } from '../types';
 import { RepositoryState } from '../types/registry';
-import { Window, Control, ControlText, VWindow, VControl } from '../types/model';
+import { VWindow, VControl, Window, Control, ControlText, ControlDisplay, ControlDisplayMapItem } from '../types/model';
 import { getRegistry } from './registry';
 
 export const getWindows = (state: AppState) => state.model;
-export const getWindow = (state: AppState, { window }: { window: string; }) => getWindows(state).get(window);
-export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.get(control);
+export const getWindow = (state: AppState, { window }: { window: string; }) => getWindows(state).find(w => w.id === window); // TODO: index
+export const getWindowControl = (state: AppState, { window, control }: { window: string; control: string; }) => getWindow(state, { window }).controls.find(c => c.id === control); // TODO: index
 export const getWindowDisplay = (state: AppState, { window }: { window: string; }) => prepareWindow(getRegistry(state), getWindow(state, { window }));
 
 function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
@@ -50,11 +48,21 @@ function prepareText(repository: RepositoryState, text: ControlText) {
     .map((item) => {
       const component = repository.get(item.componentId);
       return component && component.get(item.componentState);
-    })
-    .toArray();
+    });
 
+  // TODO: cache function
+  const argNames = text.context.map((item) => item.id).join(',');
+  let func: (args: string[]) => string;
   try {
-    return text.func(args);
+    func = new Function(argNames, text.format) as (args: string[]) => string;
+  } catch (err) {
+    console.error(err); // eslint-disable-line no-console
+    func = () => err.message;
+  }
+  // ---
+  
+  try {
+    return func(args);
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
     return err.message as string;
@@ -82,7 +90,20 @@ function prepareWindow(repository: RepositoryState, window: Window): VWindow {
   }
   const { controls, ...others } = window;
   return {
-    controls: controls.toArray().map((ctrl) => prepareControl(repository, window, ctrl)),
+    controls: controls.map((ctrl) => prepareControl(repository, window, ctrl)),
     ...others,
   };
+}
+
+// TODO: use it!
+interface TypeWithId {
+  readonly id: string;
+}
+
+function indexById<T extends TypeWithId>(list: T[]): { [id: string]: T } {
+  const result: { [id: string]: T } = {};
+  for (const item of list) {
+    result[item.id] = item;
+  }
+  return result;
 }
