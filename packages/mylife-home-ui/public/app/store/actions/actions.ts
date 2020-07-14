@@ -28,8 +28,8 @@ function dispatchAction(dispatch: AppThunkDispatch, action: Action) {
   }
 }
 
-export const actionPrimary = (window: string, control: string): AppThunkAction => (dispatch, getState) =>
-  dispatchAction(dispatch, getWindowControl(getState(), { window, control }).primaryAction);
+export const actionPrimary = (windowId: string, controlId: string): AppThunkAction => (dispatch, getState) =>
+  dispatchAction(dispatch, getWindowControl(getState(), windowId, controlId).primaryAction);
 
-export const actionSecondary = (window: string, control: string): AppThunkAction => (dispatch, getState) =>
-  dispatchAction(dispatch, getWindowControl(getState(), { window, control }).secondaryAction);
+export const actionSecondary = (windowId: string, controlId: string): AppThunkAction => (dispatch, getState) =>
+  dispatchAction(dispatch, getWindowControl(getState(), windowId, controlId).secondaryAction);
