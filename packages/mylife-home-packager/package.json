@@ -40,6 +40,7 @@
     "file-loader": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-typescript": "^6.0.0-alpha.1",
+    "http-server": "^0.12.3",
     "less": "^3.11.3",
     "less-loader": "^6.1.2",
     "merge2": "^1.4.1",
