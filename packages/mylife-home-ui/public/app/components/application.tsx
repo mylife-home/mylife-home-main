@@ -8,35 +8,41 @@ import Offline from './offline';
 import Loading from './loading';
 import Popup from './popup';
 
-
-const Application: FunctionComponent = () => {
-  const { online, view } = useConnect();
-  return (
-    <div className='mylife-window-root'>
-      {!online && (
-        <Offline />
-      )}
-
-      {online && !view && (
-        <Loading />
-      )}
-
-      {online && view && (
-        <>
-          <div title={view.main.id}>
-            <WindowContent window={view.main} />
-          </div>
-
-          {view.popups.map((popup, index) => (
-            <Popup key={`${index}_overlay`} window={popup} />
-          ))}
-        </>
-      )}
-    </div>
-  );
-};
+const Application: FunctionComponent = () => (
+  <div className='mylife-window-root'>
+    <AppContent />
+  </div>
+);
 
 export default Application;
+
+const AppContent: FunctionComponent = () => {
+  const { online, view } = useConnect();
+
+  if (!online) {
+    return (
+      <Offline />
+    );
+  }
+
+  if (!view) {
+    return (
+      <Loading />
+    );
+  }
+
+  return (
+    <>
+      <div title={view.main.id}>
+        <WindowContent window={view.main} />
+      </div>
+
+      {view.popups.map((popup, index) => (
+        <Popup key={`${index}_overlay`} window={popup} />
+      ))}
+    </>
+  );
+};
 
 function useConnect() {
   return useSelector((state: AppState) => ({
