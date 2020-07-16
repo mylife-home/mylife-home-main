@@ -3,6 +3,7 @@
 import React, { FunctionComponent } from 'react';
 import { VView } from '../store/types/view';
 import WindowContent from './window-content';
+import { VWindow } from '../store/types/model';
 
 type ActionCallback = (window: string, control: string) => void;
 type CloseCallback = () => void;
@@ -15,56 +16,65 @@ type WindowProps = {
   onWindowClose: CloseCallback;
 };
 
-function popups(view: VView, onActionPrimary: ActionCallback, onActionSecondary: ActionCallback, onWindowClose: CloseCallback) {
-  const components = [];
+type PopupProps = {
+  window: VWindow,
+  onActionPrimary: ActionCallback,
+  onActionSecondary: ActionCallback,
+  onWindowClose: CloseCallback
+};
 
-  for (const [index, popup] of view.popups.entries()) {
-    components.push(<div key={`${index}_overlay`} className="mylife-overlay" onClick={onWindowClose} />);
-    components.push(
-      <div key={`${index}_dialog`} className="mylife-window-popup">
-        <div className="modal-content" title={popup.id}>
-          <div className="modal-header">
-            <button onClick={onWindowClose} className="close">
-              x
-            </button>
-            <h4 className="modal-title">{popup.id}</h4>
-          </div>
-          <div className="modal-body">
-            <WindowContent window={popup} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
-          </div>
+const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActionSecondary, onWindowClose }) => (
+  <>
+    <div className='mylife-overlay' onClick={onWindowClose} />
+    <div className='mylife-window-popup'>
+      <div className='modal-content' title={window.id}>
+        <div className='modal-header'>
+          <button onClick={onWindowClose} className="close">
+            x
+          </button>
+          <h4 className='modal-title'>{window.id}</h4>
+        </div>
+        <div className='modal-body'>
+          <WindowContent window={window} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
         </div>
       </div>
-    );
-  }
+    </div>
+  </>
+);
 
-  return components;
-}
+const Offline: FunctionComponent = () => (
+  <div className='mylife-overlay'>
+    <img src='images/connecting.jpg' className='mylife-img-connecting' />
+  </div>
+);
+
+const Loading: FunctionComponent = () => (
+  <div className='mylife-overlay'>
+    <img src='images/spinner.gif' className='mylife-img-loading' />
+  </div>
+);
 
 const Window: FunctionComponent<WindowProps> = ({ online, view, onActionPrimary, onActionSecondary, onWindowClose }) => (
-  <div className="mylife-window-root">
-    {/* preload images */}
-    <img src="images/spinner.gif" style={{ display: 'none' }} />
-    <img src="images/connecting.jpg" style={{ display: 'none' }} />
-
+  <div className='mylife-window-root'>
     {!online && (
-      <div className="mylife-overlay-connecting">
-        <img src="images/connecting.jpg" />
-      </div>
+      <Offline />
     )}
 
     {online && !view && (
-      <div className="mylife-overlay">
-        <img src="images/spinner.gif" />
-      </div>
+      <Loading />
     )}
 
     {online && view && (
-      <div title={view.main.id}>
-        <WindowContent window={view.main} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
-      </div>
-    )}
+      <>
+        <div title={view.main.id}>
+          <WindowContent window={view.main} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
+        </div>
 
-    {online && view && popups(view, onActionPrimary, onActionSecondary, onWindowClose)}
+        {view.popups.map((popup, index) => (
+          <Popup key={`${index}_overlay`} window={popup} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} onWindowClose={onWindowClose}/>
+        ))}
+      </>
+    )}
   </div>
 );
 
