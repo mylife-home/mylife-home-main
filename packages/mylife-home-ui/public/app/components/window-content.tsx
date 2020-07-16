@@ -6,11 +6,6 @@ type WindowContentProps = {
   window: VWindow;
 };
 
-function getStyleSize(window: VWindow) {
-  const { height, width } = window;
-  return { height, width };
-}
-
 const WindowContent: FunctionComponent<WindowContentProps> = ({ window }) => (
   <div style={getStyleSize(window)} className="mylife-window-container">
     <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
@@ -26,3 +21,8 @@ const WindowContent: FunctionComponent<WindowContentProps> = ({ window }) => (
 );
 
 export default WindowContent;
+
+function getStyleSize(window: VWindow) {
+  const { height, width } = window;
+  return { height, width };
+}
