@@ -1,6 +1,4 @@
-'use strict';
-
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { VView } from '../store/types/view';
 import { VWindow } from '../store/types/model';
 import WindowContent from './window-content';
@@ -8,16 +6,15 @@ import Overlay from './overlay';
 import Offline from './offline';
 import Loading from './loading';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { AppState } from '../store/types';
+import { getOnline } from '../store/selectors/online';
+import { getViewDisplay } from '../store/selectors/view';
+import { actionPrimary, actionSecondary } from '../store/actions/actions';
+import { viewClose } from '../store/actions/view';
+
 type ActionCallback = (window: string, control: string) => void;
 type CloseCallback = () => void;
-
-type WindowProps = {
-  online: boolean;
-  view: VView;
-  onActionPrimary: ActionCallback;
-  onActionSecondary: ActionCallback;
-  onWindowClose: CloseCallback;
-};
 
 type PopupProps = {
   window: VWindow,
@@ -45,28 +42,46 @@ const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActio
   </>
 );
 
-const Window: FunctionComponent<WindowProps> = ({ online, view, onActionPrimary, onActionSecondary, onWindowClose }) => (
-  <div className='mylife-window-root'>
-    {!online && (
-      <Offline />
-    )}
+const useConnect = () => {
+  const dispatch = useDispatch();
+  return {
+    ...useSelector((state: AppState) => ({
+      online: getOnline(state),
+      view: getViewDisplay(state)
+    })),
+    ...useMemo(() => ({
+      onActionPrimary: (windowId: string, componentId: string) => dispatch(actionPrimary(windowId, componentId)),
+      onActionSecondary: (windowId: string, componentId: string) => dispatch(actionSecondary(windowId, componentId)),
+      onWindowClose: () => dispatch(viewClose())
+        }), [dispatch])
+  };
+};
 
-    {online && !view && (
-      <Loading />
-    )}
+const Window: FunctionComponent = () => {
+  const { online, view, onActionPrimary, onActionSecondary, onWindowClose } = useConnect();
+  return (
+    <div className='mylife-window-root'>
+      {!online && (
+        <Offline />
+      )}
 
-    {online && view && (
-      <>
-        <div title={view.main.id}>
-          <WindowContent window={view.main} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
-        </div>
+      {online && !view && (
+        <Loading />
+      )}
 
-        {view.popups.map((popup, index) => (
-          <Popup key={`${index}_overlay`} window={popup} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} onWindowClose={onWindowClose}/>
-        ))}
-      </>
-    )}
-  </div>
-);
+      {online && view && (
+        <>
+          <div title={view.main.id}>
+            <WindowContent window={view.main} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
+          </div>
+
+          {view.popups.map((popup, index) => (
+            <Popup key={`${index}_overlay`} window={popup} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} onWindowClose={onWindowClose}/>
+          ))}
+        </>
+      )}
+    </div>
+  );
+};
 
 export default Window;

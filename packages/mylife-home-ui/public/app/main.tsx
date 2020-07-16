@@ -11,9 +11,7 @@ import { store } from './store/store';
 
 ReactDOM.render(
   <Provider store={store}>
-    <Application>
-      <View />
-    </Application>
+    <Application />
   </Provider>,
   document.getElementById('content')
 );
