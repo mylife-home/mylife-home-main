@@ -7,7 +7,6 @@
  - remove bootstrap
  - use fetch polyfill instead of superagent
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
- - remove redux-logger on production build ?
  - try to use self history instead of package ?
  - better webpack packaging (inline bundle, icons, ...) ??
  - spinner.gif is huge!
