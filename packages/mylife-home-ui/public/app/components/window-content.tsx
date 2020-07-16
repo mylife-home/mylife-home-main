@@ -4,8 +4,6 @@ import Control from './control';
 
 type WindowContentProps = {
   window: VWindow;
-  onActionPrimary: (window: string, control: string) => void;
-  onActionSecondary: (window: string, control: string) => void;
 };
 
 function getStyleSize(window: VWindow) {
@@ -13,15 +11,15 @@ function getStyleSize(window: VWindow) {
   return { height, width };
 }
 
-const WindowContent: FunctionComponent<WindowContentProps> = ({ window, onActionPrimary, onActionSecondary }) => (
+const WindowContent: FunctionComponent<WindowContentProps> = ({ window }) => (
   <div style={getStyleSize(window)} className="mylife-window-container">
     <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
     {window.controls.map((control) => (
       <Control
         key={control.id}
+        windowId={window.id}
+        controlId={control.id}
         control={control}
-        onActionPrimary={() => onActionPrimary(window.id, control.id)}
-        onActionSecondary={() => onActionSecondary(window.id, control.id)}
       />
     ))}
   </div>
