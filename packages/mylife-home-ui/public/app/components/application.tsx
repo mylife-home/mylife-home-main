@@ -2,14 +2,14 @@ import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { AppState } from '../store/types';
 import { getOnline } from '../store/selectors/online';
-import { getViewDisplay } from '../store/selectors/view';
-import WindowContent from './window-content';
+import { hasView } from '../store/selectors/view';
+import { hasWindows } from '../store/selectors/model';
 import Offline from './offline';
 import Loading from './loading';
-import Popup from './popup';
+import View from './view';
 
 const Application: FunctionComponent = () => (
-  <div className='mylife-window-root'>
+  <div className="mylife-window-root">
     <AppContent />
   </div>
 );
@@ -17,36 +17,22 @@ const Application: FunctionComponent = () => (
 export default Application;
 
 const AppContent: FunctionComponent = () => {
-  const { online, view } = useConnect();
+  const { online, ready } = useConnect();
 
   if (!online) {
-    return (
-      <Offline />
-    );
+    return <Offline />;
   }
 
-  if (!view) {
-    return (
-      <Loading />
-    );
+  if (!ready) {
+    return <Loading />;
   }
 
-  return (
-    <>
-      <div title={view.main.id}>
-        <WindowContent window={view.main} />
-      </div>
-
-      {view.popups.map((popup, index) => (
-        <Popup key={`${index}_overlay`} window={popup} />
-      ))}
-    </>
-  );
+  return <View />;
 };
 
 function useConnect() {
   return useSelector((state: AppState) => ({
     online: getOnline(state),
-    view: getViewDisplay(state)
+    ready: hasView(state) && hasWindows(state),
   }));
 }

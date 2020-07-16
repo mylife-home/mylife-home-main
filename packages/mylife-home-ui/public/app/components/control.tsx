@@ -1,18 +1,17 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../store/types';
-import { VControl } from '../store/types/model';
+import { UIControl, getUIControl } from '../store/selectors/control';
 import { actionPrimary, actionSecondary } from '../store/actions/actions';
 import { useInputActions } from '../behaviors/input-actions';
 
 type ControlProps = {
   windowId: string;
   controlId: string;
-  control: VControl;
 };
 
-const Control: FunctionComponent<ControlProps> = ({ windowId, controlId, control }) => {
-  const { onActionPrimary, onActionSecondary } = useConnect(windowId, controlId);
+const Control: FunctionComponent<ControlProps> = ({ windowId, controlId }) => {
+  const { control, onActionPrimary, onActionSecondary } = useConnect(windowId, controlId);
   const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp } = useInputActions(onActionPrimary, onActionSecondary);
   return (
     <div
@@ -32,20 +31,20 @@ const Control: FunctionComponent<ControlProps> = ({ windowId, controlId, control
 
 export default Control;
 
-function getStyleSizePosition(control: VControl) {
+function getStyleSizePosition(control: UIControl) {
   const { left, top, height, width } = control;
   return { left, top, height, width };
 }
 
-function useConnect(windowId: string, componentId: string) {
+function useConnect(windowId: string, controlId: string) {
   const dispatch = useDispatch();
   return {
     ...useSelector((state: AppState) => ({
-      // TODO: fetch control state
+      control: getUIControl(state, windowId, controlId)
     })),
     ...useMemo(() => ({
-      onActionPrimary: () => dispatch(actionPrimary(windowId, componentId)),
-      onActionSecondary: () => dispatch(actionSecondary(windowId, componentId))
+      onActionPrimary: () => dispatch(actionPrimary(windowId, controlId)),
+      onActionSecondary: () => dispatch(actionSecondary(windowId, controlId))
     }), [dispatch])
   };
 };
