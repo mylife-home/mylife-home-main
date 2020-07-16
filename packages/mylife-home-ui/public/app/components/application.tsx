@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
 
-const Application: FunctionComponent = ({ children }) => <div>{children}</div>;
+const Application: FunctionComponent = ({ children }) => (<>{children}</>);
 
 export default Application;
