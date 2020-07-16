@@ -1,12 +1,16 @@
 # `mylife-home-ui`
 
 ## TODO
+ - remove / in #/window_id
  - switch to preact
  - switch to websocket
- - better webpack packaging (inline bundle, icons, ...)
- - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
  - remove bootstrap
  - use fetch polyfill instead of superagent
+ - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
+ - remove redux-logger on production build ?
+ - try to use self history instead of package ?
+ - better webpack packaging (inline bundle, icons, ...) ??
+ - spinner.gif is huge!
 
 ## Client-side model
   
