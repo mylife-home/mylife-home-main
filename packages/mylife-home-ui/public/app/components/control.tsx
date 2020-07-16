@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../store/types';
-import { UIControl, getUIControl } from '../store/selectors/control';
+import { UIControl, makeGetUIControl } from '../store/selectors/control';
 import { actionPrimary, actionSecondary } from '../store/actions/actions';
 import { useInputActions } from '../behaviors/input-actions';
 
@@ -38,9 +38,10 @@ function getStyleSizePosition(control: UIControl) {
 
 function useConnect(windowId: string, controlId: string) {
   const dispatch = useDispatch();
+  const getUIControl = useMemo(() => makeGetUIControl(windowId, controlId), [windowId, controlId]);
   return {
     ...useSelector((state: AppState) => ({
-      control: getUIControl(state, windowId, controlId)
+      control: getUIControl(state)
     })),
     ...useMemo(() => ({
       onActionPrimary: () => dispatch(actionPrimary(windowId, controlId)),
