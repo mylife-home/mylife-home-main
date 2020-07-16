@@ -2,12 +2,14 @@ import io from 'socket.io';
 import { components, logger } from 'mylife-home-common';
 import { ActionComponent } from '../../shared/model';
 import { Reset, StateChange, ComponentAdd, ComponentRemove } from '../../shared/registry';
+import { RequiredComponentState } from '../model';
 
 const log = logger.createLogger('mylife:home:ui:sessions:registry-connector');
 
 export class SessionsRegistryConnector {
   private readonly sockets = new Set<io.Socket>();
   private readonly registryStateListeners = new Map<string, (name: string, value: any) => void>();
+  private readonly requiredComponentStates = new Map<string, Set<string>>();
 
   constructor(private readonly registry: components.Registry) {
     this.registry.on('component.add', this.onComponentAdd);
@@ -25,12 +27,51 @@ export class SessionsRegistryConnector {
     this.registry.off('component.remove', this.onComponentRemove);
   }
 
+  setRequiredComponentStates(requiredComponentStates: RequiredComponentState[]) {
+    this.requiredComponentStates.clear();
+
+    for (const { componentId, componentState } of requiredComponentStates) {
+      let requiredStates = this.requiredComponentStates.get(componentId);
+      if (!requiredStates) {
+        requiredStates = new Set<string>();
+        this.requiredComponentStates.set(componentId, requiredStates);
+      }
+
+      requiredStates.add(componentState);
+    }
+
+    // send registry reset to all connected sessions
+    this.sendState();
+  }
+
+  private isRequiredComponent(component: components.Component) {
+    return !!this.requiredComponentStates.get(component.id);
+  }
+
+  private isRequiredComponentState(componendId: string, componentState: string) {
+    const requiredStates = this.requiredComponentStates.get(componendId);
+    return requiredStates && requiredStates.has(componentState);
+  }
+
+  private getRequiredComponentStates(component: components.Component) {
+    const requiredStates = this.requiredComponentStates.get(component.id);
+    const states: { [name: string]: any; } = {};
+
+    for (const [key, value] of Object.entries(component.getStates())) {
+      if (requiredStates.has(key)) {
+        states[key] = value;
+      }
+    }
+
+    return states;
+  }
+
   addClient(socket: io.Socket) {
     this.sockets.add(socket);
     socket.on('action', this.onAction);
 
     this.sendState(socket);
- }
+  }
 
   removeClient(socket: io.Socket) {
     this.sockets.delete(socket);
@@ -43,23 +84,29 @@ export class SessionsRegistryConnector {
     }
   }
 
-  private sendState(socket: io.Socket) {
+  private sendState(socket?: io.Socket) {
     const state: Reset = {};
     for (const component of this.registry.getComponents()) {
-      if (component.plugin.usage === components.metadata.PluginUsage.UI) {
-        state[component.id] = component.getStates();
+      if (component.plugin.usage === components.metadata.PluginUsage.UI && this.isRequiredComponent(component)) {
+        state[component.id] = this.getRequiredComponentStates(component);
       }
     }
-    socket.emit('state', state);
- 
+
+    if (socket) {
+      socket.emit('state', state);
+    } else {
+      this.broadcast('state', state);
+    }
   }
 
   private startListenChanges(component: components.Component) {
     const { id } = component;
 
     const listener = (name: string, value: any) => {
-      const message: StateChange = { id, name, value };
-      this.broadcast('change', message);
+      if (this.isRequiredComponentState(id, name)) {
+        const message: StateChange = { id, name, value };
+        this.broadcast('change', message);
+      }
     };
 
     component.on('state', listener);
@@ -80,8 +127,10 @@ export class SessionsRegistryConnector {
 
     this.startListenChanges(component);
 
-    const message: ComponentAdd = { id: component.id, attributes: component.getStates() };
-    this.broadcast('add', message);
+    if (this.isRequiredComponent(component)) {
+      const message: ComponentAdd = { id: component.id, attributes: this.getRequiredComponentStates(component) };
+      this.broadcast('add', message);
+    }
   };
 
   private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
@@ -91,8 +140,10 @@ export class SessionsRegistryConnector {
 
     this.stopListenChanges(component);
 
-    const message: ComponentRemove = { id: component.id };
-    this.broadcast('remove', message);
+    if (this.isRequiredComponent(component)) {
+      const message: ComponentRemove = { id: component.id };
+      this.broadcast('remove', message);
+    }
   };
 
   private readonly onAction = (data: ActionComponent) => {
