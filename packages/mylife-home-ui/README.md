@@ -3,11 +3,10 @@
 ## TODO
  - switch to preact
  - switch to websocket
- - switch to new model to server data (images, window specs, ...)
  - better webpack packaging (inline bundle, icons, ...)
- - clean client model (static model and dynamic model -> windows static, controls static, control state dynamic as (re)selector)
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
-
+ - remove bootstrap
+ - use fetch polyfill instead of superagent
 
 ## Client-side model
   
