@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useMemo } from 'react';
-import { VView } from '../store/types/view';
 import { VWindow } from '../store/types/model';
 import WindowContent from './window-content';
 import Overlay from './overlay';
@@ -13,17 +12,14 @@ import { getViewDisplay } from '../store/selectors/view';
 import { actionPrimary, actionSecondary } from '../store/actions/actions';
 import { viewClose } from '../store/actions/view';
 
-type ActionCallback = (window: string, control: string) => void;
 type CloseCallback = () => void;
 
 type PopupProps = {
   window: VWindow,
-  onActionPrimary: ActionCallback,
-  onActionSecondary: ActionCallback,
   onWindowClose: CloseCallback
 };
 
-const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActionSecondary, onWindowClose }) => (
+const Popup: FunctionComponent<PopupProps> = ({ window, onWindowClose }) => (
   <>
     <Overlay onClick={onWindowClose} />
     <div className='mylife-window-popup'>
@@ -35,7 +31,7 @@ const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActio
           <h4 className='modal-title'>{window.id}</h4>
         </div>
         <div className='modal-body'>
-          <WindowContent window={window} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
+          <WindowContent window={window} />
         </div>
       </div>
     </div>
@@ -72,11 +68,11 @@ const Window: FunctionComponent = () => {
       {online && view && (
         <>
           <div title={view.main.id}>
-            <WindowContent window={view.main} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} />
+            <WindowContent window={view.main} />
           </div>
 
           {view.popups.map((popup, index) => (
-            <Popup key={`${index}_overlay`} window={popup} onActionPrimary={onActionPrimary} onActionSecondary={onActionSecondary} onWindowClose={onWindowClose}/>
+            <Popup key={`${index}_overlay`} window={popup} onWindowClose={onWindowClose}/>
           ))}
         </>
       )}
