@@ -2,8 +2,11 @@
 
 import React, { FunctionComponent } from 'react';
 import { VView } from '../store/types/view';
-import WindowContent from './window-content';
 import { VWindow } from '../store/types/model';
+import WindowContent from './window-content';
+import Overlay from './overlay';
+import Offline from './offline';
+import Loading from './loading';
 
 type ActionCallback = (window: string, control: string) => void;
 type CloseCallback = () => void;
@@ -25,7 +28,7 @@ type PopupProps = {
 
 const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActionSecondary, onWindowClose }) => (
   <>
-    <div className='mylife-overlay' onClick={onWindowClose} />
+    <Overlay onClick={onWindowClose} />
     <div className='mylife-window-popup'>
       <div className='modal-content' title={window.id}>
         <div className='modal-header'>
@@ -40,18 +43,6 @@ const Popup: FunctionComponent<PopupProps> = ({ window, onActionPrimary, onActio
       </div>
     </div>
   </>
-);
-
-const Offline: FunctionComponent = () => (
-  <div className='mylife-overlay'>
-    <img src='images/connecting.jpg' className='mylife-img-connecting' />
-  </div>
-);
-
-const Loading: FunctionComponent = () => (
-  <div className='mylife-overlay'>
-    <img src='images/spinner.gif' className='mylife-img-loading' />
-  </div>
 );
 
 const Window: FunctionComponent<WindowProps> = ({ online, view, onActionPrimary, onActionSecondary, onWindowClose }) => (
