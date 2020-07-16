@@ -16,17 +16,17 @@ const Control: FunctionComponent<ControlProps> = ({ windowId, controlId, control
   const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp } = useInputActions(onActionPrimary, onActionSecondary);
   return (
     <div
-    title={control.id}
-    style={getStyleSizePosition(control)}
-    className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
-    onTouchStart={onTouchStart}
-    onTouchEnd={onTouchEnd}
-    onMouseDown={onMouseDown}
-    onMouseUp={onMouseUp}
-  >
-    {control.displayResource && <img src={`/resources/${control.displayResource}`} />}
-    {control.text && <p>{control.text}</p>}
-  </div>
+      title={control.id}
+      style={getStyleSizePosition(control)}
+      className={control.active ? 'mylife-control-button' : 'mylife-control-inactive'}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    >
+      {control.displayResource && <img src={`/resources/${control.displayResource}`} />}
+      {control.text && <p>{control.text}</p>}
+    </div>
   )
 };
 
