@@ -1,28 +1,39 @@
 import React, { FunctionComponent } from 'react';
-import { VWindow } from '../store/types/model';
+import { useSelector } from 'react-redux';
+import { AppState } from '../store/types';
+import { Window } from '../store/types/model';
+import { getWindow } from '../store/selectors/model';
 import Control from './control';
 
 type WindowContentProps = {
-  window: VWindow;
+  windowId: string;
 };
 
-const WindowContent: FunctionComponent<WindowContentProps> = ({ window }) => (
-  <div style={getStyleSize(window)} className="mylife-window-container">
-    <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
-    {window.controls.map((control) => (
-      <Control
-        key={control.id}
-        windowId={window.id}
-        controlId={control.id}
-        control={control}
-      />
-    ))}
-  </div>
-);
+const WindowContent: FunctionComponent<WindowContentProps> = ({ windowId }) => {
+  const { window } = useConnect(windowId);
+  return (
+    <div style={getStyleSize(window)} className="mylife-window-container">
+      <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
+      {window.controls.map((control) => (
+        <Control
+          key={control.id}
+          windowId={window.id}
+          controlId={control.id}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default WindowContent;
 
-function getStyleSize(window: VWindow) {
+function getStyleSize(window: Window) {
   const { height, width } = window;
   return { height, width };
+}
+
+function useConnect(windowId: string) {
+  return useSelector((state: AppState) => ({
+    window: getWindow(state, windowId)
+  }));
 }
