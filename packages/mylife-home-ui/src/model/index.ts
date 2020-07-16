@@ -24,6 +24,11 @@ export interface Resource {
   readonly data: Buffer;
 }
 
+export interface RequiredComponentState {
+  readonly componentId: string;
+  readonly componentState: string;
+}
+
 export declare interface ModelManager extends EventEmitter {
   on(event: 'update', listener: () => void): this;
   off(event: 'update', listener: () => void): this;
@@ -33,6 +38,7 @@ export declare interface ModelManager extends EventEmitter {
 export class ModelManager extends EventEmitter {
   private _modelHash: string;
   private readonly resources = new Map<string, Resource>();
+  private _requiredComponentStates: RequiredComponentState[];
 
   constructor() {
     super();
@@ -58,6 +64,8 @@ export class ModelManager extends EventEmitter {
     this._modelHash = this.setResource('application/json', data);
     log.info(`Creating resource from model: hash='${this._modelHash}', size='${data.length}'`);
 
+    this._requiredComponentStates = extractRequiredComponentStates(model);
+
     this.emit('update');
   }
 
@@ -67,9 +75,12 @@ export class ModelManager extends EventEmitter {
     return hash;
   }
 
-
   get modelHash() {
     return this._modelHash;
+  }
+
+  get requiredComponentStates() {
+    return this._requiredComponentStates;
   }
 
   getResource(hash: string): Resource {
@@ -115,3 +126,25 @@ function translateResource(id: string, resourceTranslation: Map<string, string>)
   }
   return hash;
 };
+
+function extractRequiredComponentStates(model: Model): RequiredComponentState[] {
+  const list: RequiredComponentState[] = [];
+
+  for (const window of model.windows) {
+    for (const { display, text } of window.controls) {
+
+      if (display && display.componentId && display.componentState) {
+        list.push({ componentId: display.componentId, componentState: display.componentState });
+      }
+
+      if (text && text.context) {
+        for (const { componentId, componentState } of text.context) {
+          list.push({ componentId, componentState });
+        }
+      }
+
+    }
+  }
+
+  return list;
+}

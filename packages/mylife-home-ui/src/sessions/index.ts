@@ -44,6 +44,7 @@ export class SessionsManager {
   }
 
   private readonly onModelUpdate = () => {
+    this.sessionsRegistry.setRequiredComponentStates(this.model.requiredComponentStates);
     this.broadcast('modelHash', this.model.modelHash);
   };
 
