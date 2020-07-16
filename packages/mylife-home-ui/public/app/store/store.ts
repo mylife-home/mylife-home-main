@@ -14,7 +14,4 @@ if (process.env.NODE_ENV !== 'production') {
   middlewares.push(createLogger());
 }
 
-export const store = createStore(
-  reducer,
-  applyMiddleware(...middlewares)
-);
+export const store = createStore(reducer, applyMiddleware(...middlewares));
