@@ -49,55 +49,19 @@ export const makeGetUIControl = (windowId: string, controlId: string): (state: A
 
       const { display, text } = control;
       const requiredComponentStates: RequiredComponentState[] = [];
-      let displayResourceResolver: (componentStates: ProvidedComponentStates) => Resource = () => null;
-      let textResolver: (componentStates: ProvidedComponentStates) => Resource = () => null;
 
       if (display) {
         requiredComponentStates.push({ componentId: display.componentId, componentState: display.componentState });
-
-        displayResourceResolver = (componentStates) => {
-
-          const { defaultResource } = display;
-
-          const value = findComponentState(componentStates, display.componentId, display.componentState);
-          if (value === undefined) {
-            return defaultResource;
-          }
-
-          const item = findDisplayItem(display.map, value);
-          if (!item) {
-            return defaultResource;
-          }
-
-          return item.resource;
-        };
-      };
+      }
 
       if (text) {
         for (const item of text.context) {
           requiredComponentStates.push({ componentId: item.componentId, componentState: item.componentState });
         }
-
-        const argNames = text.context.map((item) => item.id).join(',');
-        let func: (args: string[]) => string;
-        try {
-          func = new Function(argNames, text.format) as (args: string[]) => string;
-        } catch (err) {
-          console.error(err); // eslint-disable-line no-console
-          func = () => err.message;
-        }
-
-        textResolver = (componentStates) => {
-          const args = text.context.map((item) => findComponentState(componentStates, item.componentId, item.componentState));
-
-          try {
-            return func(args);
-          } catch (err) {
-            console.error(err); // eslint-disable-line no-console
-            return err.message as string;
-          }
-        };
       }
+
+      const displayResourceResolver = createResourceDisplayResolver(display);
+      const textResolver = createTextResolver(text);
 
       return { template, requiredComponentStates, displayResourceResolver, textResolver };
     }
@@ -123,67 +87,34 @@ function getRequiredComponentStates(state: AppState, requiredComponentStates: Re
   return componentStates;
 }
 
-function findComponentState(componentStates: ProvidedComponentStates, componentId: string, componentState: string) {
-  return componentStates[`${componentId}$${componentState}`];
-}
+function createResourceDisplayResolver(display: ControlDisplay): (componentStates: ProvidedComponentStates) => Resource {
+  if (!display) {
+    return () => null;
+  }
 
+  return (componentStates) => {
 
-export const getUIControl = (state: AppState, windowId: string, controlId: string): UIControl => {
-  const window = getWindow(state, windowId);
-  const control = getWindowControl(state, windowId, controlId);
-  return prepareControl(state, window, control);
-};
+    const { defaultResource } = display;
 
-function prepareControl(state: AppState, window: Window, control: Control): UIControl {
-  const { id, width, height, display, text, primaryAction } = control;
+    const value = findComponentState(componentStates, display.componentId, display.componentState);
+    if (value === undefined) {
+      return defaultResource;
+    }
 
-  return {
-    id,
-    width,
-    height,
-    left: window.width * control.x - width / 2,
-    top: window.height * control.y - height / 2,
-    displayResource: prepareDisplay(state, display),
-    text: prepareText(state, text),
-    active: !!primaryAction,
+    const item = findDisplayItem(display.map, value);
+    if (!item) {
+      return defaultResource;
+    }
+
+    return item.resource;
   };
 }
 
-function prepareDisplay(state: AppState, display: ControlDisplay) {
-  if (!display) {
-    return null;
-  }
-
-  const { defaultResource } = display;
-
-  const value = getComponentState(state, display.componentId, display.componentState);
-  if (value === undefined) {
-    return defaultResource;
-  }
-  const item = findDisplayItem(display.map, value);
-  if (!item) {
-    return defaultResource;
-  }
-
-  return item.resource;
-}
-
-function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
-  if (typeof value === 'number') {
-    return map.find((item) => item.min <= value && value <= item.max) || null;
-  }
-
-  return map.find((item) => item.value === value) || null;
-}
-
-function prepareText(state: AppState, text: ControlText) {
+function createTextResolver(text: ControlText): (componentStates: ProvidedComponentStates) => string {
   if (!text) {
-    return null;
+    return () => null;
   }
 
-  const args = text.context.map((item) => getComponentState(state, item.componentId, item.componentState));
-
-  // TODO: cache function
   const argNames = text.context.map((item) => item.id).join(',');
   let func: (args: string[]) => string;
   try {
@@ -192,12 +123,27 @@ function prepareText(state: AppState, text: ControlText) {
     console.error(err); // eslint-disable-line no-console
     func = () => err.message;
   }
-  // ---
 
-  try {
-    return func(args);
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-    return err.message as string;
+  return (componentStates) => {
+    const args = text.context.map((item) => findComponentState(componentStates, item.componentId, item.componentState));
+
+    try {
+      return func(args);
+    } catch (err) {
+      console.error(err); // eslint-disable-line no-console
+      return err.message as string;
+    }
+  };
+}
+
+function findComponentState(componentStates: ProvidedComponentStates, componentId: string, componentState: string) {
+  return componentStates[`${componentId}$${componentState}`];
+}
+
+function findDisplayItem(map: ControlDisplayMapItem[], value: any) {
+  if (typeof value === 'number') {
+    return map.find((item) => item.min <= value && value <= item.max) || null;
   }
+
+  return map.find((item) => item.value === value) || null;
 }
