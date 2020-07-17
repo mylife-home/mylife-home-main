@@ -40,13 +40,12 @@ function createMobileMiddleware(): Middleware {
   insertViewport();
 
   return (store) => (next) => (action) => {
-    switch (action.type) {
-      case VIEW_CHANGE: {
-        const state = store.getState();
-        const windowId = action.payload;
-        const window = getWindow(state, windowId);
-        setDimensions(window.width, window.height);
-      }
+
+    if (action.type === VIEW_CHANGE) {
+      const state = store.getState();
+      const windowId = action.payload;
+      const window = getWindow(state, windowId);
+      setDimensions(window.width, window.height);
     }
 
     return next(action);
