@@ -1,33 +1,59 @@
 import { Middleware } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
-import io from 'socket.io-client';
-import { Reset, ComponentAdd, ComponentRemove, StateChange } from '../../../../shared/registry';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import { ActionComponent } from '../../../../shared/model';
+import { SocketMessage } from '../../../../shared/socket';
 import { ACTION_COMPONENT } from '../types/actions';
 import { onlineSet } from '../actions/online';
 import { reset, componentAdd, componentRemove, attributeChange } from '../actions/registry';
 import { modelInit } from '../actions/model';
 
+class WebSocket extends ReconnectingWebSocket { }
+
 export const socketMiddleware: Middleware = (store) => (next) => {
-  const socket = io();
+  const socket = new WebSocket('ws://arch-desktop:8001'); // FIXME
 
-  socket.on('connect', () => next(onlineSet(true)));
-  socket.on('disconnect', () => next(onlineSet(false)));
+  socket.onopen = () => next(onlineSet(true));
+  socket.onclose = () => next(onlineSet(false));
 
-  socket.on('state', (data: Reset) => next(reset(data)));
-  socket.on('add', (data: ComponentAdd) => next(componentAdd(data)));
-  socket.on('remove', (data: ComponentRemove) => next(componentRemove(data)));
-  socket.on('change', (data: StateChange) => next(attributeChange(data)));
-  socket.on('modelHash', (modelHash: string) => next(modelInit(modelHash) as any)); // TODO: proper cast: AppThunkAction => AnyAction
+  socket.onmessage = (event: MessageEvent) => {
+    const message = JSON.parse(event.data) as SocketMessage;
+    switch (message.type) {
+      case 'state':
+        next(reset(message.data));
+        break;
+
+      case 'add':
+        next(componentAdd(message.data));
+        break;
+
+      case 'remove':
+        next(componentRemove(message.data));
+        break;
+
+      case 'change':
+        next(attributeChange(message.data));
+        break;
+
+      case 'modelHash':
+        next(modelInit(message.data) as any); // TODO: proper cast: AppThunkAction => AnyAction
+        break;
+    }
+  };
 
   return (action) => {
     switch (action.type) {
       case ACTION_COMPONENT:
         const typedAction = action as PayloadAction<ActionComponent>;
-        socket.emit('action', typedAction.payload);
+        send(socket, 'action', typedAction.payload);
         break;
     }
 
     return next(action);
   };
 };
+
+function send(socket: WebSocket, type: string, data: any) {
+  const message: SocketMessage = { type: 'action', data };
+  socket.send(JSON.stringify(message));
+}

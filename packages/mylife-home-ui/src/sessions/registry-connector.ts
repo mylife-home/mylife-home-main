@@ -1,13 +1,13 @@
-import io from 'socket.io';
 import { components, logger } from 'mylife-home-common';
 import { ActionComponent } from '../../shared/model';
 import { Reset, StateChange, ComponentAdd, ComponentRemove } from '../../shared/registry';
 import { RequiredComponentState } from '../model';
+import { Session } from '.';
 
 const log = logger.createLogger('mylife:home:ui:sessions:registry-connector');
 
 export class SessionsRegistryConnector {
-  private readonly sockets = new Set<io.Socket>();
+  private readonly sessions = new Set<Session>();
   private readonly registryStateListeners = new Map<string, (name: string, value: any) => void>();
   private readonly requiredComponentStates = new Map<string, Set<string>>();
 
@@ -66,25 +66,25 @@ export class SessionsRegistryConnector {
     return states;
   }
 
-  addClient(socket: io.Socket) {
-    this.sockets.add(socket);
-    socket.on('action', this.onAction);
+  addClient(session: Session) {
+    this.sessions.add(session);
+    session.on('action', this.onAction);
 
-    this.sendState(socket);
+    this.sendState(session);
   }
 
-  removeClient(socket: io.Socket) {
-    this.sockets.delete(socket);
-    socket.off('action', this.onAction);
+  removeClient(session: Session) {
+    this.sessions.delete(session);
+    session.off('action', this.onAction);
   }
 
   private broadcast(eventName: string, message: any) {
-    for (const socket of this.sockets) {
-      socket.emit(eventName, message);
+    for (const session of this.sessions) {
+      session.send(eventName, message);
     }
   }
 
-  private sendState(socket?: io.Socket) {
+  private sendState(session?: Session) {
     const state: Reset = {};
     for (const component of this.registry.getComponents()) {
       if (component.plugin.usage === components.metadata.PluginUsage.UI && this.isRequiredComponent(component)) {
@@ -92,8 +92,8 @@ export class SessionsRegistryConnector {
       }
     }
 
-    if (socket) {
-      socket.emit('state', state);
+    if (session) {
+      session.send('state', state);
     } else {
       this.broadcast('state', state);
     }

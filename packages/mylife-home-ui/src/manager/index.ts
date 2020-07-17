@@ -15,9 +15,8 @@ export class Manager {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
     this.model = new ModelManager();
-    this.sessionsManager = new SessionsManager(this.registry, this.model);
     this.webServer = new WebServer(this.registry, this.model);
-    this.webServer.on('io.connection', socket => this.sessionsManager.addClient(socket));
+    this.sessionsManager = new SessionsManager(this.registry, this.model, this.webServer.httpServer);
 
     this.model.setDefinition(staticDefinition);
   }
