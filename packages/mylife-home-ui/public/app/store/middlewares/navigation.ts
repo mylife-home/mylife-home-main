@@ -1,28 +1,24 @@
 import { Middleware } from 'redux';
-import { createHashHistory, Location } from 'history';
 import { viewNavigationChange } from '../actions/view';
 import { NAVIGATION_PUSH } from '../types/navigation';
 
 export const navigationMiddleware: Middleware = (store) => (next) => {
-  const history = createHashHistory();
 
-  const onLocationChanged = (location: Location) => {
-    const pathname = location.pathname;
-    const viewId = pathname.substr(1);
+  const onHashChanged = () => {
+    const { hash } = window.location;
+    const viewId = hash && hash.substr(1);
     if (viewId) {
       next(viewNavigationChange(viewId));
     }
   };
 
-  history.listen(onLocationChanged);
-  onLocationChanged(history.location);
+  window.onhashchange = onHashChanged;
+  onHashChanged();
 
   return (action) => {
-    switch (action.type) {
-      case NAVIGATION_PUSH: {
-        history.push(action.payload);
-        break;
-      }
+
+    if (action.type === NAVIGATION_PUSH) {
+      window.location.hash = action.payload;
     }
 
     return next(action);

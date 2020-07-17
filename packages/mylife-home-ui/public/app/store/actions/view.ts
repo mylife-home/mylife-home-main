@@ -23,8 +23,7 @@ export const viewInit = (defaultWindow: any): AppThunkAction => (dispatch, getSt
 };
 
 export const viewChange = (id: string) => {
-  const pathname = `/${id}`;
-  return navigate(pathname);
+  return navigate(id);
 };
 
 export const viewClose = (): AppThunkAction => (dispatch, getState) => {
