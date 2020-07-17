@@ -3,7 +3,7 @@ import Overlay from './overlay';
 
 const Offline: FunctionComponent = () => (
   <Overlay>
-    <img src='images/connecting.jpg' className='mylife-img-connecting' />
+    <img src='images/offline.svg' className='mylife-img-connecting' />
   </Overlay>
 );
 
