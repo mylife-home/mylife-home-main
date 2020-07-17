@@ -34,7 +34,6 @@
     "chai": "^4.2.0",
     "mocha": "^8.0.1",
     "reconnecting-websocket": "^4.4.0",
-    "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
