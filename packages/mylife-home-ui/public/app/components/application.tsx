@@ -12,7 +12,7 @@ const Application: FunctionComponent = () => (
   <div className="mylife-window-root">
     {/* preload resources */}
     <img src='images/spinner.gif' style={{ display: 'none' }} />
-    <img src='images/connecting.gif' style={{ display: 'none' }} />
+    <img src='images/connecting.jpg' style={{ display: 'none' }} />
 
     <AppContent />
   </div>

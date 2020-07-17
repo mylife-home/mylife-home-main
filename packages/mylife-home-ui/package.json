@@ -37,9 +37,11 @@
     "history": "^4.10.1",
     "mocha": "^8.0.1",
     "reconnecting-websocket": "^4.4.0",
+    "regenerator-runtime": "^0.13.5",
     "reselect": "^4.0.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5",
+    "whatwg-fetch": "^3.2.0",
     "ws": "^7.3.1"
   },
   "dependencies": {
@@ -56,7 +58,6 @@
     "serve-favicon": "^2.5.0",
     "serve-static": "^1.14.1",
     "server-destroy": "^1.0.1",
-    "source-map-support": "^0.5.19",
-    "superagent": "^5.2.2"
+    "source-map-support": "^0.5.19"
   }
 }

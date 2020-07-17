@@ -10,9 +10,9 @@ export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getSt
   console.log('modelInit with modelHash', modelHash); // eslint-disable-line no-console
 
   dispatch(resourceQuery({
-    resource: modelHash, done: (err, data) => {
-      if (err) { return console.error(err); } // eslint-disable-line no-console
-      const model = JSON.parse(data) as Model;
+    resource: modelHash, 
+    onContent: (content: any) => {
+      const model = content as Model;
 
       dispatch(modelSet(model.windows));
       dispatch(viewInit(model.defaultWindow));
