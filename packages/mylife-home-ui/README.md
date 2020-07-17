@@ -4,7 +4,6 @@
  - remove / in #/window_id
  - switch to preact
  - remove bootstrap
- - use fetch polyfill instead of superagent
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
  - try to use self history instead of package ?
  - better webpack packaging (inline bundle, icons, ...) ??
