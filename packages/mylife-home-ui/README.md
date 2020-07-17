@@ -1,11 +1,10 @@
 # `mylife-home-ui`
 
 ## TODO
- - remove / in #/window_id
  - switch to preact
  - remove bootstrap
+ - remove express ?
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
- - try to use self history instead of package ?
  - better webpack packaging (inline bundle, icons, ...) ??
  - spinner.gif is huge!
  - BUG: seems that we can get components from offline instance!
