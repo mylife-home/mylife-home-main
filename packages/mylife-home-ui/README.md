@@ -8,6 +8,7 @@
  - better webpack packaging (inline bundle, icons, ...) ??
  - spinner.gif is huge!
  - BUG: seems that we can get components from offline instance!
+ - BUG: viewport broken on mobile
 
 ## Client-side model
   
