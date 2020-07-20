@@ -11,7 +11,7 @@ import { modelInit } from '../actions/model';
 class WebSocket extends ReconnectingWebSocket { }
 
 export const socketMiddleware: Middleware = (store) => (next) => {
-  const socket = new WebSocket('ws://arch-desktop:8001'); // FIXME
+  const socket = new WebSocket(location.origin.replace(/^http/, 'ws'));
 
   socket.onopen = () => next(onlineSet(true));
   socket.onclose = () => next(onlineSet(false));
