@@ -16,10 +16,10 @@ const Popup: FunctionComponent<PopupProps> = ({ windowId }) => {
       <div className='mylife-window-popup'>
         <div className='modal-content' title={windowId}>
           <div className='modal-header'>
-            <button onClick={onWindowClose} className="close">
-              x
-            </button>
             <h4 className='modal-title'>{windowId}</h4>
+            <button onClick={onWindowClose} className="close">
+              <span>&times;</span>
+            </button>
           </div>
           <div className='modal-body'>
             <WindowContent windowId={windowId} />

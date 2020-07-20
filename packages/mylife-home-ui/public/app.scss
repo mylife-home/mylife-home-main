@@ -1,18 +1,6 @@
-@import "~bootstrap-less/bootstrap/index.less";
+@import "~bootstrap/scss/bootstrap";
 
-/*
-@import "~bootstrap-less/bootstrap/normalize.less";
-
-@import "~bootstrap-less/bootstrap/variables.less";
-@import "~bootstrap-less/bootstrap/mixins/vendor-prefixes.less";
-@import "~bootstrap-less/bootstrap/mixins/opacity.less";
-@import "~bootstrap-less/bootstrap/mixins/buttons.less";
-@import "~bootstrap-less/bootstrap/mixins/tab-focus.less";
-@import "~bootstrap-less/bootstrap/buttons.less";
-@import "~bootstrap-less/bootstrap/modals.less";
-*/
-
-.mylife-control {
+@mixin mylife-control {
 
   position: absolute;
   padding: 2px;
@@ -30,14 +18,14 @@
 }
 
 .mylife-control-button {
-  .btn();
-  .btn-default();
+  @extend .btn;
+  @extend .btn-outline-secondary;
 
-  .mylife-control();
+  @include mylife-control;
 }
 
 .mylife-control-inactive {
-  .mylife-control();
+  @include mylife-control;
 }
 
 .mylife-overlay {
@@ -87,7 +75,8 @@
 }
 
 .mylife-window-popup {
-  .modal-dialog();
+  @extend .modal-dialog;
+  @extend .modal-xl;
 
   position: fixed;
   top: 50%;

@@ -48,7 +48,7 @@ export const client = (context: Context) => {
         },
         { test: /\.js$/, use: [{ loader: 'babel-loader', options: babelOptions }] },
         { test: /\.css$/, use: ['style-loader', 'css-loader'] },
-        { test: /\.less$/, use: ['style-loader', 'css-loader', 'less-loader'] },
+        { test: /\.scss$/, use: ['style-loader', 'css-loader', 'sass-loader'] },
         { test: /\.(png|jpg|gif|svg|eot|woff|woff2|ttf|ico)$/, use: ['file-loader'] },
       ],
     },
