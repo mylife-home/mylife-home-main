@@ -2,7 +2,7 @@
 
 ## TODO
  - switch to preact
- - remove bootstrap
+ - css extract + purge
  - remove express ?
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
  - better webpack packaging (inline bundle, icons, ...) ??

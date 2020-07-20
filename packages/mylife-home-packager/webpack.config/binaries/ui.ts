@@ -1,8 +1,11 @@
 import path from 'path';
+import glob from 'glob';
 import { Configuration } from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import PurgecssPlugin from 'purgecss-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from '../plugins/customized-bundle-analyzer-plugin';
 import { ConfigurationByMode } from './common/types';
 import { Context } from '../context';
@@ -24,6 +27,8 @@ export const client = (context: Context) => {
 
   const repoPath = path.dirname(require.resolve('mylife-home-ui/package.json'));
   const sourcePath = path.join(repoPath, 'public');
+
+  const styleLoader = context.mode === 'prod' ? MiniCssExtractPlugin.loader : 'style-loader';
 
   const base = {
     entry: 'mylife-home-ui/public/app/main',
@@ -47,8 +52,7 @@ export const client = (context: Context) => {
           ],
         },
         { test: /\.js$/, use: [{ loader: 'babel-loader', options: babelOptions }] },
-        { test: /\.css$/, use: ['style-loader', 'css-loader'] },
-        { test: /\.scss$/, use: ['style-loader', 'css-loader', 'sass-loader'] },
+        { test: /\.scss$/, use: [styleLoader, 'css-loader', 'sass-loader'] },
         { test: /\.(png|jpg|gif|svg|eot|woff|woff2|ttf|ico)$/, use: ['file-loader'] },
       ],
     },
@@ -81,7 +85,11 @@ export const client = (context: Context) => {
           }),
         ],
       },
-      plugins: [new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })],
+      plugins: [
+        new MiniCssExtractPlugin(),
+        new PurgecssPlugin({ paths: glob.sync(`${sourcePath}/**/*`, { nodir: true }) }),
+        new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })
+      ],
     } as Configuration,
   } as ConfigurationByMode;
 
