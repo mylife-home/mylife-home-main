@@ -40,6 +40,13 @@ export const client = (context: Context) => {
 
     resolve: {
       extensions: ['.wasm', '.mjs', '.js', '.ts', '.tsx', '.json'],
+
+      // https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact
+      alias: { 
+        "react": "preact/compat",
+        "react-dom/test-utils": "preact/test-utils",
+        "react-dom": "preact/compat",
+      },
     },
 
     module: {

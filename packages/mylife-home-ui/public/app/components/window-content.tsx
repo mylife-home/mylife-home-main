@@ -13,7 +13,7 @@ const WindowContent: FunctionComponent<WindowContentProps> = ({ windowId }) => {
   const { window } = useConnect(windowId);
   return (
     <div style={getStyleSize(window)} className="mylife-window-container">
-      <img src={window.backgroundResource && `/resources/${window.backgroundResource}`} />
+      <img src={getBackground(window)} />
       {window.controls.map((control) => (
         <Control
           key={control.id}
@@ -27,13 +27,21 @@ const WindowContent: FunctionComponent<WindowContentProps> = ({ windowId }) => {
 
 export default WindowContent;
 
+function useConnect(windowId: string) {
+  return useSelector((state: AppState) => ({
+    window: getWindow(state, windowId)
+  }));
+}
+
 function getStyleSize(window: Window) {
   const { height, width } = window;
   return { height, width };
 }
 
-function useConnect(windowId: string) {
-  return useSelector((state: AppState) => ({
-    window: getWindow(state, windowId)
-  }));
+function getBackground(window: Window) {
+  if(!window.backgroundResource) {
+    return undefined;
+  }
+
+  return `/resources/${window.backgroundResource}`;
 }
