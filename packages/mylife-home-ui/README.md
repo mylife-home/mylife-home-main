@@ -6,7 +6,6 @@
  - remove express ?
  - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
  - better webpack packaging (inline bundle, icons, ...) ??
- - spinner.gif is huge!
  - BUG: seems that we can get components from offline instance!
  - BUG: viewport broken on mobile
 
