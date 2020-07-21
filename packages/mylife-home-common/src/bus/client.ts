@@ -26,7 +26,7 @@ export class Client extends EventEmitter {
     super();
 
     const qos: mqtt.QoS = 0;
-    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false), retain: false, qos };
+    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false), retain: true, qos };
     this.client = mqtt.connect(serverUrl, { will, resubscribe: false });
 
     this.client.on('connect', () =>
@@ -56,7 +56,7 @@ export class Client extends EventEmitter {
     const zeroBuffer = Buffer.allocUnsafe(0);
     const clearTopic = (topic: string, payload: Buffer) => {
       if (topic.startsWith(this.instanceName + '/')) {
-        fireAsync(() => this.publish(topic, zeroBuffer));
+        fireAsync(() => this.clearRetain(topic));
       }
     };
 
@@ -83,7 +83,8 @@ export class Client extends EventEmitter {
 
   async terminate(): Promise<void> {
     if (this.client.connected) {
-      await this.client.publish(this.buildTopic('online'), encoding.writeBool(false));
+      await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
+      await this.clearResidentState();
     }
     await this.client.end(true);
   }
@@ -100,6 +101,10 @@ export class Client extends EventEmitter {
 
   async publish(topic: string, payload: Buffer, retain: boolean = false) {
     await this.client.publish(topic, payload, { retain });
+  }
+
+  private async clearRetain(topic: string) {
+    await this.publish(topic, Buffer.allocUnsafe(0), true);
   }
 
   async subscribe(topic: string | string[]) {
