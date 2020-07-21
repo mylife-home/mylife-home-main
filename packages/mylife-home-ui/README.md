@@ -2,7 +2,6 @@
 
 ## TODO
  - BUG: seems that we can get components from offline instance!
- - BUG: viewport broken on mobile
 
 ## Client-side model
   

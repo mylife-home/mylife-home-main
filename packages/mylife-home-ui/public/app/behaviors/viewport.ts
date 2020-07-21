@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { isMobile, isIOS } from '../utils/detect-browser';
 import { AppState } from '../store/types';
@@ -13,9 +13,9 @@ export function useViewport(windowId: string) {
   if (!isMobile) {
     return;
   }
-  
+
   const { window } = useConnect(windowId);
-  return useMobileViewport(window);
+  return useMobileViewport({ width: window.width, height: window.height });
 }
 
 function useConnect(windowId: string) {
@@ -52,11 +52,11 @@ function useMobileViewport(size: Size) {
   useEffect(() => setDimensions(size.width, size.height), [size.width, size.height]);
 
   const initialSize: Size = null;
-  const [requiredSize, setRequiredSize] = useState(initialSize);
+  const requiredSizeRef = useRef(initialSize);
 
   function setDimensions(requiredWidth: number, requiredHeight: number) {
     console.log(`viewport set dimensions: width=${requiredWidth}, heigth=${requiredHeight}`); // eslint-disable-line no-console
-    setRequiredSize({ width: requiredWidth, height: requiredHeight });
+    requiredSizeRef.current = { width: requiredWidth, height: requiredHeight };
     adjustViewport();
   }
 
@@ -73,12 +73,12 @@ function useMobileViewport(size: Size) {
   }
 
   function adjustViewport() {
-    if (!requiredSize) {
+    if (!requiredSizeRef.current) {
       return;
     }
 
     const actualSize = getDisplaySize();
-    const ratio = Math.min(actualSize.width / requiredSize.width, actualSize.height / requiredSize.height);
+    const ratio = Math.min(actualSize.width / requiredSizeRef.current.width, actualSize.height / requiredSizeRef.current.height);
 
     console.log(`setting viewport width=${actualSize.width} ratio=${ratio}`); // eslint-disable-line no-console
     document
