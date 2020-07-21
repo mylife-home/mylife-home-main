@@ -1,1 +1,5 @@
-console.log('hello world');
+import { Logger } from './logger';
+
+const serverUrl = process.env.BUS;
+
+const logger = new Logger(serverUrl);
