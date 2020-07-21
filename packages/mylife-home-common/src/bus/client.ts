@@ -26,7 +26,7 @@ export class Client extends EventEmitter {
     super();
 
     const qos: mqtt.QoS = 0;
-    const will = { topic: this.buildTopic('online'), payload: encoding.writeBool(false), retain: true, qos };
+    const will = { topic: this.buildTopic('online'), payload: Buffer.allocUnsafe(0), retain: true, qos };
     this.client = mqtt.connect(serverUrl, { will, resubscribe: false });
 
     this.client.on('connect', () =>
@@ -83,7 +83,7 @@ export class Client extends EventEmitter {
 
   async terminate(): Promise<void> {
     if (this.client.connected) {
-      await this.publish(this.buildTopic('online'), encoding.writeBool(true), true);
+      await this.publish(this.buildTopic('online'), Buffer.allocUnsafe(0), true);
       await this.clearResidentState();
     }
     await this.client.end(true);

@@ -23,7 +23,6 @@ export class Presence extends EventEmitter {
       this.client.on('message', (topic, payload) => this.onMessage(topic, payload));
 
       fireAsync(() => this.client.subscribe('+/online'));
-
     }
   }
 
@@ -49,7 +48,8 @@ export class Presence extends EventEmitter {
     }
 
     const instanceName = path[0];
-    const online = encoding.readBool(payload);
+    // if payload is empty, then this is a retain message deletion indicating that instance is offline
+    const online = payload.length > 0 && encoding.readBool(payload);
 
     if (instanceName === this.client.instanceName) {
       return;
