@@ -84,7 +84,7 @@ export class Metadata {
 
   async clear(path: string): Promise<void> {
     const topic = this.client.buildTopic(DOMAIN, path);
-    await this.client.publish(topic, Buffer.allocUnsafe(0));
+    await this.client.publish(topic, Buffer.allocUnsafe(0), true);
   }
 
   async createView(remoteInstanceName: string): Promise<RemoteMetadataView> {
