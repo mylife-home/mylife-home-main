@@ -1,7 +1,6 @@
 # `mylife-home-ui`
 
 ## TODO
- - redux toolkit createReducer wraps lot of pate like immer, let's try to remove it ?
  - BUG: seems that we can get components from offline instance!
  - BUG: viewport broken on mobile
 
