@@ -1,10 +1,5 @@
 # `mylife-home-ui`
 
-## TODO
- - BUG: seems that we can get components from offline instance!
-   => OK when the instance disconnect while we are online
-   => KO when we go online after the instance has been disconnected
-
 ## Client-side model
   
  - on connection, 
