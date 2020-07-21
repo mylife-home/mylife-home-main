@@ -1,18 +1,30 @@
-import { Middleware } from 'redux';
-import { VIEW_CHANGE } from '../types/view';
-import { getWindow } from '../selectors/model';
-import { isMobile, isIOS } from '../../utils/detect-browser';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { isMobile, isIOS } from '../utils/detect-browser';
+import { AppState } from '../store/types';
+import { getWindow } from '../store/selectors/model';
 
-export function createViewportMiddleware(): Middleware {
-  // nothing to do on desktop
-  if (!isMobile) {
-    return (store) => (next) => (action) => next(action);
-  }
-
-  return createMobileMiddleware();
+export interface Size {
+  readonly width: number;
+  readonly height: number;
 }
 
-function createMobileMiddleware(): Middleware {
+export function useViewport(windowId: string) {
+  if (!isMobile) {
+    return;
+  }
+  
+  const { window } = useConnect(windowId);
+  return useMobileViewport(window);
+}
+
+function useConnect(windowId: string) {
+  return useSelector((state: AppState) => ({
+    window: getWindow(state, windowId)
+  }));
+}
+
+function useMobileViewport(size: Size) {
 
   /** Steven Yang, July 2016
   Based on http://stackoverflow.com/questions/21419404/setting-the-viewport-to-scale-to-fit-both-width-and-height , this Javascript code allows you to
@@ -28,32 +40,23 @@ function createMobileMiddleware(): Middleware {
   Please use this code freely.  Credit is appreciated, but not required!
   */
 
-  interface Size {
-    readonly width: number;
-    readonly height: number;
-  }
+  useEffect(() => {
+    insertViewport();
+    window.addEventListener('orientationchange', adjustViewport);
 
-  let requiredSize: Size;
+    return () => {
+      window.removeEventListener('orientationchange', adjustViewport);
+    };
+  }, []);
 
-  window.addEventListener('orientationchange', adjustViewport);
+  useEffect(() => setDimensions(size.width, size.height), [size.width, size.height]);
 
-  insertViewport();
-
-  return (store) => (next) => (action) => {
-
-    if (action.type === VIEW_CHANGE) {
-      const state = store.getState();
-      const windowId = action.payload;
-      const window = getWindow(state, windowId);
-      setDimensions(window.width, window.height);
-    }
-
-    return next(action);
-  };
+  const initialSize: Size = null;
+  const [requiredSize, setRequiredSize] = useState(initialSize);
 
   function setDimensions(requiredWidth: number, requiredHeight: number) {
     console.log(`viewport set dimensions: width=${requiredWidth}, heigth=${requiredHeight}`); // eslint-disable-line no-console
-    requiredSize = { width: requiredWidth, height: requiredHeight };
+    setRequiredSize({ width: requiredWidth, height: requiredHeight });
     adjustViewport();
   }
 
@@ -70,7 +73,7 @@ function createMobileMiddleware(): Middleware {
   }
 
   function adjustViewport() {
-    if (!requiredSize || !isMobile) {
+    if (!requiredSize) {
       return;
     }
 
@@ -82,22 +85,23 @@ function createMobileMiddleware(): Middleware {
       .querySelector('meta[name="viewport"]')
       .setAttribute('content', 'initial-scale=' + ratio + ', maximum-scale=' + ratio + ', minimum-scale=' + ratio + ', user-scalable=yes, width=' + actualSize.width);
   }
+}
 
-  function getDisplaySize() {
-    return !isIOS || isPortraitOrientation() ? screen : rotate(screen);
+
+function getDisplaySize() {
+  return !isIOS || isPortraitOrientation() ? screen : rotate(screen);
+}
+
+function isPortraitOrientation() {
+  switch (window.orientation) {
+    case -90:
+    case 90:
+      return false;
   }
 
-  function isPortraitOrientation() {
-    switch (window.orientation) {
-      case -90:
-      case 90:
-        return false;
-    }
+  return true;
+}
 
-    return true;
-  }
-
-  function rotate(size: Size): Size {
-    return { width: size.height, height: size.width };
-  }
+function rotate(size: Size): Size {
+  return { width: size.height, height: size.width };
 }
