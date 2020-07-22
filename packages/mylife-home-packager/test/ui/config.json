@@ -5,14 +5,6 @@
   "bus": {
     "serverUrl": "tcp://localhost"
   },
-  "net": {
-    "host"           : "rpi2-home-core",
-    "port"           : 6667,
-    "ui_channel"     : "mylife-ui",
-    "admin_channel"  : "mylife-admin",
-    "log_channel"    : "mylife-log",
-    "resources_nick" : "mylife-home-resources"
-  },
   "web": {
     "port"     : 8001,
     "staticDirectory": "./static"
