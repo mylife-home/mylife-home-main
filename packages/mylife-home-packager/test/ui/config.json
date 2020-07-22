@@ -6,7 +6,7 @@
     "serverUrl": "tcp://localhost"
   },
   "web": {
-    "port"     : 8001,
+    "port": 8001,
     "staticDirectory": "./static"
   }
 }
