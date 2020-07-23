@@ -1,0 +1,12 @@
+{
+  "logging": {
+    "console": true
+  },
+  "bus": {
+    "serverUrl": "tcp://localhost"
+  },
+  "web": {
+    "port": 8001,
+    "staticDirectory": "./static"
+  }
+}

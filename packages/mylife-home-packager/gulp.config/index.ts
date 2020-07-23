@@ -4,6 +4,7 @@ import { argv } from 'yargs';
 import { projects, globs } from './definitions';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
+import { createDockerTask } from './docker-build';
 
 type CorePluginDefinition = {
   readonly ts: TsBuild;
@@ -112,6 +113,8 @@ function createDevCorePluginTask(name: string) {
   return series(plugin.ts.task, plugin.dev.task);
 }
 
+const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui' });
+
 export = {
   'clean': () => del(globs.dist.all),
   'clean:prod': () => del(globs.dist.prod),
@@ -125,6 +128,8 @@ export = {
   'watch:core': watchCore,
 
   'build:prod': buildProd,
+
+  'docker:build:ui': dockerBuildUi
 };
 
 function corePluginsListNames() {
