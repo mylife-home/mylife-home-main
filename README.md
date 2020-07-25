@@ -6,6 +6,9 @@ MyLife Home main
  - lerna exec -- npm update
  - lerna bootstrap
 
+## Bump
+ - lerna version
+
 ## TODO
 
 ### common
