@@ -16,11 +16,3 @@
     "test": "mocha -r test/init 'test/**/*.test.ts'"
   }
 }
-
-"version": "1.0.0",
-"description": "MyLife Home UI",
-"author": "Vincent Trumpff",
-"homepage": "https://github.com/mylife-home/mylife-home-main#readme",
-"license": "GPL-3.0-or-later",
-"main": "dist/main.js",
-"types": "dist/main.d.ts",
