@@ -1,0 +1,12 @@
+{
+  "logging": {
+    "console": true
+  },
+  "bus": {
+    "serverUrl": "tcp://localhost"
+  },
+  "store": {
+    "type": "fs",
+    "path": "store.json"
+  }
+}

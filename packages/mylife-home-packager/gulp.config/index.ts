@@ -115,6 +115,8 @@ function createDevCorePluginTask(name: string) {
 
 const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui' });
 
+const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge' });
+
 export = {
   'clean': () => del(globs.dist.all),
   'clean:prod': () => del(globs.dist.prod),
@@ -129,7 +131,8 @@ export = {
 
   'build:prod': buildProd,
 
-  'docker:build:ui': dockerBuildUi
+  'docker:build:ui': dockerBuildUi,
+  'docker:build:irc-bridge': dockerBuildUIrcBridge
 };
 
 function corePluginsListNames() {

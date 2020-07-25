@@ -1,0 +1,1614 @@
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "irc-home",
+      "plugin": "irc.network",
+      "config": {
+        "networkKey": "home",
+        "server": "rpi2-home-core",
+        "channel": "mylife-core"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-tv-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_tv_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "escaliers_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-volup",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_volup" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "portail-open",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "portail_open" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-volume",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleonore_volume" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage2_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "chp_dressing_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "terrasse_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-off-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "r1_off_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "cuisine_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-d-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_d_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "hall_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-volume",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_volume" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb2-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "out_rgb2_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-ui-playing",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_ui_playing" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage3_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-voldown",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_voldown" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdb-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_sdb_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "couloir_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage2_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage5_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch3_main_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "portail-close",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "portail_close" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight1",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uilight1" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "salon_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "garden-uitemp",
+      "plugin": "irc.ui-state-temperature",
+      "config": { "networkKey": "home", "ircComponent": "garden_uitemp" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-open-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_vr_open_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-voldown",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_voldown" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch2-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_ch2_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "hall_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton2",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uibutton2" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-a-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_a_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch2_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch1_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch1-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_ch1_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uitemp",
+      "plugin": "irc.ui-state-temperature",
+      "config": { "networkKey": "home", "ircComponent": "hall_uitemp" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-blue",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_blue" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "escaliers_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "porche_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-d-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_d_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-lit-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch1_guirlande_lit_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "cuisine_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "ch1_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-fenetre-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch1_guirlande_fenetre_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "ch2_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-degmt-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_degmt_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage_timer_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-orange",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_orange" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-fenetre-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ch1_guirlande_fenetre_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "sdbp_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "repas_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb2-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "out_rgb2_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "chp_dressing_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage5_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ch3_main_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvsud-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_bvsud_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-lit-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ch1_guirlande_lit_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch3-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_ch3_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-ui-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleonore_ui_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-next",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_next" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-tv-uiactive",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_tv_uiactive" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage1_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-cuisine-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_cuisine_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-b-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_b_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvouest-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_bvouest_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-cyan",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_cyan" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-off-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_off_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "wc_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "repas_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-white",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_white" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "ch3_dressing_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-next",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleonore_next" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "degmt_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-purple",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_purple" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-close-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "r1_vr_close_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-prev",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleonore_prev" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-close-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_vr_close_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb1-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "out_rgb1_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-garf-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_garf_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-poele-uiactive",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_poele_uiactive" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-b-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_b_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-ui-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_ui_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-yellow",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_yellow" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-guirlande1-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "out_guirlande1_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-running",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage_timer_running" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb1-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "out_rgb1_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage3_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-entree-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_entree_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-poele-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_poele_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-pink",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_pink" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set40",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch1_set40" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-state",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_state" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "sdbp_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-ui-playing",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleonore_ui_playing" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vaisselier-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_vaisselier_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-prev",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_prev" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-toggle",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_toggle" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-guirlande1-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "out_guirlande1_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-a-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_a_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "wc_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-open-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "r1_vr_open_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-progress",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "arrosage_timer_progress" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-c-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_c_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "degmt_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvouest_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage1_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-uidisplay",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "arrosage4_uidisplay" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_vol0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vapeur-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_vapeur_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch2_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "arrosage4_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vapeur-uiactive",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_vapeur_uiactive" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton1",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uibutton1" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_bvsud_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set0" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-chp-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_chp_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vaisselier-uiactive",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_rgb_vaisselier_uiactive" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-c-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "rdc_remote_c_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight2",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "chp_bed_uilight2" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set20",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_cuisine_set20" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "terrasse_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-uilight",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "sdb_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "porche_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-uilight",
+      "plugin": "irc.ui-state-percent",
+      "config": { "networkKey": "home", "ircComponent": "salon_uilight" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-volup",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_sdb_volup" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "sdb_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "ch3_dressing_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-green",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_green" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set100",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_degmt_set100" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set60",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_ch3_set60" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdbp-ui",
+      "plugin": "irc.ui-state-binary",
+      "config": { "networkKey": "home", "ircComponent": "ap_sdbp_ui" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-uibutton",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "couloir_uibutton" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set80",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "vr_chp_set80" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-red",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "color_main_red" }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol0",
+      "plugin": "irc.ui-button",
+      "config": { "networkKey": "home", "ircComponent": "mpd_eleo_vol0" }
+    }
+  }
+]

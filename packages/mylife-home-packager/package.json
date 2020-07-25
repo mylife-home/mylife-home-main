@@ -17,7 +17,9 @@
     "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "docker:start:ui": "docker run --rm -d --network host --name mylife-home-ui mylife-home-ui",
-    "docker:stop:ui": "docker rm -f mylife-home-ui"
+    "docker:stop:ui": "docker rm -f mylife-home-ui",
+    "docker:start:irc-bridge": "docker run --rm -d --network host --name mylife-home-core-irc-bridge mylife-home-core-irc-bridge",
+    "docker:stop:irc-bridge": "docker rm -f mylife-home-core-irc-bridge"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
