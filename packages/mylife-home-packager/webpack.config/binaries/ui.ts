@@ -6,6 +6,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import CopyPlugin from 'copy-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import PurgecssPlugin from 'purgecss-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from '../plugins/customized-bundle-analyzer-plugin';
 import { ConfigurationByMode } from './common/types';
 import { Context } from '../context';
@@ -67,10 +68,11 @@ export const client = (context: Context) => {
     plugins: [
       new CopyPlugin({
         patterns: [
-          { from: path.join(sourcePath, 'index.html') },
+          //{ from: path.join(sourcePath, 'index.html') },
           { from: path.join(sourcePath, 'images'), to: 'images' },
         ],
-      })
+      }),
+      new HtmlWebpackPlugin({ template: path.join(sourcePath, 'index.ejs') })
     ]
   };
 
