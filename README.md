@@ -26,3 +26,9 @@ MyLife Home main
  - store/mounted-fs
 
 ### packager
+
+### emulator
+ - docker pi for raspbian: https://github.com/lukechilds/dockerpi
+ - custom qemu raspbian kernel: https://github.com/dhruvvyas90/qemu-rpi-kernel
+ - alpine qemu arm: https://superuser.com/questions/1397991/running-alpine-linux-on-qemu-arm-guests
+ - cross-platform build tools: https://github.com/DDoSolitary/alpine-repo - https://github.com/DDoSolitary/alpine-repo/
