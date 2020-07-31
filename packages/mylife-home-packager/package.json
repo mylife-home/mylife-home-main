@@ -16,6 +16,7 @@
     "start:serve-dist": "http-server -c-1 ./dist",
     "start:irc-bridge": "node dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
+    "start:studio": "node dist/dev/studio/bin.js --config=test/studio/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "docker:start:ui": "docker run --rm -d --network host --name mylife-home-ui mylife-home-ui",
     "docker:stop:ui": "docker rm -f mylife-home-ui",
     "docker:start:irc-bridge": "docker run --rm -d --network host --name mylife-home-core-irc-bridge mylife-home-core-irc-bridge",
@@ -73,6 +74,7 @@
     "mylife-home-common": "^1.0.0",
     "mylife-home-core": "^1.0.0",
     "mylife-home-core-plugins-irc": "^1.0.0",
-    "mylife-home-ui": "^1.0.0"
+    "mylife-home-ui": "^1.0.0",
+    "mylife-home-studio": "^1.0.0"
   }
 }

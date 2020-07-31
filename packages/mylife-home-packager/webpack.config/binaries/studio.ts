@@ -14,7 +14,7 @@ import { prepareServerConfiguration } from './common/tools';
 
 export const bin = (context: Context) => prepareServerConfiguration(context, {
   entry: {
-    'ui/bin': 'mylife-home-ui/dist/src/bin',
+    'studio/bin': 'mylife-home-studio/dist/src/bin',
   },
 });
 
@@ -26,28 +26,21 @@ export const client = (context: Context) => {
     ]
   };
 
-  const repoPath = path.dirname(require.resolve('mylife-home-ui/package.json'));
+  const repoPath = path.dirname(require.resolve('mylife-home-studio/package.json'));
   const sourcePath = path.join(repoPath, 'public');
 
   const styleLoader = context.mode === 'prod' ? MiniCssExtractPlugin.loader : 'style-loader';
 
   const base = {
-    entry: 'mylife-home-ui/public/app/main',
+    entry: 'mylife-home-studio/public/app/main',
 
     output: {
-      path: path.join(context.outputPath, 'ui/static'),
+      path: path.join(context.outputPath, 'studio/static'),
       filename: 'bundle.js',
     },
 
     resolve: {
       extensions: ['.wasm', '.mjs', '.js', '.ts', '.tsx', '.json'],
-
-      // https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact
-      alias: { 
-        "react": "preact/compat",
-        "react-dom/test-utils": "preact/test-utils",
-        "react-dom": "preact/compat",
-      },
     },
 
     module: {

@@ -37,7 +37,19 @@ export const projects = {
       }
       // other plugins
     }
-  }
+  },
+
+  studio: {
+    ts: new TsBuild('mylife-home-studio'),
+    bin: {
+      dev: new WebpackBuild('studio', 'bin', 'dev'),
+      prod: new WebpackBuild('studio', 'bin', 'prod'),
+    },
+    client: {
+      dev: new WebpackBuild('studio', 'client', 'dev'),
+      prod: new WebpackBuild('studio', 'client', 'prod'),
+    }
+  },
 };
 
 export const globs = {
@@ -57,7 +69,11 @@ export const globs = {
       irc: projects.core.plugins.irc.ts.globs
       // other plugins
     }
-  }
+  },
+  studio: {
+    bin: projects.studio.ts.globs,
+    client: packagePublicGlobs('mylife-home-studio')
+  },
 };
 
 function pathAsGlobs(part: string) {

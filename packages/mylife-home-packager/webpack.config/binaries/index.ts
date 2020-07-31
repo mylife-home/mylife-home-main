@@ -1,6 +1,7 @@
 import { ConfigurationFactory } from './common/types';
 import * as core from './core';
 import * as ui from './ui';
+import * as studio from './studio';
 
 export { ConfigurationFactory };
 
@@ -9,6 +10,8 @@ configurationFactories.set(makeKey('ui', 'bin'), ui.bin);
 configurationFactories.set(makeKey('ui', 'client'), ui.client);
 configurationFactories.set(makeKey('core', 'lib'), core.lib);
 configurationFactories.set(makeKey('core', 'bin'), core.bin);
+configurationFactories.set(makeKey('studio', 'bin'), studio.bin);
+configurationFactories.set(makeKey('studio', 'client'), studio.client);
 
 for (const pluginName of core.listPlugins()) {
   configurationFactories.set(makeKey('core', 'plugins-' + pluginName), (context) => core.plugin(context, pluginName));

@@ -22,6 +22,7 @@ type CorePluginsGlobs = {
 
 const buildProd = parallel(
   projects.ui.client.prod.task,
+  projects.studio.client.prod.task,
   series(
     projects.common.ts.task,
     parallel(
@@ -34,6 +35,10 @@ const buildProd = parallel(
         projects.core.lib.prod.task,
         projects.core.bin.prod.task,
         createProdCorePluginsTask()
+      ),
+      series(
+        projects.studio.ts.task,
+        projects.studio.bin.prod.task
       )
     )
   )
@@ -113,6 +118,32 @@ function createDevCorePluginTask(name: string) {
   return series(plugin.ts.task, plugin.dev.task);
 }
 
+
+const buildDevStudio = parallel(
+  projects.studio.client.dev.task,
+  series(
+    projects.common.ts.task,
+    projects.studio.ts.task,
+    projects.studio.bin.dev.task
+  )
+);
+
+const watchStudio = series(
+  buildDevStudio,
+  function watches() {
+    watch(globs.studio.client, projects.studio.client.dev.task);
+    watch(globs.common, series(
+      projects.common.ts.task,
+      projects.studio.ts.task,
+      projects.studio.bin.dev.task
+    ));
+    watch(globs.studio.bin, series(
+      projects.studio.ts.task,
+      projects.studio.bin.dev.task
+    ));
+  }
+);
+
 const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui' });
 
 const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge' });
@@ -128,6 +159,9 @@ export = {
 
   'build:dev:core': buildDevCore,
   'watch:core': watchCore,
+
+  'build:dev:studio': buildDevStudio,
+  'watch:studio': watchStudio,
 
   'build:prod': buildProd,
 
