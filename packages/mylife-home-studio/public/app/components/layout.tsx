@@ -7,6 +7,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 
 import MenuRoot from './menu-root';
 
@@ -36,11 +37,13 @@ const Layout: FunctionComponent = () => {
           ]} />
         </Toolbar>
 
-        <Tabs value={tab} onChange={handleTabChange} aria-label="simple tabs example">
-          <Tab label="Item One" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
-        </Tabs>
+        <Paper square>
+          <Tabs value={tab} onChange={handleTabChange} aria-label="simple tabs example" indicatorColor="primary" textColor="primary" variant="scrollable">
+            <Tab label="Item One" {...a11yProps(0)} />
+            <Tab label="Item Two" {...a11yProps(1)} />
+            <Tab label="Item Three" {...a11yProps(2)} />
+          </Tabs>
+        </Paper>
       </AppBar>
 
       <TabPanel value={tab} index={0}>
