@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { ThemeProvider } from '@material-ui/styles';
-import { createMuiTheme } from '@material-ui/core';
+import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles';
 
 import blue from '@material-ui/core/colors/blue';
 import pink from '@material-ui/core/colors/pink';
@@ -12,12 +12,70 @@ import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 
-const theme = createMuiTheme({
+const theme = responsiveFontSizes(createMuiTheme({
   palette: {
     primary: blue,
     secondary: pink,
   },
-});
+
+  typography: {
+    fontSize: 10
+  },
+
+  spacing: 4,
+
+  props: {
+    MuiButton: {
+      size: 'small',
+    },
+    MuiFilledInput: {
+      margin: 'dense',
+    },
+    MuiFormControl: {
+      margin: 'dense',
+    },
+    MuiFormHelperText: {
+      margin: 'dense',
+    },
+    MuiIconButton: {
+      size: 'small',
+    },
+    MuiInputBase: {
+      margin: 'dense',
+    },
+    MuiInputLabel: {
+      margin: 'dense',
+    },
+    MuiListItem: {
+      dense: true,
+    },
+    MuiOutlinedInput: {
+      margin: 'dense',
+    },
+    MuiFab: {
+      size: 'small',
+    },
+    MuiTable: {
+      size: 'small',
+    },
+    MuiTextField: {
+      margin: 'dense',
+    },
+    MuiToolbar: {
+      variant: 'dense',
+    },
+  },
+  overrides: {
+    MuiIconButton: {
+      sizeSmall: {
+        // Adjust spacing to reach minimal touch target hitbox
+        marginLeft: 4,
+        marginRight: 4,
+        padding: 12,
+      },
+    },
+  },
+}));
 
 const Application: FunctionComponent = () => (
   <ThemeProvider theme={theme}>
