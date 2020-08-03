@@ -29,7 +29,7 @@ const Layout: FunctionComponent = () => {
   return (
     <div className={classes.root}>
 
-      <AppBar position='static'>
+      <AppBar position='static' elevation={1}>
         <Toolbar>
           <MenuRoot color="inherit" menuId="simple-menu" title="Fichier" items={[
             { title: 'Nouveau', handler: () => console.log('new') },
@@ -37,7 +37,7 @@ const Layout: FunctionComponent = () => {
           ]} />
         </Toolbar>
 
-        <Paper square>
+        <Paper square elevation={0}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="simple tabs example" indicatorColor="primary" textColor="primary" variant="scrollable">
             <Tab label="Item One" {...a11yProps(0)} />
             <Tab label="Item Two" {...a11yProps(1)} />
