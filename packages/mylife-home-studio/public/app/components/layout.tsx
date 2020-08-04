@@ -2,14 +2,13 @@ import React, { FunctionComponent, useState, SyntheticEvent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
 
-import MenuRoot from './menu-root';
+import Close from '@material-ui/icons/Close';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,78 +17,77 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const initialList = ['one', 'two', 'three'];
+
 const Layout: FunctionComponent = () => {
   const classes = useStyles();
-  const [tab, setTab] = useState(0);
+  const [tabs, setTabs] = useState(initialList);
+  const [tabIndex, setTabIndex] = useState(0);
 
-  const handleTabChange = (event: SyntheticEvent, newValue: number) => {
-    setTab(newValue);
+  const handleTabChange = (event: React.ChangeEvent, newIndex: number) => {
+    console.log('handleTabChange');
+
+    setTabIndex(newIndex);
+  };
+
+  const closeTab = (index: number) => {
+    setTabs(tabs => removeItem(tabs, index));
+
+    if(tabIndex >= index) {
+      setTabIndex(tabIndex - 1);
+    }
   };
 
   return (
     <div className={classes.root}>
 
-      <AppBar position='static' elevation={1}>
-        <Toolbar>
-          <MenuRoot color="inherit" menuId="simple-menu" title="Fichier" items={[
-            { title: 'Nouveau', handler: () => console.log('new') },
-            { title: 'Ouvrir', handler: () => console.log('open') },
-          ]} />
-        </Toolbar>
-
-        <Paper square elevation={0}>
-          <Tabs value={tab} onChange={handleTabChange} aria-label="simple tabs example" indicatorColor="primary" textColor="primary" variant="scrollable">
-            <Tab label="Item One" {...a11yProps(0)} />
-            <Tab label="Item Two" {...a11yProps(1)} />
-            <Tab label="Item Three" {...a11yProps(2)} />
-          </Tabs>
-        </Paper>
+      <AppBar position="static" color="default">
+        <Tabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="scrollable auto tabs example"
+        >
+          {tabs.map((tab, index) => (
+            <Tab key={index} label={
+              <span>
+                {tab}
+                <IconButton onClick={(e) => {
+                  console.log('onClick');
+                  e.stopPropagation();
+                  closeTab(index);
+                }}>
+                  <Close/>
+                </IconButton>
+              </span>
+            } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
+          ))}
+        </Tabs>
       </AppBar>
-
-      <TabPanel value={tab} index={0}>
-        Item One
-      </TabPanel>
-      <TabPanel value={tab} index={1}>
-        Item Two
-      </TabPanel>
-      <TabPanel value={tab} index={2}>
-        Item Three
-      </TabPanel>
+      {tabs.map((tab, index) => (
+        <div
+          key={index}
+          role="tabpanel"
+          hidden={tabIndex !== index}
+          id={`scrollable-auto-tabpanel-${index}`}
+          aria-labelledby={`scrollable-auto-tab-${index}`}
+        >
+        {tabIndex === index && (
+          <Box p={3}>
+            <Typography>{tab}</Typography>
+          </Box>
+        )}
+      </div>
+    ))}
     </div>
   );
 };
 
 export default Layout;
 
-interface TabPanelProps {
-  readonly value: number;
-  readonly index: number;
-}
-
-const TabPanel: FunctionComponent<TabPanelProps> = (props) =>  {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
-
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
+function removeItem<T>(array: T[], index: number) {
+  return [...array.slice(0, index), ...array.slice(index + 1)];
 }
