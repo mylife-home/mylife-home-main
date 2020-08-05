@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, SyntheticEvent } from 'react';
+import React, { FunctionComponent, useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -10,6 +10,8 @@ import IconButton from '@material-ui/core/IconButton';
 
 import Close from '@material-ui/icons/Close';
 
+import { useDrag, useDrop, DropTargetMonitor, XYCoord, DragSourceMonitor } from 'react-dnd';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -17,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const initialList = ['one', 'two', 'three'];
+const initialList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 const Layout: FunctionComponent = () => {
   const classes = useStyles();
@@ -25,8 +27,6 @@ const Layout: FunctionComponent = () => {
   const [tabIndex, setTabIndex] = useState(0);
 
   const handleTabChange = (event: React.ChangeEvent, newIndex: number) => {
-    console.log('handleTabChange');
-
     setTabIndex(newIndex);
   };
 
@@ -36,6 +36,20 @@ const Layout: FunctionComponent = () => {
     if(tabIndex >= index) {
       setTabIndex(tabIndex - 1);
     }
+  };
+
+  const handleMove = (sourceIndex: number, targetIndex: number) => {
+    console.log('handleMove', sourceIndex, targetIndex);
+    const newTabs = [...tabs];
+
+    if(sourceIndex < targetIndex) {
+      ++targetIndex;
+    }
+
+    newTabs.splice(targetIndex, 0, tabs[sourceIndex]);
+    newTabs.splice(sourceIndex, 1);
+
+    setTabs(newTabs);
   };
 
   return (
@@ -51,20 +65,7 @@ const Layout: FunctionComponent = () => {
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
         >
-          {tabs.map((tab, index) => (
-            <Tab key={index} label={
-              <span>
-                {tab}
-                <IconButton onClick={(e) => {
-                  console.log('onClick');
-                  e.stopPropagation();
-                  closeTab(index);
-                }}>
-                  <Close/>
-                </IconButton>
-              </span>
-            } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
-          ))}
+          {tabs.map((tab, index) => createTab(tab, index, closeTab, handleMove))}
         </Tabs>
       </AppBar>
       {tabs.map((tab, index) => (
@@ -90,4 +91,52 @@ export default Layout;
 
 function removeItem<T>(array: T[], index: number) {
   return [...array.slice(0, index), ...array.slice(index + 1)];
+}
+
+const tabSymbol = Symbol('tab');
+
+interface DragItem {
+  index: number;
+  type: string;
+}
+
+function createTab(text: string, index: number, onClose: (index: number) => void, onMove: (sourceIndex: number, targetIndex: number) => void) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [{ isHovered }, drop] = useDrop({
+    accept: tabSymbol,
+    drop(item: DragItem) {
+      const dragIndex = item.index;
+      const dropIndex = index;
+      onMove(dragIndex, dropIndex);
+    },
+    canDrop: (item: DragItem) => {
+      return item.index !== index;
+    },
+    collect: (monitor: DropTargetMonitor) => ({
+      isHovered: monitor.isOver() && monitor.getItem().index !== index
+    })
+  });
+
+  const [, drag] = useDrag({
+    item: { type: tabSymbol, index }
+  });
+
+  const border = isHovered ? 'solid 1px black' : null;
+
+  drag(drop(ref));
+  
+  return (
+    <Tab ref={ref} style={{ border }} key={index} component='div' label={
+      <span>
+        {text}
+        <IconButton onClick={(e) => {
+          e.stopPropagation();
+          onClose(index);
+        }}>
+          <Close/>
+        </IconButton>
+      </span>
+    } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
+  );
 }
