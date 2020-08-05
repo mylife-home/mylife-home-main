@@ -93,15 +93,10 @@ const Layout: FunctionComponent = () => {
   };
 
   const handleMove = (sourceIndex: number, targetIndex: number) => {
-    console.log('handleMove', sourceIndex, targetIndex);
     const newTabs = [...tabs];
 
-    if(sourceIndex < targetIndex) {
-      ++targetIndex;
-    }
-
-    newTabs.splice(targetIndex, 0, tabs[sourceIndex]);
     newTabs.splice(sourceIndex, 1);
+    newTabs.splice(targetIndex, 0, tabs[sourceIndex]);
 
     setTabs(newTabs);
   };
