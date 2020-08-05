@@ -59,7 +59,7 @@ const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose
   drag(drop(ref));
   
   return (
-    <Tab {...props} ref={ref} style={{ border }} key={index} component='div' label={
+    <Tab {...props} ref={ref} style={{ border }} component='div' label={
       <span>
         {text}
         <IconButton onClick={(e) => {
@@ -119,7 +119,7 @@ const Layout: FunctionComponent = () => {
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
         >
-          {tabs.map((tab, index) => (<MoveableTab text={tab} index={index} onClose={closeTab} onMove={handleMove} />))}
+          {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} />))}
         </Tabs>
       </AppBar>
       {tabs.map((tab, index) => (
