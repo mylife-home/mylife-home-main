@@ -1,116 +1,18 @@
-import React, { FunctionComponent, useState, useRef } from 'react';
-import clsx from 'clsx';
-import { makeStyles, darken } from '@material-ui/core/styles';
+import React, { FunctionComponent, useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
 
-import Close from '@material-ui/icons/Close';
-
-import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
-
-const TABS_HEIGHT = 36;
+import { StyledTabs, MoveableTab } from './tabs';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
   },
-  indicator: {
-    display: 'none'
-  },
-  tabs: {
-    minHeight: TABS_HEIGHT,
-    height: TABS_HEIGHT
-  },
-  tabRoot: {
-    borderLeftColor: theme.palette.background.paper,
-    borderLeftStyle: 'solid',
-    borderLeftWidth: 1,
-    borderRightColor: theme.palette.background.paper,
-    borderRightStyle: 'solid',
-    borderRightWidth: 1,
-    minHeight: TABS_HEIGHT,
-    height: TABS_HEIGHT
-  },
-  tabSelected: {
-    backgroundColor: theme.palette.background.paper
-  },
-  tabDropTarget: {
-    backgroundColor: darken(theme.palette.background.paper, 0.1),
-  },
-  tabWrapper: {
-    flexDirection: 'row'
-  },
-  tabSpan: {
-    flex: 1
-  },
-  tabCloseButton: {
-    padding: 6
-  }
 }));
-const tabSymbol = Symbol('tab');
-
-interface DragItem {
-  index: number;
-  type: string;
-}
-
-interface MoveableTabProps {
-  text: string;
-  index: number;
-  onClose: (index: number) => void;
-  onMove: (sourceIndex: number, targetIndex: number) => void;
-  onSelect: (index: number) => void;
-}
-
-const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [{ isHovered }, drop] = useDrop({
-    accept: tabSymbol,
-    drop(item: DragItem) {
-      const dragIndex = item.index;
-      const dropIndex = index;
-      onMove(dragIndex, dropIndex);
-    },
-    canDrop: (item: DragItem) => {
-      return item.index !== index;
-    },
-    collect: (monitor: DropTargetMonitor) => ({
-      isHovered: monitor.isOver() && monitor.getItem().index !== index
-    })
-  });
-
-  const [, drag] = useDrag({
-    item: { type: tabSymbol, index },
-    begin: () => onSelect(index)
-  });
-
-  drag(drop(ref));
-  
-  const classes = useStyles();
-  const rootClasses = clsx(classes.tabRoot, { [classes.tabDropTarget]: isHovered });
-  return (
-    <Tab {...props} disableRipple classes={{ root: rootClasses, selected: classes.tabSelected, wrapper: classes.tabWrapper }} ref={ref} component='div' label={
-      <>
-        <span className={classes.tabSpan}>
-          {text}
-        </span>
-        <IconButton className={classes.tabCloseButton} onClick={(e) => {
-          e.stopPropagation();
-          onClose(index);
-        }}>
-          <Close/>
-        </IconButton>
-      </>
-    } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
-  );
-};
 
 const initialList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
@@ -151,18 +53,9 @@ const Layout: FunctionComponent = () => {
     <div className={classes.root}>
 
       <AppBar position="static" color="default">
-        <Tabs
-          value={tabIndex}
-          onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="scrollable"
-          scrollButtons="auto"
-          aria-label="scrollable auto tabs example"
-          classes={{ indicator: classes.indicator, root: classes.tabs }}
-        >
+        <StyledTabs value={tabIndex} onChange={handleTabChange}>
           {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} onSelect={handleSelect} />))}
-        </Tabs>
+        </StyledTabs>
       </AppBar>
       {tabs.map((tab, index) => (
         <div
