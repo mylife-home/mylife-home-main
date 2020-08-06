@@ -34,6 +34,12 @@ const useStyles = makeStyles((theme) => ({
   },
   tabDropTarget: {
     backgroundColor: darken(theme.palette.background.paper, 0.1),
+  },
+  tabWrapper: {
+    flexDirection: 'row'
+  },
+  tabSpan: {
+    flex: 1
   }
 }));
 const tabSymbol = Symbol('tab');
@@ -79,16 +85,18 @@ const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose
   const classes = useStyles();
   const rootClasses = clsx(classes.tabRoot, { [classes.tabDropTarget]: isHovered });
   return (
-    <Tab {...props} disableRipple classes={{ root: rootClasses, selected: classes.tabSelected }} ref={ref} component='div' label={
-      <span>
-        {text}
+    <Tab {...props} disableRipple classes={{ root: rootClasses, selected: classes.tabSelected, wrapper: classes.tabWrapper }} ref={ref} component='div' label={
+      <>
+        <span className={classes.tabSpan}>
+          {text}
+        </span>
         <IconButton onClick={(e) => {
           e.stopPropagation();
           onClose(index);
         }}>
           <Close/>
         </IconButton>
-      </span>
+      </>
     } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
   );
 };
