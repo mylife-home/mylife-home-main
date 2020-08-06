@@ -5,7 +5,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import { StyledTabs, MoveableTab } from './tabs';
+import { Tabs, Tab } from './tabs';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,9 +53,9 @@ const Layout: FunctionComponent = () => {
     <div className={classes.root}>
 
       <AppBar position="static" color="default">
-        <StyledTabs value={tabIndex} onChange={handleTabChange}>
-          {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} onSelect={handleSelect} />))}
-        </StyledTabs>
+        <Tabs value={tabIndex} onChange={handleTabChange}>
+          {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={index > 0 ? closeTab : undefined} onMove={handleMove} onSelect={handleSelect} />))}
+        </Tabs>
       </AppBar>
       {tabs.map((tab, index) => (
         <div

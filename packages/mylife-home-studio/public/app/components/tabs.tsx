@@ -2,8 +2,8 @@ import React, { FunctionComponent, useRef } from 'react';
 import clsx from 'clsx';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import MuiTabs from '@material-ui/core/Tabs';
+import MuiTab from '@material-ui/core/Tab';
 import IconButton from '@material-ui/core/IconButton';
 
 import Close from '@material-ui/icons/Close';
@@ -47,15 +47,15 @@ interface DragItem {
   type: string;
 }
 
-export interface MoveableTabProps {
+export interface TabProps {
   text: string;
   index: number;
-  onClose: (index: number) => void;
+  onClose?: (index: number) => void;
   onMove: (sourceIndex: number, targetIndex: number) => void;
   onSelect: (index: number) => void;
 }
 
-export const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
+export const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isHovered }, drop] = useDrop({
@@ -83,17 +83,19 @@ export const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, 
   const classes = useTabStyles();
   const rootClasses = clsx(classes.root, { [classes.dropTarget]: isHovered });
   return (
-    <Tab {...props} disableRipple classes={{ root: rootClasses, selected: classes.selected, wrapper: classes.wrapper }} ref={ref} component='div' label={
+    <MuiTab {...props} disableRipple classes={{ root: rootClasses, selected: classes.selected, wrapper: classes.wrapper }} ref={ref} component='div' label={
       <>
         <span className={classes.innerSpan}>
           {text}
         </span>
-        <IconButton className={classes.innerCloseButton} onClick={(e) => {
-          e.stopPropagation();
-          onClose(index);
-        }}>
-          <Close/>
-        </IconButton>
+        {onClose && (
+          <IconButton className={classes.innerCloseButton} onClick={(e) => {
+            e.stopPropagation();
+            onClose(index);
+          }}>
+            <Close/>
+          </IconButton>
+        )}
       </>
     } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
   );
@@ -110,15 +112,15 @@ const useTabsStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface StyledTabsProps {
+export interface TabsProps {
   value?: any;
   onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
 }
 
-export const StyledTabs: FunctionComponent<StyledTabsProps> = ({ value, onChange, children }) => {
+export const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }) => {
   const classes = useTabsStyles();
   return (
-    <Tabs
+    <MuiTabs
       value={value}
       onChange={onChange}
       indicatorColor="primary"
@@ -128,6 +130,6 @@ export const StyledTabs: FunctionComponent<StyledTabsProps> = ({ value, onChange
       classes={{ indicator: classes.indicator, root: classes.root }}
     >
       {children}
-    </Tabs>
+    </MuiTabs>
   );
 };
