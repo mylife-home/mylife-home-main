@@ -13,6 +13,8 @@ import Close from '@material-ui/icons/Close';
 
 import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 
+const TABS_HEIGHT = 36;
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -21,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
   indicator: {
     display: 'none'
   },
+  tabs: {
+    minHeight: TABS_HEIGHT,
+    height: TABS_HEIGHT
+  },
   tabRoot: {
     borderLeftColor: theme.palette.background.paper,
     borderLeftStyle: 'solid',
@@ -28,6 +34,8 @@ const useStyles = makeStyles((theme) => ({
     borderRightColor: theme.palette.background.paper,
     borderRightStyle: 'solid',
     borderRightWidth: 1,
+    minHeight: TABS_HEIGHT,
+    height: TABS_HEIGHT
   },
   tabSelected: {
     backgroundColor: theme.palette.background.paper
@@ -40,6 +48,9 @@ const useStyles = makeStyles((theme) => ({
   },
   tabSpan: {
     flex: 1
+  },
+  tabCloseButton: {
+    padding: 6
   }
 }));
 const tabSymbol = Symbol('tab');
@@ -90,7 +101,7 @@ const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose
         <span className={classes.tabSpan}>
           {text}
         </span>
-        <IconButton onClick={(e) => {
+        <IconButton className={classes.tabCloseButton} onClick={(e) => {
           e.stopPropagation();
           onClose(index);
         }}>
@@ -148,7 +159,7 @@ const Layout: FunctionComponent = () => {
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
-          classes={{ indicator: classes.indicator }}
+          classes={{ indicator: classes.indicator, root: classes.tabs }}
         >
           {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} onSelect={handleSelect} />))}
         </Tabs>
