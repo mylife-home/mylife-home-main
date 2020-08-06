@@ -7,4 +7,4 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
   },
 });
 
-export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-studio');
+export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-studio', 'studio');

@@ -11,7 +11,7 @@ import PurgecssPlugin from 'purgecss-webpack-plugin';
 import CustomizedBundleAnalyzerPlugin from '../../plugins/customized-bundle-analyzer-plugin';
 import { ConfigurationByMode } from './types';
 
-export default (context: Context, repoName: string, partialConfiguration: Configuration = {}) => {
+export default (context: Context, repoName: string, binName: string, partialConfiguration: Configuration = {}) => {
     const babelOptions = {
       presets: [
         [require.resolve('@babel/preset-env'), { targets: 'last 2 versions' }],
@@ -28,7 +28,7 @@ export default (context: Context, repoName: string, partialConfiguration: Config
       entry: `${repoName}/public/app/main`,
   
       output: {
-        path: path.join(context.outputPath, 'ui/static'),
+        path: path.join(context.outputPath, `${binName}/static`),
         filename: 'bundle.js',
       },
   

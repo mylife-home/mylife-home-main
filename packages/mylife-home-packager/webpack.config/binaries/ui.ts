@@ -7,7 +7,7 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
   },
 });
 
-export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-ui', {
+export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-ui', 'ui', {
   resolve: {
     // https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact
     alias: {
