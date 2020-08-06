@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useRef } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, darken } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper
   },
   tabDropTarget: {
-    border: 'solid 1px black'
+    backgroundColor: darken(theme.palette.background.paper, 0.1),
   }
 }));
 const tabSymbol = Symbol('tab');
