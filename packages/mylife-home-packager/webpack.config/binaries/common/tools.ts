@@ -2,6 +2,7 @@ import { Configuration } from 'webpack';
 import merge from 'webpack-merge';
 import base from './base';
 import modes from './modes';
+import client from './client';
 import { Context } from '../../context';
 
 export function prepareServerConfiguration(context: Context, partialConfiguration: Configuration) : Configuration {
@@ -14,3 +15,5 @@ export function prepareServerConfiguration(context: Context, partialConfiguratio
 
   return merge(baseConfiguration, modeConfiguration, partialConfiguration);
 }
+
+export const prepareClientConfiguration = client;
