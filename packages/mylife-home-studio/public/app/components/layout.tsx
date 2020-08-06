@@ -120,6 +120,10 @@ const Layout: FunctionComponent = () => {
     newTabs.splice(targetIndex, 0, tabs[sourceIndex]);
 
     setTabs(newTabs);
+
+    if (tabIndex === sourceIndex) {
+      setTabIndex(targetIndex);
+    }
   };
 
   const handleSelect = setTabIndex;
