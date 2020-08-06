@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState, useRef } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
@@ -17,6 +18,23 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
   },
+  indicator: {
+    display: 'none'
+  },
+  tabRoot: {
+    borderLeftColor: theme.palette.background.paper,
+    borderLeftStyle: 'solid',
+    borderLeftWidth: 1,
+    borderRightColor: theme.palette.background.paper,
+    borderRightStyle: 'solid',
+    borderRightWidth: 1,
+  },
+  tabSelected: {
+    backgroundColor: theme.palette.background.paper
+  },
+  tabDropTarget: {
+    border: 'solid 1px black'
+  }
 }));
 const tabSymbol = Symbol('tab');
 
@@ -30,9 +48,10 @@ interface MoveableTabProps {
   index: number;
   onClose: (index: number) => void;
   onMove: (sourceIndex: number, targetIndex: number) => void;
+  onSelect: (index: number) => void;
 }
 
-const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose, onMove, ...props }) => {
+const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isHovered }, drop] = useDrop({
@@ -51,15 +70,16 @@ const MoveableTab: FunctionComponent<MoveableTabProps> = ({ text, index, onClose
   });
 
   const [, drag] = useDrag({
-    item: { type: tabSymbol, index }
+    item: { type: tabSymbol, index },
+    begin: () => onSelect(index)
   });
-
-  const border = isHovered ? 'solid 1px black' : null;
 
   drag(drop(ref));
   
+  const classes = useStyles();
+  const rootClasses = clsx(classes.tabRoot, { [classes.tabDropTarget]: isHovered });
   return (
-    <Tab {...props} ref={ref} style={{ border }} component='div' label={
+    <Tab {...props} disableRipple classes={{ root: rootClasses, selected: classes.tabSelected }} ref={ref} component='div' label={
       <span>
         {text}
         <IconButton onClick={(e) => {
@@ -88,7 +108,8 @@ const Layout: FunctionComponent = () => {
     setTabs(tabs => removeItem(tabs, index));
 
     if(tabIndex >= index) {
-      setTabIndex(tabIndex - 1);
+      const newIndex = tabIndex - 1;
+      setTabIndex(newIndex === -1 ? 0 : newIndex);
     }
   };
 
@@ -100,6 +121,8 @@ const Layout: FunctionComponent = () => {
 
     setTabs(newTabs);
   };
+
+  const handleSelect = setTabIndex;
 
   return (
     <div className={classes.root}>
@@ -113,8 +136,9 @@ const Layout: FunctionComponent = () => {
           variant="scrollable"
           scrollButtons="auto"
           aria-label="scrollable auto tabs example"
+          classes={{ indicator: classes.indicator }}
         >
-          {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} />))}
+          {tabs.map((tab, index) => (<MoveableTab key={index} text={tab} index={index} onClose={closeTab} onMove={handleMove} onSelect={handleSelect} />))}
         </Tabs>
       </AppBar>
       {tabs.map((tab, index) => (
