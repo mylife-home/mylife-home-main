@@ -54,7 +54,7 @@ const Layout: FunctionComponent = () => {
 
       <AppBar position="static" color="default">
         <Tabs value={tabIndex} onChange={handleTabChange}>
-          {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={index > 0 ? closeTab : undefined} onMove={handleMove} onSelect={handleSelect} />))}
+          {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
         </Tabs>
       </AppBar>
       {tabs.map((tab, index) => (
