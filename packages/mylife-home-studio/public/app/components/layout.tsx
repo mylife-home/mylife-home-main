@@ -9,7 +9,9 @@ import { Tabs, Tab } from './tabs';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
     backgroundColor: theme.palette.background.paper,
   },
 }));
@@ -52,11 +54,9 @@ const Layout: FunctionComponent = () => {
   return (
     <div className={classes.root}>
 
-      <AppBar position="static" color="default">
         <Tabs value={tabIndex} onChange={handleTabChange}>
           {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
         </Tabs>
-      </AppBar>
       {tabs.map((tab, index) => (
         <div
           key={index}
@@ -64,6 +64,7 @@ const Layout: FunctionComponent = () => {
           hidden={tabIndex !== index}
           id={`scrollable-auto-tabpanel-${index}`}
           aria-labelledby={`scrollable-auto-tab-${index}`}
+          style={{flex: 1}}
         >
         {tabIndex === index && (
           <Box p={3}>
