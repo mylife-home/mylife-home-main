@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import AppBar from '@material-ui/core/AppBar';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
@@ -54,9 +53,10 @@ const Layout: FunctionComponent = () => {
   return (
     <div className={classes.root}>
 
-        <Tabs value={tabIndex} onChange={handleTabChange}>
-          {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
-        </Tabs>
+      <Tabs value={tabIndex} onChange={handleTabChange}>
+        {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
+      </Tabs>
+      
       {tabs.map((tab, index) => (
         <div
           key={index}
