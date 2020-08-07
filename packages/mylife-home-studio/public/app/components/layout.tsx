@@ -67,13 +67,13 @@ const Layout: FunctionComponent = () => {
           hidden={tabIndex !== index}
           className={classes.tabPanel}
         >
-        {tabIndex === index && (
-          <Box p={3}>
-            <Typography>{tab}</Typography>
-          </Box>
-        )}
-      </div>
-    ))}
+          {tabIndex === index && (
+            <Box p={3}>
+              <Typography>{tab}</Typography>
+            </Box>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
