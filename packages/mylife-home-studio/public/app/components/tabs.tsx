@@ -40,7 +40,7 @@ const useTabStyles = makeStyles((theme) => ({
   }
 }));
 
-const tabSymbol = Symbol('tab');
+const tabSymbol = Symbol('dnd-tab');
 
 interface DragItem {
   index: number;
@@ -81,26 +81,34 @@ export const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove,
   drag(drop(ref));
   
   const classes = useTabStyles();
-  const rootClasses = clsx(classes.root, { [classes.dropTarget]: isHovered });
   return (
-    <MuiTab {...props} disableRipple classes={{ root: rootClasses, selected: classes.selected, wrapper: classes.wrapper }} ref={ref} component='div' label={
-      <>
-        <span className={classes.innerSpan}>
-          {text}
-        </span>
-        {onClose && (
-          <IconButton className={classes.innerCloseButton} onClick={(e) => {
-            e.stopPropagation();
-            onClose(index);
-          }}>
-            <Close/>
-          </IconButton>
-        )}
-      </>
-    } id={`scrollable-auto-tab-${index}`} aria-controls={`scrollable-auto-tabpanel-${index}`} />
+    <MuiTab 
+      {...props}
+      disableRipple
+      classes={{ root: clsx(classes.root, { [classes.dropTarget]: isHovered }), selected: classes.selected, wrapper: classes.wrapper }}
+      ref={ref}
+      component='div'
+      label={
+        <>
+
+          <span className={classes.innerSpan}>
+            {text}
+          </span>
+
+          {onClose && (
+            <IconButton className={classes.innerCloseButton} onClick={(e) => {
+              e.stopPropagation();
+              onClose(index);
+            }}>
+              <Close/>
+            </IconButton>
+          )}
+          
+        </>
+      }
+    />
   );
 };
-
 
 const useTabsStyles = makeStyles((theme) => ({
   indicator: {
@@ -108,7 +116,8 @@ const useTabsStyles = makeStyles((theme) => ({
   },
   root: {
     minHeight: TABS_HEIGHT,
-    height: TABS_HEIGHT
+    height: TABS_HEIGHT,
+    backgroundColor: theme.palette.grey[100]
   },
 }));
 
