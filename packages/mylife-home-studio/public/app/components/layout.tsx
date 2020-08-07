@@ -57,12 +57,12 @@ const Layout: FunctionComponent = () => {
     <div className={classes.root}>
 
       <Tabs value={tabIndex} onChange={handleTabChange}>
-        {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
+        {tabs.map((tab, index) => (<Tab key={tab} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
       </Tabs>
 
       {tabs.map((tab, index) => (
         <div
-          key={index}
+          key={tab}
           role="tabpanel"
           hidden={tabIndex !== index}
           className={classes.tabPanel}
