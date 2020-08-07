@@ -56,14 +56,12 @@ const Layout: FunctionComponent = () => {
       <Tabs value={tabIndex} onChange={handleTabChange}>
         {tabs.map((tab, index) => (<Tab key={index} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
       </Tabs>
-      
+
       {tabs.map((tab, index) => (
         <div
           key={index}
           role="tabpanel"
           hidden={tabIndex !== index}
-          id={`scrollable-auto-tabpanel-${index}`}
-          aria-labelledby={`scrollable-auto-tab-${index}`}
           style={{flex: 1}}
         >
         {tabIndex === index && (
