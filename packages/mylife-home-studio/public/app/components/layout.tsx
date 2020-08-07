@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '100vh',
     backgroundColor: theme.palette.background.paper,
   },
+  tabPanel: {
+    flex: 1
+  }
 }));
 
 const initialList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
@@ -62,7 +65,7 @@ const Layout: FunctionComponent = () => {
           key={index}
           role="tabpanel"
           hidden={tabIndex !== index}
-          style={{flex: 1}}
+          className={classes.tabPanel}
         >
         {tabIndex === index && (
           <Box p={3}>
