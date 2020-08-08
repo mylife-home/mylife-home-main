@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const items: TabPanelItem[] = [
-  { id: 'start-page', title: 'Start Page', closable: false, render: () => <StartPage /> },
+  { id: 'start-page', title: 'Démarrage', closable: false, render: () => <StartPage onNewPage={() => console.log('new')} /> },
   createItem(1),
   createItem(2),
   createItem(3),
