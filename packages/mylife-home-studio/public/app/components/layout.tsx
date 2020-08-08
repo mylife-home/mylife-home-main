@@ -4,30 +4,36 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import { Tabs, Tab } from './tabs';
+import TabPanel, { TabPanelItem } from './tab-panel';
+import StartPage from './start-page';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
     minHeight: '100vh',
-    backgroundColor: theme.palette.background.paper,
-  },
-  tabPanel: {
-    flex: 1
   }
 }));
 
-const initialList = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const items: TabPanelItem[] = [
+  { id: 'start-page', title: 'Start Page', closable: false, render: () => <StartPage /> },
+  createItem(1),
+  createItem(2),
+  createItem(3),
+  createItem(4),
+  createItem(5),
+];
+
+function createItem(index: number) {
+  return { id: `item-${index}`, title: `Page ${index}`, closable: true, render: () => (
+    <Box p={3}>
+      <Typography>{`Page ${index}`}</Typography>
+    </Box>
+  ) };
+}
 
 const Layout: FunctionComponent = () => {
   const classes = useStyles();
-  const [tabs, setTabs] = useState(initialList);
+  const [tabs, setTabs] = useState(items);
   const [tabIndex, setTabIndex] = useState(0);
-
-  const handleTabChange = (event: React.ChangeEvent, newIndex: number) => {
-    setTabIndex(newIndex);
-  };
 
   const closeTab = (index: number) => {
     setTabs(tabs => removeItem(tabs, index));
@@ -54,27 +60,14 @@ const Layout: FunctionComponent = () => {
   const handleSelect = setTabIndex;
 
   return (
-    <div className={classes.root}>
-
-      <Tabs value={tabIndex} onChange={handleTabChange}>
-        {tabs.map((tab, index) => (<Tab key={tab} text={tab} index={index} onClose={tab === 'one' ? undefined : closeTab} onMove={handleMove} onSelect={handleSelect} />))}
-      </Tabs>
-
-      {tabs.map((tab, index) => (
-        <div
-          key={tab}
-          role="tabpanel"
-          hidden={tabIndex !== index}
-          className={classes.tabPanel}
-        >
-          {tabIndex === index && (
-            <Box p={3}>
-              <Typography>{tab}</Typography>
-            </Box>
-          )}
-        </div>
-      ))}
-    </div>
+    <TabPanel
+      className={classes.root}
+      items={tabs}
+      selectedIndex={tabIndex}
+      onClose={closeTab}
+      onMove={handleMove}
+      onSelect={handleSelect}
+    />
   );
 };
 

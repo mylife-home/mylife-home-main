@@ -47,15 +47,15 @@ interface DragItem {
   type: string;
 }
 
-export interface TabProps {
-  text: string;
+interface TabProps {
+  text: React.ReactNode;
   index: number;
   onClose?: (index: number) => void;
   onMove: (sourceIndex: number, targetIndex: number) => void;
   onSelect: (index: number) => void;
 }
 
-export const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
+const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isHovered }, drop] = useDrop({
@@ -121,12 +121,12 @@ const useTabsStyles = makeStyles((theme) => ({
   },
 }));
 
-export interface TabsProps {
+interface TabsProps {
   value?: any;
   onChange?: (event: React.ChangeEvent<{}>, value: any) => void;
 }
 
-export const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }) => {
+const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }) => {
   const classes = useTabsStyles();
   return (
     <MuiTabs
@@ -142,3 +142,68 @@ export const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }
     </MuiTabs>
   );
 };
+
+export interface TabPanelItem {
+  readonly id: string;
+  readonly title: React.ReactNode;
+  readonly closable: boolean;
+  readonly render: () => JSX.Element;
+}
+
+export interface TabPanelProps {
+  className?: string;
+  items: TabPanelItem[];
+  selectedIndex: number,
+  onClose: (index: number) => void;
+  onMove: (sourceIndex: number, targetIndex: number) => void;
+  onSelect: (index: number) => void;
+}
+
+const useTabPanelStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: theme.palette.background.paper,
+  },
+  tabPanel: {
+    flex: 1
+  },
+}));
+
+const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selectedIndex, onClose, onMove, onSelect }) => {
+  const classes = useTabPanelStyles();
+
+  const handleTabChange = (event: React.ChangeEvent, newIndex: number) => {
+    onSelect(newIndex);
+  };
+
+  return (
+    <div className={clsx(classes.root, className)}>
+      <Tabs value={selectedIndex} onChange={handleTabChange}>
+        {items.map((item, index) => (
+          <Tab 
+            key={item.id}
+            text={item.title}
+            index={index}
+            onClose={item.closable ? onClose : undefined}
+            onMove={onMove}
+            onSelect={onSelect}
+          />
+        ))}
+      </Tabs>
+
+      {items.map((item, index) => (
+        <div
+          key={item.id}
+          role="tabpanel"
+          hidden={selectedIndex !== index}
+          className={classes.tabPanel}
+        >
+          {selectedIndex === index && item.render()}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default TabPanel;
