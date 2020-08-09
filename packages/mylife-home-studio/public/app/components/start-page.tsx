@@ -6,15 +6,15 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
 export interface StartPageProps {
-  onNewPage: () => void;
+  onNewCoreDesigner: () => void;
 }
 
-const StartPage: FunctionComponent<StartPageProps> = ({ onNewPage }) => {
+const StartPage: FunctionComponent<StartPageProps> = ({ onNewCoreDesigner }) => {
 
   return (
     <Box p={3}>
       <Typography>Démarrage</Typography>
-      <Button onClick={onNewPage}>Nouvelle page</Button>
+      <Button onClick={onNewCoreDesigner}>Nouveau designer core</Button>
     </Box>
   );
 };

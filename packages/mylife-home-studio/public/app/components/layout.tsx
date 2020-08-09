@@ -1,11 +1,9 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 
 import TabPanel, { TabPanelItem } from './tab-panel';
 import StartPage from './start-page';
+import CoreDesigner from './core-designer';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -13,27 +11,22 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const items: TabPanelItem[] = [
-  { id: 'start-page', title: 'Démarrage', closable: false, render: () => <StartPage onNewPage={() => console.log('new')} /> },
-  createItem(1),
-  createItem(2),
-  createItem(3),
-  createItem(4),
-  createItem(5),
-];
-
-function createItem(index: number) {
-  return { id: `item-${index}`, title: `Page ${index}`, closable: true, render: () => (
-    <Box p={3}>
-      <Typography>{`Page ${index}`}</Typography>
-    </Box>
-  ) };
-}
-
 const Layout: FunctionComponent = () => {
+  const startPageItem: TabPanelItem = {
+    id: 'start-page',
+    title: 'Démarrage',
+    closable: false,
+    render: () => <StartPage onNewCoreDesigner={addCoreDesignerTab} />
+  }
+
   const classes = useStyles();
-  const [tabs, setTabs] = useState(items);
+  const [tabs, setTabs] = useState([ startPageItem ]);
   const [tabIndex, setTabIndex] = useState(0);
+  const idCounter = useRef(0);
+
+  const getId = () => {
+    return ++idCounter.current;
+  }
 
   const closeTab = (index: number) => {
     setTabs(tabs => removeItem(tabs, index));
@@ -42,6 +35,19 @@ const Layout: FunctionComponent = () => {
       const newIndex = tabIndex - 1;
       setTabIndex(newIndex === -1 ? 0 : newIndex);
     }
+  };
+
+  const addTab = (item: TabPanelItem) => setTabs(tabs => [...tabs, item]);
+
+  const addCoreDesignerTab = () => {
+    const id = getId();
+
+    addTab({
+      id: `core-designer-${id}`,
+      title: `Core designer ${id}`,
+      closable: true,
+      render: () => <CoreDesigner />
+    });
   };
 
   const handleMove = (sourceIndex: number, targetIndex: number) => {
