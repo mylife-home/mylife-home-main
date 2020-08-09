@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
-import { makeStyles, darken, fade } from '@material-ui/core/styles';
+import { makeStyles, darken } from '@material-ui/core/styles';
 import BaseSplitPane, { SplitPaneProps } from 'react-split-pane';
 
 const RESIZER_WIDTH = 5;
 
 const useStyles = makeStyles(theme => {
   const backgroundColor = darken(theme.palette.background.paper, 0.1);
-  const borderColor = fade(backgroundColor, 0.5);
+  const backgroundColorHover = darken(theme.palette.background.paper, 0.2);
   const marginSize = (RESIZER_WIDTH - 1) / 2;
 
   return {
@@ -16,6 +16,10 @@ const useStyles = makeStyles(theme => {
       zIndex: 1,
       boxSizing: 'border-box',
       backgroundClip: 'padding-box',
+
+      '&:hover': {
+        backgroundColor: backgroundColorHover,
+      }
     },
     horizontal: {
       height: RESIZER_WIDTH,
@@ -34,11 +38,6 @@ const useStyles = makeStyles(theme => {
 
       cursor: 'row-resize',
       width: '100%',
-    
-      '&:hover': {
-        borderTopColor: borderColor,
-        borderBottomColor: borderColor,
-      }
     },
     vertical: {
       width: RESIZER_WIDTH,
@@ -57,17 +56,12 @@ const useStyles = makeStyles(theme => {
 
       cursor: 'col-resize',
       height: '100%',
-    
-      '&:hover': {
-        borderLeftColor: borderColor,
-        borderRightColor: borderColor,
-      }
     },
     disabled: {
       cursor: 'not-allowed',
 
       '&:hover': {
-        borderColor: 'transparent',
+        backgroundColor,
       }
     }
   };
