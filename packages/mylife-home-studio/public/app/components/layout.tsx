@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useRef } from 'react';
+import React, { FunctionComponent, useState, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import TabPanel, { TabPanelItem } from './tab-panel';
@@ -64,6 +64,12 @@ const Layout: FunctionComponent = () => {
   };
 
   const handleSelect = setTabIndex;
+
+  // dev init
+  useEffect(() => {
+    addCoreDesignerTab();
+    setTabIndex(1);
+  }, []);
 
   return (
     <TabPanel
