@@ -3,6 +3,9 @@ import clsx from 'clsx';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
 import Typography from '@material-ui/core/Typography';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import InputIcon from '@material-ui/icons/Input';
+
 import { useCanvasContext } from './canvas';
 
 interface StyleProps {
@@ -10,6 +13,7 @@ interface StyleProps {
 }
 
 const useStyles = makeStyles((theme) => {
+  const backgroundColor = darken(theme.palette.background.paper, 0.03);
   const borderColor = darken(theme.palette.background.paper, 0.1);
   const borderColorSelected = theme.palette.primary.main;
 
@@ -18,10 +22,13 @@ const useStyles = makeStyles((theme) => {
       position: 'absolute',
       display: 'flex',
       flexDirection: 'column',
+
       borderStyle: 'solid',
       borderWidth: 1,
       borderColor,
       boxSizing: 'content-box',
+
+      backgroundColor
     },
 
     selected: {
@@ -33,26 +40,36 @@ const useStyles = makeStyles((theme) => {
       userSelect: 'none',
       paddingLeft: props.gridSize / 2,
 
+      lineHeight: (props.gridSize - 1) + 'px',
+      fontSize: props.gridSize * 0.6,
+
       '& > p': {
-        lineHeight: (props.gridSize - 1) + 'px',
-        fontSize: props.gridSize * 0.6
-      }
+        lineHeight: 'inherit',
+        fontSize: 'inherit',
+        fontWeight: 'inherit'
+      },
     }),
 
     title: {
       backgroundColor: borderColor,
       cursor: 'grab',
-
-      '& > p': {
-        fontWeight: 'bold'
-      }
+      fontWeight: 'bold'
     },
 
-    prop: {
+    prop: (props: StyleProps) => ({
       borderTopStyle: 'solid',
       borderTopWidth: 1,
       borderTopColor: borderColor,
-    },
+
+      cursor: 'pointer',
+
+      display: 'flex',
+      alignItems: 'center',
+
+      '& > p': {
+        marginLeft: props.gridSize / 2,
+      }
+    }),
 
     state: {
     },
@@ -101,6 +118,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, 
 
       {states.map((state, index) => (
         <div key={index} style={itemStyle} className={clsx(classes.item, classes.prop, classes.state)}>
+          <VisibilityIcon />
           <Typography>
             {state}
           </Typography>
@@ -109,6 +127,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, 
 
       {actions.map((action, index) => (
         <div key={index} style={itemStyle} className={clsx(classes.item, classes.prop, classes.action)}>
+          <InputIcon />
           <Typography>
             {action}
           </Typography>
