@@ -3,7 +3,6 @@ import React, { FunctionComponent, useState } from 'react';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
-import Tooltip from '@material-ui/core';
 
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
