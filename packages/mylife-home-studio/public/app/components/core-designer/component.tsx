@@ -64,9 +64,11 @@ export interface ComponentProps {
   title: string;
   states: string[];
   actions: string[];
+
+  onSelect: () => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, title, states, actions }) => {
+const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, title, states, actions, onSelect }) => {
   const canvasContext = useCanvasContext();
   const classes = useStyles({ gridSize: canvasContext.gridSize });
 
@@ -82,7 +84,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, 
   };
 
   return (
-    <div style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)}>
+    <div style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
 
       <div style={itemStyle} className={clsx(classes.item, classes.title)}>
         <Typography>

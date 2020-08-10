@@ -8,20 +8,23 @@ import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
 
-const component1 = {
+const components = [{
   title: 'Component 1',
   states: ['value'],
-  actions: ['setValue']
-};
-
-const component2 = {
+  actions: ['setValue'],
+  x: 5,
+  y: 10
+}, {
   title: 'Component 2',
   states: ['volume', 'status'],
-  actions: ['setVolume', 'play', 'pause', 'prev', 'next']
-}
+  actions: ['setVolume', 'play', 'pause', 'prev', 'next'],
+  x: 5,
+  y: 20
+}];
 
 const CoreDesigner: FunctionComponent = () => {
   const [gridSize, setGridSize] = useState(24);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const handleSliderChange = (event: React.ChangeEvent, newValue: number) => {
     setGridSize(newValue);
@@ -42,8 +45,9 @@ const CoreDesigner: FunctionComponent = () => {
       </Box>
 
       <Canvas context={{ gridSize: gridSize }}>
-        <Component x={5} y={10} {...component1} />
-        <Component x={5} y={20} selected {...component2} />
+        {components.map((component, index) => (
+          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
+        ))
       </Canvas>
 
     </SplitPane>
