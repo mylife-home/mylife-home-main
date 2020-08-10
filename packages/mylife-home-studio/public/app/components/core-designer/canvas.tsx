@@ -9,8 +9,6 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   container: {
-    width: 10000,
-    height: 10000,
     background: theme.palette.background.paper,
     position: 'relative',
   }
@@ -24,6 +22,8 @@ const CanvasContext = createContext<CanvasContextProps>(null);
 
 export const useCanvasContext = () => useContext(CanvasContext);
 
+const CONTAINER_SIZE = 1000;
+
 export interface CanvasProps {
   context: CanvasContextProps;
 }
@@ -31,9 +31,12 @@ export interface CanvasProps {
 const Canvas: FunctionComponent<CanvasProps> = ({ children, context }) => {
   const classes = useStyles();
 
+  const size = CONTAINER_SIZE * context.gridSize;
+  const containerSize = { width: size, height: size };
+
   return (
     <div className={classes.wrapper}>
-      <div className={classes.container}>
+      <div className={classes.container} style={containerSize}>
         <CanvasContext.Provider value={context}>
           {children}
         </CanvasContext.Provider>

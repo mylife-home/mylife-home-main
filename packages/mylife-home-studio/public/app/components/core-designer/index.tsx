@@ -1,8 +1,10 @@
-import React, { FunctionComponent } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { FunctionComponent, useState } from 'react';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
+import Slider from '@material-ui/core/Slider';
+import Tooltip from '@material-ui/core';
+
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
@@ -19,21 +21,34 @@ const component2 = {
   actions: ['setVolume', 'play', 'pause', 'prev', 'next']
 }
 
-const CoreDesigner: FunctionComponent = () => (
-  <SplitPane split="vertical" defaultSize={200}>
+const CoreDesigner: FunctionComponent = () => {
+  const [gridSize, setGridSize] = useState(24);
 
-    <Box>
-      <Typography>Selection</Typography>
-      <Typography>MiniMap</Typography>
-      <Typography>Toolbox</Typography>
-    </Box>
+  const handleSliderChange = (event: React.ChangeEvent, newValue: number) => {
+    setGridSize(newValue);
+  };
 
-    <Canvas context={{ gridSize: 24 }}>
-      <Component x={5} y={10} {...component1} />
-      <Component x={5} y={20} selected {...component2} />
-    </Canvas>
+  return (
+    <SplitPane split="vertical" defaultSize={200}>
 
-  </SplitPane>
-);
+      <Box p={3}>
+        <Typography gutterBottom>
+          Grid size: {gridSize}
+        </Typography>
+        <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
+
+        <Typography>Selection</Typography>
+        <Typography>MiniMap</Typography>
+        <Typography>Toolbox</Typography>
+      </Box>
+
+      <Canvas context={{ gridSize: gridSize }}>
+        <Component x={5} y={10} {...component1} />
+        <Component x={5} y={20} selected {...component2} />
+      </Canvas>
+
+    </SplitPane>
+  );
+};
 
 export default CoreDesigner;
