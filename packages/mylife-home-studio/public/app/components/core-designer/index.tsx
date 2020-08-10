@@ -4,15 +4,16 @@ import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import SplitPane from '../split-pane';
+import Canvas from './canvas';
 
 const CoreDesigner: FunctionComponent = () => (
   <SplitPane split="vertical" minSize={50}>
     <Box>
+      <Typography>Selection</Typography>
+      <Typography>MiniMap</Typography>
       <Typography>Toolbox</Typography>
     </Box>
-    <Box>
-      <Typography>Canvas</Typography>
-    </Box>
+    <Canvas />
   </SplitPane>
 );
 
