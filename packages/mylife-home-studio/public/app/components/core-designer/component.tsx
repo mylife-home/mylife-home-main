@@ -23,10 +23,12 @@ const useStyles = makeStyles((theme) => {
       borderColor,
       boxSizing: 'content-box',
     },
+
     selected: {
       borderWidth: 2,
       borderColor: borderColorSelected
     },
+
     item: (props: StyleProps) => ({
       userSelect: 'none',
       paddingLeft: props.gridSize / 2,
@@ -36,20 +38,25 @@ const useStyles = makeStyles((theme) => {
         fontSize: props.gridSize * 0.6
       }
     }),
+
     title: {
       backgroundColor: borderColor,
+      cursor: 'grab',
 
       '& > p': {
         fontWeight: 'bold'
       }
     },
+
     prop: {
       borderTopStyle: 'solid',
       borderTopWidth: 1,
       borderTopColor: borderColor,
     },
+
     state: {
     },
+
     action: {
     }
   };

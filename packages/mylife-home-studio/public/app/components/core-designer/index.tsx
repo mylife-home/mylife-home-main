@@ -47,7 +47,7 @@ const CoreDesigner: FunctionComponent = () => {
       <Canvas context={{ gridSize: gridSize }}>
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
-        ))
+        ))}
       </Canvas>
 
     </SplitPane>
