@@ -166,7 +166,8 @@ const useTabPanelStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
   },
   tabPanel: {
-    flex: 1
+    flex: 1,
+    position: 'relative'
   },
 }));
 
