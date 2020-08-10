@@ -7,6 +7,18 @@ import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
 
+const component1 = {
+  title: 'Component 1',
+  states: ['value'],
+  actions: ['setValue']
+};
+
+const component2 = {
+  title: 'Component 2',
+  states: ['volume', 'status'],
+  actions: ['setVolume', 'play', 'pause', 'prev', 'next']
+}
+
 const CoreDesigner: FunctionComponent = () => (
   <SplitPane split="vertical" defaultSize={200}>
 
@@ -16,8 +28,9 @@ const CoreDesigner: FunctionComponent = () => (
       <Typography>Toolbox</Typography>
     </Box>
 
-    <Canvas>
-      <Component x={50} y={100} />
+    <Canvas context={{ gridSize: 24 }}>
+      <Component x={5} y={10} {...component1} />
+      <Component x={5} y={20} selected {...component2} />
     </Canvas>
 
   </SplitPane>
