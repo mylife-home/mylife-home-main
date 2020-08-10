@@ -11,7 +11,7 @@ interface StyleProps {
 
 const useStyles = makeStyles((theme) => {
   const borderColor = darken(theme.palette.background.paper, 0.1);
-  const borderColorSelected = darken(theme.palette.background.paper, 0.2);
+  const borderColorSelected = theme.palette.primary.main;
 
   return {
     root: {
@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme) => {
       borderColor: borderColorSelected
     },
     item: (props: StyleProps) => ({
+      userSelect: 'none',
       paddingLeft: props.gridSize / 2,
 
       '& > p': {
