@@ -29,9 +29,18 @@ const useStyles = makeStyles((theme) => {
     },
     item: (props: StyleProps) => ({
       paddingLeft: props.gridSize / 2,
+
+      '& > p': {
+        lineHeight: (props.gridSize - 1) + 'px',
+        fontSize: props.gridSize * 0.6
+      }
     }),
     title: {
       backgroundColor: borderColor,
+
+      '& > p': {
+        fontWeight: 'bold'
+      }
     },
     prop: {
       borderTopStyle: 'solid',
