@@ -124,9 +124,9 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
   };
 
   return (
-    <div ref={drag} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
+    <div ref={preview} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
 
-      <div style={itemStyle} className={clsx(classes.item, classes.title)}>
+      <div ref={drag} style={itemStyle} className={clsx(classes.item, classes.title)}>
         <Typography>
           {title}
         </Typography>

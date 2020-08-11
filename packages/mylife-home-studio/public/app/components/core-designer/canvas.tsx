@@ -44,7 +44,7 @@ const Canvas: FunctionComponent<CanvasProps> = ({ children, context, onMoveCompo
       const delta = monitor.getDifferenceFromInitialOffset();
       onMoveComponent(item.id, computeComponentPosition(item, delta, context.gridSize));
     },
-  })
+  });
   
   return (
     <div className={classes.wrapper}>
