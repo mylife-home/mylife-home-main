@@ -26,8 +26,11 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
   const canvasContext = useCanvasContext();
   const classes = useComponentStyles();
 
-  const [, drag, preview] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     item: { type: DndItemTypes.COMPONENT, id, x, y },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging()
+    })
   });
 
   const boundingRectangle = {
@@ -37,8 +40,10 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
     height: (states.length + actions.length + 1) * canvasContext.gridSize,
   };
 
+  const rootClasses = clsx(classes.root, selected && classes.selected, isDragging && classes.dragging);
+
   return (
-    <div ref={preview} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onMouseDown={() => onSelect()}>
+    <div ref={preview} style={boundingRectangle} className={rootClasses} onMouseDown={onSelect}>
 
       <Title ref={drag}>
         {title}

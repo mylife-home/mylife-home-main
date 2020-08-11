@@ -28,6 +28,10 @@ interface StyleProps {
         borderWidth: 2,
         borderColor: borderColorSelected
       },
+
+      dragging: {
+        opacity: 0,
+      },
   
       item: (props: StyleProps) => ({
         userSelect: 'none',
