@@ -7,14 +7,17 @@ import Slider from '@material-ui/core/Slider';
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
+import { Position } from './dnd';
 
-const components = [{
+const initialComponents = [{
+  id: 'component-1',
   title: 'Component 1',
   states: ['value'],
   actions: ['setValue'],
   x: 5,
   y: 10
 }, {
+  id: 'component-2',
   title: 'Component 2',
   states: ['volume', 'status'],
   actions: ['setVolume', 'play', 'pause', 'prev', 'next'],
@@ -25,9 +28,20 @@ const components = [{
 const CoreDesigner: FunctionComponent = () => {
   const [gridSize, setGridSize] = useState(24);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [components, setComponents] = useState(initialComponents);
 
   const handleSliderChange = (event: React.ChangeEvent, newValue: number) => {
     setGridSize(newValue);
+  };
+
+  const handleMoveComponent = (id: string, pos: Position) => {
+    setComponents(components => components.map(comp => {
+      if (comp.id !== id) {
+        return comp;
+      }
+
+      return { ...comp, x: pos.x, y: pos.y };
+    }));
   };
 
   return (
@@ -44,7 +58,7 @@ const CoreDesigner: FunctionComponent = () => {
         <Typography>Toolbox</Typography>
       </Box>
 
-      <Canvas context={{ gridSize: gridSize }}>
+      <Canvas context={{ gridSize: gridSize }} onMoveComponent={handleMoveComponent}>
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
         ))}

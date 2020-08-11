@@ -1,5 +1,7 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useEffect } from 'react';
 import clsx from 'clsx';
+import { DragSourceMonitor, useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
 import Typography from '@material-ui/core/Typography';
@@ -7,6 +9,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import InputIcon from '@material-ui/icons/Input';
 
 import { useCanvasContext } from './canvas';
+import { Position, DndItemTypes } from './dnd';
 
 interface StyleProps {
   gridSize: number;
@@ -82,6 +85,7 @@ const useStyles = makeStyles((theme) => {
 const COMPONENT_WIDTH = 10;
 
 export interface ComponentProps {
+  id: string;
   x: number;
   y: number;
   selected?: boolean;
@@ -92,9 +96,21 @@ export interface ComponentProps {
   onSelect: () => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, title, states, actions, onSelect }) => {
+const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = false, title, states, actions, onSelect }) => {
   const canvasContext = useCanvasContext();
   const classes = useStyles({ gridSize: canvasContext.gridSize });
+
+  const [{ isDragging }, drag, preview] = useDrag({
+    item: { type: DndItemTypes.COMPONENT, id, x, y },
+    begin: () => onSelect(),
+    collect: (monitor: DragSourceMonitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true })
+  }, []);
 
   const boundingRectangle = {
     left: x * canvasContext.gridSize,
@@ -108,7 +124,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, selected = false, 
   };
 
   return (
-    <div style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
+    <div ref={drag} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
 
       <div style={itemStyle} className={clsx(classes.item, classes.title)}>
         <Typography>
