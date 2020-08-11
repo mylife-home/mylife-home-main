@@ -2,14 +2,11 @@ import React, { FunctionComponent, forwardRef } from 'react';
 import clsx from 'clsx';
 import { useDrag } from 'react-dnd';
 
-import Typography from '@material-ui/core/Typography';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import InputIcon from '@material-ui/icons/Input';
-
 import { useCanvasContext } from '../canvas';
 import { DndItemTypes } from '../dnd';
 import { useComponentStyles } from './styles';
 import Title from './title';
+import Prop from './prop';
 
 const COMPONENT_WIDTH = 10;
 
@@ -48,21 +45,15 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
       </Title>
 
       {states.map((state, index) => (
-        <div key={index} className={clsx(classes.item, classes.prop, classes.state)}>
-          <VisibilityIcon />
-          <Typography>
-            {state}
-          </Typography>
-        </div>
+        <Prop key={index} type='state'>
+          {state}
+        </Prop>
       ))}
 
       {actions.map((action, index) => (
-        <div key={index} className={clsx(classes.item, classes.prop, classes.action)}>
-          <InputIcon />
-          <Typography>
-            {action}
-          </Typography>
-        </div>
+        <Prop key={index} type='action'>
+          {action}
+        </Prop>
       ))}
 
     </div>

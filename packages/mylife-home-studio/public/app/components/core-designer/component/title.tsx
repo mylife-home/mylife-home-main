@@ -1,4 +1,4 @@
-import React, { FunctionComponent, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import clsx from 'clsx';
 
 import Typography from '@material-ui/core/Typography';
