@@ -1,7 +1,6 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
-import { DragSourceMonitor, useDrag } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import { useDrag } from 'react-dnd';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
 import Typography from '@material-ui/core/Typography';
@@ -9,7 +8,7 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import InputIcon from '@material-ui/icons/Input';
 
 import { useCanvasContext } from './canvas';
-import { Position, DndItemTypes } from './dnd';
+import { DndItemTypes } from './dnd';
 
 interface StyleProps {
   gridSize: number;
@@ -50,6 +49,11 @@ const useStyles = makeStyles((theme) => {
         lineHeight: 'inherit',
         fontSize: 'inherit',
         fontWeight: 'inherit'
+      },
+
+      '& > svg': {
+        lineHeight: 'inherit',
+        fontSize: 'inherit',
       },
     }),
 
@@ -100,17 +104,9 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
   const canvasContext = useCanvasContext();
   const classes = useStyles({ gridSize: canvasContext.gridSize });
 
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     item: { type: DndItemTypes.COMPONENT, id, x, y },
-    begin: () => onSelect(),
-    collect: (monitor: DragSourceMonitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
   });
-
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
-  }, []);
 
   const boundingRectangle = {
     left: x * canvasContext.gridSize,
@@ -124,7 +120,7 @@ const Component: FunctionComponent<ComponentProps> = ({ id, x, y, selected = fal
   };
 
   return (
-    <div ref={preview} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onClick={() => onSelect()}>
+    <div ref={preview} style={boundingRectangle} className={clsx(classes.root, selected && classes.selected)} onMouseDown={() => onSelect()}>
 
       <div ref={drag} style={itemStyle} className={clsx(classes.item, classes.title)}>
         <Typography>
