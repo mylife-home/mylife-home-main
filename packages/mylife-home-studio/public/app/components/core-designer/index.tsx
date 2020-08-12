@@ -8,6 +8,7 @@ import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
 import { Position } from './dnd';
+import KCanvas from './kcanvas';
 
 const initialComponents = [{
   id: 'component-1',
@@ -57,12 +58,15 @@ const CoreDesigner: FunctionComponent = () => {
         <Typography>MiniMap</Typography>
         <Typography>Toolbox</Typography>
       </Box>
-
+{/* 
       <Canvas context={{ gridSize: gridSize }} onMoveComponent={handleMoveComponent}>
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
         ))}
       </Canvas>
+*/}
+      <KCanvas />
+
 
     </SplitPane>
   );
