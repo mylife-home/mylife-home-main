@@ -8,7 +8,7 @@ import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
 import { Position } from './dnd';
-import KCanvas from './kcanvas';
+import KCanvas, { KComponent } from './kcanvas';
 
 const initialComponents = [{
   id: 'component-1',
@@ -65,7 +65,11 @@ const CoreDesigner: FunctionComponent = () => {
         ))}
       </Canvas>
 */}
-      <KCanvas />
+      <KCanvas>
+        {components.map((component, index) => (
+          <KComponent key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
+        ))}
+      </KCanvas>
 
 
     </SplitPane>
