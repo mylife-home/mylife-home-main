@@ -1,11 +1,31 @@
-import React, { Fragment, FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { darken, useTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Stage, Layer, Rect, Text, Group } from 'react-konva';
-import Konva from 'konva';
 
 const GRID_STEP = 24;
 const COMPONENT_WIDTH = 10;
 const SELECTION_WIDTH = 2;
+const FONT_FAMILY = '"Roboto", "Helvetica", "Arial", sans-serif';
+const TEXT_PADDING = 8;
+
+interface LabelProps {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+  text: string;
+  fontStyle?: string;
+  backgroundColor: string;
+}
+
+const Label: FunctionComponent<LabelProps> =  ({x, y, height, width, text, fontStyle, backgroundColor }) => (
+  <>
+    <Rect x={x} y={y} width={width} height={height} fill={backgroundColor} />
+    <Text x={x + TEXT_PADDING} y={y} width={width} height={height} 
+      text={text} fill={'black'} fontFamily={FONT_FAMILY} fontSize={GRID_STEP * 0.6} fontStyle={fontStyle}
+      verticalAlign={'middle'} />
+  </>
+);
 
 export interface ComponentProps {
   id: string;
@@ -47,21 +67,14 @@ export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, title, sta
 
       <Rect x={0} y={0} width={width} height={height} fill={borderColor} />
 
-      <Rect x={1} y={1} width={width-2} height={GRID_STEP - 2} fill={backgroundColor} />
-      <Text x={1} y={1} text={title} fill={'black'} />
+      <Label x={1} y={1} width={width-2} height={GRID_STEP - 2} backgroundColor={backgroundColor} fontStyle={'bold'} text={title} />
 
       {states.map((state, index) => (
-        <Fragment key={index}>
-          <Rect x={1} y={GRID_STEP * (index + 1)} width={width-2} height={GRID_STEP - 1} fill={backgroundColor} />
-          <Text x={1} y={GRID_STEP * (index + 1)} text={state} fill={'black'} />
-        </Fragment>
+        <Label key={index} x={1} y={GRID_STEP * (index + 1)} width={width-2} height={GRID_STEP - (index === states.length - 1 ? 1 : 0)} backgroundColor={backgroundColor} text={state} />
       ))}
 
       {actions.map((action, index) => (
-        <Fragment key={index}>
-          <Rect x={1} y={GRID_STEP * (index + 1 + states.length)} width={width-2} height={GRID_STEP - 1} fill={backgroundColor} />
-          <Text x={1} y={GRID_STEP * (index + 1 + states.length)} text={action} fill={'black'} />
-        </Fragment>
+        <Label key={index} x={1} y={GRID_STEP * (index + 1 + states.length)} width={width-2} height={GRID_STEP - (index === actions.length - 1 ? 1 : 0)} backgroundColor={backgroundColor} text={action} />
       ))}
 
     </Group>
