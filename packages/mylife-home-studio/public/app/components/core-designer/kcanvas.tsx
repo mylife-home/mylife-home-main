@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { Fragment, FunctionComponent } from 'react';
 import { darken, useTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Stage, Layer, Rect, Text, Group } from 'react-konva';
 import Konva from 'konva';
@@ -19,7 +19,7 @@ export interface ComponentProps {
   onSelect: () => void;
 }
 
-export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, states, actions, selected, onSelect }) => {
+export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect }) => {
   const theme = useTheme();
   const backgroundColor = darken(theme.palette.background.paper, 0.03);
   const borderColor = darken(theme.palette.background.paper, 0.1);
@@ -45,13 +45,25 @@ export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, states, ac
           fill={borderColorSelected} />
       )}
 
-      <Rect
-        x={0}
-        y={0}
-        width={width}
-        height={height}
-        fill={borderColor}
-      />
+      <Rect x={0} y={0} width={width} height={height} fill={borderColor} />
+
+      <Rect x={1} y={1} width={width-2} height={GRID_STEP - 2} fill={backgroundColor} />
+      <Text x={1} y={1} text={title} fill={'black'} />
+
+      {states.map((state, index) => (
+        <Fragment key={index}>
+          <Rect x={1} y={GRID_STEP * (index + 1)} width={width-2} height={GRID_STEP - 1} fill={backgroundColor} />
+          <Text x={1} y={GRID_STEP * (index + 1)} text={state} fill={'black'} />
+        </Fragment>
+      ))}
+
+      {actions.map((action, index) => (
+        <Fragment key={index}>
+          <Rect x={1} y={GRID_STEP * (index + 1 + states.length)} width={width-2} height={GRID_STEP - 1} fill={backgroundColor} />
+          <Text x={1} y={GRID_STEP * (index + 1 + states.length)} text={action} fill={'black'} />
+        </Fragment>
+      ))}
+
     </Group>
   );
 }
