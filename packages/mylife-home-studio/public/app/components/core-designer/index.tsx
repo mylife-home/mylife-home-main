@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
 import SplitPane from '../split-pane';
-import Canvas from './canvas';
-import Component from './component';
-import { Position } from './dnd';
+import Canvas from './old/canvas';
+import Component from './old/component';
+import { Position } from './old/dnd';
 import KCanvas, { KComponent } from './kcanvas';
 
 const initialComponents = [{
