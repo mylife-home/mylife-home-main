@@ -9,9 +9,11 @@ export interface CanvasTheme {
   backgroundColor: string;
   borderColor: string;
   borderColorSelected: string;
+  selectionWidth: number;
 
   component: {
     paddingLeft: number;
+    width: number
   };
 }
 
@@ -44,9 +46,11 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     backgroundColor: darken(muiTheme.palette.background.paper, 0.03),
     borderColor: darken(muiTheme.palette.background.paper, 0.1),
     borderColorSelected: muiTheme.palette.primary.main,
+    selectionWidth: 2,
 
     component: {
-      paddingLeft: 8
+      paddingLeft: 8,
+      width: GRID_STEP * 10,
     }
   };
 }

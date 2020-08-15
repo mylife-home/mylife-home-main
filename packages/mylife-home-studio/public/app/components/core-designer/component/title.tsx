@@ -16,7 +16,9 @@ const Title: FunctionComponent<TitleProps> = ({x, y, height, width, text }) => {
   const theme = useCanvasTheme();
   
   return (
-    <Typography x={x + theme.component.paddingLeft } y={y} width={width} height={height} text={text} bold />
+    <>
+      <Typography x={x + theme.component.paddingLeft } y={y} width={width} height={height} text={text} bold />
+    </>
   );
 };
 
