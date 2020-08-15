@@ -7,23 +7,6 @@ import Typography from '../base/typography';
 import Border from '../base/border';
 import Title from './title';
 
-interface LabelProps {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-  text: string;
-  header?: boolean;
-}
-
-const Label: FunctionComponent<LabelProps> = ({x, y, height, width, text, header }) => {
-  const theme = useCanvasTheme();
-  
-  return (
-    <Typography x={x + theme.component.paddingLeft + (header ? 0 : theme.gridStep) } y={y} width={width} height={height} text={text} bold={header} />
-  );
-};
-
 export interface ComponentProps {
   id: string;
   x: number;
@@ -65,24 +48,23 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       )}
 
       <Title x={1} y={1} width={width-2} height={theme.gridStep - 2} text={title} />
+      <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
 
       {states.map((state, index) => (
         <Fragment key={index}>
-          <Label x={1} y={theme.gridStep * (index + 1)} width={width-2} height={theme.gridStep - (index === states.length - 1 ? 1 : 0)} text={state} />
           <Icon x={theme.component.paddingLeft} y={theme.gridStep * (index + 1) + ((theme.gridStep - (theme.gridStep * 0.6)) / 2)} size={theme.gridStep * 0.6} image='visibility' />
+          <Typography x={theme.component.paddingLeft + theme.gridStep} y={theme.gridStep * (index + 1)} width={width-2} height={theme.gridStep - (index === states.length - 1 ? 1 : 0)} text={state} />
         </Fragment>
       ))}
+
+      <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
 
       {actions.map((action, index) => (
         <Fragment key={index}>
-          <Label x={1} y={theme.gridStep * (index + 1 + states.length)} width={width-2} height={theme.gridStep - (index === actions.length - 1 ? 1 : 0)} text={action} />
           <Icon x={theme.component.paddingLeft} y={theme.gridStep * (index + 1 + states.length) + ((theme.gridStep - (theme.gridStep * 0.6)) / 2)} size={theme.gridStep * 0.6} image='input' />
+          <Typography x={theme.component.paddingLeft + theme.gridStep} y={theme.gridStep * (index + 1 + states.length)} width={width-2} height={theme.gridStep - (index === actions.length - 1 ? 1 : 0)} text={action} />
         </Fragment>
       ))}
-
-      <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
-
-      <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
 
       <Border x={0} y={theme.gridStep * (1 + states.length) - 1} width={width} height={theme.gridStep * actions.length + 1} color={theme.borderColor} type='inner' />
 
