@@ -36,7 +36,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     gridStep: GRID_STEP,
     fontFamily: muiTheme.typography.fontFamily,
     fontSize: GRID_STEP * 0.6,
-    color: 'black',
+    color: muiTheme.palette.text.primary,
     backgroundColor: darken(muiTheme.palette.background.paper, 0.03),
     borderColor: darken(muiTheme.palette.background.paper, 0.1),
     borderColorSelected: muiTheme.palette.primary.main,
