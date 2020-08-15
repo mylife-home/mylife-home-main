@@ -1,5 +1,5 @@
-import React, { FunctionComponent, Fragment } from 'react';
-import { useTheme } from '@material-ui/core/styles';
+import React, { FunctionComponent } from 'react';
+import { useCanvasTheme } from './theme';
 import { Text } from 'react-konva';
 
 interface TypographyProps {
@@ -9,14 +9,13 @@ interface TypographyProps {
   width: number;
   text: string;
   bold?: boolean;
-  color: string;
+  color?: string;
 }
 
 const Typography: FunctionComponent<TypographyProps> = ({ bold, color, ...props }) => {
-  const theme = useTheme();
-  const { fontFamily } = theme.typography;
+  const theme = useCanvasTheme();
   return (
-    <Text {...props} fill={color} fontFamily={fontFamily} fontSize={GRID_STEP * 0.6} fontStyle={bold && 'bold'} verticalAlign={'middle'} />
+    <Text {...props} fill={color || theme.color} fontFamily={theme.fontFamily} fontSize={theme.fontSize} fontStyle={bold && 'bold'} verticalAlign={'middle'} />
   );
 };
 

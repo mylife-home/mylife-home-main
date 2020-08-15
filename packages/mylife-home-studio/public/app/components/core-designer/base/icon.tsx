@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { Path } from 'react-konva';
+import { useCanvasTheme } from './theme';
 
 const PATH_SIZE = 24;
 
@@ -15,20 +16,24 @@ export interface IconProps {
   x: number;
   y: number;
   size: number;
-  color: string;
+  color?: string;
 }
 
-const Icon: FunctionComponent<IconProps> = ({ image, x, y, size, color }) => (
-  <Path
-    x={x}
-    y={y}
-    width={size}
-    height={size}
-    scaleX={size / PATH_SIZE}
-    scaleY={size / PATH_SIZE}
-    data={images[image]}
-    fill={color}
-  />
-);
+const Icon: FunctionComponent<IconProps> = ({ image, x, y, size, color }) => {
+  const theme = useCanvasTheme();
+
+  return (
+    <Path
+      x={x}
+      y={y}
+      width={size}
+      height={size}
+      scaleX={size / PATH_SIZE}
+      scaleY={size / PATH_SIZE}
+      data={images[image]}
+      fill={color || theme.color}
+    />
+  );
+};
 
 export default Icon;

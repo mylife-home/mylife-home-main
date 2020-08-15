@@ -1,8 +1,9 @@
 import React, { FunctionComponent, createContext, useContext, useMemo } from 'react';
-import { Theme as MuiTheme, useTheme as useMuiTheme, darken } from '@material-ui/core';
+import { Theme as MuiTheme, darken } from '@material-ui/core';
 
 export interface CanvasTheme {
   gridStep: number;
+  fontFamily: string;
   fontSize: number;
   color: string;
   backgroundColor: string;
@@ -16,8 +17,7 @@ export interface CanvasThemeProviderProps {
   muiTheme: MuiTheme;
 }
 
-export const CanvasThemeProvider: FunctionComponent<CanvasThemeProviderProps> = (props) => {
-  const muiTheme = useMuiTheme();
+export const CanvasThemeProvider: FunctionComponent<CanvasThemeProviderProps> = ({ muiTheme, ...props }) => {
   const canvasTheme = useMemo(() => buildCanvasTheme(muiTheme), [muiTheme]);
 
   return (
@@ -34,6 +34,7 @@ const GRID_STEP = 24;
 function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
   return {
     gridStep: GRID_STEP,
+    fontFamily: muiTheme.typography.fontFamily,
     fontSize: GRID_STEP * 0.6,
     color: 'black',
     backgroundColor: darken(muiTheme.palette.background.paper, 0.03),

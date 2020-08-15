@@ -1,17 +1,18 @@
 import React, { FunctionComponent } from 'react';
-import { useTheme, ThemeProvider } from '@material-ui/core/styles';
+import { useTheme as useMuiTheme } from '@material-ui/core/styles';
 import { Stage, Layer } from 'react-konva';
+import { CanvasThemeProvider } from './base/theme';
 
 const Canvas: FunctionComponent = ({ children }) => {
-  const theme = useTheme();
+  const muiTheme = useMuiTheme();
   
   return (
     <Stage width={window.innerWidth} height={window.innerHeight}>
-      <ThemeProvider theme={theme}>
+      <CanvasThemeProvider muiTheme={muiTheme}>
         <Layer>
           {children}
         </Layer>
-      </ThemeProvider>
+      </CanvasThemeProvider>
     </Stage>
     );
 };
