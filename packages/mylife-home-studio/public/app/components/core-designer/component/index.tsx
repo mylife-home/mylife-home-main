@@ -1,10 +1,10 @@
 import React, { FunctionComponent, Fragment } from 'react';
-import { darken, useTheme } from '@material-ui/core/styles';
 import { Rect, Group } from 'react-konva';
 
 import { useCanvasTheme } from '../base/theme';
 import Icon from '../base/icon';
 import Typography from '../base/typography';
+import Title from './title';
 
 const COMPONENT_WIDTH = 10;
 const SELECTION_WIDTH = 2;
@@ -67,7 +67,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 
       <Rect x={0} y={0} width={width} height={height} fill={theme.borderColor} />
 
-      <Label x={1} y={1} width={width-2} height={theme.gridStep - 2} header text={title} />
+      <Title x={1} y={1} width={width-2} height={theme.gridStep - 2} text={title} />
 
       {states.map((state, index) => (
         <Fragment key={index}>
