@@ -24,10 +24,7 @@ const Label: FunctionComponent<LabelProps> = ({x, y, height, width, text, header
   const theme = useCanvasTheme();
   
   return (
-    <>
-      <Rect x={x} y={y} width={width} height={height} fill={theme.backgroundColor} />
-      <Typography x={x + TEXT_PADDING + (header ? 0 : theme.gridStep) } y={y} width={width} height={height} text={text} bold={header} />
-    </>
+    <Typography x={x + TEXT_PADDING + (header ? 0 : theme.gridStep) } y={y} width={width} height={height} text={text} bold={header} />
   );
 };
 
@@ -57,6 +54,8 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       height={height}
       onClick={onSelect}
     >
+      <Rect x={0} y={0} width={width} height={height} fill={theme.backgroundColor} />
+
       {selected && (
         <Border
           x={0}
@@ -68,8 +67,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
           thickness={SELECTION_WIDTH}
         />
       )}
-
-      <Rect x={0} y={0} width={width} height={height} fill={theme.borderColor} />
 
       <Title x={1} y={1} width={width-2} height={theme.gridStep - 2} text={title} />
 
@@ -86,6 +83,12 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
           <Icon x={TEXT_PADDING} y={theme.gridStep * (index + 1 + states.length) + ((theme.gridStep - (theme.gridStep * 0.6)) / 2)} size={theme.gridStep * 0.6} image='input' />
         </Fragment>
       ))}
+
+      <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
+
+      <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
+
+      <Border x={0} y={theme.gridStep * (1 + states.length) - 1} width={width} height={theme.gridStep * actions.length + 1} color={theme.borderColor} type='inner' />
 
     </Group>
   );

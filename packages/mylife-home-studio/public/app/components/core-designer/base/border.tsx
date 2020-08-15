@@ -11,12 +11,12 @@ interface Rectangle {
 type BorderType = 'inner' | 'outer';
 
 export interface BorderProps extends Rectangle {
-  thickness: number;
+  thickness?: number;
   type: BorderType;
   color: string;
 }
 
-const Border: FunctionComponent<BorderProps> = ({ x, y, height, width, thickness, type, color }) => {
+const Border: FunctionComponent<BorderProps> = ({ x, y, height, width, thickness = 1, type, color }) => {
   const rect = buildRect({ x, y, height, width }, thickness, type);
 
   return (

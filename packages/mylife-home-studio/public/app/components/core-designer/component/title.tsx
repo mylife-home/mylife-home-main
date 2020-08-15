@@ -16,10 +16,7 @@ const Title: FunctionComponent<TitleProps> = ({x, y, height, width, text }) => {
   const theme = useCanvasTheme();
   
   return (
-    <>
-      <Rect x={x} y={y} width={width} height={height} fill={theme.backgroundColor} />
-      <Typography x={x + theme.component.paddingLeft } y={y} width={width} height={height} text={text} bold />
-    </>
+    <Typography x={x + theme.component.paddingLeft } y={y} width={width} height={height} text={text} bold />
   );
 };
 
