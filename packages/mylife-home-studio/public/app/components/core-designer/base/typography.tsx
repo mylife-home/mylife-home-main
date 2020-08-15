@@ -2,8 +2,6 @@ import React, { FunctionComponent, Fragment } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import { Text } from 'react-konva';
 
-import { GRID_STEP } from './defs';
-
 interface TypographyProps {
   x: number;
   y: number;

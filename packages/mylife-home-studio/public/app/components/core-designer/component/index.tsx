@@ -4,7 +4,6 @@ import { Rect, Group } from 'react-konva';
 
 import Icon from '../base/icon';
 import Typography from '../base/typography';
-import { GRID_STEP } from '../base/defs';
 
 const COMPONENT_WIDTH = 10;
 const SELECTION_WIDTH = 2;
