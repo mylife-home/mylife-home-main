@@ -4,6 +4,7 @@ import { Rect, Group } from 'react-konva';
 import { useCanvasTheme } from '../base/theme';
 import Icon from '../base/icon';
 import Typography from '../base/typography';
+import Border from '../base/border';
 import Title from './title';
 
 const COMPONENT_WIDTH = 10;
@@ -57,12 +58,15 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       onClick={onSelect}
     >
       {selected && (
-        <Rect
-          x={-SELECTION_WIDTH}
-          y={-SELECTION_WIDTH}
-          width={width + 2 * SELECTION_WIDTH}
-          height={height + 2 * SELECTION_WIDTH}
-          fill={theme.borderColorSelected} />
+        <Border
+          x={0}
+          y={0}
+          width={width}
+          height={height}
+          type='outer'
+          color={theme.borderColorSelected}
+          thickness={SELECTION_WIDTH}
+        />
       )}
 
       <Rect x={0} y={0} width={width} height={height} fill={theme.borderColor} />
