@@ -1,10 +1,10 @@
 import React, { FunctionComponent, Fragment } from 'react';
 import { darken, useTheme } from '@material-ui/core/styles';
-import { Rect, Text, Group, Path } from 'react-konva';
+import { Rect, Group } from 'react-konva';
 
-import Icon from './icon';
-import Typography from './typography';
-import { GRID_STEP } from './defs';
+import Icon from '../base/icon';
+import Typography from '../base/typography';
+import { GRID_STEP } from '../base/defs';
 
 const COMPONENT_WIDTH = 10;
 const SELECTION_WIDTH = 2;
