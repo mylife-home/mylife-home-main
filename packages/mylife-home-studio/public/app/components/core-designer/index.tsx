@@ -5,10 +5,11 @@ import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
 import SplitPane from '../split-pane';
-import Canvas from './old/canvas';
-import Component from './old/component';
+// import Canvas from './old/canvas';
+// import Component from './old/component';
 import { Position } from './old/dnd';
-import KCanvas, { KComponent } from './kcanvas';
+import Canvas from './canvas';
+import Component from './component';
 
 const initialComponents = [{
   id: 'component-1',
@@ -65,11 +66,11 @@ const CoreDesigner: FunctionComponent = () => {
         ))}
       </Canvas>
 */}
-      <KCanvas>
+      <Canvas>
         {components.map((component, index) => (
-          <KComponent key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
+          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
         ))}
-      </KCanvas>
+      </Canvas>
 
 
     </SplitPane>

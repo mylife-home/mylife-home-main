@@ -64,7 +64,7 @@ export interface ComponentProps {
   onSelect: () => void;
 }
 
-export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect }) => {
+const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect }) => {
   const theme = useTheme();
   const backgroundColor = darken(theme.palette.background.paper, 0.03);
   const borderColor = darken(theme.palette.background.paper, 0.1);
@@ -112,18 +112,4 @@ export const KComponent: FunctionComponent<ComponentProps> = ({ x, y, title, sta
   );
 }
 
-const KCanvas: FunctionComponent = ({ children }) => {
-  const theme = useTheme();
-  
-  return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
-      <ThemeProvider theme={theme}>
-        <Layer>
-          {children}
-        </Layer>
-      </ThemeProvider>
-    </Stage>
-    );
-};
-
-export default KCanvas;
+export default Component;
