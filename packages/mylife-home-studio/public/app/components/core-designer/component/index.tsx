@@ -2,10 +2,31 @@ import React, { FunctionComponent, Fragment } from 'react';
 import { Rect, Group } from 'react-konva';
 
 import { useCanvasTheme } from '../base/theme';
-import Icon from '../base/icon';
+import Icon, { Image } from '../base/icon';
 import Typography from '../base/typography';
 import Border from '../base/border';
 import Title from './title';
+
+interface PropertyProps {
+  yIndex: number;
+  icon: Image;
+  text: string;
+}
+
+const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, text }) => {
+  const theme = useCanvasTheme();
+
+  const xBase = theme.component.paddingLeft;
+  const yBase = theme.gridStep * yIndex;
+  const xTypo = xBase + theme.gridStep;
+
+  return (
+    <>
+      <Icon x={xBase} y={yBase + ((theme.gridStep - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />
+      <Typography x={xTypo} y={yBase} height={theme.gridStep} width={theme.component.width - xTypo} text={text} />
+    </>
+  );
+};
 
 export interface ComponentProps {
   id: string;
@@ -47,7 +68,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
         />
       )}
 
-      <Title x={1} y={1} width={width-2} height={theme.gridStep - 2} text={title} />
+      <Title text={title} />
       <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
 
       {states.map((state, index) => (

@@ -5,20 +5,14 @@ import { useCanvasTheme } from '../base/theme';
 import Typography from '../base/typography';
 
 export interface TitleProps {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
   text: string;
 }
 
-const Title: FunctionComponent<TitleProps> = ({x, y, height, width, text }) => {
+const Title: FunctionComponent<TitleProps> = ({ text }) => {
   const theme = useCanvasTheme();
   
   return (
-    <>
-      <Typography x={x + theme.component.paddingLeft } y={y} width={width} height={height} text={text} bold />
-    </>
+    <Typography x={theme.component.paddingLeft } y={0} width={theme.component.width} height={theme.gridStep} text={text} bold />
   );
 };
 
