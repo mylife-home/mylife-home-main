@@ -4,7 +4,7 @@ import { Rect, Group } from 'react-konva';
 import { useCanvasTheme } from '../base/theme';
 import Border from '../base/border';
 import Title from './title';
-import Property from './property';
+import PropertyList from './property-list';
 
 export interface ComponentProps {
   id: string;
@@ -49,28 +49,10 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       <Title text={title} />
       <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
 
-      {states.length && (
-        <>
-          {states.map((state, index) => (
-            <Property key={index} yIndex={1 + index} icon='visibility' text={state} />
-          ))}
-
-          <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
-        </>
-      )}
-
-      {actions.length && (
-        <>
-          {actions.map((action, index) => (
-            <Property key={index} yIndex={1 + index + states.length} icon='input' text={action} />
-          ))}
-
-          <Border x={0} y={theme.gridStep * (1 + states.length) - 1} width={width} height={theme.gridStep * actions.length + 1} color={theme.borderColor} type='inner' />
-        </>
-      )}
-
+      <PropertyList yIndex={1} icon='visibility' items={states} />
+      <PropertyList yIndex={1 + states.length} icon='input' items={actions} />
     </Group>
   );
-}
+};
 
 export default Component;
