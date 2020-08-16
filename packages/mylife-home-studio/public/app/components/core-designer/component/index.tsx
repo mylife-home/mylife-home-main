@@ -71,23 +71,25 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       <Title text={title} />
       <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
 
-      {states.map((state, index) => (
-        <Fragment key={index}>
-          <Icon x={theme.component.paddingLeft} y={theme.gridStep * (index + 1) + ((theme.gridStep - (theme.gridStep * 0.6)) / 2)} size={theme.gridStep * 0.6} image='visibility' />
-          <Typography x={theme.component.paddingLeft + theme.gridStep} y={theme.gridStep * (index + 1)} width={width-2} height={theme.gridStep - (index === states.length - 1 ? 1 : 0)} text={state} />
-        </Fragment>
-      ))}
+      {states.length && (
+        <>
+          {states.map((state, index) => (
+            <Property key={index} yIndex={1 + index} icon='visibility' text={state} />
+          ))}
 
-      <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
+          <Border x={0} y={theme.gridStep - 1} width={width} height={theme.gridStep * states.length + 1} color={theme.borderColor} type='inner' />
+        </>
+      )}
 
-      {actions.map((action, index) => (
-        <Fragment key={index}>
-          <Icon x={theme.component.paddingLeft} y={theme.gridStep * (index + 1 + states.length) + ((theme.gridStep - (theme.gridStep * 0.6)) / 2)} size={theme.gridStep * 0.6} image='input' />
-          <Typography x={theme.component.paddingLeft + theme.gridStep} y={theme.gridStep * (index + 1 + states.length)} width={width-2} height={theme.gridStep - (index === actions.length - 1 ? 1 : 0)} text={action} />
-        </Fragment>
-      ))}
+      {actions.length && (
+        <>
+          {actions.map((action, index) => (
+            <Property key={index} yIndex={1 + index + states.length} icon='input' text={action} />
+          ))}
 
-      <Border x={0} y={theme.gridStep * (1 + states.length) - 1} width={width} height={theme.gridStep * actions.length + 1} color={theme.borderColor} type='inner' />
+          <Border x={0} y={theme.gridStep * (1 + states.length) - 1} width={width} height={theme.gridStep * actions.length + 1} color={theme.borderColor} type='inner' />
+        </>
+      )}
 
     </Group>
   );
