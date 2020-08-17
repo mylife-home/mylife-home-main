@@ -4,7 +4,6 @@ import useResizeObserver from '@react-hook/resize-observer';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
 import { CanvasThemeProvider, LAYER_SIZE } from './base/theme';
-import { ShapeConfig } from 'konva/types/Shape';
 
 const SCALE_BY = 1.1;
 
@@ -19,16 +18,14 @@ const useStyles = makeStyles((theme) => ({
 const Canvas: FunctionComponent = ({ children }) => {
   const muiTheme = useMuiTheme();
   const classes = useStyles();
+  const stageRef = useRef<Konva.Stage>(null);
 
-  const [size, ref] = useStageContainerSize();
-
-  const dragBoundHandler = useCallback((pos: Konva.Vector2d) => ({
-    x: lockBetween(pos.x, LAYER_SIZE - size.width),
-    y: lockBetween(pos.y, LAYER_SIZE - size.height),
-  }), [size]);
+  const size = useStageContainerSize(stageRef);
+  const wheelHandler = useWheelHandler(stageRef);
+  const dragBoundHandler = useDragBoundHandler(size);
 
   return (
-    <Stage className={classes.container} ref={ref} width={size.width} height={size.height} draggable dragBoundFunc={dragBoundHandler} onWheel={wheelHandler}>
+    <Stage className={classes.container} ref={stageRef} width={size.width} height={size.height} draggable dragBoundFunc={dragBoundHandler} onWheel={wheelHandler}>
       <CanvasThemeProvider muiTheme={muiTheme}>
         <Layer>
           {children}
@@ -47,18 +44,23 @@ interface Size {
 
 const DEFAULT_SIZE: Size = { width: 0, height: 0 };
 
-function useStageContainerSize(): [Size, React.MutableRefObject<Konva.Stage>] {
-  const ref = useRef<Konva.Stage>(null);
-
+function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>): Size {
   const [size, setSize] = React.useState<Size>(DEFAULT_SIZE);
  
   React.useLayoutEffect(() => {
-    setSize(ref.current?.container().getBoundingClientRect() || DEFAULT_SIZE);
-  }, [ref]);
+    setSize(stageRef.current?.container().getBoundingClientRect() || DEFAULT_SIZE);
+  }, [stageRef.current]);
  
-  useResizeObserver(ref.current?.container(), (entry) => setSize(entry.contentRect));
+  useResizeObserver(stageRef.current?.container(), (entry) => setSize(entry.contentRect));
 
-  return [size, ref];
+  return size;
+}
+
+function useDragBoundHandler(size: Size) {
+  return useCallback((pos: Konva.Vector2d) => ({
+    x: lockBetween(pos.x, LAYER_SIZE - size.width),
+    y: lockBetween(pos.y, LAYER_SIZE - size.height),
+  }), [size]);
 }
 
 function lockBetween(value: number, max: number) {
@@ -73,29 +75,29 @@ function lockBetween(value: number, max: number) {
   return value;
 }
 
-function wheelHandler(e: Konva.KonvaEventObject<WheelEvent>) {
-  e.evt.preventDefault();
+function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
+  return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
+    e.evt.preventDefault();
 
-  const stage = e.target instanceof Konva.Stage ? e.target : e.target.getStage();
-
-  const oldScale = stage.scaleX();
-
-  const pointer = stage.getPointerPosition();
-
-  const mousePointTo = {
-    x: (pointer.x - stage.x()) / oldScale,
-    y: (pointer.y - stage.y()) / oldScale,
-  };
-
-  const newScale = e.evt.deltaY > 0 ? oldScale * SCALE_BY : oldScale / SCALE_BY;
-
-  stage.scale({ x: newScale, y: newScale });
-
-  const newPos = {
-    x: pointer.x - mousePointTo.x * newScale,
-    y: pointer.y - mousePointTo.y * newScale,
-  };
-
-  stage.position(newPos);
-  stage.batchDraw();
+    const stage = stageRef.current;
+    const oldScale = stage.scaleX();
+    const pointer = stage.getPointerPosition();
+  
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+  
+    const newScale = e.evt.deltaY > 0 ? oldScale * SCALE_BY : oldScale / SCALE_BY;
+  
+    stage.scale({ x: newScale, y: newScale });
+  
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+  
+    stage.position(newPos);
+    stage.batchDraw();
+  }, [stageRef.current]);
 }
