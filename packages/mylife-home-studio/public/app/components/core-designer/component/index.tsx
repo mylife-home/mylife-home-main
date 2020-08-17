@@ -26,12 +26,10 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
   const height = (states.length + actions.length + 1) * theme.gridStep;
   const width = theme.component.width;
 
-  const dragBoundHandler = useCallback((pos: Konva.Vector2d) => {
-    return {
-      x: lockBetween(snapToGrid(pos.x, theme.gridStep), theme.layerSize - width),
-      y: lockBetween(snapToGrid(pos.y, theme.gridStep), theme.layerSize - height),
-    };
-  }, [theme, height, width]);
+  const dragBoundHandler = useCallback((pos: Konva.Vector2d) => ({
+    x: lockBetween(snapToGrid(pos.x, theme.gridStep), theme.layerSize - width),
+    y: lockBetween(snapToGrid(pos.y, theme.gridStep), theme.layerSize - height),
+  }), [theme, height, width]);
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep }), [onMove, theme.gridStep]);
 
