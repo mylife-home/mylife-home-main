@@ -28,16 +28,12 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 
   const dragBoundHandler = useCallback((pos: Konva.Vector2d) => {
     return {
-      x: toPx(lockBetween(toGrid(pos.x), theme.layerSize - width / theme.gridStep)),
-      y: toPx(lockBetween(toGrid(pos.y), theme.layerSize - height / theme.gridStep)),
+      x: lockBetween(snapToGrid(pos.x), theme.layerSize - width),
+      y: lockBetween(snapToGrid(pos.y), theme.layerSize - height),
     };
 
-    function toGrid(value: number) {
-      return Math.round(value / theme.gridStep);
-    }
-    
-    function toPx(value: number) {
-      return value * theme.gridStep;
+    function snapToGrid(value: number) {
+      return Math.round(value / theme.gridStep) * theme.gridStep;
     }
     
     function lockBetween(value: number, max: number) {

@@ -3,7 +3,7 @@ import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
 import useResizeObserver from '@react-hook/resize-observer';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
-import { CanvasThemeProvider, GRID_STEP, LAYER_SIZE } from './base/theme';
+import { CanvasThemeProvider, LAYER_SIZE } from './base/theme';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -13,8 +13,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const LAYER_SIZE_PX = LAYER_SIZE * GRID_STEP;
-
 const Canvas: FunctionComponent = ({ children }) => {
   const muiTheme = useMuiTheme();
   const classes = useStyles();
@@ -22,8 +20,8 @@ const Canvas: FunctionComponent = ({ children }) => {
   const [size, ref] = useStageContainerSize();
 
   const lockDragToLayer = useCallback((pos: Konva.Vector2d) => ({
-    x: lockBetween(pos.x, LAYER_SIZE_PX - size.width),
-    y: lockBetween(pos.y, LAYER_SIZE_PX - size.height),
+    x: lockBetween(pos.x, LAYER_SIZE - size.width),
+    y: lockBetween(pos.y, LAYER_SIZE - size.height),
   }), [size]);
 
   return (

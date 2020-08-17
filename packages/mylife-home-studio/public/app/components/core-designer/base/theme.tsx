@@ -37,7 +37,7 @@ export function useCanvasTheme() {
 }
 
 export const GRID_STEP = 24;
-export const LAYER_SIZE = 400;
+export const LAYER_SIZE = 400 * GRID_STEP;
 
 function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
   return {
