@@ -33,8 +33,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep }), [onMove, theme.gridStep]);
 
-  const ref = useCache<Konva.Group>();
-
   return (
     <Group
       x={x * theme.gridStep}
@@ -46,7 +44,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       dragBoundFunc={snapToGrid}
       onDragStart={onSelect}
       onDragMove={dragMoveHandler}
-      ref={ref}
     >
       <Rect x={0} y={0} width={width} height={height} fill={theme.backgroundColor} />
 
@@ -72,13 +69,3 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 };
 
 export default Component;
-
-function useCache<T extends Konva.Node>() {
-  const ref = useRef<T>();
-
-  useEffect(() => {
-    ref.current.cache();
-  }, [ref]);
-
-  return ref;
-}
