@@ -26,10 +26,33 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
   const height = (states.length + actions.length + 1) * theme.gridStep;
   const width = theme.component.width;
 
-  const snapToGrid = useCallback((pos: Konva.Vector2d) => ({
-    x: Math.round(pos.x / theme.gridStep) * theme.gridStep,
-    y: Math.round(pos.y / theme.gridStep) * theme.gridStep,
-  }), [theme.gridStep]);
+  const dragBoundHandler = useCallback((pos: Konva.Vector2d) => {
+    return {
+      x: toPx(lockBetween(toGrid(pos.x), theme.layerSize - width / theme.gridStep)),
+      y: toPx(lockBetween(toGrid(pos.y), theme.layerSize - height / theme.gridStep)),
+    };
+
+    function toGrid(value: number) {
+      return Math.round(value / theme.gridStep);
+    }
+    
+    function toPx(value: number) {
+      return value * theme.gridStep;
+    }
+    
+    function lockBetween(value: number, max: number) {
+      if (value < 0) {
+        return 0;
+      }
+    
+      if (value > max) {
+        return max;
+      }
+      
+      return value;
+    }
+    
+  }, [theme, height, width]);
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep }), [onMove, theme.gridStep]);
 
@@ -41,7 +64,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       height={height}
       onClick={onSelect}
       draggable
-      dragBoundFunc={snapToGrid}
+      dragBoundFunc={dragBoundHandler}
       onDragStart={onSelect}
       onDragMove={dragMoveHandler}
     >

@@ -2,6 +2,7 @@ import React, { FunctionComponent, createContext, useContext, useMemo } from 're
 import { Theme as MuiTheme, darken } from '@material-ui/core';
 
 export interface CanvasTheme {
+  layerSize: number;
   gridStep: number;
   fontFamily: string;
   fontSize: number;
@@ -35,10 +36,12 @@ export function useCanvasTheme() {
   return useContext(CanvasTheme);
 }
 
-const GRID_STEP = 24;
+export const GRID_STEP = 24;
+export const LAYER_SIZE = 400;
 
 function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
   return {
+    layerSize: LAYER_SIZE,
     gridStep: GRID_STEP,
     fontFamily: muiTheme.typography.fontFamily,
     fontSize: GRID_STEP * 0.6,
