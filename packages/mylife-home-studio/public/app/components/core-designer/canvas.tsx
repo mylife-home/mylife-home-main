@@ -4,7 +4,6 @@ import useResizeObserver from '@react-hook/resize-observer';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
 import { CanvasThemeProvider } from './base/theme';
-import { Vector2d } from 'konva/types/types';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -22,7 +21,7 @@ const Canvas: FunctionComponent = ({ children }) => {
 
   const [size, ref] = useStageContainerSize();
 
-  const lockDragToLayer = useCallback((pos: Vector2d) => ({
+  const lockDragToLayer = useCallback((pos: Konva.Vector2d) => ({
     x: lockBetween(pos.x, LAYER_SIZE - size.width),
     y: lockBetween(pos.y, LAYER_SIZE - size.height),
   }), [size]);

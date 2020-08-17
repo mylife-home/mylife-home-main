@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
+import Konva from 'konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
@@ -7,7 +8,7 @@ import Slider from '@material-ui/core/Slider';
 import SplitPane from '../split-pane';
 // import Canvas from './old/canvas';
 // import Component from './old/component';
-import { Position } from './old/dnd';
+// import { Position } from './old/dnd';
 import Canvas from './canvas';
 import Component from './component';
 
@@ -36,7 +37,7 @@ const CoreDesigner: FunctionComponent = () => {
     setGridSize(newValue);
   };
 
-  const handleMoveComponent = (id: string, pos: Position) => {
+  const handleMoveComponent = (id: string, pos: Konva.Vector2d) => {
     setComponents(components => components.map(comp => {
       if (comp.id !== id) {
         return comp;
@@ -68,7 +69,7 @@ const CoreDesigner: FunctionComponent = () => {
 */}
       <Canvas>
         {components.map((component, index) => (
-          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
+          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
         ))}
       </Canvas>
 

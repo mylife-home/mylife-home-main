@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { Rect, Group } from 'react-konva';
+import Konva from 'konva';
 
 import { useCanvasTheme } from '../base/theme';
 import Border from '../base/border';
 import Title from './title';
 import PropertyList from './property-list';
-import { Vector2d } from 'konva/types/types';
 
 export interface ComponentProps {
   id: string;
@@ -17,15 +17,16 @@ export interface ComponentProps {
   actions: string[];
 
   onSelect: () => void;
+  onMove: (pos: Konva.Vector2d) => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect }) => {
+const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect, onMove }) => {
   const theme = useCanvasTheme();
 
   const height = (states.length + actions.length + 1) * theme.gridStep;
   const width = theme.component.width;
 
-  const snapToGrid = useCallback((pos: Vector2d) => ({
+  const snapToGrid = useCallback((pos: Konva.Vector2d) => ({
     x: Math.round(pos.x / theme.gridStep) * theme.gridStep,
     y: Math.round(pos.y / theme.gridStep) * theme.gridStep,
   }), [theme.gridStep]);
@@ -39,6 +40,8 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       onClick={onSelect}
       draggable
       dragBoundFunc={snapToGrid}
+      onDragStart={onSelect}
+      onDragMove={e => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep })}
     >
       <Rect x={0} y={0} width={width} height={height} fill={theme.backgroundColor} />
 
