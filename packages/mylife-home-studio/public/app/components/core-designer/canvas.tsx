@@ -21,7 +21,7 @@ const Canvas: FunctionComponent = ({ children }) => {
   const stageRef = useRef<Konva.Stage>(null);
 
   const size = useStageContainerSize(stageRef);
-  const wheelHandler = useWheelHandler(stageRef);
+  const wheelHandler = useWheelHandler(stageRef, size);
   const dragBoundHandler = useDragBoundHandler(size);
 
   return (
@@ -75,7 +75,7 @@ function lockBetween(value: number, max: number) {
   return value;
 }
 
-function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
+function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>, size: Size) {
   return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
 
@@ -93,8 +93,8 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
     stage.scale({ x: newScale, y: newScale });
   
     const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
+      x: lockBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - size.width),
+      y: lockBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - size.height),
     };
   
     stage.position(newPos);
