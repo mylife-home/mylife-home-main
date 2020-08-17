@@ -28,26 +28,9 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 
   const dragBoundHandler = useCallback((pos: Konva.Vector2d) => {
     return {
-      x: lockBetween(snapToGrid(pos.x), theme.layerSize - width),
-      y: lockBetween(snapToGrid(pos.y), theme.layerSize - height),
+      x: lockBetween(snapToGrid(pos.x, theme.gridStep), theme.layerSize - width),
+      y: lockBetween(snapToGrid(pos.y, theme.gridStep), theme.layerSize - height),
     };
-
-    function snapToGrid(value: number) {
-      return Math.round(value / theme.gridStep) * theme.gridStep;
-    }
-    
-    function lockBetween(value: number, max: number) {
-      if (value < 0) {
-        return 0;
-      }
-    
-      if (value > max) {
-        return max;
-      }
-      
-      return value;
-    }
-    
   }, [theme, height, width]);
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep }), [onMove, theme.gridStep]);
@@ -88,3 +71,19 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
 };
 
 export default Component;
+
+function snapToGrid(value: number, gridStep: number) {
+  return Math.round(value / gridStep) * gridStep;
+}
+
+function lockBetween(value: number, max: number) {
+  if (value < 0) {
+    return 0;
+  }
+
+  if (value > max) {
+    return max;
+  }
+  
+  return value;
+}
