@@ -30,7 +30,7 @@ const Canvas: FunctionComponent = ({ children }) => {
   return (
     <Stage className={classes.container} ref={ref} width={size.width} height={size.height} draggable dragBoundFunc={lockDragToLayer}>
       <CanvasThemeProvider muiTheme={muiTheme}>
-        <Layer width={LAYER_SIZE} height={LAYER_SIZE}>
+        <Layer>
           {children}
         </Layer>
       </CanvasThemeProvider>
