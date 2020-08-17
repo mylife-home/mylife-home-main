@@ -9,7 +9,7 @@ import SplitPane from '../split-pane';
 // import Canvas from './old/canvas';
 // import Component from './old/component';
 // import { Position } from './old/dnd';
-import Canvas from './canvas';
+import Canvas, { Rectangle } from './canvas';
 import Component from './component';
 
 const initialComponents = [{
@@ -67,7 +67,7 @@ const CoreDesigner: FunctionComponent = () => {
         ))}
       </Canvas>
 */}
-      <Canvas>
+      <Canvas onViewChange={(rect: Rectangle, zoom: number) => console.log('onViewChange', rect, zoom)}>
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
         ))}

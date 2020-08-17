@@ -15,7 +15,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Canvas: FunctionComponent = ({ children }) => {
+export interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface CanvasProps {
+  onViewChange?: (rect: Rectangle, scale: number) => void;
+}
+
+const Canvas: FunctionComponent<CanvasProps> = ({ onViewChange, children }) => {
   const muiTheme = useMuiTheme();
   const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
@@ -23,6 +34,8 @@ const Canvas: FunctionComponent = ({ children }) => {
   const size = useStageContainerSize(stageRef);
   const wheelHandler = useWheelHandler(stageRef, size);
   const dragBoundHandler = useDragBoundHandler(size);
+
+  // TODO: call onViewChange
 
   return (
     <Stage className={classes.container} ref={stageRef} width={size.width} height={size.height} draggable dragBoundFunc={dragBoundHandler} onWheel={wheelHandler}>
