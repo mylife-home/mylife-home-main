@@ -1,22 +1,35 @@
 import React, { FunctionComponent, useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 import Konva from 'konva';
 
+import SquareBox from './square-box';
 import Canvas from './canvas';
 
 export interface MiniViewProps {
+  className?: string;
   components: any;
 }
 
-const MiniView: FunctionComponent<MiniViewProps> = ({ components }) => {
+const useStyles = makeStyles((theme) => ({
+  container: {
+    position: 'relative',
+  }
+}));
+
+const MiniView: FunctionComponent<MiniViewProps> = ({ className, components }) => {
+  const classes = useStyles();
 
   return (
-    <Canvas onSizeChange={(size) => console.log('onSizeChange', size)}>
-      {/*
-      {components.map((component, index) => (
-        <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
-      ))}
-      */}
-    </Canvas>
+    <SquareBox adjust='height' className={clsx(classes.container, className)}>
+      <Canvas onSizeChange={(size) => console.log('onSizeChange', size)}>
+        {/*
+        {components.map((component, index) => (
+          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+        ))}
+        */}
+      </Canvas>
+    </SquareBox>
   );
 };
 

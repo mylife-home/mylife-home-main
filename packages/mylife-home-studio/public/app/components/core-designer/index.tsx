@@ -52,14 +52,20 @@ const CoreDesigner: FunctionComponent = () => {
     <SplitPane split="vertical" defaultSize={200}>
 
       <Box p={3}>
-        <Typography gutterBottom>
-          Grid size: {gridSize}
-        </Typography>
-        <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
+        <Box display='flex' flexDirection='column'>
 
-        <Typography>Selection</Typography>
-        <MiniView components={components} />
-        <Typography>Toolbox</Typography>
+          <Typography gutterBottom>
+            Grid size: {gridSize}
+          </Typography>
+          <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
+
+          <Typography>Selection</Typography>
+
+          <MiniView components={components} />
+
+          <Typography>Toolbox</Typography>
+
+        </Box>
       </Box>
 {/* 
       <Canvas context={{ gridSize: gridSize }} onMoveComponent={handleMoveComponent}>
