@@ -1,11 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import { Rect } from 'react-konva';
 
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
+import MainViewMark from './main-view-mark';
 
 export interface MiniViewProps {
   className?: string;
@@ -24,11 +24,19 @@ const useStyles = makeStyles((theme) => ({
 
 const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, selectedIndex }) => {
   const classes = useStyles();
+  const [scale, setScale] = useState(1);
+
+  const handleSizeChange = (size: number, scale: number) => {
+    console.log('handleSizeChange', size, scale);
+    setScale(scale);
+  };
 
   return (
     <SquareBox adjust='height' className={clsx(classes.container, className)}>
-      <Canvas onSizeChange={(size) => console.log('onSizeChange', size)}>
-        <Rect x={0} y={0} stroke={'blue'} width={100} height={100} />
+      <Canvas onSizeChange={handleSizeChange}>
+
+        <MainViewMark x={0} y={0} width={1000} height={1000} scale={scale}/>
+
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} />  
         ))}

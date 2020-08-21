@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export interface CanvasProps {
-  onSizeChange?: (size: number) => void;
+  onSizeChange?: (size: number, scale: number) => void;
 }
 
 const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
