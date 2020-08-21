@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useRef, useCallback } from 'react';
 import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
-import useResizeObserver from '@react-hook/resize-observer';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
 import { CanvasThemeProvider, LAYER_SIZE } from './base/theme';
+import { useStageContainerSize, Size } from './base/stage-behaviors';
 
 const SCALE_BY = 1.1;
 
@@ -49,25 +49,6 @@ const Canvas: FunctionComponent<CanvasProps> = ({ onViewChange, children }) => {
 };
 
 export default Canvas;
-
-interface Size {
-  width: number;
-  height: number;
-}
-
-const DEFAULT_SIZE: Size = { width: 0, height: 0 };
-
-function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>): Size {
-  const [size, setSize] = React.useState<Size>(DEFAULT_SIZE);
- 
-  React.useLayoutEffect(() => {
-    setSize(stageRef.current?.container().getBoundingClientRect() || DEFAULT_SIZE);
-  }, [stageRef.current]);
- 
-  useResizeObserver(stageRef.current?.container(), (entry) => setSize(entry.contentRect));
-
-  return size;
-}
 
 function useDragBoundHandler(size: Size) {
   return useCallback((pos: Konva.Vector2d) => ({

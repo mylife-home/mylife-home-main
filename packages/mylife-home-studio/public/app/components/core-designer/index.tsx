@@ -11,6 +11,7 @@ import SplitPane from '../split-pane';
 // import { Position } from './old/dnd';
 import Canvas, { Rectangle } from './canvas';
 import Component from './component';
+import MiniView from './mini-view';
 
 const initialComponents = [{
   id: 'component-1',
@@ -57,7 +58,7 @@ const CoreDesigner: FunctionComponent = () => {
         <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
 
         <Typography>Selection</Typography>
-        <Typography>MiniMap</Typography>
+        <MiniView components={components} />
         <Typography>Toolbox</Typography>
       </Box>
 {/* 
