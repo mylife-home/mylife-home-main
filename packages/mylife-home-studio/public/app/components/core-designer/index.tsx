@@ -61,7 +61,7 @@ const CoreDesigner: FunctionComponent = () => {
 
           <Typography>Selection</Typography>
 
-          <MiniView components={components} />
+          <MiniView components={components} selectedIndex={selectedIndex} />
 
           <Typography>Toolbox</Typography>
 
