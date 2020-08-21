@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { Rect, Group } from 'react-konva';
+import { Rect } from 'react-konva';
 import { useCanvasTheme } from '../base/theme';
-import Border from '../base/border';
 
 export interface ComponentProps {
   id: string;
@@ -20,26 +19,13 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
   const width = theme.component.width;
 
   return (
-    <Group
+    <Rect
       x={x * theme.gridStep}
       y={y * theme.gridStep}
       width={width}
       height={height}
-    >
-      <Rect x={0} y={0} width={width} height={height} fill={theme.backgroundColor} />
-
-      {selected && (
-        <Border
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          type='outer'
-          color={theme.borderColorSelected}
-          thickness={theme.selectionWidth}
-        />
-      )}
-    </Group>
+      fill={selected ? theme.borderColorSelected : theme.borderColor}
+    />
   );
 };
 
