@@ -1,26 +1,21 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent, useRef, useState, useLayoutEffect } from 'react';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
-import { useStageContainerSize } from '../base/stage-behaviors';
-import { LAYER_SIZE } from '../base/theme';
+import useResizeObserver from '@react-hook/resize-observer';
 import BaseCanvas from '../base/canvas';
 
 export interface CanvasProps {
-  onSizeChange?: (size: number, scale: number) => void;
+  size: number;
+  scale: number;
+  onSizeChange: (size: number) => void;
 }
 
-const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
+const Canvas: FunctionComponent<CanvasProps> = ({ size, scale, onSizeChange, children }) => {
   const stageRef = useRef<Konva.Stage>(null);
-  const size = useStageContainerSize(stageRef);
-
-  // mini view is square
-  const canvasSize = Math.min(size.height, size.width);
-  const scale = canvasSize / LAYER_SIZE;
-
-  // TODO: call onSizeChange
+  useStageContainerSize(stageRef, onSizeChange);
 
   return (
-    <BaseCanvas ref={stageRef} width={canvasSize} height={canvasSize} scaleX={scale} scaleY={scale}>
+    <BaseCanvas ref={stageRef} width={size} height={size} scaleX={scale} scaleY={scale}>
       <Layer>
         {children}
       </Layer>
@@ -29,3 +24,18 @@ const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
 };
 
 export default Canvas;
+
+export function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>, setSize: (size: number) => void) {
+  useLayoutEffect(() => {
+    if(stageRef.current) {
+      setSize(computeSize(stageRef.current.container().getBoundingClientRect()));
+    }
+  }, [stageRef.current]);
+ 
+  useResizeObserver(stageRef.current?.container(), (entry) => setSize(computeSize({ width: entry.contentRect.width, height: entry.contentRect.height })));
+}
+
+function computeSize(size: { width: number; height: number}) {
+  // mini view is square
+  return Math.min(size.width, size.height);
+}

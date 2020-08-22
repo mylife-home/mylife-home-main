@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
+import { LAYER_SIZE } from '../base/theme';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
@@ -24,16 +25,12 @@ const useStyles = makeStyles((theme) => ({
 
 const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, selectedIndex }) => {
   const classes = useStyles();
-  const [scale, setScale] = useState(1);
-
-  const handleSizeChange = (size: number, scale: number) => {
-    console.log('handleSizeChange', size, scale);
-    setScale(scale);
-  };
+  const [size, setSize] = useState(1);
+  const scale = size / LAYER_SIZE;
 
   return (
     <SquareBox adjust='height' className={clsx(classes.container, className)}>
-      <Canvas onSizeChange={handleSizeChange}>
+      <Canvas size={size} scale={scale} onSizeChange={setSize}>
 
         <MainViewMark scale={scale}/>
 

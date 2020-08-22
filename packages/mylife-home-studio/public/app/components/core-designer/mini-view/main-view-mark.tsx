@@ -18,7 +18,7 @@ const MainViewMark: FunctionComponent<MainViewMarkProps> = ({ scale }) => {
       width={viewInfo.width}
       height={viewInfo.height}
       stroke={theme.borderColorSelected}
-      strokeWidth={1 / scale}
+      strokeWidth={scale > 0 ? 1 / scale : 1}
     />
   );
 };
