@@ -1,11 +1,11 @@
-import React, { FunctionComponent, useRef, useCallback, useLayoutEffect } from 'react';
+import React, { FunctionComponent, useRef, useCallback, useLayoutEffect, useContext } from 'react';
 import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
 
 import { CanvasThemeProvider, LAYER_SIZE } from './base/theme';
-import { useViewInfo } from './base/view-info';
+import { useViewInfo, ViewInfoContext } from './base/view-info';
 
 const SCALE_BY = 1.1;
 
@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Canvas: FunctionComponent = ({ children }) => {
   const muiTheme = useMuiTheme();
+  const viewInfoProps = useContext(ViewInfoContext);
   const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
   const [viewInfo] = useViewInfo();
@@ -45,9 +46,11 @@ const Canvas: FunctionComponent = ({ children }) => {
       onDragMove={dragMoveHander}
     >
       <CanvasThemeProvider muiTheme={muiTheme}>
-        <Layer>
-          {children}
-        </Layer>
+        <ViewInfoContext.Provider value={viewInfoProps}>
+          <Layer>
+            {children}
+          </Layer>
+        </ViewInfoContext.Provider>
       </CanvasThemeProvider>
     </Stage>
     );

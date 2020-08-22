@@ -15,7 +15,7 @@ interface ViewInfoContextProps {
   setViewInfo: ViewInfoSetter;
 }
 
-const ViewInfoContext = createContext<ViewInfoContextProps>(null);
+export const ViewInfoContext = createContext<ViewInfoContextProps>(null);
 
 export function useViewInfo(): [ViewInfo, ViewInfoSetter] {
   const { viewInfo, setViewInfo } = useContext(ViewInfoContext);

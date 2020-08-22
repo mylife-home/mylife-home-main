@@ -1,9 +1,10 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent, useRef, useContext } from 'react';
 import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
 import { Stage, Layer } from 'react-konva';
 import { useStageContainerSize } from '../base/stage-behaviors';
 import { CanvasThemeProvider, LAYER_SIZE } from '../base/theme';
+import { ViewInfoContext } from '../base/view-info';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -19,6 +20,7 @@ export interface CanvasProps {
 
 const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
   const muiTheme = useMuiTheme();
+  const viewInfoProps = useContext(ViewInfoContext);
   const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
   const size = useStageContainerSize(stageRef);
@@ -32,9 +34,11 @@ const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
   return (
     <Stage className={classes.container} ref={stageRef} width={canvasSize} height={canvasSize} scaleX={scale} scaleY={scale}>
       <CanvasThemeProvider muiTheme={muiTheme}>
-        <Layer>
-          {children}
-        </Layer>
+        <ViewInfoContext.Provider value={viewInfoProps}>
+          <Layer>
+            {children}
+          </Layer>
+        </ViewInfoContext.Provider>
       </CanvasThemeProvider>
     </Stage>
   );

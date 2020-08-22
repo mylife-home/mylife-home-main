@@ -1,24 +1,22 @@
 import React, { FunctionComponent } from 'react';
 import { Rect } from 'react-konva';
 import { useCanvasTheme } from '../base/theme';
+import { useViewInfo } from '../base/view-info';
 
 export interface MainViewMarkProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
   scale: number;
 }
 
-const MainViewMark: FunctionComponent<MainViewMarkProps> = ({ x, y, width, height, scale }) => {
+const MainViewMark: FunctionComponent<MainViewMarkProps> = ({ scale }) => {
   const theme = useCanvasTheme();
+  const [viewInfo] = useViewInfo();
 
   return (
     <Rect
-      x={x}
-      y={y}
-      width={width}
-      height={height}
+      x={viewInfo.x}
+      y={viewInfo.y}
+      width={viewInfo.width}
+      height={viewInfo.height}
       stroke={theme.borderColorSelected}
       strokeWidth={1 / scale}
     />

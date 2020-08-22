@@ -35,7 +35,7 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
     <SquareBox adjust='height' className={clsx(classes.container, className)}>
       <Canvas onSizeChange={handleSizeChange}>
 
-        <MainViewMark x={0} y={0} width={1000} height={1000} scale={scale}/>
+        <MainViewMark scale={scale}/>
 
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} />  
