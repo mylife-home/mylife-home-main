@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useRef, useCallback, useLayoutEffect, useContext } from 'react';
-import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
 import { Layer } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
@@ -10,16 +9,7 @@ import BaseCanvas from './base/canvas';
 
 const SCALE_BY = 1.1;
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-  }
-}));
-
 const Canvas: FunctionComponent = ({ children }) => {
-  const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
   const [viewInfo] = useViewInfo();
 
@@ -31,7 +21,6 @@ const Canvas: FunctionComponent = ({ children }) => {
 
   return (
     <BaseCanvas
-      className={classes.container}
       ref={stageRef}
       x={-viewInfo.x}
       y={-viewInfo.y}
