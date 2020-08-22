@@ -1,10 +1,11 @@
-import React, { FunctionComponent, useRef, useCallback, useEffect, useState, useLayoutEffect } from 'react';
+import React, { FunctionComponent, useRef, useCallback, useLayoutEffect } from 'react';
 import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
 import { Layer, Stage } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
 
 import { CanvasThemeProvider, LAYER_SIZE } from './base/theme';
+import { useViewInfo } from './base/view-info';
 
 const SCALE_BY = 1.1;
 
@@ -16,45 +17,33 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export interface Rectangle {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-type ViewChangeCallback = (rect: Rectangle, scale: number) => void;
-
-export interface CanvasProps {
-  onViewChange?: ViewChangeCallback;
-}
-
-export interface ViewInfo {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-  scale: number;
-}
-
-const Canvas: FunctionComponent<CanvasProps> = ({ onViewChange = () => {}, children }) => {
+const Canvas: FunctionComponent = ({ children }) => {
   const muiTheme = useMuiTheme();
   const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
-  const [viewInfo, setViewInfo] = useState<ViewInfo>({ x: 0, y: 0, height: 0, width: 0, scale: 1 });
+  const [viewInfo] = useViewInfo();
 
-  console.log('viewInfo', viewInfo);
+  useStageContainerSize(stageRef);
 
-  useStageContainerSize(stageRef, setViewInfo);
-
-  const wheelHandler = useWheelHandler(stageRef, viewInfo, setViewInfo);
-  const dragBoundHandler = useDragBoundHandler(viewInfo);
-  const dragMoveHander = useDragMoveHandler(setViewInfo);
-
-  // TODO: call onViewChange
+  const wheelHandler = useWheelHandler(stageRef);
+  const dragBoundHandler = useDragBoundHandler();
+  const dragMoveHander = useDragMoveHandler();
 
   return (
-    <Stage className={classes.container} ref={stageRef} width={viewInfo.width} height={viewInfo.height} draggable dragBoundFunc={dragBoundHandler} onWheel={wheelHandler} onDragMove={dragMoveHander}>
+    <Stage
+      className={classes.container}
+      ref={stageRef}
+      x={-viewInfo.x}
+      y={-viewInfo.y}
+      width={viewInfo.width}
+      height={viewInfo.height}
+      scaleX={viewInfo.scale}
+      scaleY={viewInfo.scale}
+      draggable
+      dragBoundFunc={dragBoundHandler}
+      onWheel={wheelHandler}
+      onDragMove={dragMoveHander}
+    >
       <CanvasThemeProvider muiTheme={muiTheme}>
         <Layer>
           {children}
@@ -66,7 +55,8 @@ const Canvas: FunctionComponent<CanvasProps> = ({ onViewChange = () => {}, child
 
 export default Canvas;
 
-function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>, setViewInfo: React.Dispatch<React.SetStateAction<ViewInfo>>) {
+function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>) {
+  const [, setViewInfo] = useViewInfo();
 
   const setSize = useCallback((size: { width: number; height: number}) => setViewInfo(viewInfo => ({ ...viewInfo, ...size })), [setViewInfo]);
 
@@ -79,7 +69,9 @@ function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>, se
   useResizeObserver(stageRef.current?.container(), (entry) => setSize({ width: entry.contentRect.width, height: entry.contentRect.height }));
 }
 
-function useDragBoundHandler(viewInfo: ViewInfo) {
+function useDragBoundHandler() {
+  const [viewInfo] = useViewInfo();
+
   return useCallback((pos: Konva.Vector2d) => ({
     x: lockBetween(pos.x, LAYER_SIZE - viewInfo.width),
     y: lockBetween(pos.y, LAYER_SIZE - viewInfo.height),
@@ -98,7 +90,8 @@ function lockBetween(value: number, max: number) {
   return value;
 }
 
-function useDragMoveHandler(setViewInfo: React.Dispatch<React.SetStateAction<ViewInfo>>) {
+function useDragMoveHandler() {
+  const [, setViewInfo] = useViewInfo();
   const setPos = useCallback((pos: { x: number, y: number }) => setViewInfo(viewInfo => ({ ...viewInfo, ...pos })), [setViewInfo]);
 
   return useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
@@ -111,7 +104,9 @@ function useDragMoveHandler(setViewInfo: React.Dispatch<React.SetStateAction<Vie
   }, [setViewInfo]);
 }
 
-function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>, viewInfo: ViewInfo, setViewInfo: React.Dispatch<React.SetStateAction<ViewInfo>>) {
+function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
+  const [viewInfo, setViewInfo] = useViewInfo();
+
   return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
 

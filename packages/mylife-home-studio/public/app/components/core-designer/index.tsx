@@ -7,9 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
 import SplitPane from '../split-pane';
-import Canvas, { Rectangle } from './canvas';
+import Canvas from './canvas';
 import Component from './component';
 import MiniView from './mini-view';
+import { ViewInfoProvider } from './base/view-info';
 
 // TODO: improve konva imports
 // https://github.com/konvajs/react-konva#minimal-bundle
@@ -35,7 +36,7 @@ const CoreDesigner: FunctionComponent = () => {
   const [gridSize, setGridSize] = useState(24);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [components, setComponents] = useState(initialComponents);
-
+  
   const handleSliderChange = (event: React.ChangeEvent, newValue: number) => {
     setGridSize(newValue);
   };
@@ -51,32 +52,34 @@ const CoreDesigner: FunctionComponent = () => {
   };
 
   return (
-    <SplitPane split="vertical" defaultSize={300}>
+    <ViewInfoProvider>
+      <SplitPane split="vertical" defaultSize={300}>
 
-      <Box p={3}>
-        <Box display='flex' flexDirection='column'>
+        <Box p={3}>
+          <Box display='flex' flexDirection='column'>
 
-          <Typography gutterBottom>
-            Grid size: {gridSize}
-          </Typography>
-          <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
+            <Typography gutterBottom>
+              Grid size: {gridSize}
+            </Typography>
+            <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
 
-          <Typography>Selection</Typography>
+            <Typography>Selection</Typography>
 
-          <MiniView components={components} selectedIndex={selectedIndex} />
+            <MiniView components={components} selectedIndex={selectedIndex} />
 
-          <Typography>Toolbox</Typography>
+            <Typography>Toolbox</Typography>
 
+          </Box>
         </Box>
-      </Box>
 
-      <Canvas onViewChange={(rect: Rectangle, zoom: number) => console.log('onViewChange', rect, zoom)}>
-        {components.map((component, index) => (
-          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
-        ))}
-      </Canvas>
+        <Canvas>
+          {components.map((component, index) => (
+            <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+          ))}
+        </Canvas>
 
-    </SplitPane>
+      </SplitPane>
+    </ViewInfoProvider>
   );
 };
 
