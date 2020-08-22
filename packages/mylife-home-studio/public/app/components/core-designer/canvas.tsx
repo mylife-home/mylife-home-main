@@ -120,18 +120,12 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
     };
   
     const newScale = e.evt.deltaY > 0 ? oldScale * SCALE_BY : oldScale / SCALE_BY;
-  
-    stage.scale({ x: newScale, y: newScale });
-  
-    const newPos = {
+    const newProps = {
       x: lockBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
       y: lockBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
+      scale: newScale
     };
-  
-    stage.position(newPos);
 
-    setViewInfo(viewInfo => ({ ...viewInfo, ...newPos, scale: newScale }));
-
-    stage.batchDraw();
+    setViewInfo(viewInfo => ({ ...viewInfo, ...newProps }));
   }, [stageRef.current]);
 }
