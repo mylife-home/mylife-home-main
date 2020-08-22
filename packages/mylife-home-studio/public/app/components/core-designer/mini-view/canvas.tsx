@@ -1,10 +1,10 @@
-import React, { FunctionComponent, useRef, useContext } from 'react';
-import { useTheme as useMuiTheme, makeStyles } from '@material-ui/core/styles';
+import React, { FunctionComponent, useRef } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Konva from 'konva';
-import { Stage, Layer } from 'react-konva';
+import { Layer } from 'react-konva';
 import { useStageContainerSize } from '../base/stage-behaviors';
-import { CanvasThemeProvider, LAYER_SIZE } from '../base/theme';
-import { ViewInfoContext } from '../base/view-info';
+import { LAYER_SIZE } from '../base/theme';
+import BaseCanvas from '../base/canvas';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -19,8 +19,6 @@ export interface CanvasProps {
 }
 
 const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
-  const muiTheme = useMuiTheme();
-  const viewInfoProps = useContext(ViewInfoContext);
   const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
   const size = useStageContainerSize(stageRef);
@@ -32,15 +30,11 @@ const Canvas: FunctionComponent<CanvasProps> = ({ onSizeChange, children }) => {
   // TODO: call onSizeChange
 
   return (
-    <Stage className={classes.container} ref={stageRef} width={canvasSize} height={canvasSize} scaleX={scale} scaleY={scale}>
-      <CanvasThemeProvider muiTheme={muiTheme}>
-        <ViewInfoContext.Provider value={viewInfoProps}>
-          <Layer>
-            {children}
-          </Layer>
-        </ViewInfoContext.Provider>
-      </CanvasThemeProvider>
-    </Stage>
+    <BaseCanvas className={classes.container} ref={stageRef} width={canvasSize} height={canvasSize} scaleX={scale} scaleY={scale}>
+      <Layer>
+        {children}
+      </Layer>
+    </BaseCanvas>
   );
 };
 
