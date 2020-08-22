@@ -6,9 +6,6 @@ import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
 import SplitPane from '../split-pane';
-// import Canvas from './old/canvas';
-// import Component from './old/component';
-// import { Position } from './old/dnd';
 import Canvas, { Rectangle } from './canvas';
 import Component from './component';
 import MiniView from './mini-view';
@@ -49,7 +46,7 @@ const CoreDesigner: FunctionComponent = () => {
   };
 
   return (
-    <SplitPane split="vertical" defaultSize={200}>
+    <SplitPane split="vertical" defaultSize={300}>
 
       <Box p={3}>
         <Box display='flex' flexDirection='column'>
@@ -67,19 +64,12 @@ const CoreDesigner: FunctionComponent = () => {
 
         </Box>
       </Box>
-{/* 
-      <Canvas context={{ gridSize: gridSize }} onMoveComponent={handleMoveComponent}>
-        {components.map((component, index) => (
-          <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} />  
-        ))}
-      </Canvas>
-*/}
+
       <Canvas onViewChange={(rect: Rectangle, zoom: number) => console.log('onViewChange', rect, zoom)}>
         {components.map((component, index) => (
           <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
         ))}
       </Canvas>
-
 
     </SplitPane>
   );
