@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
 import Konva from 'konva';
+import { useStrictMode } from 'react-konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
@@ -9,6 +10,8 @@ import SplitPane from '../split-pane';
 import Canvas, { Rectangle } from './canvas';
 import Component from './component';
 import MiniView from './mini-view';
+
+useStrictMode(true);
 
 const initialComponents = [{
   id: 'component-1',
