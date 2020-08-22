@@ -102,7 +102,11 @@ function useDragMoveHandler(setViewInfo: React.Dispatch<React.SetStateAction<Vie
   const setPos = useCallback((pos: { x: number, y: number }) => setViewInfo(viewInfo => ({ ...viewInfo, ...pos })), [setViewInfo]);
 
   return useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
-    const stage = e.target as Konva.Stage;
+    if(!(e.target instanceof Konva.Stage)) {
+      return;
+    }
+
+    const stage = e.target;
     setPos({ x: -stage.x(), y: -stage.y() });
   }, [setViewInfo]);
 }
