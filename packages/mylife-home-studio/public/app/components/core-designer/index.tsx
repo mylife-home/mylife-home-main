@@ -11,6 +11,8 @@ import Canvas, { Rectangle } from './canvas';
 import Component from './component';
 import MiniView from './mini-view';
 
+// TODO: improve konva imports
+// https://github.com/konvajs/react-konva#minimal-bundle
 useStrictMode(true);
 
 const initialComponents = [{
