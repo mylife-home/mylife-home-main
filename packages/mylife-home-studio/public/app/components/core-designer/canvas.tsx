@@ -106,7 +106,7 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
       y: (pointer.y - stage.y()) / oldScale,
     };
   
-    const newScale = e.evt.deltaY > 0 ? oldScale * SCALE_BY : oldScale / SCALE_BY;
+    const newScale = e.evt.deltaY > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY;
     const newProps = {
       x: lockBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
       y: lockBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
