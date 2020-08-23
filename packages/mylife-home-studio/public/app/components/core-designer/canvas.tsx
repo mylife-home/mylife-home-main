@@ -6,8 +6,7 @@ import useResizeObserver from '@react-hook/resize-observer';
 import { LAYER_SIZE } from './base/theme';
 import { useViewInfo } from './base/view-info';
 import BaseCanvas from './base/canvas';
-
-const SCALE_BY = 1.1;
+import { useZoom } from './base/zoom';
 
 const Canvas: FunctionComponent = ({ children }) => {
   const stageRef = useRef<Konva.Stage>(null);
@@ -80,29 +79,16 @@ function useDragMoveHandler() {
 }
 
 function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
-  const [viewInfo, setViewInfo] = useViewInfo();
+  const { wheelZoom } = useZoom();
 
   return useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
     e.evt.preventDefault();
 
     const stage = stageRef.current;
-    const oldScale = stage.scaleX();
     const pointer = stage.getPointerPosition();
-  
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-  
-    const newScale = lockScale(e.evt.deltaY > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY);
-    const newProps = {
-      x: lockBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
-      y: lockBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
-      scale: newScale
-    };
 
-    setViewInfo(viewInfo => ({ ...viewInfo, ...newProps }));
-  }, [stageRef.current]);
+    wheelZoom(pointer, e.evt.deltaY);
+  }, [stageRef.current, wheelZoom]);
 }
 
 function lockBetween(value: number, max: number) {
@@ -114,17 +100,5 @@ function lockBetween(value: number, max: number) {
     return -max + 1;
   }
   
-  return value;
-}
-
-function lockScale(value: number) {
-  if(value < 0.1) {
-    return 0.1;
-  }
-
-  if(value > 1) {
-    return 1;
-  }
-
   return value;
 }

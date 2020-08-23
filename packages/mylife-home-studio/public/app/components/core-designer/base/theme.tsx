@@ -1,5 +1,5 @@
 import React, { FunctionComponent, createContext, useContext, useMemo } from 'react';
-import { Theme as MuiTheme, darken } from '@material-ui/core';
+import { Theme as MuiTheme, useTheme as useMuiTheme, darken } from '@material-ui/core';
 
 export interface CanvasTheme {
   layerSize: number;
@@ -18,22 +18,19 @@ export interface CanvasTheme {
   };
 }
 
-const CanvasTheme = createContext<CanvasTheme>(null);
+export const CanvasThemeContext = createContext<CanvasTheme>(null);
 
-export interface CanvasThemeProviderProps {
-  muiTheme: MuiTheme;
-}
-
-export const CanvasThemeProvider: FunctionComponent<CanvasThemeProviderProps> = ({ muiTheme, ...props }) => {
+export const CanvasThemeProvider: FunctionComponent = (props) => {
+  const muiTheme = useMuiTheme();
   const canvasTheme = useMemo(() => buildCanvasTheme(muiTheme), [muiTheme]);
 
   return (
-    <CanvasTheme.Provider {...props} value={canvasTheme} />
+    <CanvasThemeContext.Provider {...props} value={canvasTheme} />
   );
 }
 
 export function useCanvasTheme() {
-  return useContext(CanvasTheme);
+  return useContext(CanvasThemeContext);
 }
 
 export const GRID_STEP = 24;

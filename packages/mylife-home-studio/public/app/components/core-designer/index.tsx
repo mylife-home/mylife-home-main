@@ -4,7 +4,6 @@ import { useStrictMode } from 'react-konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import Slider from '@material-ui/core/Slider';
 
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
@@ -12,6 +11,7 @@ import Component from './component';
 import MiniView from './mini-view';
 import ZoomSlider from './zoom-slider';
 import { ViewInfoProvider } from './base/view-info';
+import { CanvasThemeProvider } from './base/theme';
 
 // TODO: improve konva imports
 // https://github.com/konvajs/react-konva#minimal-bundle
@@ -48,31 +48,33 @@ const CoreDesigner: FunctionComponent = () => {
   };
 
   return (
-    <ViewInfoProvider>
-      <SplitPane split="vertical" defaultSize={300}>
+    <CanvasThemeProvider>
+      <ViewInfoProvider>
+        <SplitPane split="vertical" defaultSize={300}>
 
-        <Box p={3}>
-          <Box display='flex' flexDirection='column'>
+          <Box p={3}>
+            <Box display='flex' flexDirection='column'>
 
-            <ZoomSlider />
+              <ZoomSlider />
 
-            <Typography>Selection</Typography>
+              <Typography>Selection</Typography>
 
-            <MiniView components={components} selectedIndex={selectedIndex} />
+              <MiniView components={components} selectedIndex={selectedIndex} />
 
-            <Typography>Toolbox</Typography>
+              <Typography>Toolbox</Typography>
 
+            </Box>
           </Box>
-        </Box>
 
-        <Canvas>
-          {components.map((component, index) => (
-            <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
-          ))}
-        </Canvas>
+          <Canvas>
+            {components.map((component, index) => (
+              <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+            ))}
+          </Canvas>
 
-      </SplitPane>
-    </ViewInfoProvider>
+        </SplitPane>
+      </ViewInfoProvider>
+    </CanvasThemeProvider>
   );
 };
 
