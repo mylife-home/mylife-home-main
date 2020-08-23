@@ -10,6 +10,7 @@ import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
 import MiniView from './mini-view';
+import ZoomSlider from './zoom-slider';
 import { ViewInfoProvider } from './base/view-info';
 
 // TODO: improve konva imports
@@ -33,13 +34,8 @@ const initialComponents = [{
 }];
 
 const CoreDesigner: FunctionComponent = () => {
-  const [gridSize, setGridSize] = useState(24);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [components, setComponents] = useState(initialComponents);
-  
-  const handleSliderChange = (event: React.ChangeEvent, newValue: number) => {
-    setGridSize(newValue);
-  };
 
   const handleMoveComponent = (id: string, pos: Konva.Vector2d) => {
     setComponents(components => components.map(comp => {
@@ -58,10 +54,7 @@ const CoreDesigner: FunctionComponent = () => {
         <Box p={3}>
           <Box display='flex' flexDirection='column'>
 
-            <Typography gutterBottom>
-              Grid size: {gridSize}
-            </Typography>
-            <Slider min={4} max={40} step={4} value={gridSize} onChange={handleSliderChange} />
+            <ZoomSlider />
 
             <Typography>Selection</Typography>
 

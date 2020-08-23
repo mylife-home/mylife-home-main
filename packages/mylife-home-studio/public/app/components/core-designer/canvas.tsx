@@ -65,18 +65,6 @@ function useDragBoundHandler() {
   }), [viewInfo]);
 }
 
-function lockBetween(value: number, max: number) {
-  if (value > 0) {
-    return 0;
-  }
-
-  if (value <= -max) {
-    return -max + 1;
-  }
-  
-  return value;
-}
-
 function useDragMoveHandler() {
   const [, setViewInfo] = useViewInfo();
   const setPos = useCallback((pos: { x: number, y: number }) => setViewInfo(viewInfo => ({ ...viewInfo, ...pos })), [setViewInfo]);
@@ -106,7 +94,7 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
       y: (pointer.y - stage.y()) / oldScale,
     };
   
-    const newScale = e.evt.deltaY > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY;
+    const newScale = lockScale(e.evt.deltaY > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY);
     const newProps = {
       x: lockBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
       y: lockBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
@@ -115,4 +103,28 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
 
     setViewInfo(viewInfo => ({ ...viewInfo, ...newProps }));
   }, [stageRef.current]);
+}
+
+function lockBetween(value: number, max: number) {
+  if (value > 0) {
+    return 0;
+  }
+
+  if (value <= -max) {
+    return -max + 1;
+  }
+  
+  return value;
+}
+
+function lockScale(value: number) {
+  if(value < 0.1) {
+    return 0.1;
+  }
+
+  if(value > 1) {
+    return 1;
+  }
+
+  return value;
 }
