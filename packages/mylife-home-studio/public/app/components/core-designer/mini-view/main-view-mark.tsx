@@ -13,10 +13,10 @@ const MainViewMark: FunctionComponent<MainViewMarkProps> = ({ scale }) => {
 
   return (
     <Rect
-      x={viewInfo.x}
-      y={viewInfo.y}
-      width={viewInfo.width}
-      height={viewInfo.height}
+      x={viewInfo.x / viewInfo.scale}
+      y={viewInfo.y / viewInfo.scale}
+      width={viewInfo.width / viewInfo.scale}
+      height={viewInfo.height / viewInfo.scale}
       stroke={theme.borderColorSelected}
       strokeWidth={scale > 0 ? 1 / scale : 1}
     />
