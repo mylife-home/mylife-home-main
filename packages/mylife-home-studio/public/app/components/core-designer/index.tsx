@@ -13,6 +13,8 @@ import ZoomSlider from './zoom-slider';
 import { ViewInfoProvider } from './base/view-info';
 import { CanvasThemeProvider } from './base/theme';
 
+import '../../files/schema';
+
 // TODO: improve konva imports
 // https://github.com/konvajs/react-konva#minimal-bundle
 useStrictMode(true);
