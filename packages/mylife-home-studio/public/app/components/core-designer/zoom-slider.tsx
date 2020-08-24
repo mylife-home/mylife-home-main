@@ -11,7 +11,7 @@ const ZoomSlider: FunctionComponent = () => {
   return (
     <>
       <Typography gutterBottom>
-        zoom: {zoom}
+        Zoom: {zoom} %
       </Typography>
       <Slider min={10} max={100} step={10} value={zoom} onChange={(e, zoom) => slideZoom(zoom as number)} />
     </>
