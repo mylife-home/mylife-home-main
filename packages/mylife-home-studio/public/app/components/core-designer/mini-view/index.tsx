@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-import { LAYER_SIZE } from '../base/theme';
+import { LAYER_SIZE } from '../base/defs';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';

@@ -3,7 +3,7 @@ import Konva from 'konva';
 import { Layer } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
 
-import { LAYER_SIZE } from './base/theme';
+import { LAYER_SIZE } from './base/defs';
 import { useViewInfo } from './base/view-info';
 import BaseCanvas from './base/canvas';
 import { useZoom } from './base/zoom';

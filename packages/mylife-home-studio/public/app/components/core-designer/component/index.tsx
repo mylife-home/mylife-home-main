@@ -1,9 +1,10 @@
-import React, { FunctionComponent, useCallback, useRef, useEffect } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { Rect, Group } from 'react-konva';
 import Konva from 'konva';
 
 import { useCanvasTheme } from '../base/theme';
 import Border from '../base/border';
+import { GRID_STEP_SIZE, LAYER_SIZE } from '../base/defs';
 import Title from './title';
 import PropertyList from './property-list';
 
@@ -23,20 +24,20 @@ export interface ComponentProps {
 const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect, onMove }) => {
   const theme = useCanvasTheme();
 
-  const height = (states.length + actions.length + 1) * theme.gridStep;
+  const height = (states.length + actions.length + 1) * theme.component.boxHeight;
   const width = theme.component.width;
 
   const dragBoundHandler = useCallback((pos: Konva.Vector2d) => ({
-    x: lockBetween(snapToGrid(pos.x, theme.gridStep), theme.layerSize - width),
-    y: lockBetween(snapToGrid(pos.y, theme.gridStep), theme.layerSize - height),
+    x: lockBetween(snapToGrid(pos.x, GRID_STEP_SIZE), LAYER_SIZE - width),
+    y: lockBetween(snapToGrid(pos.y, GRID_STEP_SIZE), LAYER_SIZE - height),
   }), [theme, height, width]);
 
-  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / theme.gridStep, y : e.target.y() / theme.gridStep }), [onMove, theme.gridStep]);
+  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [onMove, GRID_STEP_SIZE]);
 
   return (
     <Group
-      x={x * theme.gridStep}
-      y={y * theme.gridStep}
+      x={x * GRID_STEP_SIZE}
+      y={y * GRID_STEP_SIZE}
       width={width}
       height={height}
       onClick={onSelect}
@@ -60,8 +61,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       )}
 
       <Title text={title} />
-      <Border x={0} y={0} width={width} height={theme.gridStep} color={theme.borderColor} type='inner' />
-
       <PropertyList yIndex={1} icon='visibility' items={states} />
       <PropertyList yIndex={1 + states.length} icon='input' items={actions} />
     </Group>

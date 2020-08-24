@@ -24,7 +24,7 @@ const PropertyList: FunctionComponent<PropertyListProps> = ({ yIndex, items, ico
         <Property key={index} yIndex={yIndex + index} icon={icon} text={item} />
       ))}
 
-      <Border x={0} y={(theme.gridStep * yIndex) - 1} width={theme.component.width} height={theme.gridStep * items.length + 1} color={theme.borderColor} type='inner' />
+      <Border x={0} y={(theme.component.boxHeight * yIndex) - 1} width={theme.component.width} height={theme.component.boxHeight * items.length + 1} color={theme.borderColor} type='inner' />
     </>
   );
 };

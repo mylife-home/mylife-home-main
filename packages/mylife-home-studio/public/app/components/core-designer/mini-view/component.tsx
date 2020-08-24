@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { Rect } from 'react-konva';
 import { useCanvasTheme } from '../base/theme';
+import { GRID_STEP_SIZE } from '../base/defs';
 
 export interface ComponentProps {
   id: string;
@@ -15,13 +16,13 @@ export interface ComponentProps {
 const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected }) => {
   const theme = useCanvasTheme();
 
-  const height = (states.length + actions.length + 1) * theme.gridStep;
+  const height = (states.length + actions.length + 1) * theme.component.boxHeight;
   const width = theme.component.width;
 
   return (
     <Rect
-      x={x * theme.gridStep}
-      y={y * theme.gridStep}
+      x={x * GRID_STEP_SIZE}
+      y={y * GRID_STEP_SIZE}
       width={width}
       height={height}
       fill={selected ? theme.borderColorSelected : theme.borderColor}

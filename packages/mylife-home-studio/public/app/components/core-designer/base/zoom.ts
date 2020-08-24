@@ -2,12 +2,11 @@ import { useCallback } from 'react';
 import Konva from 'konva';
 
 import { useViewInfo } from './view-info';
-import { useCanvasTheme } from './theme';
+import { LAYER_SIZE } from './defs';
 
 const SCALE_BY = 1.1;
 
 export function useZoom() {
-  const theme = useCanvasTheme();
   const [viewInfo, setViewInfo] = useViewInfo();
 
   const zoom = Math.round(viewInfo.scale * 100);
@@ -24,13 +23,13 @@ export function useZoom() {
   
     const newScale = lockScale(delta > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY);
     const newProps = {
-      x: lockPosBetween(pointer.x - mousePointTo.x * newScale, theme.layerSize - viewInfo.width),
-      y: lockPosBetween(pointer.y - mousePointTo.y * newScale, theme.layerSize - viewInfo.height),
+      x: lockPosBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
+      y: lockPosBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
       scale: newScale
     };
 
     return { ...viewInfo, ...newProps };
-  }), [theme, setViewInfo]);
+  }), [setViewInfo]);
 
   return { zoom, wheelZoom, slideZoom };
 }
