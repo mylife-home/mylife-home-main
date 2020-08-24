@@ -51,6 +51,8 @@ export const ViewInfoProvider: FunctionComponent = ({ children }) => {
   const setViewport = useCallback((data: { x?: number; y?: number; scale?: number; }) => setViewInfo(viewInfo => {
     const { container } = viewInfo;
     const viewport = { ... viewInfo.viewport, ...deleteNullProps(data) };
+    viewport.width = container.width / viewport.scale;
+    viewport.height = container.height / viewport.scale;
     lockViewport(viewport);
 
     return { container, viewport };
