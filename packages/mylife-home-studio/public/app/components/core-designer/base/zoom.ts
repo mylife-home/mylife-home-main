@@ -7,29 +7,29 @@ import { LAYER_SIZE } from './defs';
 const SCALE_BY = 1.1;
 
 export function useZoom() {
-  const [viewInfo, setViewInfo] = useViewInfo();
+  const { viewInfo, setViewport } = useViewInfo();
 
-  const zoom = Math.round(viewInfo.scale * 100);
+  const zoom = Math.round(viewInfo.viewport.scale * 100);
 
   // TODO: zoom from view center
-  const slideZoom = useCallback((value: number) => setViewInfo((viewInfo) => ({ ...viewInfo, scale: value / 100 })), [setViewInfo]);
+  const slideZoom = useCallback((value: number) => setViewport({ scale: value / 100 }), [setViewport]);
 
-  const wheelZoom = useCallback((pointer: Konva.Vector2d, delta: number) => setViewInfo(viewInfo => {
-    const oldScale = viewInfo.scale;
+  const wheelZoom = useCallback((pointer: Konva.Vector2d, delta: number) => {
+    const oldScale = viewInfo.viewport.scale;
     const mousePointTo = {
-      x: (pointer.x - viewInfo.x) / oldScale,
-      y: (pointer.y - viewInfo.y) / oldScale,
+      x: (pointer.x - viewInfo.viewport.x * oldScale) / oldScale,
+      y: (pointer.y - viewInfo.viewport.y * oldScale) / oldScale,
     };
   
     const newScale = lockScale(delta > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY);
     const newProps = {
-      x: lockPosBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.width),
-      y: lockPosBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.height),
+      x: lockPosBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.viewport.width),
+      y: lockPosBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.viewport.height),
       scale: newScale
     };
 
-    return { ...viewInfo, ...newProps };
-  }), [setViewInfo]);
+    setViewport(newProps);
+  }, [setViewport, viewInfo]); // TODO: do not rebuild callback on every viewInfo change
 
   return { zoom, wheelZoom, slideZoom };
 }

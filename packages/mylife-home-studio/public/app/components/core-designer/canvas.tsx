@@ -10,25 +10,27 @@ import { useZoom } from './base/zoom';
 
 const Canvas: FunctionComponent = ({ children }) => {
   const stageRef = useRef<Konva.Stage>(null);
-  const [viewInfo] = useViewInfo();
+  const { viewInfo } = useViewInfo();
 
   useStageContainerSize(stageRef);
 
   const wheelHandler = useWheelHandler(stageRef);
-  const dragBoundHandler = useDragBoundHandler();
+  //const dragBoundHandler = useDragBoundHandler();
   const dragMoveHander = useDragMoveHandler();
+
+  const { x, y, scale } = viewInfo.viewport;
+  const { width, height } = viewInfo.container;
 
   return (
     <BaseCanvas
       ref={stageRef}
-      x={-viewInfo.x}
-      y={-viewInfo.y}
-      width={viewInfo.width}
-      height={viewInfo.height}
-      scaleX={viewInfo.scale}
-      scaleY={viewInfo.scale}
+      x={-x}
+      y={-y}
+      width={width}
+      height={height}
+      scaleX={scale}
+      scaleY={scale}
       draggable
-      dragBoundFunc={dragBoundHandler}
       onWheel={wheelHandler}
       onDragMove={dragMoveHander}
     >
@@ -42,31 +44,28 @@ const Canvas: FunctionComponent = ({ children }) => {
 export default Canvas;
 
 function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>) {
-  const [, setViewInfo] = useViewInfo();
-
-  const setSize = useCallback((size: { width: number; height: number}) => setViewInfo(viewInfo => ({ ...viewInfo, ...size })), [setViewInfo]);
+  const { setViewContainer } = useViewInfo();
 
   useLayoutEffect(() => {
     if(stageRef.current) {
-      setSize(stageRef.current.container().getBoundingClientRect());
+      setViewContainer(stageRef.current.container().getBoundingClientRect());
     }
   }, [stageRef.current]);
  
-  useResizeObserver(stageRef.current?.container(), (entry) => setSize({ width: entry.contentRect.width, height: entry.contentRect.height }));
+  useResizeObserver(stageRef.current?.container(), (entry) => setViewContainer({ width: entry.contentRect.width, height: entry.contentRect.height }));
 }
-
+/*
 function useDragBoundHandler() {
-  const [viewInfo] = useViewInfo();
+  const { viewInfo } = useViewInfo();
 
   return useCallback((pos: Konva.Vector2d) => ({
     x: lockBetween(pos.x, LAYER_SIZE - viewInfo.width / viewInfo.scale),
     y: lockBetween(pos.y, LAYER_SIZE - viewInfo.height / viewInfo.scale),
   }), [viewInfo]);
-}
+}*/
 
 function useDragMoveHandler() {
-  const [, setViewInfo] = useViewInfo();
-  const setPos = useCallback((pos: { x: number, y: number }) => setViewInfo(viewInfo => ({ ...viewInfo, ...pos })), [setViewInfo]);
+  const { setViewport } = useViewInfo();
 
   return useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     if(!(e.target instanceof Konva.Stage)) {
@@ -74,8 +73,8 @@ function useDragMoveHandler() {
     }
 
     const stage = e.target;
-    setPos({ x: -stage.x(), y: -stage.y() });
-  }, [setViewInfo]);
+    setViewport({ x: -stage.x(), y: -stage.y() });
+  }, [setViewport]);
 }
 
 function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
