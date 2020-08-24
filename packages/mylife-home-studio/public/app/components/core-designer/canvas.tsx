@@ -3,7 +3,6 @@ import Konva from 'konva';
 import { Layer } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
 
-import { LAYER_SIZE } from './base/defs';
 import { useViewInfo } from './base/view-info';
 import BaseCanvas from './base/canvas';
 import { useZoom } from './base/zoom';
@@ -15,7 +14,6 @@ const Canvas: FunctionComponent = ({ children }) => {
   useStageContainerSize(stageRef);
 
   const wheelHandler = useWheelHandler(stageRef);
-  //const dragBoundHandler = useDragBoundHandler();
   const dragMoveHander = useDragMoveHandler();
 
   const { x, y, scale } = viewInfo.viewport;
@@ -54,15 +52,6 @@ function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>) {
  
   useResizeObserver(stageRef.current?.container(), (entry) => setViewContainer({ width: entry.contentRect.width, height: entry.contentRect.height }));
 }
-/*
-function useDragBoundHandler() {
-  const { viewInfo } = useViewInfo();
-
-  return useCallback((pos: Konva.Vector2d) => ({
-    x: lockBetween(pos.x, LAYER_SIZE - viewInfo.width / viewInfo.scale),
-    y: lockBetween(pos.y, LAYER_SIZE - viewInfo.height / viewInfo.scale),
-  }), [viewInfo]);
-}*/
 
 function useDragMoveHandler() {
   const { setViewport } = useViewInfo();
@@ -88,20 +77,4 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
 
     wheelZoom(pointer, e.evt.deltaY);
   }, [stageRef.current, wheelZoom]);
-}
-
-function lockBetween(value: number, max: number) {
-  if (value > 0) {
-    return 0;
-  }
-
-  if (max < 0) {
-    max = 0;
-  }
-
-  if (value <= -max) {
-    return -max + 1;
-  }
-  
-  return value;
 }
