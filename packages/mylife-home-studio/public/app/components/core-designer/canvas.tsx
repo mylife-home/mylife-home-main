@@ -59,8 +59,8 @@ function useDragBoundHandler() {
   const [viewInfo] = useViewInfo();
 
   return useCallback((pos: Konva.Vector2d) => ({
-    x: lockBetween(pos.x, LAYER_SIZE - viewInfo.width),
-    y: lockBetween(pos.y, LAYER_SIZE - viewInfo.height),
+    x: lockBetween(pos.x, LAYER_SIZE - viewInfo.width / viewInfo.scale),
+    y: lockBetween(pos.y, LAYER_SIZE - viewInfo.height / viewInfo.scale),
   }), [viewInfo]);
 }
 
@@ -94,6 +94,10 @@ function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
 function lockBetween(value: number, max: number) {
   if (value > 0) {
     return 0;
+  }
+
+  if (max < 0) {
+    max = 0;
   }
 
   if (value <= -max) {
