@@ -11,36 +11,59 @@ export function useZoom() {
 
   const zoom = Math.round(viewInfo.viewport.scale * 100);
 
-  // TODO: zoom from view center
-  const slideZoom = useCallback((value: number) => setViewport({ scale: value / 100 }), [setViewport]);
-
-  const wheelZoom = useCallback((pointer: Konva.Vector2d, delta: number) => {
-    const oldScale = viewInfo.viewport.scale;
-    const mousePointTo = {
-      x: (pointer.x - viewInfo.viewport.x * oldScale) / oldScale,
-      y: (pointer.y - viewInfo.viewport.y * oldScale) / oldScale,
+  const setScale = (scale: number, origin?: Konva.Vector2d) => {
+    // origin defaults to container center
+    origin = origin || {
+      x: viewInfo.container.width / 2,
+      y: viewInfo.container.height / 2,
     };
-  
-    const newScale = lockScale(delta > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY);
+
+    const { viewport } = viewInfo;
+
+    const oldScale = viewport.scale;
+    const newScale = lockScale(scale);
+
+    if (oldScale === newScale) {
+      return;
+    }
+
+    const layerOrigin = {
+      x: viewport.x + origin.x / oldScale,
+      y: viewport.y + origin.y / oldScale,
+    };
+
+    const newPos = {
+      x: layerOrigin.x - origin.x / newScale,
+      y: layerOrigin.y - origin.y / newScale,
+    };
+
     const newProps = {
-      x: lockPosBetween(pointer.x - mousePointTo.x * newScale, LAYER_SIZE - viewInfo.viewport.width),
-      y: lockPosBetween(pointer.y - mousePointTo.y * newScale, LAYER_SIZE - viewInfo.viewport.height),
+      x: lockPosBetween(newPos.x, LAYER_SIZE - viewport.width),
+      y: lockPosBetween(newPos.y, LAYER_SIZE - viewport.height),
       scale: newScale
     };
 
     setViewport(newProps);
-  }, [setViewport, viewInfo]); // TODO: do not rebuild callback on every viewInfo change
+  };
+
+  const slideZoom = useCallback((value: number) => setScale(value / 100), [setScale]);
+
+  const wheelZoom = useCallback((pointer: Konva.Vector2d, delta: number) => {
+    const oldScale = viewInfo.viewport.scale;
+    const newScale = delta > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY;
+    setScale(newScale, pointer);
+  }, [setScale, viewInfo]); // TODO: do not rebuild callback on every viewInfo change
 
   return { zoom, wheelZoom, slideZoom };
 }
 
 function lockPosBetween(value: number, max: number) {
-  if (value > 0) {
+  if (value < 0) {
     return 0;
   }
 
-  if (value <= -max) {
-    return -max + 1;
+  if (value > max) {
+    return max;
   }
   
   return value;

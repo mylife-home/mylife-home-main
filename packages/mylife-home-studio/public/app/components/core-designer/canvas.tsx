@@ -22,8 +22,8 @@ const Canvas: FunctionComponent = ({ children }) => {
   return (
     <BaseCanvas
       ref={stageRef}
-      x={-x}
-      y={-y}
+      x={-x * scale}
+      y={-y * scale}
       width={width}
       height={height}
       scaleX={scale}
@@ -54,7 +54,7 @@ function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>) {
 }
 
 function useDragMoveHandler() {
-  const { setViewport } = useViewInfo();
+  const { viewInfo, setViewport } = useViewInfo();
 
   return useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     if(!(e.target instanceof Konva.Stage)) {
@@ -62,8 +62,9 @@ function useDragMoveHandler() {
     }
 
     const stage = e.target;
-    setViewport({ x: -stage.x(), y: -stage.y() });
-  }, [setViewport]);
+    const { scale } = viewInfo.viewport;
+    setViewport({ x: -stage.x() / scale, y: -stage.y() / scale });
+  }, [viewInfo, setViewport]); // TODO: do not rebuilt on viewInfo change
 }
 
 function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
