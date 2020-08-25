@@ -20,8 +20,10 @@ export const vpanelCore = processFile(rawVPanelCore);
 
 function processFile(file: raw.File) {
   const GRID_STEP = 24;
+
   const plugins = buildPluginMap(file);
   const components: Component[] = [];
+  const bindings: Binding[] = [];
 
   for(const raw of file.Components) {
     const pluginId = `${raw.EntityName}:${raw.Component.library}:${raw.Component.type}`;
@@ -41,21 +43,19 @@ function processFile(file: raw.File) {
       actions: plugin.actions,
       x, y
     });
+
+    for (const rawBinding of raw.Component.bindings) {
+      bindings.push({
+        sourceComponent: rawBinding.remote_id,
+        sourceState: rawBinding.remote_attribute,
+        targetComponent: id,
+        targetAction: rawBinding.local_action
+      });
+    }
   }
 
-  return components;
+  return { components, bindings };
 }
-
-console.log(vpanelCore);
-
-/*
-id: 'component-1',
-title: 'Component 1',
-states: ['value'],
-actions: ['setValue'],
-x: 5,
-y: 10
-*/
 
 function buildPluginMap(file: raw.File) {
   const map = new Map<string, Plugin>();
@@ -82,20 +82,26 @@ function buildPluginMap(file: raw.File) {
       }
 
       map.set(id, { id, states, actions });
-      
     }
   }
 
   return map;
 }
 
-interface Component {
-  readonly id: string,
-  readonly title: string,
-  readonly states: string[],
-  readonly actions: string[],
-  readonly x: number,
-  readonly y: number
+export interface Component {
+  readonly id: string;
+  readonly title: string;
+  readonly states: string[];
+  readonly actions: string[];
+  readonly x: number;
+  readonly y: number;
+}
+
+export interface Binding {
+  sourceComponent: string;
+  sourceState: string;
+  targetComponent: string;
+  targetAction: string;
 }
 
 interface Plugin {

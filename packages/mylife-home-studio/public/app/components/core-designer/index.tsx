@@ -1,25 +1,27 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useMemo } from 'react';
 import Konva from 'konva';
 import { useStrictMode } from 'react-konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+import { ViewInfoProvider } from './base/view-info';
+import { CanvasThemeProvider } from './base/theme';
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
+import Binding from './binding';
 import MiniView from './mini-view';
 import ZoomSlider from './zoom-slider';
-import { ViewInfoProvider } from './base/view-info';
-import { CanvasThemeProvider } from './base/theme';
 
-import { vpanelCore } from '../../files/schema';
+import * as schema from '../../files/schema';
 
 // TODO: improve konva imports
 // https://github.com/konvajs/react-konva#minimal-bundle
 useStrictMode(true);
 
-const initialComponents = vpanelCore;
+const initialComponents = schema.vpanelCore.components;
+const initialBindings = schema.vpanelCore.bindings;
 /*
 [{
   id: 'component-1',
@@ -41,6 +43,15 @@ const initialComponents = vpanelCore;
 const CoreDesigner: FunctionComponent = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [components, setComponents] = useState(initialComponents);
+  const [bindings, setBindings] = useState(initialBindings);
+
+  const compMap = useMemo(() => {
+    const map: {[id: string]: schema.Component; } = {};
+    for(const comp of components) {
+      map[comp.id] = comp;
+    }
+    return map;
+  }, [components]);
 
   const handleMoveComponent = (id: string, pos: Konva.Vector2d) => {
     setComponents(components => components.map(comp => {
@@ -75,6 +86,20 @@ const CoreDesigner: FunctionComponent = () => {
             {components.map((component, index) => (
               <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
             ))}
+
+            {bindings.map((binding, index) => {
+              const sourceComponent = compMap[binding.sourceComponent];
+              const targetComponent = compMap[binding.targetComponent];
+              return (
+                <Binding
+                  key={index}
+                  sourceComponent={sourceComponent}
+                  targetComponent={targetComponent}
+                  sourceState={binding.sourceState}
+                  targetAction={binding.targetAction}
+                />
+              );
+            })}
           </Canvas>
 
         </SplitPane>
