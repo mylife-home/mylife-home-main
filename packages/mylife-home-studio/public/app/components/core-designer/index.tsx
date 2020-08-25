@@ -78,12 +78,10 @@ const CoreDesigner: FunctionComponent = () => {
 
               <ZoomSlider />
 
-              <Typography>Selection</Typography>
-
               <MiniView components={components} selectedIndex={selection?.type === 'component' ? selection.index : -1} />
 
+              <Typography>Selection</Typography>
               <Typography>Toolbox</Typography>
-
             </Box>
           </Box>
 
