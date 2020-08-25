@@ -8,7 +8,7 @@ import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
 import MainViewMark from './main-view-mark';
-import { useViewportPosition } from '../base/viewport-manips';
+import { usePosition } from '../base/viewport-manips';
 
 export interface MiniViewProps {
   className?: string;
@@ -50,7 +50,7 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
 export default MiniView;
 
 function useClickHandler(scale: number) {
-  const { setLayerPosition } = useViewportPosition();
+  const { setLayerPosition } = usePosition();
 
   return useCallback((pos: Konva.Vector2d) => {
     const layerPosition = {

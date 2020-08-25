@@ -14,6 +14,8 @@ interface Size {
   height: number;
 }
 
+type ViewportUpdateCallback = (viewInfo: ViewInfo) => { x?: number; y?: number; scale?: number; };
+
 export interface ViewInfo {
   viewport: Viewport;
   container: Size
@@ -21,7 +23,7 @@ export interface ViewInfo {
 
 interface ViewInfoContextProps {
   viewInfo: ViewInfo;
-  setViewport: (data: { x?: number; y?: number; scale?: number; }) => void;
+  updateViewport: (callback: ViewportUpdateCallback) => void;
   setViewContainer: (container: Size) => void;
 }
 
@@ -48,7 +50,12 @@ const DEFAULT: ViewInfo = {
 export const ViewInfoProvider: FunctionComponent = ({ children }) => {
   const [viewInfo, setViewInfo] = useState(DEFAULT);
 
-  const setViewport = useCallback((data: { x?: number; y?: number; scale?: number; }) => setViewInfo(viewInfo => {
+  const updateViewport = useCallback((callback: ViewportUpdateCallback) => setViewInfo(viewInfo => {
+    const data = callback(viewInfo);
+    if (!data) {
+      return viewInfo;
+    }
+
     const { container } = viewInfo;
     const viewport = { ... viewInfo.viewport, ...deleteNullProps(data) };
     viewport.width = container.width / viewport.scale;
@@ -67,7 +74,7 @@ export const ViewInfoProvider: FunctionComponent = ({ children }) => {
     return { container, viewport };
   }), [setViewInfo]);
 
-  const contextProps = useMemo(() => ({ viewInfo, setViewport, setViewContainer }), [viewInfo, setViewport, setViewContainer]);
+  const contextProps = useMemo(() => ({ viewInfo, updateViewport, setViewContainer }), [viewInfo, updateViewport, setViewContainer]);
 
   return (
     <ViewInfoContext.Provider value={contextProps}>
