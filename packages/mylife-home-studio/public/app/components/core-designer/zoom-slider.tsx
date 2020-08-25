@@ -3,7 +3,7 @@ import React, { FunctionComponent } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 
-import { useZoom } from './base/zoom';
+import { useZoom } from './base/viewport-manips';
 
 const ZoomSlider: FunctionComponent = () => {
   const { zoom, slideZoom } = useZoom();

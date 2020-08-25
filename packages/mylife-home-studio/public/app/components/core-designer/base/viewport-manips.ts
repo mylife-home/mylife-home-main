@@ -6,6 +6,29 @@ import { LAYER_SIZE } from './defs';
 
 const SCALE_BY = 1.1;
 
+export function useSetViewportLayerPosition() {
+  const { viewInfo, setViewport } = useViewInfo();
+  return useCallback((layerPosition: Konva.Vector2d) => {
+    const { viewport } = viewInfo;
+
+    const newPos = {
+      x: lockPosBetween(layerPosition.x - viewport.width / 2, LAYER_SIZE - viewport.width),
+      y: lockPosBetween(layerPosition.y - viewport.height / 2, LAYER_SIZE - viewport.height),
+    };
+
+    setViewport(newPos);
+
+  }, [viewInfo, setViewport]); // TODO: do not rebuilt on viewInfo change
+}
+
+export function useSetViewportContainerPosition() {
+  const { viewInfo, setViewport } = useViewInfo();
+  return useCallback((containerPosition: Konva.Vector2d) => {
+    const { scale } = viewInfo.viewport;
+    setViewport({ x: containerPosition.x / scale, y: containerPosition.y / scale });
+  }, [viewInfo, setViewport]); // TODO: do not rebuilt on viewInfo change
+}
+
 export function useZoom() {
   const { viewInfo, setViewport } = useViewInfo();
 

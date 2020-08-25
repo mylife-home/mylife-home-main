@@ -5,7 +5,7 @@ import useResizeObserver from '@react-hook/resize-observer';
 
 import { useViewInfo } from './base/view-info';
 import BaseCanvas from './base/canvas';
-import { useZoom } from './base/zoom';
+import { useZoom, useSetViewportContainerPosition } from './base/viewport-manips';
 
 const Canvas: FunctionComponent = ({ children }) => {
   const stageRef = useRef<Konva.Stage>(null);
@@ -54,7 +54,7 @@ function useStageContainerSize(stageRef: React.MutableRefObject<Konva.Stage>) {
 }
 
 function useDragMoveHandler() {
-  const { viewInfo, setViewport } = useViewInfo();
+  const setPosition = useSetViewportContainerPosition();
 
   return useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     if(!(e.target instanceof Konva.Stage)) {
@@ -62,9 +62,8 @@ function useDragMoveHandler() {
     }
 
     const stage = e.target;
-    const { scale } = viewInfo.viewport;
-    setViewport({ x: -stage.x() / scale, y: -stage.y() / scale });
-  }, [viewInfo, setViewport]); // TODO: do not rebuilt on viewInfo change
+    setPosition({ x: -stage.x(), y: -stage.y() });
+  }, [setPosition]);
 }
 
 function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {

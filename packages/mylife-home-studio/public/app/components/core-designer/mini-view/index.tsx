@@ -8,7 +8,7 @@ import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
 import MainViewMark from './main-view-mark';
-import { useViewInfo } from '../base/view-info';
+import { useSetViewportLayerPosition } from '../base/viewport-manips';
 
 export interface MiniViewProps {
   className?: string;
@@ -50,25 +50,17 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
 export default MiniView;
 
 function useClickHandler(scale: number) {
-  const { viewInfo, setViewport } = useViewInfo();
+  const setPosition = useSetViewportLayerPosition();
 
   return useCallback((pos: Konva.Vector2d) => {
-    const { viewport } = viewInfo;
-    const miniScale = scale;
-
-    const layerPos = {
-      x: pos.x / miniScale,
-      y: pos.y / miniScale,
+    const layerPosition = {
+      x: pos.x / scale,
+      y: pos.y / scale,
     };
 
-    const newPos = {
-      x: lockPosBetween(layerPos.x - viewport.width / 2, LAYER_SIZE - viewport.width),
-      y: lockPosBetween(layerPos.y - viewport.height / 2, LAYER_SIZE - viewport.height),
-    };
+    setPosition(layerPosition);
 
-    setViewport(newPos);
-
-  }, [scale, viewInfo, setViewport]); // TODO: do not rebuild on viewInfo change
+  }, [scale, setPosition]);
 }
 
 function lockPosBetween(value: number, max: number) {
