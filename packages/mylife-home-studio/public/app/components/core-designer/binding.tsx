@@ -28,9 +28,11 @@ const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetCompo
       fill={color}
       stroke={color}
       points={[sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]}
+      onClick={onSelect}
       pointerLength={theme.binding.pointerLength}
       pointerWidth={theme.binding.pointerWidth}
       strokeWidth={theme.binding.strokeWidth}
+      hitStrokeWidth={GRID_STEP_SIZE}
     />
   );
 };
