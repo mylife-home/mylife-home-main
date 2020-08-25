@@ -7,10 +7,11 @@ type CacheGroupProps = Konva.NodeConfig & KonvaNodeEvents & React.ClassAttribute
 
 const CachedGroup: FunctionComponent<CacheGroupProps> = ({ x, y, width, height, ...props }) => {
 
-  const ref = useCache<Konva.Group>({ x, y, width, height });
+  const rect = { x, y, width, height };
+  const ref = useCache<Konva.Group>(rect);
 
   return (
-    <Group {...props} ref={ref}/>
+    <Group {...props} {...rect} ref={ref} />
   );
 };
 
@@ -21,7 +22,7 @@ function useCache<T extends Konva.Node>(rect: Rectangle) {
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.cache({ x: rect.x - 10, y: rect.y - 10, width: rect.width + 20, height: rect.height + 20 });
+      ref.current.cache(rect);
     }
   }, [ref.current, rect.x, rect.y, rect.width, rect.height]);
 
