@@ -14,8 +14,15 @@ export interface CanvasTheme {
   component: {
     boxHeight: number;
     paddingLeft: number;
-    width: number
+    width: number;
   };
+
+  binding: {
+    pointerWidth: number;
+    pointerLength: number;
+    strokeWidth: number;
+  };
+
 }
 
 export const CanvasThemeContext = createContext<CanvasTheme>(null);
@@ -47,6 +54,12 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
       boxHeight: GRID_STEP_SIZE,
       paddingLeft: 8,
       width: GRID_STEP_SIZE * 10,
+    },
+
+    binding: {
+      pointerWidth: 5,
+      pointerLength: 5,
+      strokeWidth: 2
     }
   };
 }

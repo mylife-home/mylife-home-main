@@ -40,8 +40,13 @@ const initialBindings = schema.vpanelCore.bindings;
 }];
 */
 
+interface Selection {
+  type: 'component' | 'binding';
+  index: number;
+}
+
 const CoreDesigner: FunctionComponent = () => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selection, setSelection] = useState<Selection>(null);
   const [components, setComponents] = useState(initialComponents);
   const [bindings, setBindings] = useState(initialBindings);
 
@@ -75,7 +80,7 @@ const CoreDesigner: FunctionComponent = () => {
 
               <Typography>Selection</Typography>
 
-              <MiniView components={components} selectedIndex={selectedIndex} />
+              <MiniView components={components} selectedIndex={selection?.type === 'component' ? selection.index : -1} />
 
               <Typography>Toolbox</Typography>
 
@@ -84,7 +89,12 @@ const CoreDesigner: FunctionComponent = () => {
 
           <Canvas>
             {components.map((component, index) => (
-              <Component key={index} {...component} selected={index === selectedIndex} onSelect={() => setSelectedIndex(index)} onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+              <Component
+                key={index}
+                {...component}
+                selected={selection?.type === 'component' && selection.index === index}
+                onSelect={() => setSelection({ type: 'component', index })}
+                onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
             ))}
 
             {bindings.map((binding, index) => {
@@ -93,6 +103,8 @@ const CoreDesigner: FunctionComponent = () => {
               return (
                 <Binding
                   key={index}
+                  selected={selection?.type === 'binding' && selection.index === index}
+                  onSelect={() => setSelection({ type: 'binding', index })}
                   sourceComponent={sourceComponent}
                   targetComponent={targetComponent}
                   sourceState={binding.sourceState}
