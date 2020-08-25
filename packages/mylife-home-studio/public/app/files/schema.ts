@@ -18,58 +18,60 @@ export const hwGarden2 = processFile(rawHWGarden2);
 export const hwHallbox = processFile(rawHWHallbox);
 export const vpanelCore = processFile(rawVPanelCore);
 
-function processFile(file: File) {
+function processFile(file: raw.File) {
   return file;
 }
 
-interface File {
-  readonly Name: string;
-  readonly CreationDate: string;
-  readonly LastUpdate: string;
-  readonly Components: RawComponentContainer[];
-  readonly Toolbox: RawToolboxItem[];
-}
-
-interface RawComponentContainer {
-  readonly EntityName: string;
-  readonly Component: RawComponent;
-}
-
-interface RawComponent {
-  readonly id: string;
-  readonly library: string;
-  readonly type: string;
-  readonly bindings: RawComponentBinding[];
-  readonly config: RawComponentConfig[];
-  readonly designer: RawComponentDesigner[];
-}
-
-interface RawComponentBinding {
-  readonly local_action: string;
-  readonly remote_attribute: string;
-  readonly remote_id: string;
-}
-
-interface RawComponentConfig {
-  readonly Key: string;
-  readonly Value: string;
-}
-
-interface RawComponentDesigner {
-  readonly Key: string;
-  readonly Value: string;
-}
-
-interface RawToolboxItem {
-  readonly EntityName: string;
-  readonly Plugins: RawPlugin[];
-}
-
-interface RawPlugin {
-  readonly clazz: string;
-  readonly config: string;
-  readonly library: string;
-  readonly type: string;
-  readonly usage: number;
-  readonly version: string;
+namespace raw {
+  export interface File {
+    readonly Name: string;
+    readonly CreationDate: string;
+    readonly LastUpdate: string;
+    readonly Components: ComponentContainer[];
+    readonly Toolbox: ToolboxItem[];
+  }
+  
+  export interface ComponentContainer {
+    readonly EntityName: string;
+    readonly Component: Component;
+  }
+  
+  export interface Component {
+    readonly id: string;
+    readonly library: string;
+    readonly type: string;
+    readonly bindings: ComponentBinding[];
+    readonly config: ComponentConfig[];
+    readonly designer: ComponentDesigner[];
+  }
+  
+  export interface ComponentBinding {
+    readonly local_action: string;
+    readonly remote_attribute: string;
+    readonly remote_id: string;
+  }
+  
+  export interface ComponentConfig {
+    readonly Key: string;
+    readonly Value: string;
+  }
+  
+  export interface ComponentDesigner {
+    readonly Key: string;
+    readonly Value: string;
+  }
+  
+  export interface ToolboxItem {
+    readonly EntityName: string;
+    readonly Plugins: Plugin[];
+  }
+  
+  export interface Plugin {
+    readonly clazz: string;
+    readonly config: string;
+    readonly library: string;
+    readonly type: string;
+    readonly usage: number;
+    readonly version: string;
+  }
 }
