@@ -88,15 +88,6 @@ const CoreDesigner: FunctionComponent = () => {
           </Box>
 
           <Canvas>
-            {components.map((component, index) => (
-              <Component
-                key={index}
-                {...component}
-                selected={selection?.type === 'component' && selection.index === index}
-                onSelect={() => setSelection({ type: 'component', index })}
-                onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
-            ))}
-
             {bindings.map((binding, index) => {
               const sourceComponent = compMap[binding.sourceComponent];
               const targetComponent = compMap[binding.targetComponent];
@@ -112,6 +103,15 @@ const CoreDesigner: FunctionComponent = () => {
                 />
               );
             })}
+
+            {components.map((component, index) => (
+              <Component
+                key={index}
+                {...component}
+                selected={selection?.type === 'component' && selection.index === index}
+                onSelect={() => setSelection({ type: 'component', index })}
+                onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+            ))}
           </Canvas>
 
         </SplitPane>
