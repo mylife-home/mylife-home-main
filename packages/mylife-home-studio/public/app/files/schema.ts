@@ -19,7 +19,89 @@ export const hwHallbox = processFile(rawHWHallbox);
 export const vpanelCore = processFile(rawVPanelCore);
 
 function processFile(file: raw.File) {
-  return file;
+  const GRID_STEP = 24;
+  const plugins = buildPluginMap(file);
+  const components: Component[] = [];
+
+  for(const raw of file.Components) {
+    const pluginId = `${raw.EntityName}:${raw.Component.library}:${raw.Component.type}`;
+    const plugin = plugins.get(pluginId);
+
+    const location = raw.Component.designer.find(item => item.Key === 'Location').Value;
+    const parts = location.split(',');
+    const x = Math.round(Number.parseInt(parts[0]) / GRID_STEP);
+    const y = Math.round(Number.parseInt(parts[1]) / GRID_STEP);
+
+    const id = raw.Component.id;
+
+    components.push({
+      id,
+      title: id,
+      states: plugin.states,
+      actions: plugin.actions,
+      x, y
+    });
+  }
+
+  return components;
+}
+
+console.log(vpanelCore);
+
+/*
+id: 'component-1',
+title: 'Component 1',
+states: ['value'],
+actions: ['setValue'],
+x: 5,
+y: 10
+*/
+
+function buildPluginMap(file: raw.File) {
+  const map = new Map<string, Plugin>();
+
+  for(const entity of file.Toolbox) {
+    for(const plugin of entity.Plugins) {
+      const id = `${entity.EntityName}:${plugin.library}:${plugin.type}`;
+      const states: string[] = [];
+      const actions: string[] = [];
+
+      const parts = plugin.clazz.split('|');
+      for(const part of parts) {
+        const [name, type] = part.split(',');
+        const propType = name.charAt(0);
+        const propName = name.substr(1);
+        switch (propType) {
+          case '=':
+            states.push(propName);
+            break;
+          case '.':
+            actions.push(propName);
+            break;
+          }
+      }
+
+      map.set(id, { id, states, actions });
+      
+    }
+  }
+
+  return map;
+}
+
+interface Component {
+  readonly id: string,
+  readonly title: string,
+  readonly states: string[],
+  readonly actions: string[],
+  readonly x: number,
+  readonly y: number
+}
+
+interface Plugin {
+  readonly id: string;
+  readonly states: string[];
+  readonly actions: string[];
 }
 
 namespace raw {

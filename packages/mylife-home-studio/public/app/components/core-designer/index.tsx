@@ -13,13 +13,15 @@ import ZoomSlider from './zoom-slider';
 import { ViewInfoProvider } from './base/view-info';
 import { CanvasThemeProvider } from './base/theme';
 
-import '../../files/schema';
+import { vpanelCore } from '../../files/schema';
 
 // TODO: improve konva imports
 // https://github.com/konvajs/react-konva#minimal-bundle
 useStrictMode(true);
 
-const initialComponents = [{
+const initialComponents = vpanelCore;
+/*
+[{
   id: 'component-1',
   title: 'Component 1',
   states: ['value'],
@@ -34,6 +36,7 @@ const initialComponents = [{
   x: 5,
   y: 20
 }];
+*/
 
 const CoreDesigner: FunctionComponent = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
