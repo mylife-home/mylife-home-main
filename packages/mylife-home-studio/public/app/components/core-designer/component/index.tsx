@@ -2,9 +2,9 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { Rect, Group } from 'react-konva';
 import Konva from 'konva';
 
+import { GRID_STEP_SIZE, LAYER_SIZE } from '../base/defs';
 import { useCanvasTheme } from '../base/theme';
 import Border from '../base/border';
-import { GRID_STEP_SIZE, LAYER_SIZE } from '../base/defs';
 import Title from './title';
 import PropertyList from './property-list';
 
@@ -47,6 +47,9 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       onDragMove={dragMoveHandler}
     >
       <Rect x={0} y={0} width={width} height={height} fill={theme.backgroundColor} />
+      <Title text={title} />
+      <PropertyList yIndex={1} icon='visibility' items={states} />
+      <PropertyList yIndex={1 + states.length} icon='input' items={actions} />
 
       {selected && (
         <Border
@@ -60,9 +63,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
         />
       )}
 
-      <Title text={title} />
-      <PropertyList yIndex={1} icon='visibility' items={states} />
-      <PropertyList yIndex={1 + states.length} icon='input' items={actions} />
     </Group>
   );
 };
