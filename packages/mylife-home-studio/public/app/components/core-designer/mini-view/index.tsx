@@ -1,8 +1,8 @@
 import React, { FunctionComponent, useState, useCallback } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
-import Konva from 'konva';
 
+import { Konva } from '../base/konva';
 import { LAYER_SIZE } from '../base/defs';
 import SquareBox from './square-box';
 import Canvas from './canvas';

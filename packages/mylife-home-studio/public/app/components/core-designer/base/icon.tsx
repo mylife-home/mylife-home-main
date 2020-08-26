@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Path } from 'react-konva';
+import { Path } from './konva';
 import { useCanvasTheme } from './theme';
 
 const PATH_SIZE = 24;

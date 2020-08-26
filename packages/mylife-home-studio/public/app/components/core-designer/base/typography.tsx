@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { useCanvasTheme } from './theme';
-import { Text } from 'react-konva';
+import { Text } from './konva';
 
 interface TypographyProps {
   x: number;

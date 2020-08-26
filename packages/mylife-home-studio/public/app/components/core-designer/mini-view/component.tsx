@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { Rect } from 'react-konva';
+
+import { Rect } from '../base/konva';
 import { useCanvasTheme } from '../base/theme';
 import { GRID_STEP_SIZE } from '../base/defs';
 

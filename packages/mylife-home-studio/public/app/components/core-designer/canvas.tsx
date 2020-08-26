@@ -1,7 +1,7 @@
-import React, { FunctionComponent, useRef, useCallback, useLayoutEffect, useContext } from 'react';
-import Konva from 'konva';
+import React, { FunctionComponent, useRef, useCallback, useLayoutEffect } from 'react';
 import useResizeObserver from '@react-hook/resize-observer';
 
+import { Konva } from './base/konva';
 import { useViewInfo } from './base/view-info';
 import BaseCanvas from './base/canvas';
 import { useZoom, usePosition } from './base/viewport-manips';

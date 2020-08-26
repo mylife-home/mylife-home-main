@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
-import { Rect } from 'react-konva';
+
+import { Rect } from './konva';
 
 interface Rectangle {
   x: number;

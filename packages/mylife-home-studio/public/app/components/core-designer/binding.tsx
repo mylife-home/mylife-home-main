@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
-import { Arrow } from 'react-konva';
-import Konva from 'konva';
 
+import { Konva, Arrow } from './base/konva';
 import { GRID_STEP_SIZE } from './base/defs';
 import { useCanvasTheme, CanvasTheme } from './base/theme';
 

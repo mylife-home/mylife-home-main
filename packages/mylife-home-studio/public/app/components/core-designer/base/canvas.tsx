@@ -1,9 +1,7 @@
 import React, { useContext, forwardRef } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import { Stage, StageProps } from 'react-konva';
-import Konva from 'konva';
-
+import { Konva, Stage, StageProps } from './konva';
 import { CanvasThemeContext } from './theme';
 import { ViewInfoContext } from './view-info';
 

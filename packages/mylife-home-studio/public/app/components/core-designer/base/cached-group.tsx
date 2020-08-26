@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useEffect, createRef } from 'react';
-import { Group, KonvaNodeEvents } from 'react-konva';
-import Konva from 'konva';
+import { Konva, Group, KonvaNodeEvents } from './konva';
 
 type Rectangle = { x: number, y: number, width: number, height: number };
 type CacheGroupProps = Konva.NodeConfig & KonvaNodeEvents & React.ClassAttributes<Node> & Rectangle;

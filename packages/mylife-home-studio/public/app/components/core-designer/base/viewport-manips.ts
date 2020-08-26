@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import Konva from 'konva';
-
+import { Konva } from './konva';
 import { useViewInfo, ViewInfo } from './view-info';
 
 const SCALE_BY = 1.1;

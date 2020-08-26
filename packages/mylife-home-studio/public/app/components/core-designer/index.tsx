@@ -1,10 +1,9 @@
 import React, { FunctionComponent, useState, useMemo } from 'react';
-import Konva from 'konva';
-import { useStrictMode, Layer } from 'react-konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+import { Konva, Layer } from './base/konva';
 import { ViewInfoProvider } from './base/view-info';
 import { CanvasThemeProvider } from './base/theme';
 import SplitPane from '../split-pane';
@@ -15,10 +14,6 @@ import MiniView from './mini-view';
 import ZoomSlider from './zoom-slider';
 
 import * as schema from '../../files/schema';
-
-// TODO: improve konva imports
-// https://github.com/konvajs/react-konva#minimal-bundle
-useStrictMode(true);
 
 const initialComponents = schema.vpanelCore.components;
 const initialBindings = schema.vpanelCore.bindings;

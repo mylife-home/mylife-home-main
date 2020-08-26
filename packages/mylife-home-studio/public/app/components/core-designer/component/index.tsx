@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { Rect, Group } from 'react-konva';
-import Konva from 'konva';
 
+import { Konva, Rect, Group } from '../base/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../base/defs';
 import { useCanvasTheme } from '../base/theme';
 import CachedGroup from '../base/cached-group';

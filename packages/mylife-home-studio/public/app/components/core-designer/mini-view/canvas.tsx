@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useRef, useLayoutEffect, useCallback } from 'react';
-import Konva from 'konva';
-import { Layer } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
+
+import { Konva, Layer } from '../base/konva';
 import BaseCanvas from '../base/canvas';
 
 export interface CanvasProps {
