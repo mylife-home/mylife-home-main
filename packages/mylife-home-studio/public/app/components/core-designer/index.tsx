@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useMemo } from 'react';
 import Konva from 'konva';
-import { useStrictMode } from 'react-konva';
+import { useStrictMode, Layer } from 'react-konva';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
@@ -86,30 +86,34 @@ const CoreDesigner: FunctionComponent = () => {
           </Box>
 
           <Canvas>
-            {bindings.map((binding, index) => {
-              const sourceComponent = compMap[binding.sourceComponent];
-              const targetComponent = compMap[binding.targetComponent];
-              return (
-                <Binding
+            <Layer>
+              {bindings.map((binding, index) => {
+                const sourceComponent = compMap[binding.sourceComponent];
+                const targetComponent = compMap[binding.targetComponent];
+                return (
+                  <Binding
+                    key={index}
+                    selected={selection?.type === 'binding' && selection.index === index}
+                    onSelect={() => setSelection({ type: 'binding', index })}
+                    sourceComponent={sourceComponent}
+                    targetComponent={targetComponent}
+                    sourceState={binding.sourceState}
+                    targetAction={binding.targetAction}
+                  />
+                );
+              })}
+            </Layer>
+            
+            <Layer>
+              {components.map((component, index) => (
+                <Component
                   key={index}
-                  selected={selection?.type === 'binding' && selection.index === index}
-                  onSelect={() => setSelection({ type: 'binding', index })}
-                  sourceComponent={sourceComponent}
-                  targetComponent={targetComponent}
-                  sourceState={binding.sourceState}
-                  targetAction={binding.targetAction}
-                />
-              );
-            })}
-
-            {components.map((component, index) => (
-              <Component
-                key={index}
-                {...component}
-                selected={selection?.type === 'component' && selection.index === index}
-                onSelect={() => setSelection({ type: 'component', index })}
-                onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
-            ))}
+                  {...component}
+                  selected={selection?.type === 'component' && selection.index === index}
+                  onSelect={() => setSelection({ type: 'component', index })}
+                  onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+              ))}
+            </Layer>
           </Canvas>
 
         </SplitPane>

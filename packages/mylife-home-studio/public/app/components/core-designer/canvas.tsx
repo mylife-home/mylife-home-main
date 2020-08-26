@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useRef, useCallback, useLayoutEffect, useContext } from 'react';
 import Konva from 'konva';
-import { Layer } from 'react-konva';
 import useResizeObserver from '@react-hook/resize-observer';
 
 import { useViewInfo } from './base/view-info';
@@ -32,9 +31,7 @@ const Canvas: FunctionComponent = ({ children }) => {
       onWheel={wheelHandler}
       onDragMove={dragMoveHander}
     >
-      <Layer>
-        {children}
-      </Layer>
+      {children}
     </BaseCanvas>
     );
 };
