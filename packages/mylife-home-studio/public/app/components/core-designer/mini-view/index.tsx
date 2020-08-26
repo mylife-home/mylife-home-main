@@ -2,8 +2,8 @@ import React, { FunctionComponent, useState, useCallback } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-import { Konva } from '../base/konva';
 import { LAYER_SIZE } from '../base/defs';
+import { Point } from '../base/types';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
@@ -52,7 +52,7 @@ export default MiniView;
 function useClickHandler(scale: number) {
   const { setLayerPosition } = usePosition();
 
-  return useCallback((pos: Konva.Vector2d) => {
+  return useCallback((pos: Point) => {
     const layerPosition = {
       x: pos.x / scale,
       y: pos.y / scale,

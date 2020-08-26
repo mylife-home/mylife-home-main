@@ -1,8 +1,9 @@
 import React, { FunctionComponent, useMemo } from 'react';
 
-import { Konva, Arrow } from './base/konva';
+import { Arrow } from './base/konva';
 import { GRID_STEP_SIZE } from './base/defs';
 import { useCanvasTheme, CanvasTheme } from './base/theme';
+import { Point } from './base/types';
 
 import * as schema from '../../files/schema';
 
@@ -49,8 +50,8 @@ function useAnchors(sourceComponent: schema.Component, targetComponent: schema.C
     const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);
 
     let minDistance = Infinity;
-    let sourceAnchor: Konva.Vector2d;
-    let targetAnchor: Konva.Vector2d;
+    let sourceAnchor: Point;
+    let targetAnchor: Point;
 
     for (const source of sourceAnchors) {
       for (const target of targetAnchors) {
@@ -70,7 +71,7 @@ function useAnchors(sourceComponent: schema.Component, targetComponent: schema.C
   }, [theme, sourceComponent.x, sourceComponent.y, targetComponent.x, targetComponent.y, sourceComponent.id, targetComponent.id, sourceState, targetAction]);
 }
 
-function makeAnchors(component: schema.Component, propIndex: number, theme: CanvasTheme): Konva.Vector2d[] {
+function makeAnchors(component: schema.Component, propIndex: number, theme: CanvasTheme): Point[] {
   const y = component.y * GRID_STEP_SIZE + (propIndex + 0.5) * theme.component.boxHeight;
   return [
     { x: component.x * GRID_STEP_SIZE, y},
@@ -78,7 +79,7 @@ function makeAnchors(component: schema.Component, propIndex: number, theme: Canv
   ];
 }
 
-function computeDistance(a: Konva.Vector2d, b: Konva.Vector2d) {
+function computeDistance(a: Point, b: Point) {
   const x = a.x - b.x;
   const y = a.y - b.y;
   

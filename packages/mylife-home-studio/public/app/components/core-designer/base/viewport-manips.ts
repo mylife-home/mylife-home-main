@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
-import { Konva } from './konva';
 import { useViewInfo, ViewInfo } from './view-info';
+import { Point } from './types';
 
 const SCALE_BY = 1.1;
 
 export function usePosition() {
   const { updateViewport } = useViewInfo();
 
-  const setLayerPosition = useCallback((layerPosition: Konva.Vector2d) => updateViewport(viewInfo => {
+  const setLayerPosition = useCallback((layerPosition: Point) => updateViewport(viewInfo => {
     const { viewport } = viewInfo;
 
     return {
@@ -17,7 +17,7 @@ export function usePosition() {
 
   }), [updateViewport]);
 
-  const setContainerPosition = useCallback((containerPosition: Konva.Vector2d) => updateViewport(viewInfo => {
+  const setContainerPosition = useCallback((containerPosition: Point) => updateViewport(viewInfo => {
     const { scale } = viewInfo.viewport;
     return { x: containerPosition.x / scale, y: containerPosition.y / scale };
   }), [updateViewport]);
@@ -30,7 +30,7 @@ export function useZoom() {
 
   const zoom = Math.round(viewInfo.viewport.scale * 100);
 
-  const updateScale = useCallback((callback: (viewInfo: ViewInfo) => { scale: number, origin: Konva.Vector2d }) => updateViewport(viewInfo => {
+  const updateScale = useCallback((callback: (viewInfo: ViewInfo) => { scale: number, origin: Point }) => updateViewport(viewInfo => {
     const { scale, origin } = callback(viewInfo);
     const { viewport } = viewInfo;
 
@@ -62,7 +62,7 @@ export function useZoom() {
     }
   })), [updateScale]);
 
-  const wheelZoom = useCallback((pointer: Konva.Vector2d, delta: number) => updateScale(viewInfo => { 
+  const wheelZoom = useCallback((pointer: Point, delta: number) => updateScale(viewInfo => { 
     const oldScale = viewInfo.viewport.scale;
     const scale = delta > 0 ? oldScale / SCALE_BY : oldScale * SCALE_BY;
     return { scale, origin: pointer };

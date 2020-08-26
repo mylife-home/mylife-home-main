@@ -3,9 +3,10 @@ import React, { FunctionComponent, useState, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import { Konva, Layer } from './base/konva';
+import { Layer } from './base/konva';
 import { ViewInfoProvider } from './base/view-info';
 import { CanvasThemeProvider } from './base/theme';
+import { Point } from './base/types';
 import SplitPane from '../split-pane';
 import Canvas from './canvas';
 import Component from './component';
@@ -53,7 +54,7 @@ const CoreDesigner: FunctionComponent = () => {
     return map;
   }, [components]);
 
-  const handleMoveComponent = (id: string, pos: Konva.Vector2d) => {
+  const handleMoveComponent = (id: string, pos: Point) => {
     setComponents(components => components.map(comp => {
       if (comp.id !== id) {
         return comp;
@@ -106,7 +107,7 @@ const CoreDesigner: FunctionComponent = () => {
                   {...component}
                   selected={selection?.type === 'component' && selection.index === index}
                   onSelect={() => setSelection({ type: 'component', index })}
-                  onMove={(pos: Konva.Vector2d) => handleMoveComponent(component.id, pos)} />  
+                  onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
               ))}
             </Layer>
           </Canvas>

@@ -2,6 +2,7 @@ import React, { FunctionComponent, useCallback } from 'react';
 
 import { Konva, Rect, Group } from '../base/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../base/defs';
+import { Point } from '../base/types';
 import { useCanvasTheme } from '../base/theme';
 import CachedGroup from '../base/cached-group';
 import Border from '../base/border';
@@ -18,7 +19,7 @@ export interface ComponentProps {
   actions: string[];
 
   onSelect: () => void;
-  onMove: (pos: Konva.Vector2d) => void;
+  onMove: (pos: Point) => void;
 }
 
 const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect, onMove }) => {
@@ -27,7 +28,7 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
   const height = (states.length + actions.length + 1) * theme.component.boxHeight;
   const width = theme.component.width;
 
-  const dragBoundHandler = useCallback((pos: Konva.Vector2d) => ({
+  const dragBoundHandler = useCallback((pos: Point) => ({
     x: lockBetween(snapToGrid(pos.x, GRID_STEP_SIZE), LAYER_SIZE - width),
     y: lockBetween(snapToGrid(pos.y, GRID_STEP_SIZE), LAYER_SIZE - height),
   }), [theme, height, width]);

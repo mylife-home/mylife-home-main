@@ -1,13 +1,7 @@
 import React, { FunctionComponent } from 'react';
 
 import { Rect } from './konva';
-
-interface Rectangle {
-  x: number;
-  y: number;
-  height: number;
-  width: number;
-}
+import { Rectangle } from './types';
 
 type BorderType = 'inner' | 'outer';
 

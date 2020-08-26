@@ -3,12 +3,13 @@ import useResizeObserver from '@react-hook/resize-observer';
 
 import { Konva, Layer } from '../base/konva';
 import BaseCanvas from '../base/canvas';
+import { Point } from '../base/types';
 
 export interface CanvasProps {
   size: number;
   scale: number;
   onSizeChange: (size: number) => void;
-  onClick: (pos: Konva.Vector2d) => void;
+  onClick: (pos: Point) => void;
 }
 
 const Canvas: FunctionComponent<CanvasProps> = ({ size, scale, onSizeChange, onClick, children }) => {
@@ -42,7 +43,7 @@ function computeSize(size: { width: number; height: number}) {
   return Math.min(size.width, size.height);
 }
 
-function useMouseHandler(stageRef: React.MutableRefObject<Konva.Stage>, onClick: (pos: Konva.Vector2d) => void) {
+function useMouseHandler(stageRef: React.MutableRefObject<Konva.Stage>, onClick: (pos: Point) => void) {
   return useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     const LEFT_BUTTON = 1;
     if (e.evt.buttons !== LEFT_BUTTON) {
