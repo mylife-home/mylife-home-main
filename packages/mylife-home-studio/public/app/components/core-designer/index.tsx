@@ -103,9 +103,6 @@ const CoreDesigner: FunctionComponent = () => {
               })}
             </Layer>
 
-            <Layer name='bindings-working'>
-            </Layer>
-
             <Layer name='components'>
               {components.map((component, index) => (
                 <Component
@@ -114,9 +111,7 @@ const CoreDesigner: FunctionComponent = () => {
                   onSelect={() => setSelection({ type: 'component', index })}
                   onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
               ))}
-            </Layer>
 
-            <Layer name='components-working'>
               {selectedComponent && <ComponentSelectionMark {...selectedComponent} />}
             </Layer>
           </Canvas>
