@@ -4,16 +4,19 @@ import clsx from 'clsx';
 
 import { LAYER_SIZE } from '../base/defs';
 import { Point } from '../base/types';
+import { Selection } from '../types';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
 import MainViewMark from './main-view-mark';
 import { usePosition } from '../base/viewport-manips';
 
+import * as schema from '../../../files/schema';
+
 export interface MiniViewProps {
   className?: string;
-  components: any[];
-  selectedIndex: number;
+  components: schema.Component[];
+  selection: Selection;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -25,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, selectedIndex }) => {
+const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, selection }) => {
   const classes = useStyles();
   const [size, setSize] = useState(1);
   const scale = size / LAYER_SIZE;
@@ -37,7 +40,7 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
       <Canvas size={size} scale={scale} onSizeChange={setSize} onClick={clickHandler}>
 
         {components.map((component, index) => (
-          <Component key={index} {...component} selected={index === selectedIndex} />  
+          <Component key={index} {...component} selected={selection?.type === 'component' && selection.index === index} />
         ))}
 
         <MainViewMark scale={scale}/>

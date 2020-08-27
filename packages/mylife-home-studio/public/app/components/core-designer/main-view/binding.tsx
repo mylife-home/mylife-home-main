@@ -1,11 +1,11 @@
 import React, { FunctionComponent, useMemo } from 'react';
 
-import { Arrow } from './base/konva';
-import { GRID_STEP_SIZE } from './base/defs';
-import { useCanvasTheme, CanvasTheme } from './base/theme';
-import { Point } from './base/types';
+import { Arrow } from '../base/konva';
+import { GRID_STEP_SIZE } from '../base/defs';
+import { useCanvasTheme, CanvasTheme } from '../base/theme';
+import { Point } from '../base/types';
 
-import * as schema from '../../files/schema';
+import * as schema from '../../../files/schema';
 
 export interface BindingProps {
   sourceComponent: schema.Component;

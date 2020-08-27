@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { GRID_STEP_SIZE } from './base/defs';
-import { useCanvasTheme } from './base/theme';
-import Border from './base/border';
+import { GRID_STEP_SIZE } from '../base/defs';
+import { useCanvasTheme } from '../base/theme';
+import Border from '../base/border';
 
 export interface ComponentSelectionMarkProps {
   x: number;
