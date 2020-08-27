@@ -200,7 +200,7 @@ const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selected
           hidden={selectedIndex !== index}
           className={classes.tabPanel}
         >
-          {selectedIndex === index && item.render()}
+          {item.render()}
         </div>
       ))}
     </div>
