@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { useZoom } from './drawing/viewport-manips';
 
@@ -15,12 +16,9 @@ const ZoomSlider: FunctionComponent = () => {
   };
 
   return (
-    <>
-      <Typography gutterBottom>
-        Zoom: {zoom} %
-      </Typography>
+    <Tooltip title={`${zoom} %`}>
       <Slider min={10} max={100} step={10} value={zoom} onChange={handleSlideZoom} />
-    </>
+    </Tooltip>
   );
 };
 
