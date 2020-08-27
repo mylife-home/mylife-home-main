@@ -15,7 +15,7 @@ const Border: FunctionComponent<BorderProps> = ({ x, y, height, width, thickness
   const rect = buildRect({ x, y, height, width }, thickness, type);
 
   return (
-    <Rect x={rect.x} y={rect.y} width={rect.width} height={rect.height} stroke={color} strokeWidth={thickness} />
+    <Rect x={rect.x} y={rect.y} width={rect.width} height={rect.height} stroke={color} strokeWidth={thickness} listening={false} />
   );
 };
 

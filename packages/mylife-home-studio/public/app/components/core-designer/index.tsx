@@ -13,6 +13,7 @@ import Component from './component';
 import Binding from './binding';
 import MiniView from './mini-view';
 import ZoomSlider from './zoom-slider';
+import ComponentSelectionMark from './component-selection-mark';
 
 import * as schema from '../../files/schema';
 
@@ -64,6 +65,8 @@ const CoreDesigner: FunctionComponent = () => {
     }));
   };
 
+  const selectedComponent = selection && selection.type === 'component' && components[selection.index];
+
   return (
     <CanvasThemeProvider>
       <ViewInfoProvider>
@@ -82,7 +85,7 @@ const CoreDesigner: FunctionComponent = () => {
           </Box>
 
           <Canvas>
-            <Layer>
+            <Layer name='bindings'>
               {bindings.map((binding, index) => {
                 const sourceComponent = compMap[binding.sourceComponent];
                 const targetComponent = compMap[binding.targetComponent];
@@ -99,16 +102,22 @@ const CoreDesigner: FunctionComponent = () => {
                 );
               })}
             </Layer>
-            
-            <Layer>
+
+            <Layer name='bindings-working'>
+            </Layer>
+
+            <Layer name='components'>
               {components.map((component, index) => (
                 <Component
                   key={index}
                   {...component}
-                  selected={selection?.type === 'component' && selection.index === index}
                   onSelect={() => setSelection({ type: 'component', index })}
                   onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
               ))}
+            </Layer>
+
+            <Layer name='components-working'>
+              {selectedComponent && <ComponentSelectionMark {...selectedComponent} />}
             </Layer>
           </Canvas>
 

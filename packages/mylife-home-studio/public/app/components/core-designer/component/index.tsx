@@ -13,7 +13,6 @@ export interface ComponentProps {
   id: string;
   x: number;
   y: number;
-  selected?: boolean;
   title: string;
   states: string[];
   actions: string[];
@@ -22,7 +21,7 @@ export interface ComponentProps {
   onMove: (pos: Point) => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected, onSelect, onMove }) => {
+const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, onSelect, onMove }) => {
   const theme = useCanvasTheme();
 
   const height = (states.length + actions.length + 1) * theme.component.boxHeight;
@@ -53,19 +52,6 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
         <PropertyList yIndex={1} icon='visibility' items={states} />
         <PropertyList yIndex={1 + states.length} icon='input' items={actions} />
       </CachedGroup>
-
-      {selected && (
-        <Border
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          type='outer'
-          color={theme.borderColorSelected}
-          thickness={theme.selectionWidth}
-        />
-      )}
-
     </Group>
   );
 };
