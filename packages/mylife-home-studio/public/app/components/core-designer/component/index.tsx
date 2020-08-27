@@ -40,10 +40,9 @@ const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, act
       y={y * GRID_STEP_SIZE}
       width={width}
       height={height}
-      onClick={onSelect}
+      onMouseDown={onSelect}
       draggable
       dragBoundFunc={dragBoundHandler}
-      onDragStart={onSelect}
       onDragMove={dragMoveHandler}
     >
       <CachedGroup x={0} y={0} width={width} height={height}>
