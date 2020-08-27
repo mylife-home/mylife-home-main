@@ -46,9 +46,8 @@ const CoreDesigner: FunctionComponent = () => {
           <Box p={3}>
             <Box display='flex' flexDirection='column'>
 
-              <ZoomSlider />
-
               <MiniView components={components} selection={selection} />
+              <ZoomSlider />
 
               <Typography>Selection</Typography>
               <Typography>Toolbox</Typography>
