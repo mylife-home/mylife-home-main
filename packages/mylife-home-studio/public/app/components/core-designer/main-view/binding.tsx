@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useMemo } from 'react';
 
-import { Arrow } from '../base/konva';
-import { GRID_STEP_SIZE } from '../base/defs';
-import { useCanvasTheme, CanvasTheme } from '../base/theme';
-import { Point } from '../base/types';
+import { Arrow } from '../drawing/konva';
+import { GRID_STEP_SIZE } from '../drawing/defs';
+import { useCanvasTheme, CanvasTheme } from '../drawing/theme';
+import { Point } from '../drawing/types';
 
 import * as schema from '../../../files/schema';
 

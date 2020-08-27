@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { Rect } from '../base/konva';
-import { useCanvasTheme } from '../base/theme';
-import { useViewInfo } from '../base/view-info';
+import { Rect } from '../drawing/konva';
+import { useCanvasTheme } from '../drawing/theme';
+import { useViewInfo } from '../drawing/view-info';
 
 export interface MainViewMarkProps {
   scale: number;

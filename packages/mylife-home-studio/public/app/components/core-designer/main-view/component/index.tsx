@@ -1,10 +1,10 @@
 import React, { FunctionComponent, useCallback } from 'react';
 
-import { Konva, Rect, Group } from '../../base/konva';
-import { GRID_STEP_SIZE, LAYER_SIZE } from '../../base/defs';
-import { Point } from '../../base/types';
-import { useCanvasTheme } from '../../base/theme';
-import CachedGroup from '../../base/cached-group';
+import { Konva, Rect, Group } from '../../drawing/konva';
+import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
+import { Point } from '../../drawing/types';
+import { useCanvasTheme } from '../../drawing/theme';
+import CachedGroup from '../../drawing/cached-group';
 import Title from './title';
 import PropertyList from './property-list';
 

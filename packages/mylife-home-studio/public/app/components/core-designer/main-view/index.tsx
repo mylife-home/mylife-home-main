@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 
-import { Layer } from '../base/konva';
-import { Point } from '../base/types';
+import { Layer } from '../drawing/konva';
+import { Point } from '../drawing/types';
 import { Selection } from '../types';
 import Canvas from './canvas';
 import Component from './component';

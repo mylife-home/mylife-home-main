@@ -4,8 +4,8 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
 import { Selection } from './types';
-import { ViewInfoProvider } from './base/view-info';
-import { CanvasThemeProvider } from './base/theme';
+import { ViewInfoProvider } from './drawing/view-info';
+import { CanvasThemeProvider } from './drawing/theme';
 import SplitPane from '../split-pane';
 import ZoomSlider from './zoom-slider';
 import MiniView from './mini-view';

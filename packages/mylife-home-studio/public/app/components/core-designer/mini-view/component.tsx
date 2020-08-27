@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { Rect } from '../base/konva';
-import { useCanvasTheme } from '../base/theme';
-import { GRID_STEP_SIZE } from '../base/defs';
+import { Rect } from '../drawing/konva';
+import { useCanvasTheme } from '../drawing/theme';
+import { GRID_STEP_SIZE } from '../drawing/defs';
 
 export interface ComponentProps {
   id: string;

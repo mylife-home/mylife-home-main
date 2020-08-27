@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { useCanvasTheme } from '../../base/theme';
-import Border from '../../base/border';
-import { Image } from '../../base/icon';
+import { useCanvasTheme } from '../../drawing/theme';
+import Border from '../../drawing/border';
+import { Image } from '../../drawing/icon';
 import Property from './property';
 
 export interface PropertyListProps {

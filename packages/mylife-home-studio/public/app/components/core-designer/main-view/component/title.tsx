@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { useCanvasTheme } from '../../base/theme';
-import Typography from '../../base/typography';
-import Border from '../../base/border';
+import { useCanvasTheme } from '../../drawing/theme';
+import Typography from '../../drawing/typography';
+import Border from '../../drawing/border';
 
 export interface TitleProps {
   text: string;

@@ -2,14 +2,14 @@ import React, { FunctionComponent, useState, useCallback } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-import { LAYER_SIZE } from '../base/defs';
-import { Point } from '../base/types';
+import { LAYER_SIZE } from '../drawing/defs';
+import { Point } from '../drawing/types';
 import { Selection } from '../types';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
 import MainViewMark from './main-view-mark';
-import { usePosition } from '../base/viewport-manips';
+import { usePosition } from '../drawing/viewport-manips';
 
 import * as schema from '../../../files/schema';
 

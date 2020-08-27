@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
-import { useCanvasTheme } from '../../base/theme';
-import Icon, { Image } from '../../base/icon';
-import Typography from '../../base/typography';
+import { useCanvasTheme } from '../../drawing/theme';
+import Icon, { Image } from '../../drawing/icon';
+import Typography from '../../drawing/typography';
 
 export interface PropertyProps {
   yIndex: number;
