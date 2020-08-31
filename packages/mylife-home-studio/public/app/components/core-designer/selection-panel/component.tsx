@@ -1,13 +1,12 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 
 import { useCanvasTheme } from '../drawing/theme';
 import { Rectangle } from '../drawing/types';
 import { computeComponentRect } from '../drawing/shapes';
-import { usePosition } from '../drawing/viewport-manips';
 import { Selection } from '../types';
+import CenterButton from './center-button';
 
 import * as schema from '../../../files/schema';
 
@@ -17,23 +16,23 @@ interface ComponentProps {
 }
 
 const Component: FunctionComponent<ComponentProps> = ({ component, setSelection }) => {
-  const makeCenter = useCenterComponent();
+  const componentCenterPosition = useCenterComponent(component);
   return (
-    <Button onClick={() => makeCenter(component)}>Selection {component.id}</Button>
+    <div>
+      <CenterButton position={componentCenterPosition} />
+      <Typography>Selection {component.id}</Typography>
+    </div>
   );
 };
 
 export default Component;
 
-function useCenterComponent() {
+function useCenterComponent(component: schema.Component) {
   const theme = useCanvasTheme();
-  const { setLayerPosition } = usePosition();
-
-  return useCallback((component: schema.Component) => {
+  return useMemo(() => {
     const rect = computeComponentRect(theme, component);
-    const position = computeCenter(rect);
-    setLayerPosition(position);
-  }, [theme, setLayerPosition]);
+    return computeCenter(rect);
+  }, [theme, component]);
 }
 
 function computeCenter(rect: Rectangle) {

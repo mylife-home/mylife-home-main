@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
@@ -6,8 +6,8 @@ import Button from '@material-ui/core/Button';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
-import { usePosition } from '../drawing/viewport-manips';
 import { Selection } from '../types';
+import CenterButton from './center-button';
 
 import * as schema from '../../../files/schema';
 
@@ -20,15 +20,14 @@ interface BindingProps {
 }
 
 const Binding: FunctionComponent<BindingProps> = ({ binding, sourceComponent, targetComponent, setSelection }) => {
-  const makeCenter = useCenterBinding();
+  const componentBindingPosition = useCenterBinding(binding, sourceComponent, targetComponent);
 
-  const handleSelectCenter = () => makeCenter(binding, sourceComponent, targetComponent);
   const handleSelectSource = () => setSelection({ type: 'component', id: binding.sourceComponent });
   const handleSelectTarget = () => setSelection({ type: 'component', id: binding.targetComponent });
 
   return (
     <div>
-      <Button onClick={handleSelectCenter}>Binding</Button>
+      <CenterButton position={componentBindingPosition} />
       <Button onClick={handleSelectSource}>{binding.sourceComponent}</Button>
       <Typography>{binding.sourceState}</Typography>
       <Button onClick={handleSelectTarget}>{binding.targetComponent}</Button>
@@ -39,15 +38,13 @@ const Binding: FunctionComponent<BindingProps> = ({ binding, sourceComponent, ta
 
 export default Binding;
 
-function useCenterBinding() {
+function useCenterBinding(binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
   const theme = useCanvasTheme();
-  const { setLayerPosition } = usePosition();
 
-  return useCallback((binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) => {
+  return useMemo(() => {
     const { sourceAnchor, targetAnchor } = computeBindingAnchors(theme, binding, sourceComponent, targetComponent);
-    const position = computeCenter(sourceAnchor, targetAnchor);
-    setLayerPosition(position);
-  }, [theme, setLayerPosition]);
+    return computeCenter(sourceAnchor, targetAnchor);
+  }, [theme, binding, sourceComponent, targetComponent]);
 }
 
 function computeCenter(a: Point, b: Point) {
