@@ -65,7 +65,7 @@ const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents,
         {components.map((component, index) => (
           <Component
             key={index}
-            {...component}
+            component={component}
             onSelect={() => setSelection({ type: 'component', id: component.id })}
             onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
         ))}

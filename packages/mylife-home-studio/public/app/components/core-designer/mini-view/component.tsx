@@ -2,30 +2,22 @@ import React, { FunctionComponent } from 'react';
 
 import { Rect } from '../drawing/konva';
 import { useCanvasTheme } from '../drawing/theme';
-import { GRID_STEP_SIZE } from '../drawing/defs';
+import { computeComponentRect } from '../drawing/shapes';
+
+import * as schema from '../../../files/schema';
 
 export interface ComponentProps {
-  id: string;
-  x: number;
-  y: number;
+  component: schema.Component,
   selected?: boolean;
-  title: string;
-  states: string[];
-  actions: string[];
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ x, y, title, states, actions, selected }) => {
+const Component: FunctionComponent<ComponentProps> = ({ component, selected }) => {
   const theme = useCanvasTheme();
-
-  const height = (states.length + actions.length + 1) * theme.component.boxHeight;
-  const width = theme.component.width;
+  const rect = computeComponentRect(theme, component);
 
   return (
     <Rect
-      x={x * GRID_STEP_SIZE}
-      y={y * GRID_STEP_SIZE}
-      width={width}
-      height={height}
+      {...rect}
       fill={selected ? theme.borderColorSelected : theme.borderColor}
     />
   );
