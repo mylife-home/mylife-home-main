@@ -6,7 +6,11 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { useZoom } from './drawing/viewport-manips';
 
-const ZoomSlider: FunctionComponent = () => {
+interface ZoomSliderProps {
+  className?: string;
+}
+
+const ZoomSlider: FunctionComponent<ZoomSliderProps> = ({ className }) => {
   const { zoom, slideZoom } = useZoom();
   
   const handleSlideZoom = (e: React.ChangeEvent, newZoom: number) => {
@@ -16,9 +20,11 @@ const ZoomSlider: FunctionComponent = () => {
   };
 
   return (
-    <Tooltip title={`${zoom} %`}>
-      <Slider min={10} max={100} step={10} value={zoom} onChange={handleSlideZoom} />
-    </Tooltip>
+    <div className={className}>
+      <Tooltip title={`${zoom} %`}>
+        <Slider min={10} max={100} step={10} value={zoom} onChange={handleSlideZoom} />
+      </Tooltip>
+    </div>
   );
 };
 
