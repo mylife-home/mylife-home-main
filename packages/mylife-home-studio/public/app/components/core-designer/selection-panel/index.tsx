@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 
 import Component from './component';
 import Binding from './binding';
@@ -16,19 +16,42 @@ interface SelectionPanelProps {
 
 const SelectionPanel: FunctionComponent<SelectionPanelProps> = ({ components, bindings, selection, setSelection }) => {
 
+  const compMap = useMemo(() => {
+    const map: {[id: string]: schema.Component; } = {};
+    for(const comp of components) {
+      map[comp.id] = comp;
+    }
+    return map;
+  }, [components]);
+  
+  const bindMap = useMemo(() => {
+    const map: {[id: string]: schema.Binding; } = {};
+    for(const bind of bindings) {
+      map[bind.id] = bind;
+    }
+    return map;
+  }, [bindings]);
+
   switch(selection?.type) {
 
     case 'component': {
-      const selectedComponent = components.find(component => component.id === selection.id); // FIXME: index components by id
+      const selectedComponent = compMap[selection.id];
       return (
         <Component component={selectedComponent} setSelection={setSelection} />
       );
     }
 
     case 'binding': {
-      const selectedBinding = bindings.find(binding => binding.id === selection.id); // FIXME: index bindings by id
+      const selectedBinding = bindMap[selection.id];
+      const sourceComponent = compMap[selectedBinding.sourceComponent];
+      const targetComponent = compMap[selectedBinding.targetComponent];
       return (
-        <Binding binding={selectedBinding} setSelection={setSelection} />
+        <Binding
+          binding={selectedBinding}
+          sourceComponent={sourceComponent}
+          targetComponent={targetComponent}
+          setSelection={setSelection}
+        />
       );
     }
 

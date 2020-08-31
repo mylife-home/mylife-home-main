@@ -8,17 +8,16 @@ import { computeBindingAnchors } from '../drawing/shapes';
 import * as schema from '../../../files/schema';
 
 export interface BindingProps {
+  binding: schema.Binding,
   sourceComponent: schema.Component;
   targetComponent: schema.Component;
-  sourceState: string;
-  targetAction: string;
   selected?: boolean;
 
   onSelect: () => void;
 }
 
-const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetComponent, sourceState, targetAction, selected, onSelect }) => {
-  const { sourceAnchor, targetAnchor } = useAnchors(sourceComponent, targetComponent, sourceState, targetAction);
+const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetComponent, binding, selected, onSelect }) => {
+  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, targetComponent);
   const theme = useCanvasTheme();
 
   const color = selected ? theme.borderColorSelected : theme.color;
@@ -39,11 +38,11 @@ const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetCompo
 
 export default Binding;
 
-function useAnchors(sourceComponent: schema.Component, targetComponent: schema.Component, sourceState: string, targetAction: string) {
+function useAnchors(binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
   const theme = useCanvasTheme();
 
   return useMemo(
-    () => computeBindingAnchors(theme, sourceComponent, targetComponent, sourceState, targetAction),
-    [theme, sourceComponent.x, sourceComponent.y, targetComponent.x, targetComponent.y, sourceComponent.id, targetComponent.id, sourceState, targetAction]
+    () => computeBindingAnchors(theme, binding, sourceComponent, targetComponent),
+    [theme, sourceComponent.x, sourceComponent.y, targetComponent.x, targetComponent.y, sourceComponent.id, targetComponent.id, binding.sourceState, binding.targetAction]
   );
 }

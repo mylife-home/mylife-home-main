@@ -13,9 +13,9 @@ export function computeComponentRect(theme: CanvasTheme, component: schema.Compo
   };
 }
 
-export function computeBindingAnchors(theme: CanvasTheme, sourceComponent: schema.Component, targetComponent: schema.Component, sourceState: string, targetAction: string) {
-  const sourcePropIndex = 1 + sourceComponent.states.findIndex(value => value === sourceState);
-  const targetPropIndex = 1 + targetComponent.states.length + targetComponent.actions.findIndex(value => value === targetAction);
+export function computeBindingAnchors(theme: CanvasTheme, binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
+  const sourcePropIndex = 1 + sourceComponent.states.findIndex(value => value === binding.sourceState);
+  const targetPropIndex = 1 + targetComponent.states.length + targetComponent.actions.findIndex(value => value === binding.targetAction);
 
   const sourceAnchors = makeAnchors(sourceComponent, sourcePropIndex, theme);
   const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);

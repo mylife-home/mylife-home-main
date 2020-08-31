@@ -50,12 +50,11 @@ const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents,
           return (
             <Binding
               key={index}
-              selected={selection?.type === 'binding' && selection.id === binding.id}
-              onSelect={() => setSelection({ type: 'binding', id: binding.id })}
+              binding={binding}
               sourceComponent={sourceComponent}
               targetComponent={targetComponent}
-              sourceState={binding.sourceState}
-              targetAction={binding.targetAction}
+              selected={selection?.type === 'binding' && selection.id === binding.id}
+              onSelect={() => setSelection({ type: 'binding', id: binding.id })}
             />
           );
         })}

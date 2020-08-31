@@ -1,10 +1,12 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 
-import { CanvasTheme } from '../drawing/theme';
-import { GRID_STEP_SIZE } from '../drawing/defs';
-import { Point } from '../drawing/types';
+import { useCanvasTheme } from '../drawing/theme';
+import { Rectangle } from '../drawing/types';
+import { computeComponentRect } from '../drawing/shapes';
+import { usePosition } from '../drawing/viewport-manips';
 import { Selection } from '../types';
 
 import * as schema from '../../../files/schema';
@@ -15,26 +17,28 @@ interface ComponentProps {
 }
 
 const Component: FunctionComponent<ComponentProps> = ({ component, setSelection }) => {
+  const makeCenter = useCenterComponent();
   return (
-    <Typography>Selection {component.id}</Typography>
+    <Button onClick={() => makeCenter(component)}>Selection {component.id}</Button>
   );
 };
 
 export default Component;
-/*
+
 function useCenterComponent() {
-  return useCallback
+  const theme = useCanvasTheme();
+  const { setLayerPosition } = usePosition();
+
+  return useCallback((component: schema.Component) => {
+    const rect = computeComponentRect(theme, component);
+    const position = computeCenter(rect);
+    setLayerPosition(position);
+  }, [theme, setLayerPosition]);
 }
 
-function computeComponentCenter(theme: CanvasTheme, component: schema.Component) {
-  const height = (states.length + actions.length + 1) * theme.component.boxHeight;
-  const width = theme.component.width;
-
-  const x = component.x * GRID_STEP_SIZE
-  const y = component.y * GRID_STEP_SIZE
+function computeCenter(rect: Rectangle) {
+  return {
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2
+  };
 }
-
-function center(a: Point, b: Point) {
-  
-}
-*/
