@@ -14,6 +14,7 @@ import SplitPane from '../split-pane';
 import ZoomSlider from './zoom-slider';
 import MiniView from './mini-view';
 import MainView from './main-view';
+import SelectionPanel from './selection-panel';
 
 import * as schema from '../../files/schema';
 
@@ -75,7 +76,12 @@ const CoreDesigner: FunctionComponent = () => {
             </Tabs>
 
             <div role='tabpanel' hidden={sideBarTab !== 'selection'}>
-              <Typography>Selection</Typography>
+              <SelectionPanel
+                components={components}
+                bindings={bindings}
+                selection={selection}
+                setSelection={setSelection}
+              />
             </div>
 
             <div role='tabpanel' hidden={sideBarTab !== 'toolbox'}>
