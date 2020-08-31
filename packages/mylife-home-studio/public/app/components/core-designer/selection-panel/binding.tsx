@@ -18,11 +18,11 @@ const Binding: FunctionComponent<BindingProps> = ({ binding, setSelection }) => 
   };
 
   const handleSelectSource = () => {
-    setSelection({ type: 'component', index: 0 });
+    setSelection({ type: 'component', id: binding.sourceComponent });
   };
 
   const handleSelectTarget = () => {
-    setSelection({ type: 'component', index: 0 });
+    setSelection({ type: 'component', id: binding.targetComponent });
   };
 
   return (

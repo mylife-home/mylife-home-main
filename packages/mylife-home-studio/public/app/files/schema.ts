@@ -45,7 +45,9 @@ function processFile(file: raw.File) {
     });
 
     for (const rawBinding of raw.Component.bindings) {
+      const bindingId = `${rawBinding.remote_id}.${rawBinding.remote_attribute}->${id}.${rawBinding.local_action}`;
       bindings.push({
+        id: bindingId,
         sourceComponent: rawBinding.remote_id,
         sourceState: rawBinding.remote_attribute,
         targetComponent: id,
@@ -98,6 +100,7 @@ export interface Component {
 }
 
 export interface Binding {
+  id: string;
   sourceComponent: string;
   sourceState: string;
   targetComponent: string;

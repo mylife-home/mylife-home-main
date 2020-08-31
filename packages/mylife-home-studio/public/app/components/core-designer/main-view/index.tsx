@@ -39,7 +39,7 @@ const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents,
     }));
   };
 
-  const selectedComponent = selection && selection.type === 'component' && components[selection.index];
+  const selectedComponent = selection && selection.type === 'component' && compMap[selection.id];
 
   return (
     <Canvas>
@@ -50,8 +50,8 @@ const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents,
           return (
             <Binding
               key={index}
-              selected={selection?.type === 'binding' && selection.index === index}
-              onSelect={() => setSelection({ type: 'binding', index })}
+              selected={selection?.type === 'binding' && selection.id === binding.id}
+              onSelect={() => setSelection({ type: 'binding', id: binding.id })}
               sourceComponent={sourceComponent}
               targetComponent={targetComponent}
               sourceState={binding.sourceState}
@@ -66,7 +66,7 @@ const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents,
           <Component
             key={index}
             {...component}
-            onSelect={() => setSelection({ type: 'component', index })}
+            onSelect={() => setSelection({ type: 'component', id: component.id })}
             onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
         ))}
 

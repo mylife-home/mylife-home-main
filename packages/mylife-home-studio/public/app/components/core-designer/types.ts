@@ -1,4 +1,4 @@
 export interface Selection {
   type: 'component' | 'binding';
-  index: number;
+  id: string;
 }

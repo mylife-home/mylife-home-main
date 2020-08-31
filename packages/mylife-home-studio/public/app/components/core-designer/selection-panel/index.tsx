@@ -19,14 +19,14 @@ const SelectionPanel: FunctionComponent<SelectionPanelProps> = ({ components, bi
   switch(selection?.type) {
 
     case 'component': {
-      const selectedComponent = components[selection.index];
+      const selectedComponent = components.find(component => component.id === selection.id); // FIXME: index components by id
       return (
         <Component component={selectedComponent} setSelection={setSelection} />
       );
     }
 
     case 'binding': {
-      const selectedBinding = bindings[selection.index];
+      const selectedBinding = bindings.find(binding => binding.id === selection.id); // FIXME: index bindings by id
       return (
         <Binding binding={selectedBinding} setSelection={setSelection} />
       );

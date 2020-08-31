@@ -40,7 +40,7 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
       <Canvas size={size} scale={scale} onSizeChange={setSize} onClick={clickHandler}>
 
         {components.map((component, index) => (
-          <Component key={index} {...component} selected={selection?.type === 'component' && selection.index === index} />
+          <Component key={index} {...component} selected={selection?.type === 'component' && selection.id === component.id} />
         ))}
 
         <MainViewMark scale={scale}/>
