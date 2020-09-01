@@ -63,10 +63,8 @@ const Tab: FunctionComponent<TabProps> = ({ id, text, index, onClose, onMove, on
   const [{ isHovered }, drop] = useDrop({
     accept: tabSymbol,
     drop(item: DragItem) {
-      console.log('drop', item);
       const dragId = item.id;
       const dropIndex = index;
-      console.log('onMove', dragId, dropIndex);
       onMove(dragId, dropIndex);
     },
     canDrop: (item: DragItem) => {
