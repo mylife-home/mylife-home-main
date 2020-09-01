@@ -10,7 +10,7 @@ import Divider from '@material-ui/core/Divider';
 import { Selection } from './types';
 import { ViewInfoProvider } from './drawing/view-info';
 import { CanvasThemeProvider } from './drawing/theme';
-import SplitPane from '../split-pane';
+import SplitPane from '../lib/split-pane';
 import ZoomSlider from './zoom-slider';
 import MiniView from './mini-view';
 import MainView from './main-view';
