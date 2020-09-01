@@ -1,5 +1,5 @@
 export enum TabType {
-  STARTUP = 'startup',
+  START_PAGE = 'start-page',
   CORE_DESIGNER = 'core-designer'
 }
 
