@@ -9,6 +9,16 @@ import { store } from '../../store/store';
 import { theme } from './theme';
 import Layout from './layout';
 
+import { newTab } from '../../store/tabs/actions';
+import { TabType } from '../../store/tabs/types';
+
+store.dispatch(newTab({
+  id: 'start-page',
+  type: TabType.START_PAGE,
+  title: 'Démarrage',
+  closable: false,
+}));
+
 const Application: FunctionComponent = () => (
   <>
     <CssBaseline />
