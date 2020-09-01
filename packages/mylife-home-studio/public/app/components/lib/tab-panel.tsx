@@ -132,10 +132,10 @@ const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }) => {
     <MuiTabs
       value={value}
       onChange={onChange}
-      indicatorColor="primary"
-      textColor="primary"
-      variant="scrollable"
-      scrollButtons="auto"
+      indicatorColor='primary'
+      textColor='primary'
+      variant='scrollable'
+      scrollButtons='auto'
       classes={{ indicator: classes.indicator, root: classes.root }}
     >
       {children}
@@ -196,7 +196,7 @@ const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selected
       {items.map((item, index) => (
         <div
           key={item.id}
-          role="tabpanel"
+          role='tabpanel'
           hidden={selectedIndex !== index}
           className={classes.tabPanel}
         >
