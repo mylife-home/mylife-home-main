@@ -1,5 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, NewTabAction, TabIdAction, MoveTabAction, TabsState, TabState } from './types';
+import { ActionTypes, NewTabAction, TabIdAction, MoveTabAction, ChangeTabTitleAction, TabsState, TabState } from './types';
 
 const initialState: TabsState = {
   byId: {},
@@ -9,9 +9,11 @@ const initialState: TabsState = {
 
 export default createReducer(initialState, {
   [ActionTypes.NEW]: (state, action: PayloadAction<NewTabAction>) => {
-    const { id, closable } = action.payload;
+    const { id, type, title, closable } = action.payload;
     const tab: TabState = {
       id,
+      type,
+      title,
       closable,
       active: false,
       index: state.allIds.length
@@ -53,6 +55,12 @@ export default createReducer(initialState, {
 
   [ActionTypes.ACTIVATE]: (state, action: PayloadAction<TabIdAction>) => {
     activate(state, action.payload.id);
+  },
+
+  [ActionTypes.CHANGE_TITLE]: (state, action: PayloadAction<ChangeTabTitleAction>) => {
+    const { id, title } = action.payload;
+    const tab = state.byId[id];
+    tab.title = title;
   },
 });
 
