@@ -1,9 +1,27 @@
-import React, { FunctionComponent, useState, useRef, useEffect } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
-import TabPanel, { TabPanelItem } from '../lib/tab-panel';
+import TabPanel, { useTabPanelId } from '../lib/tab-panel';
 import StartPage from '../start-page';
 import CoreDesigner from '../core-designer';
+
+import { AppState } from '../../store/types';
+import { TabType } from '../../store/tabs/types';
+import { closeTab, activateTab, moveTab } from '../../store/tabs/actions';
+import { getTabList, getTab, getSelectedTabId } from '../../store/tabs/selectors';
+
+const Panel: FunctionComponent = () => {
+  const tabId = useTabPanelId();
+  const tab = useSelector((state: AppState) => getTab(state, tabId));
+
+  switch(tab.type) {
+    case TabType.START_PAGE:
+      return (<StartPage />);
+    case TabType.CORE_DESIGNER:
+      return (<CoreDesigner />);
+  }
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,79 +30,33 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Layout: FunctionComponent = () => {
-  const startPageItem: TabPanelItem = {
-    id: 'start-page',
-    title: 'Démarrage',
-    closable: false,
-    render: () => <StartPage onNewCoreDesigner={addCoreDesignerTab} />
-  }
-
+  const { tabs, selectedId, closeTab, activateTab, moveTab } = useConnect();
   const classes = useStyles();
-  const [tabs, setTabs] = useState([ startPageItem ]);
-  const [tabIndex, setTabIndex] = useState(0);
-  const idCounter = useRef(0);
-
-  const getId = () => {
-    return ++idCounter.current;
-  }
-
-  const closeTab = (index: number) => {
-    setTabs(tabs => removeItem(tabs, index));
-
-    if(tabIndex >= index) {
-      const newIndex = tabIndex - 1;
-      setTabIndex(newIndex === -1 ? 0 : newIndex);
-    }
-  };
-
-  const addTab = (item: TabPanelItem) => setTabs(tabs => [...tabs, item]);
-
-  const addCoreDesignerTab = () => {
-    const id = getId();
-
-    addTab({
-      id: `core-designer-${id}`,
-      title: `Core designer ${id}`,
-      closable: true,
-      render: () => <CoreDesigner />
-    });
-  };
-
-  const handleMove = (sourceIndex: number, targetIndex: number) => {
-    const newTabs = [...tabs];
-
-    newTabs.splice(sourceIndex, 1);
-    newTabs.splice(targetIndex, 0, tabs[sourceIndex]);
-
-    setTabs(newTabs);
-
-    if (tabIndex === sourceIndex) {
-      setTabIndex(targetIndex);
-    }
-  };
-
-  const handleSelect = setTabIndex;
-
-  // dev init
-  useEffect(() => {
-    addCoreDesignerTab();
-    setTabIndex(1);
-  }, []);
 
   return (
     <TabPanel
       className={classes.root}
       items={tabs}
-      selectedIndex={tabIndex}
+      selectedId={selectedId}
       onClose={closeTab}
-      onMove={handleMove}
-      onSelect={handleSelect}
+      onMove={moveTab}
+      onSelect={activateTab}
+      panelComponent={Panel}
     />
   );
 };
 
 export default Layout;
 
-function removeItem<T>(array: T[], index: number) {
-  return [...array.slice(0, index), ...array.slice(index + 1)];
+function useConnect() {
+  const dispatch = useDispatch();
+  return {
+    tabs: useSelector(getTabList),
+    selectedId: useSelector(getSelectedTabId),
+    ...useMemo(() => ({
+      closeTab: (id: string) => { dispatch(closeTab({ id })); },
+      activateTab: (id: string) => { dispatch(activateTab({ id })); },
+      moveTab: (id: string, position: number) => { dispatch(moveTab({ id, position })); },
+    }), [dispatch])
+  };
 }

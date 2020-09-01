@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent, useRef, createContext, useContext, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
@@ -43,47 +43,52 @@ const useTabStyles = makeStyles((theme) => ({
 const tabSymbol = Symbol('dnd-tab');
 
 interface DragItem {
-  index: number;
+  id: string;
   type: string;
 }
 
 interface TabProps {
+  id: string;
   text: React.ReactNode;
   index: number;
-  onClose?: (index: number) => void;
-  onMove: (sourceIndex: number, targetIndex: number) => void;
-  onSelect: (index: number) => void;
+  onClose?: (id: string) => void;
+  onMove: (id: string, position: number) => void;
+  onSelect: (id: string) => void;
+  value: string; // used by MuiTabs on its children
 }
 
-const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove, onSelect, ...props }) => {
+const Tab: FunctionComponent<TabProps> = ({ id, text, index, onClose, onMove, onSelect, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isHovered }, drop] = useDrop({
     accept: tabSymbol,
     drop(item: DragItem) {
-      const dragIndex = item.index;
+      console.log('drop', item);
+      const dragId = item.id;
       const dropIndex = index;
-      onMove(dragIndex, dropIndex);
+      console.log('onMove', dragId, dropIndex);
+      onMove(dragId, dropIndex);
     },
     canDrop: (item: DragItem) => {
-      return item.index !== index;
+      return item.id !== id;
     },
     collect: (monitor: DropTargetMonitor) => ({
-      isHovered: monitor.isOver() && monitor.getItem().index !== index
+      isHovered: monitor.isOver() && monitor.getItem().id !== id
     })
   });
 
   const [, drag] = useDrag({
-    item: { type: tabSymbol, index },
-    begin: () => onSelect(index)
+    item: { type: tabSymbol, id },
+    begin: () => onSelect(id)
   });
 
   drag(drop(ref));
-  
+
   const classes = useTabStyles();
+
   return (
     <MuiTab 
-      {...props}
+      {...props} // must forward other props that are set by MuiTabs on its children (value, selected)
       disableRipple
       classes={{ root: clsx(classes.root, { [classes.dropTarget]: isHovered }), selected: classes.selected, wrapper: classes.wrapper }}
       ref={ref}
@@ -98,7 +103,7 @@ const Tab: FunctionComponent<TabProps> = ({ text, index, onClose, onMove, onSele
           {onClose && (
             <IconButton className={classes.innerCloseButton} onClick={(e) => {
               e.stopPropagation();
-              onClose(index);
+              onClose(id);
             }}>
               <Close/>
             </IconButton>
@@ -146,17 +151,18 @@ const Tabs: FunctionComponent<TabsProps> = ({ value, onChange, children }) => {
 export interface TabPanelItem {
   readonly id: string;
   readonly title: React.ReactNode;
+  readonly index: number;
   readonly closable: boolean;
-  readonly render: () => JSX.Element;
 }
 
 export interface TabPanelProps {
   className?: string;
   items: TabPanelItem[];
-  selectedIndex: number,
-  onClose: (index: number) => void;
-  onMove: (sourceIndex: number, targetIndex: number) => void;
-  onSelect: (index: number) => void;
+  selectedId: string,
+  onClose: (id: string) => void;
+  onMove: (id: string, position: number) => void;
+  onSelect: (id: string) => void;
+  panelComponent: React.ReactType;
 }
 
 const useTabPanelStyles = makeStyles((theme) => ({
@@ -171,21 +177,28 @@ const useTabPanelStyles = makeStyles((theme) => ({
   },
 }));
 
-const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selectedIndex, onClose, onMove, onSelect }) => {
-  const classes = useTabPanelStyles();
+const TabIdContext = createContext<string>(null);
 
-  const handleTabChange = (event: React.ChangeEvent, newIndex: number) => {
-    onSelect(newIndex);
-  };
+export function useTabPanelId() {
+  return useContext(TabIdContext);
+}
+
+const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selectedId, onClose, onMove, onSelect, panelComponent }) => {
+  const classes = useTabPanelStyles();
+  const PanelComponent = panelComponent;
+
+  const handleTabChange = (event: React.ChangeEvent, newId: string) => onSelect(newId);
 
   return (
     <div className={clsx(classes.root, className)}>
-      <Tabs value={selectedIndex} onChange={handleTabChange}>
-        {items.map((item, index) => (
+      <Tabs value={selectedId} onChange={handleTabChange}>
+        {items.map((item) => (
           <Tab 
             key={item.id}
+            value={item.id}
+            id={item.id}
             text={item.title}
-            index={index}
+            index={item.index}
             onClose={item.closable ? onClose : undefined}
             onMove={onMove}
             onSelect={onSelect}
@@ -193,14 +206,16 @@ const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selected
         ))}
       </Tabs>
 
-      {items.map((item, index) => (
+      {items.map((item) => (
         <div
           key={item.id}
           role='tabpanel'
-          hidden={selectedIndex !== index}
+          hidden={selectedId !== item.id}
           className={classes.tabPanel}
         >
-          {item.render()}
+          <TabIdContext.Provider value={item.id}>
+            <PanelComponent />
+          </TabIdContext.Provider>
         </div>
       ))}
     </div>
