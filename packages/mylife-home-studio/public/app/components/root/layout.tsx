@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useState, useRef, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import TabPanel, { TabPanelItem } from './lib/tab-panel';
-import StartPage from './start-page';
-import CoreDesigner from './core-designer';
+import TabPanel, { TabPanelItem } from '../lib/tab-panel';
+import StartPage from '../start-page';
+import CoreDesigner from '../core-designer';
 
 const useStyles = makeStyles((theme) => ({
   root: {

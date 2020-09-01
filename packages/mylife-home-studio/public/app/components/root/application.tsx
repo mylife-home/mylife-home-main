@@ -5,7 +5,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { store } from '../store/store';
+import { store } from '../../store/store';
 import { theme } from './theme';
 import Layout from './layout';
 
