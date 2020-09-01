@@ -51,6 +51,11 @@ export default createReducer(initialState, {
     
     state.allIds.splice(sourceIndex, 1);
     state.allIds.splice(targetIndex, 0, id);
+
+    // reindex
+    for(const [index, id] of state.allIds.entries()) {
+      state.byId[id].index = index;
+    }
   },
 
   [ActionTypes.ACTIVATE]: (state, action: PayloadAction<TabIdAction>) => {
