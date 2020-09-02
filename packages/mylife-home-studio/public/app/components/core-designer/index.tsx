@@ -49,6 +49,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const enum SideBarTabValues {
+  SELECTION = 'selection',
+  TOOLBOX = 'toolbox'
+}
+
 const CoreDesigner: FunctionComponent = () => {
   const classes = useStyles();
   const [selection, setSelection] = useState<Selection>(null);
@@ -71,11 +76,11 @@ const CoreDesigner: FunctionComponent = () => {
             <Divider />
 
             <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
-              <Tab classes={{root: classes.tab }} label='Sélection' value='selection' />
-              <Tab classes={{root: classes.tab }} label='Boîte à outils' value='toolbox' />
+              <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
+              <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
             </Tabs>
 
-            <div role='tabpanel' hidden={sideBarTab !== 'selection'}>
+            <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
               <SelectionPanel
                 components={components}
                 bindings={bindings}
@@ -84,7 +89,7 @@ const CoreDesigner: FunctionComponent = () => {
               />
             </div>
 
-            <div role='tabpanel' hidden={sideBarTab !== 'toolbox'}>
+            <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
               <Typography>Toolbox</Typography>
             </div>
 

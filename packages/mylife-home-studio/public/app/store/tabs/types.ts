@@ -1,4 +1,6 @@
-export enum TabType {
+import { Table } from '../common/types';
+
+export const enum TabType {
   START_PAGE = 'start-page',
   CORE_DESIGNER = 'core-designer'
 }
@@ -24,7 +26,7 @@ export interface TabIdAction {
   id: string;
 }
 
-export enum ActionTypes {
+export const enum ActionTypes {
   NEW = 'tabs/new',
   CLOSE = 'tabs/close',
   MOVE = 'tabs/move',
@@ -41,8 +43,6 @@ export interface TabState {
   index: number;
 }
 
-export interface TabsState {
-  byId: { [id: string]: TabState; };
-  allIds: string[];
+export interface TabsState extends Table<TabState> {
   activeId: string;
 }
