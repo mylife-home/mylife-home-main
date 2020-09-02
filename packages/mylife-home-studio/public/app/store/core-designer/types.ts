@@ -61,6 +61,10 @@ export interface Plugin {
   description: string;
   members: { [name: string]: Member; };
   config: { [name: string]: ConfigItem; };
+
+  stateIds: string[]; // ordered alphabetically
+  actionIds: string[]; // ordered alphabetically
+  configIds: string[]; // ordered alphabetically
 }
 
 export interface Position {

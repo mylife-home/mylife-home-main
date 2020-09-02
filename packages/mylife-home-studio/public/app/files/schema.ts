@@ -8,7 +8,7 @@ import rawHWGarden2 from './content/hw_rpi2-home-garden2.json';
 import rawHWHallbox from './content/hw_rpi2-home-hallbox.json';
 import rawVPanelCore from './content/vpanel_rpi2-home-core.json';
 
-import { Member, PluginUsage, ConfigItem, MemberType, ConfigType } from '../store/core-designer/types';
+import { Plugin, Component, Binding, Member, PluginUsage, ConfigItem, MemberType, ConfigType } from '../store/core-designer/types';
 
 export const hwGarden1 = processFile(rawHWGarden1);
 export const hwSockets1 = processFile(rawHWSockets1);
@@ -42,10 +42,7 @@ function processFile(file: raw.File) {
     components.push({
       id,
       plugin: pluginId,
-      title: id,
-      states: plugin.states,
-      actions: plugin.actions,
-      x, y,
+      position: { x, y },
       config: raw.Component.config
     });
 
@@ -70,10 +67,11 @@ function buildPluginMap(file: raw.File) {
   for (const entity of file.Toolbox) {
     for (const rawPlugin of entity.Plugins) {
       const id = `${entity.EntityName}:${rawPlugin.library}.${rawPlugin.type}`;
-      const states: string[] = [];
-      const actions: string[] = [];
       const members: { [name: string]: Member; } = {};
       const config: { [name: string]: ConfigItem; } = {};
+      const stateIds: string[] = [];
+      const actionIds: string[] = [];
+      const configIds: string[] = [];
 
       const classParts = rawPlugin.clazz.split('|').filter(x => x);
       for (const part of classParts) {
@@ -82,11 +80,11 @@ function buildPluginMap(file: raw.File) {
         const propName = name.substr(1);
         switch (propType) {
           case '=':
-            states.push(propName);
+            stateIds.push(propName);
             members[propName] = { description: `Description ${propName}`, memberType: MemberType.STATE, valueType: type };
             break;
           case '.':
-            actions.push(propName);
+            actionIds.push(propName);
             members[propName] = { description: `Description ${propName}`, memberType: MemberType.ACTION, valueType: type };
             break;
         }
@@ -96,7 +94,12 @@ function buildPluginMap(file: raw.File) {
       for(const part of configParts) {
         const [type, name] = part.split(':');
         config[name] = { description: `Description ${name}`, valueType: mapConfigType(type) };
+        configIds.push(name);
       }
+
+      stateIds.sort();
+      actionIds.sort();
+      configIds.sort();
 
       const plugin: Plugin = {
         id, 
@@ -109,7 +112,9 @@ function buildPluginMap(file: raw.File) {
         members,
         config,
       
-        states, actions
+        stateIds,
+        actionIds,
+        configIds
       };
 
       map.set(id, plugin);
@@ -143,42 +148,6 @@ function mapConfigType(type: string) {
     default:
       throw new Error(`Unknown config type: ${type}`);
   }
-}
-// TODO: share it 
-export interface Plugin {
-  readonly id: string;
-  readonly instanceName: string;
-  readonly name: string;
-  readonly module: string;
-  readonly usage: PluginUsage;
-  readonly version: string;
-  readonly description: string;
-  readonly members: { [name: string]: Member; };
-  readonly config: { [name: string]: ConfigItem; };
-  
-  readonly states: string[];
-  readonly actions: string[];
-}
-
-// TODO: share it 
-export interface Component {
-  readonly id: string;
-  readonly plugin: string;
-  readonly title: string;
-  readonly states: string[];
-  readonly actions: string[];
-  readonly x: number;
-  readonly y: number;
-  readonly config: { [key: string]: any; };
-}
-
-// TODO: share it 
-export interface Binding {
-  id: string;
-  sourceComponent: string;
-  sourceState: string;
-  targetComponent: string;
-  targetAction: string;
 }
 
 namespace raw {
