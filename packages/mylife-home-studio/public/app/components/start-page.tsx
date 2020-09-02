@@ -7,7 +7,10 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
 import { NewTabAction, TabType } from '../store/tabs/types';
+import { CoreDesignerNewTabData } from '../store/core-designer/types';
 import { newTab } from '../store/tabs/actions';
+
+import * as schema from '../files/schema';
 
 let idCounter = 0; // FIXME
 
@@ -16,11 +19,17 @@ const StartPage: FunctionComponent = () => {
 
   const newCoreDesigner = () => {
     const id = ++idCounter;
+    const data: CoreDesignerNewTabData = {
+      plugins: [],
+      components: schema.vpanelCore.components,
+      bindings: schema.vpanelCore.bindings
+    };
     newTab({
       id: `core-designer-${id}`,
       title: `Core designer ${id}`,
       type: TabType.CORE_DESIGNER,
       closable: true,
+      data
     });
   };
 

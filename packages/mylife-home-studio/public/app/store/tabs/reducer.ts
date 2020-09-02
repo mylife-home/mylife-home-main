@@ -1,9 +1,9 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes, NewTabAction, TabIdAction, MoveTabAction, ChangeTabTitleAction, TabsState, TabState } from './types';
+import { createTable } from '../common/reducer-tools';
 
 const initialState: TabsState = {
-  byId: {},
-  allIds: [],
+  ...createTable<TabState>(),
   activeId: null
 };
 

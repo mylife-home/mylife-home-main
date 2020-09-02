@@ -25,7 +25,7 @@ function processFile(file: raw.File) {
   const components: Component[] = [];
   const bindings: Binding[] = [];
 
-  for(const raw of file.Components) {
+  for (const raw of file.Components) {
     const pluginId = `${raw.EntityName}:${raw.Component.library}:${raw.Component.type}`;
     const plugin = plugins.get(pluginId);
 
@@ -38,10 +38,12 @@ function processFile(file: raw.File) {
 
     components.push({
       id,
+      plugin: pluginId,
       title: id,
       states: plugin.states,
       actions: plugin.actions,
-      x, y
+      x, y,
+      config: raw.Component.config
     });
 
     for (const rawBinding of raw.Component.bindings) {
@@ -62,14 +64,14 @@ function processFile(file: raw.File) {
 function buildPluginMap(file: raw.File) {
   const map = new Map<string, Plugin>();
 
-  for(const entity of file.Toolbox) {
-    for(const plugin of entity.Plugins) {
+  for (const entity of file.Toolbox) {
+    for (const plugin of entity.Plugins) {
       const id = `${entity.EntityName}:${plugin.library}:${plugin.type}`;
       const states: string[] = [];
       const actions: string[] = [];
 
       const parts = plugin.clazz.split('|');
-      for(const part of parts) {
+      for (const part of parts) {
         const [name, type] = part.split(',');
         const propType = name.charAt(0);
         const propName = name.substr(1);
@@ -80,7 +82,7 @@ function buildPluginMap(file: raw.File) {
           case '.':
             actions.push(propName);
             break;
-          }
+        }
       }
 
       map.set(id, { id, states, actions });
@@ -92,11 +94,13 @@ function buildPluginMap(file: raw.File) {
 
 export interface Component {
   readonly id: string;
+  readonly plugin: string;
   readonly title: string;
   readonly states: string[];
   readonly actions: string[];
   readonly x: number;
   readonly y: number;
+  readonly config: { [key: string]: any; };
 }
 
 export interface Binding {
@@ -121,12 +125,12 @@ namespace raw {
     readonly Components: ComponentContainer[];
     readonly Toolbox: ToolboxItem[];
   }
-  
+
   export interface ComponentContainer {
     readonly EntityName: string;
     readonly Component: Component;
   }
-  
+
   export interface Component {
     readonly id: string;
     readonly library: string;
@@ -135,28 +139,28 @@ namespace raw {
     readonly config: ComponentConfig[];
     readonly designer: ComponentDesigner[];
   }
-  
+
   export interface ComponentBinding {
     readonly local_action: string;
     readonly remote_attribute: string;
     readonly remote_id: string;
   }
-  
+
   export interface ComponentConfig {
     readonly Key: string;
     readonly Value: string;
   }
-  
+
   export interface ComponentDesigner {
     readonly Key: string;
     readonly Value: string;
   }
-  
+
   export interface ToolboxItem {
     readonly EntityName: string;
     readonly Plugins: Plugin[];
   }
-  
+
   export interface Plugin {
     readonly clazz: string;
     readonly config: string;

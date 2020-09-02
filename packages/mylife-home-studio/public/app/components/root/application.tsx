@@ -17,6 +17,7 @@ store.dispatch(newTab({
   type: TabType.START_PAGE,
   title: 'Démarrage',
   closable: false,
+  data: null
 }));
 
 const Application: FunctionComponent = () => (

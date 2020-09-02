@@ -5,11 +5,14 @@ export const enum TabType {
   CORE_DESIGNER = 'core-designer'
 }
 
+export interface NewTabData { }
+
 export interface NewTabAction {
   id: string;
   type: TabType;
   title: string;
   closable: boolean;
+  data: NewTabData;
 }
 
 export interface MoveTabAction {
