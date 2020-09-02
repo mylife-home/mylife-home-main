@@ -7,7 +7,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Divider from '@material-ui/core/Divider';
 
-import { Selection } from './types';
+import { SelectionProvider } from './selection';
 import { ViewInfoProvider } from './drawing/view-info';
 import { CanvasThemeProvider } from './drawing/theme';
 import SplitPane from '../lib/split-pane';
@@ -34,41 +34,42 @@ const enum SideBarTabValues {
 
 const CoreDesigner: FunctionComponent = () => {
   const classes = useStyles();
-  const [selection, setSelection] = useState<Selection>(null);
   const [sideBarTab, setSideBarTab] = useState('selection');
 
   return (
     <CanvasThemeProvider>
       <ViewInfoProvider>
-        <SplitPane split="vertical" defaultSize={300} minSize={300}>
+        <SelectionProvider>
+          <SplitPane split="vertical" defaultSize={300} minSize={300}>
 
-          <Box display='flex' flexDirection='column'>
+            <Box display='flex' flexDirection='column'>
 
-            <div className={classes.miniViewContainer}>
-              <MiniView selection={selection} />
-              <ZoomSlider />
-            </div>
+              <div className={classes.miniViewContainer}>
+                <MiniView />
+                <ZoomSlider />
+              </div>
 
-            <Divider />
+              <Divider />
 
-            <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
-              <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
-              <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
-            </Tabs>
+              <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
+                <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
+                <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
+              </Tabs>
 
-            <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
-              <SelectionPanel selection={selection} setSelection={setSelection} />
-            </div>
+              <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
+                <SelectionPanel />
+              </div>
 
-            <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
-              <Typography>Toolbox</Typography>
-            </div>
+              <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
+                <Typography>Toolbox</Typography>
+              </div>
 
-          </Box>
+            </Box>
 
-          <MainView selection={selection} setSelection={setSelection} />
+            <MainView />
 
-        </SplitPane>
+          </SplitPane>
+        </SelectionProvider>
       </ViewInfoProvider>
     </CanvasThemeProvider>
   );

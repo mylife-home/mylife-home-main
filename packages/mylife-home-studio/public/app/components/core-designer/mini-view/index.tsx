@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { LAYER_SIZE } from '../drawing/defs';
 import { Point } from '../drawing/types';
-import { Selection } from '../types';
 import SquareBox from './square-box';
 import Canvas from './canvas';
 import Component from './component';
@@ -18,7 +17,6 @@ import { getComponentIds } from '../../../store/core-designer/selectors';
 
 export interface MiniViewProps {
   className?: string;
-  selection: Selection;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -30,12 +28,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const MiniView: FunctionComponent<MiniViewProps> = ({ className, selection }) => {
+const MiniView: FunctionComponent<MiniViewProps> = ({ className }) => {
   const classes = useStyles();
   const [size, setSize] = useState(1);
   const scale = size / LAYER_SIZE;
   const { componentIds } = useConnect();
-
   const clickHandler = useClickHandler(scale);
 
   return (
@@ -43,7 +40,7 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, selection }) =>
       <Canvas size={size} scale={scale} onSizeChange={setSize} onClick={clickHandler}>
 
         {componentIds.map((id) => (
-          <Component key={id} componentId={id} selected={selection?.type === 'component' && selection.id === id} />
+          <Component key={id} componentId={id} />
         ))}
 
         <MainViewMark scale={scale}/>

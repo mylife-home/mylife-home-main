@@ -2,6 +2,7 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
+import { useBindingSelection } from '../selection';
 import { Arrow } from '../drawing/konva';
 import { GRID_STEP_SIZE } from '../drawing/defs';
 import { useCanvasTheme } from '../drawing/theme';
@@ -13,15 +14,13 @@ import { getComponent, getPlugin, getBinding } from '../../../store/core-designe
 
 export interface BindingProps {
   bindingId: string;
-  selected?: boolean;
-
-  onSelect: () => void;
 }
 
-const Binding: FunctionComponent<BindingProps> = ({ bindingId, selected, onSelect }) => {
+const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(bindingId);
   const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
   const theme = useCanvasTheme();
+  const { selected, select } = useBindingSelection(bindingId);
 
   const color = selected ? theme.borderColorSelected : theme.color;
 
@@ -30,7 +29,7 @@ const Binding: FunctionComponent<BindingProps> = ({ bindingId, selected, onSelec
       fill={color}
       stroke={color}
       points={[sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]}
-      onMouseDown={onSelect}
+      onMouseDown={select}
       pointerLength={theme.binding.pointerLength}
       pointerWidth={theme.binding.pointerWidth}
       strokeWidth={theme.binding.strokeWidth}

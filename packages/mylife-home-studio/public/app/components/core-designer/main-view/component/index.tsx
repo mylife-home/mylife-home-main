@@ -2,6 +2,7 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../../lib/tab-panel';
+import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
@@ -18,14 +19,13 @@ import { moveComponent } from '../../../../store/core-designer/actions';
 
 export interface ComponentProps {
   componentId: string;
-
-  onSelect: () => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ componentId, onSelect }) => {
+const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const theme = useCanvasTheme();
   const { component, plugin, moveComponent } = useConnect(componentId);
   const rect = computeComponentRect(theme, component, plugin);
+  const { select } = useComponentSelection(componentId);
 
   const dragBoundHandler = useCallback((pos: Point) => ({
     x: lockBetween(snapToGrid(pos.x, GRID_STEP_SIZE), LAYER_SIZE - rect.width),
@@ -37,7 +37,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId, onSelect })
   return (
     <Group
       {...rect}
-      onMouseDown={onSelect}
+      onMouseDown={select}
       draggable
       dragBoundFunc={dragBoundHandler}
       onDragMove={dragMoveHandler}

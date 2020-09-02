@@ -7,20 +7,16 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useCanvasTheme } from '../drawing/theme';
 import { Rectangle } from '../drawing/types';
 import { computeComponentRect } from '../drawing/shapes';
-import { Selection } from '../types';
+import { useSelection } from '../selection';
 import CenterButton from './center-button';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
 
-interface ComponentProps {
-  componentId: string;
-  setSelection: (selection: Selection) => void;
-}
-
-const Component: FunctionComponent<ComponentProps> = ({ componentId, setSelection }) => {
-  const { component, plugin } = useConnect(componentId);
+const Component: FunctionComponent = () => {
+  const { selection, select } = useSelection();
+  const { component, plugin } = useConnect(selection.id);
   const componentCenterPosition = useCenterComponent(component, plugin);
   return (
     <div>

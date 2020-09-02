@@ -8,24 +8,20 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
-import { Selection } from '../types';
+import { useSelection } from '../selection';
 import CenterButton from './center-button';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
 
-interface BindingProps {
-  bindingId: string;
-  setSelection: (selection: Selection) => void;
-}
-
-const Binding: FunctionComponent<BindingProps> = ({ bindingId, setSelection }) => {
-  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(bindingId);
+const Binding: FunctionComponent = () => {
+  const { selection, select } = useSelection();
+  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(selection.id);
   const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
-  const handleSelectSource = () => setSelection({ type: 'component', id: binding.sourceComponent });
-  const handleSelectTarget = () => setSelection({ type: 'component', id: binding.targetComponent });
+  const handleSelectSource = () => select({ type: 'component', id: binding.sourceComponent });
+  const handleSelectTarget = () => select({ type: 'component', id: binding.targetComponent });
 
   return (
     <div>

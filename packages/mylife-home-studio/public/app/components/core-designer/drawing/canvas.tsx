@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import StoreProvider from '../../lib/store-provider';
 import { TabIdContext } from '../../lib/tab-panel';
+import { SelectionContext } from '../selection';
 import { Konva, Stage, StageProps } from './konva';
 import { CanvasThemeContext } from './theme';
 import { ViewInfoContext } from './view-info';
@@ -20,6 +21,7 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
   const themeProps = useContext(CanvasThemeContext);
   const viewInfoProps = useContext(ViewInfoContext);
   const tabId = useContext(TabIdContext);
+  const selectionProps = useContext(SelectionContext);
   const classes = useStyles();
 
   return (
@@ -28,7 +30,9 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
         <CanvasThemeContext.Provider value={themeProps}>
           <ViewInfoContext.Provider value={viewInfoProps}>
             <TabIdContext.Provider value={tabId}>
-              {children}
+              <SelectionContext.Provider value={selectionProps}>
+                {children}
+              </SelectionContext.Provider>
             </TabIdContext.Provider>
           </ViewInfoContext.Provider>
         </CanvasThemeContext.Provider>

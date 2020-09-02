@@ -1,27 +1,23 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 
 import Component from './component';
 import Binding from './binding';
 
-import { Selection } from '../types';
+import { useSelection } from '../selection';
 
-interface SelectionPanelProps {
-  selection: Selection;
-  setSelection: (selection: Selection) => void;
-}
-
-const SelectionPanel: FunctionComponent<SelectionPanelProps> = ({ selection, setSelection }) => {
+const SelectionPanel: FunctionComponent = () => {
+  const { selection } = useSelection();
 
   switch(selection?.type) {
 
     case 'component':
       return (
-        <Component componentId={selection.id} setSelection={setSelection} />
+        <Component />
       );
 
     case 'binding':
       return (
-        <Binding bindingId={selection.id} setSelection={setSelection} />
+        <Binding />
       );
 
     default:
