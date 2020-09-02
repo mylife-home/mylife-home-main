@@ -1,23 +1,26 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
+import { useTabPanelId } from '../../lib/tab-panel';
 import { Arrow } from '../drawing/konva';
 import { GRID_STEP_SIZE } from '../drawing/defs';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
 
-import * as schema from '../../../files/schema';
+import { AppState } from '../../../store/types';
+import * as types from '../../../store/core-designer/types';
+import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
 
 export interface BindingProps {
-  binding: schema.Binding,
-  sourceComponent: schema.Component;
-  targetComponent: schema.Component;
+  bindingId: string;
   selected?: boolean;
 
   onSelect: () => void;
 }
 
-const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetComponent, binding, selected, onSelect }) => {
-  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, targetComponent);
+const Binding: FunctionComponent<BindingProps> = ({ bindingId, selected, onSelect }) => {
+  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(bindingId);
+  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
   const theme = useCanvasTheme();
 
   const color = selected ? theme.borderColorSelected : theme.color;
@@ -38,11 +41,31 @@ const Binding: FunctionComponent<BindingProps> = ({ sourceComponent, targetCompo
 
 export default Binding;
 
-function useAnchors(binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
+function useAnchors(binding: types.Binding, sourceComponent: types.Component, sourcePlugin: types.Plugin, targetComponent: types.Component, targetPlugin: types.Plugin) {
   const theme = useCanvasTheme();
 
   return useMemo(
-    () => computeBindingAnchors(theme, binding, sourceComponent, targetComponent),
-    [theme, sourceComponent.x, sourceComponent.y, targetComponent.x, targetComponent.y, sourceComponent.id, targetComponent.id, binding.sourceState, binding.targetAction]
+    () => computeBindingAnchors(theme, binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin),
+    [
+      theme,
+      sourceComponent.position.x,
+      sourceComponent.position.y,
+      targetComponent.position.x,
+      targetComponent.position.y,
+      sourceComponent.id,
+      targetComponent.id,
+      binding.sourceState,
+      binding.targetAction
+    ]
   );
+}
+
+function useConnect(bindingId: string) {
+  const tabId = useTabPanelId();
+  const binding = useSelector((state: AppState) => getBinding(state, tabId, bindingId));
+  const sourceComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.sourceComponent));
+  const targetComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.targetComponent));
+  const sourcePlugin = useSelector((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin));
+  const targetPlugin = useSelector((state: AppState) => getPlugin(state, tabId, targetComponent.plugin));
+  return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin };
 }

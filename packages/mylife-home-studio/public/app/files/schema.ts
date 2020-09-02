@@ -111,7 +111,6 @@ function buildPluginMap(file: raw.File) {
         description: `Description ${id}`,
         members,
         config,
-      
         stateIds,
         actionIds,
         configIds

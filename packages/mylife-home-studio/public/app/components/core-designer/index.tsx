@@ -16,28 +16,6 @@ import MiniView from './mini-view';
 import MainView from './main-view';
 import SelectionPanel from './selection-panel';
 
-import * as schema from '../../files/schema';
-
-const initialComponents = schema.vpanelCore.components;
-const initialBindings = schema.vpanelCore.bindings;
-/*
-[{
-  id: 'component-1',
-  title: 'Component 1',
-  states: ['value'],
-  actions: ['setValue'],
-  x: 5,
-  y: 10
-}, {
-  id: 'component-2',
-  title: 'Component 2',
-  states: ['volume', 'status'],
-  actions: ['setVolume', 'play', 'pause', 'prev', 'next'],
-  x: 5,
-  y: 20
-}];
-*/
-
 const useStyles = makeStyles((theme) => ({
   tab: {
     minWidth: 0,
@@ -57,8 +35,6 @@ const enum SideBarTabValues {
 const CoreDesigner: FunctionComponent = () => {
   const classes = useStyles();
   const [selection, setSelection] = useState<Selection>(null);
-  const [components, setComponents] = useState(initialComponents);
-  const [bindings, setBindings] = useState(initialBindings);
   const [sideBarTab, setSideBarTab] = useState('selection');
 
   return (
@@ -69,7 +45,7 @@ const CoreDesigner: FunctionComponent = () => {
           <Box display='flex' flexDirection='column'>
 
             <div className={classes.miniViewContainer}>
-              <MiniView components={components} selection={selection} />
+              <MiniView selection={selection} />
               <ZoomSlider />
             </div>
 
@@ -81,12 +57,7 @@ const CoreDesigner: FunctionComponent = () => {
             </Tabs>
 
             <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
-              <SelectionPanel
-                components={components}
-                bindings={bindings}
-                selection={selection}
-                setSelection={setSelection}
-              />
+              <SelectionPanel selection={selection} setSelection={setSelection} />
             </div>
 
             <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
@@ -95,14 +66,7 @@ const CoreDesigner: FunctionComponent = () => {
 
           </Box>
 
-          <MainView
-            components={components}
-            setComponents={setComponents}
-            bindings={bindings}
-            setBindings={setBindings}
-            selection={selection}
-            setSelection={setSelection}
-          />
+          <MainView selection={selection} setSelection={setSelection} />
 
         </SplitPane>
       </ViewInfoProvider>

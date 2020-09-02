@@ -1,5 +1,7 @@
 import React, { FunctionComponent, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
+import { useTabPanelId } from '../../../lib/tab-panel';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
@@ -9,25 +11,28 @@ import { computeComponentRect } from '../../drawing/shapes';
 import Title from './title';
 import PropertyList from './property-list';
 
-import * as schema from '../../../../files/schema';
+import { AppState } from '../../../../store/types';
+import * as types from '../../../../store/core-designer/types';
+import { getComponent, getPlugin } from '../../../../store/core-designer/selectors';
+import { moveComponent } from '../../../../store/core-designer/actions';
 
 export interface ComponentProps {
-  component: schema.Component;
+  componentId: string;
 
   onSelect: () => void;
-  onMove: (pos: Point) => void;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ component, onSelect, onMove }) => {
+const Component: FunctionComponent<ComponentProps> = ({ componentId, onSelect }) => {
   const theme = useCanvasTheme();
-  const rect = computeComponentRect(theme, component);
+  const { component, plugin, moveComponent } = useConnect(componentId);
+  const rect = computeComponentRect(theme, component, plugin);
 
   const dragBoundHandler = useCallback((pos: Point) => ({
     x: lockBetween(snapToGrid(pos.x, GRID_STEP_SIZE), LAYER_SIZE - rect.width),
     y: lockBetween(snapToGrid(pos.y, GRID_STEP_SIZE), LAYER_SIZE - rect.height),
   }), [theme, rect.height, rect.width]);
 
-  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => onMove({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [onMove, GRID_STEP_SIZE]);
+  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => moveComponent({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [moveComponent, GRID_STEP_SIZE]);
 
   return (
     <Group
@@ -40,14 +45,31 @@ const Component: FunctionComponent<ComponentProps> = ({ component, onSelect, onM
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={theme.backgroundColor} />
         <Title text={component.id} />
-        <PropertyList yIndex={1} icon='visibility' items={component.states} />
-        <PropertyList yIndex={1 + component.states.length} icon='input' items={component.actions} />
+        <PropertyList yIndex={1} icon='visibility' items={plugin.stateIds} />
+        <PropertyList yIndex={1 + plugin.stateIds.length} icon='input' items={plugin.actionIds} />
       </CachedGroup>
     </Group>
   );
 };
 
 export default Component;
+
+function useConnect(componentId: string) {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
+  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
+
+  return {
+    component, 
+    plugin, 
+
+    moveComponent: useCallback(
+      (position: types.Position) => dispatch(moveComponent({ tabId, componentId, position })),
+      [dispatch, tabId, componentId]
+    )
+  };
+}
 
 function snapToGrid(value: number, gridStep: number) {
   return Math.round(value / gridStep) * gridStep;

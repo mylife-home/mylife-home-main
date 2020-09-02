@@ -1,5 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
+import { useTabPanelId } from '../../lib/tab-panel';
 import { Layer } from '../drawing/konva';
 import { Point } from '../drawing/types';
 import { Selection } from '../types';
@@ -8,71 +10,42 @@ import Component from './component';
 import Binding from './binding';
 import ComponentSelectionMark from './component-selection-mark';
 
-import * as schema from '../../../files/schema';
+import { AppState } from '../../../store/types';
+import { getComponentIds, getBindingIds } from '../../../store/core-designer/selectors';
 
 export interface MainViewProps {
-  components: schema.Component[];
-  setComponents: (callback: (components: schema.Component[]) => schema.Component[]) => void;
-  bindings: schema.Binding[];
-  setBindings: (callback: (bindings: schema.Binding[]) => schema.Binding[]) => void;
   selection: Selection;
   setSelection: (selection: Selection) => void;
 }
 
-const MainView: FunctionComponent<MainViewProps> = ({ components, setComponents, bindings, setBindings, selection, setSelection }) => {
-
-  const compMap = useMemo(() => {
-    const map: {[id: string]: schema.Component; } = {};
-    for(const comp of components) {
-      map[comp.id] = comp;
-    }
-    return map;
-  }, [components]);
-
-  const handleMoveComponent = (id: string, pos: Point) => {
-    setComponents(components => components.map(comp => {
-      if (comp.id !== id) {
-        return comp;
-      }
-
-      return { ...comp, x: pos.x, y: pos.y };
-    }));
-  };
-
-  const selectedComponent = selection && selection.type === 'component' && compMap[selection.id];
+const MainView: FunctionComponent<MainViewProps> = ({ selection, setSelection }) => {
+  const { componentIds, bindingIds } = useConnect();
 
   return (
     <Canvas>
       <Layer name='bindings'>
-        {bindings.map((binding, index) => {
-          const sourceComponent = compMap[binding.sourceComponent];
-          const targetComponent = compMap[binding.targetComponent];
-          return (
-            <Binding
-              key={index}
-              binding={binding}
-              sourceComponent={sourceComponent}
-              targetComponent={targetComponent}
-              selected={selection?.type === 'binding' && selection.id === binding.id}
-              onSelect={() => setSelection({ type: 'binding', id: binding.id })}
-            />
-          );
-        })}
+        {bindingIds.map(id => (
+          <Binding key={id} bindingId={id} selected={selection?.type === 'binding' && selection.id === id} onSelect={() => setSelection({ type: 'binding', id })} />
+        ))}
       </Layer>
 
       <Layer name='components'>
-        {components.map((component, index) => (
-          <Component
-            key={index}
-            component={component}
-            onSelect={() => setSelection({ type: 'component', id: component.id })}
-            onMove={(pos: Point) => handleMoveComponent(component.id, pos)} />  
+        {componentIds.map(id => (
+          <Component key={id} componentId={id} onSelect={() => setSelection({ type: 'component', id })} />  
         ))}
 
-        {selectedComponent && <ComponentSelectionMark {...selectedComponent} />}
+        {selection && selection.type === 'component' && <ComponentSelectionMark componentId={selection.id} />}
       </Layer>
     </Canvas>
   );
 };
 
 export default MainView;
+
+function useConnect() {
+  const tabId = useTabPanelId();
+  return {
+    componentIds: useSelector((state: AppState) => getComponentIds(state, tabId)),
+    bindingIds: useSelector((state: AppState) => getBindingIds(state, tabId)),
+  };
+}

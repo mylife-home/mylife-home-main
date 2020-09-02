@@ -1,19 +1,23 @@
 import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 
 import { Rect } from '../drawing/konva';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect } from '../drawing/shapes';
+import { useTabPanelId } from '../../lib/tab-panel';
 
-import * as schema from '../../../files/schema';
+import { AppState } from '../../../store/types';
+import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
 
 export interface ComponentProps {
-  component: schema.Component,
+  componentId: string,
   selected?: boolean;
 }
 
-const Component: FunctionComponent<ComponentProps> = ({ component, selected }) => {
+const Component: FunctionComponent<ComponentProps> = ({ componentId, selected }) => {
   const theme = useCanvasTheme();
-  const rect = computeComponentRect(theme, component);
+  const { component, plugin } = useConnect(componentId);
+  const rect = computeComponentRect(theme, component, plugin);
 
   return (
     <Rect
@@ -24,3 +28,10 @@ const Component: FunctionComponent<ComponentProps> = ({ component, selected }) =
 };
 
 export default Component;
+
+function useConnect(componentId: string) {
+  const tabId = useTabPanelId();
+  const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
+  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
+  return { component, plugin };
+}

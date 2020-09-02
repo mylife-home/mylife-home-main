@@ -175,7 +175,7 @@ const useTabPanelStyles = makeStyles((theme) => ({
   },
 }));
 
-const TabIdContext = createContext<string>(null);
+export const TabIdContext = createContext<string>(null);
 
 export function useTabPanelId() {
   return useContext(TabIdContext);

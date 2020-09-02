@@ -1,26 +1,28 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 
+import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
 import { Selection } from '../types';
 import CenterButton from './center-button';
 
-import * as schema from '../../../files/schema';
+import { AppState } from '../../../store/types';
+import * as types from '../../../store/core-designer/types';
+import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
 
 interface BindingProps {
-  binding: schema.Binding;
-  sourceComponent: schema.Component;
-  targetComponent: schema.Component;
-
+  bindingId: string;
   setSelection: (selection: Selection) => void;
 }
 
-const Binding: FunctionComponent<BindingProps> = ({ binding, sourceComponent, targetComponent, setSelection }) => {
-  const componentBindingPosition = useCenterBinding(binding, sourceComponent, targetComponent);
+const Binding: FunctionComponent<BindingProps> = ({ bindingId, setSelection }) => {
+  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(bindingId);
+  const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
   const handleSelectSource = () => setSelection({ type: 'component', id: binding.sourceComponent });
   const handleSelectTarget = () => setSelection({ type: 'component', id: binding.targetComponent });
@@ -38,11 +40,21 @@ const Binding: FunctionComponent<BindingProps> = ({ binding, sourceComponent, ta
 
 export default Binding;
 
-function useCenterBinding(binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
+function useConnect(bindingId: string) {
+  const tabId = useTabPanelId();
+  const binding = useSelector((state: AppState) => getBinding(state, tabId, bindingId));
+  const sourceComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.sourceComponent));
+  const targetComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.targetComponent));
+  const sourcePlugin = useSelector((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin));
+  const targetPlugin = useSelector((state: AppState) => getPlugin(state, tabId, targetComponent.plugin));
+  return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin };
+}
+
+function useCenterBinding(binding: types.Binding, sourceComponent: types.Component, sourcePlugin: types.Plugin, targetComponent: types.Component, targetPlugin: types.Plugin) {
   const theme = useCanvasTheme();
 
   return useMemo(() => {
-    const { sourceAnchor, targetAnchor } = computeBindingAnchors(theme, binding, sourceComponent, targetComponent);
+    const { sourceAnchor, targetAnchor } = computeBindingAnchors(theme, binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
     return computeCenter(sourceAnchor, targetAnchor);
   }, [theme, binding, sourceComponent, targetComponent]);
 }

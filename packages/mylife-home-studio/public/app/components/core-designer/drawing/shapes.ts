@@ -2,20 +2,20 @@ import { CanvasTheme } from './theme';
 import { Rectangle, Point } from './types';
 import { GRID_STEP_SIZE } from './defs';
 
-import * as schema from '../../../files/schema';
+import { Component, Plugin, Binding } from '../../../store/core-designer/types';
 
-export function computeComponentRect(theme: CanvasTheme, component: schema.Component): Rectangle {
+export function computeComponentRect(theme: CanvasTheme, component: Component, plugin: Plugin): Rectangle {
   return {
-    x: component.x * GRID_STEP_SIZE,
-    y: component.y * GRID_STEP_SIZE,
-    height: (component.states.length + component.actions.length + 1) * theme.component.boxHeight,
+    x: component.position.x * GRID_STEP_SIZE,
+    y: component.position.y * GRID_STEP_SIZE,
+    height: (plugin.stateIds.length + plugin.actionIds.length + 1) * theme.component.boxHeight,
     width: theme.component.width,
   };
 }
 
-export function computeBindingAnchors(theme: CanvasTheme, binding: schema.Binding, sourceComponent: schema.Component, targetComponent: schema.Component) {
-  const sourcePropIndex = 1 + sourceComponent.states.findIndex(value => value === binding.sourceState);
-  const targetPropIndex = 1 + targetComponent.states.length + targetComponent.actions.findIndex(value => value === binding.targetAction);
+export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourcePlugin: Plugin, targetComponent: Component, targetPlugin: Plugin) {
+  const sourcePropIndex = 1 + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
+  const targetPropIndex = 1 + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
 
   const sourceAnchors = makeAnchors(sourceComponent, sourcePropIndex, theme);
   const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);
@@ -40,11 +40,11 @@ export function computeBindingAnchors(theme: CanvasTheme, binding: schema.Bindin
   return { sourceAnchor, targetAnchor };
 }
 
-function makeAnchors(component: schema.Component, propIndex: number, theme: CanvasTheme): Point[] {
-  const y = component.y * GRID_STEP_SIZE + (propIndex + 0.5) * theme.component.boxHeight;
+function makeAnchors(component: Component, propIndex: number, theme: CanvasTheme): Point[] {
+  const y = component.position.y * GRID_STEP_SIZE + (propIndex + 0.5) * theme.component.boxHeight;
   return [
-    { x: component.x * GRID_STEP_SIZE, y},
-    { x: component.x * GRID_STEP_SIZE + theme.component.width, y},
+    { x: component.position.x * GRID_STEP_SIZE, y},
+    { x: component.position.x * GRID_STEP_SIZE + theme.component.width, y},
   ];
 }
 

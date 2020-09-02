@@ -1,7 +1,9 @@
 import React, { FunctionComponent, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
+import { useTabPanelId } from '../../lib/tab-panel';
 import { LAYER_SIZE } from '../drawing/defs';
 import { Point } from '../drawing/types';
 import { Selection } from '../types';
@@ -11,11 +13,11 @@ import Component from './component';
 import MainViewMark from './main-view-mark';
 import { usePosition } from '../drawing/viewport-manips';
 
-import * as schema from '../../../files/schema';
+import { AppState } from '../../../store/types';
+import { getComponentIds } from '../../../store/core-designer/selectors';
 
 export interface MiniViewProps {
   className?: string;
-  components: schema.Component[];
   selection: Selection;
 }
 
@@ -28,10 +30,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, selection }) => {
+const MiniView: FunctionComponent<MiniViewProps> = ({ className, selection }) => {
   const classes = useStyles();
   const [size, setSize] = useState(1);
   const scale = size / LAYER_SIZE;
+  const { componentIds } = useConnect();
 
   const clickHandler = useClickHandler(scale);
 
@@ -39,8 +42,8 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className, components, sel
     <SquareBox adjust='height' className={clsx(classes.container, className)}>
       <Canvas size={size} scale={scale} onSizeChange={setSize} onClick={clickHandler}>
 
-        {components.map((component, index) => (
-          <Component key={index} component={component} selected={selection?.type === 'component' && selection.id === component.id} />
+        {componentIds.map((id) => (
+          <Component key={id} componentId={id} selected={selection?.type === 'component' && selection.id === id} />
         ))}
 
         <MainViewMark scale={scale}/>
@@ -64,4 +67,11 @@ function useClickHandler(scale: number) {
     setLayerPosition(layerPosition);
 
   }, [scale, setLayerPosition]);
+}
+
+function useConnect() {
+  const tabId = useTabPanelId();
+  return {
+    componentIds: useSelector((state: AppState) => getComponentIds(state, tabId))
+  };
 }

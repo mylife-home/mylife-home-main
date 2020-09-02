@@ -1,14 +1,14 @@
 import React, { FunctionComponent } from 'react';
-import { Provider } from 'react-redux';
 import { ThemeProvider } from '@material-ui/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { store } from '../../store/store';
-import { theme } from './theme';
+import StoreProvider from '../lib/store-provider';
+import { theme } from '../lib/theme';
 import Layout from './layout';
 
+import { store } from '../../store/store';
 import { newTab } from '../../store/tabs/actions';
 import { TabType } from '../../store/tabs/types';
 
@@ -24,13 +24,13 @@ const Application: FunctionComponent = () => (
   <>
     <CssBaseline />
     
-    <Provider store={store}>
+    <StoreProvider>
       <ThemeProvider theme={theme}>
         <DndProvider backend={HTML5Backend}>
           <Layout />
         </DndProvider>
       </ThemeProvider>
-    </Provider>
+    </StoreProvider>
   </>
 );
 
