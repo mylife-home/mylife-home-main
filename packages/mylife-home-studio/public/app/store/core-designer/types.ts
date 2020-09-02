@@ -7,13 +7,14 @@ export interface CoreDesignerNewTabData extends NewTabData {
   bindings: Binding[];
 }
 
-export interface ComponentMoveAction {
-  id: string;
-  // TODO
+export interface MoveComponentAction {
+  tabId: string;
+  componentId: string;
+  position: Position;
 }
 
 export const enum ActionTypes {
-  COMPONENT_MOVE = 'core-designer/component-move',
+  MOVE_COMPONENT = 'core-designer/move-component',
 }
 
 // -- common definitions --
@@ -62,10 +63,16 @@ export interface Plugin {
   config: { [name: string]: ConfigItem; };
 }
 
+export interface Position {
+  x: number;
+  y: number;
+}
+
 export interface Component {
   id: string;
   plugin: string;
   config: { [name: string]: any; };
+  position: Position;
 }
 
 export interface Binding {

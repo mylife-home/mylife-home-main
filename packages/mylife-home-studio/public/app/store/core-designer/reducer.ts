@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
-import { CoreDesignerState, Plugin, Component, Binding, ActionTypes, CoreDesignersState, CoreDesignerNewTabData } from './types';
+import { CoreDesignerState, Plugin, Component, Binding, ActionTypes, CoreDesignersState, CoreDesignerNewTabData, MoveComponentAction } from './types';
 import { createTable } from '../common/reducer-tools';
 
 const initialState: CoreDesignersState = {};
@@ -24,5 +24,10 @@ export default createReducer(initialState, {
   [TabsActionTypes.CLOSE]: (state, action: PayloadAction<TabIdAction>) => {
     const { id } = action.payload;
     delete state[id];
+  },
+
+  [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<MoveComponentAction>) => {
+    const { tabId, componentId, position } = action.payload;
+    state[tabId].components.byId[componentId].position = position;
   },
 });

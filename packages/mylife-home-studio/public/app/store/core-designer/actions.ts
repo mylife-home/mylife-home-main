@@ -1,4 +1,4 @@
 import { createAction } from '@reduxjs/toolkit';
-import { ActionTypes, ComponentMoveAction } from './types';
+import { ActionTypes, MoveComponentAction } from './types';
 
-export const componentMove = createAction<ComponentMoveAction>(ActionTypes.COMPONENT_MOVE);
+export const moveComponent = createAction<MoveComponentAction>(ActionTypes.MOVE_COMPONENT);
