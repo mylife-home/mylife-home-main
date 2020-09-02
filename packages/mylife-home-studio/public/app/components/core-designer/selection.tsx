@@ -1,5 +1,4 @@
 import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 
 type SelectionType = 'component' | 'binding';
 
