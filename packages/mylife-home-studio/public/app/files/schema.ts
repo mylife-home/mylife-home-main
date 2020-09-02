@@ -8,6 +8,8 @@ import rawHWGarden2 from './content/hw_rpi2-home-garden2.json';
 import rawHWHallbox from './content/hw_rpi2-home-hallbox.json';
 import rawVPanelCore from './content/vpanel_rpi2-home-core.json';
 
+import { Member, PluginUsage, ConfigItem, MemberType, ConfigType } from '../store/core-designer/types';
+
 export const hwGarden1 = processFile(rawHWGarden1);
 export const hwSockets1 = processFile(rawHWSockets1);
 export const hwGarden4 = processFile(rawHWGarden4);
@@ -21,13 +23,14 @@ export const vpanelCore = processFile(rawVPanelCore);
 function processFile(file: raw.File) {
   const GRID_STEP = 24;
 
-  const plugins = buildPluginMap(file);
+  const pluginMap = buildPluginMap(file);
+  const plugins = Array.from(pluginMap.values());
   const components: Component[] = [];
   const bindings: Binding[] = [];
 
   for (const raw of file.Components) {
-    const pluginId = `${raw.EntityName}:${raw.Component.library}:${raw.Component.type}`;
-    const plugin = plugins.get(pluginId);
+    const pluginId = `${raw.EntityName}:${raw.Component.library}.${raw.Component.type}`;
+    const plugin = pluginMap.get(pluginId);
 
     const location = raw.Component.designer.find(item => item.Key === 'Location').Value;
     const parts = location.split(',');
@@ -58,40 +61,106 @@ function processFile(file: raw.File) {
     }
   }
 
-  return { components, bindings };
+  return { plugins, components, bindings };
 }
 
 function buildPluginMap(file: raw.File) {
   const map = new Map<string, Plugin>();
 
   for (const entity of file.Toolbox) {
-    for (const plugin of entity.Plugins) {
-      const id = `${entity.EntityName}:${plugin.library}:${plugin.type}`;
+    for (const rawPlugin of entity.Plugins) {
+      const id = `${entity.EntityName}:${rawPlugin.library}.${rawPlugin.type}`;
       const states: string[] = [];
       const actions: string[] = [];
+      const members: { [name: string]: Member; } = {};
+      const config: { [name: string]: ConfigItem; } = {};
 
-      const parts = plugin.clazz.split('|');
-      for (const part of parts) {
+      const classParts = rawPlugin.clazz.split('|').filter(x => x);
+      for (const part of classParts) {
         const [name, type] = part.split(',');
         const propType = name.charAt(0);
         const propName = name.substr(1);
         switch (propType) {
           case '=':
             states.push(propName);
+            members[propName] = { description: `Description ${propName}`, memberType: MemberType.STATE, valueType: type };
             break;
           case '.':
             actions.push(propName);
+            members[propName] = { description: `Description ${propName}`, memberType: MemberType.ACTION, valueType: type };
             break;
         }
       }
 
-      map.set(id, { id, states, actions });
+      const configParts = rawPlugin.config.split('|').filter(x => x);
+      for(const part of configParts) {
+        const [type, name] = part.split(':');
+        config[name] = { description: `Description ${name}`, valueType: mapConfigType(type) };
+      }
+
+      const plugin: Plugin = {
+        id, 
+        instanceName: entity.EntityName,
+        name: rawPlugin.type,
+        module: rawPlugin.library,
+        usage: mapPluginUsage(rawPlugin.usage),
+        version: rawPlugin.version,
+        description: `Description ${id}`,
+        members,
+        config,
+      
+        states, actions
+      };
+
+      map.set(id, plugin);
     }
   }
 
   return map;
 }
 
+function mapPluginUsage(usage: number) {
+  switch(usage) {
+    case 1:
+      return PluginUsage.LOGIC; // or sensor
+    case 2:
+      return PluginUsage.UI;
+    case 3: 
+      return PluginUsage.ACTUATOR;
+    default:
+      throw new Error(`Unknown plugin usage: ${usage}`);
+  }
+}
+
+function mapConfigType(type: string) {
+  switch(type) {
+    case 'i':
+      return ConfigType.INTEGER;
+    case 's':
+      return ConfigType.STRING;
+    case 'b': 
+      return ConfigType.BOOL;
+    default:
+      throw new Error(`Unknown config type: ${type}`);
+  }
+}
+// TODO: share it 
+export interface Plugin {
+  readonly id: string;
+  readonly instanceName: string;
+  readonly name: string;
+  readonly module: string;
+  readonly usage: PluginUsage;
+  readonly version: string;
+  readonly description: string;
+  readonly members: { [name: string]: Member; };
+  readonly config: { [name: string]: ConfigItem; };
+  
+  readonly states: string[];
+  readonly actions: string[];
+}
+
+// TODO: share it 
 export interface Component {
   readonly id: string;
   readonly plugin: string;
@@ -103,18 +172,13 @@ export interface Component {
   readonly config: { [key: string]: any; };
 }
 
+// TODO: share it 
 export interface Binding {
   id: string;
   sourceComponent: string;
   sourceState: string;
   targetComponent: string;
   targetAction: string;
-}
-
-interface Plugin {
-  readonly id: string;
-  readonly states: string[];
-  readonly actions: string[];
 }
 
 namespace raw {

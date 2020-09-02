@@ -19,11 +19,7 @@ const StartPage: FunctionComponent = () => {
 
   const newCoreDesigner = () => {
     const id = ++idCounter;
-    const data: CoreDesignerNewTabData = {
-      plugins: [],
-      components: schema.vpanelCore.components,
-      bindings: schema.vpanelCore.bindings
-    };
+    const data: CoreDesignerNewTabData = schema.vpanelCore;
     newTab({
       id: `core-designer-${id}`,
       title: `Core designer ${id}`,
