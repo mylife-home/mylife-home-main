@@ -2,26 +2,11 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
-import TabPanel, { useTabPanelId } from '../lib/tab-panel';
-import StartPage from '../start-page';
-import CoreDesigner from '../core-designer';
+import TabPanel from '../lib/tab-panel';
+import Panel from './panel';
 
-import { AppState } from '../../store/types';
-import { TabType } from '../../store/tabs/types';
 import { closeTab, activateTab, moveTab } from '../../store/tabs/actions';
-import { getTabList, getTab, getSelectedTabId } from '../../store/tabs/selectors';
-
-const Panel: FunctionComponent = () => {
-  const tabId = useTabPanelId();
-  const tab = useSelector((state: AppState) => getTab(state, tabId));
-
-  switch(tab.type) {
-    case TabType.START_PAGE:
-      return (<StartPage />);
-    case TabType.CORE_DESIGNER:
-      return (<CoreDesigner />);
-  }
-}
+import { getTabList, getSelectedTabId } from '../../store/tabs/selectors';
 
 const useStyles = makeStyles((theme) => ({
   root: {

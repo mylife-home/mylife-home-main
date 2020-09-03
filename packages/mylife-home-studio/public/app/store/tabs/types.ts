@@ -2,7 +2,10 @@ import { Table } from '../common/types';
 
 export const enum TabType {
   START_PAGE = 'start-page',
-  CORE_DESIGNER = 'core-designer'
+  CORE_DESIGNER = 'core-designer',
+  UI_DESIGNER = 'ui-designer',
+  ONLINE_VIEW = 'online-view',
+  DEPLOY_MANAGER = 'deploy-manager',
 }
 
 export interface NewTabData { }
