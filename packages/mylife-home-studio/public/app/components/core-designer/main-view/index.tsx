@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 
-import StoreHierarchyFix from '../../lib/store-hierarchy-fix';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
 import { Layer } from '../drawing/konva';
@@ -21,23 +20,17 @@ const MainView: FunctionComponent = () => {
     <Canvas>
       <Layer name='bindings'>
         {bindingIds.map(id => (
-          <StoreHierarchyFix key={id}>
-            <Binding bindingId={id} />
-          </StoreHierarchyFix>
+          <Binding key={id} bindingId={id} />
         ))}
       </Layer>
 
       <Layer name='components'>
         {componentIds.map(id => (
-          <StoreHierarchyFix key={id}>
-            <Component componentId={id} />  
-          </StoreHierarchyFix>
+          <Component key={id} componentId={id} />  
         ))}
 
         {selection && selection.type === 'component' && (
-          <StoreHierarchyFix>
-            <ComponentSelectionMark componentId={selection.id} />
-          </StoreHierarchyFix>
+          <ComponentSelectionMark componentId={selection.id} />
         )}
       </Layer>
     </Canvas>

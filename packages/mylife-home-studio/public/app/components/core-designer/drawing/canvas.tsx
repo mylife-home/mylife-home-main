@@ -1,7 +1,8 @@
-import React, { useContext, forwardRef } from 'react';
+import React, { useContext, forwardRef, FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
+import StoreHierarchyFix from '../../lib/store-hierarchy-fix';
 import StoreProvider from '../../lib/store-provider';
 import { TabIdContext } from '../../lib/tab-panel';
 import { SelectionContext } from '../selection';
@@ -24,6 +25,7 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
   const selectionProps = useContext(SelectionContext);
   const classes = useStyles();
 
+
   return (
     <Stage {...props} ref={ref} className={clsx(className, classes.container)}>
       <StoreProvider>
@@ -31,7 +33,9 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
           <ViewInfoContext.Provider value={viewInfoProps}>
             <TabIdContext.Provider value={tabId}>
               <SelectionContext.Provider value={selectionProps}>
-                {children}
+                <StoreHierarchyFix>
+                  {children}
+                </StoreHierarchyFix>
               </SelectionContext.Provider>
             </TabIdContext.Provider>
           </ViewInfoContext.Provider>
