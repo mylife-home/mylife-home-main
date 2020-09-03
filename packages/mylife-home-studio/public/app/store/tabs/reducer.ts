@@ -31,6 +31,8 @@ export default createReducer(initialState, {
     delete state.byId[tab.id];
     state.allIds.splice(tab.index, 1);
 
+    reindex(state);
+
     if (state.activeId === tab.id) {
       // activate new tab
       state.activeId = null;
@@ -39,7 +41,7 @@ export default createReducer(initialState, {
         return;
       }
 
-      const newActiveIndex = Math.max(tab.index, state.allIds.length - 1);
+      const newActiveIndex = Math.min(tab.index, state.allIds.length - 1);
       activate(state, state.allIds[newActiveIndex]);
     }
   },
@@ -52,10 +54,7 @@ export default createReducer(initialState, {
     state.allIds.splice(sourceIndex, 1);
     state.allIds.splice(targetIndex, 0, id);
 
-    // reindex
-    for(const [index, id] of state.allIds.entries()) {
-      state.byId[id].index = index;
-    }
+    reindex(state);
   },
 
   [ActionTypes.ACTIVATE]: (state, action: PayloadAction<TabIdAction>) => {
@@ -77,4 +76,10 @@ function activate(state: TabsState, id: string) {
 
   state.activeId = id;
   state.byId[id].active = true;
+}
+
+function reindex(state: TabsState) {
+  for(const [index, id] of state.allIds.entries()) {
+    state.byId[id].index = index;
+  }
 }
