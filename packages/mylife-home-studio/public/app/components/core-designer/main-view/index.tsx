@@ -1,10 +1,10 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 
+import StoreHierarchyFix from '../../lib/store-hierarchy-fix';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
 import { Layer } from '../drawing/konva';
-import { Point } from '../drawing/types';
 import Canvas from './canvas';
 import Component from './component';
 import Binding from './binding';
@@ -21,16 +21,24 @@ const MainView: FunctionComponent = () => {
     <Canvas>
       <Layer name='bindings'>
         {bindingIds.map(id => (
-          <Binding key={id} bindingId={id} />
+          <StoreHierarchyFix key={id}>
+            <Binding bindingId={id} />
+          </StoreHierarchyFix>
         ))}
       </Layer>
 
       <Layer name='components'>
         {componentIds.map(id => (
-          <Component key={id} componentId={id} />  
+          <StoreHierarchyFix key={id}>
+            <Component componentId={id} />  
+          </StoreHierarchyFix>
         ))}
 
-        {selection && selection.type === 'component' && <ComponentSelectionMark componentId={selection.id} />}
+        {selection && selection.type === 'component' && (
+          <StoreHierarchyFix>
+            <ComponentSelectionMark componentId={selection.id} />
+          </StoreHierarchyFix>
+        )}
       </Layer>
     </Canvas>
   );

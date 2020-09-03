@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
+import StoreHierarchyFix from '../../lib/store-hierarchy-fix';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { LAYER_SIZE } from '../drawing/defs';
 import { Point } from '../drawing/types';
@@ -40,7 +41,9 @@ const MiniView: FunctionComponent<MiniViewProps> = ({ className }) => {
       <Canvas size={size} scale={scale} onSizeChange={setSize} onClick={clickHandler}>
 
         {componentIds.map((id) => (
-          <Component key={id} componentId={id} />
+          <StoreHierarchyFix key={id}>
+            <Component componentId={id} />
+          </StoreHierarchyFix>
         ))}
 
         <MainViewMark scale={scale}/>
