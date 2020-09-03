@@ -1,4 +1,4 @@
-import React, { FunctionComponent, ReactNode } from 'react';
+import React, { FunctionComponent, ReactNode, useMemo, useEffect } from 'react';
 import { useStore, Provider } from 'react-redux';
 
 // to be remove when useSelector is fixed
@@ -8,7 +8,7 @@ import { useStore, Provider } from 'react-redux';
 const StoreHierarchyFix: FunctionComponent<{ children?: ReactNode }> = ({ children }) => {
   const store = useStore();
 
-  const subStore = React.useMemo(
+  const subStore = useMemo(
     () => ({
       ...store,
       ...createSubscription(),
@@ -16,7 +16,7 @@ const StoreHierarchyFix: FunctionComponent<{ children?: ReactNode }> = ({ childr
     [store]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     subStore.notifyUpdates();
   }); // Don't pass dependencies so that it will run after every re-render
 
