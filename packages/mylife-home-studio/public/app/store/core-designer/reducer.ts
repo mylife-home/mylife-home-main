@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
-import { CoreDesignerState, Plugin, Component, Binding, ActionTypes, CoreDesignersState, CoreDesignerNewTabData, MoveComponentAction } from './types';
+import { ActionTypes, CoreDesignersState, CoreDesignerNewTabData, MoveComponentAction } from './types';
 import { createTable } from '../common/reducer-tools';
 
 const initialState: CoreDesignersState = {};
