@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useCanvasTheme } from '../drawing/theme';
 import Border from '../drawing/border';
+import { computeComponentRect } from '../drawing/shapes';
+import { useSafeSelector } from '../drawing/use-safe-selector';
 
 import { AppState } from '../../../store/types';
 import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
-import { computeComponentRect } from '../drawing/shapes';
 
 export interface ComponentSelectionMarkProps {
   componentId: string;
@@ -32,7 +32,7 @@ export default ComponentSelectionMark;
 
 function useConnect(componentId: string) {
   const tabId = useTabPanelId();
-  const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
-  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
+  const component = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
+  const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
   return { component, plugin };
 }

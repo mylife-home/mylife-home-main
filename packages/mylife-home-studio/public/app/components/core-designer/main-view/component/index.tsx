@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useComponentSelection } from '../../selection';
@@ -9,6 +9,7 @@ import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
 import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect } from '../../drawing/shapes';
+import { useSafeSelector } from '../../drawing/use-safe-selector';
 import Title from './title';
 import PropertyList from './property-list';
 
@@ -57,8 +58,8 @@ export default Component;
 function useConnect(componentId: string) {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
-  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
+  const component = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
+  const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
 
   return {
     component, 

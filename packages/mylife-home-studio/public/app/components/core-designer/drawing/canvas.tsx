@@ -33,9 +33,7 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
           <ViewInfoContext.Provider value={viewInfoProps}>
             <TabIdContext.Provider value={tabId}>
               <SelectionContext.Provider value={selectionProps}>
-                <StoreHierarchyFix>
-                  {children}
-                </StoreHierarchyFix>
+                {children}
               </SelectionContext.Provider>
             </TabIdContext.Provider>
           </ViewInfoContext.Provider>
