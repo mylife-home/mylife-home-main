@@ -2,7 +2,6 @@ import React, { useContext, forwardRef, FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import StoreHierarchyFix from '../../lib/store-hierarchy-fix';
 import StoreProvider from '../../lib/store-provider';
 import { TabIdContext } from '../../lib/tab-panel';
 import { SelectionContext } from '../selection';
