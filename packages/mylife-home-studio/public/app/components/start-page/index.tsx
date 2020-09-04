@@ -2,9 +2,9 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
 
 import { NewTabAction, TabType } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
@@ -63,13 +63,29 @@ const StartPage: FunctionComponent = () => {
   }
 
   return (
-    <Box p={3}>
-      <Typography>Démarrage</Typography>
-      <Button onClick={newCoreDesigner}>Nouveau designer core</Button>
-      <Button onClick={newUiDesigner}>Nouveau designer UI</Button>
-      <Button onClick={newOnlineView}>Nouvelle vue du réseau</Button>
-      <Button onClick={newDeployManager}>Nouveau gestionnaire du déploiement</Button>
-    </Box>
+    <Grid container spacing={3}>
+      <Grid item xs={12}>
+        <Typography variant='h1'>Démarrage</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant='h2'>Designers</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Link component='button' variant='h3' onClick={newCoreDesigner}>Nouveau designer core</Link>
+      </Grid>
+      <Grid item xs={12}>
+        <Link component='button' variant='h3' onClick={newUiDesigner}>Nouveau designer UI</Link>
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant='h2'>En ligne</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Link component='button' variant='h3' onClick={newOnlineView}>Vue du réseau</Link>
+      </Grid>
+      <Grid item xs={12}>
+        <Link component='button' variant='h3' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
+      </Grid>
+    </Grid>
   );
 };
 
