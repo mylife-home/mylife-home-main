@@ -6,60 +6,24 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
-import { NewTabAction, TabType } from '../../store/tabs/types';
+import { TabType, NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
-import { newTab } from '../../store/tabs/actions';
+import { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab, newDeployManagerTab } from '../../store/tabs/actions';
 
 import * as schema from '../../files/schema';
 
-let idCounter = 0; // FIXME
+let counter = 0;
 
 const StartPage: FunctionComponent = () => {
-  const { newTab } = useConnect();
+  const { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab: newOnlineView, newDeployManagerTab: newDeployManager } = useConnect();
 
   const newCoreDesigner = () => {
-    const id = ++idCounter;
     const data: CoreDesignerNewTabData = schema.vpanelCore;
-    newTab({
-      id: `core-designer-${id}`,
-      title: `Core designer ${id}`,
-      type: TabType.CORE_DESIGNER,
-      closable: true,
-      data
-    });
+    newCoreDesignerTab(`Core designer ${++counter}`, data);
   };
 
   const newUiDesigner = () => {
-    const id = ++idCounter;
-    newTab({
-      id: `ui-designer-${id}`,
-      title: `UI designer ${id}`,
-      type: TabType.UI_DESIGNER,
-      closable: true,
-      data: null
-    });
-  }
-
-  const newOnlineView = () => {
-    const id = ++idCounter;
-    newTab({
-      id: `online-view-${id}`,
-      title: `Vue du réseau ${id}`,
-      type: TabType.ONLINE_VIEW,
-      closable: true,
-      data: null
-    });
-  }
-
-  const newDeployManager = () => {
-    const id = ++idCounter;
-    newTab({
-      id: `ui-designer-${id}`,
-      title: `Gestion du déploiement ${id}`,
-      type: TabType.DEPLOY_MANAGER,
-      closable: true,
-      data: null
-    });
+    newUiDesignerTab(`UI designer ${++counter}`, null);
   }
 
   return (
@@ -94,6 +58,9 @@ export default StartPage;
 function useConnect() {
   const dispatch = useDispatch();
   return useMemo(() => ({
-    newTab: (payload: NewTabAction) => dispatch(newTab(payload)),
+    newCoreDesignerTab: (title: string, data: CoreDesignerNewTabData) => dispatch(newCoreDesignerTab({ title, data })),
+    newUiDesignerTab: (title: string, data: NewTabData) => dispatch(newUiDesignerTab({ title, data })),
+    newOnlineViewTab: () => dispatch(newOnlineViewTab()),
+    newDeployManagerTab: () => dispatch(newDeployManagerTab()),
   }), [dispatch]);
 }
