@@ -1,4 +1,4 @@
-import React, { useContext, forwardRef, FunctionComponent } from 'react';
+import React, { useContext, forwardRef } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -23,7 +23,6 @@ const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...pr
   const tabId = useContext(TabIdContext);
   const selectionProps = useContext(SelectionContext);
   const classes = useStyles();
-
 
   return (
     <Stage {...props} ref={ref} className={clsx(className, classes.container)}>
