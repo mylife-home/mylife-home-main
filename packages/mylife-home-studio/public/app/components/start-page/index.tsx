@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -6,16 +6,26 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
-import { TabType, NewTabData } from '../../store/tabs/types';
+import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab, newDeployManagerTab } from '../../store/tabs/actions';
 
 import * as schema from '../../files/schema';
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    margin: theme.spacing(3)
+  },
+  link: {
+    marginLeft: theme.spacing(3)
+  }
+}));
+
 let counter = 0;
 
 const StartPage: FunctionComponent = () => {
   const { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab: newOnlineView, newDeployManagerTab: newDeployManager } = useConnect();
+  const classes = useStyles();
 
   const newCoreDesigner = () => {
     const data: CoreDesignerNewTabData = schema.vpanelCore;
@@ -27,27 +37,24 @@ const StartPage: FunctionComponent = () => {
   }
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} className={classes.container}>
       <Grid item xs={12}>
-        <Typography variant='h1'>Démarrage</Typography>
+        <Typography variant='h6'>Designers</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant='h2'>Designers</Typography>
+        <Link className={classes.link} component='button' variant='body1' onClick={newCoreDesigner}>Nouveau designer core</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link component='button' variant='h3' onClick={newCoreDesigner}>Nouveau designer core</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newUiDesigner}>Nouveau designer UI</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link component='button' variant='h3' onClick={newUiDesigner}>Nouveau designer UI</Link>
+        <Typography variant='h6'>En ligne</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant='h2'>En ligne</Typography>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineView}>Vue du réseau</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link component='button' variant='h3' onClick={newOnlineView}>Vue du réseau</Link>
-      </Grid>
-      <Grid item xs={12}>
-        <Link component='button' variant='h3' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
       </Grid>
     </Grid>
   );
