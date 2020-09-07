@@ -8,7 +8,11 @@ import Link from '@material-ui/core/Link';
 
 import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
-import { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab, newDeployManagerTab } from '../../store/tabs/actions';
+import { 
+  newCoreDesignerTab, newUiDesignerTab,
+  newOnlineComponentsViewTab, newOnlineEntitiesViewTab, newOnlineLogsViewTab, 
+  newDeployManagerTab
+} from '../../store/tabs/actions';
 
 import * as schema from '../../files/schema';
 
@@ -24,7 +28,12 @@ const useStyles = makeStyles((theme) => ({
 let counter = 0;
 
 const StartPage: FunctionComponent = () => {
-  const { newCoreDesignerTab, newUiDesignerTab, newOnlineViewTab: newOnlineView, newDeployManagerTab: newDeployManager } = useConnect();
+  const { 
+    newCoreDesignerTab, newUiDesignerTab, 
+    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineEntitiesViewTab: newOnlineEntitiesView, newOnlineLogsViewTab: newOnlineLogsView, 
+    newDeployManagerTab: newDeployManager
+  } = useConnect();
+
   const classes = useStyles();
 
   const newCoreDesigner = () => {
@@ -51,7 +60,13 @@ const StartPage: FunctionComponent = () => {
         <Typography variant='h6'>En ligne</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineView}>Vue du réseau</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineLogsView}>Logs</Link>
+      </Grid>
+      <Grid item xs={12}>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineEntitiesView}>Vue des entités</Link>
+      </Grid>
+      <Grid item xs={12}>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
@@ -67,7 +82,9 @@ function useConnect() {
   return useMemo(() => ({
     newCoreDesignerTab: (title: string, data: CoreDesignerNewTabData) => dispatch(newCoreDesignerTab({ title, data })),
     newUiDesignerTab: (title: string, data: NewTabData) => dispatch(newUiDesignerTab({ title, data })),
-    newOnlineViewTab: () => dispatch(newOnlineViewTab()),
+    newOnlineComponentsViewTab: () => dispatch(newOnlineComponentsViewTab()),
+    newOnlineEntitiesViewTab: () => dispatch(newOnlineEntitiesViewTab()),
+    newOnlineLogsViewTab: () => dispatch(newOnlineLogsViewTab()),
     newDeployManagerTab: () => dispatch(newDeployManagerTab()),
   }), [dispatch]);
 }

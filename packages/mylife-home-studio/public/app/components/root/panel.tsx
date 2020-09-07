@@ -5,7 +5,9 @@ import { useTabPanelId } from '../lib/tab-panel';
 import StartPage from '../start-page';
 import CoreDesigner from '../core-designer';
 import UiDesigner from '../ui-designer';
-import OnlineView from '../online-view';
+import OnlineComponentsView from '../online-components-view';
+import OnlineEntitiesView from '../online-entities-view';
+import OnlineLogsView from '../online-logs-view';
 import DeployManager from '../deploy-manager';
 
 import { AppState } from '../../store/types';
@@ -23,8 +25,12 @@ const Panel: FunctionComponent = () => {
       return (<CoreDesigner />);
     case TabType.UI_DESIGNER:
       return (<UiDesigner />);
-    case TabType.ONLINE_VIEW:
-      return (<OnlineView />);
+    case TabType.ONLINE_COMPONENTS_VIEW:
+      return (<OnlineComponentsView />);
+    case TabType.ONLINE_ENTITIES_VIEW:
+      return (<OnlineEntitiesView />);
+    case TabType.ONLINE_LOGS_VIEW:
+      return (<OnlineLogsView />);
     case TabType.DEPLOY_MANAGER:
       return (<DeployManager />);
     }

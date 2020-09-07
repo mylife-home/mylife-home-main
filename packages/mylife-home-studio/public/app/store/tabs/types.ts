@@ -4,7 +4,9 @@ export const enum TabType {
   START_PAGE = 'start-page',
   CORE_DESIGNER = 'core-designer',
   UI_DESIGNER = 'ui-designer',
-  ONLINE_VIEW = 'online-view',
+  ONLINE_COMPONENTS_VIEW = 'online-components-view',
+  ONLINE_ENTITIES_VIEW = 'online-entities-view',
+  ONLINE_LOGS_VIEW = 'online-logs-view',
   DEPLOY_MANAGER = 'deploy-manager',
 }
 

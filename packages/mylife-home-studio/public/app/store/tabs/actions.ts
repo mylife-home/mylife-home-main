@@ -27,10 +27,26 @@ export const newUiDesignerTab = ({title, data} : { title: string, data: NewTabDa
   data
 });
 
-export const newOnlineViewTab = () => newTab({
-  id: `online-view-${++idCounter}`,
-  title: `Vue du réseau`,
-  type: TabType.ONLINE_VIEW,
+export const newOnlineComponentsViewTab = () => newTab({
+  id: `online-components-view-${++idCounter}`,
+  title: `Vue des composants`,
+  type: TabType.ONLINE_COMPONENTS_VIEW,
+  closable: true,
+  data: null
+});
+
+export const newOnlineEntitiesViewTab = () => newTab({
+  id: `online-entities-view-${++idCounter}`,
+  title: `Vue des entités`,
+  type: TabType.ONLINE_ENTITIES_VIEW,
+  closable: true,
+  data: null
+});
+
+export const newOnlineLogsViewTab = () => newTab({
+  id: `online-logs-view-${++idCounter}`,
+  title: `Logs`,
+  type: TabType.ONLINE_LOGS_VIEW,
   closable: true,
   data: null
 });
