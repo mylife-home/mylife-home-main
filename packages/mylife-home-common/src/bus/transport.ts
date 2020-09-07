@@ -1,4 +1,3 @@
-import os from 'os';
 import { EventEmitter } from 'events';
 import { Client } from './client';
 import { Rpc } from './rpc';
