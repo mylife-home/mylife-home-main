@@ -20,28 +20,22 @@ type CorePluginsGlobs = {
   [name: string]: string[];
 };
 
-const buildProd = parallel(
+// no parallel because it seems to explode js stack
+const buildProd = series(
+  projects.common.ts.task,
+
+  projects.core.ts.task,
+  projects.core.lib.prod.task,
+  projects.core.bin.prod.task,
+  createProdCorePluginsTask(),
+
   projects.ui.client.prod.task,
+  projects.ui.ts.task,
+  projects.ui.bin.prod.task,
+
   projects.studio.client.prod.task,
-  series(
-    projects.common.ts.task,
-    parallel(
-      series(
-        projects.ui.ts.task,
-        projects.ui.bin.prod.task
-      ),
-      series(
-        projects.core.ts.task,
-        projects.core.lib.prod.task,
-        projects.core.bin.prod.task,
-        createProdCorePluginsTask()
-      ),
-      series(
-        projects.studio.ts.task,
-        projects.studio.bin.prod.task
-      )
-    )
-  )
+  projects.studio.ts.task,
+  projects.studio.bin.prod.task
 );
 
 function createProdCorePluginsTask() {
