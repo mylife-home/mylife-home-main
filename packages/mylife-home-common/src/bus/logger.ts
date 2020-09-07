@@ -1,7 +1,9 @@
+import BunyanLogger from 'bunyan';
 import { Client } from './client';
 import { TransportOptions } from './transport';
-import { Writable, WritableOptions, Readable, ReadableOptions, PassThrough, TransformOptions } from 'stream';
+import { Writable, WritableOptions, Readable, PassThrough, TransformOptions } from 'stream';
 import { fireAsync } from '../tools';
+import { addStream } from '../logger';
 
 const DOMAIN = 'logger';
 const DEFAULT_OFFLINE_RETENTION = 1 * 1024 * 1024;
@@ -91,9 +93,14 @@ export class Logger {
 
   constructor(private readonly client: Client, options: TransportOptions) {
     this.offlineRetention = options.loggerOfflineRetention || DEFAULT_OFFLINE_RETENTION;
+
+    addStream({
+      stream: this.createWritableStream(),
+      level: BunyanLogger.DEBUG,
+    });
   }
 
-  createWritableStream(): Writable {
+  private createWritableStream(): Writable {
     return new PublishStream(this.client, this.offlineRetention);
   }
 
