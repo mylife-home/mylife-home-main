@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { logger, bus } from 'mylife-home-common';
+import { logger } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { EventEmitter } from 'events';
 
