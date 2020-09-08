@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { logger, bus } from 'mylife-home-common';
-import { Service } from './types';
+import { Service, BuildParams } from './types';
 import { EventEmitter } from 'events';
 
 const log = logger.createLogger('mylife:home:studio:services:logging');
@@ -25,8 +25,8 @@ export class Logging implements Service {
   private readonly stream: Readable;
   private readonly buffer = new CircularBuffer<LogRecord>(1000);
 
-  constructor(transport: bus.Transport) {
-    this.stream = transport.logger.createAggregatedReadableStream();
+  constructor(params: BuildParams) {
+    this.stream = params.transport.logger.createAggregatedReadableStream();
 
     this.stream.on('data', (chunk: Buffer) => {
       try {

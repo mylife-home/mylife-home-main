@@ -10,7 +10,7 @@ export class Manager {
   constructor() {
     this.transport = new bus.Transport({ presenceTracking: true });
     this.webServer = new WebServer();
-    this.services = new Services(this.transport);
+    this.services = new Services({ transport: this.transport, httpServer: this.webServer.httpServer });
   }
 
   async init() {

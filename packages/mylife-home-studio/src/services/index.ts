@@ -1,14 +1,13 @@
-import { bus } from 'mylife-home-common';
-import { Service } from './types';
+import { Service, BuildParams } from './types';
 import { Logging } from './logging';
 import { SessionManager } from './session-manager';
 
 export class Services {
-  private readonly services: { [name: string]: Service } = {};
+  private readonly services: { [name: string]: Service; } = {};
 
-  constructor(transport: bus.Transport) {
-    this.services.logging = new Logging(transport);
-    this.services.sessionManager = new SessionManager();
+  constructor(params: BuildParams) {
+    this.services.logging = new Logging(params);
+    this.services.sessionManager = new SessionManager(params);
   }
 
   async init() {
