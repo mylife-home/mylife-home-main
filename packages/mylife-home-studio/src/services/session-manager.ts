@@ -1,35 +1,10 @@
 import { EventEmitter } from 'events';
 import io from 'socket.io';
 import { logger, tools } from 'mylife-home-common';
+import { ServerMessage, Notification, ServiceRequest, ServiceResponse } from '../../shared/protocol';
 import { Service, BuildParams } from './types';
 
 const log = logger.createLogger('mylife:home:studio:services:session-manager');
-
-interface ServerMessage {
-  type: 'service-response' | 'notification';
-}
-
-interface ServiceRequest {
-  requestId: string;
-  service: string;
-  payload: any;
-}
-
-interface ServiceResponse extends ServerMessage {
-  requestId: string;
-  result?: any;
-  error?: {
-    type: string;
-    message: string;
-    stack: string;
-  };
-}
-
-interface Notification extends ServerMessage {
-  notifierType: string;
-  notifierId: string;
-  data: any;
-}
 
 export interface SessionFeature {
 }
@@ -161,8 +136,7 @@ export class SessionManager implements Service {
   }
 
   private async runServiceHandler(session: SessionImpl, request: ServiceRequest) {
-    const { service, payload, requestId } = request;
-    const handler = this.serviceHandlers.get(service);
+    const handler = this.serviceHandlers.get(request.service);
     const response = await executeServiceHandler(session, request, handler);
     session.send(response);
   }
