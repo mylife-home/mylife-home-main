@@ -17,6 +17,10 @@ export async function sleep(delay: number) {
   await new Promise(resolve => setTimeout(resolve, delay));
 }
 
+export async function nextTick() {
+  await new Promise(resolve => setImmediate(resolve));
+}
+
 export function init(mainComponent: string) {
   setDefine('main-component', mainComponent);
 
