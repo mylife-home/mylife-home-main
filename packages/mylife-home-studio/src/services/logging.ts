@@ -25,7 +25,7 @@ export interface LogRecord {
 class SessionNotifiers implements SessionFeature {
   private readonly notifierIds = new Set<string>();
 
-  private static getFromSession(session: Session) {
+  private static getFromSession(session: Session, createIfNotExist = true) {
     const FEATURE_NAME = 'logging/notifiers';
     const existing = session.findFeature(FEATURE_NAME);
     if(existing) {
@@ -46,7 +46,8 @@ class SessionNotifiers implements SessionFeature {
   }
 
   static getNotifierIds(session: Session) {
-    return [...SessionNotifiers.getFromSession(session).notifierIds];
+    const feature = SessionNotifiers.getFromSession(session, false);
+    return feature ? [...feature.notifierIds] : [];
   }
 }
 
@@ -63,7 +64,6 @@ export class Logging implements Service {
       if (!record) {
         return;
       }
-
 
       this.buffer.push(record);
 
