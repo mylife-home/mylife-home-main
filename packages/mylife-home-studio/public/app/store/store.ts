@@ -1,9 +1,10 @@
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 
+import { socketMiddleware } from './middlewares/socket';
 import reducer from './reducer';
 
-const middlewares = [thunk];
+const middlewares = [socketMiddleware, thunk];
 
 if (process.env.NODE_ENV !== 'production') {
   const { createLogger } = require('redux-logger');
