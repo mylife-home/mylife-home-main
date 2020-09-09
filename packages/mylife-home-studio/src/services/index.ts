@@ -11,11 +11,15 @@ export class Services {
   }
 
   async init() {
+    Services._instance = this;
+
     await Promise.all(Object.values(this.services).map(service => service.init()));
   }
 
   async terminate() {
     await Promise.all(Object.values(this.services).map(service => service.terminate()));
+
+    Services._instance = null;
   }
 
   get logging() {
@@ -24,5 +28,11 @@ export class Services {
 
   get sessionManager() {
     return this.services.sessionManager as SessionManager;
+  }
+
+  private static _instance: Services = null;
+
+  static get instance() {
+    return Services._instance;
   }
 }
