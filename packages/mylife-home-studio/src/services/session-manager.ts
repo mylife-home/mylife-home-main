@@ -5,6 +5,32 @@ import { Service, BuildParams } from './types';
 
 const log = logger.createLogger('mylife:home:studio:services:session-manager');
 
+interface ServerMessage {
+  type: 'service-response' | 'notification';
+}
+
+interface ServiceRequest {
+  requestId: string;
+  service: string;
+  payload: any;
+}
+
+interface ServiceResponse extends ServerMessage {
+  requestId: string;
+  result?: any;
+  error?: {
+    type: string;
+    message: string;
+    stack: string;
+  };
+}
+
+interface Notification extends ServerMessage {
+  notifierType: string;
+  notifierId: string;
+  data: any;
+}
+
 export interface SessionFeature {
 }
 
@@ -17,11 +43,12 @@ export interface Session {
   getFeature(key: string): SessionFeature;
   findFeature(key: string): SessionFeature;
 
-  notify(payload: any): void;
+  createNotifier(notifierType: string): SessionNotifier;
 }
 
 class SessionImpl extends EventEmitter implements Session {
   private readonly features = new Map<string, SessionFeature>();
+  private notifierIdGenerator = 0;
 
   constructor(private readonly socket: io.Socket) {
     super();
@@ -80,33 +107,29 @@ class SessionImpl extends EventEmitter implements Session {
     this.socket.emit('message', payload);
   }
 
-  notify(payload: any) {
-    this.send({ ...payload, type: 'notification' });
+  createNotifier(notifierType: string) {
+    return new SessionNotifier(this, `${++this.notifierIdGenerator}`, notifierType);
+  }
+}
+
+export class SessionNotifier {
+  constructor(readonly session: SessionImpl, readonly id: string, readonly type: string) {
+  }
+
+  notify(data: any) {
+    const message: Notification = {
+      type: 'notification',
+      notifierId: this.id,
+      notifierType: this.type,
+      data
+    };
+
+    this.session.send(message);
   }
 }
 
 export type SessionHandler = (session: Session, type: 'new' | 'close') => void;
-export type ServiceHandler = (session: Session, payload: any) => Promise<void>;
-
-interface ServerMessage {
-  type: 'service-response' | 'notification';
-}
-
-interface ServiceRequest {
-  requestId: string;
-  service: string;
-  payload: any;
-}
-
-interface ServiceResponse extends ServerMessage {
-  requestId: string;
-  result?: any;
-  error?: {
-    type: string;
-    message: string;
-    stack: string;
-  };
-}
+export type ServiceHandler = (session: Session, payload: any) => Promise<any>;
 
 export class SessionManager implements Service {
   private readonly server: io.Server;
