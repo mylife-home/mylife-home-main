@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import io from 'socket.io';
-import { logger } from 'mylife-home-common';
+import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 
 const log = logger.createLogger('mylife:home:studio:services:session-manager');
@@ -15,8 +15,9 @@ export interface Session {
   addFeature(key: string, feature: SessionFeature): void;
   removeFeature(key: string): void;
   getFeature(key: string): SessionFeature;
+  findFeature(key: string): SessionFeature;
 
-  send(payload: any): void;
+  notify(payload: any): void;
 }
 
 class SessionImpl extends EventEmitter implements Session {
@@ -63,6 +64,10 @@ class SessionImpl extends EventEmitter implements Session {
     }
   }
 
+  findFeature(key: string): SessionFeature {
+    return this.features.get(key);
+  }
+
   getFeature(key: string) {
     const feature = this.features.get(key);
     if (!feature) {
@@ -71,19 +76,43 @@ class SessionImpl extends EventEmitter implements Session {
     return feature;
   }
 
-  send(payload: any) {
+  send(payload: ServerMessage) {
     this.socket.emit('message', payload);
+  }
+
+  notify(payload: any) {
+    this.send({ ...payload, type: 'notification' });
   }
 }
 
 export type SessionHandler = (session: Session, type: 'new' | 'close') => void;
-export type MessageHandler = (session: Session, payload: any) => void;
+export type ServiceHandler = (session: Session, payload: any) => Promise<void>;
+
+interface ServerMessage {
+  type: 'service-response' | 'notification';
+}
+
+interface ServiceRequest {
+  requestId: string;
+  service: string;
+  payload: any;
+}
+
+interface ServiceResponse extends ServerMessage {
+  requestId: string;
+  result?: any;
+  error?: {
+    type: string;
+    message: string;
+    stack: string;
+  };
+}
 
 export class SessionManager implements Service {
   private readonly server: io.Server;
   private readonly sessions = new Set<SessionImpl>();
   private readonly sessionHandlers = new Set<SessionHandler>();
-  private readonly messageHandlers = new Set<MessageHandler>();
+  private readonly serviceHandlers = new Map<string, ServiceHandler>();
 
   constructor(params: BuildParams) {
     this.server = io(params.httpServer, { serveClient: false });
@@ -101,18 +130,22 @@ export class SessionManager implements Service {
     }
   }
 
-  registerMessageHandler(handler: SessionHandler) {
-    this.sessionHandlers.add(handler);
-  }
-
-  private fireMessageHandlers(session: Session, payload: any) {
-    for (const handler of this.messageHandlers) {
-      handler(session, payload);
+  registerServiceHandler(service: string, handler: ServiceHandler) {
+    if (this.serviceHandlers.has(service)) {
+      throw new Error(`Cannot register handler for service '${service}': handler already exists`);
     }
+    this.serviceHandlers.set(service, handler);
   }
 
-  registerSessionHandler(handler: MessageHandler) {
-    this.messageHandlers.add(handler);
+  private async runServiceHandler(session: SessionImpl, request: ServiceRequest) {
+    const { service, payload, requestId } = request;
+    const handler = this.serviceHandlers.get(service);
+    const response = await executeServiceHandler(session, request, handler);
+    session.send(response);
+  }
+
+  registerSessionHandler(handler: SessionHandler) {
+    this.sessionHandlers.add(handler);
   }
 
   private fireSessionHandlers(session: Session, type: 'new' | 'close') {
@@ -125,15 +158,43 @@ export class SessionManager implements Service {
     const session = new SessionImpl(socket);
 
     this.sessions.add(session);
-    this.fireMessageHandlers(session, 'new');
+    this.fireSessionHandlers(session, 'new');
 
     session.on('close', () => {
       this.fireSessionHandlers(session, 'close');
       this.sessions.delete(session);
     });
 
-    session.on('message', (payload: any) => {
-      this.fireMessageHandlers(session, payload);
+    session.on('message', (message: any) => {
+      tools.fireAsync(() => this.runServiceHandler(session, message));
     });
+  };
+}
+
+async function executeServiceHandler(session: Session, request: ServiceRequest, handler: ServiceHandler): Promise<ServiceResponse> {
+  const { service, payload, requestId } = request;
+
+  try {
+    if (!handler) {
+      throw new Error(`No service handler registered for service '${service}'`);
+    }
+
+    const result = await handler(session, payload);
+    return { type: 'service-response', requestId, result };
+
+  } catch (err) {
+    log.error(err, `Error running service handler for service '${service}' on session '${session.id}'`);
+
+    return createErrorResponse(err, requestId);
+  }
+}
+
+function createErrorResponse(err: Error, requestId: string): ServiceResponse {
+  const { message, stack } = err;
+  const type = err.constructor.name;
+  return {
+    type: 'service-response',
+    requestId,
+    error: { message, stack, type }
   };
 }
