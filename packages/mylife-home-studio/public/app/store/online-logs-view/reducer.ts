@@ -6,6 +6,8 @@ const initialState: OnlineLogsViewState = {
   records: []
 };
 
+const MAX_LOGS = 1000; // should match backend
+
 export default createReducer(initialState, {
   [ActionTypes.SET_NOTIFICATION]: (state, action: PayloadAction<string>) => {
     state.notifierId = action.payload;
@@ -17,6 +19,10 @@ export default createReducer(initialState, {
   },
 
   [ActionTypes.ADD_RECORD]: (state, action: PayloadAction<LogRecord>) => {
+    if(state.records.length === MAX_LOGS) {
+      state.records.shift();
+    }
+
     state.records.push(action.payload);
   },
 });

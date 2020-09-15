@@ -99,9 +99,13 @@ export class Logging implements Service {
     this.notifiers.set(notifier.id, notifier);
     SessionNotifiers.addNotifierId(session, notifier.id);
 
-    for (const record of this.buffer.toArray()) {
-      notifier.notify(record);
-    }
+    // send events after we reply
+    const records = this.buffer.toArray();
+    setImmediate(() => {
+      for (const record of records) {
+        notifier.notify(record);
+      }
+    });
 
     return { notifierId: notifier.id };
   };
