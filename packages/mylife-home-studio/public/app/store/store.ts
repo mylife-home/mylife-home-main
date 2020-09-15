@@ -1,9 +1,12 @@
 import { applyMiddleware, createStore } from 'redux';
+import { createEpicMiddleware } from 'redux-observable';
 
-import { socketMiddleware } from './middlewares/socket';
+import rootEpic from './epics';
 import reducer from './reducer';
 
-const middlewares = [socketMiddleware];
+const epicMiddleware = createEpicMiddleware();
+
+const middlewares = [epicMiddleware];
 
 if (process.env.NODE_ENV !== 'production') {
   const { createLogger } = require('redux-logger');
@@ -11,3 +14,5 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export const store = createStore(reducer, applyMiddleware(...middlewares));
+
+epicMiddleware.run(rootEpic);
