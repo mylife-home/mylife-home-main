@@ -1,9 +1,9 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, OnlineLogsViewState, LogRecord } from './types';
+import { ActionTypes, OnlineLogsViewState, LogItem } from './types';
 
 const initialState: OnlineLogsViewState = {
   notifierId: null,
-  records: []
+  items: []
 };
 
 const MAX_LOGS = 1000; // should match backend
@@ -15,16 +15,16 @@ export default createReducer(initialState, {
 
   [ActionTypes.CLEAR_NOTIFICATION]: (state) => {
     state.notifierId = null;
-    state.records = [];
+    state.items = [];
   },
 
-  [ActionTypes.ADD_RECORDS]: (state, action: PayloadAction<LogRecord[]>) => {
-    for (const record of action.payload) {
-      if (state.records.length === MAX_LOGS) {
-        state.records.shift();
+  [ActionTypes.ADD_LOG_ITEMS]: (state, action: PayloadAction<LogItem[]>) => {
+    for (const item of action.payload) {
+      if (state.items.length === MAX_LOGS) {
+        state.items.shift();
       }
 
-      state.records.push(record);
+      state.items.push(item);
     }
   },
 });

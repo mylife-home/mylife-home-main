@@ -1,26 +1,11 @@
 import { Readable } from 'stream';
-import { logger, tools } from 'mylife-home-common';
+import { logger } from 'mylife-home-common';
+import { LogRecord } from '../../shared/logging';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifier, SessionFeature } from './session-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:logging');
-
-export interface LogRecord {
-  name: string;
-  instanceName: string;
-  hostname: string;
-  pid: number;
-  level: number;
-  msg: string;
-  time: string;
-  v: number;
-  err?: {
-    message: string;
-    name: string;
-    stack: string;
-  };
-}
 
 class SessionNotifiers implements SessionFeature {
   private readonly notifierIds = new Set<string>();

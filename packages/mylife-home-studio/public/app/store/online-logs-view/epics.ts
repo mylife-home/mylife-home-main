@@ -3,13 +3,14 @@ import { Observable } from 'rxjs';
 import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
+import { LogRecord } from '../../../../shared/logging';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { setNotification, clearNotification, addRecords } from './actions';
+import { setNotification, clearNotification, addLogItems } from './actions';
 import { hasOnlineLogsViewTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, handleError, withSelector } from '../common/rx-operators';
-import { LogRecord } from './types';
+import { LogItem } from './types';
 
 const startNotifyLogsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
@@ -36,12 +37,11 @@ const fetchLogsEpic = (action$: Observable<Action>, state$: StateObservable<AppS
   return notification$.pipe(
     withSelector(state$, getNotifierId),
     filter(([notification, notifierId]) => notification.notifierType === 'logging/logs' && notification.notifierId === notifierId),
-    map(([notification]) => notification.data as LogRecord),
+    map(([notification]) => parseLogRecord(notification.data)),
     bufferDebounceTime(100), // debounce to avoid multiple store updates
-    map((records) => addRecords(records)),
+    map((items) => addLogItems(items)),
   );
 };
-
 
 export default combineEpics(startNotifyLogsEpic, stopNotifyLogsEpic, fetchLogsEpic);
 
@@ -68,4 +68,20 @@ function startCall() {
 
 function stopCall({ notifierId }: { notifierId: string; }) {
   return socket.call('logging/stop-notify-logs', { notifierId }) as Observable<void>;
+}
+
+let idGenerator = 0;
+
+function parseLogRecord(record: LogRecord): LogItem {
+  return {
+    id: `${++idGenerator}`,
+    name: record.name,
+    instanceName: record.instanceName,
+    hostname: record.hostname,
+    pid: record.pid,
+    level: record.level,
+    msg: record.msg,
+    time: new Date(record.time),
+    err: record.err || null,
+  };
 }
