@@ -18,11 +18,13 @@ export default createReducer(initialState, {
     state.records = [];
   },
 
-  [ActionTypes.ADD_RECORD]: (state, action: PayloadAction<LogRecord>) => {
-    if(state.records.length === MAX_LOGS) {
-      state.records.shift();
-    }
+  [ActionTypes.ADD_RECORDS]: (state, action: PayloadAction<LogRecord[]>) => {
+    for (const record of action.payload) {
+      if (state.records.length === MAX_LOGS) {
+        state.records.shift();
+      }
 
-    state.records.push(action.payload);
+      state.records.push(record);
+    }
   },
 });

@@ -3,4 +3,4 @@ import { ActionTypes, LogRecord } from './types';
 
 export const setNotification = createAction<string>(ActionTypes.SET_NOTIFICATION);
 export const clearNotification = createAction(ActionTypes.CLEAR_NOTIFICATION);
-export const addRecord = createAction<LogRecord>(ActionTypes.ADD_RECORD);
+export const addRecords = createAction<LogRecord[]>(ActionTypes.ADD_RECORDS);

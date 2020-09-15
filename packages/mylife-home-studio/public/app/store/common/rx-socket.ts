@@ -1,5 +1,5 @@
 import { from, fromEvent, merge } from 'rxjs';
-import { filter, map, mapTo } from 'rxjs/operators';
+import { filter, map, mapTo, tap } from 'rxjs/operators';
 import SocketIOClient from 'socket.io-client';
 import { ServiceRequest, ServerMessage, ServiceResponse, Notification } from '../../../../shared/protocol';
 

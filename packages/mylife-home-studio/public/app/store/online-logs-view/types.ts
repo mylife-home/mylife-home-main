@@ -1,7 +1,7 @@
 export const enum ActionTypes {
   SET_NOTIFICATION = 'online-logs-view/set-notification',
   CLEAR_NOTIFICATION = 'online-logs-view/clear-notification',
-  ADD_RECORD = 'online-logs-view/add-record'
+  ADD_RECORDS = 'online-logs-view/add-records'
 }
 
 export interface OnlineLogsViewState {
