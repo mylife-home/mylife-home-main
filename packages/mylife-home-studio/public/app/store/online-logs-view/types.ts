@@ -5,7 +5,7 @@ export const enum ActionTypes {
 }
 
 export interface OnlineLogsViewState {
-  notificationId: string;
+  notifierId: string;
   records: LogRecord[];
 }
 

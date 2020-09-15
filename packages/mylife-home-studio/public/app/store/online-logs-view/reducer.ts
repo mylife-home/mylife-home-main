@@ -2,17 +2,17 @@ import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes, OnlineLogsViewState, LogRecord } from './types';
 
 const initialState: OnlineLogsViewState = {
-  notificationId: null,
+  notifierId: null,
   records: []
 };
 
 export default createReducer(initialState, {
   [ActionTypes.SET_NOTIFICATION]: (state, action: PayloadAction<string>) => {
-    state.notificationId = action.payload;
+    state.notifierId = action.payload;
   },
 
   [ActionTypes.CLEAR_NOTIFICATION]: (state) => {
-    state.notificationId = null;
+    state.notifierId = null;
     state.records = [];
   },
 
