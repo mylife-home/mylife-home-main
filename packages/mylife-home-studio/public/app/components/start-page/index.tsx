@@ -1,11 +1,11 @@
-import React, { FunctionComponent, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
+import { useActions } from '../lib/use-actions';
 import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
@@ -38,11 +38,11 @@ const StartPage: FunctionComponent = () => {
 
   const newCoreDesigner = () => {
     const data: CoreDesignerNewTabData = schema.vpanelCore;
-    newCoreDesignerTab(`Core designer ${++counter}`, data);
+    newCoreDesignerTab({ title: `Core designer ${++counter}`, data });
   };
 
   const newUiDesigner = () => {
-    newUiDesignerTab(`UI designer ${++counter}`, null);
+    newUiDesignerTab({ title: `UI designer ${++counter}`, data: null });
   }
 
   return (
@@ -78,13 +78,12 @@ const StartPage: FunctionComponent = () => {
 export default StartPage;
 
 function useConnect() {
-  const dispatch = useDispatch();
-  return useMemo(() => ({
-    newCoreDesignerTab: (title: string, data: CoreDesignerNewTabData) => dispatch(newCoreDesignerTab({ title, data })),
-    newUiDesignerTab: (title: string, data: NewTabData) => dispatch(newUiDesignerTab({ title, data })),
-    newOnlineComponentsViewTab: () => dispatch(newOnlineComponentsViewTab()),
-    newOnlineEntitiesViewTab: () => dispatch(newOnlineEntitiesViewTab()),
-    newOnlineLogsViewTab: () => dispatch(newOnlineLogsViewTab()),
-    newDeployManagerTab: () => dispatch(newDeployManagerTab()),
-  }), [dispatch]);
+  return useActions({
+    newCoreDesignerTab,
+    newUiDesignerTab,
+    newOnlineComponentsViewTab,
+    newOnlineEntitiesViewTab,
+    newOnlineLogsViewTab,
+    newDeployManagerTab,
+  });
 }
