@@ -9,7 +9,7 @@ import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, addLogItems } from './actions';
 import { hasOnlineLogsViewTab, getNotifierId } from './selectors';
-import { bufferDebounceTime, handleError, withSelector } from '../common/rx-operators';
+import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { LogItem } from './types';
 
 const startNotifyLogsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
@@ -35,8 +35,9 @@ const stopNotifyLogsEpic = (action$: Observable<Action>, state$: StateObservable
 const fetchLogsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
   const notification$ = socket.notifications();
   return notification$.pipe(
+    filterNotification('logging/logs'),
     withSelector(state$, getNotifierId),
-    filter(([notification, notifierId]) => notification.notifierType === 'logging/logs' && notification.notifierId === notifierId),
+    filter(([notification, notifierId]) => notification.notifierId === notifierId),
     map(([notification]) => parseLogRecord(notification.data)),
     bufferDebounceTime(100), // debounce to avoid multiple store updates
     map((items) => addLogItems(items)),

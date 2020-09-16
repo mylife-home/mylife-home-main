@@ -1,6 +1,7 @@
 import { StateObservable } from 'redux-observable';
 import { Observable, of, OperatorFunction } from 'rxjs';
-import { catchError, debounceTime, map, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, tap, withLatestFrom } from 'rxjs/operators';
+import { Notification } from '../../../../shared/protocol';
 import { setError } from '../status/actions';
 import { AppState } from '../types';
 
@@ -27,4 +28,10 @@ export function bufferDebounceTime<T>(time: number = 0): OperatorFunction<T, T[]
       tap(() => bufferedValues = []),
     );
   };
+}
+
+export function filterNotification(type: string) {
+  return (source: Observable<Notification>) => source.pipe(
+    filter(notification => notification.notifierType === type)
+  );
 }
