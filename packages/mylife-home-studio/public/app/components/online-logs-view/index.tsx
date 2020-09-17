@@ -1,6 +1,8 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 
+import { getItems } from '../../store/online-logs-view/selectors';
 import Criteria from './criteria';
 import List from './list';
 
@@ -23,12 +25,20 @@ const useStyles = makeStyles((theme) => ({
 
 const OnlineLogsView: FunctionComponent = () => {
   const classes = useStyles();
+  const { data } = useConnect();
+  const finalData = useMemo(() => data.slice().reverse(), [data]);
   return (
     <div className={classes.container}>
       <Criteria className={classes.criteria} />
-      <List className={classes.list} />
+      <List className={classes.list} data={finalData} />
     </div>
   );
 };
 
 export default OnlineLogsView;
+
+function useConnect() {
+  return {
+    data: useSelector(getItems)
+  };
+}
