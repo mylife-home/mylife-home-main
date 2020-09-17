@@ -6,3 +6,4 @@ export const hasOnlineLogsViewTab = (state: AppState) => getTabsCount(state, Tab
 
 const getOnlineLogsView = (state: AppState) => state.onlineLogsView;
 export const getNotifierId = (state: AppState) => getOnlineLogsView(state).notifierId;
+export const getItems = (state: AppState) => getOnlineLogsView(state).items;

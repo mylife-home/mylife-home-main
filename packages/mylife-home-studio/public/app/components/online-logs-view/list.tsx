@@ -1,30 +1,29 @@
 import React, { FunctionComponent } from 'react';
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import Button from '@material-ui/core/Button';
-
-const useStyles = makeStyles((theme) => ({
-  container: {
-    backgroundColor: 'red',
-  },
-}));
+import { getItems } from '../../store/online-logs-view/selectors';
+import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 
 interface ListProps {
   className?: string;
 }
 
 const List: FunctionComponent<ListProps> = ({ className }) => {
-  const classes = useStyles();
+  const { data } = useConnect();
+
+  const columns: ColumnDefinition[] = [
+    { dataKey: 'msg', headerRenderer: 'Message' },
+  ];
+
   return (
-    <div className={clsx(classes.container, className)}>
-      TODO
-    </div>
+    <VirtualizedTable data={data} columns={columns} className={className} />
   );
 };
 
 export default List;
+
+function useConnect() {
+  return {
+    data: useSelector(getItems)
+  };
+}
