@@ -1,6 +1,6 @@
 import React, { FunctionComponent, ReactElement } from 'react';
 import clsx from 'clsx';
-import { AutoSizer, Column, Table } from 'react-virtualized';
+import { AutoSizer, Column, Table, TableCellDataGetter } from 'react-virtualized';
 import { TableCell, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -35,6 +35,7 @@ export interface ColumnDefinition {
   width?: number;
   headerProps?: object;
   cellProps?: object;
+  cellDataGetter?: TableCellDataGetter;
 }
 
 export interface VirtualizedTableProps {
@@ -49,7 +50,7 @@ export interface VirtualizedTableProps {
 
 const VirtualizedTable: FunctionComponent<VirtualizedTableProps> = ({ data, columns, rowClassName, headerHeight = 48, rowHeight = 48, onRowClick, ...props }) => {
   const classes = useStyles();
-  const rowIndexClassName = (({ index }: { index: number }) => clsx(classes.container, classes.row, classes.clickableRow, runPropGetter(rowClassName, data[index], index)));
+  const rowIndexClassName = (({ index }: { index: number }) => clsx(classes.container, classes.row, !!onRowClick && classes.clickableRow, runPropGetter(rowClassName, data[index], index)));
   const rowGetter = ({ index }: { index: number }) => data[index];
 
   return (
