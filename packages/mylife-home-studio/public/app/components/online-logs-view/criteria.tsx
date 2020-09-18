@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -7,6 +7,9 @@ import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
+import Popper from '@material-ui/core/Popper';
+import Paper from '@material-ui/core/Paper';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import { addLogItems } from '../../store/online-logs-view/actions';
 import { useActions } from '../lib/use-actions';
@@ -33,6 +36,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const LevelSelector: FunctionComponent<{ min: number, max: number, set: (min: number, max: number) => void }> = ({ min, max, set }) => {
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClickAway = () => {
+    console.log('click away');
+    setAnchorEl(null);
+  };
+
+  return (
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <>
+      
+        <Popper open={!!anchorEl} anchorEl={anchorEl}>
+          <Paper>
+            TODO
+          </Paper>
+        </Popper>
+
+        <Button onClick={handleClick}>
+          {`${min} - ${max}`}
+        </Button>
+      </>
+    </ClickAwayListener>
+  );
+};
+
 export interface CriteriaDefinition {
   name: string;
   instance: string;
@@ -58,6 +92,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
   const [instance, setInstance] = useTextValue(criteria, setCriteria, 'instance');
   const [message, setMessage] = useTextValue(criteria, setCriteria, 'message');
   const [errorChecked, errorIndeterminate, changeError] = useCheckboxValue(criteria, setCriteria, 'error');
+  const setLevel = useCallback((levelMin: number, levelMax: number) => setCriteria(prevState => ({ ...prevState, levelMin, levelMax })), [setCriteria]);
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -66,7 +101,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       <DebouncedTextField label="Instance" className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label="Message" className={classes.message} value={message} onChange={setMessage} />
       <FormControlLabel label="Erreur" control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
-      <Button>Niveau</Button>
+      <LevelSelector min={criteria.levelMin} max={criteria.levelMax} set={setLevel} />
     </div>
   );
 };
@@ -84,7 +119,7 @@ function useTextValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, ke
 }
 
 function useCheckboxValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, key: keyof CriteriaDefinition): [boolean, boolean, () => void] {
-  const changeValue = useCallback(() => setCriteria(prevState => ({ ...prevState, [key]: getTriStateNext(prevState[key] as boolean)})), [setCriteria, key]);
+  const changeValue = useCallback(() => setCriteria(prevState => ({ ...prevState, [key]: getTriStateNext(prevState[key] as boolean) })), [setCriteria, key]);
   const value = criteria[key] as boolean;
   const checked = value === true;
   const indeterminate = value === null;
