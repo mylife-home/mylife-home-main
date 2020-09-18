@@ -26,11 +26,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+type Renderer = ReactElement | string | ((...args: any[]) => (ReactElement | string));
+
 export interface ColumnDefinition {
   dataKey: string;
-  cellRenderer?: ReactElement | string;
+  cellRenderer?: Renderer;
   cellClassName?: string;
-  headerRenderer: ReactElement | string;
+  headerRenderer: Renderer;
   headerClassName?: string;
   width?: number;
   headerProps?: object;
@@ -48,7 +50,7 @@ export interface VirtualizedTableProps {
   onRowClick?: (rowData: any, rowIndex: any) => void;
 }
 
-const VirtualizedTable: FunctionComponent<VirtualizedTableProps> = ({ data, columns, rowClassName, headerHeight = 48, rowHeight = 48, onRowClick, ...props }) => {
+const VirtualizedTable: FunctionComponent<VirtualizedTableProps> = ({ data, columns, rowClassName, headerHeight = 32, rowHeight = 32, onRowClick, ...props }) => {
   const classes = useStyles();
   const rowIndexClassName = (({ index }: { index: number }) => clsx(classes.container, classes.row, !!onRowClick && classes.clickableRow, runPropGetter(rowClassName, data[index], index)));
   const rowGetter = ({ index }: { index: number }) => data[index];

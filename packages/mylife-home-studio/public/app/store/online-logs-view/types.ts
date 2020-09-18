@@ -9,6 +9,12 @@ export interface OnlineLogsViewState {
   items: LogItem[];
 }
 
+export interface LogError {
+  message: string;
+  name: string;
+  stack: string;
+}
+
 export interface LogItem {
   id: string;
   name: string;
@@ -18,9 +24,5 @@ export interface LogItem {
   level: number;
   msg: string;
   time: Date;
-  err: {
-    message: string;
-    name: string;
-    stack: string;
-  };
+  err: LogError;
 }
