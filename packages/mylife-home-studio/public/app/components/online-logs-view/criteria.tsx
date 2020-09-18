@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -8,6 +8,10 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
 
+import { addLogItems } from '../../store/online-logs-view/actions';
+import { useActions } from '../lib/use-actions';
+import DebouncedTextField from '../lib/debounced-text-field';
+
 const useStyles = makeStyles((theme) => ({
   container: {
     padding: theme.spacing(3),
@@ -16,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 
     '& > *': {
       margin: theme.spacing(1),
-    }
+    },
   },
   name: {
     width: '50ch',
@@ -26,21 +30,41 @@ const useStyles = makeStyles((theme) => ({
   },
   message: {
     width: '50ch',
-  }
+  },
 }));
+
+export interface CriteriaDefinition {
+  name: string;
+  instance: string;
+  message: string;
+  error: boolean;
+  levelMin: number;
+  levelMax: number;
+}
+
+type SetCriteria = (updater: (prevState: CriteriaDefinition) => CriteriaDefinition) => void;
 
 interface CriteriaProps {
   className?: string;
+  criteria: CriteriaDefinition;
+  setCriteria: SetCriteria;
 }
 
-const Criteria: FunctionComponent<CriteriaProps> = ({ className }) => {
+const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCriteria }) => {
   const classes = useStyles();
+  const insertTests = useTestLogsInsert();
+
+  const [name, setName] = useTextValue(criteria, setCriteria, 'name');
+  const [instance, setInstance] = useTextValue(criteria, setCriteria, 'instance');
+  const [message, setMessage] = useTextValue(criteria, setCriteria, 'message');
+
   return (
     <div className={clsx(classes.container, className)}>
-      <TextField label='Nom' className={classes.name} />
-      <TextField label='Instance' className={classes.instance} />
-      <TextField label='Message' className={classes.message} />
-      <FormControlLabel label='Erreur' control={<Checkbox color='primary' />} />
+      <Button onClick={insertTests}>Insert tests</Button>
+      <DebouncedTextField label="Nom" className={classes.name} value={name} onChange={setName} />
+      <DebouncedTextField label="Instance" className={classes.instance} value={instance} onChange={setInstance} />
+      <DebouncedTextField label="Message" className={classes.message} value={message} onChange={setMessage} />
+      <FormControlLabel label="Erreur" control={<Checkbox color="primary" />} />
       <Button>Niveau</Button>
     </div>
   );
@@ -48,8 +72,79 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className }) => {
 
 export default Criteria;
 
+function useTextValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, key: keyof CriteriaDefinition): [string, (newValue: string) => void] {
+  const changeValue = useCallback((newValue: string) => {
+    setCriteria(prevState => ({ ...prevState, [key]: newValue || null }));
+  }, [setCriteria, key]);
+
+  const value = useMemo(() => {
+    return criteria[key] as string || '';
+  }, [criteria, key]);
+
+  return [value, changeValue];
+}
+
 // name with wildcards
 // instanceName
 // msg contains
 // !!err
 // level min-max
+
+let testIndex = 0;
+
+const stack = `at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/gulp.config/webpack-build.ts:29:25
+at finalCallback (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:354:32)
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:414:15
+at Hook.eval [as callAsync] (eval at create (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:6:1)
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:411:23
+at Compiler.emitRecords (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:699:39)
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:403:11
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:681:14
+at Hook.eval [as callAsync] (eval at create (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:6:1)
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:678:27
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/neo-async/async.js:2818:7
+at done (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/neo-async/async.js:3522:9)
+at Hook.eval [as callAsync] (eval at create (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/node_modules/tapable/lib/HookCodeFactory.js:33:10), <anonymous>:6:1)
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/webpack/lib/Compiler.js:562:33
+at /home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/node_modules/graceful-fs/graceful-fs.js:136:16
+at /home/vincent/.node_modules/lib/node_modules/gulp-cli/node_modules/graceful-fs/graceful-fs.js:61:14`;
+
+function useConnect() {
+  return useActions({ addLogItems });
+}
+
+function useTestLogsInsert() {
+  const { addLogItems } = useConnect();
+
+  return () => {
+    addLogItems([
+      { id: `test-${++testIndex}`, name: 'test:test', instanceName: 'test-instance', hostname: 'test-host', pid: 42, level: 3, msg: 'test level 3', time: new Date(), err: null },
+      { id: `test-${++testIndex}`, name: 'test:test', instanceName: 'test-instance', hostname: 'test-host', pid: 42, level: 10, msg: 'test trace', time: new Date(), err: null },
+      { id: `test-${++testIndex}`, name: 'test:test', instanceName: 'test-instance', hostname: 'test-host', pid: 42, level: 20, msg: 'test debug', time: new Date(), err: null },
+      { id: `test-${++testIndex}`, name: 'test:test', instanceName: 'test-instance', hostname: 'test-host', pid: 42, level: 30, msg: 'test info', time: new Date(), err: null },
+      { id: `test-${++testIndex}`, name: 'test:test', instanceName: 'test-instance', hostname: 'test-host', pid: 42, level: 40, msg: 'test warn', time: new Date(), err: null },
+      {
+        id: `test-${++testIndex}`,
+        name: 'test:test',
+        instanceName: 'test-instance',
+        hostname: 'test-host',
+        pid: 42,
+        level: 50,
+        msg: 'test error',
+        time: new Date(),
+        err: { message: 'test error', name: 'ErrorType', stack },
+      },
+      {
+        id: `test-${++testIndex}`,
+        name: 'test:test',
+        instanceName: 'test-instance',
+        hostname: 'test-host',
+        pid: 42,
+        level: 60,
+        msg: 'test fatal',
+        time: new Date(),
+        err: { message: 'test fatal', name: 'ErrorType', stack },
+      },
+    ]);
+  };
+}

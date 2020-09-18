@@ -1,9 +1,10 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
+import matcher from 'matcher';
 
 import { getItems } from '../../store/online-logs-view/selectors';
-import Criteria from './criteria';
+import Criteria, { CriteriaDefinition } from './criteria';
 import List from './list';
 
 const useStyles = makeStyles((theme) => ({
@@ -23,14 +24,24 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const defaultCriteria: CriteriaDefinition = {
+  name: null,
+  instance: null,
+  message: null,
+  error: null,
+  levelMin: null,
+  levelMax: null
+};
+
 const OnlineLogsView: FunctionComponent = () => {
   const classes = useStyles();
-  const { data } = useConnect();
-  const finalData = useMemo(() => data.slice().reverse(), [data]);
+  const [criteria, setCriteria] = useState(defaultCriteria);
+  const data = useData(criteria);
+
   return (
     <div className={classes.container}>
-      <Criteria className={classes.criteria} />
-      <List className={classes.list} data={finalData} />
+      <Criteria className={classes.criteria} criteria={criteria} setCriteria={setCriteria} />
+      <List className={classes.list} data={data} />
     </div>
   );
 };
@@ -41,4 +52,38 @@ function useConnect() {
   return {
     data: useSelector(getItems)
   };
+}
+
+function useData(criteria: CriteriaDefinition) {
+  const { data } = useConnect();
+
+  return useMemo(() => {
+    let items = data;
+
+    if (criteria.name) {
+      items = items.filter(item => matcher.isMatch(item.name, criteria.name));
+    }
+
+    if (criteria.instance) {
+      items = items.filter(item => matcher.isMatch(item.instanceName, criteria.instance));
+    }
+
+    if (criteria.message) {
+      items = items.filter(item => matcher.isMatch(item.msg, criteria.message));
+    }
+    
+    if (criteria.error !== null) {
+      items = items.filter(item => !!item.err === criteria.error);
+    }
+
+    if (criteria.levelMin !== null) {
+      items = items.filter(item => item.level >= criteria.levelMin);
+    }
+
+    if (criteria.levelMax !== null) {
+      items = items.filter(item => item.level <= criteria.levelMax);
+    }
+
+    return items.slice().reverse();
+  }, [data, criteria]);
 }
