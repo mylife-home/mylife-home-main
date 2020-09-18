@@ -57,6 +57,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
   const [name, setName] = useTextValue(criteria, setCriteria, 'name');
   const [instance, setInstance] = useTextValue(criteria, setCriteria, 'instance');
   const [message, setMessage] = useTextValue(criteria, setCriteria, 'message');
+  const [errorChecked, errorIndeterminate, changeError] = useCheckboxValue(criteria, setCriteria, 'error');
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -64,7 +65,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       <DebouncedTextField label="Nom" className={classes.name} value={name} onChange={setName} />
       <DebouncedTextField label="Instance" className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label="Message" className={classes.message} value={message} onChange={setMessage} />
-      <FormControlLabel label="Erreur" control={<Checkbox color="primary" />} />
+      <FormControlLabel label="Erreur" control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
       <Button>Niveau</Button>
     </div>
   );
@@ -77,11 +78,28 @@ function useTextValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, ke
     setCriteria(prevState => ({ ...prevState, [key]: newValue || null }));
   }, [setCriteria, key]);
 
-  const value = useMemo(() => {
-    return criteria[key] as string || '';
-  }, [criteria, key]);
+  const value = criteria[key] as string || '';
 
   return [value, changeValue];
+}
+
+function useCheckboxValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, key: keyof CriteriaDefinition): [boolean, boolean, () => void] {
+  const changeValue = useCallback(() => setCriteria(prevState => ({ ...prevState, [key]: getTriStateNext(prevState[key] as boolean)})), [setCriteria, key]);
+  const value = criteria[key] as boolean;
+  const checked = value === true;
+  const indeterminate = value === null;
+  return [checked, indeterminate, changeValue];
+}
+
+function getTriStateNext(value: boolean) {
+  switch(value) {
+    case null:
+      return true;
+    case true:
+      return false;
+    case false:
+      return null;
+  }
 }
 
 // name with wildcards
