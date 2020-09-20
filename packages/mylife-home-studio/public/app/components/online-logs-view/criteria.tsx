@@ -3,17 +3,13 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Checkbox from '@material-ui/core/Checkbox';
-import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
 import Button from '@material-ui/core/Button';
-import Popper from '@material-ui/core/Popper';
-import Paper from '@material-ui/core/Paper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import { addLogItems } from '../../store/online-logs-view/actions';
 import { useActions } from '../lib/use-actions';
 import DebouncedTextField from '../lib/debounced-text-field';
+import LevelSelector from './level-selector';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,37 +31,6 @@ const useStyles = makeStyles((theme) => ({
     width: '50ch',
   },
 }));
-
-const LevelSelector: FunctionComponent<{ min: number, max: number, set: (min: number, max: number) => void }> = ({ min, max, set }) => {
-
-  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClickAway = () => {
-    console.log('click away');
-    setAnchorEl(null);
-  };
-
-  return (
-    <ClickAwayListener onClickAway={handleClickAway}>
-      <>
-      
-        <Popper open={!!anchorEl} anchorEl={anchorEl}>
-          <Paper>
-            TODO
-          </Paper>
-        </Popper>
-
-        <Button onClick={handleClick}>
-          {`${min} - ${max}`}
-        </Button>
-      </>
-    </ClickAwayListener>
-  );
-};
 
 export interface CriteriaDefinition {
   name: string;
