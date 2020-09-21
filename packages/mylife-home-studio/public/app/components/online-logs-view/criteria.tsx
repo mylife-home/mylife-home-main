@@ -18,7 +18,10 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
 
     '& > *': {
-      margin: theme.spacing(1),
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(1),
+      marginLeft: theme.spacing(3),
+      marginRight: theme.spacing(3),
     },
   },
   name: {
@@ -65,7 +68,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       <DebouncedTextField label="Nom" className={classes.name} value={name} onChange={setName} />
       <DebouncedTextField label="Instance" className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label="Message" className={classes.message} value={message} onChange={setMessage} />
-      <FormControlLabel label="Erreur" control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
+      <FormControlLabel label="Contient une erreur" control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
       <LevelSelector min={criteria.levelMin} max={criteria.levelMax} set={setLevel} />
     </div>
   );
