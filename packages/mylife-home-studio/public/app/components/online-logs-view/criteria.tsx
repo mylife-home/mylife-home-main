@@ -63,8 +63,8 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
   const [instance, setInstance] = useTextValue(criteria, setCriteria, 'instance');
   const [message, setMessage] = useTextValue(criteria, setCriteria, 'message');
   const [errorChecked, errorIndeterminate, changeError] = useCheckboxValue(criteria, setCriteria, 'error');
-  const setMinLevel = useCallback((levelMin: number) => setCriteria(prevState => ({ ...prevState, levelMin })), [setCriteria]);
-  const setMaxLevel = useCallback((levelMax: number) => setCriteria(prevState => ({ ...prevState, levelMax })), [setCriteria]);
+  const [levelMin, setMinLevel] = useLevelMinValue(criteria, setCriteria);
+  const [levelMax, setMaxLevel] = useLevelMaxValue(criteria, setCriteria);
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -72,8 +72,8 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       <DebouncedTextField label='Nom' className={classes.name} value={name} onChange={setName} />
       <DebouncedTextField label='Instance' className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label='Message' className={classes.message} value={message} onChange={setMessage} />
-      <LevelSelector label='Niveau min' className={classes.level} value={criteria.levelMin} onChange={setMinLevel} />
-      <LevelSelector label='Niveau max' className={classes.level} value={criteria.levelMax} onChange={setMaxLevel} />
+      <LevelSelector label='Niveau min' className={classes.level} value={levelMin} onChange={setMinLevel} />
+      <LevelSelector label='Niveau max' className={classes.level} value={levelMax} onChange={setMaxLevel} />
       <FormControlLabel label='Contient une erreur' control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
     </div>
   );
@@ -109,6 +109,29 @@ function getTriStateNext(value: boolean) {
       return null;
   }
 }
+
+function useLevelMinValue(criteria: CriteriaDefinition, setCriteria: SetCriteria): [number, (newValue: number) => void] {
+  const setValue = useCallback((levelMin: number) => {
+    setCriteria(prevState => ({ ...prevState, levelMin, levelMax: computeNewMax(prevState.levelMax, levelMin) }));
+  }, [setCriteria]);
+  return [criteria.levelMin, setValue];
+}
+
+function useLevelMaxValue(criteria: CriteriaDefinition, setCriteria: SetCriteria): [number, (newValue: number) => void] {
+  const setValue = useCallback((levelMax: number) => {
+    setCriteria(prevState => ({ ...prevState, levelMin: computeNewMin(prevState.levelMin, levelMax), levelMax }));
+  }, [setCriteria]);
+  return [criteria.levelMax, setValue];
+}
+
+function computeNewMax(prevMax: number, newMin: number) {
+  return prevMax === null || newMin === null || prevMax >= newMin ? prevMax : newMin;
+}
+
+function computeNewMin(prevMin: number, newMax: number) {
+  return prevMin === null || newMax === null || prevMin <= newMax ? prevMin : newMax;
+}
+
 
 // name with wildcards
 // instanceName

@@ -12,7 +12,6 @@ const LevelSelector: FunctionComponent<LevelSelectorProps> = ({ value, onChange,
 
   // seems that TextField with Select can only handle string value
   const level = useMemo(() => findLevelByValue(value), [value]);
-  const levelId = level ? level.id : null;
   const levelClass = getLevelClass(classes, level);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +19,7 @@ const LevelSelector: FunctionComponent<LevelSelectorProps> = ({ value, onChange,
   };
 
   return (
-    <TextField {...props} select value={levelId} onChange={handleChange} inputProps={{ className: levelClass }}>
+    <TextField {...props} select value={level ? level.id : ''} onChange={handleChange} inputProps={{ className: levelClass }}>
       <MenuItem value={null}>{'-'}</MenuItem>
 
       {levels.map(level => (
