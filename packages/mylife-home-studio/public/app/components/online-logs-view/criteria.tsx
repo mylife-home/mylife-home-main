@@ -33,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
   message: {
     width: '50ch',
   },
+  level: {
+    width: '12ch'
+  }
 }));
 
 export interface CriteriaDefinition {
@@ -60,16 +63,18 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
   const [instance, setInstance] = useTextValue(criteria, setCriteria, 'instance');
   const [message, setMessage] = useTextValue(criteria, setCriteria, 'message');
   const [errorChecked, errorIndeterminate, changeError] = useCheckboxValue(criteria, setCriteria, 'error');
-  const setLevel = useCallback((levelMin: number, levelMax: number) => setCriteria(prevState => ({ ...prevState, levelMin, levelMax })), [setCriteria]);
+  const setMinLevel = useCallback((levelMin: number) => setCriteria(prevState => ({ ...prevState, levelMin })), [setCriteria]);
+  const setMaxLevel = useCallback((levelMax: number) => setCriteria(prevState => ({ ...prevState, levelMax })), [setCriteria]);
 
   return (
     <div className={clsx(classes.container, className)}>
       <Button onClick={insertTests}>Insert tests</Button>
-      <DebouncedTextField label="Nom" className={classes.name} value={name} onChange={setName} />
-      <DebouncedTextField label="Instance" className={classes.instance} value={instance} onChange={setInstance} />
-      <DebouncedTextField label="Message" className={classes.message} value={message} onChange={setMessage} />
-      <FormControlLabel label="Contient une erreur" control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
-      <LevelSelector min={criteria.levelMin} max={criteria.levelMax} set={setLevel} />
+      <DebouncedTextField label='Nom' className={classes.name} value={name} onChange={setName} />
+      <DebouncedTextField label='Instance' className={classes.instance} value={instance} onChange={setInstance} />
+      <DebouncedTextField label='Message' className={classes.message} value={message} onChange={setMessage} />
+      <LevelSelector label='Niveau min' className={classes.level} value={criteria.levelMin} onChange={setMinLevel} />
+      <LevelSelector label='Niveau max' className={classes.level} value={criteria.levelMax} onChange={setMaxLevel} />
+      <FormControlLabel label='Contient une erreur' control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
     </div>
   );
 };

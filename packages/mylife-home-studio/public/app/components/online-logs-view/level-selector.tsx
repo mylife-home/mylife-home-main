@@ -1,68 +1,43 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { FunctionComponent, useMemo } from 'react';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormGroup from '@material-ui/core/FormGroup';
-import Button, { ButtonProps } from '@material-ui/core/Button';
-import Popper from '@material-ui/core/Popper';
-import Paper from '@material-ui/core/Paper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
 
-type LevelSelectorButtonProps = Omit<ButtonProps, 'children'> & { min: number, max: number };
+import { levels, useLevelStyles, getLevelClass, findLevelByValue, getLevelById } from './levels';
 
-const LevelSelectorButton: FunctionComponent<LevelSelectorButtonProps> = ({ min, max, ...props }) => {
+type LevelSelectorProps = Omit<StandardTextFieldProps, 'children' | 'onChange' | 'value'> & { label: string, value: number, onChange: (value: number) => void };
 
-  return (
-    <Button {...props}>
-      {`${min} - ${max}`}
-    </Button>
-  );
-};
+const LevelSelector: FunctionComponent<LevelSelectorProps> = ({ value, onChange, ...props }) => {
+  const classes = useLevelStyles();
 
-type LevelSelectorProps = Omit<ButtonProps, 'onClick' | 'children'> & { min: number, max: number, set: (min: number, max: number) => void };
+  // seems that TextField with Select can only handle string value
+  const level = useMemo(() => findLevelByValue(value), [value]);
+  const levelId = level ? level.id : null;
+  const levelClass = getLevelClass(classes, level);
 
-interface LevelSelectorPopupProps {
-  min: number;
-  max: number;
-  set: (min: number, max: number) => void;
-  onClose: () => void;
-  anchorEl: HTMLElement;
-}
-
-const LevelSelectorPopup: FunctionComponent<LevelSelectorPopupProps> = ({ min, max, set, onClose, anchorEl }) => {
-  return (
-    <Popper open={!!anchorEl} anchorEl={anchorEl}>
-      <ClickAwayListener onClickAway={onClose}>
-        <Paper>
-          TODO
-        </Paper>
-      </ClickAwayListener>
-    </Popper>
-  );
-};
-
-const LevelSelector: FunctionComponent<LevelSelectorProps> = ({ min, max, set, ...props }) => {
-
-  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClickAway = () => {
-    setAnchorEl(null);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(levelIdToValue(event.target.value));
   };
 
   return (
-    <>
-      <LevelSelectorPopup min={min} max={max} set={set} anchorEl={anchorEl} onClose={handleClickAway} />
+    <TextField {...props} select value={levelId} onChange={handleChange} inputProps={{ className: levelClass }}>
+      <MenuItem value={null}>{'-'}</MenuItem>
 
-      <LevelSelectorButton min={min} max={max} {...props} onClick={handleClick} />
-    </>
+      {levels.map(level => (
+        <MenuItem key={level.id} value={level.id} className={getLevelClass(classes, level)}>{level.id.toUpperCase()}</MenuItem>
+      ))}
+
+    </TextField>
   );
 };
 
 export default LevelSelector;
+
+function levelIdToValue(id: string) {
+  if (!id) {
+    return null;
+  }
+
+  const level = getLevelById(id);
+  return level.value;
+}
