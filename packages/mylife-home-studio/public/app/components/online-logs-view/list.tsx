@@ -8,7 +8,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { LogItem, LogError } from '../../store/online-logs-view/types';
-import { findLevelByValue, useLevelStyles } from './levels';
+import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
 import { makeStyles } from '@material-ui/core';
 
 const Level: FunctionComponent<{ value: number }> = ({ value }) => {
@@ -16,7 +16,7 @@ const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   const level = findLevelByValue(value);
 
   type Ids = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
-  const levelClass = classes[level ? level.id as Ids : 'default'];
+  const levelClass = getLevelClass(classes, level);
   const levelDisplay = level ? level.id.toUpperCase() : `${value}`;
 
   return (

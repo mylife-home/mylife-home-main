@@ -69,3 +69,8 @@ export const useLevelStyles = makeStyles((theme) => ({
     color: '#555555',
   },
 }));
+
+export function getLevelClass(classes: ReturnType<typeof useLevelStyles>, level: Level) {
+  type Ids = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
+  return classes[level ? level.id as Ids : 'default'];
+}
