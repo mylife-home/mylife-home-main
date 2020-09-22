@@ -1,13 +1,15 @@
 import { Service, BuildParams } from './types';
-import { Logging } from './logging';
 import { SessionManager } from './session-manager';
+import { Logging } from './logging';
+import { Online } from './online';
 
 export class Services {
   private readonly services: { [name: string]: Service; } = {};
 
   constructor(params: BuildParams) {
-    this.services.logging = new Logging(params);
     this.services.sessionManager = new SessionManager(params);
+    this.services.logging = new Logging(params);
+    this.services.online = new Online(params);
   }
 
   async init() {
@@ -22,12 +24,16 @@ export class Services {
     Services._instance = null;
   }
 
+  get sessionManager() {
+    return this.services.sessionManager as SessionManager;
+  }
+
   get logging() {
     return this.services.logging as Logging;
   }
 
-  get sessionManager() {
-    return this.services.sessionManager as SessionManager;
+  get online() {
+    return this.services.online as Online;
   }
 
   private static _instance: Services = null;
