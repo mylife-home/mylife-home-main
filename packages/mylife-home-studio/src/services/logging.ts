@@ -7,35 +7,6 @@ import { Session, SessionNotifier, SessionFeature } from './session-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:logging');
 
-class SessionNotifiers implements SessionFeature {
-  private readonly notifierIds = new Set<string>();
-
-  private static getFromSession(session: Session, createIfNotExist = true) {
-    const FEATURE_NAME = 'logging/notifiers';
-    const existing = session.findFeature(FEATURE_NAME);
-    if(existing) {
-      return existing as SessionNotifiers;
-    }
-
-    const feature = new SessionNotifiers();
-    session.addFeature(FEATURE_NAME, feature);
-    return feature;
-  }
-
-  static addNotifierId(session: Session, id: string) {
-    SessionNotifiers.getFromSession(session).notifierIds.add(id);
-  }
-
-  static removeNotifierId(session: Session, id: string) {
-    SessionNotifiers.getFromSession(session).notifierIds.delete(id);
-  }
-
-  static getNotifierIds(session: Session) {
-    const feature = SessionNotifiers.getFromSession(session, false);
-    return feature ? [...feature.notifierIds] : [];
-  }
-}
-
 export class Logging implements Service {
   private readonly stream: Readable;
   private readonly buffer = new CircularBuffer<LogRecord>(1000);
@@ -99,6 +70,35 @@ export class Logging implements Service {
     this.notifiers.delete(notifierId);
     SessionNotifiers.removeNotifierId(session, notifierId);
   };
+}
+
+class SessionNotifiers implements SessionFeature {
+  private readonly notifierIds = new Set<string>();
+
+  private static getFromSession(session: Session, createIfNotExist = true) {
+    const FEATURE_NAME = 'logging/notifiers';
+    const existing = session.findFeature(FEATURE_NAME);
+    if(existing) {
+      return existing as SessionNotifiers;
+    }
+
+    const feature = new SessionNotifiers();
+    session.addFeature(FEATURE_NAME, feature);
+    return feature;
+  }
+
+  static addNotifierId(session: Session, id: string) {
+    SessionNotifiers.getFromSession(session).notifierIds.add(id);
+  }
+
+  static removeNotifierId(session: Session, id: string) {
+    SessionNotifiers.getFromSession(session).notifierIds.delete(id);
+  }
+
+  static getNotifierIds(session: Session) {
+    const feature = SessionNotifiers.getFromSession(session, false);
+    return feature ? [...feature.notifierIds] : [];
+  }
 }
 
 // https://github.com/vinsidious/circularbuffer/blob/master/src/CircularBuffer.ts
