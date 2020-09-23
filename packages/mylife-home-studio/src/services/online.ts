@@ -5,6 +5,23 @@ import { Session, SessionNotifierManager } from './session-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:online');
 
+interface InstanceInfo {
+  type: string; // 'ui' | 'studio' | 'core' | 'driver? (pour arduino/esp/...)',
+  hardware: string; // 'rpi-<version>?' | 'arduino-<type?>' | 'esp8266',
+  versions: {
+    [component: string]: string;
+    // --- rpi
+    // os: linux-xxx
+    // node: 24.5
+    // mylife-home-core: 1.0.0
+    // mylife-home-common: 1.0.0
+    // --- esp/arduino
+    // program: 1.21.4
+  };
+  capabilities: string[];
+  ip: string;
+}
+
 export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly instanceInfos = new Map<string, InstanceInfo>();
