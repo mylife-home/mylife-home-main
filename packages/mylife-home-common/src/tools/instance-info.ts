@@ -1,4 +1,6 @@
+import { create } from 'domain';
 import os from 'os';
+import * as buildInfo from '../build-info';
 import { getDefine } from './defines';
 
 export interface InstanceInfo {
@@ -31,8 +33,14 @@ export interface InstanceInfo {
   capabilities: string[];
 }
 
-function uptimeToBoottime(uptime: number) {
-  return Date.now() - Math.round(os.uptime() * 1000);
+let instanceInfo: InstanceInfo;
+
+export function getInstanceInfo() {
+  if(!instanceInfo) {
+    instanceInfo = createInstanceInfo();
+  }
+
+  return instanceInfo;
 }
 
 function createInstanceInfo() {
@@ -46,9 +54,20 @@ function createInstanceInfo() {
     capabilities: []
   };
 
-  // TODO versions
+  const { versions } = data;
+
+  versions.os = os.version();
+  versions.node = process.version;
+
+  for(const [name, { version }] of Object.entries(buildInfo.getInfo().modules)) {
+    versions[name] = version;
+  }
 
   return data;
+}
+
+function uptimeToBoottime(uptime: number) {
+  return Date.now() - Math.round(os.uptime() * 1000);
 }
 
 
