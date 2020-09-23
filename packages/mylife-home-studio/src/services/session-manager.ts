@@ -3,6 +3,7 @@ import io from 'socket.io';
 import { logger, tools } from 'mylife-home-common';
 import { ServerMessage, Notification, ServiceRequest, ServiceResponse } from '../../shared/protocol';
 import { Service, BuildParams } from './types';
+import { Services } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:session-manager');
 
@@ -194,4 +195,67 @@ function createErrorResponse(err: Error, requestId: string): ServiceResponse {
     requestId,
     error: { message, stack, type }
   };
+}
+
+// Manager that only handle a notifier list per session (with no state per notifier)
+export class SessionNotifierManager {
+  private readonly notifiers = new Map<string, SessionNotifier>();
+
+  constructor(private readonly featureName: string, private readonly notifierType: string) {
+  }
+
+  init() {
+    Services.instance.sessionManager.registerSessionHandler(this.sessionHandler);
+  }
+
+  private sessionHandler = (session: Session, type: 'new' | 'close') => {
+    if (type !== 'close') {
+      return;
+    }
+
+    const ids = this.getNotifiersFromSession(session, false);
+    if (ids) {
+      for (const id of ids) {
+        this.notifiers.delete(id);
+      }
+    }
+  };
+
+  createNotifier(session: Session) {
+    const notifier = session.createNotifier(this.notifierType);
+    this.notifiers.set(notifier.id, notifier);
+    this.getNotifiersFromSession(session).add(notifier.id);
+
+    return notifier;
+  }
+
+  removeNotifier(session: Session, notifierId: string) {
+    this.notifiers.delete(notifierId);
+    this.getNotifiersFromSession(session).delete(notifierId);
+  }
+
+  notifyAll(data: any) {
+    for (const notifier of this.notifiers.values()) {
+      notifier.notify(data);
+    }
+  }
+
+  private getNotifiersFromSession(session: Session, createIfNotExist = true) {
+    const existing = session.findFeature(this.featureName);
+    if (existing) {
+      return (existing as SessionNotifiers).notifierIds;
+    }
+
+    if (!createIfNotExist) {
+      return;
+    }
+
+    const feature = new SessionNotifiers();
+    session.addFeature(this.featureName, feature);
+    return feature.notifierIds;
+  }
+}
+
+class SessionNotifiers implements SessionFeature {
+  public readonly notifierIds = new Set<string>();
 }
