@@ -17,11 +17,11 @@
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.8",
+    "@types/chai": "^4.2.12",
     "@types/irc": "^0.3.33",
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^13.7.0",
-    "@types/sinon": "^9.0.0",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.11.2",
+    "@types/sinon": "^9.0.5",
     "chai": "^4.2.0",
     "mocha": "^7.0.1",
     "sinon": "^9.0.3",
