@@ -22,6 +22,7 @@ type CorePluginsGlobs = {
 
 const buildProd = parallel(
   projects.ui.client.prod.task,
+/*
   projects.studio.client.prod.task,
   series(
     projects.common.ts.task,
@@ -41,7 +42,7 @@ const buildProd = parallel(
         projects.studio.bin.prod.task
       )
     )
-  )
+  )*/
 );
 
 function createProdCorePluginsTask() {
