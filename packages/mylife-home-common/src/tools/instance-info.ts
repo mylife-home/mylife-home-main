@@ -45,7 +45,7 @@ export function getInstanceInfo() {
 
 function createInstanceInfo() {
   const data: InstanceInfo = {
-    type: getDefine<string>('mainComponent'),
+    type: getDefine<string>('main-component'),
     hardware: getHardwareInfo(),
     versions: {},
     systemBootTime: uptimeToBoottime(os.uptime()),
