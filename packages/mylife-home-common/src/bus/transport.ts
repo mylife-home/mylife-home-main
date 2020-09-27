@@ -5,7 +5,7 @@ import { Presence } from './presence';
 import { Components } from './components';
 import { Metadata } from './metadata';
 import { Logger } from './logger';
-import { getConfigItem, getDefine } from '../tools';
+import { getConfigItem, getDefine, fireAsync, getInstanceInfo } from '../tools';
 
 interface BusConfiguration {
   readonly serverUrl: string;
@@ -42,13 +42,19 @@ export class Transport extends EventEmitter {
     this.client = new Client(instanceName, config.serverUrl, options.residentStateDelay);
 
     this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
-    this.client.on('error', err => this.emit('error', err));
+    this.client.on('error', (err) => this.emit('error', err));
 
     this.rpc = new Rpc(this.client, options);
     this.presence = new Presence(this.client, options);
     this.components = new Components(this.client, options);
     this.metadata = new Metadata(this.client, options);
     this.logger = new Logger(this.client, options);
+
+    this.client.on('onlineChange', (online) => {
+      if (online) {
+        fireAsync(() => this.metadata.set('instance-info', getInstanceInfo()));
+      }
+    });
   }
 
   get online(): boolean {

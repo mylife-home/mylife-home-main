@@ -1,7 +1,7 @@
-import { create } from 'domain';
 import os from 'os';
 import * as buildInfo from '../build-info';
 import { getDefine } from './defines';
+import * as pirev from 'pirev';
 
 export interface InstanceInfo {
   /**
@@ -36,7 +36,7 @@ export interface InstanceInfo {
 let instanceInfo: InstanceInfo;
 
 export function getInstanceInfo() {
-  if(!instanceInfo) {
+  if (!instanceInfo) {
     instanceInfo = createInstanceInfo();
   }
 
@@ -46,12 +46,12 @@ export function getInstanceInfo() {
 function createInstanceInfo() {
   const data: InstanceInfo = {
     type: getDefine<string>('mainComponent'),
-    hardware: 'TODO pirev',
+    hardware: getHardwareInfo(),
     versions: {},
     systemBootTime: uptimeToBoottime(os.uptime()),
     instanceBootTime: uptimeToBoottime(process.uptime()),
     hostname: os.hostname(),
-    capabilities: []
+    capabilities: [],
   };
 
   const { versions } = data;
@@ -59,7 +59,7 @@ function createInstanceInfo() {
   versions.os = os.version();
   versions.node = process.version;
 
-  for(const [name, { version }] of Object.entries(buildInfo.getInfo().modules)) {
+  for (const [name, { version }] of Object.entries(buildInfo.getInfo().modules)) {
     versions[name] = version;
   }
 
@@ -70,21 +70,12 @@ function uptimeToBoottime(uptime: number) {
   return Date.now() - Math.round(os.uptime() * 1000);
 }
 
-
-/*
-pirev
-
-ReferenceError: No revision code found
-
-  revision: {
-    type: '2B',
-    memory: '1GB',
-    processor: 'BCM2836',
-    revision: 1.1,
-    manufacturer: 'Embest',
-    overvoltage: true,
-    otp: { program: true, read: true },
-    warranty: true,
-    code: 'a21041'
+function getHardwareInfo() {
+  try {
+    const { revision } = pirev.getInfoSync();
+    return `raspberry pi ${revision.type} ${revision.revision} (processor=${revision.processor} memory=${revision.memory} manufacturer=${revision.manufacturer})`;
+  } catch {
+    // not a rpi
+    return os.arch();
   }
-*/
+}
