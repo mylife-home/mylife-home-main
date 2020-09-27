@@ -6,48 +6,14 @@ import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 import { createDockerTask } from './docker-build';
 
-type CorePluginDefinition = {
-  readonly ts: TsBuild;
-  readonly dev: WebpackBuild;
-  readonly prod: WebpackBuild;
-};
-
-type CorePluginsDefinition = {
-  [name: string]: CorePluginDefinition;
-};
-
-type CorePluginsGlobs = {
-  [name: string]: string[];
-};
-
-const buildProd = parallel(
+const buildProdUi = parallel(
   projects.ui.client.prod.task,
-  projects.studio.client.prod.task,
   series(
     projects.common.ts.task,
-    parallel(
-      series(
-        projects.ui.ts.task,
-        projects.ui.bin.prod.task
-      ),
-      series(
-        projects.core.ts.task,
-        projects.core.lib.prod.task,
-        projects.core.bin.prod.task,
-        createProdCorePluginsTask()
-      ),
-      series(
-        projects.studio.ts.task,
-        projects.studio.bin.prod.task
-      )
-    )
+    projects.ui.ts.task,
+    projects.ui.bin.prod.task
   )
 );
-
-function createProdCorePluginsTask() {
-  const list = Object.values(projects.core.plugins).map(plugin => series(plugin.ts.task, plugin.prod.task));
-  return parallel(...list);
-}
 
 const buildDevUi = parallel(
   projects.ui.client.dev.task,
@@ -73,6 +39,33 @@ const watchUi = series(
     ));
   }
 );
+
+type CorePluginDefinition = {
+  readonly ts: TsBuild;
+  readonly dev: WebpackBuild;
+  readonly prod: WebpackBuild;
+};
+
+type CorePluginsDefinition = {
+  [name: string]: CorePluginDefinition;
+};
+
+type CorePluginsGlobs = {
+  [name: string]: string[];
+};
+
+const buildProdCore = series(
+  projects.common.ts.task,
+  projects.core.ts.task,
+  projects.core.lib.prod.task,
+  projects.core.bin.prod.task,
+  createProdCorePluginsTask()
+);
+
+function createProdCorePluginsTask() {
+  const list = Object.values(projects.core.plugins).map(plugin => series(plugin.ts.task, plugin.prod.task));
+  return parallel(...list);
+}
 
 const buildDevCore = series(
   projects.common.ts.task,
@@ -118,6 +111,14 @@ function createDevCorePluginTask(name: string) {
   return series(plugin.ts.task, plugin.dev.task);
 }
 
+const buildProdStudio = parallel(
+  projects.studio.client.prod.task,
+  series(
+    projects.common.ts.task,
+    projects.studio.ts.task,
+    projects.studio.bin.prod.task
+  )
+);
 
 const buildDevStudio = parallel(
   projects.studio.client.dev.task,
@@ -154,16 +155,17 @@ export = {
   'clean:dev': () => del(globs.dist.dev),
   // TODO: clean ts builds
 
+  'build:prod:ui': buildProdUi,
   'build:dev:ui': buildDevUi,
   'watch:ui': watchUi,
 
+  'build:prod:core': buildProdCore,
   'build:dev:core': buildDevCore,
   'watch:core': watchCore,
 
+  'build:prod:studio': buildProdStudio,
   'build:dev:studio': buildDevStudio,
   'watch:studio': watchStudio,
-
-  'build:prod': buildProd,
 
   'docker:build:ui': dockerBuildUi,
   'docker:build:irc-bridge': dockerBuildUIrcBridge
