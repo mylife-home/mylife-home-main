@@ -21,9 +21,9 @@ export default (context: Context) => ({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),
     }),
 
-    ignore(/^utf-8-validate$/, /mylife-home-common\/node_modules\/ws\/lib$/),
-    ignore(/^bufferutil$/, /mylife-home-common\/node_modules\/ws\/lib$/),
-    ignore(/^.\/src\/build$/, /mylife-home-common\/node_modules\/dtrace-provider$/),
+    ignore(/^utf-8-validate$/, /node_modules\/ws\/lib$/),
+    ignore(/^bufferutil$/, /node_modules\/ws\/lib$/),
+    ignore(/^.\/src\/build$/, /node_modules\/dtrace-provider$/),
 
     // irc optional encoding
     ignore(/^node-icu-charset-detector$/, /node_modules\/irc\/lib$/),
@@ -33,9 +33,9 @@ export default (context: Context) => ({
     // https://github.com/yargs/yargs/blob/HEAD/docs/webpack.md#webpack-configuration
     // Ignore warnings due to yarg's dynamic module loading
     warningsFilter: [
-      /mylife-home-common\/node_modules\/yargs/,
-      /mylife-home-common\/node_modules\/get-caller-file/,
-      /mylife-home-common\/node_modules\/require-main-filename/,
+      /node_modules\/yargs/,
+      /node_modules\/get-caller-file/,
+      /node_modules\/require-main-filename/,
     ],
   },
 }) as Configuration;
