@@ -67,7 +67,7 @@ function createInstanceInfo() {
 }
 
 function uptimeToBoottime(uptime: number) {
-  return Date.now() - Math.round(os.uptime() * 1000);
+  return Date.now() - Math.round(uptime * 1000);
 }
 
 function getHardwareInfo() {
