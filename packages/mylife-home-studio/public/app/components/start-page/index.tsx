@@ -10,7 +10,7 @@ import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
   newCoreDesignerTab, newUiDesignerTab,
-  newOnlineComponentsViewTab, newOnlineEntitiesViewTab, newOnlineLogsViewTab, 
+  newOnlineComponentsViewTab, newOnlineInstancesViewTab, newOnlineLogsViewTab, 
   newDeployManagerTab
 } from '../../store/tabs/actions';
 
@@ -30,7 +30,7 @@ let counter = 0;
 const StartPage: FunctionComponent = () => {
   const { 
     newCoreDesignerTab, newUiDesignerTab, 
-    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineEntitiesViewTab: newOnlineEntitiesView, newOnlineLogsViewTab: newOnlineLogsView, 
+    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsViewTab: newOnlineLogsView, 
     newDeployManagerTab: newDeployManager
   } = useConnect();
 
@@ -63,7 +63,7 @@ const StartPage: FunctionComponent = () => {
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineLogsView}>Logs</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineEntitiesView}>Vue des entités</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineInstancesView}>Vue des entités</Link>
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>
@@ -82,7 +82,7 @@ function useConnect() {
     newCoreDesignerTab,
     newUiDesignerTab,
     newOnlineComponentsViewTab,
-    newOnlineEntitiesViewTab,
+    newOnlineInstancesViewTab,
     newOnlineLogsViewTab,
     newDeployManagerTab,
   });
