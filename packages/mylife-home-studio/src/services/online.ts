@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { logger, bus, tools } from 'mylife-home-common';
-import { UpdateData } from '../../shared/logging';
+import { UpdateData } from '../../shared/online';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
