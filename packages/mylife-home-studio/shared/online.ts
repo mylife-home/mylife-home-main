@@ -16,5 +16,5 @@ export interface InstanceInfo {
 export interface UpdateData {
   operation: 'set' | 'clear';
   instanceName: string;
-  data: InstanceInfo;
+  data?: InstanceInfo;
 }
