@@ -3,13 +3,13 @@ import { Observable } from 'rxjs';
 import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
-import { LogRecord } from '../../../../shared/logging';
+import * as shared from '../../../../shared/online';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, setInstance, clearInstance } from './actions';
 import { hasOnlineInstancesViewTab, getNotifierId } from './selectors';
-import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { InstanceInfo } from './types';
 
 const startNotifyInstancesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
@@ -38,9 +38,7 @@ const fetchInstancesEpic = (action$: Observable<Action>, state$: StateObservable
     filterNotification('online/instance-info'),
     withSelector(state$, getNotifierId),
     filter(([notification, notifierId]) => notification.notifierId === notifierId),
-    map(([notification]) => parseLogRecord(notification.data)),
-    bufferDebounceTime(100), // debounce to avoid multiple store updates
-    map((items) => addLogItems(items)),
+    map(([notification]) => parseUpdate(notification.data)),
   );
 };
 
@@ -71,16 +69,25 @@ function stopCall({ notifierId }: { notifierId: string; }) {
   return socket.call('online/stop-notify-instance-info', { notifierId }) as Observable<void>;
 }
 
-function parseLogRecord(record: LogRecord): LogItem {
+function parseUpdate(updateData: shared.UpdateData) {
+  switch (updateData.operation) {
+    case 'set': {
+      const data = parseInstanceInfo(updateData.data);
+      return setInstance({ instanceName: updateData.instanceName, data });
+    }
+
+    case 'clear':
+      return clearInstance({ instanceName: updateData.instanceName });
+
+    default:
+      throw new Error(`Unsupported server operation: ${updateData.operation}`);
+  }
+}
+
+function parseInstanceInfo(raw: shared.InstanceInfo) : InstanceInfo {
   return {
-    id: `${++idGenerator}`,
-    name: record.name,
-    instanceName: record.instanceName,
-    hostname: record.hostname,
-    pid: record.pid,
-    level: record.level,
-    msg: record.msg,
-    time: new Date(record.time),
-    err: record.err || null,
+    ...raw,
+    systemBootTime: new Date(raw.systemBootTime),
+    instanceBootTime: new Date(raw.instanceBootTime),
   };
 }

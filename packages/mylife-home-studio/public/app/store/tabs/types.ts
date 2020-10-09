@@ -5,7 +5,7 @@ export const enum TabType {
   CORE_DESIGNER = 'core-designer',
   UI_DESIGNER = 'ui-designer',
   ONLINE_COMPONENTS_VIEW = 'online-components-view',
-  ONLINE_ENTITIES_VIEW = 'online-entities-view',
+  ONLINE_INSTANCES_VIEW = 'online-entities-view',
   ONLINE_LOGS_VIEW = 'online-logs-view',
   DEPLOY_MANAGER = 'deploy-manager',
 }

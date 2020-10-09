@@ -63,7 +63,7 @@ const StartPage: FunctionComponent = () => {
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineLogsView}>Logs</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineInstancesView}>Vue des entités</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineInstancesView}>Vue des instances</Link>
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>

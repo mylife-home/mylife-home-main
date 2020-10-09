@@ -27,7 +27,7 @@ const Panel: FunctionComponent = () => {
       return (<UiDesigner />);
     case TabType.ONLINE_COMPONENTS_VIEW:
       return (<OnlineComponentsView />);
-    case TabType.ONLINE_ENTITIES_VIEW:
+    case TabType.ONLINE_INSTANCES_VIEW:
       return (<OnlineInstancesView />);
     case TabType.ONLINE_LOGS_VIEW:
       return (<OnlineLogsView />);

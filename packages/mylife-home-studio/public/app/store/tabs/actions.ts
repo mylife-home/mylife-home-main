@@ -38,7 +38,7 @@ export const newOnlineComponentsViewTab = () => newTab({
 export const newOnlineInstancesViewTab = () => newTab({
   id: `online-instances-view-${++idCounter}`,
   title: `Vue des instances`,
-  type: TabType.ONLINE_ENTITIES_VIEW,
+  type: TabType.ONLINE_INSTANCES_VIEW,
   closable: true,
   data: null
 });
