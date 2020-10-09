@@ -11,6 +11,7 @@ export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly instanceInfos = new Map<string, InstanceInfo>();
   private readonly notifiers = new SessionNotifierManager('online/instance-info-notifiers', 'online/instance-info');
+  private readonly localInstanceInfo = { name: tools.getDefine<string>('instance-name'), data: tools.getInstanceInfo() };
 
   constructor(params: BuildParams) {
     this.transport = params.transport;
@@ -72,9 +73,15 @@ export class Online implements Service {
 
     // send infos after we reply
     setImmediate(() => {
+      {
+        const { name, data } = this.localInstanceInfo;
+        const updateData: UpdateData = { operation: 'set', instanceName: name, data };
+        notifier.notify(updateData);
+      }
+
       for (const instanceInfo of this.instanceInfos.values()) {
         if (instanceInfo.data) {
-          const updateData: UpdateData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data }
+          const updateData: UpdateData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data };
           notifier.notify(updateData);
         }
       }
