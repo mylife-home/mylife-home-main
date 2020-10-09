@@ -16,6 +16,7 @@ export interface RemoteMetadataView extends EventEmitter {
 
   readonly paths: Set<string>;
   getValue(path: string): any;
+  findValue(path: string): any;
 }
 
 class RemoteMetadataViewImpl extends EventEmitter implements RemoteMetadataView {
@@ -63,11 +64,15 @@ class RemoteMetadataViewImpl extends EventEmitter implements RemoteMetadataView 
   }
 
   getValue(path: string) {
-    const value = this.registry.get(path);
+    const value = this.findValue(path);
     if (!value) {
       throw new Error(`Unknown path '${path}'`);
     }
     return value;
+  }
+
+  findValue(path: string) {
+    return this.registry.get(path);
   }
 }
 
