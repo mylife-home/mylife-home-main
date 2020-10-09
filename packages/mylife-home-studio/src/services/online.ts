@@ -1,4 +1,6 @@
+import { EventEmitter } from 'events';
 import { logger, bus, tools } from 'mylife-home-common';
+import { UpdateData } from '../../shared/logging';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
@@ -40,9 +42,10 @@ export class Online implements Service {
   private onInstanceOnline(instanceName: string) {
     tools.fireAsync(async () => {
       const view = await this.transport.metadata.createView(instanceName);
-      this.instanceInfos.set(instanceName, new InstanceInfo(view));
+      const instanceInfo = new InstanceInfo(view);
+      this.instanceInfos.set(instanceName, instanceInfo);
+      instanceInfo.on('change', this.onInstanceInfoChange);
     });
-    this.notifiers.notifyAll({ newInstance: instanceName });
   }
 
   private onInstanceOffline(instanceName: string) {
@@ -54,8 +57,15 @@ export class Online implements Service {
 
     this.instanceInfos.delete(instanceName);
     tools.fireAsync(() => this.transport.metadata.closeView(instanceInfo.view));
-    this.notifiers.notifyAll({ removeInstance: instanceName });
+
+    const updateData: UpdateData = { operation: 'clear', instanceName };
+    this.notifiers.notifyAll(updateData);
   }
+
+  private onInstanceInfoChange = (data: tools.InstanceInfo, instanceName: string) => {
+    const updateData: UpdateData = data ? { operation: 'set', instanceName, data } : { operation: 'clear', instanceName };
+    this.notifiers.notifyAll(updateData);
+  };
 
   private startNotifyInstanceInfo = async (session: Session) => {
     const notifier = this.notifiers.createNotifier(session);
@@ -63,7 +73,10 @@ export class Online implements Service {
     // send infos after we reply
     setImmediate(() => {
       for (const instanceInfo of this.instanceInfos.values()) {
-        notifier.notify({ newInstance: instanceInfo.name });
+        if (instanceInfo.data) {
+          const updateData: UpdateData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data }
+          notifier.notify(updateData);
+        }
       }
     });
 
@@ -75,12 +88,45 @@ export class Online implements Service {
   };
 }
 
-class InstanceInfo {
+const VIEW_PATH = 'instance-info';
+
+class InstanceInfo extends EventEmitter {
+  private _data: tools.InstanceInfo = null;
+
   constructor(public readonly view: bus.RemoteMetadataView) {
+    super();
+
+    view.on('set', this.onSet);
+    view.on('clear', this.onClear);
+
+    setImmediate(() => {
+      this.change(this.view.findValue(VIEW_PATH) || null);
+    });
+  }
+
+  private onSet = (path: string, value: any) => {
+    if (path === VIEW_PATH) {
+      this._data = value;
+    }
+  };
+
+  private onClear = (path: string) => {
+    if (path === VIEW_PATH) {
+      this._data = null;
+    }
+  };
+
+  private change(newValue: tools.InstanceInfo) {
+    this._data = newValue;
+    this.emit('change', newValue, this.name);
   }
 
   get name() {
     return this.view.remoteInstanceName;
+  }
+
+  get data() {
+    return this._data;
   }
 }
 
