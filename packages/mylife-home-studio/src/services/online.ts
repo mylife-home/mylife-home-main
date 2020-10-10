@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { logger, bus, tools } from 'mylife-home-common';
+import { logger, bus, tools, instanceInfo } from 'mylife-home-common';
 import { UpdateData } from '../../shared/online';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
@@ -11,7 +11,7 @@ export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly instanceInfos = new Map<string, InstanceInfo>();
   private readonly notifiers = new SessionNotifierManager('online/instance-info-notifiers', 'online/instance-info');
-  private readonly localInstanceInfo = { name: tools.getDefine<string>('instance-name'), data: tools.getInstanceInfo() };
+  private readonly localInstanceInfo = { name: tools.getDefine<string>('instance-name'), data: instanceInfo.get() };
 
   constructor(params: BuildParams) {
     this.transport = params.transport;

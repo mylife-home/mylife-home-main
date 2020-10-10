@@ -1,6 +1,6 @@
 import os from 'os';
-import * as buildInfo from '../build-info';
-import { getDefine } from './defines';
+import * as buildInfo from './build-info';
+import { getDefine } from './tools/defines';
 import * as pirev from 'pirev';
 
 export interface InstanceInfo {
@@ -39,14 +39,14 @@ let instanceInfo: InstanceInfo;
 const listeners = new Map<object, ListenerCallback>();
 
 export function init() {
-  instanceInfo = createInstanceInfo();
+  instanceInfo = create();
 }
 
-export function getInstanceInfo() {
+export function get() {
   return instanceInfo;
 }
 
-export function listenInstanceInfoUpdates(onUpdate: ListenerCallback): () => void {
+export function listenUpdates(onUpdate: ListenerCallback): () => void {
   const key = {};
 
   listeners.set(key, onUpdate);
@@ -81,7 +81,7 @@ export function addCapability(capability: string) {
   update(newData);
 }
 
-function createInstanceInfo() {
+function create() {
   const mainComponent = getDefine<string>('main-component');
 
   const data: InstanceInfo = {

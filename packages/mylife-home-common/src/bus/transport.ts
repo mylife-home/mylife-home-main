@@ -5,7 +5,8 @@ import { Presence } from './presence';
 import { Components } from './components';
 import { Metadata } from './metadata';
 import { Logger } from './logger';
-import { getConfigItem, getDefine, fireAsync, getInstanceInfo } from '../tools';
+import * as instanceInfo from '../instance-info';
+import { getConfigItem, getDefine, fireAsync } from '../tools';
 
 interface BusConfiguration {
   readonly serverUrl: string;
@@ -52,7 +53,7 @@ export class Transport extends EventEmitter {
 
     this.client.on('onlineChange', (online) => {
       if (online) {
-        fireAsync(() => this.metadata.set('instance-info', getInstanceInfo()));
+        fireAsync(() => this.metadata.set('instance-info', instanceInfo.get()));
       }
     });
   }

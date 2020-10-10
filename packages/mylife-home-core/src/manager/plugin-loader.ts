@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { components, buildInfo, logger } from 'mylife-home-common';
+import { components, buildInfo, logger, instanceInfo } from 'mylife-home-common';
 import { metadata } from '../components';
 
 const log = logger.createLogger('mylife:home:core:manager:plugin-loader');
@@ -33,6 +33,8 @@ function loadPlugin(registry: components.Registry, filePath: string) {
   } finally {
     metadata.builder.terminate();
   }
+
+  instanceInfo.addComponent(`core-plugins-${moduleName}`);
 }
 
 function webPackLoadDll(dllPath: string) {

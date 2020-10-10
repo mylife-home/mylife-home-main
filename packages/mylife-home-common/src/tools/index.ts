@@ -1,13 +1,12 @@
 import os from 'os';
 import * as logger from '../logger';
-import * as instanceInfo from './instance-info';
+import * as instanceInfo from '../instance-info';
 import { setDefine } from './defines';
 import { getConfig } from './config';
 
 export * from './config';
 export * from './args';
 export * from './defines';
-export * from './instance-info';
 
 const log = logger.createLogger('mylife:home:common:tools');
 
