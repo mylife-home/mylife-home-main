@@ -11,11 +11,13 @@ export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly instanceInfos = new Map<string, InstanceInfo>();
   private readonly notifiers = new SessionNotifierManager('online/instance-info-notifiers', 'online/instance-info');
-  private readonly localInstanceInfo = { name: tools.getDefine<string>('instance-name'), data: instanceInfo.get() };
 
   constructor(params: BuildParams) {
     this.transport = params.transport;
     this.transport.presence.on('instanceChange', this.onInstanceChange);
+    
+    const localInstanceInfo = new LocalInstanceInfo();
+    this.instanceInfos.set(localInstanceInfo.name, localInstanceInfo);
 
     for (const instanceName of this.transport.presence.getOnlines()) {
       this.onInstanceOnline(instanceName);
@@ -30,6 +32,11 @@ export class Online implements Service {
 
   async terminate() {
     this.transport.presence.off('instanceChange', this.onInstanceChange);
+
+    for(const instanceInfo of this.instanceInfos.values()) {
+      instanceInfo.terminate();
+    }
+    this.instanceInfos.clear();
   }
 
   private readonly onInstanceChange = (instanceName: string, online: boolean) => {
@@ -43,21 +50,21 @@ export class Online implements Service {
   private onInstanceOnline(instanceName: string) {
     tools.fireAsync(async () => {
       const view = await this.transport.metadata.createView(instanceName);
-      const instanceInfo = new InstanceInfo(view);
+      const instanceInfo = new RemoteInstanceInfo(this.transport, view);
       this.instanceInfos.set(instanceName, instanceInfo);
       instanceInfo.on('change', this.onInstanceInfoChange);
     });
   }
 
   private onInstanceOffline(instanceName: string) {
-    const instanceInfo = this.instanceInfos.get(instanceName);
+    const instanceInfo = this.instanceInfos.get(instanceName) as RemoteInstanceInfo;
     if (!instanceInfo) {
       log.error(`Instance '${instanceName}' is going offline but we were not aware of it`);
       return;
     }
 
     this.instanceInfos.delete(instanceName);
-    tools.fireAsync(() => this.transport.metadata.closeView(instanceInfo.view));
+    instanceInfo.terminate();
 
     const updateData: UpdateData = { operation: 'clear', instanceName };
     this.notifiers.notifyAll(updateData);
@@ -73,12 +80,6 @@ export class Online implements Service {
 
     // send infos after we reply
     setImmediate(() => {
-      {
-        const { name, data } = this.localInstanceInfo;
-        const updateData: UpdateData = { operation: 'set', instanceName: name, data };
-        notifier.notify(updateData);
-      }
-
       for (const instanceInfo of this.instanceInfos.values()) {
         if (instanceInfo.data) {
           const updateData: UpdateData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data };
@@ -95,13 +96,52 @@ export class Online implements Service {
   };
 }
 
-const VIEW_PATH = 'instance-info';
-
-class InstanceInfo extends EventEmitter {
+abstract class InstanceInfo extends EventEmitter {
   private _data: instanceInfo.InstanceInfo = null;
 
-  constructor(public readonly view: bus.RemoteMetadataView) {
+  constructor(public readonly name: string) {
     super();
+  }
+
+  abstract terminate(): void;
+  
+  protected change(newValue: instanceInfo.InstanceInfo) {
+    this._data = newValue;
+    this.emit('change', newValue, this.name);
+  }
+
+  get data() {
+    return this._data;
+  }
+}
+
+class LocalInstanceInfo extends InstanceInfo {
+  private readonly unsubscribe: () => void;
+
+  constructor() {
+    super(tools.getDefine<string>('instance-name'));
+
+    this.unsubscribe = instanceInfo.listenUpdates(this.onUpdate);
+
+    setImmediate(() => {
+      this.change(instanceInfo.get());
+    });
+  }
+
+  terminate() {
+    this.unsubscribe();
+  }
+
+  private onUpdate = (newData: instanceInfo.InstanceInfo) => {
+    this.change(newData);
+  }
+}
+
+const VIEW_PATH = 'instance-info';
+
+class RemoteInstanceInfo extends InstanceInfo {
+  constructor(private readonly transport: bus.Transport, private readonly view: bus.RemoteMetadataView) {
+    super(view.remoteInstanceName);
 
     view.on('set', this.onSet);
     view.on('clear', this.onClear);
@@ -111,29 +151,20 @@ class InstanceInfo extends EventEmitter {
     });
   }
 
+  terminate() {
+    tools.fireAsync(() => this.transport.metadata.closeView(this.view))
+  }
+
   private onSet = (path: string, value: any) => {
     if (path === VIEW_PATH) {
-      this._data = value;
+      this.change(value);
     }
   };
 
   private onClear = (path: string) => {
     if (path === VIEW_PATH) {
-      this._data = null;
+      this.change(null);
     }
   };
-
-  private change(newValue: instanceInfo.InstanceInfo) {
-    this._data = newValue;
-    this.emit('change', newValue, this.name);
-  }
-
-  get name() {
-    return this.view.remoteInstanceName;
-  }
-
-  get data() {
-    return this._data;
-  }
 }
 
