@@ -63,7 +63,7 @@ export class Online implements Service {
     this.notifiers.notifyAll(updateData);
   }
 
-  private onInstanceInfoChange = (data: tools.InstanceInfo, instanceName: string) => {
+  private onInstanceInfoChange = (data: instanceInfo.InstanceInfo, instanceName: string) => {
     const updateData: UpdateData = data ? { operation: 'set', instanceName, data } : { operation: 'clear', instanceName };
     this.notifiers.notifyAll(updateData);
   };
@@ -98,7 +98,7 @@ export class Online implements Service {
 const VIEW_PATH = 'instance-info';
 
 class InstanceInfo extends EventEmitter {
-  private _data: tools.InstanceInfo = null;
+  private _data: instanceInfo.InstanceInfo = null;
 
   constructor(public readonly view: bus.RemoteMetadataView) {
     super();
@@ -123,7 +123,7 @@ class InstanceInfo extends EventEmitter {
     }
   };
 
-  private change(newValue: tools.InstanceInfo) {
+  private change(newValue: instanceInfo.InstanceInfo) {
     this._data = newValue;
     this.emit('change', newValue, this.name);
   }

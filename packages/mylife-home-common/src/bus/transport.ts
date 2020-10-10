@@ -53,9 +53,20 @@ export class Transport extends EventEmitter {
 
     this.client.on('onlineChange', (online) => {
       if (online) {
-        fireAsync(() => this.metadata.set('instance-info', instanceInfo.get()));
+        this.publishInstanceInfo();
       }
     });
+
+    instanceInfo.listenUpdates(() => {
+      if (this.online) {
+        this.publishInstanceInfo();
+      }
+    });
+  }
+
+  private publishInstanceInfo() {
+    const data = instanceInfo.get();
+    fireAsync(() => this.metadata.set('instance-info', data));
   }
 
   get online(): boolean {
