@@ -1,5 +1,6 @@
 import os from 'os';
 import * as logger from '../logger';
+import * as instanceInfo from './instance-info';
 import { setDefine } from './defines';
 import { getConfig } from './config';
 
@@ -30,4 +31,6 @@ export function init(mainComponent: string) {
 
   logger.addField('instanceName', instanceName);
   logger.readConfig();
+
+  instanceInfo.init();
 }

@@ -33,19 +33,59 @@ export interface InstanceInfo {
   capabilities: string[];
 }
 
+export type ListenerCallback = (newData: InstanceInfo) => void;
+
 let instanceInfo: InstanceInfo;
+const listeners = new Map<object, ListenerCallback>();
+
+export function init() {
+  instanceInfo = createInstanceInfo();
+}
 
 export function getInstanceInfo() {
-  if (!instanceInfo) {
-    instanceInfo = createInstanceInfo();
-  }
-
   return instanceInfo;
 }
 
+export function listenInstanceInfoUpdates(onUpdate: ListenerCallback): () => void {
+  const key = {};
+
+  listeners.set(key, onUpdate);
+
+  return () => {
+    listeners.delete(key);
+  };
+}
+
+function update(newData: InstanceInfo) {
+  instanceInfo = newData;
+
+  for (const listener of listeners.values()) {
+    listener(newData);
+  }
+}
+
+export function addComponent(componentName: string) {
+  const newData = { ...instanceInfo };
+  newData.versions = { ...instanceInfo.versions };
+
+  addComponentVersion(newData.versions, componentName);
+
+  update(newData);
+}
+
+export function addCapability(capability: string) {
+  const newData = { ...instanceInfo };
+  newData.capabilities = [...instanceInfo.capabilities];
+  newData.capabilities.push(capability);
+
+  update(newData);
+}
+
 function createInstanceInfo() {
+  const mainComponent = getDefine<string>('main-component');
+
   const data: InstanceInfo = {
-    type: getDefine<string>('main-component'),
+    type: mainComponent,
     hardware: getHardwareInfo(),
     versions: {},
     systemBootTime: uptimeToBoottime(os.uptime()),
@@ -59,9 +99,8 @@ function createInstanceInfo() {
   versions.os = os.version();
   versions.node = process.version;
 
-  for (const [name, { version }] of Object.entries(buildInfo.getInfo().modules)) {
-    versions[name] = version;
-  }
+  addComponentVersion(versions, 'common');
+  addComponentVersion(versions, mainComponent);
 
   return data;
 }
@@ -78,4 +117,11 @@ function getHardwareInfo() {
     // not a rpi
     return os.arch();
   }
+}
+
+function addComponentVersion(versions: { [component: string]: string }, componentName: string) {
+  const name = `mylife-home-${componentName}`;
+  const info = buildInfo.getInfo().modules[name];
+  const version = info?.version || '<unknown>';
+  versions[name] = version;
 }
