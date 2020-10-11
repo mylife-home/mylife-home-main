@@ -23,3 +23,7 @@ export interface InstanceInfo {
   hostname: string;
   capabilities: string[];
 }
+
+export interface NamedInstanceInfo extends InstanceInfo {
+  instanceName: string;
+}
