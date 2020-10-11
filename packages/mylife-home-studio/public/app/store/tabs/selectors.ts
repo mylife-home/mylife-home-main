@@ -1,5 +1,5 @@
-import { AppState } from '../types';
 import { createSelector } from '@reduxjs/toolkit';
+import { AppState } from '../types';
 import { TabType } from './types';
 
 const getTabs = (state: AppState) => state.tabs;
