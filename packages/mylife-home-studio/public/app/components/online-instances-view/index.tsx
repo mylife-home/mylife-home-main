@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 
@@ -13,7 +13,6 @@ import TableRow from '@material-ui/core/TableRow';
 import { NamedInstanceInfo } from '../../store/online-instances-view/types';
 import { getInstancesInfos } from '../../store/online-instances-view/selectors';
 
-// TODO: sort
 // TODO: uptime control (nullable)
 // TODO: display capabilities
 // TODO: display versions
@@ -39,8 +38,8 @@ const OnlineInstancesView: FunctionComponent = () => {
             <TableHeader sort={sort} setSort={setSort} column='hardware' title='Matériel' />
             <TableHeader sort={sort} setSort={setSort} column='systemBootTime' title='Uptime système' />
             <TableHeader sort={sort} setSort={setSort} column='instanceBootTime' title='Uptime instance' />
-            <TableCell title='Fonctionalités' />
-            <TableCell title='Versions' />
+            <TableCell>{'Fonctionalités'}</TableCell>
+            <TableCell>{'Versions'}</TableCell>
           </TableRow>
         </TableHead>
 
@@ -91,12 +90,14 @@ const TableHeader: FunctionComponent<TableHeaderProps> = ({ column, title, sort,
 function useData(sort: Sort) {
   const data = useSelector(getInstancesInfos);
 
-  const comparator = getComparator(sort);
-  const sorted = [ ...data ];
-
-  sorted.sort(comparator);
-
-  return sorted;
+  return useMemo(() => {
+    const comparator = getComparator(sort);
+    const sorted = [ ...data ];
+  
+    sorted.sort(comparator);
+  
+    return sorted;
+  }, [data, sort]);
 }
 
 function getComparator(sort: Sort): (a: NamedInstanceInfo, b: NamedInstanceInfo) => number {
