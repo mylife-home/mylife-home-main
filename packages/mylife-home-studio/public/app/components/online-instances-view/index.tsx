@@ -12,8 +12,8 @@ import TableRow from '@material-ui/core/TableRow';
 
 import { NamedInstanceInfo } from '../../store/online-instances-view/types';
 import { getInstancesInfos } from '../../store/online-instances-view/selectors';
+import Uptime from './uptime';
 
-// TODO: uptime control (nullable)
 // TODO: display capabilities
 // TODO: display versions
 
@@ -50,8 +50,8 @@ const OnlineInstancesView: FunctionComponent = () => {
               <TableCell>{instanceInfo.type}</TableCell>
               <TableCell>{instanceInfo.hostname}</TableCell>
               <TableCell>{instanceInfo.hardware}</TableCell>
-              <TableCell>{instanceInfo.systemBootTime.toString()}</TableCell>
-              <TableCell>{instanceInfo.instanceBootTime.toString()}</TableCell>
+              <TableCell><Uptime value={instanceInfo.systemBootTime} /></TableCell>
+              <TableCell><Uptime value={instanceInfo.instanceBootTime} /></TableCell>
               <TableCell>{JSON.stringify(instanceInfo.capabilities)}</TableCell>
               <TableCell>{JSON.stringify(instanceInfo.versions)}</TableCell>
             </TableRow>
