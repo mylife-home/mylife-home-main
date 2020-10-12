@@ -116,6 +116,11 @@ export class Registry extends EventEmitter implements Registry {
     this.emit('plugin.remove', instanceName, plugin);
   }
 
+  hasPlugin(instanceName: string, id: string) {
+    const key = `${instanceName || 'local'}:${id}`;
+    return !!this.pluginsPerInstance.get(key);
+  }
+
   getPlugin(instanceName: string, id: string) {
     const key = `${instanceName || 'local'}:${id}`;
     const plugin = this.pluginsPerInstance.get(key);
@@ -158,6 +163,10 @@ export class Registry extends EventEmitter implements Registry {
 
     log.debug(`Component '${instanceName}:${id}' removed`);
     this.emit('component.remove', instanceName, component);
+  }
+
+  hasComponent(id: string) {
+    return !!this.findComponentData(id);
   }
 
   findComponent(id: string) {

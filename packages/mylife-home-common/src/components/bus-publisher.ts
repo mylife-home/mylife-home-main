@@ -8,7 +8,7 @@ class BusComponent extends EventEmitter implements Component {
   readonly id: string;
   readonly plugin: Plugin;
   private readonly remoteComponent: RemoteComponent;
-  private readonly states: { [name: string]: any } = {};
+  private readonly states: { [name: string]: any; } = {};
 
   constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string, netComponent: NetComponent) {
     super();
@@ -59,7 +59,7 @@ class BusComponent extends EventEmitter implements Component {
     return value;
   }
 
-  getStates(): { [name: string]: any } {
+  getStates(): { [name: string]: any; } {
     return this.states;
   }
 }
@@ -68,12 +68,18 @@ class BusInstance {
   private view: RemoteMetadataView;
 
   constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string) {
+    console.log('BUS INSTANCE CTOR', instanceName);
     fireAsync(async () => {
       this.view = await this.transport.metadata.createView(this.instanceName);
       this.view.on('set', (path, value) => this.set(path, value));
       this.view.on('clear', (path) => this.clear(path));
 
-      for (const path of this.view.paths) {
+      // set first plugins then components
+      const paths = sortPaths(this.view.paths);
+      for (const path of paths.plugins) {
+        this.set(path, this.view.getValue(path));
+      }
+      for (const path of paths.components) {
         this.set(path, this.view.getValue(path));
       }
     });
@@ -82,14 +88,25 @@ class BusInstance {
   private set(path: string, value: any) {
     const [type, id] = path.split('/');
     switch (type) {
-      case 'plugins':
-        const plugin = decodePlugin(value as NetPlugin);
-        this.registry.addPlugin(this.instanceName, plugin);
+      case 'plugins': {
+        // set semantic
+        if (!this.registry.hasPlugin(this.instanceName, id)) {
+          const netPlugin = value as NetPlugin;
+          const plugin = decodePlugin(netPlugin);
+          this.registry.addPlugin(this.instanceName, plugin);
+        }
         break;
+      }
 
-      case 'components':
-        const component = new BusComponent(this.transport, this.registry, this.instanceName, value as NetComponent);
-        this.registry.addComponent(this.instanceName, component);
+      case 'components': {
+        // set semantic
+        if (!this.registry.hasComponent(id)) {
+          const netComponent = value as NetComponent;
+          const component = new BusComponent(this.transport, this.registry, this.instanceName, netComponent);
+          this.registry.addComponent(this.instanceName, component);
+        }
+        break;
+      }
     }
   }
 
@@ -155,4 +172,24 @@ export class BusPublisher {
     instance.close();
     this.instances.delete(instanceName);
   };
+}
+
+function sortPaths(paths: Iterable<string>) {
+  const plugins = [];
+  const components = [];
+
+  for(const path of paths) {
+    const [type] = path.split('/');
+    switch(type) {
+      case 'plugins':
+        plugins.push(path);
+        break;
+
+      case 'components':
+        components.push(path);
+        break;
+    }
+  }
+
+  return { plugins, components };
 }
