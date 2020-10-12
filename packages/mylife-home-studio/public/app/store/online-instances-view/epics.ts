@@ -69,7 +69,7 @@ function stopCall({ notifierId }: { notifierId: string; }) {
   return socket.call('online/stop-notify-instance-info', { notifierId }) as Observable<void>;
 }
 
-function parseUpdate(updateData: shared.UpdateData) {
+function parseUpdate(updateData: shared.UpdateInstanceInfoData) {
   switch (updateData.operation) {
     case 'set': {
       const data = parseInstanceInfo(updateData.data);

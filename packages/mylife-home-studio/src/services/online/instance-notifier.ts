@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { logger, bus, tools, instanceInfo } from 'mylife-home-common';
-import { UpdateData } from '../../../shared/online';
+import { UpdateInstanceInfoData } from '../../../shared/online';
 import { Session, SessionNotifierManager } from '../session-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:online:instance-notifier');
@@ -60,23 +60,23 @@ export class InstanceNotifier {
     this.instanceInfos.delete(instanceName);
     instanceInfo.terminate();
 
-    const updateData: UpdateData = { operation: 'clear', instanceName };
+    const updateData: UpdateInstanceInfoData = { operation: 'clear', instanceName };
     this.notifiers.notifyAll(updateData);
   }
 
   private onInstanceInfoChange = (data: instanceInfo.InstanceInfo, instanceName: string) => {
-    const updateData: UpdateData = data ? { operation: 'set', instanceName, data } : { operation: 'clear', instanceName };
+    const updateData: UpdateInstanceInfoData = data ? { operation: 'set', instanceName, data } : { operation: 'clear', instanceName };
     this.notifiers.notifyAll(updateData);
   };
 
-  async startNotifyInstanceInfo(session: Session) {
+  async startNotify(session: Session) {
     const notifier = this.notifiers.createNotifier(session);
 
     // send infos after we reply
     setImmediate(() => {
       for (const instanceInfo of this.instanceInfos.values()) {
         if (instanceInfo.data) {
-          const updateData: UpdateData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data };
+          const updateData: UpdateInstanceInfoData = { operation: 'set', instanceName: instanceInfo.name, data: instanceInfo.data };
           notifier.notify(updateData);
         }
       }
@@ -85,7 +85,7 @@ export class InstanceNotifier {
     return { notifierId: notifier.id };
   };
 
-  async stopNotifyInstanceInfo(session: Session, { notifierId }: { notifierId: string; }) {
+  async stopNotify(session: Session, { notifierId }: { notifierId: string; }) {
     this.notifiers.removeNotifier(session, notifierId);
   };
 }

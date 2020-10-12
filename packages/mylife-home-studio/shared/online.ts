@@ -13,7 +13,7 @@ export interface InstanceInfo {
   capabilities: string[];
 }
 
-export interface UpdateData {
+export interface UpdateInstanceInfoData {
   operation: 'set' | 'clear';
   instanceName: string;
   data?: InstanceInfo;
