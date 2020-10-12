@@ -1,4 +1,4 @@
-import { bus, tools } from 'mylife-home-common';
+import { bus, tools, instanceInfo } from 'mylife-home-common';
 import { ComponentManager } from './component-manager';
 import { BindingConfig } from '../store';
 
@@ -30,6 +30,10 @@ export class Manager {
     await this.transport.rpc.serve('bindings.list', async () => this.componentManager.getBindings());
 
     await this.transport.rpc.serve('store.save', async () => this.componentManager.save());
+
+    instanceInfo.addCapability('components-api');
+    instanceInfo.addCapability('bindings-api');
+    instanceInfo.addCapability('store-api');
   }
 
   async terminate() {

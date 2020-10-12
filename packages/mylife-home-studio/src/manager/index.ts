@@ -1,4 +1,4 @@
-import { bus } from 'mylife-home-common';
+import { bus, instanceInfo } from 'mylife-home-common';
 import { WebServer } from '../web';
 import { Services } from '../services';
 
@@ -15,6 +15,8 @@ export class Manager {
 
   async init() {
     await this.services.init();
+
+    instanceInfo.addCapability('studio-manager');
   }
 
   async terminate() {

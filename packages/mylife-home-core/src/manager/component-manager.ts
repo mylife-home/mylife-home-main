@@ -1,4 +1,4 @@
-import { bus, components, tools } from 'mylife-home-common';
+import { bus, components, instanceInfo, tools } from 'mylife-home-common';
 import { Store, BindingConfig } from '../store';
 import { ComponentHost, metadata, Binding, BusPublisher } from '../components';
 import { loadPlugins } from './plugin-loader';
@@ -18,6 +18,9 @@ export class ComponentManager {
   }
 
   async init() {
+    instanceInfo.addCapability('components-manager');
+    instanceInfo.addCapability('bindings-manager');
+
     loadPlugins(this.registry);
 
     await this.store.load();

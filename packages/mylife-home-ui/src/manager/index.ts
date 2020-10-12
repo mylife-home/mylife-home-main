@@ -1,4 +1,4 @@
-import { bus, components } from 'mylife-home-common';
+import { bus, components, instanceInfo } from 'mylife-home-common';
 import { WebServer } from '../web';
 import { SessionsManager } from '../sessions';
 import { ModelManager } from '../model';
@@ -21,7 +21,9 @@ export class Manager {
     this.model.setDefinition(staticDefinition);
   }
 
-  async init() { }
+  async init() {
+    instanceInfo.addCapability('ui-manager');
+  }
 
   async terminate() {
     await this.webServer.terminate();
