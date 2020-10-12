@@ -9,7 +9,7 @@ export class ComponentNotifier {
   private readonly notifiers = new SessionNotifierManager('online/component-notifiers', 'online/component');
   private readonly componentListeners = new Map<components.Component, (name: string, value: any) => void>();
 
-  constructor(private readonly transport: bus.Transport) {
+  constructor(transport: bus.Transport) {
     this.registry = new components.Registry({ transport, publishRemoteComponents: true });
 
     this.registry.on('plugin.add', this.onPluginAdd);
