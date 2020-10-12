@@ -15,8 +15,6 @@ import { getInstancesInfos } from '../../store/online-instances-view/selectors';
 import Uptime from './uptime';
 import ChipArray from './chip-array';
 
-// TODO: display versions
-
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(3)
@@ -60,7 +58,7 @@ const OnlineInstancesView: FunctionComponent = () => {
               <TableCell><Uptime value={instanceInfo.systemBootTime} /></TableCell>
               <TableCell><Uptime value={instanceInfo.instanceBootTime} /></TableCell>
               <TableCell><ChipArray values={instanceInfo.capabilities} /></TableCell>
-              <TableCell>{JSON.stringify(instanceInfo.versions)}</TableCell>
+              <TableCell><ChipArray values={Object.entries(instanceInfo.versions).map(([name, version]) => `${name}: ${version}`)} /></TableCell>
             </TableRow>
           ))}
         </TableBody>
