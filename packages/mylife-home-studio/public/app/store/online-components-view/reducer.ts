@@ -1,9 +1,11 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, OnlineComponentsViewState, Plugin, Component } from './types';
+import { ActionTypes, OnlineComponentsViewState, Plugin, Component, State } from './types';
 
 const initialState: OnlineComponentsViewState = {
   notifierId: null,
-  // instances: {}
+  plugins: {},
+  components: {},
+  states: {},
 };
 
 export default createReducer(initialState, {
@@ -13,21 +15,23 @@ export default createReducer(initialState, {
 
   [ActionTypes.CLEAR_NOTIFICATION]: (state) => {
     state.notifierId = null;
-//    state.instances = {};
+    state.plugins = {};
+    state.components = {};
+    state.states = {};
   },
 
-  [ActionTypes.SET_PLUGIN]: (state, action: PayloadAction<{ instanceName: string, plugin: Plugin; }>) => {
+  [ActionTypes.SET_PLUGIN]: (state, action: PayloadAction<{ plugin: Plugin; }>) => {
   },
 
   [ActionTypes.CLEAR_PLUGIN]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
   },
 
-  [ActionTypes.SET_COMPONENT]: (state, action: PayloadAction<{ instanceName: string, component: Component; }>) => {
+  [ActionTypes.SET_COMPONENT]: (state, action: PayloadAction<{ component: Component; }>) => {
   },
 
   [ActionTypes.CLEAR_COMPONENT]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
   },
 
-  [ActionTypes.SET_STATE]: (state, action: PayloadAction<{ instanceName: string; component: string; name: string, value: any }>) => {
+  [ActionTypes.SET_STATE]: (state, action: PayloadAction<{ state: State }>) => {
   },
 });

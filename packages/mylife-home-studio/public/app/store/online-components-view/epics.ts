@@ -7,7 +7,8 @@ import * as shared from '../../../../shared/online';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { setNotification, clearNotification, setPlugin, clearPlugin, SetComponent, ClearComponent, SetState } from './actions';
+import { Plugin, Component, State } from './types';
+import { setNotification, clearNotification, setPlugin, clearPlugin, setComponent, clearComponent, setState } from './actions';
 import { hasOnlineComponentsViewTab, getNotifierId } from './selectors';
 import { filterNotification, handleError, withSelector } from '../common/rx-operators';
 
@@ -72,7 +73,8 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
   switch (`${updateData.type}-${updateData.operation}`) {
     case 'plugin-set': {
       const typedUpdate = updateData as shared.SetPluginData;
-      return setPlugin({ instanceName: typedUpdate.instanceName, plugin: typedUpdate.data });
+      const plugin: Plugin = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
+      return setPlugin({ plugin });
     }
 
     case 'plugin-clear': {
@@ -81,18 +83,20 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
     }
 
     case 'component-set': {
-      const typedUpdate = updateData as shared.SetPluginData;
-      return setPlugin({ instanceName: typedUpdate.instanceName, component: typedUpdate.data });
+      const typedUpdate = updateData as shared.SetComponentData;
+      const component: Component = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
+      return setComponent({ component });
     }
 
     case 'component-clear': {
       const typedUpdate = updateData as shared.ClearData;
-      return clearPlugin({ instanceName: typedUpdate.instanceName, id: typedUpdate.id });
+      return clearComponent({ instanceName: typedUpdate.instanceName, id: typedUpdate.id });
     }
 
     case 'state-set': {
       const typedUpdate = updateData as shared.SetStateData;
-      return setPlugin({ instanceName: typedUpdate.instanceName, component: typedUpdate.data.component, name: typedUpdate.data.name, value: typedUpdate.data.value });
+      const state: State = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
+      return setState({ state });
     }
 
     default:
