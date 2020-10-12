@@ -5,6 +5,7 @@ import tabs from './tabs/reducer';
 import coreDesigner from './core-designer/reducer';
 import onlineLogsView from './online-logs-view/reducer';
 import onlineInstancesView from './online-instances-view/reducer';
+import onlineComponentsView from './online-components-view/reducer';
 
 export default combineReducers({
   status,
@@ -12,4 +13,5 @@ export default combineReducers({
   coreDesigner,
   onlineLogsView,
   onlineInstancesView,
+  onlineComponentsView,
 });
