@@ -29,7 +29,6 @@ export default (context: Context, repoName: string, binName: string, partialConf
   
       output: {
         path: path.join(context.outputPath, `${binName}/static`),
-        filename: 'bundle.js',
       },
   
       resolve: {
@@ -65,6 +64,17 @@ export default (context: Context, repoName: string, binName: string, partialConf
       dev: {
         mode: 'development',
         devtool: 'inline-source-map',
+        optimization: {
+          splitChunks: {
+            cacheGroups: {
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: 'vendors',
+                chunks: 'all',
+              },
+            },
+          },
+        }
       } as Configuration,
       prod: {
         mode: 'production',
