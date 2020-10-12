@@ -17,17 +17,24 @@ import Uptime from './uptime';
 // TODO: display capabilities
 // TODO: display versions
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    marginTop: theme.spacing(3)
+  }
+}));
+
 interface Sort {
   column: keyof NamedInstanceInfo;
   direction: 'asc' | 'desc';
 }
 
 const OnlineInstancesView: FunctionComponent = () => {
+  const classes = useStyles();
   const [sort, setSort] = useState<Sort>({ column: 'instanceName', direction: 'asc' });
   const data = useData(sort);
 
   return (
-    <TableContainer>
+    <TableContainer className={classes.root}>
       <Table>
 
         <TableHead>
