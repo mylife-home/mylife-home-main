@@ -18,6 +18,7 @@ export interface Component extends shared.Component {
 
 export interface Plugin extends shared.Plugin {
   instanceName: string;
+  id: string;
 }
 
 export interface State {

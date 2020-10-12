@@ -73,7 +73,8 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
   switch (`${updateData.type}-${updateData.operation}`) {
     case 'plugin-set': {
       const typedUpdate = updateData as shared.SetPluginData;
-      const plugin: Plugin = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
+      const id = `${typedUpdate.data.module}.${typedUpdate.data.name}`;
+      const plugin: Plugin = { instanceName: typedUpdate.instanceName, id, ...typedUpdate.data };
       return setPlugin({ plugin });
     }
 
