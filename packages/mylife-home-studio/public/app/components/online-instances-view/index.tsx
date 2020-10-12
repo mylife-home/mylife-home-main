@@ -13,8 +13,8 @@ import TableRow from '@material-ui/core/TableRow';
 import { NamedInstanceInfo } from '../../store/online-instances-view/types';
 import { getInstancesInfos } from '../../store/online-instances-view/selectors';
 import Uptime from './uptime';
+import ChipArray from './chip-array';
 
-// TODO: display capabilities
 // TODO: display versions
 
 const useStyles = makeStyles((theme) => ({
@@ -59,7 +59,7 @@ const OnlineInstancesView: FunctionComponent = () => {
               <TableCell>{instanceInfo.hardware}</TableCell>
               <TableCell><Uptime value={instanceInfo.systemBootTime} /></TableCell>
               <TableCell><Uptime value={instanceInfo.instanceBootTime} /></TableCell>
-              <TableCell>{JSON.stringify(instanceInfo.capabilities)}</TableCell>
+              <TableCell><ChipArray values={instanceInfo.capabilities} /></TableCell>
               <TableCell>{JSON.stringify(instanceInfo.versions)}</TableCell>
             </TableRow>
           ))}
