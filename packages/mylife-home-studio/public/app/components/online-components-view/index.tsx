@@ -20,15 +20,12 @@ const OnlineComponentsView: FunctionComponent = () => {
     <Box p={3}>
       <Typography>Components</Typography>
 
-      <FormControl component='fieldset'>
-        <FormLabel component='legend'>Affichage</FormLabel>
-        <RadioGroup value={value} onChange={handleChange}>
-          <FormControlLabel value='instances-plugins-components' control={<Radio />} label='instances / plugins / components' />
-          <FormControlLabel value='instances-components' control={<Radio />} label='instances / components' />
-          <FormControlLabel value='plugins-components' control={<Radio />} label='plugins / components' />
-          <FormControlLabel value='components' control={<Radio />} label='components' />
-        </RadioGroup> 
-      </FormControl>
+      <RadioGroup value={value} onChange={handleChange} row>
+        <FormControlLabel value='instances-plugins-components' control={<Radio color='primary' />} label='instances / plugins / components' />
+        <FormControlLabel value='instances-components' control={<Radio color='primary' />} label='instances / components' />
+        <FormControlLabel value='plugins-components' control={<Radio color='primary' />} label='plugins / components' />
+        <FormControlLabel value='components' control={<Radio color='primary' />} label='components' />
+      </RadioGroup> 
     </Box>
   );
 };
