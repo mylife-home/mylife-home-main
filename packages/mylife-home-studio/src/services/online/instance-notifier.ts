@@ -1,21 +1,17 @@
 import { EventEmitter } from 'events';
 import { logger, bus, tools, instanceInfo } from 'mylife-home-common';
-import { UpdateData } from '../../shared/online';
-import { Service, BuildParams } from './types';
-import { Services } from '.';
-import { Session, SessionNotifierManager } from './session-manager';
+import { UpdateData } from '../../../shared/online';
+import { Session, SessionNotifierManager } from '../session-manager';
 
-const log = logger.createLogger('mylife:home:studio:services:online');
+const log = logger.createLogger('mylife:home:studio:services:online:instance-notifier');
 
-export class Online implements Service {
-  private readonly transport: bus.Transport;
+export class InstanceNotifier {
   private readonly instanceInfos = new Map<string, InstanceInfo>();
   private readonly notifiers = new SessionNotifierManager('online/instance-info-notifiers', 'online/instance-info');
 
-  constructor(params: BuildParams) {
-    this.transport = params.transport;
+  constructor(private readonly transport: bus.Transport) {
     this.transport.presence.on('instanceChange', this.onInstanceChange);
-    
+
     const localInstanceInfo = new LocalInstanceInfo();
     this.instanceInfos.set(localInstanceInfo.name, localInstanceInfo);
 
@@ -24,16 +20,14 @@ export class Online implements Service {
     }
   }
 
-  async init() {
+  init() {
     this.notifiers.init();
-    Services.instance.sessionManager.registerServiceHandler('online/start-notify-instance-info', this.startNotifyInstanceInfo);
-    Services.instance.sessionManager.registerServiceHandler('online/stop-notify-instance-info', this.stopNotifyInstanceInfo);
   }
 
   async terminate() {
     this.transport.presence.off('instanceChange', this.onInstanceChange);
 
-    for(const instanceInfo of this.instanceInfos.values()) {
+    for (const instanceInfo of this.instanceInfos.values()) {
       instanceInfo.terminate();
     }
     this.instanceInfos.clear();
@@ -75,7 +69,7 @@ export class Online implements Service {
     this.notifiers.notifyAll(updateData);
   };
 
-  private startNotifyInstanceInfo = async (session: Session) => {
+  async startNotifyInstanceInfo(session: Session) {
     const notifier = this.notifiers.createNotifier(session);
 
     // send infos after we reply
@@ -91,7 +85,7 @@ export class Online implements Service {
     return { notifierId: notifier.id };
   };
 
-  private stopNotifyInstanceInfo = async (session: Session, { notifierId }: { notifierId: string; }) => {
+  async stopNotifyInstanceInfo(session: Session, { notifierId }: { notifierId: string; }) {
     this.notifiers.removeNotifier(session, notifierId);
   };
 }
@@ -104,7 +98,7 @@ abstract class InstanceInfo extends EventEmitter {
   }
 
   abstract terminate(): void;
-  
+
   protected change(newValue: instanceInfo.InstanceInfo) {
     this._data = newValue;
     this.emit('change', newValue, this.name);
@@ -134,7 +128,7 @@ class LocalInstanceInfo extends InstanceInfo {
 
   private onUpdate = (newData: instanceInfo.InstanceInfo) => {
     this.change(newData);
-  }
+  };
 }
 
 const VIEW_PATH = 'instance-info';
@@ -152,7 +146,7 @@ class RemoteInstanceInfo extends InstanceInfo {
   }
 
   terminate() {
-    tools.fireAsync(() => this.transport.metadata.closeView(this.view))
+    tools.fireAsync(() => this.transport.metadata.closeView(this.view));
   }
 
   private onSet = (path: string, value: any) => {
