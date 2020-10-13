@@ -1,29 +1,12 @@
+import { Component, Plugin } from './component-model';
 // direct import to avoid require all common in ui
-import { NetComponent as Component, NetPlugin as Plugin, NetMember as Member } from 'mylife-home-common/dist/components/metadata/net';
-import { PluginUsage, MemberType, ConfigItem } from 'mylife-home-common/dist/components/metadata/plugin';
-
-// TODO: same that common/tools/intance-info
-export interface InstanceInfo {
-  type: string;
-  hardware: string;
-
-  versions: {
-    [component: string]: string;
-  };
-
-  systemBootTime: number;
-  instanceBootTime: number;
-  hostname: string;
-  capabilities: string[];
-}
+import { InstanceInfo } from 'mylife-home-common/dist/instance-info/types';
 
 export interface UpdateInstanceInfoData {
   operation: 'set' | 'clear';
   instanceName: string;
   data?: InstanceInfo;
 }
-
-export { Component, Plugin, Member, PluginUsage, MemberType, ConfigItem };
 
 export interface State {
   component: string;
