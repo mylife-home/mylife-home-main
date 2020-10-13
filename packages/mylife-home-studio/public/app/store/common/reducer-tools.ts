@@ -1,6 +1,6 @@
 import { Table } from './types';
 
-interface ItemWithId {
+export interface ItemWithId {
   readonly id: string;
 }
 
