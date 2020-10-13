@@ -1,11 +1,11 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { createTable, ItemWithId } from '../common/reducer-tools';
 import { Table } from '../common/types';
-import { buildUid } from './helpers';
 import { ActionTypes, OnlineComponentsViewState, Plugin, Component, State, NetPlugin, NetComponent, Instance } from './types';
 
 const initialState: OnlineComponentsViewState = {
   notifierId: null,
+  instances: createTable<Instance>(),
   plugins: createTable<Plugin>(),
   components: createTable<Component>(),
   states: createTable<State>(),
@@ -50,12 +50,45 @@ export default createReducer(initialState, {
   },
 
   [ActionTypes.SET_COMPONENT]: (state, action: PayloadAction<{ instanceName: string; component: NetComponent; }>) => {
+    const { instanceName, component } = action.payload;
+    const pluginId = `${instanceName}:${component.plugin}`;
+    const plugin = state.plugins.byId[pluginId];
+    if (!plugin) {
+      throw new Error(`Cannot create component '${component.id}' on '${instanceName}' with non-existant plugin '${component.plugin}'`);
+    }
+
+    const id = `${instanceName}:${component.id}`;
+    tableAdd(state.components, { id, plugin: pluginId, states: [] } as Component);
+    arrayAdd(plugin.components, id);
   },
 
   [ActionTypes.CLEAR_COMPONENT]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
+    const { instanceName, id: componentId } = action.payload;
+    const id = `${instanceName}:${componentId}`;
+    const component = state.components.byId[id];
+    const plugin = state.plugins.byId[component.plugin];
+
+    tableRemove(state.components, id);
+    arrayRemove(plugin.components, id);
+    for (const stateId of component.states) {
+      tableRemove(state.states, stateId);
+    }
   },
 
   [ActionTypes.SET_STATE]: (state, action: PayloadAction<{ instanceName: string; component: string; name: string; value: any; }>) => {
+    const { instanceName, component: componentId, name, value } = action.payload;
+
+    const id = `${instanceName}:${componentId}:${name}`;
+    const component = state.components.byId[componentId];
+
+    const existing = state.states.byId[id];
+    if (existing) {
+      existing.value = value;
+      return;
+    }
+
+    arrayAdd(component.states, id);
+    tableAdd(state.states, { id, instanceName, component: componentId, name, value });
   },
 });
 

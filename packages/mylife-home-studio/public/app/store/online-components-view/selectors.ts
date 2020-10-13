@@ -2,7 +2,6 @@ import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
 import { getTabsCount } from '../tabs/selectors';
 import { TabType } from '../tabs/types';
-import { buildUid } from './helpers';
 import { Plugin, Component } from './types';
 
 export interface InstanceName {
