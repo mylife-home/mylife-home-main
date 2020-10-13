@@ -4,6 +4,8 @@ import * as buildInfo from '../build-info';
 import { getDefine } from '../tools/defines';
 import { InstanceInfo } from './types';
 
+export { InstanceInfo };
+
 export type ListenerCallback = (newData: InstanceInfo) => void;
 
 let instanceInfo: InstanceInfo;
