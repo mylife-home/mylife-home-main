@@ -28,7 +28,7 @@ export const hasOnlineComponentsViewTab = (state: AppState) => getTabsCount(stat
 
 const getOnlineComponentsView = (state: AppState) => state.onlineComponentsView;
 export const getNotifierId = (state: AppState) => getOnlineComponentsView(state).notifierId;
-
+/*
 export const getPlugin = (state: AppState, instanceName: string, pluginId: string) => {
   const plugin: PluginData = {
     ...getOnlineComponentsView(state).plugins[buildUid(instanceName, pluginId)],
@@ -106,3 +106,4 @@ function comparer(a: InstanceAndId, b: InstanceAndId) {
 
   return a.id < b.id ? -1 : 1;
 }
+*/
