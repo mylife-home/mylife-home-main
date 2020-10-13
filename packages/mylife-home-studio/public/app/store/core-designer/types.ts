@@ -1,3 +1,4 @@
+import { PluginUsage, Member, ConfigItem, Plugin as BasePlugin, Component as BaseComponent } from '../../../../shared/component-model';
 import { Table } from '../common/types';
 import { NewTabData } from '../tabs/types';
 
@@ -17,50 +18,11 @@ export const enum ActionTypes {
   MOVE_COMPONENT = 'core-designer/move-component',
 }
 
-// -- common definitions --
+export { PluginUsage, Member, ConfigItem };
 
-export const enum MemberType {
-  ACTION = 'action',
-  STATE = 'state',
-}
-
-export interface Member {
-  description: string;
-  memberType: MemberType;
-  valueType: string;
-}
-
-export const enum ConfigType {
-  STRING = 'string',
-  BOOL = 'bool',
-  INTEGER = 'integer',
-  FLOAT = 'float',
-}
-
-export interface ConfigItem {
-  readonly description: string;
-  readonly valueType: ConfigType;
-}
-
-export const enum PluginUsage {
-  SENSOR = 'sensor',
-  ACTUATOR = 'actuator',
-  LOGIC = 'logic',
-  UI = 'ui'
-}
-
-// ----
-
-export interface Plugin {
+export interface Plugin extends BasePlugin {
   id: string;
   instanceName: string;
-  name: string;
-  module: string;
-  usage: PluginUsage;
-  version: string;
-  description: string;
-  members: { [name: string]: Member; };
-  config: { [name: string]: ConfigItem; };
 
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
@@ -72,9 +34,7 @@ export interface Position {
   y: number;
 }
 
-export interface Component {
-  id: string;
-  plugin: string;
+export interface Component extends BaseComponent {
   config: { [name: string]: any; };
   position: Position;
 }
