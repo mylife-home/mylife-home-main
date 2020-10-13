@@ -15,7 +15,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import { AppState } from '../../store/types';
-import { getPluginsIds, getPlugin } from '../../store/online-components-view/selectors';
+// import { getPluginsIds, getPlugin } from '../../store/online-components-view/selectors';
 
 const OnlineComponentsView: FunctionComponent = () => {
   const [value, setValue] = React.useState('instances-plugins-components');
@@ -35,7 +35,7 @@ const OnlineComponentsView: FunctionComponent = () => {
     setSelected(nodeIds);
   };
 
-  const pluginsIds = useSelector(getPluginsIds);
+  //const pluginsIds = useSelector(getPluginsIds);
 
   return (
     <Box p={3}>
@@ -54,9 +54,6 @@ const OnlineComponentsView: FunctionComponent = () => {
         onNodeToggle={handleToggle}
         onNodeSelect={handleSelect}
       >
-        {pluginsIds.map(({ instanceName, id }) => (
-          <Plugin instanceName={instanceName} pluginId={id} />
-        ))}
         <TreeItem nodeId="1" label="Applications">
           <TreeItem nodeId="2" label="Calendar" />
           <TreeItem nodeId="3" label="Chrome" />
@@ -76,7 +73,7 @@ const OnlineComponentsView: FunctionComponent = () => {
 };
 
 export default OnlineComponentsView;
-
+/*
 const Plugin: FunctionComponent<{ instanceName: string, pluginId: string }> = ({ instanceName, pluginId }) => {
   const plugin = useSelector((state: AppState) => getPlugin(state, instanceName, pluginId));
   return (
@@ -84,3 +81,4 @@ const Plugin: FunctionComponent<{ instanceName: string, pluginId: string }> = ({
     </TreeItem>
   );
 };
+*/

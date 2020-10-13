@@ -18,6 +18,7 @@ export default createReducer(initialState, {
 
   [ActionTypes.CLEAR_NOTIFICATION]: (state) => {
     state.notifierId = null;
+    state.instances = createTable<Instance>();
     state.plugins = createTable<Plugin>();
     state.components = createTable<Component>();
     state.states = createTable<State>();
@@ -79,7 +80,7 @@ export default createReducer(initialState, {
     const { instanceName, component: componentId, name, value } = action.payload;
 
     const id = `${instanceName}:${componentId}:${name}`;
-    const component = state.components.byId[componentId];
+    const component = state.components.byId[`${instanceName}:${componentId}`];
 
     const existing = state.states.byId[id];
     if (existing) {
