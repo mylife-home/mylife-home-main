@@ -1,4 +1,4 @@
-import { PluginUsage, Member, ConfigItem, Plugin as BasePlugin, Component as BaseComponent } from '../../../../shared/component-model';
+import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as BasePlugin, Component as BaseComponent } from '../../../../shared/component-model';
 import { Table } from '../common/types';
 import { NewTabData } from '../tabs/types';
 
@@ -18,7 +18,7 @@ export const enum ActionTypes {
   MOVE_COMPONENT = 'core-designer/move-component',
 }
 
-export { PluginUsage, Member, ConfigItem };
+export { PluginUsage, Member, ConfigItem, MemberType, ConfigType };
 
 export interface Plugin extends BasePlugin {
   id: string;
