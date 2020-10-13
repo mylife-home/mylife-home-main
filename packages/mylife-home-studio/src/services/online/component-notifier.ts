@@ -1,5 +1,6 @@
 import { logger, bus, components } from 'mylife-home-common';
-import { SetPluginData, SetComponentData, Component, SetStateData, State, ClearData } from '../../../shared/online';
+import { SetPluginData, SetComponentData, SetStateData, State, ClearData } from '../../../shared/online';
+import { Component } from '../../../shared/component-model';
 import { Session, SessionNotifierManager } from '../session-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:online:component-notifier');

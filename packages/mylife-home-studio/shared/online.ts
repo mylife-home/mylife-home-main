@@ -2,6 +2,8 @@ import { Component, Plugin } from './component-model';
 // direct import to avoid require all common in ui
 import { InstanceInfo } from 'mylife-home-common/dist/instance-info/types';
 
+export { InstanceInfo };
+
 export interface UpdateInstanceInfoData {
   operation: 'set' | 'clear';
   instanceName: string;
