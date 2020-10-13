@@ -7,4 +7,4 @@ export const setPlugin = createAction<{ instanceName: string; plugin: NetPlugin;
 export const clearPlugin = createAction<{ instanceName: string; id: string; }>(ActionTypes.CLEAR_PLUGIN);
 export const setComponent = createAction<{ instanceName: string; component: NetComponent; }>(ActionTypes.SET_COMPONENT);
 export const clearComponent = createAction<{ instanceName: string; id: string; }>(ActionTypes.CLEAR_COMPONENT);
-export const setState = createAction<{ instanceName: string; component: string; name: string; value: any }>(ActionTypes.SET_STATE);
+export const setState = createAction<{ instanceName: string; component: string; name: string; value: any; }>(ActionTypes.SET_STATE);
