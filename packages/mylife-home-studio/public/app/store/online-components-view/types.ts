@@ -25,7 +25,7 @@ export interface Plugin extends NetPlugin {
 }
 
 export interface Instance {
-  uid: string;
+  id: string;
   instanceName: string;
   plugins: string[];
   components: string[];
@@ -41,6 +41,7 @@ export interface State {
 
 export interface OnlineComponentsViewState {
   notifierId: string;
+  instances: Table<Instance>;
   plugins: Table<Plugin>;
   components: Table<Component>;
   states: Table<State>;
