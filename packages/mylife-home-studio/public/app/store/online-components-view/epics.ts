@@ -73,9 +73,7 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
   switch (`${updateData.type}-${updateData.operation}`) {
     case 'plugin-set': {
       const typedUpdate = updateData as shared.SetPluginData;
-      const id = `${typedUpdate.data.module}.${typedUpdate.data.name}`;
-      const plugin: Plugin = { instanceName: typedUpdate.instanceName, id, ...typedUpdate.data };
-      return setPlugin({ plugin });
+      return setPlugin({ instanceName: typedUpdate.instanceName, plugin: typedUpdate.data });
     }
 
     case 'plugin-clear': {
@@ -85,8 +83,7 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
 
     case 'component-set': {
       const typedUpdate = updateData as shared.SetComponentData;
-      const component: Component = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
-      return setComponent({ component });
+      return setComponent({ instanceName: typedUpdate.instanceName, component: typedUpdate.data });
     }
 
     case 'component-clear': {
@@ -96,8 +93,7 @@ function parseUpdate(updateData: shared.UpdateComponentData) {
 
     case 'state-set': {
       const typedUpdate = updateData as shared.SetStateData;
-      const state: State = { instanceName: typedUpdate.instanceName, ...typedUpdate.data };
-      return setState({ state });
+      return setState({ instanceName: typedUpdate.instanceName, ...typedUpdate.data });
     }
 
     default:
