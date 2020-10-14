@@ -248,7 +248,7 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-const State: FunctionComponent<{ id: string }> = ({ id, children }) => {
+const State: FunctionComponent<{ id: string }> = ({ id }) => {
   const nodeId = useNode('state', id);
   const state = useSelector((state: AppState) => getState(state, id));
 
