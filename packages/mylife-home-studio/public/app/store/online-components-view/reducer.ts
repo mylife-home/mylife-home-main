@@ -58,9 +58,11 @@ export default createReducer(initialState, {
       throw new Error(`Cannot create component '${component.id}' on '${instanceName}' with non-existant plugin '${component.plugin}'`);
     }
 
+    const instance = state.instances.byId[instanceName];
     const id = `${instanceName}:${component.id}`;
     tableAdd(state.components, { id, plugin: pluginId, states: [] } as Component);
     arrayAdd(plugin.components, id);
+    arrayAdd(instance.components, id);
   },
 
   [ActionTypes.CLEAR_COMPONENT]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
@@ -68,9 +70,11 @@ export default createReducer(initialState, {
     const id = `${instanceName}:${componentId}`;
     const component = state.components.byId[id];
     const plugin = state.plugins.byId[component.plugin];
+    const instance = state.instances.byId[component.instanceName];
 
     tableRemove(state.components, id);
     arrayRemove(plugin.components, id);
+    arrayRemove(instance.components, id);
     for (const stateId of component.states) {
       tableRemove(state.states, stateId);
     }
