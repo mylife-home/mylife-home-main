@@ -1,7 +1,6 @@
 import { AppState } from '../types';
 import { getTabsCount } from '../tabs/selectors';
 import { TabType } from '../tabs/types';
-import { Plugin, Component } from './types';
 
 export const hasOnlineComponentsViewTab = (state: AppState) => getTabsCount(state, TabType.ONLINE_COMPONENTS_VIEW) > 0;
 
