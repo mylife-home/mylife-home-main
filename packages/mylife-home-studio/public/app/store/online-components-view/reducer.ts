@@ -27,9 +27,10 @@ export default createReducer(initialState, {
   [ActionTypes.SET_PLUGIN]: (state, action: PayloadAction<{ instanceName: string; plugin: NetPlugin; }>) => {
     const { instanceName, plugin } = action.payload;
     const instance = ensureInstance(state, instanceName);
+    const display = `${plugin.module}.${plugin.name}`;
     const id = `${instanceName}:${plugin.module}.${plugin.name}`;
 
-    tableAdd(state.plugins, { ...plugin, id, instanceName, components: [] });
+    tableAdd(state.plugins, { ...plugin, id, display, instance: instanceName, components: [] });
     arrayAdd(instance.plugins, id);
   },
 
@@ -60,7 +61,7 @@ export default createReducer(initialState, {
 
     const instance = state.instances.byId[instanceName];
     const id = `${instanceName}:${component.id}`;
-    tableAdd(state.components, { id, plugin: pluginId, states: [] } as Component);
+    tableAdd(state.components, { id, display: component.id, plugin: pluginId, states: [] } as Component);
     arrayAdd(plugin.components, id);
     arrayAdd(instance.components, id);
   },
@@ -70,7 +71,7 @@ export default createReducer(initialState, {
     const id = `${instanceName}:${componentId}`;
     const component = state.components.byId[id];
     const plugin = state.plugins.byId[component.plugin];
-    const instance = state.instances.byId[component.instanceName];
+    const instance = state.instances.byId[component.instance];
 
     tableRemove(state.components, id);
     arrayRemove(plugin.components, id);
@@ -93,7 +94,7 @@ export default createReducer(initialState, {
     }
 
     arrayAdd(component.states, id);
-    tableAdd(state.states, { id, instanceName, component: componentId, name, value });
+    tableAdd(state.states, { id, instance: instanceName, component: componentId, name, value });
   },
 });
 
@@ -133,7 +134,7 @@ function ensureInstance(state: OnlineComponentsViewState, instanceName: string):
     return existing;
   }
 
-  const newInstance: Instance = { id: instanceName, instanceName, plugins: [], components: [] };
+  const newInstance: Instance = { id: instanceName, display: instanceName, plugins: [], components: [] };
   tableAdd(state.instances, newInstance);
   return newInstance;
 }

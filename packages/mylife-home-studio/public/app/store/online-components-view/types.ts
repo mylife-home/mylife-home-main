@@ -14,26 +14,29 @@ export const enum ActionTypes {
 export { Member, PluginUsage, MemberType, ConfigItem, NetPlugin, NetComponent };
 
 export interface Component extends NetComponent {
-  instanceName: string;
+  // id is used for global unique id
+  display: string;
+  instance: string;
   states: string[];
 }
 
 export interface Plugin extends NetPlugin {
   id: string;
-  instanceName: string;
+  display: string;
+  instance: string;
   components: string[];
 }
 
 export interface Instance {
   id: string;
-  instanceName: string;
+  display: string;
   plugins: string[];
   components: string[];
 }
 
 export interface State {
   id: string;
-  instanceName: string;
+  instance: string;
   component: string;
   name: string;
   value: any;
