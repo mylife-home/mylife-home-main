@@ -1,11 +1,14 @@
 import React, { FunctionComponent, createContext, useContext, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
-import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import MuiTreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 import { AppState } from '../../store/types';
 import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../store/online-components-view/selectors';
@@ -17,8 +20,8 @@ export type Type = 'instances-plugins-components' | 'instances-components' | 'pl
 export type TreeViewProps = { type: Type; onNodeClick: OnNodeClick };
 
 // TODO: 
-// expand all/collapse all
 // flash on value change
+// layout to properly scroll when treeview is too big
 
 const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
   const config = useMemo(() => buildConfig(type), [type]);
@@ -42,6 +45,8 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
     setExpanded([]);
   };
 
+  // only next sub-level of nodes are loaded
+  // so expand all will only expand the next level
   const handleExpand = () => {
     setExpanded(Array.from(nodeRepository.keys()));
   }
@@ -55,8 +60,17 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
     <ConfigContext.Provider value={config}>
       <NodeRepositoryContext.Provider value={nodeRepository}>
 
-        <Button onClick={handleCollapse}>collapse</Button>
-        <Button onClick={handleExpand}>expand one level</Button>
+        <Tooltip title='Replier tout'>
+          <IconButton onClick={handleCollapse}>
+            <RemoveIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title='Déplier le niveau suivant'>
+          <IconButton onClick={handleExpand}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
 
         <MuiTreeView
           defaultCollapseIcon={<ExpandMoreIcon />}
