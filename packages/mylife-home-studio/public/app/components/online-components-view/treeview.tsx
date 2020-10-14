@@ -1,6 +1,7 @@
-import React, { FunctionComponent, createContext, useContext, useMemo } from 'react';
+import React, { FunctionComponent, createContext, useContext, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
+import Button from '@material-ui/core/Button';
 import MuiTreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -9,66 +10,73 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { AppState } from '../../store/types';
 import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../store/online-components-view/selectors';
 
-export type OnNodeClick = (type: 'instance' | 'plugin' | 'component' | 'state', id: string) => void;
+export type NodeType = 'instance' | 'plugin' | 'component' | 'state';
+export type OnNodeClick = (type: NodeType, id: string) => void;
 export type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
 
 export type TreeViewProps = { type: Type; onNodeClick: OnNodeClick };
 
+// TODO: 
+// expand all/collapse all
+// flash on value change
+
 const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
-  const config = useMemo(() => {
-    switch (type) {
-      case 'instances-plugins-components':
-        return {
-          onNodeClick,
-          root: 'instances',
-          instance: { components: false, plugins: true },
-          plugin: { components: true },
-          component: { plugin: false, states: true },
-        } as TreeViewConfig;
+  const config = useMemo(() => buildConfig(type), [type]);
+  const nodeRepository = useMemo(() => new Map<string, { type: string, id: string}>() as NodeRepository, []);
 
-      case 'instances-components':
-        return {
-          onNodeClick,
-          root: 'instances',
-          instance: { components: true, plugins: false },
-          plugin: { components: false },
-          component: { plugin: true, states: true },
-        } as TreeViewConfig;
+  const [expanded, setExpanded] = React.useState<string[]>([]);
+  const [selected, setSelected] = React.useState<string>(null);
 
-      case 'plugins-components':
-        return {
-          onNodeClick,
-          root: 'plugins',
-          instance: { components: false, plugins: false },
-          plugin: { components: true },
-          component: { plugin: false, states: true },
-        } as TreeViewConfig;
+  const handleToggle = (event: React.ChangeEvent, nodeIds: string[]) => {
+    setExpanded(nodeIds);
+  };
 
-      case 'components':
-        return {
-          onNodeClick,
-          root: 'components',
-          instance: { components: false, plugins: false },
-          plugin: { components: false },
-          component: { plugin: true, states: true },
-        } as TreeViewConfig;
-    }
-  }, [type, onNodeClick]);
+  const handleSelect = (event: React.ChangeEvent, nodeId: string) => {
+    setSelected(nodeId);
+
+    const { type, id } = nodeRepository.get(nodeId);
+    onNodeClick(type, id);
+  };
+
+  const handleCollapse = () => {
+    setExpanded([]);
+  };
+
+  const handleExpand = () => {
+    setExpanded(Array.from(nodeRepository.keys()));
+  }
+
+  useEffect(() => {
+    setExpanded([]);
+    setSelected(null);
+  }, [type]);
 
   return (
-    <TreeViewConfigContext.Provider value={config}>
-      <MuiTreeView defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />}>
-        <Root />
-      </MuiTreeView>
-    </TreeViewConfigContext.Provider>
+    <ConfigContext.Provider value={config}>
+      <NodeRepositoryContext.Provider value={nodeRepository}>
+
+        <Button onClick={handleCollapse}>collapse</Button>
+        <Button onClick={handleExpand}>expand one level</Button>
+
+        <MuiTreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+          expanded={expanded}
+          selected={selected}
+          onNodeToggle={handleToggle}
+          onNodeSelect={handleSelect}
+        >
+          <Root />
+        </MuiTreeView>
+
+      </NodeRepositoryContext.Provider>
+    </ConfigContext.Provider>
   );
 };
 
 export default TreeView;
 
-interface TreeViewConfig {
-  onNodeClick: OnNodeClick;
-
+interface Config {
   root: 'instances' | 'plugins' | 'components';
 
   instance: {
@@ -86,10 +94,64 @@ interface TreeViewConfig {
   };
 }
 
-export const TreeViewConfigContext = createContext<TreeViewConfig>(null);
+const ConfigContext = createContext<Config>(null);
+
+function buildConfig(type: Type) {
+  switch (type) {
+    case 'instances-plugins-components':
+      return {
+        root: 'instances',
+        instance: { components: false, plugins: true },
+        plugin: { components: true },
+        component: { plugin: false, states: true },
+      } as Config;
+
+    case 'instances-components':
+      return {
+        root: 'instances',
+        instance: { components: true, plugins: false },
+        plugin: { components: false },
+        component: { plugin: true, states: true },
+      } as Config;
+
+    case 'plugins-components':
+      return {
+        root: 'plugins',
+        instance: { components: false, plugins: false },
+        plugin: { components: true },
+        component: { plugin: false, states: true },
+      } as Config;
+
+    case 'components':
+      return {
+        root: 'components',
+        instance: { components: false, plugins: false },
+        plugin: { components: false },
+        component: { plugin: true, states: true },
+      } as Config;
+  }
+}
+
+type NodeRepository = Map<string, { type: NodeType, id: string}>;
+
+const NodeRepositoryContext = createContext<NodeRepository>(null);
+
+function useNode(type: NodeType, id: string) {
+  const repository = useContext(NodeRepositoryContext);
+  const nodeId = `${type}$${id}`;
+
+  useEffect(() => {
+    repository.set(nodeId, { type, id });
+    return () => {
+      repository.delete(nodeId);
+    };
+  }, [type, id]);
+
+  return nodeId;
+}
 
 const Root: FunctionComponent = () => {
-  const { root } = useContext(TreeViewConfigContext);
+  const { root } = useContext(ConfigContext);
   switch (root) {
     case 'instances':
       return <Instances />;
@@ -134,11 +196,12 @@ const Components: FunctionComponent = () => {
 };
 
 const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { onNodeClick, instance: config } = useContext(TreeViewConfigContext);
+  const nodeId = useNode('instance', id);
+  const { instance: config } = useContext(ConfigContext);
   const instance = useSelector((state: AppState) => getInstance(state, id));
 
   return (
-    <TreeItem nodeId={id} label={instance.instanceName} onClick={() => onNodeClick('instance', id)}>
+    <TreeItem nodeId={nodeId} label={instance.display}>
       {config.plugins && instance.plugins.map((id) => <Plugin key={id} id={id} />)}
       {config.components && instance.components.map((id) => <Component key={id} id={id} />)}
     </TreeItem>
@@ -146,22 +209,25 @@ const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
 };
 
 const Plugin: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { onNodeClick, plugin: config } = useContext(TreeViewConfigContext);
+  const nodeId = useNode('plugin', id);
+  const { plugin: config, root } = useContext(ConfigContext);
   const plugin = useSelector((state: AppState) => getPlugin(state, id));
+  const display = root === 'instances' ? plugin.display : `${plugin.instance} - ${plugin.display}`;
 
   return (
-    <TreeItem nodeId={id} label={plugin.id} onClick={() => onNodeClick('plugin', id)}>
+    <TreeItem nodeId={nodeId} label={display}>
       {config.components && plugin.components.map((id) => <Component key={id} id={id} />)}
     </TreeItem>
   );
 };
 
 const Component: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { onNodeClick, component: config } = useContext(TreeViewConfigContext);
+  const nodeId = useNode('component', id);
+  const { component: config } = useContext(ConfigContext);
   const component = useSelector((state: AppState) => getComponent(state, id));
 
   return (
-    <TreeItem nodeId={id} label={component.id} onClick={() => onNodeClick('component', id)}>
+    <TreeItem nodeId={nodeId} label={component.display}>
       {config.plugin && <Plugin id={component.plugin} />}
       {config.states && component.states.map((id) => <State key={id} id={id} />)}
     </TreeItem>
@@ -169,8 +235,8 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
 };
 
 const State: FunctionComponent<{ id: string }> = ({ id, children }) => {
-  const { onNodeClick } = useContext(TreeViewConfigContext);
+  const nodeId = useNode('state', id);
   const state = useSelector((state: AppState) => getState(state, id));
 
-  return <TreeItem nodeId={id} label={`${state.name} = ${JSON.stringify(state.value)}`} onClick={() => onNodeClick('state', id)} />;
+  return <TreeItem nodeId={nodeId} label={`${state.name} = ${JSON.stringify(state.value)}`} />;
 };
