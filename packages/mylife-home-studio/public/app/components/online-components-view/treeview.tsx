@@ -2,13 +2,19 @@ import React, { FunctionComponent, createContext, useContext, useMemo, useEffect
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
+import { AutoSizer } from 'react-virtualized';
 
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+
 import MuiTreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
+
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddIcon from '@material-ui/icons/Add';
@@ -21,22 +27,42 @@ import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsId
 
 export type NodeType = 'instance' | 'plugin' | 'component' | 'state';
 export type OnNodeClick = (type: NodeType, id: string) => void;
-export type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
+export type TreeViewProps = { className?: string; onNodeClick: OnNodeClick };
 
-export type TreeViewProps = { type: Type; onNodeClick: OnNodeClick };
+type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
 
 // TODO:
 // flash on value change => https://github.com/JonnyBurger/use-color-change/blob/master/src/index.ts
-// layout to properly scroll when treeview is too big
-// tree values: use bold on important stuff, normal on not important (eg: state values, instance name on plugins)
-// add tree icons by type
 
-const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
+const useStyles = makeStyles((theme) => ({
+  container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  typeSelector: {},
+  actions: {},
+  treeContainer: {
+    flex: '1 1 auto',
+  },
+  tree: {
+    overflowY: 'auto',
+  },
+}));
+
+const TreeView: FunctionComponent<TreeViewProps> = ({ className, onNodeClick }) => {
+  const [type, setType] = React.useState<Type>('instances-plugins-components');
+  const [expanded, setExpanded] = React.useState<string[]>([]);
+  const [selected, setSelected] = React.useState<string>(null);
+
   const config = useMemo(() => buildConfig(type), [type]);
   const nodeRepository = useMemo(() => new Map<string, { type: string; id: string }>() as NodeRepository, []);
 
-  const [expanded, setExpanded] = React.useState<string[]>([]);
-  const [selected, setSelected] = React.useState<string>(null);
+  const classes = useStyles();
 
   const handleToggle = (event: React.ChangeEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);
@@ -65,36 +91,68 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ type, onNodeClick }) => {
   }, [type]);
 
   return (
-    <ConfigContext.Provider value={config}>
-      <NodeRepositoryContext.Provider value={nodeRepository}>
-        <Tooltip title="Replier tout">
-          <IconButton onClick={handleCollapse}>
-            <RemoveIcon />
-          </IconButton>
-        </Tooltip>
+    <div className={clsx(classes.container, className)}>
+      <TypeSelector type={type} setType={setType} className={classes.typeSelector} />
+      <Actions className={classes.actions} onCollapse={handleCollapse} onExpand={handleExpand} />
 
-        <Tooltip title="Déplier le niveau suivant">
-          <IconButton onClick={handleExpand}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
-
-        <MuiTreeView
-          defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpandIcon={<ChevronRightIcon />}
-          expanded={expanded}
-          selected={selected}
-          onNodeToggle={handleToggle}
-          onNodeSelect={handleSelect}
-        >
-          <Root />
-        </MuiTreeView>
-      </NodeRepositoryContext.Provider>
-    </ConfigContext.Provider>
+      <div className={classes.treeContainer}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <ConfigContext.Provider value={config}>
+              <NodeRepositoryContext.Provider value={nodeRepository}>
+                <MuiTreeView
+                  style={{ height, width }}
+                  defaultCollapseIcon={<ExpandMoreIcon />}
+                  defaultExpandIcon={<ChevronRightIcon />}
+                  expanded={expanded}
+                  selected={selected}
+                  onNodeToggle={handleToggle}
+                  onNodeSelect={handleSelect}
+                  className={classes.tree}
+                >
+                  <Root />
+                </MuiTreeView>
+              </NodeRepositoryContext.Provider>
+            </ConfigContext.Provider>
+          )}
+        </AutoSizer>
+      </div>
+    </div>
   );
 };
 
 export default TreeView;
+
+const TypeSelector: FunctionComponent<{ className?: string; type: Type; setType: (type: Type) => void }> = ({ className, type, setType }) => {
+  const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setType(event.target.value as Type);
+  };
+
+  return (
+    <RadioGroup className={className} value={type} onChange={handleTypeChange} row>
+      <FormControlLabel value="instances-plugins-components" control={<Radio color="primary" />} label="instances / plugins / components" />
+      <FormControlLabel value="instances-components" control={<Radio color="primary" />} label="instances / components" />
+      <FormControlLabel value="plugins-components" control={<Radio color="primary" />} label="plugins / components" />
+      <FormControlLabel value="components" control={<Radio color="primary" />} label="components" />
+    </RadioGroup>
+  );
+};
+
+const Actions: FunctionComponent<{ className?: string; onCollapse: () => void; onExpand: () => void }> = ({ className, onCollapse, onExpand }) => (
+  <div className={className}>
+    <Tooltip title="Replier tout">
+      <IconButton onClick={onCollapse}>
+        <RemoveIcon />
+      </IconButton>
+    </Tooltip>
+
+    <Tooltip title="Déplier le niveau suivant">
+      <IconButton onClick={onExpand}>
+        <AddIcon />
+      </IconButton>
+    </Tooltip>
+  </div>
+);
 
 interface Config {
   root: 'instances' | 'plugins' | 'components';
@@ -298,17 +356,17 @@ const State: FunctionComponent<{ id: string }> = ({ id }) => {
 
 const useLabelStyles = makeStyles((theme) => ({
   container: {
-    display: 'flex'
+    display: 'flex',
   },
   flashing: {},
   icon: {
-    marginRight: theme.spacing(3)
+    marginRight: theme.spacing(3),
   },
   part: {
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   bold: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 }));
 
