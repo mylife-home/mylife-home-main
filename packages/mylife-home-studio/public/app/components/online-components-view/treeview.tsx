@@ -11,6 +11,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import Divider from '@material-ui/core/Divider';
 
 import MuiTreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
@@ -24,10 +25,15 @@ import { InstanceIcon, PluginIcon, ComponentIcon, StateIcon } from '../lib/icons
 
 import { AppState } from '../../store/types';
 import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../store/online-components-view/selectors';
+import { NodeType, Selection } from './types';
 
-export type NodeType = 'instance' | 'plugin' | 'component' | 'state';
 export type OnNodeClick = (type: NodeType, id: string) => void;
-export type TreeViewProps = { className?: string; onNodeClick: OnNodeClick };
+
+export interface TreeViewProps {
+  className?: string;
+  selection: Selection;
+  onSelect: (selection: Selection) => void;
+}
 
 type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
 
@@ -54,10 +60,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TreeView: FunctionComponent<TreeViewProps> = ({ className, onNodeClick }) => {
+const TreeView: FunctionComponent<TreeViewProps> = ({ className, selection, onSelect }) => {
   const [type, setType] = React.useState<Type>('instances-plugins-components');
   const [expanded, setExpanded] = React.useState<string[]>([]);
-  const [selected, setSelected] = React.useState<string>(null);
 
   const config = useMemo(() => buildConfig(type), [type]);
   const nodeRepository = useMemo(() => new Map<string, { type: string; id: string }>() as NodeRepository, []);
@@ -68,11 +73,11 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ className, onNodeClick }) 
     setExpanded(nodeIds);
   };
 
-  const handleSelect = (event: React.ChangeEvent, nodeId: string) => {
-    setSelected(nodeId);
+  const selected = selection ? makeNodeId(selection.type, selection.id) : null;
 
+  const handleSelect = (event: React.ChangeEvent, nodeId: string) => {
     const { type, id } = nodeRepository.get(nodeId);
-    onNodeClick(type, id);
+    onSelect({ type, id });
   };
 
   const handleCollapse = () => {
@@ -87,13 +92,15 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ className, onNodeClick }) 
 
   useEffect(() => {
     setExpanded([]);
-    setSelected(null);
+    onSelect(null);
   }, [type]);
 
   return (
     <div className={clsx(classes.container, className)}>
       <TypeSelector type={type} setType={setType} className={classes.typeSelector} />
       <Actions className={classes.actions} onCollapse={handleCollapse} onExpand={handleExpand} />
+
+      <Divider />
 
       <div className={classes.treeContainer}>
         <AutoSizer>
@@ -216,7 +223,7 @@ const NodeRepositoryContext = createContext<NodeRepository>(null);
 
 function useNode(type: NodeType, id: string) {
   const repository = useContext(NodeRepositoryContext);
-  const nodeId = `${type}$${id}`;
+  const nodeId = makeNodeId(type, id);
 
   useEffect(() => {
     repository.set(nodeId, { type, id });
@@ -226,6 +233,10 @@ function useNode(type: NodeType, id: string) {
   }, [type, id]);
 
   return nodeId;
+}
+
+function makeNodeId(type: NodeType, id: string) {
+  return `${type}$${id}`;
 }
 
 const Root: FunctionComponent = () => {
