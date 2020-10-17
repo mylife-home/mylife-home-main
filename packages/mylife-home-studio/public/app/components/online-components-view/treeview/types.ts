@@ -1,0 +1,1 @@
+export type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';

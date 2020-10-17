@@ -3,29 +3,19 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { AutoSizer } from 'react-virtualized';
-
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Radio from '@material-ui/core/Radio';
 import Divider from '@material-ui/core/Divider';
-
 import MuiTreeView from '@material-ui/lab/TreeView';
 import TreeItem from '@material-ui/lab/TreeItem';
-
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import AddIcon from '@material-ui/icons/Add';
-import RemoveIcon from '@material-ui/icons/Remove';
-
-import { InstanceIcon, PluginIcon, ComponentIcon, StateIcon } from '../../lib/icons';
 
 import { AppState } from '../../../store/types';
 import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../../store/online-components-view/selectors';
 import { NodeType, Selection } from '../types';
+import { Type } from './types';
+import TypeSelector from './type-selector';
+import Actions from './actions';
+import { LabelContainer, LabelIcon, LabelPart } from './label';
 
 export type OnNodeClick = (type: NodeType, id: string) => void;
 
@@ -34,8 +24,6 @@ export interface TreeViewProps {
   selection: Selection;
   onSelect: (selection: Selection) => void;
 }
-
-type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
 
 // TODO:
 // flash on value change => https://github.com/JonnyBurger/use-color-change/blob/master/src/index.ts
@@ -130,37 +118,6 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ className, selection, onSe
 };
 
 export default TreeView;
-
-const TypeSelector: FunctionComponent<{ className?: string; type: Type; setType: (type: Type) => void }> = ({ className, type, setType }) => {
-  const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setType(event.target.value as Type);
-  };
-
-  return (
-    <RadioGroup className={className} value={type} onChange={handleTypeChange} row>
-      <FormControlLabel value="instances-plugins-components" control={<Radio color="primary" />} label="instances / plugins / components" />
-      <FormControlLabel value="instances-components" control={<Radio color="primary" />} label="instances / components" />
-      <FormControlLabel value="plugins-components" control={<Radio color="primary" />} label="plugins / components" />
-      <FormControlLabel value="components" control={<Radio color="primary" />} label="components" />
-    </RadioGroup>
-  );
-};
-
-const Actions: FunctionComponent<{ className?: string; onCollapse: () => void; onExpand: () => void }> = ({ className, onCollapse, onExpand }) => (
-  <div className={className}>
-    <Tooltip title="Replier tout">
-      <IconButton onClick={onCollapse}>
-        <RemoveIcon />
-      </IconButton>
-    </Tooltip>
-
-    <Tooltip title="Déplier le niveau suivant">
-      <IconButton onClick={onExpand}>
-        <AddIcon />
-      </IconButton>
-    </Tooltip>
-  </div>
-);
 
 interface Config {
   root: 'instances' | 'plugins' | 'components';
@@ -364,62 +321,4 @@ const State: FunctionComponent<{ id: string }> = ({ id }) => {
       }
     />
   );
-};
-
-const useLabelStyles = makeStyles((theme) => ({
-  container: {
-    display: 'flex',
-  },
-  flashing: {
-    animationPlayState: 'running !important'
-  },
-  icon: {
-    marginRight: theme.spacing(3),
-  },
-  part: {
-    marginRight: theme.spacing(1),
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  '@keyframes flash': {
-    from: {
-    },
-    to: {
-      backgroundColor: 'black',
-    },
-  },
-  flash: {
-    animationName: '$flash',
-    animationDuration: '1000ms',
-    animationIterationCount: 1,
-    animationDirection: 'alternate',
-    animationTimingFunction: 'ease-in-out',
-    animationPlayState: 'paused',
-  },
-
-}));
-
-const ICONS_BY_TYPE: { [type in NodeType]: typeof SvgIcon } = {
-  instance: InstanceIcon,
-  plugin: PluginIcon,
-  component: ComponentIcon,
-  state: StateIcon,
-};
-
-const LabelContainer: FunctionComponent = ({ children }) => {
-  const classes = useLabelStyles();
-  return <div className={classes.container}>{children}</div>;
-};
-
-const LabelIcon: FunctionComponent<{ type: NodeType }> = ({ type }) => {
-  const classes = useLabelStyles();
-  const Icon = ICONS_BY_TYPE[type];
-
-  return <Icon className={classes.icon} />;
-};
-
-const LabelPart: FunctionComponent<{ flashing?: boolean; bold?: boolean }> = ({ flashing = false, bold = false, children }) => {
-  const classes = useLabelStyles();
-  return <Typography className={clsx(classes.part, classes.flash, { [classes.bold]: bold, [classes.flashing]: flashing })}>{children}</Typography>;
 };
