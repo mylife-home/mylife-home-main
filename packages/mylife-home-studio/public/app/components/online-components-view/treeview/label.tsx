@@ -11,9 +11,6 @@ const useLabelStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
   },
-  flashing: {
-    animationPlayState: 'running !important'
-  },
   icon: {
     marginRight: theme.spacing(3),
   },
@@ -24,19 +21,24 @@ const useLabelStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
   '@keyframes flash': {
-    from: {
+    '0%': {
+      backgroundColor: 'none',
+      color: 'inherit',
     },
-    to: {
-      backgroundColor: 'black',
+    '25%': {
+      backgroundColor: 'rgba(0,0,0,0.5)',
     },
+    '50%': {
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    '100%': {
+      backgroundColor: 'none',
+      color: 'inherit',
+    }
   },
   flash: {
-    animationName: '$flash',
-    animationDuration: '1000ms',
-    animationIterationCount: 1,
-    animationDirection: 'alternate',
-    animationTimingFunction: 'ease-in-out',
-    animationPlayState: 'paused',
+    willChange: 'auto',
+    animation: '$flash 0.5s',
   },
 
 }));
@@ -62,5 +64,5 @@ export const LabelIcon: FunctionComponent<{ type: NodeType }> = ({ type }) => {
 
 export const LabelPart: FunctionComponent<{ flashing?: boolean; bold?: boolean }> = ({ flashing = false, bold = false, children }) => {
   const classes = useLabelStyles();
-  return <Typography className={clsx(classes.part, classes.flash, { [classes.bold]: bold, [classes.flashing]: flashing })}>{children}</Typography>;
+  return <Typography className={clsx(classes.part, { [classes.bold]: bold, [classes.flash]: flashing })}>{children}</Typography>;
 };
