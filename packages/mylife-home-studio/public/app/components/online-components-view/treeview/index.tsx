@@ -1,21 +1,17 @@
-import React, { FunctionComponent, createContext, useContext, useMemo, useEffect } from 'react';
+import React, { FunctionComponent, useContext, useMemo, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { AutoSizer } from 'react-virtualized';
 import Divider from '@material-ui/core/Divider';
 import MuiTreeView from '@material-ui/lab/TreeView';
-import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-import { AppState } from '../../../store/types';
-import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../../store/online-components-view/selectors';
 import { NodeType, Selection } from '../types';
-import { Type } from './types';
+import { ConfigContext, makeNodeId, NodeRepository, NodeRepositoryContext, Type, Config } from './common';
 import TypeSelector from './type-selector';
 import Actions from './actions';
-import { LabelContainer, LabelIcon, LabelPart } from './label';
+import { Instances, Plugins, Components } from './nodes';
 
 export type OnNodeClick = (type: NodeType, id: string) => void;
 
@@ -119,27 +115,7 @@ const TreeView: FunctionComponent<TreeViewProps> = ({ className, selection, onSe
 
 export default TreeView;
 
-interface Config {
-  root: 'instances' | 'plugins' | 'components';
-
-  instance: {
-    components: boolean;
-    plugins: boolean;
-  };
-
-  plugin: {
-    components: boolean;
-  };
-
-  component: {
-    plugin: boolean;
-    states: boolean;
-  };
-}
-
-const ConfigContext = createContext<Config>(null);
-
-function buildConfig(type: Type) {
+function buildConfig(type: Type): Config {
   switch (type) {
     case 'instances-plugins-components':
       return {
@@ -147,7 +123,7 @@ function buildConfig(type: Type) {
         instance: { components: false, plugins: true },
         plugin: { components: true },
         component: { plugin: false, states: true },
-      } as Config;
+      };
 
     case 'instances-components':
       return {
@@ -155,7 +131,7 @@ function buildConfig(type: Type) {
         instance: { components: true, plugins: false },
         plugin: { components: false },
         component: { plugin: true, states: true },
-      } as Config;
+      };
 
     case 'plugins-components':
       return {
@@ -163,7 +139,7 @@ function buildConfig(type: Type) {
         instance: { components: false, plugins: false },
         plugin: { components: true },
         component: { plugin: false, states: true },
-      } as Config;
+      };
 
     case 'components':
       return {
@@ -171,30 +147,8 @@ function buildConfig(type: Type) {
         instance: { components: false, plugins: false },
         plugin: { components: false },
         component: { plugin: true, states: true },
-      } as Config;
+      };
   }
-}
-
-type NodeRepository = Map<string, { type: NodeType; id: string }>;
-
-const NodeRepositoryContext = createContext<NodeRepository>(null);
-
-function useNode(type: NodeType, id: string) {
-  const repository = useContext(NodeRepositoryContext);
-  const nodeId = makeNodeId(type, id);
-
-  useEffect(() => {
-    repository.set(nodeId, { type, id });
-    return () => {
-      repository.delete(nodeId);
-    };
-  }, [type, id]);
-
-  return nodeId;
-}
-
-function makeNodeId(type: NodeType, id: string) {
-  return `${type}$${id}`;
 }
 
 const Root: FunctionComponent = () => {
@@ -207,118 +161,4 @@ const Root: FunctionComponent = () => {
     case 'components':
       return <Components />;
   }
-};
-
-const Instances: FunctionComponent = () => {
-  const instancesIds = useSelector(getInstancesIds);
-  return (
-    <>
-      {instancesIds.map((id) => (
-        <Instance key={id} id={id} />
-      ))}
-    </>
-  );
-};
-
-const Plugins: FunctionComponent = () => {
-  const pluginsIds = useSelector(getPluginsIds);
-  return (
-    <>
-      {pluginsIds.map((id) => (
-        <Plugin key={id} id={id} />
-      ))}
-    </>
-  );
-};
-
-const Components: FunctionComponent = () => {
-  const componentsIds = useSelector(getComponentsIds);
-  return (
-    <>
-      {componentsIds.map((id) => (
-        <Component key={id} id={id} />
-      ))}
-    </>
-  );
-};
-
-const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
-  const nodeId = useNode('instance', id);
-  const { instance: config } = useContext(ConfigContext);
-  const instance = useSelector((state: AppState) => getInstance(state, id));
-
-  return (
-    <TreeItem
-      nodeId={nodeId}
-      label={
-        <LabelContainer>
-          <LabelIcon type="instance" />
-          <LabelPart bold>{instance.display}</LabelPart>
-        </LabelContainer>
-      }
-    >
-      {config.plugins && instance.plugins.map((id) => <Plugin key={id} id={id} />)}
-      {config.components && instance.components.map((id) => <Component key={id} id={id} />)}
-    </TreeItem>
-  );
-};
-
-const Plugin: FunctionComponent<{ id: string }> = ({ id }) => {
-  const nodeId = useNode('plugin', id);
-  const { plugin: config, root } = useContext(ConfigContext);
-  const plugin = useSelector((state: AppState) => getPlugin(state, id));
-
-  return (
-    <TreeItem
-      nodeId={nodeId}
-      label={
-        <LabelContainer>
-          <LabelIcon type="plugin" />
-          {root !== 'instances' && <LabelPart>{`${plugin.instance} - `}</LabelPart>}
-          <LabelPart bold>{plugin.display}</LabelPart>
-        </LabelContainer>
-      }
-    >
-      {config.components && plugin.components.map((id) => <Component key={id} id={id} />)}
-    </TreeItem>
-  );
-};
-
-const Component: FunctionComponent<{ id: string }> = ({ id }) => {
-  const nodeId = useNode('component', id);
-  const { component: config } = useContext(ConfigContext);
-  const component = useSelector((state: AppState) => getComponent(state, id));
-
-  return (
-    <TreeItem
-      nodeId={nodeId}
-      label={
-        <LabelContainer>
-          <LabelIcon type="component" />
-          <LabelPart bold>{component.display}</LabelPart>
-        </LabelContainer>
-      }
-    >
-      {config.plugin && <Plugin id={component.plugin} />}
-      {config.states && component.states.map((id) => <State key={id} id={id} />)}
-    </TreeItem>
-  );
-};
-
-const State: FunctionComponent<{ id: string }> = ({ id }) => {
-  const nodeId = useNode('state', id);
-  const state = useSelector((state: AppState) => getState(state, id));
-
-  return (
-    <TreeItem
-      nodeId={nodeId}
-      label={
-        <LabelContainer>
-          <LabelIcon type="state" />
-          <LabelPart bold>{state.name}</LabelPart>
-          <LabelPart flashing>{` = ${JSON.stringify(state.value)}`}</LabelPart>
-        </LabelContainer>
-      }
-    />
-  );
 };
