@@ -21,11 +21,11 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 
-import { InstanceIcon, PluginIcon, ComponentIcon, StateIcon } from '../lib/icons';
+import { InstanceIcon, PluginIcon, ComponentIcon, StateIcon } from '../../lib/icons';
 
-import { AppState } from '../../store/types';
-import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../store/online-components-view/selectors';
-import { NodeType, Selection } from './types';
+import { AppState } from '../../../store/types';
+import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../../store/online-components-view/selectors';
+import { NodeType, Selection } from '../types';
 
 export type OnNodeClick = (type: NodeType, id: string) => void;
 
@@ -39,6 +39,7 @@ type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-c
 
 // TODO:
 // flash on value change => https://github.com/JonnyBurger/use-color-change/blob/master/src/index.ts
+// https://github.com/thomasnordquist/MQTT-Explorer/blob/master/app/src/components/Tree/TreeNode/effects/useAnimationToIndicateTopicUpdate.tsx
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -293,7 +294,7 @@ const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
     <TreeItem
       nodeId={nodeId}
       label={
-        <LabelContainer flashing={false}>
+        <LabelContainer>
           <LabelIcon type="instance" />
           <LabelPart bold>{instance.display}</LabelPart>
         </LabelContainer>
@@ -314,7 +315,7 @@ const Plugin: FunctionComponent<{ id: string }> = ({ id }) => {
     <TreeItem
       nodeId={nodeId}
       label={
-        <LabelContainer flashing={false}>
+        <LabelContainer>
           <LabelIcon type="plugin" />
           {root !== 'instances' && <LabelPart>{`${plugin.instance} - `}</LabelPart>}
           <LabelPart bold>{plugin.display}</LabelPart>
@@ -335,7 +336,7 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
     <TreeItem
       nodeId={nodeId}
       label={
-        <LabelContainer flashing={false}>
+        <LabelContainer>
           <LabelIcon type="component" />
           <LabelPart bold>{component.display}</LabelPart>
         </LabelContainer>
@@ -355,10 +356,10 @@ const State: FunctionComponent<{ id: string }> = ({ id }) => {
     <TreeItem
       nodeId={nodeId}
       label={
-        <LabelContainer flashing={false}>
+        <LabelContainer>
           <LabelIcon type="state" />
           <LabelPart bold>{state.name}</LabelPart>
-          <LabelPart>{` = ${JSON.stringify(state.value)}`}</LabelPart>
+          <LabelPart flashing>{` = ${JSON.stringify(state.value)}`}</LabelPart>
         </LabelContainer>
       }
     />
@@ -369,7 +370,9 @@ const useLabelStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
   },
-  flashing: {},
+  flashing: {
+    animationPlayState: 'running !important'
+  },
   icon: {
     marginRight: theme.spacing(3),
   },
@@ -379,6 +382,22 @@ const useLabelStyles = makeStyles((theme) => ({
   bold: {
     fontWeight: 'bold',
   },
+  '@keyframes flash': {
+    from: {
+    },
+    to: {
+      backgroundColor: 'black',
+    },
+  },
+  flash: {
+    animationName: '$flash',
+    animationDuration: '1000ms',
+    animationIterationCount: 1,
+    animationDirection: 'alternate',
+    animationTimingFunction: 'ease-in-out',
+    animationPlayState: 'paused',
+  },
+
 }));
 
 const ICONS_BY_TYPE: { [type in NodeType]: typeof SvgIcon } = {
@@ -388,9 +407,9 @@ const ICONS_BY_TYPE: { [type in NodeType]: typeof SvgIcon } = {
   state: StateIcon,
 };
 
-const LabelContainer: FunctionComponent<{ flashing: boolean }> = ({ flashing, children }) => {
+const LabelContainer: FunctionComponent = ({ children }) => {
   const classes = useLabelStyles();
-  return <div className={clsx(classes.container, { [classes.flashing]: flashing })}>{children}</div>;
+  return <div className={classes.container}>{children}</div>;
 };
 
 const LabelIcon: FunctionComponent<{ type: NodeType }> = ({ type }) => {
@@ -400,7 +419,7 @@ const LabelIcon: FunctionComponent<{ type: NodeType }> = ({ type }) => {
   return <Icon className={classes.icon} />;
 };
 
-const LabelPart: FunctionComponent<{ bold?: boolean }> = ({ bold = false, children }) => {
+const LabelPart: FunctionComponent<{ flashing?: boolean; bold?: boolean }> = ({ flashing = false, bold = false, children }) => {
   const classes = useLabelStyles();
-  return <Typography className={clsx(classes.part, { [classes.bold]: bold })}>{children}</Typography>;
+  return <Typography className={clsx(classes.part, classes.flash, { [classes.bold]: bold, [classes.flashing]: flashing })}>{children}</Typography>;
 };
