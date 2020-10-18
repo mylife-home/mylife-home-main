@@ -7,7 +7,7 @@ import { Title } from './layout';
 const None: FunctionComponent = () => {
   return (
     <Box p={3}>
-      <Title title='NONE' />
+      <Title title='<Aucune sélection>' />
     </Box>
   );
 };
