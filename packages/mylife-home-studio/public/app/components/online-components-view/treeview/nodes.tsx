@@ -4,7 +4,7 @@ import TreeItem from '@material-ui/lab/TreeItem';
 
 import { AppState } from '../../../store/types';
 import { getInstancesIds, getInstance, getPluginsIds, getPlugin, getComponentsIds, getComponent, getState } from '../../../store/online-components-view/selectors';
-import { NodeType } from '../types';
+import { NodeType } from '../common';
 import { ConfigContext, makeNodeId, NodeRepositoryContext } from './common';
 import { LabelContainer, LabelIcon, LabelPart } from './label';
 

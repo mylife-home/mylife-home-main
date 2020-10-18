@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 
-import { Selection } from '../types';
+import { Selection } from '../common';
 import None from './none';
 import Instance from './instance';
 import Plugin from './plugin';

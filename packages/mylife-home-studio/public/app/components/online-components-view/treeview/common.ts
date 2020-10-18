@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { NodeType } from '../types';
+import { NodeType } from '../common';
 
 export type Type = 'instances-plugins-components' | 'instances-components' | 'plugins-components' | 'components';
 

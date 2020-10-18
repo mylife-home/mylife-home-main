@@ -6,12 +6,13 @@ import Box from '@material-ui/core/Box';
 
 import { AppState } from '../../../store/types';
 import { getState } from '../../../store/online-components-view/selectors';
+import { Title } from './layout';
 
 const State: FunctionComponent<{ id: string }> = ({ id }) => {
   const state = useSelector((state: AppState) => getState(state, id));
   return (
     <Box p={3}>
-      {state.name}
+      <Title type='state' title={state.name} />
     </Box>
   );
 };

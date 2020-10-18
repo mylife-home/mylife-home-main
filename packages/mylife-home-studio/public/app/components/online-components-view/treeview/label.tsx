@@ -2,10 +2,8 @@ import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Typography from '@material-ui/core/Typography';
-import SvgIcon from '@material-ui/core/SvgIcon';
 
-import { InstanceIcon, PluginIcon, ComponentIcon, StateIcon } from '../../lib/icons';
-import { NodeType } from '../types';
+import { NodeType, ICONS_BY_TYPE } from '../common';
 
 const useLabelStyles = makeStyles((theme) => ({
   container: {
@@ -42,13 +40,6 @@ const useLabelStyles = makeStyles((theme) => ({
   },
 
 }));
-
-const ICONS_BY_TYPE: { [type in NodeType]: typeof SvgIcon } = {
-  instance: InstanceIcon,
-  plugin: PluginIcon,
-  component: ComponentIcon,
-  state: StateIcon,
-};
 
 export const LabelContainer: FunctionComponent = ({ children }) => {
   const classes = useLabelStyles();

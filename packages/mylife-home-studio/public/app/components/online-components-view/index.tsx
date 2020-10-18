@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 
 import SplitPane from '../lib/split-pane';
-import { Selection } from './types';
+import { Selection } from './common';
 import TreeView from './treeview';
 import Detail from './detail';
 

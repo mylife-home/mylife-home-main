@@ -7,7 +7,7 @@ import MuiTreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-import { NodeType, Selection } from '../types';
+import { NodeType, Selection } from '../common';
 import { ConfigContext, makeNodeId, NodeRepository, NodeRepositoryContext, Type, Config } from './common';
 import TypeSelector from './type-selector';
 import Actions from './actions';
