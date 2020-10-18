@@ -1,8 +1,9 @@
-import React, { FunctionComponent, createContext, useContext } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
+import Typography from '@material-ui/core/Typography';
 
 import { AppState } from '../../../store/types';
 import { getInstance } from '../../../store/online-components-view/selectors';
@@ -13,6 +14,9 @@ const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
   return (
     <Box p={3}>
       <Title type='instance' title={instance.display} />
+
+      <Typography>{JSON.stringify(instance.plugins)}</Typography>
+      <Typography>{JSON.stringify(instance.components)}</Typography>
     </Box>
   );
 };

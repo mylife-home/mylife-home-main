@@ -1,4 +1,4 @@
-import React, { FunctionComponent, createContext, useContext } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
