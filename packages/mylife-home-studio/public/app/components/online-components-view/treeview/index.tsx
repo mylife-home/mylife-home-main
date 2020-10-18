@@ -21,10 +21,6 @@ export interface TreeViewProps {
   onSelect: (selection: Selection) => void;
 }
 
-// TODO:
-// flash on value change => https://github.com/JonnyBurger/use-color-change/blob/master/src/index.ts
-// https://github.com/thomasnordquist/MQTT-Explorer/blob/master/app/src/components/Tree/TreeNode/effects/useAnimationToIndicateTopicUpdate.tsx
-
 const useStyles = makeStyles((theme) => ({
   container: {
     position: 'absolute',
