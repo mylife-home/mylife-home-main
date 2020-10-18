@@ -53,6 +53,7 @@ const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
         <LabelContainer>
           <LabelIcon type="instance" />
           <LabelPart bold>{instance.display}</LabelPart>
+          <LabelPart>{` - ${count(instance.plugins, 'plugin')}, ${count(instance.components, 'component')}`}</LabelPart>
         </LabelContainer>
       }
     >
@@ -75,6 +76,7 @@ const Plugin: FunctionComponent<{ id: string }> = ({ id }) => {
           <LabelIcon type="plugin" />
           {root !== 'instances' && <LabelPart>{`${plugin.instance} - `}</LabelPart>}
           <LabelPart bold>{plugin.display}</LabelPart>
+          <LabelPart>{` - ${count(plugin.components, 'component')}`}</LabelPart>
         </LabelContainer>
       }
     >
@@ -95,6 +97,7 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
         <LabelContainer>
           <LabelIcon type="component" />
           <LabelPart bold>{component.display}</LabelPart>
+          <LabelPart>{` - ${count(component.states, 'state')}`}</LabelPart>
         </LabelContainer>
       }
     >
@@ -172,4 +175,29 @@ function useFlashOnTrigger() {
   };
 
   return { trigger, flashing };
+}
+
+function count(array: string[], unit: NodeType) {
+  const value = array.length;
+  const plural = value > 1;
+
+  switch(unit) {
+    case 'plugin': {
+      const unit = plural ? 'plugins' : 'plugin';
+      return `${value} ${unit}`;
+    }
+
+    case 'component': {
+      const unit = plural ? 'composants' : 'composant';
+      return `${value} ${unit}`;
+    }
+
+    case 'state': {
+      const unit = plural ? 'états' : 'état';
+      return `${value} ${unit}`;
+    }
+
+    default:
+      throw new Error('Unsupported unit');
+  }
 }
