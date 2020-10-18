@@ -1,16 +1,27 @@
-import React, { FunctionComponent, createContext, useContext } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-
-import Box from '@material-ui/core/Box';
+import React, { FunctionComponent } from 'react';
 
 import { Selection } from '../types';
+import None from './none';
+import Instance from './instance';
+import Plugin from './plugin';
+import Component from './component';
+import State from './state';
 
 const Detail: FunctionComponent<{ selection: Selection }> = ({ selection }) => {
-  return (
-    <Box p={3}>
-      {JSON.stringify(selection)}
-    </Box>
-  );
+  if (!selection) {
+    return <None />;
+  }
+
+  switch(selection.type) {
+    case 'instance':
+      return <Instance id={selection.id} />;
+    case 'plugin':
+      return <Plugin id={selection.id} />;
+    case 'component':
+      return <Component id={selection.id} />;
+    case 'state':
+      return <State id={selection.id} />;
+    }
 };
 
 export default Detail;
