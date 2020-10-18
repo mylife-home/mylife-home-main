@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext, useEffect } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import TreeItem from '@material-ui/lab/TreeItem';
 
@@ -107,6 +107,7 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
 const State: FunctionComponent<{ id: string }> = ({ id }) => {
   const nodeId = useNode('state', id);
   const state = useSelector((state: AppState) => getState(state, id));
+  const flashing = useFlashOnUpdate(state.value);
 
   return (
     <TreeItem
@@ -115,7 +116,8 @@ const State: FunctionComponent<{ id: string }> = ({ id }) => {
         <LabelContainer>
           <LabelIcon type="state" />
           <LabelPart bold>{state.name}</LabelPart>
-          <LabelPart flashing>{` = ${JSON.stringify(state.value)}`}</LabelPart>
+          <LabelPart>{' = '}</LabelPart>
+          <LabelPart flashing={flashing}>{JSON.stringify(state.value)}</LabelPart>
         </LabelContainer>
       }
     />
@@ -134,4 +136,40 @@ function useNode(type: NodeType, id: string) {
   }, [type, id]);
 
   return nodeId;
+}
+
+function useFlashOnUpdate(value: any) {
+  const [current, setCurrent] = useState(value);
+  const { flashing, trigger } = useFlashOnTrigger();
+
+  useEffect(() => {
+    if (Object.is(current, value)) {
+      return;
+    }
+
+    setCurrent(value);
+
+    // value has changed
+    trigger();
+    
+  }, [value]);
+
+  return flashing;
+}
+
+function useFlashOnTrigger() {
+  const [flashing, setFlashing] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout>();
+
+  useEffect(() => () => {
+    clearTimeout(timerRef.current);
+  }, []);
+
+  const trigger = () => {
+    setFlashing(true);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setFlashing(false), 500);
+  };
+
+  return { trigger, flashing };
 }
