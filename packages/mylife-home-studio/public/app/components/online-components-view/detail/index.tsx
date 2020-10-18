@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
 
-import { Selection } from './types';
+import { Selection } from '../types';
 
 const Detail: FunctionComponent<{ selection: Selection }> = ({ selection }) => {
   return (
