@@ -1,13 +1,11 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
 
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 
 import { AppState } from '../../../store/types';
 import { getInstance } from '../../../store/online-components-view/selectors';
-import { Title } from './layout';
+import { Title, Count } from './layout';
 
 const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
   const instance = useSelector((state: AppState) => getInstance(state, id));
@@ -15,14 +13,8 @@ const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
   return (
     <Box p={3}>
       <Title type='instance' title={instance.display} />
-
-      <Typography>
-        {`${instance.plugins.length} plugins`}
-      </Typography>
-
-      <Typography>
-        {`${instance.components.length} components`}
-      </Typography>
+      <Count value={instance.plugins.length} singular='plugin' plural='plugins' />
+      <Count value={instance.components.length} singular='component' plural='components' />
     </Box>
   );
 };
