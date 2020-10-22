@@ -8,6 +8,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     alignItems: 'baseline',
+    marginBottom: theme.spacing(3),
 
     '& *': {
       marginRight: theme.spacing(3),

@@ -11,12 +11,18 @@ import { Title } from './layout';
 
 const Instance: FunctionComponent<{ id: string }> = ({ id }) => {
   const instance = useSelector((state: AppState) => getInstance(state, id));
+
   return (
     <Box p={3}>
       <Title type='instance' title={instance.display} />
 
-      <Typography>{JSON.stringify(instance.plugins)}</Typography>
-      <Typography>{JSON.stringify(instance.components)}</Typography>
+      <Typography>
+        {`${instance.plugins.length} plugins`}
+      </Typography>
+
+      <Typography>
+        {`${instance.components.length} components`}
+      </Typography>
     </Box>
   );
 };
