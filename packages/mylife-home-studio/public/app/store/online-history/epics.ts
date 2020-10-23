@@ -35,7 +35,7 @@ const stopNotifyHistoryEpic = (action$: Observable<Action>, state$: StateObserva
 const fetchHistoryEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
   const notification$ = socket.notifications();
   return notification$.pipe(
-    filterNotification('logging/logs'),
+    filterNotification('online/history'),
     withSelector(state$, getNotifierId),
     filter(([notification, notifierId]) => notification.notifierId === notifierId),
     map(([notification]) => parseHistoryRecord(notification.data)),
@@ -74,7 +74,6 @@ function stopCall({ notifierId }: { notifierId: string; }) {
 let idGenerator = 0;
 
 function parseHistoryRecord(record: HistoryRecord): HistoryItem {
-  return {
-    // TODO
-  };
+  const { timestamp, ...data } = record;
+  return { ...data, id: `${++idGenerator}`, timestamp: new Date(record.timestamp) };
 }
