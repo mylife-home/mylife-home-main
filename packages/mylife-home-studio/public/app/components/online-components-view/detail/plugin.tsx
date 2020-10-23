@@ -3,11 +3,11 @@ import { useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 
-import { ConfigItem, Member, MemberType, Plugin } from '../../../../../shared/component-model';
 import { AppState } from '../../../store/types';
+import { ConfigItem, Member, Plugin } from '../../../store/online-components-view/types';
 import { getPlugin } from '../../../store/online-components-view/selectors';
 import { StateIcon, ActionIcon, ConfigIcon } from '../../lib/icons';
-import { Title, SectionDivider, SectionTitle, Item, Count, NameValue } from './layout';
+import { Title, SectionDivider, SectionTitle, Count, NameValue } from './layout';
 
 type UiConfigItem = { name: string; } & ConfigItem;
 type UiMember = { name: string; } & Omit<Member, 'memberType'>;
@@ -82,31 +82,9 @@ const MemberItem: FunctionComponent<{ member: UiMember }> = ({ member }) => {
 }
 
 function usePluginProps(plugin: Plugin) {
-  return useMemo(() => {
-    const config: UiConfigItem[] = [];
-    const states: UiMember[] = [];
-    const actions: UiMember[] = [];
-
-    for(const [name, item] of Object.entries(plugin.config)) {
-      config.push({ name, ...item });
-    }
-
-    for(const [name, item] of Object.entries(plugin.members)) {
-      switch(item.memberType) {
-        case MemberType.STATE: {
-          const { memberType: _, ... values } = item;
-          states.push({ name, ...values });
-          break;
-        }
-
-        case MemberType.ACTION: {
-          const { memberType: _, ... values } = item;
-          actions.push({ name, ...values });
-          break;
-        }
-      }
-    }
-
-    return { config, states, actions };
-  }, [plugin]);
+  return useMemo(() => ({
+    config: plugin.configIds.map(name => ({ name, ... plugin.config[name] })),
+    states: plugin.stateIds.map(name => ({ name, ... plugin.members[name] })),
+    actions: plugin.actionIds.map(name => ({ name, ... plugin.members[name] })),
+  }), [plugin]);
 }
