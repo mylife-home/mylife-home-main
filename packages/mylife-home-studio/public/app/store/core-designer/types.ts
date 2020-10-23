@@ -1,4 +1,4 @@
-import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as BasePlugin, Component as BaseComponent } from '../../../../shared/component-model';
+import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
 import { Table } from '../common/types';
 import { NewTabData } from '../tabs/types';
 
@@ -20,7 +20,7 @@ export const enum ActionTypes {
 
 export { PluginUsage, Member, ConfigItem, MemberType, ConfigType };
 
-export interface Plugin extends BasePlugin {
+export interface Plugin extends NetPlugin {
   id: string;
   instanceName: string;
 
@@ -34,7 +34,7 @@ export interface Position {
   y: number;
 }
 
-export interface Component extends BaseComponent {
+export interface Component extends NetComponent {
   config: { [name: string]: any; };
   position: Position;
 }
