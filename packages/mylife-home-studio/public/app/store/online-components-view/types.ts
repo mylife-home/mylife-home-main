@@ -24,6 +24,11 @@ export interface Plugin extends NetPlugin {
   id: string;
   display: string;
   instance: string;
+
+  stateIds: string[]; // ordered alphabetically
+  actionIds: string[]; // ordered alphabetically
+  configIds: string[]; // ordered alphabetically
+  
   components: string[];
 }
 
