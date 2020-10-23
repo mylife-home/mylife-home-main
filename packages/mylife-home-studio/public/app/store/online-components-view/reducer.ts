@@ -1,6 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { createTable, ItemWithId } from '../common/reducer-tools';
 import { Table } from '../common/types';
+import { MemberType } from '../core-designer/types';
 import { ActionTypes, OnlineComponentsViewState, Plugin, Component, State, NetPlugin, NetComponent, Instance } from './types';
 
 const initialState: OnlineComponentsViewState = {
@@ -29,8 +30,11 @@ export default createReducer(initialState, {
     const instance = ensureInstance(state, instanceName);
     const display = `${plugin.module}.${plugin.name}`;
     const id = `${instanceName}:${plugin.module}.${plugin.name}`;
+    const stateIds: string[] = Object.entries(plugin.members).filter(([name, item]) => item.memberType === MemberType.STATE).map(([name]) => name);
+    const actionIds: string[] = Object.entries(plugin.members).filter(([name, item]) => item.memberType === MemberType.ACTION).map(([name]) => name);
+    const configIds: string[] = Object.keys(plugin.config).sort();
 
-    tableAdd(state.plugins, { ...plugin, id, display, instance: instanceName, components: [] });
+    tableAdd(state.plugins, { ...plugin, id, display, instance: instanceName, stateIds, actionIds, configIds, components: [] });
     arrayAdd(instance.plugins, id);
   },
 
