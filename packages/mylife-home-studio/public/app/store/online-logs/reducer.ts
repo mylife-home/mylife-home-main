@@ -1,7 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, OnlineLogsViewState, LogItem } from './types';
+import { ActionTypes, OnlineLogsState, LogItem } from './types';
 
-const initialState: OnlineLogsViewState = {
+const initialState: OnlineLogsState = {
   notifierId: null,
   items: []
 };

@@ -7,7 +7,7 @@ export const enum TabType {
   ONLINE_COMPONENTS_VIEW = 'online-components-view',
   ONLINE_HISTORY = 'online-history',
   ONLINE_INSTANCES_VIEW = 'online-entities-view',
-  ONLINE_LOGS_VIEW = 'online-logs-view',
+  ONLINE_LOGS = 'online-logs',
   DEPLOY_MANAGER = 'deploy-manager',
 }
 

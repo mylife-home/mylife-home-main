@@ -8,7 +8,7 @@ import UiDesigner from '../ui-designer';
 import OnlineComponentsView from '../online-components-view';
 import OnlineHistory from '../online-history';
 import OnlineInstancesView from '../online-instances-view';
-import OnlineLogsView from '../online-logs-view';
+import OnlineLogs from '../online-logs';
 import DeployManager from '../deploy-manager';
 
 import { AppState } from '../../store/types';
@@ -32,8 +32,8 @@ const Panel: FunctionComponent = () => {
       return (<OnlineHistory />);
     case TabType.ONLINE_INSTANCES_VIEW:
       return (<OnlineInstancesView />);
-    case TabType.ONLINE_LOGS_VIEW:
-      return (<OnlineLogsView />);
+    case TabType.ONLINE_LOGS:
+      return (<OnlineLogs />);
     case TabType.DEPLOY_MANAGER:
       return (<DeployManager />);
   }

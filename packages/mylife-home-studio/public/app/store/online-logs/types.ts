@@ -1,10 +1,10 @@
 export const enum ActionTypes {
-  SET_NOTIFICATION = 'online-logs-view/set-notification',
-  CLEAR_NOTIFICATION = 'online-logs-view/clear-notification',
-  ADD_LOG_ITEMS = 'online-logs-view/add-log-items'
+  SET_NOTIFICATION = 'online-logs/set-notification',
+  CLEAR_NOTIFICATION = 'online-logs/clear-notification',
+  ADD_LOG_ITEMS = 'online-logs/add-log-items'
 }
 
-export interface OnlineLogsViewState {
+export interface OnlineLogsState {
   notifierId: string;
   items: LogItem[];
 }

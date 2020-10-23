@@ -51,10 +51,10 @@ export const newOnlineInstancesViewTab = () => newTab({
   data: null
 });
 
-export const newOnlineLogsViewTab = () => newTab({
-  id: `online-logs-view-${++idCounter}`,
+export const newOnlineLogsTab = () => newTab({
+  id: `online-logs-${++idCounter}`,
   title: `Logs`,
-  type: TabType.ONLINE_LOGS_VIEW,
+  type: TabType.ONLINE_LOGS,
   closable: true,
   data: null
 });

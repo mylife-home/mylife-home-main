@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import matcher from 'matcher';
 
-import { getItems } from '../../store/online-logs-view/selectors';
+import { getItems } from '../../store/online-logs/selectors';
 import Criteria, { CriteriaDefinition } from './criteria';
 import List from './list';
 
@@ -33,7 +33,7 @@ const defaultCriteria: CriteriaDefinition = {
   levelMax: null
 };
 
-const OnlineLogsView: FunctionComponent = () => {
+const OnlineLogs: FunctionComponent = () => {
   const classes = useStyles();
   const [criteria, setCriteria] = useState(defaultCriteria);
   const data = useData(criteria);
@@ -46,7 +46,7 @@ const OnlineLogsView: FunctionComponent = () => {
   );
 };
 
-export default OnlineLogsView;
+export default OnlineLogs;
 
 function useConnect() {
   return {

@@ -8,7 +8,7 @@ import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, addLogItems } from './actions';
-import { hasOnlineLogsViewTab, getNotifierId } from './selectors';
+import { hasOnlineLogsTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { LogItem } from './types';
 
@@ -51,7 +51,7 @@ function filterNotifyChange(state$: StateObservable<AppState>) {
     ofType(TabActionTypes.NEW, TabActionTypes.CLOSE),
     withLatestFrom(state$),
     filter(([, state]) => {
-      const hasTab = hasOnlineLogsViewTab(state);
+      const hasTab = hasOnlineLogsTab(state);
       const hasNotifications = !!getNotifierId(state);
       return xor(hasTab, hasNotifications);
     }),

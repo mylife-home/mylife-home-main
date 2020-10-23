@@ -10,7 +10,7 @@ import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
   newCoreDesignerTab, newUiDesignerTab,
-  newOnlineComponentsViewTab, newOnlineHistoryTab, newOnlineInstancesViewTab, newOnlineLogsViewTab, 
+  newOnlineComponentsViewTab, newOnlineHistoryTab, newOnlineInstancesViewTab, newOnlineLogsTab, 
   newDeployManagerTab
 } from '../../store/tabs/actions';
 
@@ -30,7 +30,7 @@ let counter = 0;
 const StartPage: FunctionComponent = () => {
   const { 
     newCoreDesignerTab, newUiDesignerTab, 
-    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineHistoryTab: newOnlineHistory, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsViewTab: newOnlineLogsView, 
+    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineHistoryTab: newOnlineHistory, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsTab: newOnlineLogs, 
     newDeployManagerTab: newDeployManager
   } = useConnect();
 
@@ -60,7 +60,7 @@ const StartPage: FunctionComponent = () => {
         <Typography variant='h6'>En ligne</Typography>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineLogsView}>Logs</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineLogs}>Logs</Link>
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineHistory}>Historique</Link>
@@ -87,7 +87,7 @@ function useConnect() {
     newOnlineComponentsViewTab,
     newOnlineHistoryTab,
     newOnlineInstancesViewTab,
-    newOnlineLogsViewTab,
+    newOnlineLogsTab,
     newDeployManagerTab,
   });
 }
