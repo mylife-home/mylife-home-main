@@ -66,17 +66,17 @@ export class ComponentNotifier {
     this.notifiers.removeNotifier(session, notifierId);
   };
 
-  private onPluginAdd = (instanceName: string, plugin: components.metadata.Plugin) => {
+  private readonly onPluginAdd = (instanceName: string, plugin: components.metadata.Plugin) => {
     const update: SetPluginData = { type: 'plugin', operation: 'set', instanceName, data: components.metadata.encodePlugin(plugin) };
     this.notifiers.notifyAll(update);
   };
 
-  private onPluginRemove = (instanceName: string, plugin: components.metadata.Plugin) => {
+  private readonly onPluginRemove = (instanceName: string, plugin: components.metadata.Plugin) => {
     const update: ClearData = { type: 'plugin', operation: 'clear', instanceName, id: plugin.id };
     this.notifiers.notifyAll(update);
   };
 
-  private onComponentAdd = (instanceName: string, component: components.Component) => {
+  private readonly onComponentAdd = (instanceName: string, component: components.Component) => {
     const data: Component = { id: component.id, plugin: component.plugin.id };
     const update: SetComponentData = { type: 'component', operation: 'set', instanceName: instanceName, data };
     this.notifiers.notifyAll(update);
@@ -95,7 +95,7 @@ export class ComponentNotifier {
     this.componentListeners.set(component, listener);
   };
 
-  private onComponentRemove = (instanceName: string, component: components.Component) => {
+  private readonly onComponentRemove = (instanceName: string, component: components.Component) => {
     const update: ClearData = { type: 'component', operation: 'clear', instanceName, id: component.id };
     this.notifiers.notifyAll(update);
 
@@ -103,7 +103,7 @@ export class ComponentNotifier {
     component.off('state', listener);
   };
 
-  private onStateChange(instanceName: string, component: string, name: string, value: any) {
+  private readonly onStateChange(instanceName: string, component: string, name: string, value: any) {
     const data: State = { component, name, value };
     const update: SetStateData = { type: 'state', operation: 'set', instanceName, data };
     this.notifiers.notifyAll(update);
