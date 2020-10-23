@@ -10,7 +10,7 @@ import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
   newCoreDesignerTab, newUiDesignerTab,
-  newOnlineComponentsViewTab, newOnlineComponentsHistoryTab, newOnlineInstancesViewTab, newOnlineLogsViewTab, 
+  newOnlineComponentsViewTab, newOnlineHistoryTab, newOnlineInstancesViewTab, newOnlineLogsViewTab, 
   newDeployManagerTab
 } from '../../store/tabs/actions';
 
@@ -30,7 +30,7 @@ let counter = 0;
 const StartPage: FunctionComponent = () => {
   const { 
     newCoreDesignerTab, newUiDesignerTab, 
-    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineComponentsHistoryTab: newOnlineComponentsHistory, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsViewTab: newOnlineLogsView, 
+    newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineHistoryTab: newOnlineHistory, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsViewTab: newOnlineLogsView, 
     newDeployManagerTab: newDeployManager
   } = useConnect();
 
@@ -69,7 +69,7 @@ const StartPage: FunctionComponent = () => {
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsHistory}>Histoique des états de composants</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newOnlineHistory}>Historique</Link>
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
@@ -85,7 +85,7 @@ function useConnect() {
     newCoreDesignerTab,
     newUiDesignerTab,
     newOnlineComponentsViewTab,
-    newOnlineComponentsHistoryTab,
+    newOnlineHistoryTab,
     newOnlineInstancesViewTab,
     newOnlineLogsViewTab,
     newDeployManagerTab,

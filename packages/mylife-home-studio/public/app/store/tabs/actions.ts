@@ -35,10 +35,10 @@ export const newOnlineComponentsViewTab = () => newTab({
   data: null
 });
 
-export const newOnlineComponentsHistoryTab = () => newTab({
-  id: `online-components-history-${++idCounter}`,
-  title: `Historique des composants`,
-  type: TabType.ONLINE_COMPONENTS_HISTORY,
+export const newOnlineHistoryTab = () => newTab({
+  id: `online-history-${++idCounter}`,
+  title: `Historique`,
+  type: TabType.ONLINE_HISTORY,
   closable: true,
   data: null
 });

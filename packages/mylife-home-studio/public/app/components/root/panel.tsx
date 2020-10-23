@@ -6,7 +6,7 @@ import StartPage from '../start-page';
 import CoreDesigner from '../core-designer';
 import UiDesigner from '../ui-designer';
 import OnlineComponentsView from '../online-components-view';
-import OnlineComponentsHistory from '../online-components-history';
+import OnlineHistory from '../online-history';
 import OnlineInstancesView from '../online-instances-view';
 import OnlineLogsView from '../online-logs-view';
 import DeployManager from '../deploy-manager';
@@ -28,8 +28,8 @@ const Panel: FunctionComponent = () => {
       return (<UiDesigner />);
     case TabType.ONLINE_COMPONENTS_VIEW:
       return (<OnlineComponentsView />);
-    case TabType.ONLINE_COMPONENTS_HISTORY:
-      return (<OnlineComponentsHistory />);
+    case TabType.ONLINE_HISTORY:
+      return (<OnlineHistory />);
     case TabType.ONLINE_INSTANCES_VIEW:
       return (<OnlineInstancesView />);
     case TabType.ONLINE_LOGS_VIEW:
