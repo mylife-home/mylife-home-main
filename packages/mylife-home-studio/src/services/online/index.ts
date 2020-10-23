@@ -16,7 +16,7 @@ export class Online implements Service {
     this.registry = new components.Registry({ transport, publishRemoteComponents: true });
     this.instanceNotifier = new InstanceNotifier(transport);
     this.componentNotifier = new ComponentNotifier(this.registry);
-    this.historyNotifier = new HistoryNotifier(this.registry);
+    this.historyNotifier = new HistoryNotifier(transport, this.registry);
   }
 
   async init() {
