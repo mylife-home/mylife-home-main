@@ -4,6 +4,7 @@ import { LogRecord } from '../../shared/logging';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
+import { CircularBuffer } from '../utils/circular-buffer';
 
 const log = logger.createLogger('mylife:home:studio:services:logging');
 
@@ -54,34 +55,6 @@ export class Logging implements Service {
   private stopNotifyLogs = async (session: Session, { notifierId }: { notifierId: string; }) => {
     this.notifiers.removeNotifier(session, notifierId);
   };
-}
-
-// https://github.com/vinsidious/circularbuffer/blob/master/src/CircularBuffer.ts
-class CircularBuffer<T> {
-  private readonly buffer: T[] = [];
-
-  constructor(public readonly capacity: number) {
-  }
-
-  push(item: T) {
-    if (this.buffer.length === this.capacity) {
-      this.buffer.shift();
-    }
-
-    this.buffer.push(item);
-  }
-
-  toArray() {
-    return [...this.buffer];
-  }
-
-  clear() {
-    this.buffer.splice(0, this.buffer.length);
-  }
-
-  get size() {
-    return this.buffer.length;
-  }
 }
 
 function parseRecord(chunk: Buffer) {
