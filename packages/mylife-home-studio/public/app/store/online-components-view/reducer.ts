@@ -65,7 +65,7 @@ export default createReducer(initialState, {
 
     const instance = state.instances.byId[instanceName];
     const id = `${instanceName}:${component.id}`;
-    tableAdd(state.components, { id, display: component.id, plugin: pluginId, states: [] } as Component);
+    tableAdd(state.components, { id, display: component.id, instance: instanceName, plugin: pluginId, states: [] } as Component);
     arrayAdd(plugin.components, id);
     arrayAdd(instance.components, id);
   },
