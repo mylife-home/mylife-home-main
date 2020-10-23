@@ -98,7 +98,7 @@ export default createReducer(initialState, {
     }
 
     arrayAdd(component.states, id);
-    tableAdd(state.states, { id, instance: instanceName, component: componentId, name, value });
+    tableAdd(state.states, { id, instance: instanceName, component: component.id, name, value });
   },
 });
 
