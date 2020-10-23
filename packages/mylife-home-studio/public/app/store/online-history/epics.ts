@@ -64,11 +64,11 @@ function xor(a: boolean, b: boolean) {
 }
 
 function startCall() {
-  return socket.call('logging/start-notify-logs', null) as Observable<{ notifierId: string; }>;
+  return socket.call('online/start-notify-history', null) as Observable<{ notifierId: string; }>;
 }
 
 function stopCall({ notifierId }: { notifierId: string; }) {
-  return socket.call('logging/stop-notify-logs', { notifierId }) as Observable<void>;
+  return socket.call('online/stop-notify-history', { notifierId }) as Observable<void>;
 }
 
 let idGenerator = 0;
