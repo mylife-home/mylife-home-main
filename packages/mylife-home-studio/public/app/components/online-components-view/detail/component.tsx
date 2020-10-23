@@ -1,10 +1,10 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 
 import { AppState } from '../../../store/types';
-import { ConfigItem, Member, MemberType, Plugin, Component } from '../../../store/online-components-view/types';
+import { ConfigItem, Plugin, Component } from '../../../store/online-components-view/types';
 import { getPlugin, getComponent, getState } from '../../../store/online-components-view/selectors';
 import { StateIcon, ActionIcon, ConfigIcon } from '../../lib/icons';
 import { Title, SectionDivider, SectionTitle, Item, Count, NameValue } from './layout';
@@ -17,8 +17,8 @@ const Component: FunctionComponent<{ id: string }> = ({ id }) => {
     <Box p={3}>
       <Title type="component" title={component.display} />
 
-      <NameValue name="ID" value={component.id} />
-      <NameValue name="Plugin" value={component.plugin} />
+      <NameValue name="ID" value={component.display} />
+      <NameValue name="Plugin" value={plugin.display} />
       <NameValue name="Utilisation" value={plugin.usage} />
       <NameValue name="Instance" value={component.instance} />
       <NameValue name="Plugin version" value={plugin.version} />
