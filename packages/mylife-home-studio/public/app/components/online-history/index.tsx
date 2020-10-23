@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 
 const OnlineHistory: FunctionComponent = () => (
   <Box p={3}>
-    <Typography>Historique des états de composants</Typography>
+    <Typography>Historique</Typography>
   </Box>
 );
 
