@@ -1,4 +1,4 @@
-import { logger, bus, components } from 'mylife-home-common';
+import { logger, components } from 'mylife-home-common';
 import { SetPluginData, SetComponentData, SetStateData, State, ClearData } from '../../../shared/online';
 import { Component } from '../../../shared/component-model';
 import { Session, SessionNotifierManager } from '../session-manager';
@@ -6,13 +6,10 @@ import { Session, SessionNotifierManager } from '../session-manager';
 const log = logger.createLogger('mylife:home:studio:services:online:component-notifier');
 
 export class ComponentNotifier {
-  private readonly registry: components.Registry;
   private readonly notifiers = new SessionNotifierManager('online/component-notifiers', 'online/component');
   private readonly componentListeners = new Map<components.Component, (name: string, value: any) => void>();
 
-  constructor(transport: bus.Transport) {
-    this.registry = new components.Registry({ transport, publishRemoteComponents: true });
-
+  constructor(private readonly registry: components.Registry) {
     this.registry.on('plugin.add', this.onPluginAdd);
     this.registry.on('plugin.remove', this.onPluginRemove);
     this.registry.on('component.add', this.onComponentAdd);
@@ -33,8 +30,6 @@ export class ComponentNotifier {
       component.off('state', listener);
     }
     this.componentListeners.clear();
-
-    this.registry.close();
   }
 
   async startNotify(session: Session) {

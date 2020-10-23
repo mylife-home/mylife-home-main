@@ -1,3 +1,4 @@
+import { components } from 'mylife-home-common';
 import { Service, BuildParams } from '../types';
 import { Services } from '..';
 import { InstanceNotifier } from './instance-notifier';
@@ -5,14 +6,17 @@ import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
 
 export class Online implements Service {
+  private readonly registry: components.Registry;
   private readonly instanceNotifier: InstanceNotifier;
   private readonly componentNotifier: ComponentNotifier;
   private readonly historyNotifier: HistoryNotifier;
 
   constructor(params: BuildParams) {
-    this.instanceNotifier = new InstanceNotifier(params.transport);
-    this.componentNotifier = new ComponentNotifier(params.transport);
-    this.historyNotifier = new HistoryNotifier(params.transport);
+    const { transport } = params;
+    this.registry = new components.Registry({ transport, publishRemoteComponents: true });
+    this.instanceNotifier = new InstanceNotifier(transport);
+    this.componentNotifier = new ComponentNotifier(this.registry);
+    this.historyNotifier = new HistoryNotifier(this.registry);
   }
 
   async init() {
@@ -32,5 +36,7 @@ export class Online implements Service {
     await this.instanceNotifier.terminate();
     await this.componentNotifier.terminate();
     await this.historyNotifier.terminate();
+
+    this.registry.close();
   }
 }

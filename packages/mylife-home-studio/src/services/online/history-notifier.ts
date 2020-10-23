@@ -5,7 +5,7 @@ import { Session, SessionNotifierManager } from '../session-manager';
 const log = logger.createLogger('mylife:home:studio:services:online:history-notifier');
 
 export class HistoryNotifier {
-  constructor(transport: bus.Transport) {
+  constructor(private readonly registry: components.Registry) {
   }
 
   init() {
