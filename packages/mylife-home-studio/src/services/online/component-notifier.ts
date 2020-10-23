@@ -103,7 +103,7 @@ export class ComponentNotifier {
     component.off('state', listener);
   };
 
-  private readonly onStateChange(instanceName: string, component: string, name: string, value: any) {
+  private onStateChange(instanceName: string, component: string, name: string, value: any) {
     const data: State = { component, name, value };
     const update: SetStateData = { type: 'state', operation: 'set', instanceName, data };
     this.notifiers.notifyAll(update);
