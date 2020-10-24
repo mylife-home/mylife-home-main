@@ -1,16 +1,16 @@
 import { Action } from 'redux';
-import { Observable } from 'rxjs';
-import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { filter, map, mergeMap, concatMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
-import { HistoryRecord } from '../../../../shared/online';
+import { ComponentSetHistoryRecord, HistoryRecord, StateHistoryRecord } from '../../../../shared/online';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, addHistoryItems } from './actions';
 import { hasOnlineHistoryTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
-import { HistoryItem } from './types';
+import { HistoryItem, StateHistoryItem, ComponentHistoryItem } from './types';
 
 const startNotifyHistoryEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
@@ -38,7 +38,7 @@ const fetchHistoryEpic = (action$: Observable<Action>, state$: StateObservable<A
     filterNotification('online/history'),
     withSelector(state$, getNotifierId),
     filter(([notification, notifierId]) => notification.notifierId === notifierId),
-    map(([notification]) => parseHistoryRecord(notification.data)),
+    concatMap(([notification]) => from(parseHistoryRecord(notification.data))),
     bufferDebounceTime(100), // debounce to avoid multiple store updates
     map((items) => addHistoryItems(items)),
   );
@@ -73,7 +73,36 @@ function stopCall({ notifierId }: { notifierId: string; }) {
 
 let idGenerator = 0;
 
-function parseHistoryRecord(record: HistoryRecord): HistoryItem {
-  const { timestamp, ...data } = record;
-  return { ...data, id: `${++idGenerator}`, timestamp: new Date(record.timestamp) };
+function parseHistoryRecord(record: HistoryRecord): HistoryItem[] {
+  switch(record.type) {
+    case 'component-set': {
+      const { timestamp, states, ...data } = record as ComponentSetHistoryRecord;
+      const result: HistoryItem[] = [];
+
+      result.push({ ...data, id: `${++idGenerator}`, timestamp: new Date(record.timestamp) } as ComponentHistoryItem);
+      for (const [stateName, stateValue] of Object.entries(states)) {
+        result.push({ 
+          id: `${++idGenerator}`, 
+          timestamp: new Date(record.timestamp),
+          type: 'state-set', 
+          instanceName: data.instanceName,
+          componentId: data.componentId,
+          stateName, stateValue, 
+          initial: true
+        } as StateHistoryItem);
+      }
+
+      return result;
+    }
+
+    case 'state-set': {
+      const { timestamp, ...data } = record as StateHistoryRecord;
+      return [{ ...data, id: `${++idGenerator}`, timestamp: new Date(record.timestamp), initial: false } as StateHistoryItem];
+    }
+
+    default: {
+      const { timestamp, ...data } = record;
+      return [{ ...data, id: `${++idGenerator}`, timestamp: new Date(record.timestamp) }];
+    }
+  }
 }

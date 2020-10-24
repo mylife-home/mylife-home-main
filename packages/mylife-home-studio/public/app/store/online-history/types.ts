@@ -9,10 +9,12 @@ export interface OnlineHistoryState {
   items: HistoryItem[];
 }
 
+export type HistoryItemType = 'instance-set' | 'instance-clear' | 'component-set' | 'component-clear' | 'state-set';
+
 export interface HistoryItem {
   id: string;
   timestamp: Date;
-  type: 'instance-set' | 'instance-clear' | 'component-set' | 'component-clear' | 'state-set';
+  type: HistoryItemType;
 }
 
 export interface InstanceHistoryItem extends HistoryItem {
@@ -20,15 +22,8 @@ export interface InstanceHistoryItem extends HistoryItem {
   instanceName: string;
 }
 
-export interface ComponentSetHistoryItem extends HistoryItem {
-  type: 'component-set';
-  instanceName: string;
-  componentId: string;
-  states?: { [name: string]: any; };
-}
-
-export interface ComponentClearHistoryItem extends HistoryItem {
-  type: 'component-clear';
+export interface ComponentHistoryItem extends HistoryItem {
+  type: 'component-set' | 'component-clear';
   instanceName: string;
   componentId: string;
 }
@@ -39,4 +34,5 @@ export interface StateHistoryItem extends HistoryItem {
   componentId: string;
   stateName: string;
   stateValue: any;
+  initial: boolean;
 }

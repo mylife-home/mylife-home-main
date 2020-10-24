@@ -6,7 +6,7 @@ const initialState: OnlineHistoryState = {
   items: []
 };
 
-const MAX_ITEMS = 1000; // should match backend
+const MAX_ITEMS = 2000; // Cannot match backend because we spread component-set with state-set
 
 export default createReducer(initialState, {
   [ActionTypes.SET_NOTIFICATION]: (state, action: PayloadAction<string>) => {
