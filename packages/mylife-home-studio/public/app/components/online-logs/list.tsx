@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -9,7 +10,6 @@ import SearchIcon from '@material-ui/icons/Search';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
-import { makeStyles } from '@material-ui/core';
 
 const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   const classes = useLevelStyles();
