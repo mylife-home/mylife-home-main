@@ -5,6 +5,13 @@ import { InstanceNotifier } from './instance-notifier';
 import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
 
+// TODO
+/* 
+  online instances API should be published here, at least:
+   - component config access
+   - bindings config access
+  Because this service should be the only entry point to update config, it can have a cache and notify on updates
+*/
 export class Online implements Service {
   private readonly registry: components.Registry;
   private readonly instanceNotifier: InstanceNotifier;
