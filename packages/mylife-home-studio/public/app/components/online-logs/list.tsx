@@ -11,6 +11,35 @@ import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
 
+const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ className, data }) => {
+  const levelRenderer = (value: number) => (
+    <Level value={value} />
+  );
+
+  const textRenderer = (value: string) => (
+    <Text value={value} />
+  );
+
+  const errorRenderer = (value: LogError) => (
+    <Error value={value} />
+  );
+
+  const columns: ColumnDefinition[] = [
+    { dataKey: 'time', width: 150, headerRenderer: 'Date/Heure', cellDataGetter: ({ rowData }) => formatTimestamp(rowData.time) },
+    { dataKey: 'level', width: 100, headerRenderer: 'Niveau', cellRenderer: levelRenderer },
+    { dataKey: 'instanceName', width: 200, headerRenderer: 'Instance' },
+    { dataKey: 'name', width: 500, headerRenderer: 'Nom' },
+    { dataKey: 'msg', headerRenderer: 'Message', cellRenderer: textRenderer },
+    { dataKey: 'err', width: 100, headerRenderer: 'Erreur', cellRenderer: errorRenderer },
+  ];
+
+  return (
+    <VirtualizedTable data={data} columns={columns} className={className} />
+  );
+};
+
+export default List;
+
 const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   const classes = useLevelStyles();
   const level = findLevelByValue(value);
@@ -65,35 +94,6 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
     </Tooltip>
   )
 };
-
-const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ className, data }) => {
-  const levelRenderer = (value: number) => (
-    <Level value={value} />
-  );
-
-  const textRenderer = (value: string) => (
-    <Text value={value} />
-  );
-
-  const errorRenderer = (value: LogError) => (
-    <Error value={value} />
-  );
-
-  const columns: ColumnDefinition[] = [
-    { dataKey: 'time', width: 150, headerRenderer: 'Date/Heure', cellDataGetter: ({ rowData }) => formatTimestamp(rowData.time) },
-    { dataKey: 'level', width: 100, headerRenderer: 'Niveau', cellRenderer: levelRenderer },
-    { dataKey: 'instanceName', width: 200, headerRenderer: 'Instance' },
-    { dataKey: 'name', width: 500, headerRenderer: 'Nom' },
-    { dataKey: 'msg', headerRenderer: 'Message', cellRenderer: textRenderer },
-    { dataKey: 'err', width: 100, headerRenderer: 'Erreur', cellRenderer: errorRenderer },
-  ];
-
-  return (
-    <VirtualizedTable data={data} columns={columns} className={className} />
-  );
-};
-
-export default List;
 
 function formatTimestamp(value: Date) {
   return value.toLocaleString('fr-FR');
