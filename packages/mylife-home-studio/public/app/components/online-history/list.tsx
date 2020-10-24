@@ -16,12 +16,7 @@ const Text: FunctionComponent<{ value: string }> = ({ value }) => (
   </Typography>
 );
 
-interface ListProps {
-  data: HistoryItem[];
-  className?: string;
-}
-
-const List: FunctionComponent<ListProps> = ({ data, className }) => {
+const List: FunctionComponent<{ className?: string; data: HistoryItem[]; }> = ({ className, data }) => {
   const textRenderer = (value: string) => (
     <Text value={value} />
   );

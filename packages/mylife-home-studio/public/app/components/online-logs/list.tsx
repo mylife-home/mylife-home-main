@@ -66,12 +66,7 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
   )
 };
 
-interface ListProps {
-  data: LogItem[];
-  className?: string;
-}
-
-const List: FunctionComponent<ListProps> = ({ data, className }) => {
+const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ className, data }) => {
   const levelRenderer = (value: number) => (
     <Level value={value} />
   );
