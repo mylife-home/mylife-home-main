@@ -59,7 +59,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       {/* TODO: types */}
       <DebouncedTextField label='Instance' className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label='Component' className={classes.name} value={component} onChange={setComponent} />
-      <DebouncedTextField label='Etat' className={classes.name} value={state} onChange={setState} />
+      <DebouncedTextField label='État' className={classes.name} value={state} onChange={setState} />
     </div>
   );
 };

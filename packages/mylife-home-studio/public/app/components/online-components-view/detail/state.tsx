@@ -35,7 +35,7 @@ const State: FunctionComponent<{ id: string }> = ({ id }) => {
 
       <SectionDivider />
 
-      <SectionTitle icon={StateIcon} value="Etat" />
+      <SectionTitle icon={StateIcon} value="État" />
 
       <NameValue name="Nom" value={state.name} />
       <NameValue name="Valeur" value={JSON.stringify(state.value)} />
