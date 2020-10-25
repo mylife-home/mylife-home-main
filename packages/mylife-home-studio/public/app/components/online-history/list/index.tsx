@@ -1,12 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
-import { makeStyles } from '@material-ui/core/styles';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import Badge from '@material-ui/core/Badge';
-import Tooltip from '@material-ui/core/Tooltip';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import humanizeDuration from 'humanize-duration';
 
 import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
 import { AppState } from '../../../store/types';
@@ -14,6 +9,12 @@ import { ComponentHistoryItem, InstanceHistoryItem, StateHistoryItem } from '../
 import { getItem } from '../../../store/online-history/selectors';
 
 import Type from './type';
+
+const List: FunctionComponent<{ className?: string; itemsIds: string[]; }> = ({ className, itemsIds }) => (
+  <VirtualizedTable data={itemsIds} columns={columns} className={className} />
+);
+
+export default List;
 
 const Timestamp: FunctionComponent<{ id: string; }> = ({ id }) => {
   const item = useItem(id);
@@ -74,60 +75,28 @@ const StateValue: FunctionComponent<{ id: string; }> = ({ id }) => {
   return (<>{value}</>);
 };
 
-/*
-const PreviousValue: FunctionComponent<{ item: HistoryItem }> = ({ item }) => {
-  const value = usePreviousValue(item);
-  return (
-    <>
-      {value}
-    </>
-  );
-};
+const PreviousValue: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { previousItem } = useStateItemAndPrev(id);
 
-function usePreviousValue(item: HistoryItem) {
-  return 'TODO';
-}
-
-const ValueDuration: FunctionComponent<{ item: HistoryItem }> = ({ item }) => {
-  const duration = useValueDuration(item);
-  return (
-    <>
-      {duration}
-    </>
-  );
-};
-
-function useValueDuration(item: HistoryItem) {
-  return 'TODO';
-}
-
-function usePreviousItem(item: HistoryItem) {
-  if (item.type !== 'state-set') {
+  if (!previousItem) {
     return null;
   }
 
-  const typedItem = item as StateHistoryItem;
-  if (!typedItem.previousItem) {
+  const value = JSON.stringify(previousItem.stateValue);
+  return (<>{value}</>);
+};
+
+const ValueDuration: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { item, previousItem } = useStateItemAndPrev(id);
+
+  if (!previousItem) {
     return null;
   }
 
-
-}
-
-function formatTimestamp(value: Date) {
-  return value.toLocaleString('fr-FR');
-}
-
-function formatValue(value: any) {
-  if (value === undefined || value === null) {
-    return '';
-  }
-  return JSON.stringify(value);
-}
-*/
-function useItem(id: string) {
-  return useSelector((appState: AppState) => getItem(appState, id));
-}
+  const duration = item.timestamp.valueOf() - previousItem.timestamp.valueOf();
+  const value = humanizeDuration(duration, { language: 'fr', largest: 2, round: true });
+  return (<>{value}</>);
+};
 
 const renderers = {
   type: (id: string) => (<Type id={id} />),
@@ -136,6 +105,8 @@ const renderers = {
   componentId: (id: string) => (<ComponentId id={id} />),
   stateName: (id: string) => (<StateName id={id} />),
   stateValue: (id: string) => (<StateValue id={id} />),
+  previousValue: (id: string) => (<PreviousValue id={id} />),
+  valueDuration: (id: string) => (<ValueDuration id={id} />),
 };
 
 const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
@@ -147,14 +118,18 @@ const columns: ColumnDefinition[] = [
   { dataKey: 'componentId', headerRenderer: 'Composant', cellDataGetter, cellRenderer: renderers.componentId },
   { dataKey: 'stateName', headerRenderer: 'État', cellDataGetter, cellRenderer: renderers.stateName },
   { dataKey: 'stateValue', headerRenderer: 'Nouvelle valeur', cellDataGetter, cellRenderer: renderers.stateValue },
-  /*
-  { dataKey: 'previousValue', headerRenderer: 'Ancienne valeur', cellDataGetter, cellDataGetter: ({ rowData }) => rowData, cellRenderer: previousValueRenderer },
-  { dataKey: 'valueDuration', headerRenderer: 'Durée', cellDataGetter, cellDataGetter: ({ rowData }) => rowData, cellRenderer: valueDurationRenderer },
-  */
+  { dataKey: 'previousValue', headerRenderer: 'Ancienne valeur', cellDataGetter, cellRenderer: renderers.previousValue },
+  { dataKey: 'valueDuration', headerRenderer: 'Durée', cellDataGetter, cellRenderer: renderers.valueDuration },
 ];
 
-const List: FunctionComponent<{ className?: string; itemsIds: string[]; }> = ({ className, itemsIds }) => (
-  <VirtualizedTable data={itemsIds} columns={columns} className={className} />
-);
+function useStateItemAndPrev(id: string) {
+  const rawItem = useItem(id);
+  const item = rawItem.type === 'state-set' ? rawItem as StateHistoryItem : null;
+  const prevItemId = item && item.previousItemId || null;
+  const previousItem = useItem(prevItemId) as StateHistoryItem; // cannot call this in a if
+  return { item, previousItem };
+}
 
-export default List;
+function useItem(id: string) {
+  return useSelector((appState: AppState) => getItem(appState, id));
+}
