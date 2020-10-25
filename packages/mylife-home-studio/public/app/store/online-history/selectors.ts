@@ -46,7 +46,7 @@ export const makeGetFilteredItemsIds = () => createSelector(
       });
     }
 
-    return ids;
+    return ids.slice().reverse();
   }
 );
 

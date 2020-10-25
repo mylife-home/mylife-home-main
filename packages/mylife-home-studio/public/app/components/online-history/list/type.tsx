@@ -30,8 +30,8 @@ const BADGE_ICON_BY_MOVE = {
 
 const Type: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const { type } = useItem(id);
-  const { Icon, move, tooltip } = getTypeInfos(type);
+  const item = useItem(id);
+  const { Icon, move, tooltip } = getTypeInfos(item.type);
 
   let inner: JSX.Element;
 
