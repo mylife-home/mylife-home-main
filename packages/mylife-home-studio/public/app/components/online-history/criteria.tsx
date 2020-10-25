@@ -1,19 +1,10 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Tooltip from '@material-ui/core/Tooltip';
-import Select from '@material-ui/core/Select';
-import Chip from '@material-ui/core/Chip';
-import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Input from '@material-ui/core/Input';
             
 import DebouncedTextField from '../lib/debounced-text-field';
 import { CriteriaDefinition, HistoryItemType } from '../../store/online-history/types';
-import { TypeIcon, TypeLabel } from './types';
+import TypesSelector from './types-selector';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -80,90 +71,12 @@ function useTextValue(criteria: CriteriaDefinition, setCriteria: SetCriteria, ke
   return [value, changeValue];
 }
 
-const types: HistoryItemType[] = ['instance-set', 'instance-clear', 'component-set', 'component-clear', 'state-set'];
-
 function useTypesValue(criteria: CriteriaDefinition, setCriteria: SetCriteria): [HistoryItemType[], (newValue: HistoryItemType[]) => void] {
   const changeValue = useCallback((newValue: HistoryItemType[]) => {
-    const newTypes = newValue.length === types.length ? null : newValue;
-    setCriteria(prevState => ({ ...prevState, types: newTypes }));
+    setCriteria(prevState => ({ ...prevState, types: newValue }));
   }, [setCriteria]);
 
-  const value = criteria.types || types.slice();
+  const value = criteria.types;
 
   return [value, changeValue];
 }
-
-const useTypeSelectorStyles = makeStyles((theme) => ({
-  selector: {
-    width: 150,
-  },
-  input: {
-    height: '0.8rem'
-  },
-  chips: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  chip: {
-    margin: 2,
-  },
-  menuIcon: {
-    minWidth: 30
-  }
-}));
-
-type OnChange = (value: HistoryItemType[]) => void;
-
-const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnChange; }> = ({ value, onChange }) => {
-  const classes = useTypeSelectorStyles();
-
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    const value = event.target.value as HistoryItemType[];
-    onChange(value);
-  };
-
-  return (
-    <TextField
-      select
-      className={classes.selector}
-      label='Types'
-      value={value}
-      onChange={handleChange}
-      inputProps={{ className: classes.input }}
-      SelectProps={{
-        multiple: true,
-        renderValue: (selected: HistoryItemType[]) => {
-          if(selected.length === types.length) {
-            return null;
-          }
-
-          return (
-            <div className={classes.chips}>
-              {(selected).map((value) => (
-                <div key={value} className={classes.chip}>
-                  <Tooltip title={<TypeLabel type={value} />}>
-                    <div>
-                      <TypeIcon type={value} />
-                    </div>
-                  </Tooltip>
-                </div>
-              ))}
-            </div>
-          );
-        }
-      }}
-    >
-      {types.map((type) => (
-        <MenuItem key={type} value={type}>
-          <Checkbox checked={value.indexOf(type) > -1} color='primary'/>
-
-          <ListItemIcon className={classes.menuIcon}>
-            <TypeIcon type={type} />
-          </ListItemIcon>
-          
-          <ListItemText primary={type} />
-        </MenuItem>
-      ))}
-    </TextField>
-  );
-};
