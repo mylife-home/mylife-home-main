@@ -2,19 +2,29 @@ import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
 import humanizeDuration from 'humanize-duration';
+import Tooltip from '@material-ui/core/Tooltip';
 
-import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
-import { AppState } from '../../../store/types';
-import { ComponentHistoryItem, InstanceHistoryItem, StateHistoryItem } from '../../../store/online-history/types';
-import { getItem } from '../../../store/online-history/selectors';
-
-import Type from './type';
+import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
+import { AppState } from '../../store/types';
+import { ComponentHistoryItem, InstanceHistoryItem, StateHistoryItem } from '../../store/online-history/types';
+import { getItem } from '../../store/online-history/selectors';
+import { TypeIcon, TypeLabel } from './types';
 
 const List: FunctionComponent<{ className?: string; itemsIds: string[]; }> = ({ className, itemsIds }) => (
   <VirtualizedTable data={itemsIds} columns={columns} className={className} />
 );
 
 export default List;
+
+const Type: FunctionComponent<{ id: string }> = ({ id }) => {
+  const item = useItem(id);
+
+  return (
+    <Tooltip title={<TypeLabel type={item.type} />}>
+      <TypeIcon type={item.type} />
+    </Tooltip>
+  );
+};
 
 const Timestamp: FunctionComponent<{ id: string; }> = ({ id }) => {
   const item = useItem(id);
@@ -122,14 +132,14 @@ const columns: ColumnDefinition[] = [
   { dataKey: 'valueDuration', headerRenderer: 'Durée', cellDataGetter, cellRenderer: renderers.valueDuration },
 ];
 
+function useItem(id: string) {
+  return useSelector((appState: AppState) => getItem(appState, id));
+}
+
 function useStateItemAndPrev(id: string) {
   const rawItem = useItem(id);
   const item = rawItem.type === 'state-set' ? rawItem as StateHistoryItem : null;
   const prevItemId = item && item.previousItemId || null;
   const previousItem = useItem(prevItemId) as StateHistoryItem; // cannot call this in a if
   return { item, previousItem };
-}
-
-function useItem(id: string) {
-  return useSelector((appState: AppState) => getItem(appState, id));
 }
