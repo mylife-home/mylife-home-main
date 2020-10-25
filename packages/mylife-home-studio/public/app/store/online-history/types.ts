@@ -37,5 +37,12 @@ export interface StateHistoryItem extends HistoryItem {
   stateName: string;
   stateValue: any;
   initial: boolean;
-  previousItem?: string; // previous state history item change of this state (if initial === false)
+  previousItemId?: string; // previous state history item change of this state (if initial === false)
+}
+
+export interface CriteriaDefinition {
+  types: HistoryItemType[];
+  instance: string;
+  component: string;
+  state: string;
 }

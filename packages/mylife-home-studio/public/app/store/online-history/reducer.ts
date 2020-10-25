@@ -56,8 +56,8 @@ function itemsShift(items: Table<HistoryItem>) {
     }
 
     const typedItem = item as StateHistoryItem;
-    if (typedItem.previousItem === removedId) {
-      delete typedItem.previousItem;
+    if (typedItem.previousItemId === removedId) {
+      delete typedItem.previousItemId;
       break; // there is only one link
     }
   }
@@ -80,7 +80,7 @@ function linkPrevState(items: Table<HistoryItem>, newItem: StateHistoryItem) {
   });
 
   if (prevItemId) {
-    newItem.previousItem = prevItemId;
+    newItem.previousItemId = prevItemId;
   }
 }
 

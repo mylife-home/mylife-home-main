@@ -1,10 +1,11 @@
 import React, { FunctionComponent, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import matcher from 'matcher';
 
-import { getItems } from '../../store/online-history/selectors';
-import Criteria, { CriteriaDefinition } from './criteria';
+import { AppState } from '../../store/types';
+import { CriteriaDefinition } from '../../store/online-history/types';
+import { makeGetFilteredItemsIds } from '../../store/online-history/selectors';
+import Criteria from './criteria';
 import List from './list';
 
 const useStyles = makeStyles((theme) => ({
@@ -34,37 +35,19 @@ const defaultCriteria: CriteriaDefinition = {
 const OnlineHistory: FunctionComponent = () => {
   const classes = useStyles();
   const [criteria, setCriteria] = useState(defaultCriteria);
-  const data = useData(criteria);
+  const itemsIds = useData(criteria);
 
   return (
     <div className={classes.container}>
       <Criteria className={classes.criteria} criteria={criteria} setCriteria={setCriteria} />
-      <List className={classes.list} data={data} />
+      <List className={classes.list} itemsIds={itemsIds} />
     </div>
   );
 };
 
 export default OnlineHistory;
 
-function useConnect() {
-  return {
-    data: useSelector(getItems)
-  };
-}
-
 function useData(criteria: CriteriaDefinition) {
-  const { data } = useConnect();
-
-  return useMemo(() => {
-    let items = data;
-
-    // TODO: criteria
-    /*
-    if (criteria.instance) {
-      items = items.filter(item => matcher.isMatch(item.instanceName, criteria.instance));
-    }
-    */
-
-    return items.slice().reverse();
-  }, [data, criteria]);
+  const getFilteredItemsIds = useMemo(() => makeGetFilteredItemsIds(), []);
+  return useSelector((state: AppState) => getFilteredItemsIds(state, criteria));
 }

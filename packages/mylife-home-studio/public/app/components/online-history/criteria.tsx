@@ -1,9 +1,9 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import DebouncedTextField from '../lib/debounced-text-field';
-import { HistoryItemType } from '../../store/online-history/types';
+import { CriteriaDefinition } from '../../store/online-history/types';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -31,13 +31,6 @@ const useStyles = makeStyles((theme) => ({
     width: '12ch'
   }
 }));
-
-export interface CriteriaDefinition {
-  types: HistoryItemType[];
-  instance: string;
-  component: string;
-  state: string;
-}
 
 type SetCriteria = (updater: (prevState: CriteriaDefinition) => CriteriaDefinition) => void;
 
