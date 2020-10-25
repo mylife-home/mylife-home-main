@@ -12,9 +12,9 @@ import { InstanceIcon, ComponentIcon, StateIcon } from '../lib/icons';
 import { HistoryItem, HistoryItemType } from '../../store/online-history/types';
 
 const List: FunctionComponent<{ className?: string; data: HistoryItem[]; }> = ({ className, data }) => {
-  const typeRenderer = (value: HistoryItemType) => (
-    <Type value={value} />
-  );
+  const typeRenderer = (value: HistoryItemType) => (<Type value={value} />);
+  const previousValueRenderer = (item: HistoryItem) => (<PreviousValue item={item} />);
+  const valueDurationRenderer = (item: HistoryItem) => (<ValueDuration item={item} />);
 
   const columns: ColumnDefinition[] = [
     { dataKey: 'type', width: 50, headerRenderer: 'Type', cellRenderer: typeRenderer },
@@ -23,8 +23,8 @@ const List: FunctionComponent<{ className?: string; data: HistoryItem[]; }> = ({
     { dataKey: 'componentId', headerRenderer: 'Composant' },
     { dataKey: 'stateName', headerRenderer: 'État' },
     { dataKey: 'stateValue', headerRenderer: 'Nouvelle valeur', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
-    { dataKey: 'stateValue', headerRenderer: 'Ancienne valeur', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
-    { dataKey: 'stateValue', headerRenderer: 'Durée', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
+    { dataKey: 'previousValue', headerRenderer: 'Ancienne valeur', cellDataGetter: ({ rowData }) => rowData, cellRenderer: previousValueRenderer },
+    { dataKey: 'valueDuration', headerRenderer: 'Durée', cellDataGetter: ({ rowData }) => rowData, cellRenderer: valueDurationRenderer },
   ];
 
   return (
@@ -90,6 +90,14 @@ function getTypeInfos(value: HistoryItemType): { Icon: typeof SvgIcon; move: 'se
       return { Icon: StateIcon, move: 'none', tooltip: 'État changé' };
   }
 }
+
+const PreviousValue: FunctionComponent<{ item: HistoryItem }> = ({ item }) => {
+  return <>TODO</>;
+};
+
+const ValueDuration: FunctionComponent<{ item: HistoryItem }> = ({ item }) => {
+  return <>TODO</>;
+};
 
 function formatTimestamp(value: Date) {
   return value.toLocaleString('fr-FR');
