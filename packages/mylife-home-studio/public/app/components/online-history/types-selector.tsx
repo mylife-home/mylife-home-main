@@ -38,11 +38,11 @@ const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnC
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const value = event.target.value as HistoryItemType[];
-    onChange(formatValue(value));
+    onChange(value.length === types.length ? null : value);
   };
 
   const valueSet = useMemo(() => value ? new Set(value) : typesSet, [value]);
-  const selectValue = useMemo(() => value || [], [value]);
+  const selectValue = useMemo(() => Array.from(valueSet), [valueSet]);
 
   return (
     <TextField
@@ -54,25 +54,19 @@ const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnC
       inputProps={{ className: classes.input }}
       SelectProps={{
         multiple: true,
-        renderValue: (value: HistoryItemType[]) => {
-          if (value.length === 0) {
-            return null;
-          }
-
-          return (
-            <div className={classes.chips}>
-              {(value).map((value) => (
-                <div key={value} className={classes.chip}>
-                  <Tooltip title={<TypeLabel type={value} />}>
-                    <div>
-                      <TypeIcon type={value} />
-                    </div>
-                  </Tooltip>
-                </div>
-              ))}
-            </div>
-          );
-        }
+        renderValue: () => (
+          <div className={classes.chips}>
+            {types.filter(type => valueSet.has(type)).map((type) => (
+              <div key={type} className={classes.chip}>
+                <Tooltip title={<TypeLabel type={type} />}>
+                  <div>
+                    <TypeIcon type={type} />
+                  </div>
+                </Tooltip>
+              </div>
+            ))}
+          </div>
+        )
       }}
     >
       {types.map((type) => (
@@ -91,13 +85,3 @@ const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnC
 };
 
 export default TypesSelector;
-
-function formatValue(value: HistoryItemType[]) {
-  if (value.length === 0 || value.length === types.length) {
-    return null;
-  }
-
-  // preserve order
-  const valueSet = new Set(value);
-  return types.filter(type => valueSet.has(type));
-}
