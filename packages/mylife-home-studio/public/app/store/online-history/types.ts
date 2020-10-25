@@ -1,3 +1,5 @@
+import { Table } from '../common/types';
+
 export const enum ActionTypes {
   SET_NOTIFICATION = 'online-history/set-notification',
   CLEAR_NOTIFICATION = 'online-history/clear-notification',
@@ -6,7 +8,7 @@ export const enum ActionTypes {
 
 export interface OnlineHistoryState {
   notifierId: string;
-  items: HistoryItem[];
+  items: Table<HistoryItem>;
 }
 
 export type HistoryItemType = 'instance-set' | 'instance-clear' | 'component-set' | 'component-clear' | 'state-set';

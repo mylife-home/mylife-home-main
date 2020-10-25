@@ -6,4 +6,5 @@ export const hasOnlineHistoryTab = (state: AppState) => getTabsCount(state, TabT
 
 const getOnlineHistory = (state: AppState) => state.onlineHistory;
 export const getNotifierId = (state: AppState) => getOnlineHistory(state).notifierId;
-export const getItems = (state: AppState) => getOnlineHistory(state).items;
+export const getItemsIds = (state: AppState) => getOnlineHistory(state).items.allIds;
+export const getItem = (state: AppState, id: string) => getOnlineHistory(state).items.byId[id];
