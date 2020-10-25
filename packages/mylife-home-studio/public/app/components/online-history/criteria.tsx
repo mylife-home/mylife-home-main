@@ -1,15 +1,19 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Input from '@material-ui/core/Input';
             
 import DebouncedTextField from '../lib/debounced-text-field';
 import { CriteriaDefinition, HistoryItemType } from '../../store/online-history/types';
+import { TypeIcon, TypeLabel } from './types';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -89,22 +93,12 @@ function useTypesValue(criteria: CriteriaDefinition, setCriteria: SetCriteria): 
   return [value, changeValue];
 }
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
 const useTypeSelectorStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
-    maxWidth: 300,
+  selector: {
+    width: 150,
+  },
+  input: {
+    height: '0.8rem'
   },
   chips: {
     display: 'flex',
@@ -113,12 +107,13 @@ const useTypeSelectorStyles = makeStyles((theme) => ({
   chip: {
     margin: 2,
   },
-  noLabel: {
-    marginTop: theme.spacing(3),
-  },
+  menuIcon: {
+    minWidth: 30
+  }
 }));
 
 type OnChange = (value: HistoryItemType[]) => void;
+
 const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnChange; }> = ({ value, onChange }) => {
   const classes = useTypeSelectorStyles();
 
@@ -128,26 +123,47 @@ const TypesSelector: FunctionComponent<{ value: HistoryItemType[]; onChange: OnC
   };
 
   return (
-    <Select
-      multiple
+    <TextField
+      select
+      className={classes.selector}
+      label='Types'
       value={value}
       onChange={handleChange}
-      input={<Input />}
-      renderValue={(selected) => (
-        <div className={classes.chips}>
-          {(selected as string[]).map((value) => (
-            <Chip key={value} label={value} className={classes.chip} />
-          ))}
-        </div>
-      )}
-      MenuProps={MenuProps}
+      inputProps={{ className: classes.input }}
+      SelectProps={{
+        multiple: true,
+        renderValue: (selected: HistoryItemType[]) => {
+          if(selected.length === types.length) {
+            return null;
+          }
+
+          return (
+            <div className={classes.chips}>
+              {(selected).map((value) => (
+                <div key={value} className={classes.chip}>
+                  <Tooltip title={<TypeLabel type={value} />}>
+                    <div>
+                      <TypeIcon type={value} />
+                    </div>
+                  </Tooltip>
+                </div>
+              ))}
+            </div>
+          );
+        }
+      }}
     >
       {types.map((type) => (
         <MenuItem key={type} value={type}>
-          <Checkbox checked={value.indexOf(type) > -1} />
+          <Checkbox checked={value.indexOf(type) > -1} color='primary'/>
+
+          <ListItemIcon className={classes.menuIcon}>
+            <TypeIcon type={type} />
+          </ListItemIcon>
+          
           <ListItemText primary={type} />
         </MenuItem>
       ))}
-    </Select>
+    </TextField>
   );
 };
