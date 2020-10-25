@@ -57,9 +57,9 @@ function getTypeInfos(value: HistoryItemType): { Icon: typeof SvgIcon; move: 'se
     case 'instance-clear':
       return { Icon: InstanceIcon, move: 'clear', label: 'Instance partie' };
     case 'component-set':
-      return { Icon: ComponentIcon, move: 'set', label: 'Componsant arrivé' };
+      return { Icon: ComponentIcon, move: 'set', label: 'Composant arrivé' };
     case 'component-clear':
-      return { Icon: ComponentIcon, move: 'clear', label: 'Componsant parti' };
+      return { Icon: ComponentIcon, move: 'clear', label: 'Composant parti' };
     case 'state-set':
       return { Icon: StateIcon, move: 'none', label: 'État changé' };
   }
