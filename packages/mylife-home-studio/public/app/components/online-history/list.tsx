@@ -1,7 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import Typography from '@material-ui/core/Typography';
 import Badge from '@material-ui/core/Badge';
+import Tooltip from '@material-ui/core/Tooltip';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 
@@ -17,6 +19,12 @@ const List: FunctionComponent<{ className?: string; data: HistoryItem[]; }> = ({
   const columns: ColumnDefinition[] = [
     { dataKey: 'type', width: 50, headerRenderer: 'Type', cellRenderer: typeRenderer },
     { dataKey: 'time', width: 150, headerRenderer: 'Date/Heure', cellDataGetter: ({ rowData }) => formatTimestamp(rowData.timestamp) },
+    { dataKey: 'instanceName', headerRenderer: 'Instance' },
+    { dataKey: 'componentId', headerRenderer: 'Composant' },
+    { dataKey: 'stateName', headerRenderer: 'État' },
+    { dataKey: 'stateValue', headerRenderer: 'Nouvelle valeur', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
+    { dataKey: 'stateValue', headerRenderer: 'Ancienne valeur', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
+    { dataKey: 'stateValue', headerRenderer: 'Durée', cellDataGetter: ({ rowData }) => formatValue(rowData.stateValue) },
   ];
 
   return (
@@ -44,36 +52,52 @@ const BADGE_ICON_BY_MOVE = {
 
 const Type: FunctionComponent<{ value: HistoryItemType }> = ({ value }) => {
   const classes = useTypeStyles();
-  const { Icon, move } = getTypeInfos(value);
+  const { Icon, move, tooltip } = getTypeInfos(value);
+
+  let inner: JSX.Element;
 
   if (move === 'none') {
-    return <Icon />;
+    inner = <Icon />;
+  } else {
+
+    const BadgeIcon = BADGE_ICON_BY_MOVE[move];
+  
+    inner = (
+      <Badge badgeContent={<BadgeIcon />} classes={{badge: classes[move]}}>
+        <Icon />
+      </Badge>
+    );
   }
 
-  const BadgeIcon = BADGE_ICON_BY_MOVE[move];
-  
   return (
-    <Badge badgeContent={<BadgeIcon />} classes={{badge: classes[move]}}>
-      <Icon />
-    </Badge>
+    <Tooltip title={tooltip}>
+      {inner}      
+    </Tooltip>
   );
 };
 
-function getTypeInfos(value: HistoryItemType): { Icon: typeof SvgIcon; move: 'set' | 'clear' | 'none'; } {
+function getTypeInfos(value: HistoryItemType): { Icon: typeof SvgIcon; move: 'set' | 'clear' | 'none'; tooltip: string; } {
   switch (value) {
     case 'instance-set':
-      return { Icon: InstanceIcon, move: 'set' };
+      return { Icon: InstanceIcon, move: 'set', tooltip: 'Instance arrivée' };
     case 'instance-clear':
-      return { Icon: InstanceIcon, move: 'clear' };
+      return { Icon: InstanceIcon, move: 'clear', tooltip: 'Instance partie' };
     case 'component-set':
-      return { Icon: ComponentIcon, move: 'set' };
+      return { Icon: ComponentIcon, move: 'set', tooltip: 'Componsant arrivé' };
     case 'component-clear':
-      return { Icon: ComponentIcon, move: 'clear' };
+      return { Icon: ComponentIcon, move: 'clear', tooltip: 'Componsant parti' };
     case 'state-set':
-      return { Icon: StateIcon, move: 'none' };
+      return { Icon: StateIcon, move: 'none', tooltip: 'État changé' };
   }
 }
 
 function formatTimestamp(value: Date) {
   return value.toLocaleString('fr-FR');
+}
+
+function formatValue(value: any) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+  return JSON.stringify(value);
 }
