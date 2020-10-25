@@ -1,5 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, OnlineHistoryState, HistoryItem } from './types';
+import { ActionTypes, OnlineHistoryState, HistoryItem, StateHistoryItem } from './types';
 
 const initialState: OnlineHistoryState = {
   notifierId: null,
@@ -24,7 +24,40 @@ export default createReducer(initialState, {
         state.items.shift();
       }
 
+      if(item.type === 'state-set') {
+        linkPrevState(state.items, item as StateHistoryItem);
+      }
+
       state.items.push(item);
     }
   },
 });
+
+function linkPrevState(items: HistoryItem[], newItem: StateHistoryItem) {
+  if (newItem.initial) {
+    return;
+  }
+
+  // items are ordered by timestamp, we are looking for the newest one
+  const prevItem = findLast(items, (item) => {
+    if (item.type !== 'state-set') {
+      return false;
+    }
+
+    const typedItem = item as StateHistoryItem;
+    return newItem.instanceName === typedItem.instanceName && newItem.componentId === typedItem.componentId && newItem.stateName === typedItem.stateName;
+  });
+
+  if (prevItem) {
+    newItem.previousItem = prevItem.id;
+  }
+}
+
+function findLast<T>( array: T[], pred: (item: T, index: number, array: T[]) => boolean) {
+  for (let index = array.length - 1; index >=0; --index) {
+    const item = array[index];
+    if (pred(item, index, array)) {
+      return item;
+    }
+  }
+}
