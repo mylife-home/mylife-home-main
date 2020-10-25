@@ -21,7 +21,9 @@ const Type: FunctionComponent<{ id: string }> = ({ id }) => {
 
   return (
     <Tooltip title={<TypeLabel type={item.type} />}>
-      <TypeIcon type={item.type} />
+      <div>
+        <TypeIcon type={item.type} />
+      </div>
     </Tooltip>
   );
 };
