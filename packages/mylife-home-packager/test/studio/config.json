@@ -8,5 +8,11 @@
   "web": {
     "port": 8002,
     "staticDirectory": "./static"
+  },
+  "services": {
+    "projectManager": {
+      "localPath": "/tmp/mylife-home-projects",
+      "githubToken": "%{GITHUB_TOKEN}"
+    }
   }
 }
