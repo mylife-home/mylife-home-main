@@ -46,6 +46,7 @@
     "clsx": "^1.1.1",
     "eslint": "^7.2.0",
     "humanize-duration": "^3.24.0",
+    "isomorphic-git": "^1.7.8",
     "konva": "^7.0.5",
     "matcher": "^3.0.0",
     "mocha": "^8.1.3",
