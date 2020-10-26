@@ -32,6 +32,10 @@ export class Services {
     return this.services.logging as Logging;
   }
 
+  get online() {
+    return this.services.online as Online;
+  }
+
   private static _instance: Services = null;
 
   static get instance() {
