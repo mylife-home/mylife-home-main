@@ -3,6 +3,7 @@ import { SessionManager } from './session-manager';
 import { Logging } from './logging';
 import { Online } from './online';
 import { ProjectManager } from './project-manager';
+import { Deploy } from './deploy';
 
 export class Services {
   private readonly services: { [name: string]: Service; } = {};
@@ -12,6 +13,7 @@ export class Services {
     this.services.logging = new Logging(params);
     this.services.online = new Online(params);
     this.services.projectManager = new ProjectManager(params);
+    this.services.deploy = new Deploy(params);
   }
 
   async init() {
@@ -40,6 +42,10 @@ export class Services {
 
   get projectManager() {
     return this.services.projectManager as ProjectManager;
+  }
+
+  get deploy() {
+    return this.services.deploy as Deploy;
   }
 
   private static _instance: Services = null;
