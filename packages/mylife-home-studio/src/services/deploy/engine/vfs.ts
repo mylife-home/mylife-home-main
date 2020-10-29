@@ -1,152 +1,135 @@
-const validation = {
-  positiveOrZeroInteger : val => (Number.isInteger(val) && val >= 0),
-  string                : val => (typeof val === 'string'),
-  dateOrNull            : val => (val === null || (val instanceof Date && !isNaN(val))),
-  buffer                : val => (val instanceof Buffer),
-  boolean               : val => (typeof val === 'boolean')
-};
+abstract class Node {
+  public readonly uid: number = 0;
+  public readonly gid: number = 0;
+  public readonly mode: number = 0;
+  public readonly name: string = '';
+  public readonly atime: Date = null;
+  public readonly mtime: Date = null;
+  public readonly ctime: Date = null;
+}
 
-const defineProperty = (object, name, initialValue, validator) => {
+export class Symlink extends Node {
 
-  let propertyValue = initialValue;
+  public readonly target: string = '';
 
-  Object.defineProperty(object, name, {
-    enumerable: true,
-    get : () => propertyValue,
-    set : value => {
-      if(validator && !validator(value)) {
-        throw new Error(`Cannot set '${value}' into '${name}'`);
-      }
-      return propertyValue = value;
-    }
-  });
-};
+  constructor(options: Partial<Symlink>) {
+    super();
 
-function finalize(object, options) {
-  Object.freeze(object);
+    init(this, null, options);
+  }
+}
 
-  if(!options) { return; }
-  for(let key of Object.keys(object)) {
-    if(options.hasOwnProperty(key)) {
-      object[key] = options[key];
-    }
+export class File extends Node {
+
+  public content = Buffer.alloc(0);
+
+  constructor(options: Partial<File>) {
+    super();
+    init(this, { mode: 0o644 }, options);
+  }
+}
+
+type DirectoryOptions = Partial<Node> & { unnamed?: boolean };
+
+export class Directory extends Node {
+
+  public get unnamed() {
+    return !!this.name;
   }
 
-  if(!object.missing && !object.name) {
+  private readonly nodes = new Map<string, Node>();
+
+  constructor(options: DirectoryOptions) {
+    super();
+    const { unnamed, ... finalOptions } = options;
+    init(this, { mode: 0o755 }, finalOptions, !!unnamed);
+  }
+
+  add(node: Node) {
+    this.nodes.set(node.name, node);
+  }
+
+  delete(node: Node) {
+    this.nodes.delete(node.name);
+  }
+
+  list() {
+    return Array.from(this.nodes.values());
+  } 
+
+  clear() {
+    this.nodes.clear();
+  } 
+
+  get(name: string) {
+    return this.nodes.get(name);
+  }
+}
+
+function init<T extends Node, DefaultOptions, Options>(object: T, defaultOptions: DefaultOptions, options: Options, allowUnnamed = false) {
+  Object.assign(object, defaultOptions, options);
+
+  if (!allowUnnamed && !object.name) {
     throw new Error('name required');
   }
 }
 
-class Node {
+export function path(root: Directory, nodes: string, nothrow = false) {
+  let node: Node = root;
 
-  constructor() {
-    if (this.constructor === Node) {
-      throw new Error('Cannot instantiate Node');
+  for (const name of nodes) {
+    if (!(node instanceof Directory)) {
+      throw new Error('Wrong node type');
     }
 
-    defineProperty(this, 'uid',  0, validation.positiveOrZeroInteger);
-    defineProperty(this, 'gid',  0, validation.positiveOrZeroInteger);
-    defineProperty(this, 'mode', 0, validation.positiveOrZeroInteger);
-    defineProperty(this, 'name', '', validation.string);
-    defineProperty(this, 'atime', null, validation.dateOrNull);
-    defineProperty(this, 'mtime', null, validation.dateOrNull);
-    defineProperty(this, 'ctime', null, validation.dateOrNull);
-  }
-}
+    const child = node.get(name);
 
-class Symlink extends Node {
-
-  constructor(options) {
-    super();
-
-    defineProperty(this, 'target', '', validation.string);
-
-    this.mode = 0o777;
-
-    finalize(this, options);
-  }
-}
-
-class Directory extends Node {
-
-  constructor(options) {
-    super();
-
-    const nodes = new Map();
-
-    defineProperty(this, 'missing', false, validation.boolean);
-
-    this.add = node => {
-      if(!(node instanceof Node)) {
-        throw new Error(`cannot add node '${node}'`);
+    if (!child) {
+      if(nothrow) {
+        return;
       }
-      nodes.set(node.name, node);
-    };
 
-    this.delete = node => nodes.delete(node.name);
-    this.list   = () => Array.from(nodes.values());
-    this.clear  = () => nodes.clear();
-    this.get    = name => nodes.get(name);
-
-    this.mode = 0o755;
-
-    finalize(this, options);
-  }
-}
-
-class File extends Node {
-
-  constructor(options) {
-    super();
-
-    defineProperty(this, 'content', Buffer.alloc(0), validation.buffer);
-
-    this.mode = 0o644;
-
-    finalize(this, options);
-  }
-}
-
-function path(root, nodes, nothrow = false) {
-  let node = root;
-  for(const name of nodes) {
-    let child = node.get(name);
-    if(!child) {
-      if(nothrow) { return; }
       throw new Error(`'${name}' not found in '${node.name}'`);
     }
+
     node = child;
   }
   return node;
 }
 
-function readText(root, nodes) {
-  const file = path(root, nodes);
-  return file.content.toString('ascii');
+export function readText(root: Directory, nodes: string) {
+  const file = path(root, nodes) as File;
+  return file.content.toString();
 }
 
-function writeText(root, nodes, content) {
-  const dir = path(root, nodes.slice(0, nodes.length - 1));
+export function writeText(root: Directory, nodes: string, content: string) {
+  const directory = path(root, nodes.slice(0, nodes.length - 1)) as Directory;
   const name = nodes[nodes.length - 1];
-  let file = dir.get(name);
-  if(!file) {
+
+  let file = directory.get(name);
+  if (!file) {
     file = new File({ name });
-    dir.add(file);
+    directory.add(file);
+  }
+
+  if (!(file instanceof File)) {
+    throw new Error('Wrong node type');
   }
 
   file.content = Buffer.from(content, 'ascii');
 }
 
-function mkdirp(root, nodes) {
+export function mkdirp(root: Directory, nodes: string) {
   let node = root;
-  for(const name of nodes) {
+  
+  for (const name of nodes) {
     let child = node.get(name);
     if(!child) {
       child = new Directory({ name });
       node.add(child);
     }
 
-    if(!(child instanceof Directory)) {
+    if (!(child instanceof Directory)) {
       throw new Error('Wrong node type');
     }
 
@@ -155,11 +138,3 @@ function mkdirp(root, nodes) {
 
   return node;
 }
-
-exports.Symlink   = Symlink;
-exports.Directory = Directory;
-exports.File      = File;
-exports.path      = path;
-exports.readText  = readText;
-exports.writeText = writeText;
-exports.mkdirp    = mkdirp;
