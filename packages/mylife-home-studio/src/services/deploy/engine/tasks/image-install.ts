@@ -1,12 +1,10 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const path          = require('path');
 const fs            = require('fs-extra');
 const vfs           = require('../vfs');
-const utils         = require('../tasks-utils');
 const { SSHClient } = require('../ssh');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'install the current root fs to the target host using SSH',
   parameters  : [
     { name : 'host', description : 'Target host', type: 'string' },
@@ -86,7 +84,7 @@ class ClientWrapper {
   }
 }
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { host, user, keyFile } = parameters;
   const fullKeyFile = utils.absolutePath(keyFile);
   const log = utils.createLogger(context, 'image:install');

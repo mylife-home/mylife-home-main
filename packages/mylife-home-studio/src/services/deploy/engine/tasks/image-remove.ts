@@ -1,16 +1,15 @@
-'use strict';
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
 const vfs   = require('../vfs');
-const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'remove a node (file/directory/symlink) from the root fs',
   parameters  : [
     { name : 'path', description: 'path to remove name', type: 'string' }
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { path } = parameters;
   const log = utils.createLogger(context, 'image:remove');
   log.info(`remove file '${path}' from image`);

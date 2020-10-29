@@ -1,10 +1,9 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const vfs     = require('../vfs');
 const archive = require('../archive');
 const utils   = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'Extract the config (.apkovl.tar.gz) from the image to context.config',
   parameters  : []
 };

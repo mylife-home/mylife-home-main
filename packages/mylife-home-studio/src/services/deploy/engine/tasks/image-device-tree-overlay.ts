@@ -1,15 +1,14 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'add a dtoverlay line in image usercfg.txt ( https://www.raspberrypi.org/documentation/configuration/device-tree.md )',
   parameters  : [
     { name : 'content', description: 'overlay data to add', type: 'string' }
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
   const log = utils.createLogger(context, 'image:dtoverlay');
   const row = `dtoverlay=${content}`;

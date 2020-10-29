@@ -1,15 +1,14 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'add a parameter to cmdline.txt',
   parameters  : [
     { name : 'content', description: 'parameter data to add', type: 'string' }
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
   const log = utils.createLogger(context, 'image:cmdline-add');
   const data = ' ' + content;

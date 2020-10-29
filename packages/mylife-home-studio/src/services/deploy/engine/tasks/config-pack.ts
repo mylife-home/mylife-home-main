@@ -1,9 +1,8 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const archive = require('../archive');
 const utils   = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'pack the config into the root fs',
   parameters  : []
 };

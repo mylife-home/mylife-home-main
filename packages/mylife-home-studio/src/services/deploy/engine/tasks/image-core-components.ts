@@ -1,10 +1,9 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const fs      = require('fs-extra');
 const vfs     = require('../vfs');
 const utils   = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'setup core components file',
   parameters  : [
     { name : 'file',   description : 'file name to import',              type : 'string' },
@@ -12,7 +11,7 @@ exports.metadata = {
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { file, flavor } = parameters;
   const log              = utils.createLogger(context, 'image:core-components');
   const fullName         = utils.absolutePath(file);

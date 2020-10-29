@@ -1,9 +1,8 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const vfs   = require('../vfs');
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'add a daemon process to be started at a runlevel',
   parameters  : [
     { name : 'name', description: 'daemon name', type: 'string' },
@@ -11,7 +10,7 @@ exports.metadata = {
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { name, runlevel } = parameters;
   const log = utils.createLogger(context, 'config:daemon');
   log.info(`create daemon ${name} at runlevel ${runlevel}`);

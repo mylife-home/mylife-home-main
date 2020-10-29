@@ -1,9 +1,8 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const vfs   = require('../vfs');
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'configure a wifi interface (wpa_supplicant package and daemon required)',
   parameters  : [
     { name : 'iface', description: 'network interface name (eg: wlan0)',                          type: 'string' },
@@ -12,7 +11,7 @@ exports.metadata = {
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { iface, ssid, psk } = parameters;
   const log = utils.createLogger(context, 'config:wifi');
   log.info(`configure ssid '${ssid}' and psk '${psk}' for interface '${iface}'`);

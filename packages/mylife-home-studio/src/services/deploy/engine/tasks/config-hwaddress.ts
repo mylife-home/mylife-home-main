@@ -1,9 +1,8 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const vfs   = require('../vfs');
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'set the hardware address of a network interface',
   parameters  : [
     { name : 'iface',   description: 'network interface name (eg: eth0)',          type: 'string' },
@@ -11,7 +10,7 @@ exports.metadata = {
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { iface, address } = parameters;
   const log = utils.createLogger(context, 'config:hwaddress');
   log.info(`set address to '${address}' for interface '${iface}'`);

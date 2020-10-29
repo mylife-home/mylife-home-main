@@ -1,8 +1,6 @@
-'use strict';
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
-const utils = require('../tasks-utils');
-
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'reset image data (root fs, config, image)',
   parameters  : []
 };

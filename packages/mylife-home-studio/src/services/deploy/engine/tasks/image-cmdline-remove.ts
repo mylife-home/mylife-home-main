@@ -1,15 +1,14 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'remove a parameter from cmdline.txt',
   parameters  : [
     { name : 'content', description: 'parameter data to search and remove', type: 'string' }
   ]
 };
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
   const log = utils.createLogger(context, 'image:cmdline-remove');
   log.info(`remove in cmdline.txt : '${content}'`);

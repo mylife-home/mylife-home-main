@@ -1,9 +1,8 @@
-'use strict';
-
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 const vfs   = require('../vfs');
 const utils = require('../tasks-utils');
 
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'set the hostname',
   parameters  : [
     { name : 'hostname', description: 'host name', type: 'string' }
@@ -17,7 +16,7 @@ function replaceHost(log, context, path, oldHost, newHost) {
   vfs.writeText(context.config, path, content);
 }
 
-exports.execute = async (context, parameters) => {
+export const execute: TaskImplementation = async (context, parameters) => {
   const { hostname } = parameters;
   const log = utils.createLogger(context, 'config:hostname');
   log.info(`set hostname to '${hostname}'`);
