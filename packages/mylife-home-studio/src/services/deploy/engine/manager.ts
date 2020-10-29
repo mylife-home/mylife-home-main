@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { EventEmitter } from 'events';
-import { Recipe } from './recipe';
+import { ExecutionContext, Recipe } from './recipe';
 import * as directories from '../directories';
 import * as tasks from './tasks';
 
@@ -155,7 +155,7 @@ export class Manager extends EventEmitter {
 
     try {
       const recipe = new Recipe(name);
-      const context = { logger };
+      const context: ExecutionContext = { logger, root: null, config: null, variables: null };
 
       await recipe.execute(context);
     } catch (err) {

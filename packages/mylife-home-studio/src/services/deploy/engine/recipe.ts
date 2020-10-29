@@ -47,7 +47,7 @@ export class Recipe {
   }
 
   async execute(context: ExecutionContext) {
-    const log = createLogger(context, 'recipe');
+    const log = utils.createLogger(context, 'recipe');
     log.info(`begin '${this.name}'`);
 
     for (const step of this.steps) {
