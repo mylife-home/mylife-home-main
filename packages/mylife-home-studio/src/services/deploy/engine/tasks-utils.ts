@@ -13,7 +13,8 @@ export interface TaskMetadata {
   }[];
 }
 
-export type TaskImplementation = (context: ExecutionContext, parameters: { [key: string]: any }) => Promise<void>;
+export type TaskParameters = { [key: string]: string };
+export type TaskImplementation = (context: ExecutionContext, parameters: TaskParameters) => Promise<void>;
 
 export function singleRowFileUpdate(root: vfs.Directory, nodes: string[], updater: (content: string) => string) {
   let content = '';

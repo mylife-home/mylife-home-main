@@ -26,7 +26,7 @@ import * as ImageReset from './image-reset';
 import * as VariablesSet from './variables-set';
 import * as VariablesReset from './variables-reset';
 
-interface TaskDefinition {
+export interface TaskDefinition {
   metadata: TaskMetadata;
   execute: TaskImplementation;
 }

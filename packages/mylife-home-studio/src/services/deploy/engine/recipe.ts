@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import tasks from './tasks';
+import tasks, { TaskDefinition } from './tasks';
 import * as vfs from './vfs';
-import * as utils from './tasks-utils';
+import { createLogger, TaskParameters } from './tasks-utils';
 import * as directories from '../directories';
 import { RunLogSeverity } from './manager';
 
@@ -12,6 +12,7 @@ interface StepConfig {
 
 interface TaskStepConfig extends StepConfig {
   name: string;
+  parameters: TaskParameters;
 }
 
 interface RecipeStepConfig extends StepConfig {
@@ -47,7 +48,7 @@ export class Recipe {
   }
 
   async execute(context: ExecutionContext) {
-    const log = utils.createLogger(context, 'recipe');
+    const log = createLogger(context, 'recipe');
     log.info(`begin '${this.name}'`);
 
     for (const step of this.steps) {
@@ -63,6 +64,9 @@ abstract class Step {
 }
 
 class TaskStep extends Step {
+  private readonly task: TaskDefinition;
+  private readonly parameters: TaskParameters;
+
   constructor(config: TaskStepConfig) {
     super();
 
@@ -99,7 +103,7 @@ class TaskStep extends Step {
       value,
     }));
 
-    const formattedParams = {};
+    const formattedParams: TaskParameters = {};
     for (const [name, value] of Object.entries(this.parameters)) {
       let newValue = value;
       for (const rep of replaces) {
