@@ -3,7 +3,7 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import { ExecutionContext, Recipe } from './recipe';
 import * as directories from '../directories';
-import * as tasks from './tasks';
+import tasks from './tasks';
 
 const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins
 
