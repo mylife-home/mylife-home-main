@@ -1,4 +1,5 @@
 import { Client, ConnectConfig, ExecOptions, SFTPWrapper } from 'ssh2';
+import { InputAttributes, FileEntry, Stats } from 'ssh2-streams';
 
 export { ConnectConfig };
 
@@ -99,46 +100,89 @@ export class SSHClient {
       });
     });
   }
-
-
 }
 
 export class SFTP {
   private sftpImpl: SFTPWrapper;
 
   constructor(private readonly conn: Client) {
-    const createSftpCall = (name ) => async (...args) => {
-      const sftp = await this.getSftp();
-
-      return await new Promise((resolve, reject) => {
-        sftp[name](...args, (err, result) => {
-          if(err) {
-            return reject(err);
-          }
-
-          resolve(result);
-        });
-      });
-    };
-
-    this.sftp = {
-      readdir    : createSftpCall('readdir'),
-      mkdir      : createSftpCall('mkdir'),
-      rmdir      : createSftpCall('rmdir'),
-      unlink     : createSftpCall('unlink'),
-      rename     : createSftpCall('rename'),
-
-      writeFile  : async (...args) => await this._stfpWriteFile(...args),
-      readFile   : async (...args) => await this._sftpReadFile(...args),
-    };
-
-    this._sftpOpen  = createSftpCall('open');
-    this._sftpClose = createSftpCall('close');
-    this._sftpFStat = createSftpCall('fstat');
-    this._sftpRead  = createSftpCall('read');
-    this._sftpWrite = createSftpCall('write');
   }
-  
+
+  async readdir(location: string) {
+    return await this.sftpCall<FileEntry[]>('readdir', location);
+  }
+
+  async mkdir(path: string, attributes?: InputAttributes) {
+    return await this.sftpCall('mkdir', path, attributes);
+  }
+
+  async rmdir(path: string) {
+    return await this.sftpCall('rmdir', path);
+  }
+
+  async unlink(path: string) {
+    return await this.sftpCall('unlink', path);
+  }
+
+  async rename(srcPath: string, destPath: string) {
+    return await this.sftpCall('rename', srcPath, destPath);
+  }
+
+  private async open(filename: string, mode: string, attributes?: InputAttributes) {
+    return await this.sftpCall<Buffer>('open', filename, mode, attributes);
+  }
+
+  private async close(handle: Buffer) {
+    return await this.sftpCall('close', handle);
+  }
+
+  private async fstat(handle: Buffer) {
+    return await this.sftpCall<Stats>('fstat', handle);
+  }
+
+  private async read(handle: Buffer, buffer: Buffer, offset: number, length: number, position: number) {
+    return await this.sftpCall('read', handle, buffer, offset, length, position);
+  }
+
+  private async write(handle: Buffer, buffer: Buffer, offset: number, length: number, position: number) {
+    return await this.sftpCall('write', handle, buffer, offset, length, position);
+  }
+
+  async writeFile(path: string, buffer: Buffer, attrs?: InputAttributes) {
+    const handle = await this.open(path, 'w', attrs);
+    try {
+      await this.write(handle, buffer, 0, buffer.length, 0);
+    } finally {
+      await this.close(handle);
+    }
+  }
+
+  async readFile(path: string) {
+    const handle = await this.open(path, 'r');
+    try {
+      const { size } = await this.fstat(handle);
+      const buffer = Buffer.allocUnsafe(size);
+      await this.read(handle, buffer, 0, buffer.length, 0);
+      return buffer;
+    } finally {
+      await this.close(handle);
+    }
+  }
+
+  private async sftpCall<TResult=void>(name: keyof SFTPWrapper, ...args: any[]) {
+    const sftp = await this.getSftp();
+
+    return await new Promise<TResult>((resolve, reject) => {
+      ((sftp[name]) as Function)(...args,  (err: Error, res: TResult) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+  }
+
   private async getSftp() {
     if (this.sftpImpl) {
       return this.sftpImpl;
@@ -154,26 +198,5 @@ export class SFTP {
         resolve(sftp);
       });
     });
-  }
-
-  async _stfpWriteFile(path, buffer, attrs) {
-    const handle = await this._sftpOpen(path, 'w', attrs);
-    try {
-      await this._sftpWrite(handle, buffer, 0, buffer.length, 0);
-    } finally {
-      await this._sftpClose(handle);
-    }
-  }
-
-  async _sftpReadFile(path) {
-    const handle = await this._sftpOpen(path, 'r');
-    try {
-      const { size } = await this._sftpFStat(handle);
-      const buffer = Buffer.allocUnsafe(size);
-      await this._sftpRead(handle, buffer, 0, buffer.length, 0);
-      return buffer;
-    } finally {
-      await this._sftpClose(handle);
-    }
   }
 }
