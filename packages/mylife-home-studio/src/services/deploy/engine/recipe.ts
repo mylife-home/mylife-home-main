@@ -19,8 +19,9 @@ interface RecipeStepConfig extends StepConfig {
 }
 
 export interface ExecutionContext {
-  logger: (category: string, severity: RunLogSeverity, message: string): void;
+  logger: (category: string, severity: RunLogSeverity, message: string) => void;
   config: vfs.Directory;
+  variables: { [key: string]: string };
 }
 
 export class Recipe {

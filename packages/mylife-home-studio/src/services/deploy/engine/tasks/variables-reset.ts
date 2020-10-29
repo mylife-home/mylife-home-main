@@ -1,14 +1,12 @@
-'use strict';
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
-const utils = require('../tasks-utils');
-
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'reset variables',
   parameters  : []
 };
 
-exports.execute = async (context/*, parameters*/) => {
-  const log = utils.createLogger(context, 'variables:reset');
+export const execute: TaskImplementation = async (context, parameters) => {
+  const log = createLogger(context, 'variables:reset');
   log.info('variables reset');
   context.variables = null;
 };

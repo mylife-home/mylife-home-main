@@ -1,8 +1,6 @@
-'use strict';
+import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
-const utils = require('../tasks-utils');
-
-exports.metadata = {
+export const metadata: TaskMetadata = {
   description : 'set a variable to a value',
   parameters  : [
     { name : 'name', description: 'variable name', type: 'string' },
@@ -10,8 +8,8 @@ exports.metadata = {
   ]
 };
 
-exports.execute = async (context, parameters) => {
-  const log = utils.createLogger(context, 'variables:set');
+export const execute: TaskImplementation = async (context, parameters) => {
+  const log = createLogger(context, 'variables:set');
   const { name, value } = parameters;
   log.info(`${name} = ${value}`);
   context.variables = context.variables || {};

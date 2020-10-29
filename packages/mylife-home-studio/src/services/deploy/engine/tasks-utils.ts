@@ -3,6 +3,17 @@ import * as vfs from './vfs';
 import * as directories from '../directories';
 import { ExecutionContext } from './recipe';
 
+export interface TaskMetadata {
+  description: string;
+  parameters: {
+    name: string;
+    description: string;
+    type: 'string';
+  }[];
+}
+
+export type TaskImplementation = (context: ExecutionContext, parameters: { [key: string]: any }) => Promise<void>;
+
 export function singleRowFileUpdate(root: vfs.Directory, nodes: string[], updater: (content: string) => string) {
   let content = '';
   if (vfs.path(root, nodes, true)) {
