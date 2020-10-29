@@ -1,8 +1,8 @@
 import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
 export const metadata: TaskMetadata = {
-  description : 'reset image data (root fs, config, image)',
-  parameters  : []
+  description: 'reset image data (root fs, config, image)',
+  parameters: [],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {

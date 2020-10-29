@@ -1,11 +1,8 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const utils = require('../tasks-utils');
+import { createLogger, fileAppendLine, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
 export const metadata: TaskMetadata = {
-  description : 'add a dtoverlay line in image usercfg.txt ( https://www.raspberrypi.org/documentation/configuration/device-tree.md )',
-  parameters  : [
-    { name : 'content', description: 'overlay data to add', type: 'string' }
-  ]
+  description: 'add a dtoverlay line in image usercfg.txt ( https://www.raspberrypi.org/documentation/configuration/device-tree.md )',
+  parameters: [{ name: 'content', description: 'overlay data to add', type: 'string' }],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {
@@ -13,5 +10,5 @@ export const execute: TaskImplementation = async (context, parameters) => {
   const log = createLogger(context, 'image:dtoverlay');
   const row = `dtoverlay=${content}`;
   log.info(`append usercfg.txt : '${row}'`);
-  utils.fileAppendLine(context.root, [ 'usercfg.txt' ], row);
+  fileAppendLine(context.root, ['usercfg.txt'], row);
 };

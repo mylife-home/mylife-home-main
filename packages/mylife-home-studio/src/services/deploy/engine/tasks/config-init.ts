@@ -1,16 +1,15 @@
 import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const vfs     = require('../vfs');
-const archive = require('../archive');
-const utils   = require('../tasks-utils');
+import * as vfs from '../vfs';
+import * as archive from '../archive';
 
 export const metadata: TaskMetadata = {
-  description : 'Extract the config (.apkovl.tar.gz) from the image to context.config',
-  parameters  : []
+  description: 'Extract the config (.apkovl.tar.gz) from the image to context.config',
+  parameters: [],
 };
 
-export const execute: TaskImplementation = async (context, parameters) => {asks-utils';
-  const configFile = context.root.list().find(node => node.name.endsWith('.apkovl.tar.gz'));
-  context.config   = new vfs.Directory({ missing: true });
+export const execute: TaskImplementation = async (context, parameters) => {
+  const configFile = context.root.list().find((node) => node.name.endsWith('.apkovl.tar.gz')) as vfs.File;
+  context.config = new vfs.Directory({ unnamed: true });
   const log = createLogger(context, 'config:init');
   log.info(`extract config from image file '${configFile.name}'`);
   await archive.extract(configFile.content, context.config);

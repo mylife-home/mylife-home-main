@@ -9,6 +9,7 @@ export interface TaskMetadata {
     name: string;
     description: string;
     type: 'string';
+    default?: any;
   }[];
 }
 

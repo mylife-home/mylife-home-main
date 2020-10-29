@@ -1,11 +1,8 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const utils = require('../tasks-utils');
+import { createLogger, singleRowFileUpdate, TaskImplementation, TaskMetadata } from '../tasks-utils';
 
 export const metadata: TaskMetadata = {
-  description : 'add a parameter to cmdline.txt',
-  parameters  : [
-    { name : 'content', description: 'parameter data to add', type: 'string' }
-  ]
+  description: 'add a parameter to cmdline.txt',
+  parameters: [{ name: 'content', description: 'parameter data to add', type: 'string' }],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {
@@ -14,5 +11,5 @@ export const execute: TaskImplementation = async (context, parameters) => {
   const data = ' ' + content;
   log.info(`append cmdline.txt : '${data}'`);
 
-  utils.singleRowFileUpdate(context.root, [ 'cmdline.txt' ], file => file + data);
+  singleRowFileUpdate(context.root, ['cmdline.txt'], (file) => file + data);
 };

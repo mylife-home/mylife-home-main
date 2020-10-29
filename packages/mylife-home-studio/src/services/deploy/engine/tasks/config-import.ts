@@ -1,18 +1,15 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const fs      = require('fs-extra');
-const archive = require('../archive');
-const utils   = require('../tasks-utils');
+import fs from 'fs-extra';
+import { createLogger, absolutePath, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import * as archive from '../archive';
 
 export const metadata: TaskMetadata = {
-  description : 'Import the specified archive into the root fs of the config',
-  parameters  : [
-    { name : 'archiveName', description: 'archive name', type: 'string' }
-  ]
+  description: 'Import the specified archive into the root fs of the config',
+  parameters: [{ name: 'archiveName', description: 'archive name', type: 'string' }],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { archiveName } = parameters;
-  const fullArchiveName = utils.absolutePath(archiveName);
+  const fullArchiveName = absolutePath(archiveName);
   const log = createLogger(context, 'config:import');
   log.info(`import '${fullArchiveName}' into config`);
 

@@ -1,15 +1,14 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const vfs   = require('../vfs');
-const utils = require('../tasks-utils');
+import { config } from 'process';
+import { ExecutionContext } from '../recipe';
+import { createLogger, Logger, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import * as vfs from '../vfs';
 
 export const metadata: TaskMetadata = {
-  description : 'set the hostname',
-  parameters  : [
-    { name : 'hostname', description: 'host name', type: 'string' }
-  ]
+  description: 'set the hostname',
+  parameters: [{ name: 'hostname', description: 'host name', type: 'string' }],
 };
 
-function replaceHost(log, context, path, oldHost, newHost) {
+function replaceHost(log: Logger, context: ExecutionContext, path: string[], oldHost: string, newHost: string) {
   log.debug(`config: replace ${oldHost} to ${newHost} in file '/${path.join('/')}'`);
   let content = vfs.readText(context.config, path);
   content = content.replace(new RegExp(oldHost, 'g'), newHost);
@@ -20,17 +19,16 @@ export const execute: TaskImplementation = async (context, parameters) => {
   const { hostname } = parameters;
   const log = createLogger(context, 'config:hostname');
   log.info(`set hostname to '${hostname}'`);
-  let oldHostname  = vfs.readText(context.config, [ 'etc', 'hostname' ]);
-  oldHostname = oldHostname.trimRight();
+  const oldHostname = vfs.readText(context.config, ['etc', 'hostname']).trimRight();
   log.debug(`existing hostname found : '${oldHostname}'`);
 
-  replaceHost(log, context, [ 'etc', 'hostname' ], oldHostname, hostname);
-  replaceHost(log, context, [ 'etc', 'network', 'interfaces' ], oldHostname, hostname);
-  replaceHost(log, context, [ 'etc', 'hosts' ], oldHostname, hostname);
+  replaceHost(log, context, ['etc', 'hostname'], oldHostname, hostname);
+  replaceHost(log, context, ['etc', 'network', 'interfaces'], oldHostname, hostname);
+  replaceHost(log, context, ['etc', 'hosts'], oldHostname, hostname);
 
-  const configFile = context.root.list().find(node => node.name.endsWith('.apkovl.tar.gz'));
+  const configFile = context.root.list().find((node) => node.name.endsWith('.apkovl.tar.gz'));
   log.debug(`rename image file '${configFile.name}' to '${hostname}.apkovl.tar.gz'`);
+  const newConfigFile = new vfs.File({ ...configFile, name: hostname + '.apkovl.tar.gz' });
   context.root.delete(configFile);
-  configFile.name = hostname + '.apkovl.tar.gz';
-  context.root.add(configFile);
+  context.root.add(newConfigFile);
 };

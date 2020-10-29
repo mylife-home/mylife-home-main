@@ -1,13 +1,12 @@
 import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const vfs   = require('../vfs');
-const utils = require('../tasks-utils');
+import * as vfs from '../vfs';
 
 export const metadata: TaskMetadata = {
-  description : 'add a daemon process to be started at a runlevel',
-  parameters  : [
-    { name : 'name', description: 'daemon name', type: 'string' },
-    { name : 'runlevel', description: 'runlevel', type: 'string', default: 'default' }
-  ]
+  description: 'add a daemon process to be started at a runlevel',
+  parameters: [
+    { name: 'name', description: 'daemon name', type: 'string' },
+    { name: 'runlevel', description: 'runlevel', type: 'string', default: 'default' },
+  ],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {
@@ -15,8 +14,8 @@ export const execute: TaskImplementation = async (context, parameters) => {
   const log = createLogger(context, 'config:daemon');
   log.info(`create daemon ${name} at runlevel ${runlevel}`);
 
-  const dir = vfs.path(context.config, [ 'etc', 'runlevels', runlevel ]);
-  const symlink = new vfs.Symlink({ name, target : `/etc/init.d/${name}` });
+  const dir = vfs.path(context.config, ['etc', 'runlevels', runlevel]) as vfs.Directory;
+  const symlink = new vfs.Symlink({ name, target: `/etc/init.d/${name}` });
   log.debug(`config: create symlink '/etc/runlevels/${runlevel}/${name}' with target '/etc/init.d/${name}'`);
   dir.add(symlink);
 };
