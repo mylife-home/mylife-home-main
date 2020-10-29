@@ -57,7 +57,7 @@ export class Database {
     return list && list[0];
   }
 
-  getByProvide(provide) {
+  getByProvide(provide: string) {
     return this._provides.get(provide);
   }
 
@@ -109,97 +109,101 @@ export class Database {
       if (!lines.length) {
         continue;
       }
-
-      const output = {
-        repo: url,
-        raw: lines.join('\n') + '\n\n',
-      } as Package;
-
-      const items: DictString = {};
-
-      for (const line of lines) {
-        const prefix = line.substring(0, 1);
-        const value = line.substring(2);
-        const key = indexHeaders[prefix];
-        if (!key) {
-          continue;
-        }
-        items[key] = value;
-      }
-
-      for (const key of ['name', 'version', 'architecture'] as ('name' | 'version' | 'architecture')[]) {
-        const val = items[key];
-        if (!val) {
-          throw new Error(`Missing field ${key} for package ${items.name}`);
-        }
-        output[key] = val;
-      }
-
-      const { csum, dependencies, provides, size } = items;
-
-      if (!csum || !csum.startsWith('Q1')) {
-        throw new Error(`Unrecognized checksum for package ${items.name}`);
-      }
-      output.csum = Buffer.from(csum.substring(2), 'base64');
-
-      output.dependencies = {};
-      for (const dep of (dependencies || '').split(' ')) {
-        if (!dep) {
-          continue;
-        }
-
-        if (dep.startsWith('!')) {
-          // FIXME
-          // ignore it for now
-          continue;
-        }
-
-        let operator;
-        let key;
-        let version;
-
-        if (dep.includes('<')) {
-          operator = '<';
-        } else if (dep.includes('>')) {
-          operator = '>';
-        }
-
-        if (operator) {
-          // FIXME
-          // let's consider we are ok and use *
-          key = dep.split(operator)[0];
-          version = '*';
-        } else {
-          const split = dep.split('=');
-          key = split[0];
-          version = split[1] || '*';
-        }
-
-        if (!valideProvideDependency(key)) {
-          throw new Error(`Unsupported dependency : ${key} for package ${items.name}`);
-        }
-        output.dependencies[key] = version;
-      }
-
-      output.provides = {
-        [output.name]: output.version,
-      };
-
-      for (const prov of (provides || '').split(' ')) {
-        if (!prov) {
-          continue;
-        }
-        const [key, version] = prov.split('=');
-        if (!valideProvideDependency(key)) {
-          continue;
-        }
-        output.provides[key] = version || '*';
-      }
-
-      output.size = parseInt(size);
-
-      this._list.push(output);
+      
+      this._list.push(this.loadPackage(url, lines));
     }
+  }
+
+  private loadPackage(url: string, lines: string[]) {
+    const output = {
+      repo: url,
+      raw: lines.join('\n') + '\n\n',
+    } as Package;
+
+    const items: DictString = {};
+
+    for (const line of lines) {
+      const prefix = line.substring(0, 1);
+      const value = line.substring(2);
+      const key = indexHeaders[prefix];
+      if (!key) {
+        continue;
+      }
+      items[key] = value;
+    }
+
+    for (const key of ['name', 'version', 'architecture'] as ('name' | 'version' | 'architecture')[]) {
+      const val = items[key];
+      if (!val) {
+        throw new Error(`Missing field ${key} for package ${items.name}`);
+      }
+      output[key] = val;
+    }
+
+    const { csum, dependencies, provides, size } = items;
+
+    if (!csum || !csum.startsWith('Q1')) {
+      throw new Error(`Unrecognized checksum for package ${items.name}`);
+    }
+    output.csum = Buffer.from(csum.substring(2), 'base64');
+
+    output.dependencies = {};
+    for (const dep of (dependencies || '').split(' ')) {
+      if (!dep) {
+        continue;
+      }
+
+      if (dep.startsWith('!')) {
+        // FIXME
+        // ignore it for now
+        continue;
+      }
+
+      let operator;
+      let key;
+      let version;
+
+      if (dep.includes('<')) {
+        operator = '<';
+      } else if (dep.includes('>')) {
+        operator = '>';
+      }
+
+      if (operator) {
+        // FIXME
+        // let's consider we are ok and use *
+        key = dep.split(operator)[0];
+        version = '*';
+      } else {
+        const split = dep.split('=');
+        key = split[0];
+        version = split[1] || '*';
+      }
+
+      if (!valideProvideDependency(key)) {
+        throw new Error(`Unsupported dependency : ${key} for package ${items.name}`);
+      }
+      output.dependencies[key] = version;
+    }
+
+    output.provides = {
+      [output.name]: output.version,
+    };
+
+    for (const prov of (provides || '').split(' ')) {
+      if (!prov) {
+        continue;
+      }
+      const [key, version] = prov.split('=');
+      if (!valideProvideDependency(key)) {
+        continue;
+      }
+      output.provides[key] = version || '*';
+    }
+
+    output.size = parseInt(size);
+
+    return output;
   }
 
   index() {
