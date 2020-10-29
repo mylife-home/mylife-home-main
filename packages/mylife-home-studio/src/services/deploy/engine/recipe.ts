@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import tasks from './tasks';
 import utils from './tasks-utils';
-const directories = require('../directories');
+import * as directories from '../directories';
+import { RunLogSeverity } from './manager';
 
 interface StepConfig {
   type: string;
@@ -16,7 +17,9 @@ interface RecipeStepConfig extends StepConfig {
   name: string;
 }
 
-interface Context {}
+interface Context {
+  logger: (category: string, severity: RunLogSeverity, message: string);
+}
 
 export class Recipe {
   private readonly steps: Step[] = [];
