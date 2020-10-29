@@ -1,9 +1,8 @@
 import { Readable, Writable } from 'stream';
 
-class BufferReader extends Readable {
-  constructor(buffer) {
+export class BufferReader extends Readable {
+  constructor(private readonly buffer: Buffer) {
     super();
-    this.buffer = buffer;
   }
 
   _read() {
@@ -12,18 +11,20 @@ class BufferReader extends Readable {
   }
 }
 
-class BufferWriter extends Writable {
+export class BufferWriter extends Writable {
+  private buffers: Buffer[] = [];
+  private buffer: Buffer = null;
+
   constructor() {
     super();
-    this.buffers = [];
   }
 
-  _write(chunk, encoding, callback) {
+  _write(chunk: Buffer, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
     this.buffers.push(chunk);
     callback();
   }
 
-  _final(callback) {
+  _final(callback: (error?: Error | null) => void) {
     this.buffer = Buffer.concat(this.buffers);
     this.buffers = null;
     callback();
@@ -34,18 +35,9 @@ class BufferWriter extends Writable {
   }
 }
 
-function once(fn) {
-  const newFn = (...args) => {
-    if (newFn.called) { return; }
-    newFn.called = true;
-    return fn(...args);
-  };
-  return newFn;
-}
-
-function apipe(...streams) {
+export function apipe(...streams: Writable[]) {
   return new Promise((resolve, reject) => {
-    const ended = once(err => (err ? reject(err) : resolve()));
+    const ended = once((err: Error) => (err ? reject(err) : resolve()));
 
     streams[streams.length - 1].once('finish', ended);
     for(let i=0; i<streams.length; ++i) {
@@ -57,6 +49,15 @@ function apipe(...streams) {
   });
 }
 
-exports.BufferReader = BufferReader;
-exports.BufferWriter = BufferWriter;
-exports.apipe        = apipe;
+function once(target: (...args: any) => void) {
+  let called = false;
+
+  return (...args: any) => {
+    if (called) {
+      return;
+    }
+
+    called = true;
+    return target(...args);
+  };
+}
