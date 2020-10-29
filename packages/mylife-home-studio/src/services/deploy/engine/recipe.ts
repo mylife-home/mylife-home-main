@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import tasks from './tasks';
+import * as vfs from './vfs';
 import * as utils from './tasks-utils';
 import * as directories from '../directories';
 import { RunLogSeverity } from './manager';
@@ -18,7 +19,8 @@ interface RecipeStepConfig extends StepConfig {
 }
 
 export interface ExecutionContext {
-  logger: (category: string, severity: RunLogSeverity, message: string);
+  logger: (category: string, severity: RunLogSeverity, message: string): void;
+  config: vfs.Directory;
 }
 
 export class Recipe {

@@ -1,32 +1,33 @@
 import path from 'path';
-const vfs         = require('./vfs');
-const directories = require('../directories');
+import * as vfs from './vfs';
+import * as directories from '../directories';
+import { ExecutionContext } from './recipe';
 
-exports.singleRowFileUpdate = (root, nodes, updater) => {
+export function singleRowFileUpdate(root: vfs.Directory, nodes: string[], updater: (content: string) => string) {
   let content = '';
-  if(vfs.path(root, nodes, true)) {
+  if (vfs.path(root, nodes, true)) {
     content = vfs.readText(root, nodes);
   }
 
   const endNewline = content.endsWith('\n');
-  if(endNewline) {
+  if (endNewline) {
     content = content.substring(0, content.length - 1);
   }
 
   content = updater(content);
 
-  if(endNewline) {
+  if (endNewline) {
     content += '\n';
   }
 
   vfs.writeText(root, nodes, content);
-};
+}
 
-function fileAppendLine(root, nodes, line) {
+export function fileAppendLine(root: vfs.Directory, nodes: string[], line: string) {
   let content = '';
-  if(vfs.path(root, nodes, true)) {
+  if (vfs.path(root, nodes, true)) {
     content = vfs.readText(root, nodes);
-    if(!content.endsWith('\n')) {
+    if (!content.endsWith('\n')) {
       content += '\n';
     }
   }
@@ -34,62 +35,68 @@ function fileAppendLine(root, nodes, line) {
   vfs.writeText(root, nodes, content);
 }
 
-exports.fileAppendLine = fileAppendLine;
-
 // used by several tasks
-exports.configAddPackage = (log, context, name) => {
-  fileAppendLine(context.config, [ 'etc', 'apk', 'world' ], name);
-  log.debug(`config: add '${name}' to '/etc/apk/world'`);
-};
+export function configAddPackage(logger: Logger, context: ExecutionContext, name: string) {
+  fileAppendLine(context.config, ['etc', 'apk', 'world'], name);
+  logger.debug(`config: add '${name}' to '/etc/apk/world'`);
+}
 
-exports.createLogger = (context, category) => {
+export interface Logger {
+  debug(msg: string): void;
+  info(msg: string): void;
+  warning(msg: string): void;
+  error(msg: string): void;
+}
+
+export function createLogger(context: ExecutionContext, category: string): Logger {
   return {
-    debug   : msg => context.logger(category, 'debug',   msg),
-    info    : msg => context.logger(category, 'info',    msg),
-    warning : msg => context.logger(category, 'warning', msg),
-    error   : msg => context.logger(category, 'error',   msg)
+    debug: (msg: string) => context.logger(category, 'debug', msg),
+    info: (msg: string) => context.logger(category, 'info', msg),
+    warning: (msg: string) => context.logger(category, 'warning', msg),
+    error: (msg: string) => context.logger(category, 'error', msg),
   };
-};
+}
 
-exports.absolutePath = p => path.join(directories.files(), p);
+export function absolutePath(p: string) {
+  return path.join(directories.files(), p);
+}
 
 // used by several tasks
-exports.directoryLs = (log, root, path) => {
-  const dir = vfs.path(root, path.split('/').filter(n => n));
-  if(!dir) {
-    log.warning(`directory '${path}' does not exist`);
-    return;
-  }
-  if(!(dir instanceof vfs.Directory)) {
-    log.warning(`node '${path}' is not a directory`);
+export function directoryLs(logger: Logger, root: vfs.Directory, path: string) {
+  const nodes = path.split('/').filter((n) => n);
+  const dir = vfs.path(root, nodes);
+
+  if (!dir) {
+    logger.warning(`directory '${path}' does not exist`);
     return;
   }
 
-  for(const node of dir.list()) {
-    const attributes = [
-      `uid: ${node.uid}`,
-      `gid: ${node.gid}`,
-      `mode: 0o${node.mode.toString(8)}`
-    ];
+  if (!(dir instanceof vfs.Directory)) {
+    logger.warning(`node '${path}' is not a directory`);
+    return;
+  }
 
-    if(node.mtime) {
+  for (const node of dir.list()) {
+    const attributes = [`uid: ${node.uid}`, `gid: ${node.gid}`, `mode: 0o${node.mode.toString(8)}`];
+
+    if (node.mtime) {
       attributes.push(`mtime: ${node.mtime.toLocaleString()}`);
     }
 
-    if(node instanceof vfs.File) {
+    if (node instanceof vfs.File) {
       attributes.unshift('file');
       attributes.push(`size: ${node.content.length}`);
     }
 
-    if(node instanceof vfs.Directory) {
+    if (node instanceof vfs.Directory) {
       attributes.unshift('directory');
     }
 
-    if(node instanceof vfs.Symlink) {
+    if (node instanceof vfs.Symlink) {
       attributes.unshift('symlink');
       attributes.push(`target: ${node.target}`);
     }
 
-    log.debug(`${node.name} (${attributes.join(', ')})`);
+    logger.debug(`${node.name} (${attributes.join(', ')})`);
   }
-};
+}
