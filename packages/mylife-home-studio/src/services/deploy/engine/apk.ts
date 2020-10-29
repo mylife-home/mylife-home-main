@@ -109,7 +109,7 @@ export class Database {
       if (!lines.length) {
         continue;
       }
-      
+
       this._list.push(this.loadPackage(url, lines));
     }
   }
@@ -220,17 +220,16 @@ export class Database {
 }
 
 export class InstallList {
-  constructor(database) {
-    this._database = database;
-    this._list = [];
-    this._map = new Map();
-  }
+  private readonly map = new Map<string, string>();
+  private readonly _list: Package[] = [];
+
+  constructor(private readonly database: Database) {}
 
   list() {
     return this._list;
   }
 
-  async download(vfsCacheDirectory) {
+  async download(vfsCacheDirectory: vfs.Directory) {
     for (const pack of this._list) {
       if (isLocal(pack)) {
         continue;
@@ -248,8 +247,8 @@ export class InstallList {
     }
   }
 
-  async dumpIndexes(vfsCacheDirectory) {
-    for (const [repo, content] of this._database.repositories()) {
+  async dumpIndexes(vfsCacheDirectory: vfs.Directory) {
+    for (const [repo, content] of this.database.repositories()) {
       if (repo.startsWith('/')) {
         continue;
       }
@@ -258,12 +257,12 @@ export class InstallList {
     }
   }
 
-  addPackage(name) {
-    if (this._map.get(name)) {
+  addPackage(name: string) {
+    if (this.map.get(name)) {
       return;
     }
 
-    const item = this._database.getByName(name);
+    const item = this.database.getByName(name);
     if (!item) {
       throw new Error(`Package not found : ${name}`);
     }
@@ -272,12 +271,12 @@ export class InstallList {
     this._listDependencies(item);
   }
 
-  _addItem(item) {
+  _addItem(item: Package) {
     this._list.push(item);
-    this._map.set(item.name, item.version);
+    this.map.set(item.name, item.version);
   }
 
-  _listDependencies(item) {
+  _listDependencies(item: Package) {
     for (const name of Object.keys(item.dependencies)) {
       const version = item.dependencies[name];
       const dep = this._findDependency(name, version);
@@ -287,8 +286,8 @@ export class InstallList {
     }
   }
 
-  _findDependency(name, version) {
-    const list = this._database.getByProvide(name);
+  _findDependency(name: string, version: string) {
+    const list = this.database.getByProvide(name);
     if (!list) {
       throw new Error(`Dependency not found : ${name}`);
     }
@@ -305,8 +304,8 @@ export class InstallList {
     return item;
   }
 
-  _addDependency(dep) {
-    const existing = this._map.get(dep.name);
+  _addDependency(dep: Package) {
+    const existing = this.map.get(dep.name);
     if (!existing) {
       this._addItem(dep);
       return true;
