@@ -73,7 +73,7 @@ function init<T extends Node, DefaultOptions, Options>(object: T, defaultOptions
   }
 }
 
-export function path(root: Directory, nodes: string, nothrow = false) {
+export function path(root: Directory, nodes: string[], nothrow = false) {
   let node: Node = root;
 
   for (const name of nodes) {
@@ -96,12 +96,12 @@ export function path(root: Directory, nodes: string, nothrow = false) {
   return node;
 }
 
-export function readText(root: Directory, nodes: string) {
+export function readText(root: Directory, nodes: string[]) {
   const file = path(root, nodes) as File;
   return file.content.toString();
 }
 
-export function writeText(root: Directory, nodes: string, content: string) {
+export function writeText(root: Directory, nodes: string[], content: string) {
   const directory = path(root, nodes.slice(0, nodes.length - 1)) as Directory;
   const name = nodes[nodes.length - 1];
 
@@ -118,7 +118,7 @@ export function writeText(root: Directory, nodes: string, content: string) {
   file.content = Buffer.from(content, 'ascii');
 }
 
-export function mkdirp(root: Directory, nodes: string) {
+export function mkdirp(root: Directory, nodes: string[]) {
   let node = root;
 
   for (const name of nodes) {
