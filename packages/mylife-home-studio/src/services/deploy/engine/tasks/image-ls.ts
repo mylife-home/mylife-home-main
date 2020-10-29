@@ -9,7 +9,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { path } = parameters;
-  const log = utils.createLogger(context, 'image:ls');
+  const log = createLogger(context, 'image:ls');
   log.debug(`content of directory '${path}' from image`);
 
   utils.directoryLs(log, context.root, path);

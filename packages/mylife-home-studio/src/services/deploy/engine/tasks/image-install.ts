@@ -87,7 +87,7 @@ class ClientWrapper {
 export const execute: TaskImplementation = async (context, parameters) => {
   const { host, user, keyFile } = parameters;
   const fullKeyFile = utils.absolutePath(keyFile);
-  const log = utils.createLogger(context, 'image:install');
+  const log = createLogger(context, 'image:install');
   const [ hostname, sport ] = host.split(':');
   const port = parseInt(sport) || 22;
   log.info(`install on '${hostname}:${port}' with user '${user}' using key file '${fullKeyFile}'`);

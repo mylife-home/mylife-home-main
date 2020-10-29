@@ -15,7 +15,7 @@ export const metadata: TaskMetadata = {
 export const execute: TaskImplementation = async (context, parameters) => {
   const { archiveName, rootPath } = parameters;
   const fullArchiveName = utils.absolutePath(archiveName);
-  const log = utils.createLogger(context, 'image:import');
+  const log = createLogger(context, 'image:import');
   log.info(`import '${fullArchiveName}' using root path '${rootPath}' into image`);
 
   const buffer = await fs.readFile(fullArchiveName);

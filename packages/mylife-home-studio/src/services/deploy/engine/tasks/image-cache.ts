@@ -13,8 +13,8 @@ function readConfigFileLines(context, nodes) {
   return content.split('\n').filter(line => line).map(line => line.trim());
 }
 
-exports.execute = async (context/*, parameters*/) => {
-  const log = utils.createLogger(context, 'image:cache');
+export const execute: TaskImplementation = async (context, parameters) => {asks-utils';
+  const log = createLogger(context, 'image:cache');
   let repositories = readConfigFileLines(context, [ 'etc', 'apk', 'repositories' ]);
   let packages     = readConfigFileLines(context, [ 'etc', 'apk', 'world' ]);
 

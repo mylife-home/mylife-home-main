@@ -10,7 +10,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { name } = parameters;
-  const log = utils.createLogger(context, 'config:package');
+  const log = createLogger(context, 'config:package');
   log.info(`add package '${name}'`);
   utils.configAddPackage(log, context, name);
 };

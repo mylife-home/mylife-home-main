@@ -18,7 +18,7 @@ function replaceHost(log, context, path, oldHost, newHost) {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { hostname } = parameters;
-  const log = utils.createLogger(context, 'config:hostname');
+  const log = createLogger(context, 'config:hostname');
   log.info(`set hostname to '${hostname}'`);
   let oldHostname  = vfs.readText(context.config, [ 'etc', 'hostname' ]);
   oldHostname = oldHostname.trimRight();

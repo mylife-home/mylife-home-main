@@ -13,7 +13,7 @@ export const metadata: TaskMetadata = {
 export const execute: TaskImplementation = async (context, parameters) => {
   const { archiveName } = parameters;
   const fullArchiveName = utils.absolutePath(archiveName);
-  const log = utils.createLogger(context, 'image:export');
+  const log = createLogger(context, 'image:export');
   log.info(`export '${fullArchiveName}'`);
 
   const content = await archive.pack(context.root);

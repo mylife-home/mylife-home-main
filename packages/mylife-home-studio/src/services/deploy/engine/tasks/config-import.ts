@@ -13,7 +13,7 @@ export const metadata: TaskMetadata = {
 export const execute: TaskImplementation = async (context, parameters) => {
   const { archiveName } = parameters;
   const fullArchiveName = utils.absolutePath(archiveName);
-  const log = utils.createLogger(context, 'config:import');
+  const log = createLogger(context, 'config:import');
   log.info(`import '${fullArchiveName}' into config`);
 
   const buffer = await fs.readFile(fullArchiveName);

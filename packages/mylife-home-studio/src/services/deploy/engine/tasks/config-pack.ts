@@ -7,8 +7,8 @@ export const metadata: TaskMetadata = {
   parameters  : []
 };
 
-exports.execute = async (context/*, parameters*/) => {
-  const log = utils.createLogger(context, 'config:pack');
+export const execute: TaskImplementation = async (context, parameters) => {asks-utils';
+  const log = createLogger(context, 'config:pack');
   const configFile   = context.root.list().find(node => node.name.endsWith('.apkovl.tar.gz'));
   log.info(`pack config into image file '${configFile.name}'`);
   configFile.content = await archive.pack(context.config);

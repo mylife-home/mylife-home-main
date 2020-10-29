@@ -10,7 +10,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
-  const log = utils.createLogger(context, 'image:cmdline-add');
+  const log = createLogger(context, 'image:cmdline-add');
   const data = ' ' + content;
   log.info(`append cmdline.txt : '${data}'`);
 

@@ -12,7 +12,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { name, runlevel } = parameters;
-  const log = utils.createLogger(context, 'config:daemon');
+  const log = createLogger(context, 'config:daemon');
   log.info(`create daemon ${name} at runlevel ${runlevel}`);
 
   const dir = vfs.path(context.config, [ 'etc', 'runlevels', runlevel ]);

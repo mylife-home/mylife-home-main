@@ -10,7 +10,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
-  const log = utils.createLogger(context, 'image:dtoverlay');
+  const log = createLogger(context, 'image:dtoverlay');
   const row = `dtoverlay=${content}`;
   log.info(`append usercfg.txt : '${row}'`);
   utils.fileAppendLine(context.root, [ 'usercfg.txt' ], row);

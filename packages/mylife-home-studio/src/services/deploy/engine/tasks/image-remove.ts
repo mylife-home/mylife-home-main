@@ -11,7 +11,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { path } = parameters;
-  const log = utils.createLogger(context, 'image:remove');
+  const log = createLogger(context, 'image:remove');
   log.info(`remove file '${path}' from image`);
 
   const nodes = path.split('/').filter(n => n);

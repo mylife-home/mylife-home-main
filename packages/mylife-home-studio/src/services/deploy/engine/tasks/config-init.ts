@@ -8,10 +8,10 @@ export const metadata: TaskMetadata = {
   parameters  : []
 };
 
-exports.execute = async (context/*, parameters*/) => {
+export const execute: TaskImplementation = async (context, parameters) => {asks-utils';
   const configFile = context.root.list().find(node => node.name.endsWith('.apkovl.tar.gz'));
   context.config   = new vfs.Directory({ missing: true });
-  const log = utils.createLogger(context, 'config:init');
+  const log = createLogger(context, 'config:init');
   log.info(`extract config from image file '${configFile.name}'`);
   await archive.extract(configFile.content, context.config);
 };

@@ -20,6 +20,7 @@ interface RecipeStepConfig extends StepConfig {
 
 export interface ExecutionContext {
   logger: (category: string, severity: RunLogSeverity, message: string) => void;
+  root: vfs.Directory;
   config: vfs.Directory;
   variables: { [key: string]: string };
 }
@@ -46,7 +47,7 @@ export class Recipe {
   }
 
   async execute(context: ExecutionContext) {
-    const log = utils.createLogger(context, 'recipe');
+    const log = createLogger(context, 'recipe');
     log.info(`begin '${this.name}'`);
 
     for (const step of this.steps) {

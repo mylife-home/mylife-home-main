@@ -10,7 +10,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { content } = parameters;
-  const log = utils.createLogger(context, 'image:cmdline-remove');
+  const log = createLogger(context, 'image:cmdline-remove');
   log.info(`remove in cmdline.txt : '${content}'`);
 
   utils.singleRowFileUpdate(context.root, [ 'cmdline.txt' ], file => file.split(' ').filter(it => it !== content).join(' '));

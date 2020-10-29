@@ -13,7 +13,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { iface, ssid, psk } = parameters;
-  const log = utils.createLogger(context, 'config:wifi');
+  const log = createLogger(context, 'config:wifi');
   log.info(`configure ssid '${ssid}' and psk '${psk}' for interface '${iface}'`);
 
   log.debug('config: update /etc/networkinterfaces');

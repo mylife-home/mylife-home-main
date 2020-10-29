@@ -5,8 +5,8 @@ export const metadata: TaskMetadata = {
   parameters  : []
 };
 
-exports.execute = async (context/*, parameters*/) => {
-  const log = utils.createLogger(context, 'image:reset');
+export const execute: TaskImplementation = async (context, parameters) => {
+  const log = createLogger(context, 'image:reset');
   log.info('image reset');
   context.root = null;
   context.config = null;

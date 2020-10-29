@@ -12,7 +12,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { iface, address } = parameters;
-  const log = utils.createLogger(context, 'config:hwaddress');
+  const log = createLogger(context, 'config:hwaddress');
   log.info(`set address to '${address}' for interface '${iface}'`);
   log.debug('config: update /etc/networkinterfaces');
   const lines = vfs.readText(context.config, [ 'etc', 'network', 'interfaces' ]).split('\n');
