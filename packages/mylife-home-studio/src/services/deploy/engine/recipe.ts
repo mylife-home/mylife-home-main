@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import tasks from './tasks';
-import utils from './tasks-utils';
+import * as utils from './tasks-utils';
 import * as directories from '../directories';
 import { RunLogSeverity } from './manager';
 
@@ -17,7 +17,7 @@ interface RecipeStepConfig extends StepConfig {
   name: string;
 }
 
-interface Context {
+export interface ExecutionContext {
   logger: (category: string, severity: RunLogSeverity, message: string);
 }
 
@@ -42,7 +42,7 @@ export class Recipe {
     }
   }
 
-  async execute(context: Context) {
+  async execute(context: ExecutionContext) {
     const log = utils.createLogger(context, 'recipe');
     log.info(`begin '${this.name}'`);
 
@@ -55,7 +55,7 @@ export class Recipe {
 }
 
 abstract class Step {
-  abstract execute(context: Context): Promise<void>;
+  abstract execute(context: ExecutionContext): Promise<void>;
 }
 
 class TaskStep extends Step {
@@ -89,7 +89,7 @@ class TaskStep extends Step {
     }
   }
 
-  async execute(context: Context) {
+  async execute(context: ExecutionContext) {
     const replaces = Object.entries(context.variables || {}).map(([name, value]) => ({
       regex: new RegExp(`\\$\\{${name}\\}`, 'g'),
       value,
@@ -117,7 +117,7 @@ class RecipeStep extends Step {
     this.recipe = new Recipe(config.name);
   }
 
-  async execute(context: Context) {
+  async execute(context: ExecutionContext) {
     await this.recipe.execute(context);
   }
 }
