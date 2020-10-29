@@ -1,4 +1,4 @@
-import { Readable, Writable } from 'stream';
+import { Readable, Stream, Writable } from 'stream';
 
 export class BufferReader extends Readable {
   constructor(private readonly buffer: Buffer) {
@@ -35,16 +35,28 @@ export class BufferWriter extends Writable {
   }
 }
 
-export function apipe(...streams: Writable[]) {
+export function apipe(first: Stream, ...piped: Writable[]) {
   return new Promise((resolve, reject) => {
-    const ended = once((err: Error) => (err ? reject(err) : resolve()));
+    const ended = once((err: Error) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+
+    const streams = [first, ...piped];
 
     streams[streams.length - 1].once('finish', ended);
-    for(let i=0; i<streams.length; ++i) {
-      streams[i].once('error', ended);
-      if(i > 0) {
-        streams[i - 1].pipe(streams[i]);
-      }
+
+    for (const stream of streams) {
+      stream.once('error', ended);
+    }
+
+    let prev = first;
+    for (const stream of piped) {
+      prev.pipe(stream);
+      prev = stream;
     }
   });
 }

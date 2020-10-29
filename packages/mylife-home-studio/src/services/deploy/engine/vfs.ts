@@ -1,4 +1,4 @@
-abstract class Node {
+export abstract class Node {
   public readonly uid: number = 0;
   public readonly gid: number = 0;
   public readonly mode: number = 0;
@@ -8,8 +8,9 @@ abstract class Node {
   public readonly ctime: Date = null;
 }
 
-export class Symlink extends Node {
+export type NodeOptions = Partial<Node>;
 
+export class Symlink extends Node {
   public readonly target: string = '';
 
   constructor(options: Partial<Symlink>) {
@@ -20,7 +21,6 @@ export class Symlink extends Node {
 }
 
 export class File extends Node {
-
   public content = Buffer.alloc(0);
 
   constructor(options: Partial<File>) {
@@ -32,7 +32,6 @@ export class File extends Node {
 type DirectoryOptions = Partial<Node> & { unnamed?: boolean };
 
 export class Directory extends Node {
-
   public get unnamed() {
     return !!this.name;
   }
@@ -41,7 +40,7 @@ export class Directory extends Node {
 
   constructor(options: DirectoryOptions) {
     super();
-    const { unnamed, ... finalOptions } = options;
+    const { unnamed, ...finalOptions } = options;
     init(this, { mode: 0o755 }, finalOptions, !!unnamed);
   }
 
@@ -55,11 +54,11 @@ export class Directory extends Node {
 
   list() {
     return Array.from(this.nodes.values());
-  } 
+  }
 
   clear() {
     this.nodes.clear();
-  } 
+  }
 
   get(name: string) {
     return this.nodes.get(name);
@@ -85,7 +84,7 @@ export function path(root: Directory, nodes: string, nothrow = false) {
     const child = node.get(name);
 
     if (!child) {
-      if(nothrow) {
+      if (nothrow) {
         return;
       }
 
@@ -121,10 +120,10 @@ export function writeText(root: Directory, nodes: string, content: string) {
 
 export function mkdirp(root: Directory, nodes: string) {
   let node = root;
-  
+
   for (const name of nodes) {
     let child = node.get(name);
-    if(!child) {
+    if (!child) {
       child = new Directory({ name });
       node.add(child);
     }
