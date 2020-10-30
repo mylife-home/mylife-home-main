@@ -74,7 +74,6 @@ describe('APK', () => {
     installList.addPackage('nodejs');
 
     const packages = installList.list().map((it) => it.name + '-' + it.version);
-    console.log(packages);
     expect(packages).to.deep.equal([
       'nodejs-8.9.3-r1',
       'ca-certificates-20190108-r0',
