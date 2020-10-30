@@ -2,63 +2,7 @@ import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
 import * as directories from '../../../../src/services/deploy/directories';
-import { Manager } from '../../../../src/services/deploy/engine/manager';
-
-class ManagerEvents {
-  constructor(manager) {
-    this.manager = manager;
-    this.listeners = {};
-    this.events = [];
-
-    ['recipe-updated', 'recipe-created', 'recipe-deleted', 'run-log', 'run-created', 'run-begin', 'run-end', 'run-delete'].forEach((name) => this.createListener(name));
-  }
-
-  close() {
-    for (const [name, listener] of Object.entries(this.listeners)) {
-      this.manager.removeListener(name, listener);
-    }
-  }
-
-  createListener(name) {
-    const listener = (...args) => this.events.push({ name, args });
-    this.listeners[name] = listener;
-    this.manager.on(name, listener);
-  }
-}
-
-async function managerScope(cb) {
-  const manager = new Manager();
-  const me = new ManagerEvents(manager);
-  const result = await cb(manager);
-  me.close();
-  await manager.close();
-  return { result, events: me.events };
-}
-
-async function waitTaskEnd(manager, runId) {
-  if (manager.getRun(runId).status === 'ended') {
-    return;
-  }
-
-  return new Promise((resolve) => {
-    const listener = (endRunId) => {
-      if (endRunId !== runId) {
-        return;
-      }
-
-      manager.removeListener('run-end', listener);
-      return resolve();
-    };
-    manager.on('run-end', listener);
-  });
-}
-
-function stripRunTimes(run) {
-  delete run.creation;
-  delete run.end;
-  run.logs.forEach((it) => delete it.date);
-  return run;
-}
+import { Manager, Run } from '../../../../src/services/deploy/engine/manager';
 
 describe('Manager', () => {
   beforeEach(dataDirInit);
@@ -355,13 +299,73 @@ describe('Manager', () => {
   });
 });
 
-const dataDir = '/tmp/mylife-home-deploy-test-manager';
+const DATA_DIR = '/tmp/mylife-home-deploy-test-manager';
 
 async function dataDirInit() {
-  await fs.ensureDir(dataDir);
-  directories.configure(dataDir);
+  await fs.ensureDir(DATA_DIR);
+  directories.configure(DATA_DIR);
 }
 
 async function dataDirDestroy() {
-  await fs.remove(dataDir);
+  await fs.remove(DATA_DIR);
+}
+
+class ManagerEvents {
+  private readonly listeners: { [key: string]: (...args: any[]) => void } = {};
+  public readonly events: { name: string; args: any[] }[] = [];
+
+  constructor(private readonly manager: Manager) {
+    const eventNames = ['recipe-updated', 'recipe-created', 'recipe-deleted', 'run-log', 'run-created', 'run-begin', 'run-end', 'run-delete'];
+    for (const name of eventNames) {
+      this.createListener(name);
+    }
+  }
+
+  close() {
+    for (const [name, listener] of Object.entries(this.listeners)) {
+      this.manager.removeListener(name, listener);
+    }
+  }
+
+  private createListener(name: string) {
+    const listener = (...args: any[]) => this.events.push({ name, args });
+    this.listeners[name] = listener;
+    this.manager.on(name, listener);
+  }
+}
+
+async function managerScope<TResult>(callback: (manager: Manager) => Promise<TResult>) {
+  const manager = new Manager();
+  const me = new ManagerEvents(manager);
+  try {
+    const result = await callback(manager);
+    return { result, events: me.events };
+  } finally {
+    me.close();
+    await manager.close();
+  }
+}
+
+async function waitTaskEnd(manager: Manager, runId: number) {
+  if (manager.getRun(runId).status === 'ended') {
+    return;
+  }
+
+  return new Promise<void>((resolve) => {
+    const listener = (endRunId: number) => {
+      if (endRunId !== runId) {
+        return;
+      }
+
+      manager.removeListener('run-end', listener);
+      resolve();
+    };
+
+    manager.on('run-end', listener);
+  });
+}
+
+function stripRunTimes(run: Run) {
+  const { creation, end, logs, ...data } = run;
+  return { ...data, logs: logs.map(({ date, ...log }) => log) };
 }

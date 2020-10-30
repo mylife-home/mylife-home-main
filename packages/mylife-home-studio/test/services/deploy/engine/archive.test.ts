@@ -20,7 +20,7 @@ async function extractBase() {
   return target;
 }
 
-let cachedConfig;
+let cachedConfig: vfs.Directory;
 
 async function extractConfig() {
   if (cachedConfig) {

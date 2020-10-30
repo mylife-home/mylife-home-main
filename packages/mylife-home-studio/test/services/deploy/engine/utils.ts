@@ -3,7 +3,7 @@ import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import { ExecutionContext } from '../../../../src/services/deploy/engine/recipe';
 import contents from './content/files';
 
-export interface NodeLine {
+export interface FormattedNode {
   indent: number;
   name: string;
   uid: number;
@@ -22,38 +22,38 @@ function printDate(date: Date) {
   return date ? `new Date(${date.valueOf()})` : 'null';
 }
 
-export function printLines(lines: NodeLine[]) {
-  for(const l of lines) {
-    let line = `  { indent: ${l.indent}, name: '${l.name}', `;
-    line = line.padEnd(70);
-    line += `uid: ${l.uid}, gid: ${l.gid}, mode: 0o${l.mode.toString(8)}, atime: ${printDate(l.atime)}, mtime: ${printDate(l.mtime)}, ctime: ${printDate(l.ctime)}`;
-    if (l.hasOwnProperty('dir')) {
-      line += ', dir: true';
+export function printLines(lines: FormattedNode[]) {
+  for(const line of lines) {
+    let text = `  { indent: ${line.indent}, name: '${line.name}', `;
+    text = text.padEnd(70);
+    text += `uid: ${line.uid}, gid: ${line.gid}, mode: 0o${line.mode.toString(8)}, atime: ${printDate(line.atime)}, mtime: ${printDate(line.mtime)}, ctime: ${printDate(line.ctime)}`;
+    if (line.hasOwnProperty('dir')) {
+      text += ', dir: true';
     }
-    if (l.hasOwnProperty('length')) {
-      line += `, length: ${l.length}`;
+    if (line.hasOwnProperty('length')) {
+      text += `, length: ${line.length}`;
     }
-    if (l.hasOwnProperty('target')) {
-      line += `, target: '${l.target}'`;
+    if (line.hasOwnProperty('target')) {
+      text += `, target: '${line.target}'`;
     }
-    if (l.hasOwnProperty('missing')) {
-      line += `, missing: ${l.missing}`;
+    if (line.hasOwnProperty('missing')) {
+      text += `, missing: ${line.missing}`;
     }
-    line += ' },';
+    text += ' },';
 
-    console.log(line); // eslint-disable-line no-console
+    console.log(text); // eslint-disable-line no-console
   }
 }
 
 export function formatStructure(root: vfs.Directory) {
-  const lines = [];
+  const lines: FormattedNode[] = [];
   formatDirectory(lines, root, 0);
   return lines;
 }
 
-function formatDirectory(lines: NodeLine[], vdir: vfs.Directory, indent: number) {
+function formatDirectory(lines: FormattedNode[], vdir: vfs.Directory, indent: number) {
   for (const vnode of vdir.list()) {
-    const output: NodeLine = {
+    const output: FormattedNode = {
       indent,
       name: vnode.name,
       uid: vnode.uid,
