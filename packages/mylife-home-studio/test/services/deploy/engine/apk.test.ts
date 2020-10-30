@@ -19,17 +19,30 @@ async function getDatabase() {
 }
 
 const nodejsPackage = {
-  raw:
-    'C:Q1G4khijXgbIREHU26+toG2eIuYhU=\nP:nodejs\nV:8.9.3-r0\nA:armhf\nS:7134025\nI:19423232\nT:JavaScript runtime built on V8 engine - LTS version\nU:https://nodejs.org/\nL:MIT\no:nodejs\nm:Jakub Jirutka <jakub@jirutka.cz>\nt:1512781942\nc:33e07701fafe36a157f32d67a4f84670a31a7a55\nD:ca-certificates nodejs-npm=8.9.3-r0 so:libc.musl-armhf.so.1 so:libcares.so.2 so:libcrypto.so.1.0.0 so:libgcc_s.so.1 so:libhttp_parser.so.2.7.1 so:libssl.so.1.0.0 so:libstdc++.so.6 so:libuv.so.1 so:libz.so.1\np:nodejs-lts=8.9.3 cmd:node\n\n',
-  name: 'nodejs',
-  version: '8.9.3-r0',
-  architecture: 'armhf',
-  size: 7134025,
-  csum: Buffer.from([0x1b, 0x89, 0x21, 0x8a, 0x35, 0xe0, 0x6c, 0x84, 0x44, 0x1d, 0x4d, 0xba, 0xfa, 0xda, 0x06, 0xd9, 0xe2, 0x2e, 0x62, 0x15]),
   repo: 'http://dl-4.alpinelinux.org/alpine/v3.7/main',
+  raw: 'C:Q1taWtWhX/QRZfpLRjJlvtMbnPCEI=\n' +
+    'P:nodejs\n' +
+    'V:8.9.3-r1\n' +
+    'A:armhf\n' +
+    'S:7133998\n' +
+    'I:19424256\n' +
+    'T:JavaScript runtime built on V8 engine - LTS version\n' +
+    'U:https://nodejs.org/\n' +
+    'L:MIT\n' +
+    'o:nodejs\n' +
+    'm:Jakub Jirutka <jakub@jirutka.cz>\n' +
+    't:1522619874\n' +
+    'c:d4baade662f4bfd0b0ab2a4706520298e35e8683\n' +
+    'D:ca-certificates nodejs-npm=8.9.3-r1 so:libc.musl-armhf.so.1 so:libcares.so.2 so:libcrypto.so.1.0.0 so:libgcc_s.so.1 so:libhttp_parser.so.2.7.1 so:libssl.so.1.0.0 so:libstdc++.so.6 so:libuv.so.1 so:libz.so.1\n' +
+    'p:nodejs-lts=8.9.3 cmd:node\n' +
+    '\n',
+  name: 'nodejs',
+  version: '8.9.3-r1',
+  architecture: 'armhf',
+  csum: Buffer.from([0xb5, 0xa5, 0xad, 0x5a, 0x15, 0xff, 0x41, 0x16, 0x5f, 0xa4, 0xb4, 0x63, 0x26, 0x5b, 0xed, 0x31, 0xb9, 0xcf, 0x08, 0x42]),
   dependencies: {
     'ca-certificates': '*',
-    'nodejs-npm': '8.9.3-r0',
+    'nodejs-npm': '8.9.3-r1',
     'so:libc.musl-armhf.so.1': '*',
     'so:libcares.so.2': '*',
     'so:libcrypto.so.1.0.0': '*',
@@ -38,12 +51,10 @@ const nodejsPackage = {
     'so:libssl.so.1.0.0': '*',
     'so:libstdc++.so.6': '*',
     'so:libuv.so.1': '*',
-    'so:libz.so.1': '*',
+    'so:libz.so.1': '*'
   },
-  provides: {
-    nodejs: '8.9.3-r0',
-    'nodejs-lts': '8.9.3',
-  },
+  provides: { nodejs: '8.9.3-r1', 'nodejs-lts': '8.9.3' },
+  size: 7133998
 };
 
 describe('APK', () => {
@@ -53,7 +64,7 @@ describe('APK', () => {
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
   });
 
-  it('should download multiple repository', async () => {
+  it('should download multiple repositories', async () => {
     const database = new apk.Database();
     await database.addRepository(repo2);
     await database.addRepository(repo1);
@@ -62,8 +73,8 @@ describe('APK', () => {
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
 
     expect(database.getByProvide('nodejs').map((p) => ({ name: p.name, version: p.version }))).to.deep.equal([
-      { name: 'nodejs', version: '8.9.3-r0' },
-      { name: 'nodejs', version: '6.10.3-r1' },
+      { name: 'nodejs', version: '8.9.3-r1' },
+      { name: 'nodejs', version: '6.10.3-r2' },
     ]);
   });
 
