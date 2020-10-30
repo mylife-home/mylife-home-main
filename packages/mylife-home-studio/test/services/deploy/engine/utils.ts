@@ -93,7 +93,7 @@ export function expectConfigSymlink(context: ExecutionContext, path: string[], t
   expect((node as vfs.Symlink).target).to.equal(target);
 }
 
-export async function expectFail(test: () => Promise<void>, match: RegExp) {
+export async function expectFail(test: () => Promise<any>, match: RegExp) {
   let err;
   try {
     await test();

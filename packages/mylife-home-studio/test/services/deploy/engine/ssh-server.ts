@@ -1,5 +1,5 @@
-const { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE } = require('ssh2');
-const vfs = require('../../../../src/services/deploy/engine/vfs');
+import { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE, ServerConfig, Connection } from 'ssh2';
+import * as vfs from '../../../../src/services/deploy/engine/vfs';
 
 const S_IFMT = 0o0170000; // bit mask for the file type bit fields
 const S_IFREG = 0o0100000; // regular file
@@ -58,190 +58,73 @@ const sftpEvents = [
 
 const stfpResponses = ['status', 'handle', 'data', 'name', 'attrs'];
 
-class HandleTable {
-  constructor() {
-    this.generator = 0;
-    this.map = new Map();
-  }
+export type CmdHandler = (cmd: string) => string;
 
-  _bufferToInt(buffer) {
-    return buffer.readUInt32LE(0);
-  }
-
-  _bufferFromInt(value) {
-    const buffer = Buffer.allocUnsafe(4);
-    buffer.writeUInt32LE(value, 0);
-    return buffer;
-  }
-
-  create(target) {
-    const id = ++this.generator;
-    this.map.set(id, target);
-    return this._bufferFromInt(id);
-  }
-
-  target(handle, Type) {
-    const id = this._bufferToInt(handle);
-    const ret = this.map.get(id);
-    if (ret instanceof Type) {
-      return ret;
-    }
-  }
-
-  delete(handle) {
-    const id = this._bufferToInt(handle);
-    return this.map.delete(id);
-  }
+export interface Config extends ServerConfig {
+  port: number;
+  rootfs: vfs.Directory;
+  cmdhandler: CmdHandler;
 }
 
-class OpenedFile {
-  constructor(node, options) {
-    this.node = node;
-    this.readable = !!options.readable;
-    this.writable = !!options.writable;
+export class SSHServer {
+  private readonly rootfs: vfs.Directory;
+  private readonly cmdhandler: CmdHandler;
+  private readonly server: Server;
+  private readonly connections = new Set<Connection>();
+
+  constructor({ port, rootfs, cmdhandler, ...serverConfig }: Config) {
+    this.rootfs = rootfs;
+    this.cmdhandler = cmdhandler;
+    this.server = new Server(serverConfig, this.newClient);
+    this.server.listen(port);
   }
 
-  write(offset, data) {
-    if (!this.writable) {
-      return;
-    }
-
-    // resize needed ?
-    const requiredLength = offset + data.length;
-    if (requiredLength > this.node.content.length) {
-      const buffer = Buffer.alloc(requiredLength);
-      this.node.content.copy(buffer);
-      this.node.content = buffer;
-    }
-
-    data.copy(this.node.content, offset);
-    return true;
+  close() {
+    this.server.close();
+    Array.from(this.connections).forEach((c) => c.end());
   }
 
-  read(offset, length) {
-    if (!this.readable) {
-      return;
-    }
-    return this.node.content.slice(offset, offset + length);
-  }
+  private readonly newClient = (connection: Connection) => {
+    this.connections.add(connection);
+    connection.on('close', () => this.connections.delete(connection));
 
-  stat() {
-    const { uid, gid, atime, mtime } = this.node;
-    const mode = this.node.mode + S_IFREG;
-    const size = this.node.content.length;
-    return { mode, size, uid, gid, atime, mtime };
-  }
-}
+    connection.on('authentication', (ctx) => ctx.accept());
 
-class OpenedDirectory {
-  constructor(node) {
-    this.node = node;
-    this.eof = false;
-  }
-
-  content() {
-    if (this.eof) {
-      return [];
-    }
-
-    this.eof = true;
-
-    return this.node.list().map((node) => {
-      let mode = node.mode;
-      if (node instanceof vfs.File) {
-        mode += S_IFREG;
-      }
-      if (node instanceof vfs.Directory) {
-        mode += S_IFDIR;
-      }
-      if (node instanceof vfs.Symlink) {
-        mode += S_IFLNK;
-      }
-
-      let size = 0;
-      if (node instanceof vfs.File) {
-        size = node.content.length;
-      }
-      if (node instanceof vfs.Symlink) {
-        size = node.target.length;
-      }
-
-      const { uid, gid, atime, mtime } = node;
-      const date = new Date(mtime);
-
-      let longname = fileTypeLongname.get(mode & S_IFMT) || ' ';
-      for (const item of permtoLongname) {
-        longname += mode & item.num ? item.value : '-';
-      }
-
-      longname += ' 1';
-      longname += ' ' + uid.toString().padEnd(8);
-      longname += ' ' + gid.toString().padEnd(8);
-      longname += ' ' + size.toString().padStart(12);
-      longname += ' ' + monthNames[date.getMonth()];
-      longname += ' ' + date.getDate().toString().padStart(2);
-      longname += ' ' + date.getHours().toString().padStart(2, '0');
-      longname += ':' + date.getMinutes().toString().padStart(2, '0');
-      longname += ' ' + node.name;
-
-      if (node instanceof vfs.Symlink) {
-        longname += ' -> ' + node.target;
-      }
-
-      return {
-        filename: node.name,
-        attrs: { mode, size, uid, gid, atime, mtime },
-        longname,
-      };
+    connection.on('ready', () => {
+      connection.on('session', (accept) => this.newSession(connection, accept()));
     });
   }
-}
 
-class RequestContext {
-  constructor(conn, sftpStream, reqid) {
-    this.conn = conn;
-    this.sftpStream = sftpStream;
-    this.reqid = reqid;
+  private newSession(connection, session) {
+    session.on('exec', (accept, reject, info) => {
+      const stream = accept();
+      try {
+        const ret = this.cmdhandler(info.command);
+        stream.write(ret);
+        stream.exit(0);
+      } catch (err) {
+        stream.stderr.write(err.message);
+        stream.exit(1);
+      }
+      stream.end();
+    });
 
-    for (const response of stfpResponses) {
-      const responseCall = this.sftpStream[response].bind(this.sftpStream);
-      this[response] = async (...args) => {
-        if (responseCall(this.reqid, ...args)) {
-          return;
-        }
+    session.on('sftp', (accept) => {
+      const sftpStream = accept();
+      const ssession = new SFTPSession(this.rootfs);
 
-        await this._wait();
-      };
-    }
-  }
-
-  async _wait() {
-    return await new Promise((resolve, reject) => {
-      const removeListeners = () => {
-        this.conn.removeListener('error', onError);
-        this.conn.removeListener('continue', onContinue);
-      };
-
-      const onError = (err) => {
-        removeListeners();
-        reject(err);
-      };
-
-      const onContinue = () => {
-        removeListeners();
-        resolve();
-      };
-
-      this.conn.once('error', onError);
-      this.conn.once('continue', onContinue);
+      for (const event of sftpEvents) {
+        const sessionCall = ssession[event.toLowerCase()].bind(ssession);
+        sftpStream.on(event, (reqid, ...args) => sessionCall(new RequestContext(connection, sftpStream, reqid), ...args));
+      }
     });
   }
 }
 
 class SFTPSession {
-  constructor(rootfs) {
-    this.handleTable = new HandleTable();
-    this.rootfs = rootfs;
+  private readonly handleTable = new HandleTable();
+
+  constructor(private readonly rootfs: vfs.Directory) {
   }
 
   async open(ctx, filename, flags, attrs) {
@@ -250,14 +133,14 @@ class SFTPSession {
     }
 
     const nodes = filename.split('/').filter((n) => n);
-    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
+    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true) as vfs.Directory;
     if (!dir) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
     const name = nodes[nodes.length - 1];
-    let file = dir.get(name);
+    let file = dir.get<vfs.File>(name);
 
-    if (file && flags & SFTP_OPEN_MODE.CREATE && flags & SFTP_OPEN_MODE.EXCL) {
+    if (file && flags & SFTP_OPEN_MODE.CREAT && flags & SFTP_OPEN_MODE.EXCL) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
 
@@ -266,25 +149,29 @@ class SFTPSession {
         return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
       }
 
-      file = new vfs.File({ name });
+      type Mutable<T> = {
+        -readonly [P in keyof T]: T[P];
+      };
 
+      const options: Partial<Mutable<vfs.File>> = { name };
       const { mode, uid, gid, atime, mtime } = attrs;
       if (typeof mode !== 'undefined') {
-        file.mode = mode & 0o777;
+        options.mode = mode & 0o777;
       }
       if (typeof uid !== 'undefined') {
-        file.uid = uid;
+        options.uid = uid;
       }
       if (typeof gid !== 'undefined') {
-        file.gid = gid;
+        options.gid = gid;
       }
       if (typeof atime !== 'undefined') {
-        file.atime = new Date(atime);
+        options.atime = new Date(atime);
       }
       if (typeof mtime !== 'undefined') {
-        file.mtime = new Date(mtime);
+        options.mtime = new Date(mtime);
       }
 
+      file = new vfs.File({ name });
       dir.add(file);
     }
 
@@ -489,57 +376,180 @@ class SFTPSession {
   }
 }
 
-class SSHServer {
-  constructor(config) {
-    const { port, rootfs, cmdhandler, ...otherConfig } = config;
-    this.rootfs = rootfs;
-    this.cmdhandler = cmdhandler;
-    this.server = new Server(otherConfig, (client) => this._newClient(client));
-    this.connections = new Set();
+class HandleTable {
+  private generator = 0;
+  private readonly map = new Map<number, OpenedFile>();
 
-    this.server.listen(port);
+  create(target) {
+    const id = ++this.generator;
+    this.map.set(id, target);
+    return this.bufferFromInt(id);
   }
 
-  close() {
-    this.server.close();
-    Array.from(this.connections).forEach((c) => c.end());
+  target(handle, Type) {
+    const id = this.bufferToInt(handle);
+    const ret = this.map.get(id);
+    if (ret instanceof Type) {
+      return ret;
+    }
   }
 
-  _newClient(connection) {
-    this.connections.add(connection);
-    connection.on('close', () => this.connections.remove(connection));
-
-    connection.on('authentication', (ctx) => ctx.accept());
-
-    connection.on('ready', () => {
-      connection.on('session', (accept) => this._newSession(connection, accept()));
-    });
+  delete(handle) {
+    const id = this.bufferToInt(handle);
+    return this.map.delete(id);
   }
 
-  _newSession(connection, session) {
-    session.on('exec', (accept, reject, info) => {
-      const stream = accept();
-      try {
-        const ret = this.cmdhandler(info.command);
-        stream.write(ret);
-        stream.exit(0);
-      } catch (err) {
-        stream.stderr.write(err.message);
-        stream.exit(1);
+  private bufferToInt(buffer) {
+    return buffer.readUInt32LE(0);
+  }
+
+  private bufferFromInt(value) {
+    const buffer = Buffer.allocUnsafe(4);
+    buffer.writeUInt32LE(value, 0);
+    return buffer;
+  }
+}
+
+class OpenedFile {
+  constructor(node, options) {
+    this.node = node;
+    this.readable = !!options.readable;
+    this.writable = !!options.writable;
+  }
+
+  write(offset, data) {
+    if (!this.writable) {
+      return;
+    }
+
+    // resize needed ?
+    const requiredLength = offset + data.length;
+    if (requiredLength > this.node.content.length) {
+      const buffer = Buffer.alloc(requiredLength);
+      this.node.content.copy(buffer);
+      this.node.content = buffer;
+    }
+
+    data.copy(this.node.content, offset);
+    return true;
+  }
+
+  read(offset, length) {
+    if (!this.readable) {
+      return;
+    }
+    return this.node.content.slice(offset, offset + length);
+  }
+
+  stat() {
+    const { uid, gid, atime, mtime } = this.node;
+    const mode = this.node.mode + S_IFREG;
+    const size = this.node.content.length;
+    return { mode, size, uid, gid, atime, mtime };
+  }
+}
+
+class OpenedDirectory {
+  constructor(node) {
+    this.node = node;
+    this.eof = false;
+  }
+
+  content() {
+    if (this.eof) {
+      return [];
+    }
+
+    this.eof = true;
+
+    return this.node.list().map((node) => {
+      let mode = node.mode;
+      if (node instanceof vfs.File) {
+        mode += S_IFREG;
       }
-      stream.end();
-    });
-
-    session.on('sftp', (accept) => {
-      const sftpStream = accept();
-      const ssession = new SFTPSession(this.rootfs);
-
-      for (const event of sftpEvents) {
-        const sessionCall = ssession[event.toLowerCase()].bind(ssession);
-        sftpStream.on(event, (reqid, ...args) => sessionCall(new RequestContext(connection, sftpStream, reqid), ...args));
+      if (node instanceof vfs.Directory) {
+        mode += S_IFDIR;
       }
+      if (node instanceof vfs.Symlink) {
+        mode += S_IFLNK;
+      }
+
+      let size = 0;
+      if (node instanceof vfs.File) {
+        size = node.content.length;
+      }
+      if (node instanceof vfs.Symlink) {
+        size = node.target.length;
+      }
+
+      const { uid, gid, atime, mtime } = node;
+      const date = new Date(mtime);
+
+      let longname = fileTypeLongname.get(mode & S_IFMT) || ' ';
+      for (const item of permtoLongname) {
+        longname += mode & item.num ? item.value : '-';
+      }
+
+      longname += ' 1';
+      longname += ' ' + uid.toString().padEnd(8);
+      longname += ' ' + gid.toString().padEnd(8);
+      longname += ' ' + size.toString().padStart(12);
+      longname += ' ' + monthNames[date.getMonth()];
+      longname += ' ' + date.getDate().toString().padStart(2);
+      longname += ' ' + date.getHours().toString().padStart(2, '0');
+      longname += ':' + date.getMinutes().toString().padStart(2, '0');
+      longname += ' ' + node.name;
+
+      if (node instanceof vfs.Symlink) {
+        longname += ' -> ' + node.target;
+      }
+
+      return {
+        filename: node.name,
+        attrs: { mode, size, uid, gid, atime, mtime },
+        longname,
+      };
     });
   }
 }
 
-exports.SSHServer = SSHServer;
+class RequestContext {
+  constructor(conn, sftpStream, reqid) {
+    this.conn = conn;
+    this.sftpStream = sftpStream;
+    this.reqid = reqid;
+
+    for (const response of stfpResponses) {
+      const responseCall = this.sftpStream[response].bind(this.sftpStream);
+      this[response] = async (...args) => {
+        if (responseCall(this.reqid, ...args)) {
+          return;
+        }
+
+        await this._wait();
+      };
+    }
+  }
+
+  async _wait() {
+    return await new Promise((resolve, reject) => {
+      const removeListeners = () => {
+        this.conn.removeListener('error', onError);
+        this.conn.removeListener('continue', onContinue);
+      };
+
+      const onError = (err) => {
+        removeListeners();
+        reject(err);
+      };
+
+      const onContinue = () => {
+        removeListeners();
+        resolve();
+      };
+
+      this.conn.once('error', onError);
+      this.conn.once('continue', onContinue);
+    });
+  }
+}

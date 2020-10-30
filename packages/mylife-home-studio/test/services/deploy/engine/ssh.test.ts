@@ -1,65 +1,14 @@
-const fs = require('fs');
+import fs from 'fs';
 import path from 'path';
 import { expect } from 'chai';
-const vfs = require('../../../../src/services/deploy/engine/vfs');
-const { SSHClient } = require('../../../../src/services/deploy/engine/ssh');
-const { SSHServer } = require('./ssh-server');
-const { expectFail } = require('./utils');
+import * as vfs from '../../../../src/services/deploy/engine/vfs';
+import { SSHClient } from '../../../../src/services/deploy/engine/ssh';
+import { CmdHandler, SSHServer } from './ssh-server';
+import { expectFail } from './utils';
 
 const useRealWorld = process.env.SSH_REAL_WORLD === '1';
 const realKeyAuthFile = '/Users/vincent/Downloads/id_rsa';
 const realHost = 'rpi-devel';
-
-async function runClientRealServerTest(tester) {
-  const privateKey = fs.readFileSync(realKeyAuthFile);
-  const client = new SSHClient();
-  await client.connect({ host: realHost, username: 'root', privateKey });
-  try {
-    await tester(client);
-  } finally {
-    client.end();
-  }
-}
-
-async function runClientMockedServerTest(rootfs, cmdhandler, tester) {
-  const port = 8822;
-  const server = new SSHServer({ port, rootfs, cmdhandler, hostKeys: [fs.readFileSync(path.resolve(__dirname, '../resources/files/id_rsa'))] });
-  const client = new SSHClient();
-  await client.connect({ host: 'localhost', port, username: 'root', password: 'nothing' });
-  try {
-    await tester(client);
-  } finally {
-    client.end();
-    server.close();
-  }
-}
-
-const sort = (arr, compFn) => [...arr].sort(compFn);
-
-const comparer = (x, y) => {
-  if (x === y) {
-    return 0;
-  }
-  if (typeof x === 'number' && typeof y === 'number') {
-    return x - y;
-  }
-  x = x && x.toString();
-  y = y && y.toString();
-  if (x === y) {
-    return 0;
-  }
-  return x < y ? -1 : 1;
-};
-
-const sortBy = (arr, accessor) =>
-  sort(arr, (x, y) => {
-    const vx = accessor(x);
-    const vy = accessor(y);
-    return comparer(vx, vy);
-  });
-
-// need clone because readdir result contains Stats objects
-const clone = (obj) => JSON.parse(JSON.stringify(obj));
 
 describe('SSH', () => {
   describe('Basic execution', () => {
@@ -90,7 +39,7 @@ describe('SSH', () => {
       const command = 'MyCmd';
       const commandResult = 'MyResult';
 
-      function cmdHandler(cmd) {
+      function cmdHandler(cmd: string) {
         if (command !== cmd) {
           throw new Error('Unknown command');
         }
@@ -98,17 +47,17 @@ describe('SSH', () => {
       }
 
       it('Should properly execute command on mocked server', async () =>
-        await runClientMockedServerTest(new vfs.Directory(), cmdHandler, async (client) => {
+        await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
           expect(await client.exec(command)).to.equal(commandResult);
         }));
 
       it('Should fail to execute wrong command on mocked server', async () =>
-        await runClientMockedServerTest(new vfs.Directory(), cmdHandler, async (client) => {
+        await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
           await expectFail(async () => await client.exec('wrong command'), /Error: Command has error output : 'Unknown command'/);
         }));
 
       it('Should properly use sftp to read directory on moched server', async () => {
-        const rootfs = new vfs.Directory();
+        const rootfs = new vfs.Directory({ missing: true });
         const attrs = { uid: 5, gid: 6, atime: new Date(2000, 0, 1, 10, 30), mtime: new Date(2010, 5, 10, 10, 30) };
 
         rootfs.add(new vfs.Directory({ name: 'dir', mode: 0o755, ...attrs }));
@@ -134,7 +83,7 @@ describe('SSH', () => {
             longname: 'lrwxrwxrwx 1 5        6                   6 Jun 10 10:30 slink -> ./file',
           },
         ];
-        await runClientMockedServerTest(rootfs, cmdHandler, async (client) => {
+        await runClientMockedServerTest(rootfs, cmdHandler, async (client: SSHClient) => {
           const result = await client.sftp.readdir('/');
           expect(clone(result)).to.deep.equal(expected);
         });
@@ -145,7 +94,15 @@ describe('SSH', () => {
   describe('SFTP manipulations', () => {
     const rootPath = '/tmp/sftp-test';
 
-    async function expectDir(client, { expected, path = rootPath }) {
+    interface NodeSummary {
+      name: string,
+      mode: number;
+      uid: number;
+      gid: number;
+      size: number;
+    }
+
+    async function expectDir(client: SSHClient, { expected, path = rootPath }: { expected: NodeSummary[]; path?: string; }) {
       const list = await client.sftp.readdir(path);
       const simple = list.map((it) => ({
         name: it.filename,
@@ -153,7 +110,8 @@ describe('SSH', () => {
         uid: it.attrs.uid,
         gid: it.attrs.gid,
         size: it.attrs.mode & 0o40000 ? 0 : it.attrs.size, // not implemented on mocked server directories
-      }));
+      } as NodeSummary));
+
       expect(sortBy(simple, (it) => it.name)).to.deep.equal(sortBy(expected, (it) => it.name));
     }
 
@@ -161,7 +119,7 @@ describe('SSH', () => {
       {
         description: 'real world',
         use: useRealWorld,
-        runner: async (tester) =>
+        runner: async (tester: (client: SSHClient) => Promise<void>) =>
           await runClientRealServerTest(async (client) => {
             await client.exec(`mkdir -p ${rootPath}`);
             try {
@@ -174,8 +132,8 @@ describe('SSH', () => {
       {
         description: 'mocked server',
         use: true,
-        runner: async (tester) => {
-          const rootfs = new vfs.Directory();
+        runner: async (tester: (client: SSHClient) => Promise<void>) => {
+          const rootfs = new vfs.Directory({ missing: true });
           const tmp = new vfs.Directory({ name: 'tmp', mode: 0o777 });
           rootfs.add(tmp);
           tmp.add(new vfs.Directory({ name: 'sftp-test', mode: 0o755 }));
@@ -188,14 +146,14 @@ describe('SSH', () => {
     const tests = [
       {
         description: 'should properly read root content',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await expectDir(client, { expected: [] });
         },
       },
 
       {
         description: 'should properly create directory',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.mkdir('/tmp/sftp-test/new-dir');
           await expectDir(client, { expected: [{ name: 'new-dir', uid: 0, gid: 0, mode: 0o40755, size: 0 }] });
         },
@@ -203,7 +161,7 @@ describe('SSH', () => {
 
       {
         description: 'should fail to create an existing directory',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.mkdir('/tmp/sftp-test/new-dir');
           await expectFail(async () => await client.sftp.mkdir('/tmp/sftp-test/new-dir'), /Error: Failure/);
         },
@@ -211,7 +169,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly create then remove directory',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.mkdir('/tmp/sftp-test/new-dir');
           await client.sftp.rmdir('/tmp/sftp-test/new-dir');
           await expectDir(client, { expected: [] });
@@ -220,7 +178,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly move a directory',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.mkdir('/tmp/sftp-test/new-dir');
           await client.sftp.rename('/tmp/sftp-test/new-dir', '/tmp/sftp-test/new-dir-new');
           await expectDir(client, { expected: [{ name: 'new-dir-new', uid: 0, gid: 0, mode: 0o40755, size: 0 }] });
@@ -229,7 +187,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly move a subdirectory',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.mkdir('/tmp/sftp-test/new-dir1');
           await client.sftp.mkdir('/tmp/sftp-test/new-dir2');
           await client.sftp.mkdir('/tmp/sftp-test/new-dir1/sub-dir');
@@ -250,7 +208,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly upload a file',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.writeFile('/tmp/sftp-test/file', Buffer.from('toto'));
           await expectDir(client, { expected: [{ name: 'file', uid: 0, gid: 0, mode: 0o100644, size: 4 }] });
         },
@@ -258,7 +216,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly download a file',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           const source = Buffer.from('toto');
           await client.sftp.writeFile('/tmp/sftp-test/file', source);
           const dest = await client.sftp.readFile('/tmp/sftp-test/file');
@@ -268,7 +226,7 @@ describe('SSH', () => {
 
       {
         description: 'should properly unlink a file',
-        run: async (client) => {
+        run: async (client: SSHClient) => {
           await client.sftp.writeFile('/tmp/sftp-test/file', Buffer.from('toto'));
           await client.sftp.unlink('/tmp/sftp-test/file');
           await expectDir(client, { expected: [] });
@@ -285,3 +243,61 @@ describe('SSH', () => {
     }
   });
 });
+
+async function runClientRealServerTest(tester: (client: SSHClient) => Promise<void>) {
+  const privateKey = fs.readFileSync(realKeyAuthFile);
+  const client = new SSHClient();
+  await client.connect({ host: realHost, username: 'root', privateKey });
+  try {
+    await tester(client);
+  } finally {
+    client.end();
+  }
+}
+
+async function runClientMockedServerTest(rootfs: vfs.Directory, cmdhandler: CmdHandler, tester: (client: SSHClient) => Promise<void>) {
+  const port = 8822;
+  const server = new SSHServer({ port, rootfs, cmdhandler, hostKeys: [fs.readFileSync(path.resolve(__dirname, '../resources/files/id_rsa'))] });
+  const client = new SSHClient();
+  await client.connect({ host: 'localhost', port, username: 'root', password: 'nothing' });
+  try {
+    await tester(client);
+  } finally {
+    client.end();
+    server.close();
+  }
+}
+
+function sort<T>(arr: T[], compFn?: (x: T, y: T) => number) {
+  return [...arr].sort(compFn);
+}
+
+function comparer<TValue>(x: TValue, y: TValue): number {
+  if (Object.is(x, y)) {
+    return 0;
+  }
+
+  if (typeof x === 'number' && typeof y === 'number') {
+    return x - y;
+  }
+
+  const sx = x && x.toString();
+  const sy = y && y.toString();
+  if (sx === sy) {
+    return 0;
+  }
+  return sx < sy ? -1 : 1;
+}
+
+function sortBy<TItem, TValue>(arr: TItem[], accessor: (it: TItem) => TValue) {
+  sort(arr, (x, y) => {
+    const vx = accessor(x);
+    const vy = accessor(y);
+    return comparer(vx, vy);
+  });
+}
+
+// need clone because readdir result contains Stats objects
+function clone<T>(obj: T) {
+  return JSON.parse(JSON.stringify(obj)) as T;
+}
