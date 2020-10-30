@@ -49,7 +49,7 @@ const nodejsPackage = {
 describe('APK', () => {
   it('should get database', async () => {
     const database = await getDatabase();
-    expect(database.list().length).to.equal(5648);
+    expect(database.list().length).to.equal(5655);
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
   });
 
@@ -58,7 +58,7 @@ describe('APK', () => {
     await database.addRepository(repo2);
     await database.addRepository(repo1);
     database.index();
-    expect(database.list().length).to.equal(11149);
+    expect(database.list().length).to.equal(11161);
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
 
     expect(database.getByProvide('nodejs').map((p) => ({ name: p.name, version: p.version }))).to.deep.equal([
@@ -74,21 +74,22 @@ describe('APK', () => {
     installList.addPackage('nodejs');
 
     const packages = installList.list().map((it) => it.name + '-' + it.version);
+    console.log(packages);
     expect(packages).to.deep.equal([
-      'nodejs-8.9.3-r0',
-      'ca-certificates-20171114-r0',
-      'busybox-1.27.2-r8',
-      'musl-1.1.18-r2',
-      'libressl2.6-libcrypto-2.6.3-r0',
-      'nodejs-npm-8.9.3-r0',
+      'nodejs-8.9.3-r1',
+      'ca-certificates-20190108-r0',
+      'busybox-1.27.2-r11',
+      'musl-1.1.18-r4',
+      'libressl2.6-libcrypto-2.6.5-r0',
+      'nodejs-npm-8.9.3-r1',
       'c-ares-1.13.0-r0',
-      'libcrypto1.0-1.0.2n-r0',
+      'libcrypto1.0-1.0.2t-r0',
       'zlib-1.2.11-r1',
       'libgcc-6.4.0-r5',
       'http-parser-2.7.1-r1',
-      'libssl1.0-1.0.2n-r0',
+      'libssl1.0-1.0.2t-r0',
       'libstdc++-6.4.0-r5',
-      'libuv-1.17.0-r0',
+      'libuv-1.17.0-r0'
     ]);
   });
 });
