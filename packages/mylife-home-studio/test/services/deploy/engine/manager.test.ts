@@ -243,6 +243,7 @@ describe('Manager', () => {
         id: 1,
         recipe: 'recipe',
         status: 'ended',
+        err: null,
         logs: [
           { severity: 'info', category: 'recipe', message: "begin 'recipe'" },
           { severity: 'info', category: 'variables:set', message: 'variable1 = value1' },

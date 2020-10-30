@@ -589,5 +589,5 @@ function xor(a: boolean, b: boolean) {
 }
 
 function dateToNumber(date: Date) {
-  return date && date.valueOf();
+  return date && date.valueOf() / 1000;
 }
