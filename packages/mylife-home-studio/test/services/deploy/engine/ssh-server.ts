@@ -1,4 +1,5 @@
-import { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE, ServerConfig, Connection } from 'ssh2';
+import { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE, ServerConfig, Connection, Session } from 'ssh2';
+import { SFTPStream } from 'ssh2-streams';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 
 const S_IFMT = 0o0170000; // bit mask for the file type bit fields
@@ -95,7 +96,7 @@ export class SSHServer {
     });
   }
 
-  private newSession(connection, session) {
+  private newSession(connection: Connection, session: Session) {
     session.on('exec', (accept, reject, info) => {
       const stream = accept();
       try {
@@ -114,9 +115,48 @@ export class SSHServer {
       const ssession = new SFTPSession(this.rootfs);
 
       for (const event of sftpEvents) {
-        const sessionCall = ssession[event.toLowerCase()].bind(ssession);
-        sftpStream.on(event, (reqid, ...args) => sessionCall(new RequestContext(connection, sftpStream, reqid), ...args));
+        const sessionCall = (ssession[event.toLowerCase() as keyof SFTPSession]).bind(ssession);
+        sftpStream.on(event, (reqid: number, ...args: any[]) => sessionCall(new RequestContext(connection, sftpStream, reqid), ...args));
       }
+    });
+  }
+}
+
+class RequestContext {
+  constructor(private readonly conn: Connection, private readonly sftpStream: SFTPStream, private readonly reqid: number) {
+    for (const response of stfpResponses) {
+      const responseCall = (this.sftpStream[response as keyof SFTPStream] as Function).bind(this.sftpStream);
+
+      // hacky...
+      (this[response as keyof RequestContext] as any) = async (...args: any[]) => {
+        if (responseCall(this.reqid, ...args)) {
+          return;
+        }
+
+        await this.wait();
+      };
+    }
+  }
+
+  private async wait() {
+    return await new Promise((resolve, reject) => {
+      const removeListeners = () => {
+        this.conn.removeListener('error', onError);
+        this.conn.removeListener('continue', onContinue);
+      };
+
+      const onError = (err: Error) => {
+        removeListeners();
+        reject(err);
+      };
+
+      const onContinue = () => {
+        removeListeners();
+        resolve();
+      };
+
+      this.conn.once('error', onError);
+      this.conn.once('continue', onContinue);
     });
   }
 }
@@ -509,47 +549,6 @@ class OpenedDirectory {
         attrs: { mode, size, uid, gid, atime, mtime },
         longname,
       };
-    });
-  }
-}
-
-class RequestContext {
-  constructor(conn, sftpStream, reqid) {
-    this.conn = conn;
-    this.sftpStream = sftpStream;
-    this.reqid = reqid;
-
-    for (const response of stfpResponses) {
-      const responseCall = this.sftpStream[response].bind(this.sftpStream);
-      this[response] = async (...args) => {
-        if (responseCall(this.reqid, ...args)) {
-          return;
-        }
-
-        await this._wait();
-      };
-    }
-  }
-
-  async _wait() {
-    return await new Promise((resolve, reject) => {
-      const removeListeners = () => {
-        this.conn.removeListener('error', onError);
-        this.conn.removeListener('continue', onContinue);
-      };
-
-      const onError = (err) => {
-        removeListeners();
-        reject(err);
-      };
-
-      const onContinue = () => {
-        removeListeners();
-        resolve();
-      };
-
-      this.conn.once('error', onError);
-      this.conn.once('continue', onContinue);
     });
   }
 }
