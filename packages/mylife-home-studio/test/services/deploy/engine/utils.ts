@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-const vfs = require('../../../../src/services/deploy/engine/vfs');
-const contents = require('./content/files');
+import * as vfs from '../../../../src/services/deploy/engine/vfs';
+import contents from './content/files';
 
-function printDate(date) {
+function printDate(date: Date) {
   return date ? `new Date(${date.valueOf()})` : 'null';
 }
 
-function printLines(lines) {
+export function printLines(lines: string[]) {
   lines.forEach((l) => {
     let line = `  { indent: ${l.indent}, name: '${l.name}', `;
     line = line.padEnd(70);
@@ -29,13 +29,13 @@ function printLines(lines) {
   });
 }
 
-function formatStructure(root) {
+export function formatStructure(root: vfs.Directory) {
   const lines = [];
   formatDirectory(lines, root, 0);
   return lines;
 }
 
-function formatDirectory(lines, vdir, indent) {
+function formatDirectory(lines: string[], vdir: vfs.Directory, indent: number) {
   for (const vnode of vdir.list()) {
     const output = {
       indent,
@@ -49,8 +49,8 @@ function formatDirectory(lines, vdir, indent) {
     };
 
     if (vnode instanceof vfs.Directory) {
-      if (vnode.missing) {
-        output.missing = true;
+      if (vnode.unnamed) {
+        output.unnamed = true;
       }
       output.dir = true;
       lines.push(output);
@@ -67,17 +67,17 @@ function formatDirectory(lines, vdir, indent) {
   }
 }
 
-function expectConfigContent(context, path, suffix) {
+export function expectConfigContent(context, path, suffix) {
   expect(vfs.readText(context.config, path)).to.equal(contents[path.join('-') + (suffix ? '-' + suffix : '')]);
 }
 
-function expectConfigSymlink(context, path, target) {
+export function expectConfigSymlink(context, path, target) {
   const node = vfs.path(context.config, path);
   expect(node).to.be.an.instanceof(vfs.Symlink);
-  expect(node.target).to.equal(target);
+  expect((node as vfs.Symlink).target).to.equal(target);
 }
 
-async function expectFail(test, match) {
+export async function expectFail(test: () => Promise<void>, match: RegExp) {
   let err;
   try {
     await test();
@@ -86,9 +86,3 @@ async function expectFail(test, match) {
   }
   expect(err).to.match(match);
 }
-
-exports.printLines = printLines;
-exports.formatStructure = formatStructure;
-exports.expectConfigContent = expectConfigContent;
-exports.expectConfigSymlink = expectConfigSymlink;
-exports.expectFail = expectFail;

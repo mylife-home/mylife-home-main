@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = [
+const content = [
   { indent: 0, name: '.alpine-release',                               uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1497699998000), ctime: null, length: 24 },
   { indent: 0, name: 'apks',                                          uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1508414770000), ctime: null, dir: true },
   { indent: 1, name: '.boot_repository',                              uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1497699998000), ctime: null, length: 0 },
@@ -249,3 +247,5 @@ module.exports = [
   { indent: 1, name: 'openssh-server-7.5_p1-r7.13bb46c6.apk',         uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1512391771000), ctime: null, length: 289552 },
   { indent: 1, name: 'openssh-7.5_p1-r7.1877a085.apk',                uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1512391771000), ctime: null, length: 135775 }
 ];
+
+export default content;

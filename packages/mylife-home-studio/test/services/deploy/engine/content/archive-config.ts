@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = [
+const content = [
   { indent: 0, name: 'etc',                                                 uid: 0, gid: 0,  mode: 0o755, atime: null, mtime: null, ctime: null, dir: true, missing: true },
   { indent: 1, name: 'resolv.conf',                                         uid: 0, gid: 0,  mode: 0o644, atime: null, mtime: new Date(1512117562000), ctime: null, length: 75 },
   { indent: 1, name: 'runlevels',                                           uid: 0, gid: 0,  mode: 0o755, atime: null, mtime: null, ctime: null, dir: true, missing: true },
@@ -66,3 +64,5 @@ module.exports = [
   { indent: 2, name: 'repositories',                                        uid: 0, gid: 0,  mode: 0o644, atime: null, mtime: new Date(1512119193000), ctime: null, length: 275 },
   { indent: 2, name: 'cache',                                               uid: 0, gid: 0,  mode: 0o777, atime: null, mtime: new Date(5000), ctime: null, target: '/media/mmcblk0p1/cache' },
 ];
+
+export default content;

@@ -1,10 +1,11 @@
-'use strict';
+const content: { [key: string]: string } = {};
+export default content;
 
-exports['etc-hostname'] =
+content['etc-hostname'] =
 `test-host
 `;
 
-exports['etc-network-interfaces'] =
+content['etc-network-interfaces'] =
 `auto lo
 iface lo inet loopback
 
@@ -14,7 +15,7 @@ iface eth0 inet dhcp
 
 `;
 
-exports['etc-network-interfaces-hwaddr'] =
+content['etc-network-interfaces-hwaddr'] =
 `auto lo
 iface lo inet loopback
 
@@ -25,7 +26,7 @@ iface eth0 inet dhcp
 
 `;
 
-exports['etc-network-interfaces-wifi'] =
+content['etc-network-interfaces-wifi'] =
 `auto lo
 iface lo inet loopback
 
@@ -38,18 +39,18 @@ iface wlan0 inet dhcp
 \thostname rpi-devel
 `;
 
-exports['etc-wpa_supplicant-wpa_supplicant.conf'] =
+content['etc-wpa_supplicant-wpa_supplicant.conf'] =
 `network={
   ssid="test-ssid"
   psk=123456789abcdef
 }
 `;
 
-exports['etc-hosts'] =
+content['etc-hosts'] =
 `127.0.0.1\ttest-host.mti-team2.dyndns.org test-host localhost.localdomain localhost
 `;
 
-exports['etc-apk-world'] =
+content['etc-apk-world'] =
 `alpine-base
 chrony
 openssh

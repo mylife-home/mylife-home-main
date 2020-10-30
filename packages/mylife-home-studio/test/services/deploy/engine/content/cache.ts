@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = [
+const content = [
   { name: 'alpine-base-3.7.0-r0.c85192e9.apk',            size: 1608    },
   { name: 'alpine-baselayout-3.0.5-r2.b682d9c3.apk',      size: 26065   },
   { name: 'busybox-1.27.2-r7.9edc42c7.apk',               size: 535467  },
@@ -36,5 +34,4 @@ module.exports = [
   { name: 'installed',                                    size: 0       }
 ];
 
-
-
+export default content;
