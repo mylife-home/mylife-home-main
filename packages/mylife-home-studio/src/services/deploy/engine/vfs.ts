@@ -29,10 +29,10 @@ export class File extends Node {
   }
 }
 
-type DirectoryOptions = Partial<Node> & { unnamed?: boolean };
+type DirectoryOptions = Partial<Node> & { missing?: boolean };
 
 export class Directory extends Node {
-  public get unnamed() {
+  public get missing() {
     return !!this.name;
   }
 
@@ -40,8 +40,8 @@ export class Directory extends Node {
 
   constructor(options: DirectoryOptions) {
     super();
-    const { unnamed, ...finalOptions } = options;
-    init(this, { mode: 0o755 }, finalOptions, !!unnamed);
+    const { missing, ...finalOptions } = options;
+    init(this, { mode: 0o755 }, finalOptions, !!missing);
   }
 
   add(node: Node) {

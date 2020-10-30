@@ -98,7 +98,7 @@ export class Database {
     }
     this._repositories.set(name, buffer);
 
-    const content = new vfs.Directory({ unnamed: true });
+    const content = new vfs.Directory({ missing: true });
     await archive.extract(buffer, content);
 
     const raw = vfs.readText(content, ['APKINDEX']);

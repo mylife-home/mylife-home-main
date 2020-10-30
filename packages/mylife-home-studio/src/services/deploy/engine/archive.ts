@@ -28,7 +28,7 @@ export async function extract(buffer: Buffer, directory: vfs.Directory, { baseDi
           return;
         }
 
-        const newChild = new vfs.Directory({ name: node, unnamed: true });
+        const newChild = new vfs.Directory({ name: node, missing: true });
         vdir.add(newChild);
         vdir = newChild;
       });
@@ -116,7 +116,7 @@ function packFile(pack: tar.Pack, file: vfs.File, baseDirectory: string) {
 }
 
 async function packDirectory(pack: tar.Pack, directory: vfs.Directory, baseDirectory: string) {
-  if (!directory.unnamed) {
+  if (!directory.missing) {
     const header = nodeToHeader(directory, baseDirectory);
     header.type = 'directory';
     pack.entry(header);

@@ -2,11 +2,23 @@ import { expect } from 'chai';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import contents from './content/files';
 
+export interface NodeLine {
+  indent,
+  name: vnode.name,
+  uid: vnode.uid,
+  gid: vnode.gid,
+  mode: vnode.mode,
+  atime: vnode.atime,
+  mtime: vnode.mtime,
+  ctime: vnode.ctime,
+  missing
+}
+
 function printDate(date: Date) {
   return date ? `new Date(${date.valueOf()})` : 'null';
 }
 
-export function printLines(lines: string[]) {
+export function printLines(lines: NodeLine[]) {
   lines.forEach((l) => {
     let line = `  { indent: ${l.indent}, name: '${l.name}', `;
     line = line.padEnd(70);
@@ -37,7 +49,7 @@ export function formatStructure(root: vfs.Directory) {
 
 function formatDirectory(lines: string[], vdir: vfs.Directory, indent: number) {
   for (const vnode of vdir.list()) {
-    const output = {
+    const output: NodeLine = {
       indent,
       name: vnode.name,
       uid: vnode.uid,
@@ -49,8 +61,8 @@ function formatDirectory(lines: string[], vdir: vfs.Directory, indent: number) {
     };
 
     if (vnode instanceof vfs.Directory) {
-      if (vnode.unnamed) {
-        output.unnamed = true;
+      if (vnode.missing) {
+        output.missing = true;
       }
       output.dir = true;
       lines.push(output);
