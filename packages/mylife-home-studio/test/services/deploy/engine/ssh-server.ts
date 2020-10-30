@@ -2,6 +2,10 @@ import { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE, ServerConfig, Connection, Ses
 import { SFTPStream, FileEntry, Attributes } from 'ssh2-streams';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P];
+};
+
 const S_IFMT = 0o0170000; // bit mask for the file type bit fields
 const S_IFREG = 0o0100000; // regular file
 const S_IFDIR = 0o0040000; // directory
@@ -213,11 +217,7 @@ class SFTPSession {
         return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
       }
 
-      type Mutable<T> = {
-        -readonly [P in keyof T]: T[P];
-      };
-
-      const options: Partial<Mutable<vfs.File>> = { name };
+      const options: Mutable<Partial<vfs.File>> = { name };
       const { mode, uid, gid, atime, mtime } = attrs;
       if (typeof mode !== 'undefined') {
         options.mode = mode & 0o777;
@@ -253,7 +253,7 @@ class SFTPSession {
   }
 
   async read(ctx: RequestContext, handle: Buffer, offset: number, length: number) {
-    const openedFile = this.handleTable.target(handle, OpenedFile);
+    const openedFile = this.handleTable.target(handle, OpenedFile) as OpenedFile;
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
@@ -268,7 +268,7 @@ class SFTPSession {
   }
 
   async write(ctx: RequestContext, handle: Buffer, offset: number, data: Buffer) {
-    const openedFile = this.handleTable.target(handle, OpenedFile);
+    const openedFile = this.handleTable.target(handle, OpenedFile) as OpenedFile;
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
@@ -277,7 +277,7 @@ class SFTPSession {
   }
 
   async fstat(ctx: RequestContext, handle: Buffer) {
-    const openedFile = this.handleTable.target(handle, OpenedFile);
+    const openedFile = this.handleTable.target(handle, OpenedFile) as OpenedFile;
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
@@ -314,7 +314,7 @@ class SFTPSession {
   }
 
   async readdir(ctx: RequestContext, handle: Buffer) {
-    const openedDirectory = this.handleTable.target(handle, OpenedDirectory);
+    const openedDirectory = this.handleTable.target(handle, OpenedDirectory) as OpenedDirectory;
     if (!openedDirectory) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
@@ -380,7 +380,7 @@ class SFTPSession {
 
   async mkdir(ctx: RequestContext, path: string, attrs: Attributes) {
     const nodes = path.split('/').filter((n) => n);
-    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
+    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true) as vfs.Directory;
     if (!dir) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
@@ -389,32 +389,34 @@ class SFTPSession {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
     }
 
-    const newDir = new vfs.Directory({ name });
+    const options: Mutable<Partial<vfs.Node>> = { name };
     if (attrs) {
       if (typeof attrs.uid !== 'undefined') {
-        newDir.uid = attrs.uid;
+        options.uid = attrs.uid;
       }
       if (typeof attrs.gid !== 'undefined') {
-        newDir.gid = attrs.gid;
+        options.gid = attrs.gid;
       }
       if (typeof attrs.mode !== 'undefined') {
-        newDir.mode = attrs.mode & 0o777;
+        options.mode = attrs.mode & 0o777;
       }
     }
+
+    const newDir = new vfs.Directory(options);
     dir.add(newDir);
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
   async rename(ctx: RequestContext, oldPath: string, newPath: string) {
     const oldNodes = oldPath.split('/').filter((n) => n);
-    const oldDir = vfs.path(this.rootfs, oldNodes.slice(0, oldNodes.length - 1), true);
+    const oldDir = vfs.path(this.rootfs, oldNodes.slice(0, oldNodes.length - 1), true) as vfs.Directory;
     if (!oldDir) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
     const oldName = oldNodes[oldNodes.length - 1];
 
     const newNodes = newPath.split('/').filter((n) => n);
-    const newDir = vfs.path(this.rootfs, newNodes.slice(0, newNodes.length - 1), true);
+    const newDir = vfs.path(this.rootfs, newNodes.slice(0, newNodes.length - 1), true) as vfs.Directory;
     if (!newDir) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
@@ -429,7 +431,8 @@ class SFTPSession {
     }
 
     oldDir.delete(node);
-    node.name = newName;
+    // this is hacky, we by-pass readonly
+    (node as Mutable<vfs.Node>).name = newName;
     newDir.add(node);
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
@@ -442,15 +445,15 @@ class SFTPSession {
 
 class HandleTable {
   private generator = 0;
-  private readonly map = new Map<number, OpenedFile>();
+  private readonly map = new Map<number, OpenedFile | OpenedDirectory>();
 
-  create(target) {
+  create(target: OpenedFile | OpenedDirectory) {
     const id = ++this.generator;
     this.map.set(id, target);
     return this.bufferFromInt(id);
   }
 
-  target(handle: Buffer, Type: Function) {
+  target(handle: Buffer, Type: typeof OpenedFile | typeof OpenedDirectory) {
     const id = this.bufferToInt(handle);
     const ret = this.map.get(id);
     if (ret instanceof Type) {
@@ -511,21 +514,24 @@ class OpenedFile {
     const { uid, gid, atime, mtime } = this.node;
     const mode = this.node.mode + S_IFREG;
     const size = this.node.content.length;
-    return { mode, size, uid, gid, atime, mtime };
+    return { mode, size, uid, gid, atime: dateToNumber(atime), mtime: dateToNumber(mtime) };
   }
 }
 
 class OpenedDirectory {
-  private eof = false;
-
+  private _eof = false;
   constructor(private readonly node: vfs.Directory) {}
 
+  public get eof() {
+    return this._eof;
+  }
+
   content() {
-    if (this.eof) {
+    if (this._eof) {
       return [];
     }
 
-    this.eof = true;
+    this._eof = true;
 
     return this.node.list().map((node) => {
       let mode = node.mode;
@@ -571,7 +577,7 @@ class OpenedDirectory {
 
       return {
         filename: node.name,
-        attrs: { mode, size, uid, gid, atime, mtime },
+        attrs: { mode, size, uid, gid, atime: dateToNumber(atime), mtime: dateToNumber(mtime) },
         longname,
       };
     });
@@ -580,4 +586,8 @@ class OpenedDirectory {
 
 function xor(a: boolean, b: boolean) {
   return (a && !b) || (!a && b);
+}
+
+function dateToNumber(date: Date) {
+  return date && date.valueOf();
 }
