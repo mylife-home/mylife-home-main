@@ -52,7 +52,7 @@ describe('Archive', () => {
     const source = await extractConfig();
 
     const buffer = await archive.pack(source);
-    const target = new vfs.Directory({ missing: true });
+    const target = new vfs.Directory();
     await archive.extract(buffer, target);
 
     expect(formatStructure(target)).to.deep.equal(require('./content/archive-config'));

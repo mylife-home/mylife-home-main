@@ -32,16 +32,12 @@ export class File extends Node {
 type DirectoryOptions = Partial<Node> & { missing?: boolean };
 
 export class Directory extends Node {
-  public get missing() {
-    return !!this.name;
-  }
-
+  public readonly missing: boolean = false;
   private readonly nodes = new Map<string, Node>();
 
-  constructor(options: DirectoryOptions) {
+  constructor(options: DirectoryOptions = {}) {
     super();
-    const { missing, ...finalOptions } = options;
-    init(this, { mode: 0o755 }, finalOptions, !!missing);
+    init(this, { mode: 0o755 }, options, true);
   }
 
   add(node: Node) {

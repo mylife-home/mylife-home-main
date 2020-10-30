@@ -205,7 +205,7 @@ describe('Tasks', () => {
         ],
         async () => {
           const context = await initContext({ noload: true });
-          context.root = new vfs.Directory({ missing: true });
+          context.root = new vfs.Directory();
           createHierarchy(context.root, {
             file1: 'new-content1',
             '.file2': 'new-content2',
@@ -462,9 +462,9 @@ async function runSshTest(hierarchy: Hierarchy, expectedHierarchy: Hierarchy, ex
     return def.result;
   };
 
-  const rootfs = new vfs.Directory({ missing: true });
+  const rootfs = new vfs.Directory();
   createHierarchy(rootfs, hierarchy);
-  const expectedRootfs = new vfs.Directory({ missing: true });
+  const expectedRootfs = new vfs.Directory();
   createHierarchy(expectedRootfs, expectedHierarchy);
 
   const server = new SSHServer({

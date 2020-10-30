@@ -47,17 +47,17 @@ describe('SSH', () => {
       }
 
       it('should properly execute command on mocked server', async () =>
-        await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
+        await runClientMockedServerTest(new vfs.Directory(), cmdHandler, async (client: SSHClient) => {
           expect(await client.exec(command)).to.equal(commandResult);
         }));
 
       it('should fail to execute wrong command on mocked server', async () =>
-        await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
+        await runClientMockedServerTest(new vfs.Directory(), cmdHandler, async (client: SSHClient) => {
           await expectFail(async () => await client.exec('wrong command'), /Error: Command has error output : 'Unknown command'/);
         }));
 
       it('should properly use sftp to read directory on moched server', async () => {
-        const rootfs = new vfs.Directory({ missing: true });
+        const rootfs = new vfs.Directory();
         const attrs = { uid: 5, gid: 6, atime: new Date(2000, 0, 1, 10, 30), mtime: new Date(2010, 5, 10, 10, 30) };
 
         rootfs.add(new vfs.Directory({ name: 'dir', mode: 0o755, ...attrs }));
@@ -133,7 +133,7 @@ describe('SSH', () => {
         description: 'mocked server',
         use: true,
         runner: async (tester: (client: SSHClient) => Promise<void>) => {
-          const rootfs = new vfs.Directory({ missing: true });
+          const rootfs = new vfs.Directory();
           const tmp = new vfs.Directory({ name: 'tmp', mode: 0o777 });
           rootfs.add(tmp);
           tmp.add(new vfs.Directory({ name: 'sftp-test', mode: 0o755 }));
