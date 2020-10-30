@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 const vfs = require('../../../../src/services/deploy/engine/vfs');
 const contents = require('./content/files');
 

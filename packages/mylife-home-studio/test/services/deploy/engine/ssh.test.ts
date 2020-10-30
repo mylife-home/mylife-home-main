@@ -1,6 +1,6 @@
 const fs = require('fs');
-const path = require('path');
-const { expect } = require('chai');
+import path from 'path';
+import { expect } from 'chai';
 const vfs = require('../../../../src/services/deploy/engine/vfs');
 const { SSHClient } = require('../../../../src/services/deploy/engine/ssh');
 const { SSHServer } = require('./ssh-server');

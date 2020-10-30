@@ -1,8 +1,8 @@
-const path = require('path');
-const fs = require('fs-extra');
-const { expect } = require('chai');
-const Manager = require('../../../../src/services/deploy/engine/manager');
-const directories = require('../../lib/directories');
+import { expect } from 'chai';
+import path from 'path';
+import fs from 'fs-extra';
+import * as directories from '../../../../src/services/deploy/directories';
+import { Manager } from '../../../../src/services/deploy/engine/manager';
 
 class ManagerEvents {
   constructor(manager) {

@@ -1,8 +1,8 @@
-const { expect } = require('chai');
-const path = require('path');
-const fs = require('fs-extra');
-const directories = require('../../lib/directories');
-const Recipe = require('../../../../src/services/deploy/engine/recipe');
+import { expect } from 'chai';
+import path from 'path';
+import fs from 'fs-extra';
+import * as directories from '../../../../src/services/deploy/directories';
+import { Recipe } from '../../../../src/services/deploy/engine/recipe';
 
 const logger = (category, severity, message) => {
   process.env.VERBOSE === '1' && console.log(`${severity} : [${category}] ${message}`); // eslint-disable-line no-console

@@ -1,11 +1,11 @@
-const path = require('path');
-const fs = require('fs-extra');
-const { expect } = require('chai');
+import path from 'path';
+import fs from 'fs-extra';
+import { expect } from 'chai';
 const express = require('express');
 const tasks = require('../../../../src/services/deploy/engine/tasks');
 const vfs = require('../../../../src/services/deploy/engine/vfs');
 const { SSHServer } = require('./ssh-server');
-const directories = require('../../lib/directories');
+import * as directories from '../../../../src/services/deploy/directories';
 const {
   formatStructure,
   expectConfigContent,
