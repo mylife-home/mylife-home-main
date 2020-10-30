@@ -21,8 +21,6 @@ MyLife Home main
  - metadata: capabilities (keep compat with arduino) eg: osinfo, configurecomponents, ...
 
 ### core
- - engine api (create/delete component, get its config)
- - load/save config
  - store/mounted-fs
 
 ### packager
@@ -35,3 +33,28 @@ MyLife Home main
 
 ### deployment
  - openrc daemon: https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
+
+## Notes
+
+Livrer irc-bridge + ui:
+
+ - nouveau core
+   - rpi-home-core new (rpi3)
+   - creation du projet core avec juste les composants irc-bridge
+   - livraison avec nouveau deploy  
+   - nouvelle image alpine
+   - mosquitto
+   - core avec plugin irc-bridge
+
+ - ui
+   - livraison sur kube
+   - accessible en lan sans auth
+   - accessible en remote avec auth
+
+=> validation:
+ - designer core
+ - designer ui
+ - projets designer github (meme si commit "naif" ou "primitif")
+ - fabrication de nouvelle image (+packager)
+ - déploiement kube ui définitif
+ - déploiement complet (sauf modules noyau et apps externes comme lirc) de core sur rpi
