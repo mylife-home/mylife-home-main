@@ -267,7 +267,7 @@ describe('Manager', () => {
 
   it('should execute a recipe with real async tasks', async () => {
     await fs.ensureDir(directories.files());
-    await fs.link(path.resolve(__dirname, '../resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
+    await fs.symlink(path.resolve(__dirname, '../resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
 
     const { result } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', {
@@ -290,6 +290,7 @@ describe('Manager', () => {
       id: 1,
       recipe: 'recipe',
       status: 'ended',
+      err: null,
       logs: [
         { severity: 'info', category: 'recipe', message: "begin 'recipe'" },
         { severity: 'info', category: 'image:import', message: "import '/tmp/mylife-home-deploy-test-manager/files/rpi-devel-base.tar.gz' using root path 'mmcblk0p1' into image" },
