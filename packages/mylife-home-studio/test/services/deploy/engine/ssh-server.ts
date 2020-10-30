@@ -1,5 +1,5 @@
 import { Server, SFTP_STATUS_CODE, SFTP_OPEN_MODE, ServerConfig, Connection, Session } from 'ssh2';
-import { SFTPStream } from 'ssh2-streams';
+import { SFTPStream, FileEntry, Attributes } from 'ssh2-streams';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 
 const S_IFMT = 0o0170000; // bit mask for the file type bit fields
@@ -57,8 +57,6 @@ const sftpEvents = [
   'SYMLINK',
 ];
 
-const stfpResponses = ['status', 'handle', 'data', 'name', 'attrs'];
-
 export type CmdHandler = (cmd: string) => string;
 
 export interface Config extends ServerConfig {
@@ -94,7 +92,7 @@ export class SSHServer {
     connection.on('ready', () => {
       connection.on('session', (accept) => this.newSession(connection, accept()));
     });
-  }
+  };
 
   private newSession(connection: Connection, session: Session) {
     session.on('exec', (accept, reject, info) => {
@@ -115,27 +113,54 @@ export class SSHServer {
       const ssession = new SFTPSession(this.rootfs);
 
       for (const event of sftpEvents) {
-        const sessionCall = (ssession[event.toLowerCase() as keyof SFTPSession]).bind(ssession);
-        sftpStream.on(event, (reqid: number, ...args: any[]) => sessionCall(new RequestContext(connection, sftpStream, reqid), ...args));
+        const sessionCall = ssession[event.toLowerCase() as keyof SFTPSession].bind(ssession);
+        sftpStream.on(event, (reqId: number, ...args: any[]) => sessionCall(new RequestContext(connection, sftpStream, reqId), ...args));
       }
     });
   }
 }
 
 class RequestContext {
-  constructor(private readonly conn: Connection, private readonly sftpStream: SFTPStream, private readonly reqid: number) {
-    for (const response of stfpResponses) {
-      const responseCall = (this.sftpStream[response as keyof SFTPStream] as Function).bind(this.sftpStream);
+  constructor(private readonly conn: Connection, private readonly sftpStream: SFTPStream, private readonly reqId: number) {}
 
-      // hacky...
-      (this[response as keyof RequestContext] as any) = async (...args: any[]) => {
-        if (responseCall(this.reqid, ...args)) {
-          return;
-        }
-
-        await this.wait();
-      };
+  async status(statusCode: number, message?: string) {
+    if (this.sftpStream.status(this.reqId, statusCode, message)) {
+      return;
     }
+
+    await this.wait();
+  }
+
+  async handle(handle: Buffer) {
+    if (this.sftpStream.handle(this.reqId, handle)) {
+      return;
+    }
+
+    await this.wait();
+  }
+
+  async data(data: string | Buffer, encoding?: string) {
+    if (this.sftpStream.data(this.reqId, data, encoding)) {
+      return;
+    }
+
+    await this.wait();
+  }
+
+  async name(names: FileEntry[]) {
+    if (this.sftpStream.name(this.reqId, names)) {
+      return;
+    }
+
+    await this.wait();
+  }
+
+  async attrs(attrs: Attributes) {
+    if (this.sftpStream.attrs(this.reqId, attrs)) {
+      return;
+    }
+
+    await this.wait();
   }
 
   private async wait() {
@@ -164,10 +189,9 @@ class RequestContext {
 class SFTPSession {
   private readonly handleTable = new HandleTable();
 
-  constructor(private readonly rootfs: vfs.Directory) {
-  }
+  constructor(private readonly rootfs: vfs.Directory) {}
 
-  async open(ctx: RequestContext, filename, flags, attrs) {
+  async open(ctx: RequestContext, filename: string, flags: number, attrs: Attributes) {
     if (flags & SFTP_OPEN_MODE.APPEND) {
       return await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
     }
@@ -220,15 +244,15 @@ class SFTPSession {
     }
 
     const openedFile = new OpenedFile(file, {
-      readable: flags & SFTP_OPEN_MODE.READ,
-      writable: flags & SFTP_OPEN_MODE.WRITE,
+      readable: !!(flags & SFTP_OPEN_MODE.READ),
+      writable: !!(flags & SFTP_OPEN_MODE.WRITE),
     });
 
     const handle = this.handleTable.create(openedFile);
     await ctx.handle(handle);
   }
 
-  async read(ctx: RequestContext, handle, offset, length) {
+  async read(ctx: RequestContext, handle: Buffer, offset: number, length: number) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -243,7 +267,7 @@ class SFTPSession {
     await ctx.data(data);
   }
 
-  async write(ctx: RequestContext, handle, offset, data) {
+  async write(ctx: RequestContext, handle: Buffer, offset: number, data: Buffer) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -252,7 +276,7 @@ class SFTPSession {
     await ctx.status(ret ? SFTP_STATUS_CODE.OK : SFTP_STATUS_CODE.FAILURE);
   }
 
-  async fstat(ctx: RequestContext, handle) {
+  async fstat(ctx: RequestContext, handle: Buffer) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -260,17 +284,17 @@ class SFTPSession {
     await ctx.attrs(openedFile.stat());
   }
 
-  async fsetstat(ctx: RequestContext, handle, attrs) {
+  async fsetstat(ctx: RequestContext, handle: Buffer, attrs: Attributes) {
     void ctx, handle, attrs;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async close(ctx: RequestContext, handle) {
+  async close(ctx: RequestContext, handle: Buffer) {
     const ret = this.handleTable.delete(handle);
     await ctx.status(ret ? SFTP_STATUS_CODE.OK : SFTP_STATUS_CODE.FAILURE);
   }
 
-  async opendir(ctx: RequestContext, path) {
+  async opendir(ctx: RequestContext, path: string) {
     const node = vfs.path(
       this.rootfs,
       path.split('/').filter((n) => n),
@@ -289,7 +313,7 @@ class SFTPSession {
     await ctx.handle(handle);
   }
 
-  async readdir(ctx: RequestContext, handle) {
+  async readdir(ctx: RequestContext, handle: Buffer) {
     const openedDirectory = this.handleTable.target(handle, OpenedDirectory);
     if (!openedDirectory) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -302,27 +326,27 @@ class SFTPSession {
     await ctx.name(openedDirectory.content());
   }
 
-  async lstat(ctx: RequestContext, path) {
+  async lstat(ctx: RequestContext, path: string) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async stat(ctx: RequestContext, path) {
+  async stat(ctx: RequestContext, path: string) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async remove(ctx: RequestContext, path) {
+  async remove(ctx: RequestContext, path: string) {
     await this.removeByType(ctx, path, false);
   }
 
-  async rmdir(ctx: RequestContext, path) {
+  async rmdir(ctx: RequestContext, path: string) {
     await this.removeByType(ctx, path, true);
   }
 
-  private async removeByType(ctx: RequestContext, path, isdir) {
+  private async removeByType(ctx: RequestContext, path: string, isdir: boolean) {
     const nodes = path.split('/').filter((n) => n);
-    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
+    const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true) as vfs.Directory;
     if (!dir) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
@@ -331,7 +355,7 @@ class SFTPSession {
     if (!node) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
-    if (isdir ^ (node instanceof vfs.Directory)) {
+    if (xor(isdir, node instanceof vfs.Directory)) {
       return await ctx.status(SFTP_STATUS_CODE.NO_SUCH_FILE);
     }
 
@@ -339,22 +363,22 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async realpath(ctx: RequestContext, path) {
+  async realpath(ctx: RequestContext, path: string) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async readlink(ctx: RequestContext, path) {
+  async readlink(ctx: RequestContext, path: string) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async setstat(ctx: RequestContext, path, attrs) {
+  async setstat(ctx: RequestContext, path: string, attrs: Attributes) {
     void ctx, path, attrs;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async mkdir(ctx: RequestContext, path, attrs) {
+  async mkdir(ctx: RequestContext, path: string, attrs: Attributes) {
     const nodes = path.split('/').filter((n) => n);
     const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
     if (!dir) {
@@ -381,7 +405,7 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async rename(ctx: RequestContext, oldPath, newPath) {
+  async rename(ctx: RequestContext, oldPath: string, newPath: string) {
     const oldNodes = oldPath.split('/').filter((n) => n);
     const oldDir = vfs.path(this.rootfs, oldNodes.slice(0, oldNodes.length - 1), true);
     if (!oldDir) {
@@ -410,7 +434,7 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async symlink(ctx: RequestContext, linkPath, targetPath) {
+  async symlink(ctx: RequestContext, linkPath: string, targetPath: string) {
     void ctx, linkPath, targetPath;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
@@ -426,7 +450,7 @@ class HandleTable {
     return this.bufferFromInt(id);
   }
 
-  target(handle, Type) {
+  target(handle: Buffer, Type: Function) {
     const id = this.bufferToInt(handle);
     const ret = this.map.get(id);
     if (ret instanceof Type) {
@@ -434,16 +458,16 @@ class HandleTable {
     }
   }
 
-  delete(handle) {
+  delete(handle: Buffer) {
     const id = this.bufferToInt(handle);
     return this.map.delete(id);
   }
 
-  private bufferToInt(buffer) {
+  private bufferToInt(buffer: Buffer) {
     return buffer.readUInt32LE(0);
   }
 
-  private bufferFromInt(value) {
+  private bufferFromInt(value: number) {
     const buffer = Buffer.allocUnsafe(4);
     buffer.writeUInt32LE(value, 0);
     return buffer;
@@ -451,13 +475,15 @@ class HandleTable {
 }
 
 class OpenedFile {
-  constructor(node, options) {
-    this.node = node;
-    this.readable = !!options.readable;
-    this.writable = !!options.writable;
+  private readonly readable: boolean;
+  private readonly writable: boolean;
+
+  constructor(private readonly node: vfs.File, { readable = false, writable = false }: { readable: boolean; writable: boolean }) {
+    this.readable = readable;
+    this.writable = writable;
   }
 
-  write(offset, data) {
+  write(offset: number, data: Buffer) {
     if (!this.writable) {
       return;
     }
@@ -474,7 +500,7 @@ class OpenedFile {
     return true;
   }
 
-  read(offset, length) {
+  read(offset: number, length: number) {
     if (!this.readable) {
       return;
     }
@@ -490,10 +516,9 @@ class OpenedFile {
 }
 
 class OpenedDirectory {
-  constructor(node) {
-    this.node = node;
-    this.eof = false;
-  }
+  private eof = false;
+
+  constructor(private readonly node: vfs.Directory) {}
 
   content() {
     if (this.eof) {
@@ -551,4 +576,8 @@ class OpenedDirectory {
       };
     });
   }
+}
+
+function xor(a: boolean, b: boolean) {
+  return (a && !b) || (!a && b);
 }
