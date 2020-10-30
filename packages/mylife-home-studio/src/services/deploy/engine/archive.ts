@@ -22,9 +22,9 @@ export async function extract(buffer: Buffer, directory: vfs.Directory, { baseDi
 
     dir &&
       dir.split('/').forEach((node) => {
-        const existing = vdir.get(node);
+        const existing = vdir.get<vfs.Directory>(node);
         if (existing) {
-          vdir = existing as vfs.Directory;
+          vdir = existing;
           return;
         }
 

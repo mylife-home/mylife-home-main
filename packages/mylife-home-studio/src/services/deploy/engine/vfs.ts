@@ -60,8 +60,8 @@ export class Directory extends Node {
     this.nodes.clear();
   }
 
-  get(name: string) {
-    return this.nodes.get(name);
+  get<TNode extends Node = Node>(name: string) {
+    return this.nodes.get(name) as TNode;
   }
 }
 
