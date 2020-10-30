@@ -2,9 +2,10 @@ import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
 import * as directories from '../../../../src/services/deploy/directories';
-import { Recipe } from '../../../../src/services/deploy/engine/recipe';
+import { ExecutionContext, Recipe } from '../../../../src/services/deploy/engine/recipe';
+import { RunLogSeverity } from '../../../../src/services/deploy/engine/manager';
 
-const logger = (category, severity, message) => {
+const logger = (category: string, severity: RunLogSeverity, message: string) => {
   process.env.VERBOSE === '1' && console.log(`${severity} : [${category}] ${message}`); // eslint-disable-line no-console
 };
 
@@ -21,7 +22,7 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context = { logger };
+    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'value2' });
@@ -36,7 +37,7 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context = { logger };
+    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'we should see value1 as value1 here' });
@@ -55,7 +56,7 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context = { logger };
+    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'value2' });
@@ -73,6 +74,6 @@ async function dataDirDestroy() {
   await fs.remove(dataDir);
 }
 
-async function dataDirAddJson(name, content) {
+async function dataDirAddJson(name: string, content: any) {
   await fs.writeFile(path.join(dataDir, 'recipes', name + '.json'), JSON.stringify(content));
 }
