@@ -1,17 +1,21 @@
 import { expect } from 'chai';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
+import { ExecutionContext } from '../../../../src/services/deploy/engine/recipe';
 import contents from './content/files';
 
 export interface NodeLine {
-  indent,
-  name: vnode.name,
-  uid: vnode.uid,
-  gid: vnode.gid,
-  mode: vnode.mode,
-  atime: vnode.atime,
-  mtime: vnode.mtime,
-  ctime: vnode.ctime,
-  missing
+  indent: number;
+  name: string;
+  uid: number;
+  gid: number;
+  mode: number;
+  atime: Date;
+  mtime: Date;
+  ctime: Date;
+  missing?: boolean;
+  dir?: boolean;
+  length?: number;
+  target?: string;
 }
 
 function printDate(date: Date) {
@@ -19,7 +23,7 @@ function printDate(date: Date) {
 }
 
 export function printLines(lines: NodeLine[]) {
-  lines.forEach((l) => {
+  for(const l of lines) {
     let line = `  { indent: ${l.indent}, name: '${l.name}', `;
     line = line.padEnd(70);
     line += `uid: ${l.uid}, gid: ${l.gid}, mode: 0o${l.mode.toString(8)}, atime: ${printDate(l.atime)}, mtime: ${printDate(l.mtime)}, ctime: ${printDate(l.ctime)}`;
@@ -38,7 +42,7 @@ export function printLines(lines: NodeLine[]) {
     line += ' },';
 
     console.log(line); // eslint-disable-line no-console
-  });
+  }
 }
 
 export function formatStructure(root: vfs.Directory) {
@@ -47,7 +51,7 @@ export function formatStructure(root: vfs.Directory) {
   return lines;
 }
 
-function formatDirectory(lines: string[], vdir: vfs.Directory, indent: number) {
+function formatDirectory(lines: NodeLine[], vdir: vfs.Directory, indent: number) {
   for (const vnode of vdir.list()) {
     const output: NodeLine = {
       indent,
@@ -79,11 +83,11 @@ function formatDirectory(lines: string[], vdir: vfs.Directory, indent: number) {
   }
 }
 
-export function expectConfigContent(context, path, suffix) {
+export function expectConfigContent(context: ExecutionContext, path: string[], suffix: string) {
   expect(vfs.readText(context.config, path)).to.equal(contents[path.join('-') + (suffix ? '-' + suffix : '')]);
 }
 
-export function expectConfigSymlink(context, path, target) {
+export function expectConfigSymlink(context: ExecutionContext, path: string[], target: string) {
   const node = vfs.path(context.config, path);
   expect(node).to.be.an.instanceof(vfs.Symlink);
   expect((node as vfs.Symlink).target).to.equal(target);
