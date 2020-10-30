@@ -1,22 +1,20 @@
-'use strict';
-
-const { expect }          = require('chai');
-const fs                  = require('fs-extra');
-const archive             = require('../../lib/engine/archive');
-const vfs                 = require('../../lib/engine/vfs');
-const { formatStructure } = require('./utils');
+import { expect } from 'chai';
+import fs from 'fs-extra';
+import * as archive from '../../../../src/services/deploy/engine/archive';
+import * as vfs from '../../../../src/services/deploy/engine/vfs';
+import { formatStructure } from './utils';
 
 const source = '/Users/vincent/Downloads/rpi-devel-base.tar.gz';
 
-let cachedBase;
+let cachedBase: vfs.Directory;
 
 async function extractBase() {
-  if(cachedBase) {
+  if (cachedBase) {
     return cachedBase;
   }
 
   const buffer = await fs.readFile(source);
-  const target = new vfs.Directory({ missing: true });
+  const target = new vfs.Directory({ unnamed: true });
   await archive.extract(buffer, target, { baseDirectory: 'mmcblk0p1' });
   cachedBase = target;
   return target;
@@ -25,20 +23,19 @@ async function extractBase() {
 let cachedConfig;
 
 async function extractConfig() {
-  if(cachedConfig) {
+  if (cachedConfig) {
     return cachedConfig;
   }
 
   const base = await extractBase();
 
-  const target = new vfs.Directory({ missing: true });
-  await archive.extract(base.get('rpi-devel.apkovl.tar.gz').content, target);
+  const target = new vfs.Directory({ unnamed: true });
+  await archive.extract(base.get<vfs.File>('rpi-devel.apkovl.tar.gz').content, target);
   cachedConfig = target;
   return target;
 }
 
 describe('Archive', () => {
-
   it('Should extract base', async () => {
     const target = await extractBase();
 
@@ -55,7 +52,7 @@ describe('Archive', () => {
     const source = await extractConfig();
 
     const buffer = await archive.pack(source);
-    const target = new vfs.Directory();
+    const target = new vfs.Directory({ unnamed: true });
     await archive.extract(buffer, target);
 
     expect(formatStructure(target)).to.deep.equal(require('./content/archive-config'));
