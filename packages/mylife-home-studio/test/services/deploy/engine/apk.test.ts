@@ -47,13 +47,13 @@ const nodejsPackage = {
 };
 
 describe('APK', () => {
-  it('Should get database', async () => {
+  it('should get database', async () => {
     const database = await getDatabase();
     expect(database.list().length).to.equal(5648);
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
   });
 
-  it('Shoud download multiple repository', async () => {
+  it('should download multiple repository', async () => {
     const database = new apk.Database();
     await database.addRepository(repo2);
     await database.addRepository(repo1);
@@ -67,7 +67,7 @@ describe('APK', () => {
     ]);
   });
 
-  it('Should get package install list', async () => {
+  it('should get package install list', async () => {
     const database = await getDatabase();
 
     const installList = new apk.InstallList(database);

@@ -36,19 +36,19 @@ async function extractConfig() {
 }
 
 describe('Archive', () => {
-  it('Should extract base', async () => {
+  it('should extract base', async () => {
     const target = await extractBase();
 
     expect(formatStructure(target)).to.deep.equal(require('./content/archive-base'));
   });
 
-  it('Should extract config', async () => {
+  it('should extract config', async () => {
     const target = await extractConfig();
 
     expect(formatStructure(target)).to.deep.equal(require('./content/archive-config'));
   });
 
-  it('Should pack then extract folder', async () => {
+  it('should pack then extract folder', async () => {
     const source = await extractConfig();
 
     const buffer = await archive.pack(source);

@@ -2,18 +2,14 @@ import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
 import * as directories from '../../../../src/services/deploy/directories';
-import { ExecutionContext, Recipe } from '../../../../src/services/deploy/engine/recipe';
-import { RunLogSeverity } from '../../../../src/services/deploy/engine/manager';
-
-const logger = (category: string, severity: RunLogSeverity, message: string) => {
-  process.env.VERBOSE === '1' && console.log(`${severity} : [${category}] ${message}`); // eslint-disable-line no-console
-};
+import { Recipe } from '../../../../src/services/deploy/engine/recipe';
+import { createExecutionContext } from './utils';
 
 describe('Recipe', () => {
   beforeEach(dataDirInit);
   afterEach(dataDirDestroy);
 
-  it('Should execute a simple recipe', async () => {
+  it('should execute a simple recipe', async () => {
     await dataDirAddJson('recipe', {
       steps: [
         { type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
@@ -22,13 +18,13 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
+    const context = createExecutionContext();
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'value2' });
   });
 
-  it('Should execute parameter substitution', async () => {
+  it('should execute parameter substitution', async () => {
     await dataDirAddJson('recipe', {
       steps: [
         { type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
@@ -37,13 +33,13 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
+    const context = createExecutionContext();
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'we should see value1 as value1 here' });
   });
 
-  it('Should execute sub recipes', async () => {
+  it('should execute sub recipes', async () => {
     await dataDirAddJson('sub-recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
 
     await dataDirAddJson('sub-recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
@@ -56,7 +52,7 @@ describe('Recipe', () => {
     });
 
     const recipe = new Recipe('recipe');
-    const context: ExecutionContext = { logger, root: null, config: null, variables: null };
+    const context = createExecutionContext();
     await recipe.execute(context);
 
     expect(context.variables).to.deep.equal({ variable1: 'value1', variable2: 'value2' });

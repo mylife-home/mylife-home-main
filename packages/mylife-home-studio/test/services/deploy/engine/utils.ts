@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import { ExecutionContext } from '../../../../src/services/deploy/engine/recipe';
 import contents from './content/files';
+import { RunLogSeverity } from '../../../../src/services/deploy/engine/manager';
 
 export interface FormattedNode {
   indent: number;
@@ -83,7 +84,7 @@ function formatDirectory(lines: FormattedNode[], vdir: vfs.Directory, indent: nu
   }
 }
 
-export function expectConfigContent(context: ExecutionContext, path: string[], suffix: string) {
+export function expectConfigContent(context: ExecutionContext, path: string[], suffix?: string) {
   expect(vfs.readText(context.config, path)).to.equal(contents[path.join('-') + (suffix ? '-' + suffix : '')]);
 }
 
@@ -101,4 +102,12 @@ export async function expectFail(test: () => Promise<any>, match: RegExp) {
     err = exc;
   }
   expect(err).to.match(match);
+}
+
+export function logger(category: string, severity: RunLogSeverity, message: string) {
+  process.env.VERBOSE === '1' && console.log(`${severity} : [${category}] ${message}`); // eslint-disable-line no-console
+}
+
+export function createExecutionContext(params?: Partial<ExecutionContext>): ExecutionContext {
+  return { logger, root: null, config: null, variables: null, ...params };
 }

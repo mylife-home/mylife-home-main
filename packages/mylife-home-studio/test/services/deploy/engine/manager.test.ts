@@ -8,7 +8,7 @@ describe('Manager', () => {
   beforeEach(dataDirInit);
   afterEach(dataDirDestroy);
 
-  it('Should provide metadata of tasks', async () => {
+  it('should provide metadata of tasks', async () => {
     const { result } = await managerScope(async (manager) => manager.listTasksMeta());
 
     expect(result).to.deep.equal([
@@ -153,7 +153,7 @@ describe('Manager', () => {
     ]);
   });
 
-  it('Should create and retrieve a simple recipe', async () => {
+  it('should create and retrieve a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
       return manager.getRecipe('recipe');
@@ -163,7 +163,7 @@ describe('Manager', () => {
     expect(events).to.deep.equal([{ name: 'recipe-created', args: ['recipe'] }]);
   });
 
-  it('Should delete a simple recipe', async () => {
+  it('should delete a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
       manager.deleteRecipe('recipe');
@@ -177,7 +177,7 @@ describe('Manager', () => {
     ]);
   });
 
-  it('Should update a simple recipe', async () => {
+  it('should update a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
       manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
@@ -191,7 +191,7 @@ describe('Manager', () => {
     ]);
   });
 
-  it('Should list recipes', async () => {
+  it('should list recipes', async () => {
     const { result, events } = await managerScope(async (manager) => {
       manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
       manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
@@ -205,7 +205,7 @@ describe('Manager', () => {
     ]);
   });
 
-  it('Should persist recipes', async () => {
+  it('should persist recipes', async () => {
     await managerScope(async (manager) => {
       manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
       manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
@@ -218,7 +218,7 @@ describe('Manager', () => {
     expect(result).to.deep.equal(['recipe1', 'recipe2']);
   });
 
-  it('Should execute a simple recipe', async () => {
+  it('should execute a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', {
         steps: [
@@ -264,7 +264,7 @@ describe('Manager', () => {
     ]);
   });
 
-  it('Should execute a recipe with real async tasks', async () => {
+  it('should execute a recipe with real async tasks', async () => {
     await fs.ensureDir(directories.files());
     await fs.link(path.resolve(__dirname, '../resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
 

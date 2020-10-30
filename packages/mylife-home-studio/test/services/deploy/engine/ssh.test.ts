@@ -15,18 +15,18 @@ describe('SSH', () => {
     (useRealWorld ? describe : describe.skip)('Client to real server', () => {
       const rootList = ['.modloop', 'bin', 'dev', 'etc', 'home', 'lib', 'media', 'mnt', 'proc', 'root', 'run', 'sbin', 'srv', 'sys', 'tmp', 'usr', 'var'];
 
-      it('Should properly execute command on remote host in real world', async () =>
+      it('should properly execute command on remote host in real world', async () =>
         runClientRealServerTest(async (client) => {
           expect(await client.exec('ls -a /')).to.equal(['.', '..', ...rootList].map((it) => `${it}\n`).join(''));
         }));
 
-      it('Should properly read sftp directory on remote host in real world', async () =>
+      it('should properly read sftp directory on remote host in real world', async () =>
         runClientRealServerTest(async (client) => {
           const list = await client.sftp.readdir('/');
           expect(sort(list.map((it) => it.filename))).to.deep.equal(rootList);
         }));
 
-      it('Should combine exec and sftp in same session in real world', async () =>
+      it('should combine exec and sftp in same session in real world', async () =>
         runClientRealServerTest(async (client) => {
           await client.exec('ls -a /');
           await client.sftp.readdir('/');
@@ -46,17 +46,17 @@ describe('SSH', () => {
         return commandResult;
       }
 
-      it('Should properly execute command on mocked server', async () =>
+      it('should properly execute command on mocked server', async () =>
         await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
           expect(await client.exec(command)).to.equal(commandResult);
         }));
 
-      it('Should fail to execute wrong command on mocked server', async () =>
+      it('should fail to execute wrong command on mocked server', async () =>
         await runClientMockedServerTest(new vfs.Directory({ missing: true }), cmdHandler, async (client: SSHClient) => {
           await expectFail(async () => await client.exec('wrong command'), /Error: Command has error output : 'Unknown command'/);
         }));
 
-      it('Should properly use sftp to read directory on moched server', async () => {
+      it('should properly use sftp to read directory on moched server', async () => {
         const rootfs = new vfs.Directory({ missing: true });
         const attrs = { uid: 5, gid: 6, atime: new Date(2000, 0, 1, 10, 30), mtime: new Date(2010, 5, 10, 10, 30) };
 

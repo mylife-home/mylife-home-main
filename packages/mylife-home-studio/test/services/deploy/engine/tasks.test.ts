@@ -1,90 +1,18 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { expect } from 'chai';
-const express = require('express');
-const tasks = require('../../../../src/services/deploy/engine/tasks');
-const vfs = require('../../../../src/services/deploy/engine/vfs');
-const { SSHServer } = require('./ssh-server');
+import express from 'express';
+import tasks from '../../../../src/services/deploy/engine/tasks';
+import * as vfs from '../../../../src/services/deploy/engine/vfs';
+import { SSHServer } from './ssh-server';
 import * as directories from '../../../../src/services/deploy/directories';
-const {
-  formatStructure,
-  expectConfigContent,
-  expectConfigSymlink,
-  //printLines
-} = require('./utils');
+import { formatStructure, expectConfigContent, expectConfigSymlink } from './utils';
+import { createExecutionContext } from './utils';
 
-let cachedRoot;
-
-const logger = (category, severity, message) => {
-  process.env.VERBOSE === '1' && console.log(`${severity} : [${category}] ${message}`); // eslint-disable-line no-console
-};
-
-const pad = (number) => (number < 10 ? '0' + number : number);
-
-const printDate = (date) => date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()) + '-' + pad(date.getHours()) + pad(date.getMinutes()) + pad(date.getSeconds());
-
-async function initContext(options = {}) {
-  if (options.noload) {
-    return { logger };
-  }
-
-  if (!options.nocache && cachedRoot) {
-    return { logger, root: cachedRoot };
-  }
-
-  const context = { logger };
-  await tasks.ImageImport.execute(context, {
-    archiveName: 'rpi-devel-base.tar.gz',
-    rootPath: 'mmcblk0p1',
-  });
-  !options.nocache && (cachedRoot = context.root);
-  return context;
-}
-
-function createHierarchy(rootfs, hierarchy) {
-  for (const [name, item] of Object.entries(hierarchy)) {
-    if (typeof item === 'string' || item instanceof Buffer) {
-      const file = new vfs.File({ name, content: item instanceof Buffer ? item : Buffer.from(item) });
-      rootfs.add(file);
-      continue;
-    }
-
-    const directory = new vfs.Directory({ name });
-    rootfs.add(directory);
-    createHierarchy(directory, item);
-  }
-}
-
-async function runSshTest(hierarchy, expectedHierarchy, expectedCmds, tester) {
-  let nextCmd = 0;
-
-  const cmdhandler = (cmd) => {
-    const def = expectedCmds[nextCmd++];
-    expect(def.command === cmd);
-    return def.result;
-  };
-
-  const rootfs = new vfs.Directory();
-  createHierarchy(rootfs, hierarchy);
-  const expectedRootfs = new vfs.Directory();
-  createHierarchy(expectedRootfs, expectedHierarchy);
-
-  const server = new SSHServer({
-    port: 8822,
-    rootfs,
-    cmdhandler,
-    hostKeys: [fs.readFileSync(path.resolve(__dirname, '../resources/files/id_rsa'))],
-  });
-
-  try {
-    await tester();
-  } finally {
-    server.close();
-  }
-
-  expect(nextCmd).to.equal(expectedCmds.length);
-  expect(formatStructure(rootfs)).to.deep.equal(formatStructure(expectedRootfs));
-}
+import contentArchiveBase from './content/archive-base';
+import contentCache from './content/cache';
+import contentArchiveConfig from './content/archive-config';
+import { Server } from 'http';
 
 describe('Tasks', () => {
   beforeEach(() => {
@@ -92,25 +20,25 @@ describe('Tasks', () => {
   });
 
   describe('ImageImport', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
 
-      expect(formatStructure(context.root)).to.deep.equal(require('./content/archive-base'));
+      expect(formatStructure(context.root)).to.deep.equal(contentArchiveBase);
     });
   });
 
   describe('ImageRemove', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageRemove.execute(context, { path: '/apks/armhf/APKINDEX.tar.gz' });
 
-      const content = require('./content/archive-base').filter((c) => c.name !== 'APKINDEX.tar.gz');
+      const content = contentArchiveBase.filter((c) => c.name !== 'APKINDEX.tar.gz');
       expect(formatStructure(context.root)).to.deep.equal(content);
     });
   });
 
   describe('ImageCache', () => {
-    let server;
+    let server: Server;
 
     beforeEach(() => {
       const app = express();
@@ -120,7 +48,7 @@ describe('Tasks', () => {
 
     afterEach((done) => server.close(done));
 
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigPackage.execute(context, { name: 'nodejs' });
@@ -130,13 +58,13 @@ describe('Tasks', () => {
 
       await tasks.ImageCache.execute(context, {});
 
-      const cache = vfs.path(context.root, ['cache']);
-      const list = cache.list().map((f) => ({ name: f.name, size: f.content.length }));
+      const cache = vfs.path(context.root, ['cache']) as vfs.Directory;
+      const list = cache.list().map((f: vfs.File) => ({ name: f.name, size: f.content.length }));
 
-      expect(list).to.deep.equal(require('./content/cache'));
+      expect(list).to.deep.equal(contentCache);
     });
 
-    it('Should execute properly without cache directory', async () => {
+    it('should execute properly without cache directory', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigPackage.execute(context, { name: 'nodejs' });
@@ -147,15 +75,15 @@ describe('Tasks', () => {
 
       await tasks.ImageCache.execute(context, {});
 
-      const cache = vfs.path(context.root, ['cache']);
-      const list = cache.list().map((f) => ({ name: f.name, size: f.content.length }));
+      const cache = vfs.path(context.root, ['cache']) as vfs.Directory;
+      const list = cache.list().map((f: vfs.File) => ({ name: f.name, size: f.content.length }));
 
-      expect(list).to.deep.equal(require('./content/cache'));
+      expect(list).to.deep.equal(contentCache);
     });
   });
 
   describe('ImageDeviceTreeOverlay', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageDeviceTreeOverlay.execute(context, { content: 'test-overlay1' });
       await tasks.ImageDeviceTreeOverlay.execute(context, { content: 'test-overlay2' });
@@ -167,7 +95,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageDeviceTreeParam', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageDeviceTreeParam.execute(context, { content: 'test-param1' });
       await tasks.ImageDeviceTreeParam.execute(context, { content: 'test-param2' });
@@ -179,7 +107,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageCmdlineAdd', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageCmdlineAdd.execute(context, { content: 'test-param1' });
 
@@ -190,7 +118,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageCmdlineRemove', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageCmdlineAdd.execute(context, { content: 'test-param1' });
       await tasks.ImageCmdlineAdd.execute(context, { content: 'test-param2' });
@@ -205,14 +133,14 @@ describe('Tasks', () => {
   });
 
   describe('ImageCoreComponents', () => {
-    it('Should execute properly without flavor', async () => {
+    it('should execute properly without flavor', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageCoreComponents.execute(context, { file: 'components.json' });
 
       expect(vfs.readText(context.root, ['mylife-home', 'mylife-home-core-components.json'])).to.equal("'components'");
     });
 
-    it('Should execute properly with flavor', async () => {
+    it('should execute properly with flavor', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ImageCoreComponents.execute(context, { file: 'components.json', flavor: 'my-flavor' });
 
@@ -221,7 +149,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageLs', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ImageLs.execute(context, { path: '/' });
 
@@ -230,7 +158,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageInstall', () => {
-    it('Should execute properly', async () =>
+    it('should execute properly', async () =>
       runSshTest(
         {
           media: {
@@ -277,7 +205,7 @@ describe('Tasks', () => {
         ],
         async () => {
           const context = await initContext({ noload: true });
-          context.root = new vfs.Directory();
+          context.root = new vfs.Directory({ missing: true });
           createHierarchy(context.root, {
             file1: 'new-content1',
             '.file2': 'new-content2',
@@ -292,7 +220,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageExport', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       let destContent;
 
@@ -311,7 +239,7 @@ describe('Tasks', () => {
   });
 
   describe('ImageReset', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigPack.execute(context, {});
@@ -325,17 +253,17 @@ describe('Tasks', () => {
   });
 
   describe('ConfigInit', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
 
-      expect(formatStructure(context.root)).to.deep.equal(require('./content/archive-base'));
-      expect(formatStructure(context.config)).to.deep.equal(require('./content/archive-config'));
+      expect(formatStructure(context.root)).to.deep.equal(contentArchiveBase);
+      expect(formatStructure(context.config)).to.deep.equal(contentArchiveConfig);
     });
   });
 
   describe('ConfigImport', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
 
@@ -344,7 +272,7 @@ describe('Tasks', () => {
       });
 
       expect(formatStructure(context.config)).to.deep.equal([
-        ...require('./content/archive-config'),
+        ...contentArchiveConfig,
         { indent: 1, name: 'my-config', uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1516872309000), ctime: null, dir: true },
         { indent: 2, name: 'my-config.conf', uid: 0, gid: 0, mode: 0o644, atime: null, mtime: new Date(1516872309000), ctime: null, length: 10 },
       ]);
@@ -352,7 +280,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigHostname', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const hostname = 'test-host';
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
@@ -368,7 +296,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigHwaddress', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const iface = 'eth0';
       const address = '11:22:33:44:55:66';
       const context = await initContext();
@@ -384,7 +312,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigWifi', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
 
@@ -400,7 +328,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigDaemon', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const runlevel = 'default';
       const name = 'test-daemon';
       const context = await initContext();
@@ -416,7 +344,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigPackage', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const name = 'test-package';
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
@@ -430,7 +358,7 @@ describe('Tasks', () => {
   });
 
   describe('ConfigLs', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigLs.execute(context, { path: '/' });
@@ -440,10 +368,10 @@ describe('Tasks', () => {
   });
 
   describe('ConfigPack', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ nocache: true });
       await tasks.ConfigInit.execute(context, {});
-      const node = vfs.path(context.root, ['rpi-devel.apkovl.tar.gz']);
+      const node = vfs.path(context.root, ['rpi-devel.apkovl.tar.gz']) as vfs.File;
       node.content = Buffer.alloc(0); // reset config file
 
       await tasks.ConfigPack.execute(context, {});
@@ -453,7 +381,7 @@ describe('Tasks', () => {
   });
 
   describe('VariablesSet', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext({ noload: true });
       await tasks.VariablesSet.execute(context, { name: 'variable', value: 'value' });
 
@@ -462,7 +390,7 @@ describe('Tasks', () => {
   });
 
   describe('VariablesReset', () => {
-    it('Should execute properly', async () => {
+    it('should execute properly', async () => {
       const context = await initContext();
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigPack.execute(context, {});
@@ -475,3 +403,83 @@ describe('Tasks', () => {
     });
   });
 });
+
+let cachedRoot: vfs.Directory;
+
+function pad(number: number) {
+  return number < 10 ? '0' + number : number.toString();
+}
+
+function printDate(date: Date) {
+  return date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()) + '-' + pad(date.getHours()) + pad(date.getMinutes()) + pad(date.getSeconds());
+}
+
+interface InitContextOptions {
+  noload?: boolean;
+  nocache?: boolean;
+}
+
+async function initContext(options: InitContextOptions = {}) {
+  if (options.noload) {
+    return createExecutionContext();
+  }
+
+  if (!options.nocache && cachedRoot) {
+    return createExecutionContext({ root: cachedRoot });
+  }
+
+  const context = createExecutionContext();
+  await tasks.ImageImport.execute(context, {
+    archiveName: 'rpi-devel-base.tar.gz',
+    rootPath: 'mmcblk0p1',
+  });
+  !options.nocache && (cachedRoot = context.root);
+  return context;
+}
+
+type Hierarchy = { [key: string]: string | Buffer | Hierarchy };
+
+function createHierarchy(rootfs: vfs.Directory, hierarchy: Hierarchy) {
+  for (const [name, item] of Object.entries(hierarchy)) {
+    if (typeof item === 'string' || item instanceof Buffer) {
+      const file = new vfs.File({ name, content: item instanceof Buffer ? item : Buffer.from(item) });
+      rootfs.add(file);
+      continue;
+    }
+
+    const directory = new vfs.Directory({ name });
+    rootfs.add(directory);
+    createHierarchy(directory, item);
+  }
+}
+
+async function runSshTest(hierarchy: Hierarchy, expectedHierarchy: Hierarchy, expectedCmds: { command: string; result: string }[], tester: () => Promise<any>) {
+  let nextCmd = 0;
+
+  const cmdhandler = (cmd: string) => {
+    const def = expectedCmds[nextCmd++];
+    expect(def.command === cmd);
+    return def.result;
+  };
+
+  const rootfs = new vfs.Directory({ missing: true });
+  createHierarchy(rootfs, hierarchy);
+  const expectedRootfs = new vfs.Directory({ missing: true });
+  createHierarchy(expectedRootfs, expectedHierarchy);
+
+  const server = new SSHServer({
+    port: 8822,
+    rootfs,
+    cmdhandler,
+    hostKeys: [fs.readFileSync(path.resolve(__dirname, '../resources/files/id_rsa'))],
+  });
+
+  try {
+    await tester();
+  } finally {
+    server.close();
+  }
+
+  expect(nextCmd).to.equal(expectedCmds.length);
+  expect(formatStructure(rootfs)).to.deep.equal(formatStructure(expectedRootfs));
+}

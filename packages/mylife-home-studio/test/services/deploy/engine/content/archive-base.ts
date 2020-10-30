@@ -1,4 +1,6 @@
-const content = [
+import { FormattedNode } from '../utils';
+
+const content: FormattedNode[] = [
   { indent: 0, name: '.alpine-release',                               uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1497699998000), ctime: null, length: 24 },
   { indent: 0, name: 'apks',                                          uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1508414770000), ctime: null, dir: true },
   { indent: 1, name: '.boot_repository',                              uid: 0, gid: 0, mode: 0o755, atime: null, mtime: new Date(1497699998000), ctime: null, length: 0 },
