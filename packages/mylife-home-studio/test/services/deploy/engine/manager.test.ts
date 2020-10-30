@@ -253,7 +253,7 @@ describe('Manager', () => {
       },
     });
 
-    expect(events).to.deep.equal([
+    expect(stripLogEventTimes(events)).to.deep.equal([
       { name: 'recipe-created', args: ['recipe'] },
       { name: 'run-created', args: [1, 'recipe'] },
       { name: 'run-begin', args: [1] },
@@ -369,4 +369,18 @@ async function waitTaskEnd(manager: Manager, runId: number) {
 function stripRunTimes(run: Run) {
   const { creation, end, logs, ...data } = run;
   return { ...data, logs: logs.map(({ date, ...log }) => log) };
+}
+
+function stripLogEventTimes(events: { name: string; args: any[] }[]) {
+  return events.map(event => {
+    if(event.name !== 'run-log') {
+      return event;
+    }
+
+    const { name, args } = event;
+    const { date, ... eventData } = args[1];
+    const newArgs = [...args];
+    newArgs[1] = eventData;
+    return { name, args: newArgs };
+  });
 }
