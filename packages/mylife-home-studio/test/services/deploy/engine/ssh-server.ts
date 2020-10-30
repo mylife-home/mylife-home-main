@@ -167,7 +167,7 @@ class SFTPSession {
   constructor(private readonly rootfs: vfs.Directory) {
   }
 
-  async open(ctx, filename, flags, attrs) {
+  async open(ctx: RequestContext, filename, flags, attrs) {
     if (flags & SFTP_OPEN_MODE.APPEND) {
       return await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
     }
@@ -228,7 +228,7 @@ class SFTPSession {
     await ctx.handle(handle);
   }
 
-  async read(ctx, handle, offset, length) {
+  async read(ctx: RequestContext, handle, offset, length) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -243,7 +243,7 @@ class SFTPSession {
     await ctx.data(data);
   }
 
-  async write(ctx, handle, offset, data) {
+  async write(ctx: RequestContext, handle, offset, data) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -252,7 +252,7 @@ class SFTPSession {
     await ctx.status(ret ? SFTP_STATUS_CODE.OK : SFTP_STATUS_CODE.FAILURE);
   }
 
-  async fstat(ctx, handle) {
+  async fstat(ctx: RequestContext, handle) {
     const openedFile = this.handleTable.target(handle, OpenedFile);
     if (!openedFile) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -260,17 +260,17 @@ class SFTPSession {
     await ctx.attrs(openedFile.stat());
   }
 
-  async fsetstat(ctx, handle, attrs) {
+  async fsetstat(ctx: RequestContext, handle, attrs) {
     void ctx, handle, attrs;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async close(ctx, handle) {
+  async close(ctx: RequestContext, handle) {
     const ret = this.handleTable.delete(handle);
     await ctx.status(ret ? SFTP_STATUS_CODE.OK : SFTP_STATUS_CODE.FAILURE);
   }
 
-  async opendir(ctx, path) {
+  async opendir(ctx: RequestContext, path) {
     const node = vfs.path(
       this.rootfs,
       path.split('/').filter((n) => n),
@@ -289,7 +289,7 @@ class SFTPSession {
     await ctx.handle(handle);
   }
 
-  async readdir(ctx, handle) {
+  async readdir(ctx: RequestContext, handle) {
     const openedDirectory = this.handleTable.target(handle, OpenedDirectory);
     if (!openedDirectory) {
       return await ctx.status(SFTP_STATUS_CODE.FAILURE);
@@ -302,17 +302,25 @@ class SFTPSession {
     await ctx.name(openedDirectory.content());
   }
 
-  async lstat(ctx, path) {
+  async lstat(ctx: RequestContext, path) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async stat(ctx, path) {
+  async stat(ctx: RequestContext, path) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async _removeByType(ctx, path, isdir) {
+  async remove(ctx: RequestContext, path) {
+    await this.removeByType(ctx, path, false);
+  }
+
+  async rmdir(ctx: RequestContext, path) {
+    await this.removeByType(ctx, path, true);
+  }
+
+  private async removeByType(ctx: RequestContext, path, isdir) {
     const nodes = path.split('/').filter((n) => n);
     const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
     if (!dir) {
@@ -331,30 +339,22 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async remove(ctx, path) {
-    await this._removeByType(ctx, path, false);
-  }
-
-  async rmdir(ctx, path) {
-    await this._removeByType(ctx, path, true);
-  }
-
-  async realpath(ctx, path) {
+  async realpath(ctx: RequestContext, path) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async readlink(ctx, path) {
+  async readlink(ctx: RequestContext, path) {
     void ctx, path;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async setstat(ctx, path, attrs) {
+  async setstat(ctx: RequestContext, path, attrs) {
     void ctx, path, attrs;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
 
-  async mkdir(ctx, path, attrs) {
+  async mkdir(ctx: RequestContext, path, attrs) {
     const nodes = path.split('/').filter((n) => n);
     const dir = vfs.path(this.rootfs, nodes.slice(0, nodes.length - 1), true);
     if (!dir) {
@@ -381,7 +381,7 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async rename(ctx, oldPath, newPath) {
+  async rename(ctx: RequestContext, oldPath, newPath) {
     const oldNodes = oldPath.split('/').filter((n) => n);
     const oldDir = vfs.path(this.rootfs, oldNodes.slice(0, oldNodes.length - 1), true);
     if (!oldDir) {
@@ -410,7 +410,7 @@ class SFTPSession {
     await ctx.status(SFTP_STATUS_CODE.OK);
   }
 
-  async symlink(ctx, linkPath, targetPath) {
+  async symlink(ctx: RequestContext, linkPath, targetPath) {
     void ctx, linkPath, targetPath;
     await ctx.status(SFTP_STATUS_CODE.OP_UNSUPPORTED);
   }
