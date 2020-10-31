@@ -6,16 +6,20 @@ import { createLogger, TaskParameters } from './tasks-utils';
 import * as directories from '../directories';
 import { RunLogSeverity } from './manager';
 
-interface StepConfig {
+export interface RecipeConfig {
+  steps: StepConfig[];
+}
+
+export interface StepConfig {
   type: string;
 }
 
-interface TaskStepConfig extends StepConfig {
+export interface TaskStepConfig extends StepConfig {
   name: string;
   parameters: TaskParameters;
 }
 
-interface RecipeStepConfig extends StepConfig {
+export interface RecipeStepConfig extends StepConfig {
   name: string;
 }
 
@@ -35,7 +39,7 @@ export class Recipe {
       throw new Error(`not such recipe : ${name}`);
     }
 
-    const { steps } = JSON.parse(fs.readFileSync(fullname, 'utf8')) as { steps: StepConfig[] };
+    const { steps } = JSON.parse(fs.readFileSync(fullname, 'utf8')) as RecipeConfig;
 
     for (const step of steps) {
       const StepType = STEP_BY_TYPE[step.type];

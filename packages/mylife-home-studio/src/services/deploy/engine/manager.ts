@@ -1,13 +1,11 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { EventEmitter } from 'events';
-import { ExecutionContext, Recipe } from './recipe';
+import { ExecutionContext, Recipe, RecipeConfig } from './recipe';
 import * as directories from '../directories';
 import tasks from './tasks';
 
 const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins
-
-export interface RecipeConfig {}
 
 export interface Run {
   id: number;
@@ -44,9 +42,9 @@ export class Manager extends EventEmitter {
     for (const file of fs.readdirSync(directories.recipes())) {
       const fullname = path.join(directories.recipes(), file);
       const name = path.parse(file).name;
-      const content = JSON.parse(fs.readFileSync(fullname, 'utf8'));
+      const config = JSON.parse(fs.readFileSync(fullname, 'utf8'));
 
-      this.recipes.set(name, content);
+      this.recipes.set(name, config);
     }
   }
 
@@ -54,14 +52,14 @@ export class Manager extends EventEmitter {
     return Object.entries(tasks).map(([name, task]) => ({ name: formatTaskName(name), ...task.metadata }));
   }
 
-  createRecipe(name: string, content: RecipeConfig) {
+  createRecipe(name: string, config: RecipeConfig) {
     fs.ensureDirSync(directories.recipes());
 
     const fullname = path.join(directories.recipes(), name + '.json');
     const exists = fs.existsSync(fullname);
-    fs.writeFileSync(fullname, JSON.stringify(content));
+    fs.writeFileSync(fullname, JSON.stringify(config));
 
-    this.recipes.set(name, content);
+    this.recipes.set(name, config);
     this.emit(exists ? 'recipe-updated' : 'recipe-created', name);
   }
 
