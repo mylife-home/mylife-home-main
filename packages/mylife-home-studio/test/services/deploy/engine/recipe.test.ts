@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
-import * as directories from '../../../../src/services/deploy/directories';
 import { Recipe } from '../../../../src/services/deploy/engine/recipe';
-import { createExecutionContext } from './utils';
+import { setupDataDirectory, createExecutionContext } from './utils';
 
 describe('Recipe', () => {
   beforeEach(dataDirInit);
@@ -63,7 +62,7 @@ const dataDir = '/tmp/mylife-home-deploy-test-recipe';
 
 async function dataDirInit() {
   await fs.ensureDir(path.join(dataDir, 'recipes'));
-  directories.configure(dataDir);
+  setupDataDirectory(dataDir);
 }
 
 async function dataDirDestroy() {

@@ -1,8 +1,12 @@
+import path from 'path';
 import { expect } from 'chai';
+import { tools } from 'mylife-home-common';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import { ExecutionContext } from '../../../../src/services/deploy/engine/recipe';
 import contents from './content/files';
 import { RunLogSeverity } from '../../../../src/services/deploy/engine/manager';
+import * as directories from '../../../../src/services/deploy/directories';
+import { Config } from '../../../../src/services/deploy/config';
 
 export interface FormattedNode {
   indent: number;
@@ -110,4 +114,15 @@ export function logger(category: string, severity: RunLogSeverity, message: stri
 
 export function createExecutionContext(params?: Partial<ExecutionContext>): ExecutionContext {
   return { logger, root: null, config: null, variables: null, ...params };
+}
+
+export function setupDataDirectory(dataDir: string) {
+  const config: Config = {
+    filesPath: path.join(dataDir, 'files'),
+    recipesPath: path.join(dataDir, 'recipes')
+  };
+
+  tools.injectConfig({ deploy: config });
+
+  directories.configure();
 }

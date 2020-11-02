@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import * as directories from '../../../../src/services/deploy/directories';
 import { Manager, Run } from '../../../../src/services/deploy/engine/manager';
+import { setupDataDirectory } from './utils';
 
 describe('Manager', () => {
   beforeEach(dataDirInit);
@@ -305,7 +306,7 @@ const DATA_DIR = '/tmp/mylife-home-deploy-test-manager';
 
 async function dataDirInit() {
   await fs.ensureDir(DATA_DIR);
-  directories.configure(DATA_DIR);
+  setupDataDirectory(DATA_DIR);
 }
 
 async function dataDirDestroy() {

@@ -7,7 +7,7 @@ import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import { SSHServer } from './ssh-server';
 import * as directories from '../../../../src/services/deploy/directories';
 import { formatStructure, expectConfigContent, expectConfigSymlink } from './utils';
-import { createExecutionContext } from './utils';
+import { createExecutionContext, setupDataDirectory } from './utils';
 
 import contentArchiveBase from './content/archive-base';
 import contentCache from './content/cache';
@@ -16,7 +16,7 @@ import { Server } from 'http';
 
 describe('Tasks', () => {
   beforeEach(() => {
-    directories.configure(path.resolve(__dirname, '../resources'));
+    setupDataDirectory(path.resolve(__dirname, '../resources'));
   });
 
   describe('ImageImport', () => {
@@ -225,7 +225,7 @@ describe('Tasks', () => {
       let destContent;
 
       const tmpDir = '/tmp/mylife-home-deploy-test-task-export';
-      directories.configure(tmpDir);
+      setupDataDirectory(tmpDir);
       await fs.ensureDir(directories.files());
       try {
         await tasks.ImageExport.execute(context, { archiveName: 'image-export.tar.gz' });
