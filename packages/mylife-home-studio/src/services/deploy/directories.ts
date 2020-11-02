@@ -1,23 +1,16 @@
 import path from 'path';
+import { tools } from 'mylife-home-common';
 
-interface Directories {
-  base: string;
-  files: string;
-  recipes: string;
+let config: Config;
+
+interface Config {
+  filesPath: string;
+  recipesPath: string;
 }
 
-const directories: Directories = {
-  base: null,
-  files: null,
-  recipes: null,
-};
-
-export function configure(dataDirectory: string) {
-  directories.base = path.resolve(__dirname, '..', dataDirectory);
-  directories.files = path.join(directories.base, 'files');
-  directories.recipes = path.join(directories.base, 'recipes');
+export function configure() {
+  config = tools.getConfigItem<Config>('deploy');
 }
 
-export const base = () => directories.base;
-export const files = () => directories.files;
-export const recipes = () => directories.recipes;
+export const files = () => config.filesPath;
+export const recipes = () => config.recipesPath;

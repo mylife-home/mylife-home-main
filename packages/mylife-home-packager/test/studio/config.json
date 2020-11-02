@@ -13,5 +13,9 @@
     "localPath": "/tmp/mylife-home-projects",
     "githubUrl": "https://github.com/vincent-tr/mylife-home-projects-dev",
     "githubToken": "%{GITHUB_TOKEN}"
+  },
+  "deploy": {
+    "filesPath": "/tmp/mylife-home-deploy/files",
+    "recipesPath": "/tmp/mylife-home-deploy/recipes"
   }
 }
