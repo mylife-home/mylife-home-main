@@ -1,11 +1,11 @@
-import { components, tools } from 'mylife-home-common';
-import { Manager } from './manager';
+import { Recipes } from './recipes';
+import { Runs } from './runs';
 import { Service, BuildParams } from '../types';
-
-// TODO: logs
+import tasks from './tasks';
 
 export class Deploy implements Service {
-  private readonly manager = new Manager;
+  private readonly recipes = new Recipes;
+  private readonly runs = new Runs;
 
   constructor(params: BuildParams) {
 
@@ -28,13 +28,23 @@ export class Deploy implements Service {
   }
 
   async init() {
-    await this.manager.init();
+    await this.recipes.init();
+    await this.runs.init();
 
 //    Services.instance.sessionManager.registerServiceHandler('online/start-notify-instance-info', session => this.instanceNotifier.startNotify(session));
 //    Services.instance.sessionManager.registerServiceHandler('online/stop-notify-instance-info', (session, payload: any) => this.instanceNotifier.stopNotify(session, payload));
 }
 
   async terminate() {
-    await this.manager.terminate();
+    await this.recipes.terminate();
+    await this.runs.terminate();
   }
+
+  listTasksMeta() {
+    return Object.entries(tasks).map(([name, task]) => ({ name: formatTaskName(name), ...task.metadata }));
+  }
+}
+
+function formatTaskName(name: string) {
+  return name.replace(/^./, (str) => str.toLowerCase()).replace(/([A-Z])/g, (str) => '-' + str.toLowerCase());
 }

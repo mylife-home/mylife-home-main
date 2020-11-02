@@ -1,9 +1,5 @@
-import fs from 'fs-extra';
-import path from 'path';
 import { EventEmitter } from 'events';
-import { ExecutionContext, Recipe, RecipeConfig } from './recipe';
-import * as directories from './directories';
-import tasks from './tasks';
+import { ExecutionContext, Recipe } from './recipe';
 
 const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins
 
@@ -26,63 +22,27 @@ export interface RunLog {
 
 export type RunLogSeverity = 'debug' | 'info' | 'warning' | 'error';
 
-export class Manager extends EventEmitter {
+export class Runs extends EventEmitter {
   private runIdCounter: number = 0;
   private readonly runs = new Map();
   private readonly pendingTimeouts = new Set<NodeJS.Timeout>();
-  private readonly recipes = new Map<string, RecipeConfig>();
   private closing = false;
 
-  async init() {
-    // load recipes
-    await fs.ensureDir(directories.recipes());
-
-    for (const file of await fs.readdir(directories.recipes())) {
-      const fullname = path.join(directories.recipes(), file);
-      const name = path.parse(file).name;
-      const config = JSON.parse(await fs.readFile(fullname, 'utf8'));
-
-      this.recipes.set(name, config);
-    }
-
+  listRuns() {
+    return Array.from(this.runs.keys());
   }
 
-  listTasksMeta() {
-    return Object.entries(tasks).map(([name, task]) => ({ name: formatTaskName(name), ...task.metadata }));
-  }
-
-  createRecipe(name: string, config: RecipeConfig) {
-    fs.ensureDirSync(directories.recipes());
-
-    const fullname = path.join(directories.recipes(), name + '.json');
-    const exists = fs.existsSync(fullname);
-    fs.writeFileSync(fullname, JSON.stringify(config));
-
-    this.recipes.set(name, config);
-    this.emit(exists ? 'recipe-updated' : 'recipe-created', name);
-  }
-
-  deleteRecipe(name: string) {
-    fs.ensureDirSync(directories.recipes());
-
-    const fullname = path.join(directories.recipes(), name + '.json');
-    if (!fs.existsSync(fullname)) {
+  getRun(runId: number, withLogs = true) {
+    const run = this.runs.get(runId);
+    if (!run) {
       return;
     }
 
-    fs.unlinkSync(fullname);
-
-    this.recipes.delete(name);
-    this.emit('recipe-deleted', name);
-  }
-
-  listRecipes() {
-    return Array.from(this.recipes.keys());
-  }
-
-  // no copy!
-  getRecipe(name: string) {
-    return this.recipes.get(name);
+    const ret = { ...run };
+    if (!withLogs) {
+      ret.logs = null;
+    }
+    return ret;
   }
 
   startRecipe(name: string) {
@@ -123,7 +83,7 @@ export class Manager extends EventEmitter {
     this.runs.clear();
   }
 
-  async runRecipe(name: string) {
+  private async runRecipe(name: string) {
     if (this.closing) {
       throw new Error('Cannot start recipe while closing manager');
     }
@@ -171,25 +131,4 @@ export class Manager extends EventEmitter {
 
     this.pendingTimeouts.add(timeout);
   }
-
-  listRuns() {
-    return Array.from(this.runs.keys());
-  }
-
-  getRun(runId: number, withLogs = true) {
-    const run = this.runs.get(runId);
-    if (!run) {
-      return;
-    }
-
-    const ret = { ...run };
-    if (!withLogs) {
-      ret.logs = null;
-    }
-    return ret;
-  }
-}
-
-function formatTaskName(name: string) {
-  return name.replace(/^./, (str) => str.toLowerCase()).replace(/([A-Z])/g, (str) => '-' + str.toLowerCase());
 }

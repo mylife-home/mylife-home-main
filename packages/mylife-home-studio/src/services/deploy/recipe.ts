@@ -4,7 +4,7 @@ import tasks, { TaskDefinition } from './tasks';
 import * as vfs from './engine/vfs';
 import { createLogger, TaskParameters } from './engine/tasks-utils';
 import * as directories from './directories';
-import { RunLogSeverity } from './manager';
+import { RunLogSeverity } from './runs';
 
 export interface RecipeConfig {
   steps: StepConfig[];
