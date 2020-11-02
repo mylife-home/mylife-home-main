@@ -33,19 +33,18 @@ export class Manager extends EventEmitter {
   private readonly recipes = new Map<string, RecipeConfig>();
   private closing = false;
 
-  constructor() {
-    super();
-
+  async init() {
     // load recipes
-    fs.ensureDirSync(directories.recipes());
+    await fs.ensureDir(directories.recipes());
 
-    for (const file of fs.readdirSync(directories.recipes())) {
+    for (const file of await fs.readdir(directories.recipes())) {
       const fullname = path.join(directories.recipes(), file);
       const name = path.parse(file).name;
-      const config = JSON.parse(fs.readFileSync(fullname, 'utf8'));
+      const config = JSON.parse(await fs.readFile(fullname, 'utf8'));
 
       this.recipes.set(name, config);
     }
+
   }
 
   listTasksMeta() {
@@ -100,7 +99,7 @@ export class Manager extends EventEmitter {
     return runId;
   }
 
-  async close() {
+  async terminate() {
     this.closing = true;
 
     // wait pending runs
