@@ -2,18 +2,10 @@ import path from 'path';
 import * as vfs from './vfs';
 import * as directories from '../directories';
 import { ExecutionContext } from '../recipe';
+import { TaskParameters, TaskMetadata } from '../../../../shared/deploy';
 
-export interface TaskMetadata {
-  description: string;
-  parameters: {
-    name: string;
-    description: string;
-    type: 'string';
-    default?: any;
-  }[];
-}
+export { TaskMetadata };
 
-export type TaskParameters = { [key: string]: string };
 export type TaskImplementation = (context: ExecutionContext, parameters: TaskParameters) => Promise<void>;
 
 export function singleRowFileUpdate(root: vfs.Directory, nodes: string[], updater: (content: string) => string) {

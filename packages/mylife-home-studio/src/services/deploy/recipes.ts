@@ -3,7 +3,7 @@ import { logger } from 'mylife-home-common';
 import fs from 'fs-extra';
 import path from 'path';
 import * as directories from './directories';
-import { RecipeConfig } from './recipe';
+import { RecipeConfig } from '../../../shared/deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:deploy:recipes');
 
@@ -22,6 +22,9 @@ export class Recipes extends EventEmitter {
       this.recipes.set(name, config);
       log.info(`recipe loaded: ${name}`);
     }
+  }
+
+  async terminate() {
   }
 
   createRecipe(name: string, config: RecipeConfig) {

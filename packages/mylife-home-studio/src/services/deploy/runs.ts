@@ -1,30 +1,15 @@
 import { EventEmitter } from 'events';
+import { logger } from 'mylife-home-common';
 import { ExecutionContext, Recipe } from './recipe';
+import { Run, RunLogSeverity } from '../../../shared/deploy';
+
+const log = logger.createLogger('mylife:home:studio:services:deploy:runs');
 
 const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins
 
-export interface Run {
-  id: number;
-  recipe: string;
-  logs: RunLog[];
-  status: 'created' | 'running' | 'ended';
-  creation: number;
-  end: number;
-  err: Error;
-}
-
-export interface RunLog {
-  date: number;
-  category: string;
-  severity: RunLogSeverity;
-  message: string;
-}
-
-export type RunLogSeverity = 'debug' | 'info' | 'warning' | 'error';
-
 export class Runs extends EventEmitter {
   private runIdCounter: number = 0;
-  private readonly runs = new Map();
+  private readonly runs = new Map<number, Run>();
   private readonly pendingTimeouts = new Set<NodeJS.Timeout>();
   private closing = false;
 
@@ -32,7 +17,7 @@ export class Runs extends EventEmitter {
     return Array.from(this.runs.keys());
   }
 
-  getRun(runId: number, withLogs = true) {
+  getRun(runId: number, withLogs = true): Run {
     const run = this.runs.get(runId);
     if (!run) {
       return;
@@ -57,6 +42,9 @@ export class Runs extends EventEmitter {
 
     this.runRecipe(name);
     return runId;
+  }
+
+  async init() {
   }
 
   async terminate() {
@@ -106,6 +94,7 @@ export class Runs extends EventEmitter {
 
     this.runs.set(run.id, run);
     this.emit('run-created', run.id, run.recipe);
+    log.info(`run '${run.id}' started from recipe '${run.recipe}'`);
 
     run.status = 'running';
     this.emit('run-begin', run.id);
@@ -117,11 +106,13 @@ export class Runs extends EventEmitter {
       await recipe.execute(context);
     } catch (err) {
       run.err = err;
+      log.error(err, `run '${run.id}' error`);
     }
 
     run.status = 'ended';
     run.end = Date.now();
     run.err ? this.emit('run-end', run.id, run.err) : this.emit('run-end', run.id);
+    log.info(`run '${run.id}' ended`);
 
     const timeout = setTimeout(() => {
       this.emit('run-deleted', run.id);

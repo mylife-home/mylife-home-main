@@ -1,4 +1,4 @@
-import { TaskMetadata, TaskImplementation } from '../engine/tasks-utils';
+import { TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 import * as ConfigInit from './config-init';
 import * as ConfigImport from './config-import';
@@ -60,3 +60,11 @@ const tasks: { [type: string]: TaskDefinition } = {
 };
 
 export default tasks;
+
+export function listMeta() {
+  return Object.entries(tasks).map(([name, task]) => ({ name: formatTaskName(name), ...task.metadata }));
+}
+
+function formatTaskName(name: string) {
+  return name.replace(/^./, (str) => str.toLowerCase()).replace(/([A-Z])/g, (str) => '-' + str.toLowerCase());
+}

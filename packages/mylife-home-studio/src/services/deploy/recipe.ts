@@ -2,26 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import tasks, { TaskDefinition } from './tasks';
 import * as vfs from './engine/vfs';
-import { createLogger, TaskParameters } from './engine/tasks-utils';
+import { createLogger } from './engine/tasks-utils';
 import * as directories from './directories';
-import { RunLogSeverity } from './runs';
-
-export interface RecipeConfig {
-  steps: StepConfig[];
-}
-
-export interface StepConfig {
-  type: string;
-}
-
-export interface TaskStepConfig extends StepConfig {
-  name: string;
-  parameters: TaskParameters;
-}
-
-export interface RecipeStepConfig extends StepConfig {
-  name: string;
-}
+import { RecipeConfig, RecipeStepConfig, RunLogSeverity, TaskParameters, TaskStepConfig } from '../../../shared/deploy';
 
 export interface ExecutionContext {
   logger: (category: string, severity: RunLogSeverity, message: string) => void;

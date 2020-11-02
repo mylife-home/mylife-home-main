@@ -4,7 +4,7 @@ import { tools } from 'mylife-home-common';
 import * as vfs from '../../../src/services/deploy/engine/vfs';
 import { ExecutionContext } from '../../../src/services/deploy/recipe';
 import contents from './content/files';
-import { RunLogSeverity } from '../../../src/services/deploy/manager';
+import { RunLogSeverity } from '../../../shared/deploy';
 import * as directories from '../../../src/services/deploy/directories';
 import { Config } from '../../../src/services/deploy/config';
 
