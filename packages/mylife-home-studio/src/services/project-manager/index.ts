@@ -21,9 +21,10 @@ export class ProjectManager implements Service {
 
   async init() {
     /*
-    await fs.emptyDir(this.config.localPath);
+    const finalPath = path.resolve(this.config.localPath);
+    await fs.emptyDir(finalPath);
     await this.git.clone({
-      dir: this.config.localPath,
+      dir: finalPath,
       url: this.config.githubUrl,
     });
     */
