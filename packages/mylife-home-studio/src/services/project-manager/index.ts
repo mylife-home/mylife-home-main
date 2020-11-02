@@ -1,6 +1,5 @@
 import fs from 'fs-extra';
-import { components } from 'mylife-home-common';
-import { tools } from 'mylife-home-common';
+import { components, tools } from 'mylife-home-common';
 import { Service, BuildParams } from '../types';
 import { Git } from './git';
 
