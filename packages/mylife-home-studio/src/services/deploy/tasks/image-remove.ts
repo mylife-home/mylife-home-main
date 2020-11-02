@@ -1,6 +1,5 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-
-const vfs = require('../vfs');
+import { createLogger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
 
 export const metadata: TaskMetadata = {
   description: 'remove a node (file/directory/symlink) from the root fs',
@@ -13,7 +12,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
   log.info(`remove file '${path}' from image`);
 
   const nodes = path.split('/').filter((node: string) => node);
-  const dir = vfs.path(context.root, nodes.slice(0, nodes.length - 1));
+  const dir = vfs.path(context.root, nodes.slice(0, nodes.length - 1)) as vfs.Directory;
   const node = dir.get(nodes[nodes.length - 1]);
   if (!node) {
     log.warning(`file '${nodes[nodes.length - 1]}' not found in folder '/${nodes.slice(0, nodes.length - 1).join('/')}'`);

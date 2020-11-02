@@ -1,4 +1,4 @@
-import { createLogger, singleRowFileUpdate, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import { createLogger, singleRowFileUpdate, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 export const metadata: TaskMetadata = {
   description: 'remove a parameter from cmdline.txt',

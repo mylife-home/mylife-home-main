@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { EventEmitter } from 'events';
 import { ExecutionContext, Recipe, RecipeConfig } from './recipe';
-import * as directories from '../directories';
+import * as directories from './directories';
 import tasks from './tasks';
 
 const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins

@@ -2,10 +2,10 @@ import path from 'path';
 import fs from 'fs-extra';
 import { expect } from 'chai';
 import express from 'express';
-import tasks from '../../../../src/services/deploy/engine/tasks';
-import * as vfs from '../../../../src/services/deploy/engine/vfs';
-import { SSHServer } from './ssh-server';
-import * as directories from '../../../../src/services/deploy/directories';
+import tasks from '../../../src/services/deploy/tasks';
+import * as vfs from '../../../src/services/deploy/engine/vfs';
+import { SSHServer } from './engine/ssh-server';
+import * as directories from '../../../src/services/deploy/directories';
 import { formatStructure, expectConfigContent, expectConfigSymlink } from './utils';
 import { createExecutionContext, setupDataDirectory } from './utils';
 

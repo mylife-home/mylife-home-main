@@ -1,4 +1,4 @@
-import { createLogger, configAddPackage, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import { createLogger, configAddPackage, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 export const metadata: TaskMetadata = {
   description: 'add a package to be installed',

@@ -1,6 +1,6 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as vfs from '../vfs';
-import * as archive from '../archive';
+import { createLogger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
+import * as archive from '../engine/archive';
 
 export const metadata: TaskMetadata = {
   description: 'pack the config into the root fs',

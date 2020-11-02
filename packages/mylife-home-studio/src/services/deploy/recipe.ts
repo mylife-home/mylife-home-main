@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import tasks, { TaskDefinition } from './tasks';
-import * as vfs from './vfs';
-import { createLogger, TaskParameters } from './tasks-utils';
-import * as directories from '../directories';
+import * as vfs from './engine/vfs';
+import { createLogger, TaskParameters } from './engine/tasks-utils';
+import * as directories from './directories';
 import { RunLogSeverity } from './manager';
 
 export interface RecipeConfig {

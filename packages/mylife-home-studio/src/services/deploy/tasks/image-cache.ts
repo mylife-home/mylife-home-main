@@ -1,6 +1,6 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as vfs from '../vfs';
-import * as apk from '../apk';
+import { createLogger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
+import * as apk from '../engine/apk';
 import { ExecutionContext } from '../recipe';
 
 export const metadata: TaskMetadata = {

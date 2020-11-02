@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
-import { Recipe } from '../../../../src/services/deploy/engine/recipe';
+import { Recipe } from '../../../src/services/deploy/recipe';
 import { setupDataDirectory, createExecutionContext } from './utils';
 
 describe('Recipe', () => {

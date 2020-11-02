@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
 import { SSHClient } from '../../../../src/services/deploy/engine/ssh';
 import { CmdHandler, SSHServer } from './ssh-server';
-import { expectFail } from './utils';
+import { expectFail } from '../utils';
 
 const useRealWorld = process.env.SSH_REAL_WORLD === '1';
 const realKeyAuthFile = '/Users/vincent/Downloads/id_rsa';

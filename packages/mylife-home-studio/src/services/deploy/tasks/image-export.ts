@@ -1,7 +1,6 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-const fs      = require('fs-extra');
-const utils   = require('../tasks-utils');
-const archive = require('../archive');
+import fs from 'fs-extra';
+import { createLogger, TaskImplementation, TaskMetadata, absolutePath } from '../engine/tasks-utils';
+import * as archive from '../engine/archive';
 
 export const metadata: TaskMetadata = {
   description : 'export the root fs of the image into the specified archive',
@@ -12,7 +11,7 @@ export const metadata: TaskMetadata = {
 
 export const execute: TaskImplementation = async (context, parameters) => {
   const { archiveName } = parameters;
-  const fullArchiveName = utils.absolutePath(archiveName);
+  const fullArchiveName = absolutePath(archiveName);
   const log = createLogger(context, 'image:export');
   log.info(`export '${fullArchiveName}'`);
 

@@ -1,4 +1,4 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import { createLogger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 export const metadata: TaskMetadata = {
   description: 'reset image data (root fs, config, image)',

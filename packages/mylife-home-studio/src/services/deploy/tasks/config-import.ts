@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
-import { createLogger, absolutePath, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as archive from '../archive';
+import { createLogger, absolutePath, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as archive from '../engine/archive';
 
 export const metadata: TaskMetadata = {
   description: 'Import the specified archive into the root fs of the config',

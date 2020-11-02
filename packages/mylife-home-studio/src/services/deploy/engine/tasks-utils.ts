@@ -1,7 +1,7 @@
 import path from 'path';
 import * as vfs from './vfs';
 import * as directories from '../directories';
-import { ExecutionContext } from './recipe';
+import { ExecutionContext } from '../recipe';
 
 export interface TaskMetadata {
   description: string;

@@ -1,4 +1,4 @@
-import { createLogger, fileAppendLine, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import { createLogger, fileAppendLine, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 export const metadata: TaskMetadata = {
   description: 'add a dtoverlay line in image usercfg.txt ( https://www.raspberrypi.org/documentation/configuration/device-tree.md )',

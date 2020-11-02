@@ -3,10 +3,10 @@ import path from 'path';
 import fs from 'fs-extra';
 import * as archive from '../../../../src/services/deploy/engine/archive';
 import * as vfs from '../../../../src/services/deploy/engine/vfs';
-import { formatStructure } from './utils';
+import { formatStructure } from '../utils';
 
-import contentArchiveBase from './content/archive-base';
-import contentArchiveConfig from './content/archive-config';
+import contentArchiveBase from '../content/archive-base';
+import contentArchiveConfig from '../content/archive-config';
 
 const source = path.resolve(__dirname, '../resources/files/rpi-devel-base.tar.gz');
 

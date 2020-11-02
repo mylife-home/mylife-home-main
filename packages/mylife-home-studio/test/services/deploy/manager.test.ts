@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import path from 'path';
 import fs from 'fs-extra';
-import * as directories from '../../../../src/services/deploy/directories';
-import { Manager, Run } from '../../../../src/services/deploy/engine/manager';
-import { TaskStepConfig } from '../../../../src/services/deploy/engine/recipe';
+import * as directories from '../../../src/services/deploy/directories';
+import { Manager, Run } from '../../../src/services/deploy/manager';
+import { TaskStepConfig } from '../../../src/services/deploy/recipe';
 import { setupDataDirectory } from './utils';
 
 describe('Manager', () => {
@@ -346,7 +346,7 @@ async function managerScope<TResult>(callback: (manager: Manager) => Promise<TRe
     return { result, events: me.events };
   } finally {
     me.close();
-    await manager.close();
+    await manager.terminate();
   }
 }
 

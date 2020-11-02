@@ -1,5 +1,5 @@
-import { createLogger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as vfs from '../vfs';
+import { createLogger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
 
 export const metadata: TaskMetadata = {
   description: 'add a daemon process to be started at a runlevel',

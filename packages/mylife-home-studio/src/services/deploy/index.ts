@@ -1,6 +1,5 @@
-import { components } from 'mylife-home-common';
-import { tools } from 'mylife-home-common';
-import { Manager } from './engine/manager';
+import { components, tools } from 'mylife-home-common';
+import { Manager } from './manager';
 import { Service, BuildParams } from '../types';
 
 // TODO: logs

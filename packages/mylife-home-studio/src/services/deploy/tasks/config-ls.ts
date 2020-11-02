@@ -1,4 +1,4 @@
-import { createLogger, directoryLs, TaskImplementation, TaskMetadata } from '../tasks-utils';
+import { createLogger, directoryLs, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
 
 export const metadata: TaskMetadata = {
   description: 'print the content of a directory from the config fs',

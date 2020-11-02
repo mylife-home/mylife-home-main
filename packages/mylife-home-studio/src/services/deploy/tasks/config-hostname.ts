@@ -1,7 +1,7 @@
 import { config } from 'process';
 import { ExecutionContext } from '../recipe';
-import { createLogger, Logger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as vfs from '../vfs';
+import { createLogger, Logger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
 
 export const metadata: TaskMetadata = {
   description: 'set the hostname',

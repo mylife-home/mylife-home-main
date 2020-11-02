@@ -1,4 +1,4 @@
-import { TaskMetadata, TaskImplementation } from '../tasks-utils';
+import { TaskMetadata, TaskImplementation } from '../engine/tasks-utils';
 
 import * as ConfigInit from './config-init';
 import * as ConfigImport from './config-import';

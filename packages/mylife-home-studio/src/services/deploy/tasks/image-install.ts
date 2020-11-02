@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { ConnectConfig } from 'ssh2';
-import { createLogger, absolutePath, Logger, TaskImplementation, TaskMetadata } from '../tasks-utils';
-import * as vfs from '../vfs';
-import { SSHClient } from '../ssh';
+import { createLogger, absolutePath, Logger, TaskImplementation, TaskMetadata } from '../engine/tasks-utils';
+import * as vfs from '../engine/vfs';
+import { SSHClient } from '../engine/ssh';
 
 export const metadata: TaskMetadata = {
   description: 'install the current root fs to the target host using SSH',

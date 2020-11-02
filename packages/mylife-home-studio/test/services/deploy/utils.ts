@@ -1,12 +1,12 @@
 import path from 'path';
 import { expect } from 'chai';
 import { tools } from 'mylife-home-common';
-import * as vfs from '../../../../src/services/deploy/engine/vfs';
-import { ExecutionContext } from '../../../../src/services/deploy/engine/recipe';
+import * as vfs from '../../../src/services/deploy/engine/vfs';
+import { ExecutionContext } from '../../../src/services/deploy/recipe';
 import contents from './content/files';
-import { RunLogSeverity } from '../../../../src/services/deploy/engine/manager';
-import * as directories from '../../../../src/services/deploy/directories';
-import { Config } from '../../../../src/services/deploy/config';
+import { RunLogSeverity } from '../../../src/services/deploy/manager';
+import * as directories from '../../../src/services/deploy/directories';
+import { Config } from '../../../src/services/deploy/config';
 
 export interface FormattedNode {
   indent: number;
