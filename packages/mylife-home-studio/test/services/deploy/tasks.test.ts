@@ -16,7 +16,7 @@ import { Server } from 'http';
 
 describe('Tasks', () => {
   beforeEach(() => {
-    setupDataDirectory(path.resolve(__dirname, '../resources'));
+    setupDataDirectory(path.resolve(__dirname, 'resources'));
   });
 
   describe('ImageImport', () => {
@@ -42,7 +42,7 @@ describe('Tasks', () => {
 
     beforeEach(() => {
       const app = express();
-      app.use(express.static(path.resolve(__dirname, '../resources/repository')));
+      app.use(express.static(path.resolve(__dirname, 'resources/repository')));
       server = app.listen(4242);
     });
 
@@ -471,7 +471,7 @@ async function runSshTest(hierarchy: Hierarchy, expectedHierarchy: Hierarchy, ex
     port: 8822,
     rootfs,
     cmdhandler,
-    hostKeys: [fs.readFileSync(path.resolve(__dirname, '../resources/files/id_rsa'))],
+    hostKeys: [fs.readFileSync(path.resolve(__dirname, 'resources/files/id_rsa'))],
   });
 
   try {

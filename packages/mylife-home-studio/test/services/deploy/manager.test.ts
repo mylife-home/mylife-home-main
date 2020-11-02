@@ -269,7 +269,7 @@ describe('Manager', () => {
 
   it('should execute a recipe with real async tasks', async () => {
     await fs.ensureDir(directories.files());
-    await fs.symlink(path.resolve(__dirname, '../resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
+    await fs.symlink(path.resolve(__dirname, 'resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
 
     const { result } = await managerScope(async (manager) => {
       manager.createRecipe('recipe', {
@@ -340,6 +340,7 @@ class ManagerEvents {
 
 async function managerScope<TResult>(callback: (manager: Manager) => Promise<TResult>) {
   const manager = new Manager();
+  await manager.init();
   const me = new ManagerEvents(manager);
   try {
     const result = await callback(manager);
