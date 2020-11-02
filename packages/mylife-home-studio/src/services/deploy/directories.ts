@@ -13,8 +13,8 @@ const directories: Directories = {
 };
 
 export function configure() {
-  
   const config = tools.getConfigItem<Config>('deploy');
+  
   directories.files = path.resolve(config.filesPath);
   directories.recipes = path.resolve(config.recipesPath);
 }
