@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import * as directories from '../../../../src/services/deploy/directories';
 import { Manager, Run } from '../../../../src/services/deploy/engine/manager';
+import { TaskStepConfig } from '../../../../src/services/deploy/engine/recipe';
 import { setupDataDirectory } from './utils';
 
 describe('Manager', () => {
@@ -156,7 +157,7 @@ describe('Manager', () => {
 
   it('should create and retrieve a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
-      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
+      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
       return manager.getRecipe('recipe');
     });
 
@@ -166,7 +167,7 @@ describe('Manager', () => {
 
   it('should delete a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
-      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
+      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
       manager.deleteRecipe('recipe');
       return manager.listRecipes();
     });
@@ -180,8 +181,8 @@ describe('Manager', () => {
 
   it('should update a simple recipe', async () => {
     const { result, events } = await managerScope(async (manager) => {
-      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
-      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
+      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      manager.createRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
       return manager.getRecipe('recipe');
     });
 
@@ -194,8 +195,8 @@ describe('Manager', () => {
 
   it('should list recipes', async () => {
     const { result, events } = await managerScope(async (manager) => {
-      manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
-      manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
+      manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
       return manager.listRecipes();
     });
 
@@ -208,8 +209,8 @@ describe('Manager', () => {
 
   it('should persist recipes', async () => {
     await managerScope(async (manager) => {
-      manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
-      manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
+      manager.createRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      manager.createRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
     });
 
     const { result } = await managerScope(async (manager) => {
@@ -225,7 +226,7 @@ describe('Manager', () => {
         steps: [
           { type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
           { type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } },
-        ],
+        ] as TaskStepConfig[],
       });
 
       const runId = manager.startRecipe('recipe');
@@ -275,7 +276,7 @@ describe('Manager', () => {
         steps: [
           { type: 'task', name: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } },
           { type: 'task', name: 'config-init', parameters: {} },
-        ],
+        ] as TaskStepConfig[],
       });
 
       const runId = manager.startRecipe('recipe');
