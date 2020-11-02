@@ -3,9 +3,9 @@ import { tools } from 'mylife-home-common';
 import { Config } from './config';
 
 interface Directories {
-  files: string;	
-  recipes: string;	
-}	
+  files: string;
+  recipes: string;
+}
 
 const directories: Directories = {
   files: null,
@@ -13,6 +13,7 @@ const directories: Directories = {
 };
 
 export function configure() {
+  
   const config = tools.getConfigItem<Config>('deploy');
   directories.files = path.resolve(config.filesPath);
   directories.recipes = path.resolve(config.recipesPath);
