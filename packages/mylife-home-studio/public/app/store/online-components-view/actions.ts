@@ -1,6 +1,8 @@
 import { createAction } from '@reduxjs/toolkit';
 import { ActionTypes, NetComponent, NetPlugin } from './types';
 
+// TODO: refactor to dispatch multiple updates at once
+
 export const setNotification = createAction<string>(ActionTypes.SET_NOTIFICATION);
 export const clearNotification = createAction(ActionTypes.CLEAR_NOTIFICATION);
 export const setPlugin = createAction<{ instanceName: string; plugin: NetPlugin; }>(ActionTypes.SET_PLUGIN);
