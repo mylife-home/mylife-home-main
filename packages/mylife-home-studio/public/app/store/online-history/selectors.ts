@@ -1,8 +1,8 @@
+import { createSelector } from '@reduxjs/toolkit';
 import matcher from 'matcher';
 import { AppState } from '../types';
 import { getTabsCount } from '../tabs/selectors';
 import { TabType } from '../tabs/types';
-import { createSelector } from '@reduxjs/toolkit';
 import { ComponentHistoryItem, CriteriaDefinition, HistoryItem, InstanceHistoryItem, StateHistoryItem } from './types';
 
 export const hasOnlineHistoryTab = (state: AppState) => getTabsCount(state, TabType.ONLINE_HISTORY) > 0;
