@@ -119,7 +119,8 @@ export function createExecutionContext(params?: Partial<ExecutionContext>): Exec
 export function setupDataDirectory(dataDir: string) {
   const config: Config = {
     filesPath: path.join(dataDir, 'files'),
-    recipesPath: path.join(dataDir, 'recipes')
+    recipesPath: path.join(dataDir, 'recipes'),
+    pinnedRecipesFile: path.join(dataDir, 'pinned-recipes.json')
   };
 
   tools.injectConfig({ deploy: config });

@@ -46,16 +46,16 @@ export class Deploy implements Service {
     await this.runs.terminate();
   }
 
-  private readonly setRecipe = async (session: Session, { name, config }: { name: string; config: RecipeConfig; }) => {
-    this.recipes.setRecipe(name, config);
+  private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig; }) => {
+    this.recipes.setRecipe(id, config);
   };
 
-  private readonly deleteRecipe = async (session: Session, { name }: { name: string; }) => {
-    this.recipes.deleteRecipe(name);
+  private readonly deleteRecipe = async (session: Session, { id }: { id: string; }) => {
+    this.recipes.deleteRecipe(id);
   };
 
-  private readonly startRecipe = async (session: Session, { name }: { name: string; }) => {
-    return this.runs.startRecipe(name);
+  private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
+    return this.runs.startRecipe(id);
   };
 
   private readonly startNotify = async (session: Session) => {
@@ -71,22 +71,22 @@ export class Deploy implements Service {
   };
 
   private emitTasks(notifier: SessionNotifier) {
-    for (const { name, ...metadata } of listMeta()) {
-      const notification: SetTaskNotification = { operation: 'task-set', name, metadata };
+    for (const { id, metadata } of listMeta()) {
+      const notification: SetTaskNotification = { operation: 'task-set', id, metadata };
       notifier.notify(notification);
     }
   }
 
   private emitRecipes(notifier: SessionNotifier) {
-    for (const name of this.recipes.listRecipes()) {
-      const config = this.recipes.getRecipe(name);
-      const notification: SetRecipeNotification = { operation: 'recipe-set', name, config };
+    for (const id of this.recipes.listRecipes()) {
+      const config = this.recipes.getRecipe(id);
+      const notification: SetRecipeNotification = { operation: 'recipe-set', id, config };
       notifier.notify(notification);
     }
 
-    for (const name of this.recipes.listRecipes()) {
-      if (this.recipes.isPinned(name)) {
-        const notification: PinRecipeNotification = { operation: 'recipe-pin', name, value: true };
+    for (const id of this.recipes.listRecipes()) {
+      if (this.recipes.isPinned(id)) {
+        const notification: PinRecipeNotification = { operation: 'recipe-pin', id, value: true };
         notifier.notify(notification);
       }
     }
@@ -112,19 +112,19 @@ export class Deploy implements Service {
     this.notifiers.removeNotifier(session, notifierId);
   };
 
-  private readonly handleRecipeSet = (name: string) => {
-    const config = this.recipes.getRecipe(name);
-    const notification: SetRecipeNotification = { operation: 'recipe-set', name, config };
+  private readonly handleRecipeSet = (id: string) => {
+    const config = this.recipes.getRecipe(id);
+    const notification: SetRecipeNotification = { operation: 'recipe-set', id, config };
     this.notifiers.notifyAll(notification);
   };
 
-  private readonly handleRecipeClear = (name: string) => {
-    const notification: ClearRecipeNotification = { operation: 'recipe-clear', name };
+  private readonly handleRecipeClear = (id: string) => {
+    const notification: ClearRecipeNotification = { operation: 'recipe-clear', id };
     this.notifiers.notifyAll(notification);
   };
 
-  private readonly handleRecipePinned = (name: string, value: boolean) => {
-    const notification: PinRecipeNotification = { operation: 'recipe-pin', name, value };
+  private readonly handleRecipePinned = (id: string, value: boolean) => {
+    const notification: PinRecipeNotification = { operation: 'recipe-pin', id, value };
     this.notifiers.notifyAll(notification);
   };
 

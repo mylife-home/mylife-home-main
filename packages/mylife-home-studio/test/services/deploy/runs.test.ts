@@ -14,8 +14,8 @@ describe('Runs', () => {
   it('should execute a simple recipe', async () => {
     await setRecipe('recipe', {
       steps: [
-        { type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
-        { type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } },
+        { type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
+        { type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } },
       ] as TaskStepConfig[],
     });
 
@@ -63,8 +63,8 @@ describe('Runs', () => {
 
     await setRecipe('recipe', {
       steps: [
-        { type: 'task', name: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } },
-        { type: 'task', name: 'config-init', parameters: {} },
+        { type: 'task', task: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } },
+        { type: 'task', task: 'config-init', parameters: {} },
       ] as TaskStepConfig[],
     });
 
@@ -141,13 +141,13 @@ async function runsScope<TResult>(callback: (runs: Runs) => Promise<TResult>) {
   }
 }
 
-async function waitTaskEnd(runs: Runs, runId: number) {
+async function waitTaskEnd(runs: Runs, runId: string) {
   if (runs.getRun(runId).status === 'ended') {
     return;
   }
 
   return new Promise<void>((resolve) => {
-    const listener = (endRunId: number) => {
+    const listener = (endRunId: string) => {
       if (endRunId !== runId) {
         return;
       }

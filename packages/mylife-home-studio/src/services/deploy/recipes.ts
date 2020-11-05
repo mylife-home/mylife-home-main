@@ -42,32 +42,32 @@ export class Recipes extends EventEmitter {
   async terminate() {
   }
 
-  setRecipe(name: string, config: RecipeConfig) {
+  setRecipe(id: string, config: RecipeConfig) {
     fs.ensureDirSync(directories.recipes());
 
-    const fullname = path.join(directories.recipes(), name + '.json');
+    const fullname = path.join(directories.recipes(), id + '.json');
     const exists = fs.existsSync(fullname);
     fs.writeFileSync(fullname, JSON.stringify(config));
 
-    this.recipes.set(name, config);
-    this.emit(exists ? 'recipe-updated' : 'recipe-created', name);
-    log.info(`recipe set: ${name}`);
+    this.recipes.set(id, config);
+    this.emit(exists ? 'recipe-updated' : 'recipe-created', id);
+    log.info(`recipe set: ${id}`);
   }
 
-  deleteRecipe(name: string) {
+  deleteRecipe(id: string) {
     fs.ensureDirSync(directories.recipes());
 
-    const fullname = path.join(directories.recipes(), name + '.json');
+    const fullname = path.join(directories.recipes(), id + '.json');
     if (!fs.existsSync(fullname)) {
       return;
     }
 
     fs.unlinkSync(fullname);
 
-    this.recipes.delete(name);
-    this.pins.delete(name);
-    this.emit('recipe-deleted', name);
-    log.info(`recipe deleted: ${name}`);
+    this.recipes.delete(id);
+    this.pins.delete(id);
+    this.emit('recipe-deleted', id);
+    log.info(`recipe deleted: ${id}`);
   }
 
   listRecipes() {
@@ -75,29 +75,29 @@ export class Recipes extends EventEmitter {
   }
 
   // no copy!
-  getRecipe(name: string) {
-    return this.recipes.get(name);
+  getRecipe(id: string) {
+    return this.recipes.get(id);
   }
 
-  pinRecipe(name: string, value: boolean) {
-    const oldValue = this.pins.has(name);
+  pinRecipe(id: string, value: boolean) {
+    const oldValue = this.pins.has(id);
     if (value === oldValue) {
       return;
     }
 
     if (value) {
-      this.pins.add(name);
+      this.pins.add(id);
     } else {
-      this.pins.delete(name);
+      this.pins.delete(id);
     }
 
     const fileName = directories.pins();
     fs.writeFileSync(fileName, JSON.stringify(Array.from(this.pins)));
 
-    this.emit('recipe-pinned', name, value);
+    this.emit('recipe-pinned', id, value);
   }
 
-  isPinned(name: string) {
-    return this.pins.has(name);
+  isPinned(id: string) {
+    return this.pins.has(id);
   }
 }

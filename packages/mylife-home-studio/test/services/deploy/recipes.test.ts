@@ -10,17 +10,17 @@ describe('Recipes', () => {
 
   it('should create and retrieve a simple recipe', async () => {
     const { result, events } = await recipesScope(async (recipes) => {
-      recipes.setRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
       return recipes.getRecipe('recipe');
     });
 
-    expect(result).to.deep.equal({ steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
+    expect(result).to.deep.equal({ steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } }] });
     expect(events).to.deep.equal([{ name: 'recipe-created', args: ['recipe'] }]);
   });
 
   it('should delete a simple recipe', async () => {
     const { result, events } = await recipesScope(async (recipes) => {
-      recipes.setRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
       recipes.deleteRecipe('recipe');
       return recipes.listRecipes();
     });
@@ -34,12 +34,12 @@ describe('Recipes', () => {
 
   it('should update a simple recipe', async () => {
     const { result, events } = await recipesScope(async (recipes) => {
-      recipes.setRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
-      recipes.setRecipe('recipe', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
       return recipes.getRecipe('recipe');
     });
 
-    expect(result).to.deep.equal({ steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
+    expect(result).to.deep.equal({ steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } }] });
     expect(events).to.deep.equal([
       { name: 'recipe-created', args: ['recipe'] },
       { name: 'recipe-updated', args: ['recipe'] },
@@ -48,8 +48,8 @@ describe('Recipes', () => {
 
   it('should list recipes', async () => {
     const { result, events } = await recipesScope(async (recipes) => {
-      recipes.setRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
-      recipes.setRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe1', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe2', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
       return recipes.listRecipes();
     });
 
@@ -62,8 +62,8 @@ describe('Recipes', () => {
 
   it('should persist recipes', async () => {
     await recipesScope(async (recipes) => {
-      recipes.setRecipe('recipe1', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
-      recipes.setRecipe('recipe2', { steps: [{ type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe1', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig] });
+      recipes.setRecipe('recipe2', { steps: [{ type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig] });
     });
 
     const { result } = await recipesScope(async (recipes) => {

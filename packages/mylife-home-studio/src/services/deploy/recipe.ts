@@ -16,8 +16,8 @@ export interface ExecutionContext {
 export class Recipe {
   private readonly steps: Step[] = [];
 
-  constructor(public readonly name: string) {
-    const fullname = path.join(directories.recipes(), name + '.json');
+  constructor(public readonly id: string) {
+    const fullname = path.join(directories.recipes(), id + '.json');
     if (!fs.existsSync(fullname)) {
       throw new Error(`not such recipe : ${name}`);
     }
@@ -36,13 +36,13 @@ export class Recipe {
 
   async execute(context: ExecutionContext) {
     const log = createLogger(context, 'recipe');
-    log.info(`begin '${this.name}'`);
+    log.info(`begin '${this.id}'`);
 
     for (const step of this.steps) {
       await step.execute(context);
     }
 
-    log.info(`end '${this.name}'`);
+    log.info(`end '${this.id}'`);
   }
 }
 
@@ -57,9 +57,9 @@ class TaskStep extends Step {
   constructor(config: TaskStepConfig) {
     super();
 
-    const task = tasks[makeUpperCamelCase(config.name)];
+    const task = tasks[makeUpperCamelCase(config.task)];
     if (!task) {
-      throw new Error(`Task does not exist : ${config.name}`);
+      throw new Error(`Task does not exist : ${config.task}`);
     }
 
     this.task = task;
@@ -109,7 +109,7 @@ class RecipeStep extends Step {
   constructor(config: RecipeStepConfig) {
     super();
 
-    this.recipe = new Recipe(config.name);
+    this.recipe = new Recipe(config.recipe);
   }
 
   async execute(context: ExecutionContext) {

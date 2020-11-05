@@ -31,7 +31,7 @@ export interface TaskDefinition {
   execute: TaskImplementation;
 }
 
-const tasks: { [type: string]: TaskDefinition } = {
+const tasks: { [type: string]: TaskDefinition; } = {
   ConfigInit,
   ConfigImport,
   ConfigHostname,
@@ -41,7 +41,7 @@ const tasks: { [type: string]: TaskDefinition } = {
   ConfigDaemon,
   ConfigLs,
   ConfigPack,
-  
+
   ImageImport,
   ImageRemove,
   ImageCache,
@@ -54,7 +54,7 @@ const tasks: { [type: string]: TaskDefinition } = {
   ImageInstall,
   ImageExport,
   ImageReset,
-  
+
   VariablesSet,
   VariablesReset,
 };
@@ -62,7 +62,7 @@ const tasks: { [type: string]: TaskDefinition } = {
 export default tasks;
 
 export function listMeta() {
-  return Object.entries(tasks).map(([name, task]) => ({ name: formatTaskName(name), ...task.metadata }));
+  return Object.entries(tasks).map(([name, task]) => ({ id: formatTaskName(name), metadata: task.metadata }));
 }
 
 function formatTaskName(name: string) {

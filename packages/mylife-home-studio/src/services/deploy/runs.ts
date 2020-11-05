@@ -9,7 +9,7 @@ const RUN_DELETE_TIMEOUT = 10 * 60 * 1000; // 10 mins
 
 export class Runs extends EventEmitter {
   private runIdCounter: number = 0;
-  private readonly runs = new Map<number, Run>();
+  private readonly runs = new Map<string, Run>();
   private readonly pendingTimeouts = new Set<NodeJS.Timeout>();
   private closing = false;
 
@@ -17,7 +17,7 @@ export class Runs extends EventEmitter {
     return Array.from(this.runs.keys());
   }
 
-  getRun(runId: number, withLogs = true): Run {
+  getRun(runId: string, withLogs = true): Run {
     const run = this.runs.get(runId);
     if (!run) {
       return;
@@ -30,17 +30,17 @@ export class Runs extends EventEmitter {
     return ret;
   }
 
-  startRecipe(name: string) {
+  startRecipe(recipe: string) {
     if (this.closing) {
       throw new Error('Cannot start recipe while closing manager');
     }
 
-    let runId: number;
+    let runId: string;
     this.once('run-begin', (id) => {
       runId = id;
     });
 
-    this.runRecipe(name);
+    this.runRecipe(recipe);
     return runId;
   }
 
@@ -71,14 +71,14 @@ export class Runs extends EventEmitter {
     this.runs.clear();
   }
 
-  private async runRecipe(name: string) {
+  private async runRecipe(recipe: string) {
     if (this.closing) {
       throw new Error('Cannot start recipe while closing manager');
     }
 
     const run: Run = {
-      id: ++this.runIdCounter,
-      recipe: name,
+      id: `run-${++this.runIdCounter}`,
+      recipe,
       logs: [],
       status: 'created',
       creation: Date.now(),

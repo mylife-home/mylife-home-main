@@ -1,11 +1,17 @@
 export interface Run {
-  id: number;
+  id: string;
   recipe: string;
   logs: RunLog[];
   status: 'created' | 'running' | 'ended';
   creation: number;
   end: number;
-  err: Error;
+  err: RunError;
+}
+
+export interface RunError {
+  message: string;
+  name: string;
+  stack: string;
 }
 
 export interface RunLog {
@@ -26,12 +32,12 @@ export interface StepConfig {
 }
 
 export interface TaskStepConfig extends StepConfig {
-  name: string;
+  task: string;
   parameters: TaskParameters;
 }
 
 export interface RecipeStepConfig extends StepConfig {
-  name: string;
+  recipe: string;
 }
 
 export interface TaskMetadata {
@@ -53,24 +59,24 @@ export interface UpdateDataNotification {
 // no clear, tasks are static
 export interface SetTaskNotification extends UpdateDataNotification {
   operation: 'task-set';
-  name: string;
+  id: string;
   metadata: TaskMetadata;
 }
 
 export interface SetRecipeNotification extends UpdateDataNotification {
   operation: 'recipe-set';
-  name: string;
+  id: string;
   config: RecipeConfig;
 }
 
 export interface ClearRecipeNotification extends UpdateDataNotification {
   operation: 'recipe-clear';
-  name: string;
+  id: string;
 }
 
 export interface PinRecipeNotification extends UpdateDataNotification {
   operation: 'recipe-pin';
-  name: string;
+  id: string;
   value: boolean;
 }
 
@@ -81,11 +87,11 @@ export interface SetRunNotification extends UpdateDataNotification {
 
 export interface ClearRunNotification extends UpdateDataNotification {
   operation: 'run-clear';
-  id: number;
+  id: string;
 }
 
 export interface AddRunLogNotification extends UpdateDataNotification {
   operation: 'run-add-log';
-  id: number;
+  id: string;
   log: RunLog;
 }
