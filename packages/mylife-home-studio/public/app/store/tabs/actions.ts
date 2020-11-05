@@ -60,9 +60,9 @@ export const newOnlineLogsTab = () => newTab({
 });
 
 export const newDeployManagerTab = () => newTab({
-  id: `deploy-manager-${++idCounter}`,
+  id: `deploy-${++idCounter}`,
   title: `Gestion du déploiement`,
-  type: TabType.DEPLOY_MANAGER,
+  type: TabType.DEPLOY,
   closable: true,
   data: null
 });

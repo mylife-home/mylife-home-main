@@ -8,7 +8,7 @@ export const enum TabType {
   ONLINE_HISTORY = 'online-history',
   ONLINE_INSTANCES_VIEW = 'online-entities-view',
   ONLINE_LOGS = 'online-logs',
-  DEPLOY_MANAGER = 'deploy-manager',
+  DEPLOY = 'deploy',
 }
 
 export interface NewTabData { }
