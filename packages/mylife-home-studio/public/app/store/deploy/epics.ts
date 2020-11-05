@@ -3,14 +3,14 @@ import { Observable } from 'rxjs';
 import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
-import { UpdateDataNotification } from '../../../../shared/deploy';
+import * as shared from '../../../../shared/deploy';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, pushUpdates } from './actions';
 import { hasDeployTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
-import { Update } from './types';
+import { AddRunLog, ClearRecipe, ClearRun, Run, RunLog, SetRecipe, SetRun, SetTask, Update } from './types';
 
 const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
@@ -71,7 +71,82 @@ function stopCall({ notifierId }: { notifierId: string; }) {
   return socket.call('deploy/stop-notify', { notifierId }) as Observable<void>;
 }
 
-function parseNotification(notification: UpdateDataNotification): Update {
-  // TODO;
-  return null;
+function parseNotification(notification: shared.UpdateDataNotification): Update {
+  switch (notification.operation) {
+    case 'task-set': {
+      const typedNotification = notification as shared.SetTaskNotification;
+      const update: SetTask = {
+        operation: 'task-set',
+        task: {
+          name: typedNotification.name,
+          metadata: typedNotification.metadata
+        }
+      };
+      return update;
+    }
+
+    case 'recipe-set': {
+      const typedNotification = notification as shared.SetRecipeNotification;
+      const update: SetRecipe = {
+        operation: 'recipe-set',
+        recipe: {
+          name: typedNotification.name,
+          config: typedNotification.config
+        }
+      };
+      return update;
+    }
+
+    case 'recipe-clear': {
+      const typedNotification = notification as shared.ClearRecipeNotification;
+      const update: ClearRecipe = {
+        operation: 'recipe-clear',
+        name: typedNotification.name
+      };
+      return update;
+    }
+
+    case 'run-set': {
+      const typedNotification = notification as shared.SetRunNotification;
+      const update: SetRun = {
+        operation: 'run-set',
+        run: parseRun(typedNotification.run)
+      };
+      return update;
+    }
+
+    case 'run-clear': {
+      const typedNotification = notification as shared.ClearRunNotification;
+      const update: ClearRun = {
+        operation: 'run-clear',
+        id: typedNotification.id
+      };
+      return update;
+    }
+
+    case 'run-add-log': {
+      const typedNotification = notification as shared.AddRunLogNotification;
+      const update: AddRunLog = {
+        operation: 'run-add-log',
+        id: typedNotification.id,
+        log: parseRunLog(typedNotification.log)
+      };
+      return update;
+    }
+  }
+}
+
+function parseRun(run: shared.Run): Run {
+  const { creation, end, logs, ...props } = run;
+  return {
+    ...props,
+    creation: new Date(creation),
+    end: new Date(end),
+    logs: logs && logs.map(parseRunLog),
+  };
+}
+
+function parseRunLog(log: shared.RunLog): RunLog {
+  const { date, ...props } = log;
+  return { ...props, date: new Date(date) };
 }
