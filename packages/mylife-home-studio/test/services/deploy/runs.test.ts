@@ -14,8 +14,8 @@ describe('Runs', () => {
   it('should execute a simple recipe', async () => {
     await setRecipe('recipe', {
       steps: [
-        { type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
-        { type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } },
+        { type: 'task', task: 'variables-set', parameters: { name: 'variable1', value: 'value1' } } as TaskStepConfig,
+        { type: 'task', task: 'variables-set', parameters: { name: 'variable2', value: 'value2' } } as TaskStepConfig,
       ] as TaskStepConfig[],
     });
 
@@ -63,8 +63,8 @@ describe('Runs', () => {
 
     await setRecipe('recipe', {
       steps: [
-        { type: 'task', task: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } },
-        { type: 'task', task: 'config-init', parameters: {} },
+        { type: 'task', task: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } } as TaskStepConfig,
+        { type: 'task', task: 'config-init', parameters: {} } as TaskStepConfig,
       ] as TaskStepConfig[],
     });
 
