@@ -1,4 +1,3 @@
-
 export interface Run {
   id: number;
   recipe: string;
@@ -17,6 +16,13 @@ export interface RunLog {
 }
 
 export type RunLogSeverity = 'debug' | 'info' | 'warning' | 'error';
+
+export interface RunLog {
+  date: number;
+  category: string;
+  severity: RunLogSeverity;
+  message: string;
+}
 
 export interface RecipeConfig {
   steps: StepConfig[];

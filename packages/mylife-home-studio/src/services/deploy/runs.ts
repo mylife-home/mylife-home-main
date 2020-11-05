@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { logger } from 'mylife-home-common';
 import { ExecutionContext, Recipe } from './recipe';
-import { Run, RunLogSeverity } from '../../../shared/deploy';
+import { Run, RunLog, RunLogSeverity } from '../../../shared/deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:deploy:runs');
 
@@ -87,7 +87,7 @@ export class Runs extends EventEmitter {
     };
 
     const logger = (category: string, severity: RunLogSeverity, message: string) => {
-      const log = { date: Date.now(), category, severity, message };
+      const log: RunLog = { date: Date.now(), category, severity, message };
       run.logs.push(log);
       this.emit('run-log', run.id, log);
     };
