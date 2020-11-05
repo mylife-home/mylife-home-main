@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { logger } from 'mylife-home-common';
 import { ExecutionContext, Recipe } from './recipe';
-import { Run, RunLog, RunLogSeverity } from '../../../shared/deploy';
+import { Run, RunError, RunLog, RunLogSeverity } from '../../../shared/deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:deploy:runs');
 
@@ -105,7 +105,7 @@ export class Runs extends EventEmitter {
 
       await recipe.execute(context);
     } catch (err) {
-      run.err = err;
+      run.err = formatError(err);
       log.error(err, `run '${run.id}' error`);
     }
 
@@ -122,4 +122,10 @@ export class Runs extends EventEmitter {
 
     this.pendingTimeouts.add(timeout);
   }
+}
+
+function formatError(err: Error): RunError {
+  const { message, stack } = err;
+  const type = err.constructor.name;
+  return { message, stack, name };
 }
