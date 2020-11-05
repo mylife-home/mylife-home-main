@@ -31,9 +31,9 @@ describe('Runs', () => {
     });
 
     expect(result).to.deep.equal({
-      runs: [1],
+      runs: ['run-1'],
       run: {
-        id: 1,
+        id: 'run-1',
         recipe: 'recipe',
         status: 'ended',
         err: null,
@@ -47,13 +47,13 @@ describe('Runs', () => {
     });
 
     expect(stripLogEventTimes(events)).to.deep.equal([
-      { name: 'run-created', args: [1, 'recipe'] },
-      { name: 'run-begin', args: [1] },
-      { name: 'run-log', args: [1, { severity: 'info', category: 'recipe', message: "begin 'recipe'" }] },
-      { name: 'run-log', args: [1, { severity: 'info', category: 'variables:set', message: 'variable1 = value1' }] },
-      { name: 'run-log', args: [1, { severity: 'info', category: 'variables:set', message: 'variable2 = value2' }] },
-      { name: 'run-log', args: [1, { severity: 'info', category: 'recipe', message: "end 'recipe'" }] },
-      { name: 'run-end', args: [1] },
+      { name: 'run-created', args: ['run-1', 'recipe'] },
+      { name: 'run-begin', args: ['run-1'] },
+      { name: 'run-log', args: ['run-1', { severity: 'info', category: 'recipe', message: "begin 'recipe'" }] },
+      { name: 'run-log', args: ['run-1', { severity: 'info', category: 'variables:set', message: 'variable1 = value1' }] },
+      { name: 'run-log', args: ['run-1', { severity: 'info', category: 'variables:set', message: 'variable2 = value2' }] },
+      { name: 'run-log', args: ['run-1', { severity: 'info', category: 'recipe', message: "end 'recipe'" }] },
+      { name: 'run-end', args: ['run-1'] },
     ]);
   });
 
@@ -79,7 +79,7 @@ describe('Runs', () => {
     result.logs = result.logs.filter((it) => it.severity !== 'debug');
 
     expect(result).to.deep.equal({
-      id: 1,
+      id: 'run-1',
       recipe: 'recipe',
       status: 'ended',
       err: null,

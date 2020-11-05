@@ -71,14 +71,14 @@ export class Runs extends EventEmitter {
     this.runs.clear();
   }
 
-  private async runRecipe(recipe: string) {
+  private async runRecipe(recipeId: string) {
     if (this.closing) {
       throw new Error('Cannot start recipe while closing manager');
     }
 
     const run: Run = {
       id: `run-${++this.runIdCounter}`,
-      recipe,
+      recipe: recipeId,
       logs: [],
       status: 'created',
       creation: Date.now(),
@@ -100,7 +100,7 @@ export class Runs extends EventEmitter {
     this.emit('run-begin', run.id);
 
     try {
-      const recipe = new Recipe(name);
+      const recipe = new Recipe(recipeId);
       const context: ExecutionContext = { logger, root: null, config: null, variables: null };
 
       await recipe.execute(context);
@@ -126,6 +126,6 @@ export class Runs extends EventEmitter {
 
 function formatError(err: Error): RunError {
   const { message, stack } = err;
-  const type = err.constructor.name;
+  const name = err.constructor.name;
   return { message, stack, name };
 }
