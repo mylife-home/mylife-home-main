@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import { logger } from 'mylife-home-common';
 import fs from 'fs-extra';
 import path from 'path';
+import { logger } from 'mylife-home-common';
 import * as directories from './directories';
 import { RecipeConfig } from '../../../shared/deploy';
 
