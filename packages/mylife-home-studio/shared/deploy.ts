@@ -53,7 +53,18 @@ export interface TaskMetadata {
 
 export type TaskParameters = { [key: string]: string; };
 
-export interface UpdateRecipeNotification {
+export interface UpdateDataNotification {
+  type: 'task' | 'recipe' | 'run';
+}
+
+// no clear, tasks are static
+export interface SetTaskNotification extends UpdateDataNotification {
+  operation: 'set';
+  metadata: TaskMetadata & { name: string; };
+}
+
+export interface UpdateRecipeNotification extends UpdateDataNotification {
+  type: 'recipe';
   operation: 'set' | 'clear';
 }
 
@@ -68,7 +79,8 @@ export interface ClearRecipeNotification extends UpdateRecipeNotification {
   name: string;
 }
 
-export interface UpdateRunNotification {
+export interface UpdateRunNotification extends UpdateDataNotification {
+  type: 'run';
   operation: 'set' | 'clear' | 'add-log';
 }
 
