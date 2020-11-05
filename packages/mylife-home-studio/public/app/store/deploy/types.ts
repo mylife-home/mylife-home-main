@@ -55,12 +55,12 @@ export interface SetRecipe extends Update {
 
 export interface ClearRecipe extends Update {
   operation: 'recipe-clear';
-  name: string;
+  id: string;
 }
 
 export interface PinRecipe extends Update {
   operation: 'recipe-pin';
-  name: string;
+  id: string;
   value: boolean;
 }
 

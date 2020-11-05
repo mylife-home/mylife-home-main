@@ -78,7 +78,7 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const update: SetTask = {
         operation: 'task-set',
         task: {
-          name: typedNotification.name,
+          id: typedNotification.id,
           metadata: typedNotification.metadata
         }
       };
@@ -90,7 +90,7 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const update: SetRecipe = {
         operation: 'recipe-set',
         recipe: {
-          name: typedNotification.name,
+          id: typedNotification.id,
           config: typedNotification.config,
           pinned: null, // on set recipe we don't have this info
         }
@@ -102,7 +102,7 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const typedNotification = notification as shared.ClearRecipeNotification;
       const update: ClearRecipe = {
         operation: 'recipe-clear',
-        name: typedNotification.name
+        id: typedNotification.id
       };
       return update;
     }
@@ -111,7 +111,7 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const typedNotification = notification as shared.PinRecipeNotification;
       const update: PinRecipe = {
         operation: 'recipe-pin',
-        name: typedNotification.name,
+        id: typedNotification.id,
         value: typedNotification.value
       };
       return update;
