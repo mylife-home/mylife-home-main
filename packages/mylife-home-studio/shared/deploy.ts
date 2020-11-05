@@ -47,7 +47,7 @@ export interface TaskMetadata {
 export type TaskParameters = { [key: string]: string; };
 
 export interface UpdateDataNotification {
-  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'run-set' | 'run-clear' | 'run-add-log';
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log';
 }
 
 // no clear, tasks are static
@@ -66,6 +66,12 @@ export interface SetRecipeNotification extends UpdateDataNotification {
 export interface ClearRecipeNotification extends UpdateDataNotification {
   operation: 'recipe-clear';
   name: string;
+}
+
+export interface PinRecipeNotification extends UpdateDataNotification {
+  operation: 'recipe-pin';
+  name: string;
+  value: boolean;
 }
 
 export interface SetRunNotification extends UpdateDataNotification {

@@ -1,4 +1,4 @@
-import { AddRunLogNotification, ClearRecipeNotification, ClearRunNotification, RecipeConfig, RunLog, SetRecipeNotification, SetRunNotification, SetTaskNotification } from '../../../shared/deploy';
+import { AddRunLogNotification, ClearRecipeNotification, ClearRunNotification, PinRecipeNotification, RecipeConfig, RunLog, SetRecipeNotification, SetRunNotification, SetTaskNotification } from '../../../shared/deploy';
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
@@ -18,6 +18,7 @@ export class Deploy implements Service {
     this.recipes.on('recipe-created', this.handleRecipeSet);
     this.recipes.on('recipe-updated', this.handleRecipeSet);
     this.recipes.on('recipe-deleted', this.handleRecipeClear);
+    this.recipes.on('recipe-pinned', this.handleRecipePinned);
 
     this.runs.on('run-created', this.handleRunSet);
     this.runs.on('run-begin', this.handleRunSet);
@@ -82,6 +83,13 @@ export class Deploy implements Service {
       const notification: SetRecipeNotification = { operation: 'recipe-set', name, config };
       notifier.notify(notification);
     }
+
+    for (const name of this.recipes.listRecipes()) {
+      if (this.recipes.isPinned(name)) {
+        const notification: PinRecipeNotification = { operation: 'recipe-pin', name, value: true };
+        notifier.notify(notification);
+      }
+    }
   }
 
   private emitRuns(notifier: SessionNotifier) {
@@ -112,6 +120,11 @@ export class Deploy implements Service {
 
   private readonly handleRecipeClear = (name: string) => {
     const notification: ClearRecipeNotification = { operation: 'recipe-clear', name };
+    this.notifiers.notifyAll(notification);
+  };
+
+  private readonly handleRecipePinned = (name: string, value: boolean) => {
+    const notification: PinRecipeNotification = { operation: 'recipe-pin', name, value };
     this.notifiers.notifyAll(notification);
   };
 
