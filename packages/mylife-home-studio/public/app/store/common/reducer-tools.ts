@@ -21,6 +21,16 @@ export function createTable<T extends ItemWithId>(iterable?: Iterable<T>): Table
   return table;
 }
 
+export function tableSet<T extends ItemWithId>(table: Table<T>, item: T, sortById = false) {
+  const { id } = item;
+
+  if (!table.byId[id]) {
+    arrayAdd(table.allIds, id, sortById);
+  }
+
+  table.byId[id] = item;
+}
+
 export function tableAdd<T extends ItemWithId>(table: Table<T>, item: T, sortById = false) {
   const { id } = item;
   if (table.byId[id]) {
@@ -43,7 +53,7 @@ export function tableRemove<T extends ItemWithId>(table: Table<T>, id: string) {
 export function arrayAdd(array: string[], id: string, sortById = false) {
   array.push(id);
 
-  if(sortById) {
+  if (sortById) {
     array.sort();
   }
 }
