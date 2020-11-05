@@ -10,7 +10,7 @@ import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, pushUpdates } from './actions';
 import { hasDeployTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
-import { AddRunLog, ClearRecipe, ClearRun, Run, RunLog, SetRecipe, SetRun, SetTask, Update } from './types';
+import { AddRunLog, ClearRecipe, ClearRun, PinRecipe, Run, RunLog, SetRecipe, SetRun, SetTask, Update } from './types';
 
 const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
@@ -102,6 +102,16 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const update: ClearRecipe = {
         operation: 'recipe-clear',
         name: typedNotification.name
+      };
+      return update;
+    }
+
+    case 'recipe-clear': {
+      const typedNotification = notification as shared.PinRecipeNotification;
+      const update: PinRecipe = {
+        operation: 'recipe-pin',
+        name: typedNotification.name,
+        value: typedNotification.value
       };
       return update;
     }

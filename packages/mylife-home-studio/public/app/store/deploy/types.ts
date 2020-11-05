@@ -38,7 +38,7 @@ export interface RunLog {
 
 
 export interface Update {
-  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'run-set' | 'run-clear' | 'run-add-log';
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log';
 }
 
 // no clear, tasks are static
@@ -55,6 +55,12 @@ export interface SetRecipe extends Update {
 export interface ClearRecipe extends Update {
   operation: 'recipe-clear';
   name: string;
+}
+
+export interface PinRecipe extends Update {
+  operation: 'recipe-pin';
+  name: string;
+  value: boolean;
 }
 
 export interface SetRun extends Update {
