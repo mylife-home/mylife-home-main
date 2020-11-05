@@ -21,3 +21,35 @@ export function createTable<T extends ItemWithId>(iterable?: Iterable<T>): Table
   return table;
 }
 
+export function tableAdd<T extends ItemWithId>(table: Table<T>, item: T, sortById = false) {
+  const { id } = item;
+  if (table.byId[id]) {
+    return;
+  }
+
+  table.byId[id] = item;
+  arrayAdd(table.allIds, id, sortById);
+}
+
+export function tableRemove<T extends ItemWithId>(table: Table<T>, id: string) {
+  if (!table.byId[id]) {
+    return;
+  }
+
+  delete table.byId[id];
+  arrayRemove(table.allIds, id);
+}
+
+export function arrayAdd(array: string[], id: string, sortById = false) {
+  array.push(id);
+
+  if(sortById) {
+    array.sort();
+  }
+}
+
+export function arrayRemove(array: string[], id: string) {
+  // could use binary search ?
+  const index = array.indexOf(id);
+  array.splice(index, 1);
+}

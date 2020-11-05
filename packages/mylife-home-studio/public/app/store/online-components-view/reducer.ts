@@ -1,6 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { createTable, ItemWithId } from '../common/reducer-tools';
-import { Table } from '../common/types';
+import { arrayAdd, arrayRemove, createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 import { MemberType } from '../core-designer/types';
 import { ActionTypes, OnlineComponentsViewState, Plugin, Component, State, NetPlugin, NetComponent, Instance } from './types';
 
@@ -34,8 +33,8 @@ export default createReducer(initialState, {
     const actionIds: string[] = Object.entries(plugin.members).filter(([name, item]) => item.memberType === MemberType.ACTION).map(([name]) => name);
     const configIds: string[] = Object.keys(plugin.config).sort();
 
-    tableAdd(state.plugins, { ...plugin, id, display, instance: instanceName, stateIds, actionIds, configIds, components: [] });
-    arrayAdd(instance.plugins, id);
+    tableAdd(state.plugins, { ...plugin, id, display, instance: instanceName, stateIds, actionIds, configIds, components: [] }, true);
+    arrayAdd(instance.plugins, id, true);
   },
 
   [ActionTypes.CLEAR_PLUGIN]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
@@ -65,9 +64,9 @@ export default createReducer(initialState, {
 
     const instance = state.instances.byId[instanceName];
     const id = `${instanceName}:${component.id}`;
-    tableAdd(state.components, { id, display: component.id, instance: instanceName, plugin: pluginId, states: [] } as Component);
-    arrayAdd(plugin.components, id);
-    arrayAdd(instance.components, id);
+    tableAdd(state.components, { id, display: component.id, instance: instanceName, plugin: pluginId, states: [] } as Component, true);
+    arrayAdd(plugin.components, id, true);
+    arrayAdd(instance.components, id, true);
   },
 
   [ActionTypes.CLEAR_COMPONENT]: (state, action: PayloadAction<{ instanceName: string; id: string; }>) => {
@@ -97,40 +96,10 @@ export default createReducer(initialState, {
       return;
     }
 
-    arrayAdd(component.states, id);
-    tableAdd(state.states, { id, instance: instanceName, component: component.id, name, value });
+    arrayAdd(component.states, id, true);
+    tableAdd(state.states, { id, instance: instanceName, component: component.id, name, value }, true);
   },
 });
-
-function tableAdd<T extends ItemWithId>(table: Table<T>, item: T) {
-  const { id } = item;
-  if (table.byId[id]) {
-    return;
-  }
-
-  table.byId[id] = item;
-  arrayAdd(table.allIds, id);
-}
-
-function tableRemove<T extends ItemWithId>(table: Table<T>, id: string) {
-  if (!table.byId[id]) {
-    return;
-  }
-
-  delete table.byId[id];
-  arrayRemove(table.allIds, id);
-}
-
-function arrayAdd(array: string[], id: string) {
-  array.push(id);
-  array.sort(); // sort by id
-}
-
-function arrayRemove(array: string[], id: string) {
-  // could use binary search ?
-  const index = array.indexOf(id);
-  array.splice(index, 1);
-}
 
 function ensureInstance(state: OnlineComponentsViewState, instanceName: string): Instance {
   const existing = state.instances.byId[instanceName];
@@ -139,7 +108,7 @@ function ensureInstance(state: OnlineComponentsViewState, instanceName: string):
   }
 
   const newInstance: Instance = { id: instanceName, display: instanceName, plugins: [], components: [] };
-  tableAdd(state.instances, newInstance);
+  tableAdd(state.instances, newInstance, true);
   return newInstance;
 }
 
