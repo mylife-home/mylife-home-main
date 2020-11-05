@@ -128,18 +128,18 @@ export class Deploy implements Service {
     this.notifiers.notifyAll(notification);
   };
 
-  private readonly handleRunSet = (id: number) => {
+  private readonly handleRunSet = (id: string) => {
     const run = this.runs.getRun(id, false);
     const notification: SetRunNotification = { operation: 'run-set', run };
     this.notifiers.notifyAll(notification);
   };
 
-  private readonly handleRunClear = (id: number) => {
+  private readonly handleRunClear = (id: string) => {
     const notification: ClearRunNotification = { operation: 'run-clear', id };
     this.notifiers.notifyAll(notification);
   };
 
-  private readonly handleRunLog = (id: number, log: RunLog) => {
+  private readonly handleRunLog = (id: string, log: RunLog) => {
     const notification: AddRunLogNotification = { operation: 'run-add-log', id, log };
     this.notifiers.notifyAll(notification);
   };
