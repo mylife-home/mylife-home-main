@@ -47,48 +47,38 @@ export interface TaskMetadata {
 export type TaskParameters = { [key: string]: string; };
 
 export interface UpdateDataNotification {
-  type: 'task' | 'recipe' | 'run';
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'run-set' | 'run-clear' | 'run-add-log';
 }
 
 // no clear, tasks are static
 export interface SetTaskNotification extends UpdateDataNotification {
-  operation: 'set';
+  operation: 'task-set';
   metadata: TaskMetadata & { name: string; };
 }
 
-export interface UpdateRecipeNotification extends UpdateDataNotification {
-  type: 'recipe';
-  operation: 'set' | 'clear';
-}
-
-export interface SetRecipeNotification extends UpdateRecipeNotification {
-  operation: 'set';
+export interface SetRecipeNotification extends UpdateDataNotification {
+  operation: 'recipe-set';
   name: string;
   config?: RecipeConfig;
 }
 
-export interface ClearRecipeNotification extends UpdateRecipeNotification {
-  operation: 'clear';
+export interface ClearRecipeNotification extends UpdateDataNotification {
+  operation: 'recipe-clear';
   name: string;
 }
 
-export interface UpdateRunNotification extends UpdateDataNotification {
-  type: 'run';
-  operation: 'set' | 'clear' | 'add-log';
-}
-
-export interface SetRunNotification extends UpdateRunNotification {
-  operation: 'set';
+export interface SetRunNotification extends UpdateDataNotification {
+  operation: 'run-set';
   run: Run;
 }
 
-export interface ClearRunNotification extends UpdateRunNotification {
-  operation: 'clear';
+export interface ClearRunNotification extends UpdateDataNotification {
+  operation: 'run-clear';
   id: number;
 }
 
-export interface AddRunLogNotification extends UpdateRunNotification {
-  operation: 'add-log';
+export interface AddRunLogNotification extends UpdateDataNotification {
+  operation: 'run-add-log';
   id: number;
   log: RunLog;
 }

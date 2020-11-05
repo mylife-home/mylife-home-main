@@ -71,7 +71,7 @@ export class Deploy implements Service {
 
   private emitTasks(notifier: SessionNotifier) {
     for (const metadata of listMeta()) {
-      const notification: SetTaskNotification = { type: 'task', operation: 'set', metadata };
+      const notification: SetTaskNotification = { operation: 'task-set', metadata };
       notifier.notify(notification);
     }
   }
@@ -79,7 +79,7 @@ export class Deploy implements Service {
   private emitRecipes(notifier: SessionNotifier) {
     for (const name of this.recipes.listRecipes()) {
       const config = this.recipes.getRecipe(name);
-      const notification: SetRecipeNotification = { type: 'recipe', operation: 'set', name, config };
+      const notification: SetRecipeNotification = { operation: 'recipe-set', name, config };
       notifier.notify(notification);
     }
   }
@@ -90,11 +90,11 @@ export class Deploy implements Service {
       const logs = run.logs;
       run.logs = null;
 
-      const notification: SetRunNotification = { type: 'run', operation: 'set', run };
+      const notification: SetRunNotification = { operation: 'run-set', run };
       notifier.notify(notification);
 
       for (const log of logs) {
-        const notification: AddRunLogNotification = { type: 'run', operation: 'add-log', id, log };
+        const notification: AddRunLogNotification = { operation: 'run-add-log', id, log };
         notifier.notify(notification);
       }
     }
@@ -106,28 +106,28 @@ export class Deploy implements Service {
 
   private readonly handleRecipeSet = (name: string) => {
     const config = this.recipes.getRecipe(name);
-    const notification: SetRecipeNotification = { type: 'recipe', operation: 'set', name, config };
+    const notification: SetRecipeNotification = { operation: 'recipe-set', name, config };
     this.notifiers.notifyAll(notification);
   };
 
   private readonly handleRecipeClear = (name: string) => {
-    const notification: ClearRecipeNotification = { type: 'recipe', operation: 'clear', name };
+    const notification: ClearRecipeNotification = { operation: 'recipe-clear', name };
     this.notifiers.notifyAll(notification);
   };
 
   private readonly handleRunSet = (id: number) => {
     const run = this.runs.getRun(id, false);
-    const notification: SetRunNotification = { type: 'run', operation: 'set', run };
+    const notification: SetRunNotification = { operation: 'run-set', run };
     this.notifiers.notifyAll(notification);
   };
 
   private readonly handleRunClear = (id: number) => {
-    const notification: ClearRunNotification = { type: 'run', operation: 'clear', id };
+    const notification: ClearRunNotification = { operation: 'run-clear', id };
     this.notifiers.notifyAll(notification);
   };
 
   private readonly handleRunLog = (id: number, log: RunLog) => {
-    const notification: AddRunLogNotification = { type: 'run', operation: 'add-log', id, log };
+    const notification: AddRunLogNotification = { operation: 'run-add-log', id, log };
     this.notifiers.notifyAll(notification);
   };
 }
