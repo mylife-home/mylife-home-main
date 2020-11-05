@@ -11,7 +11,7 @@ import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
   newCoreDesignerTab, newUiDesignerTab,
   newOnlineComponentsViewTab, newOnlineHistoryTab, newOnlineInstancesViewTab, newOnlineLogsTab, 
-  newDeployManagerTab
+  newDeployTab
 } from '../../store/tabs/actions';
 
 import * as schema from '../../files/schema';
@@ -31,7 +31,7 @@ const StartPage: FunctionComponent = () => {
   const { 
     newCoreDesignerTab, newUiDesignerTab, 
     newOnlineComponentsViewTab: newOnlineComponentsView, newOnlineHistoryTab: newOnlineHistory, newOnlineInstancesViewTab: newOnlineInstancesView, newOnlineLogsTab: newOnlineLogs, 
-    newDeployManagerTab: newDeployManager
+    newDeployTab: newDeploy
   } = useConnect();
 
   const classes = useStyles();
@@ -72,7 +72,7 @@ const StartPage: FunctionComponent = () => {
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newDeployManager}>Gestionnaire du déploiement</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newDeploy}>Gestionnaire du déploiement</Link>
       </Grid>
     </Grid>
   );
@@ -88,6 +88,6 @@ function useConnect() {
     newOnlineHistoryTab,
     newOnlineInstancesViewTab,
     newOnlineLogsTab,
-    newDeployManagerTab,
+    newDeployTab,
   });
 }

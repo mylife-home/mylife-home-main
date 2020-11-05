@@ -9,7 +9,7 @@ import OnlineComponentsView from '../online-components-view';
 import OnlineHistory from '../online-history';
 import OnlineInstancesView from '../online-instances-view';
 import OnlineLogs from '../online-logs';
-import DeployManager from '../deploy-manager';
+import Deploy from '../deploy';
 
 import { AppState } from '../../store/types';
 import { TabType } from '../../store/tabs/types';
@@ -34,8 +34,8 @@ const Panel: FunctionComponent = () => {
       return (<OnlineInstancesView />);
     case TabType.ONLINE_LOGS:
       return (<OnlineLogs />);
-    case TabType.DEPLOY_MANAGER:
-      return (<DeployManager />);
+    case TabType.DEPLOY:
+      return (<Deploy />);
   }
 };
 

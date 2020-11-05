@@ -59,7 +59,7 @@ export const newOnlineLogsTab = () => newTab({
   data: null
 });
 
-export const newDeployManagerTab = () => newTab({
+export const newDeployTab = () => newTab({
   id: `deploy-${++idCounter}`,
   title: `Gestion du déploiement`,
   type: TabType.DEPLOY,
