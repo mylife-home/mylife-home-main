@@ -12,7 +12,7 @@ describe('Runs', () => {
   afterEach(dataDirDestroy);
 
   it('should execute a simple recipe', async () => {
-    await createRecipe('recipe', {
+    await setRecipe('recipe', {
       steps: [
         { type: 'task', name: 'variables-set', parameters: { name: 'variable1', value: 'value1' } },
         { type: 'task', name: 'variables-set', parameters: { name: 'variable2', value: 'value2' } },
@@ -61,7 +61,7 @@ describe('Runs', () => {
     await fs.ensureDir(directories.files());
     await fs.symlink(path.resolve(__dirname, 'resources/files/rpi-devel-base.tar.gz'), path.join(directories.files(), 'rpi-devel-base.tar.gz'));
 
-    await createRecipe('recipe', {
+    await setRecipe('recipe', {
       steps: [
         { type: 'task', name: 'image-import', parameters: { archiveName: 'rpi-devel-base.tar.gz', rootPath: 'mmcblk0p1' } },
         { type: 'task', name: 'config-init', parameters: {} },
@@ -179,9 +179,9 @@ function stripLogEventTimes(events: { name: string; args: any[]; }[]) {
   });
 }
 
-async function createRecipe(name: string, config: RecipeConfig) {
+async function setRecipe(name: string, config: RecipeConfig) {
   const recipes = new Recipes();
   await recipes.init();
-  recipes.createRecipe(name, config);
+  recipes.setRecipe(name, config);
   await recipes.terminate();
 }

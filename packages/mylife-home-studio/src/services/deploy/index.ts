@@ -32,7 +32,7 @@ export class Deploy implements Service {
     await this.runs.init();
     this.notifiers.init();
 
-    Services.instance.sessionManager.registerServiceHandler('deploy/create-recipe', this.createRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/create-recipe', this.setRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/delete-recipe', this.deleteRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
 
@@ -45,8 +45,8 @@ export class Deploy implements Service {
     await this.runs.terminate();
   }
 
-  private readonly createRecipe = async (session: Session, { name, config }: { name: string; config: RecipeConfig; }) => {
-    this.recipes.createRecipe(name, config);
+  private readonly setRecipe = async (session: Session, { name, config }: { name: string; config: RecipeConfig; }) => {
+    this.recipes.setRecipe(name, config);
   };
 
   private readonly deleteRecipe = async (session: Session, { name }: { name: string; }) => {

@@ -27,7 +27,7 @@ export class Recipes extends EventEmitter {
   async terminate() {
   }
 
-  createRecipe(name: string, config: RecipeConfig) {
+  setRecipe(name: string, config: RecipeConfig) {
     fs.ensureDirSync(directories.recipes());
 
     const fullname = path.join(directories.recipes(), name + '.json');
