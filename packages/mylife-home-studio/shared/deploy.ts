@@ -52,3 +52,38 @@ export interface TaskMetadata {
 }
 
 export type TaskParameters = { [key: string]: string; };
+
+export interface UpdateRecipeNotification {
+  operation: 'set' | 'clear';
+}
+
+export interface SetRecipeNotification extends UpdateRecipeNotification {
+  operation: 'set';
+  name: string;
+  config?: RecipeConfig;
+}
+
+export interface ClearRecipeNotification extends UpdateRecipeNotification {
+  operation: 'clear';
+  name: string;
+}
+
+export interface UpdateRunNotification {
+  operation: 'set' | 'clear' | 'add-log';
+}
+
+export interface SetRunNotification extends UpdateRunNotification {
+  operation: 'set';
+  run: Run;
+}
+
+export interface ClearRunNotification extends UpdateRunNotification {
+  operation: 'clear';
+  id: number;
+}
+
+export interface AddRunLogNotification extends UpdateRunNotification {
+  operation: 'add-log';
+  id: number;
+  log: RunLog;
+}
