@@ -7,11 +7,11 @@ export const enum ActionTypes {
   PUSH_UPDATES = 'deploy/push-updates'
 }
 
-export { TaskMetadata, RecipeConfig, RunLogSeverity } ;
+export { TaskMetadata, RecipeConfig, RunLogSeverity };
 
 export interface Task {
   name: string;
-  metadata: TaskMetadata
+  metadata: TaskMetadata;
 }
 
 export interface Recipe {
@@ -34,6 +34,43 @@ export interface RunLog {
   category: string;
   severity: RunLogSeverity;
   message: string;
+}
+
+
+export interface Update {
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'run-set' | 'run-clear' | 'run-add-log';
+}
+
+// no clear, tasks are static
+export interface SetTask extends Update {
+  operation: 'task-set';
+  task: Task;
+}
+
+export interface SetRecipe extends Update {
+  operation: 'recipe-set';
+  recipe: Recipe;
+}
+
+export interface ClearRecipe extends Update {
+  operation: 'recipe-clear';
+  name: string;
+}
+
+export interface SetRun extends Update {
+  operation: 'run-set';
+  run: Run;
+}
+
+export interface ClearRun extends Update {
+  operation: 'run-clear';
+  id: number;
+}
+
+export interface AddRunLog extends Update {
+  operation: 'run-add-log';
+  id: number;
+  log: RunLog;
 }
 
 export interface DeployState {
