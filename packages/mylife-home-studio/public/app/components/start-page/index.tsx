@@ -72,7 +72,7 @@ const StartPage: FunctionComponent = () => {
         <Link className={classes.link} component='button' variant='body1' onClick={newOnlineComponentsView}>Vue des composants</Link>
       </Grid>
       <Grid item xs={12}>
-        <Link className={classes.link} component='button' variant='body1' onClick={newDeploy}>Gestionnaire du déploiement</Link>
+        <Link className={classes.link} component='button' variant='body1' onClick={newDeploy}>Déploiement</Link>
       </Grid>
     </Grid>
   );

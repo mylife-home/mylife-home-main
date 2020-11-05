@@ -61,7 +61,7 @@ export const newOnlineLogsTab = () => newTab({
 
 export const newDeployTab = () => newTab({
   id: `deploy-${++idCounter}`,
-  title: `Gestion du déploiement`,
+  title: `Déploiement`,
   type: TabType.DEPLOY,
   closable: true,
   data: null
