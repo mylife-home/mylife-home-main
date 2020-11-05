@@ -9,6 +9,7 @@ const log = logger.createLogger('mylife:home:studio:services:deploy:recipes');
 
 export class Recipes extends EventEmitter {
   private readonly recipes = new Map<string, RecipeConfig>();
+  private readonly pins = new Set<string>();
 
   async init() {
     // load recipes
@@ -22,6 +23,20 @@ export class Recipes extends EventEmitter {
       this.recipes.set(name, config);
       log.info(`recipe loaded: ${name}`);
     }
+
+    // load pins
+    const fileName = directories.pins();
+    if (await fs.pathExists(fileName)) {
+      const arr: string[] = JSON.parse(await fs.readFile(fileName, 'utf8'));
+      for (const name of arr) {
+        if (this.recipes.has(name)) {
+          this.pins.add(name);
+        }
+      }
+
+      log.info('pinned recipes list loaded');
+    }
+
   }
 
   async terminate() {
@@ -50,6 +65,7 @@ export class Recipes extends EventEmitter {
     fs.unlinkSync(fullname);
 
     this.recipes.delete(name);
+    this.pins.delete(name);
     this.emit('recipe-deleted', name);
     log.info(`recipe deleted: ${name}`);
   }
@@ -61,5 +77,27 @@ export class Recipes extends EventEmitter {
   // no copy!
   getRecipe(name: string) {
     return this.recipes.get(name);
+  }
+
+  pinRecipe(name: string, value: boolean) {
+    const oldValue = this.pins.has(name);
+    if (value === oldValue) {
+      return;
+    }
+
+    if (value) {
+      this.pins.add(name);
+    } else {
+      this.pins.delete(name);
+    }
+
+    const fileName = directories.pins();
+    fs.writeFileSync(fileName, JSON.stringify(Array.from(this.pins)));
+
+    this.emit('recipe-pinned', name, value);
+  }
+
+  isPinned(name: string) {
+    return this.pins.has(name);
   }
 }
