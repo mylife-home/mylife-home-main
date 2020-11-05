@@ -17,6 +17,7 @@ export interface Task {
 export interface Recipe {
   name: string;
   config: RecipeConfig;
+  pinned: boolean;
 }
 
 export interface Run {

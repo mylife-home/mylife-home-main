@@ -91,7 +91,8 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
         operation: 'recipe-set',
         recipe: {
           name: typedNotification.name,
-          config: typedNotification.config
+          config: typedNotification.config,
+          pinned: null, // on set recipe we don't have this info
         }
       };
       return update;
