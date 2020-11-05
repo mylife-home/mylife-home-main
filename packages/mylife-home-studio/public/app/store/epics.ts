@@ -4,5 +4,6 @@ import onlineLogs from './online-logs/epics';
 import onlineHistory from './online-history/epics';
 import onlineInstancesView from './online-instances-view/epics';
 import onlineComponentsView from './online-components-view/epics';
+import deploy from './deploy/epics';
 
-export default combineEpics(status, onlineLogs, onlineHistory, onlineInstancesView, onlineComponentsView);
+export default combineEpics(status, onlineLogs, onlineHistory, onlineInstancesView, onlineComponentsView, deploy);
