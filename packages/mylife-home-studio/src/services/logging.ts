@@ -38,7 +38,7 @@ export class Logging implements Service {
     this.buffer.clear();
   }
 
-  private startNotifyLogs = async (session: Session) => {
+  private readonly startNotifyLogs = async (session: Session) => {
     const notifier = this.notifiers.createNotifier(session);
 
     // send events after we reply
@@ -52,7 +52,7 @@ export class Logging implements Service {
     return { notifierId: notifier.id };
   };
 
-  private stopNotifyLogs = async (session: Session, { notifierId }: { notifierId: string; }) => {
+  private readonly stopNotifyLogs = async (session: Session, { notifierId }: { notifierId: string; }) => {
     this.notifiers.removeNotifier(session, notifierId);
   };
 }
