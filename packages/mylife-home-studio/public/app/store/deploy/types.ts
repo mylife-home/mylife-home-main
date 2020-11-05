@@ -4,7 +4,11 @@ import { TaskMetadata, RecipeConfig, RunLogSeverity, RunError } from '../../../.
 export const enum ActionTypes {
   SET_NOTIFICATION = 'deploy/set-notification',
   CLEAR_NOTIFICATION = 'deploy/clear-notification',
-  PUSH_UPDATES = 'deploy/push-updates'
+  PUSH_UPDATES = 'deploy/push-updates',
+  SET_RECIPE = 'deploy/set-recipe',
+  CLEAR_RECIPE = 'deploy/clear-recipe',
+  PIN_RECIPE = 'deploy/pin-recipe',
+  START_RECIPE = 'deploy/start-recipe',
 }
 
 export { TaskMetadata, RecipeConfig, RunLogSeverity, RunError };

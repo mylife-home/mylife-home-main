@@ -7,16 +7,17 @@ import * as shared from '../../../../shared/deploy';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { setNotification, clearNotification, pushUpdates } from './actions';
+import { setNotification, clearNotification, pushUpdates, setRecipe } from './actions';
 import { hasDeployTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
-import { AddRunLog, ClearRecipe, ClearRun, PinRecipe, Run, RunLog, SetRecipe, SetRun, SetTask, Update } from './types';
+import { ActionTypes, AddRunLog, ClearRecipe, ClearRun, PinRecipe, RecipeConfig, Run, RunLog, SetRecipe, SetRun, SetTask, Update } from './types';
+import { PayloadAction } from '@reduxjs/toolkit';
 
 const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
   withSelector(state$, getNotifierId),
   filter(([, notifierId]) => !notifierId),
-  mergeMap(() => startCall().pipe(
+  mergeMap(() => startNotifyCall().pipe(
     map(({ notifierId }) => setNotification(notifierId)),
     handleError()
   ))
@@ -26,7 +27,7 @@ const stopNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObserva
   filterNotifyChange(state$),
   withSelector(state$, getNotifierId),
   filter(([, notifierId]) => !!notifierId),
-  mergeMap(([, notifierId]) => stopCall({ notifierId }).pipe(
+  mergeMap(([, notifierId]) => stopNotifyCall({ notifierId }).pipe(
     map(() => clearNotification()),
     handleError()
   ))
@@ -44,7 +45,36 @@ const fetchUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<A
   );
 };
 
-export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic);
+const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  ofType(ActionTypes.SET_RECIPE),
+  mergeMap((action: PayloadAction<{ id: string, config: RecipeConfig; }>) => setRecipeCall(action.payload).pipe(
+    handleError()
+  ))
+);
+
+const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  ofType(ActionTypes.CLEAR_RECIPE),
+  mergeMap((action: PayloadAction<string>) => clearRecipeCall(action.payload).pipe(
+    handleError()
+  ))
+);
+
+const pinRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  ofType(ActionTypes.CLEAR_RECIPE),
+  mergeMap((action: PayloadAction<{ id: string, value: boolean; }>) => pinRecipeCall(action.payload).pipe(
+    handleError()
+  ))
+);
+
+const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  ofType(ActionTypes.START_RECIPE),
+  mergeMap((action: PayloadAction<string>) => startRecipeCall(action.payload).pipe(
+    // string result: new run id
+    handleError()
+  ))
+);
+
+export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic);
 
 function filterNotifyChange(state$: StateObservable<AppState>) {
   return (source: Observable<Action>) => source.pipe(
@@ -63,12 +93,28 @@ function xor(a: boolean, b: boolean) {
   return a && !b || !a && b;
 }
 
-function startCall() {
+function startNotifyCall() {
   return socket.call('deploy/start-notify', null) as Observable<{ notifierId: string; }>;
 }
 
-function stopCall({ notifierId }: { notifierId: string; }) {
+function stopNotifyCall({ notifierId }: { notifierId: string; }) {
   return socket.call('deploy/stop-notify', { notifierId }) as Observable<void>;
+}
+
+function setRecipeCall({ id, config }: { id: string; config: shared.RecipeConfig; }) {
+  return socket.call('deploy/set-recipe', { id, config }) as Observable<void>;
+}
+
+function clearRecipeCall(id: string) {
+  return socket.call('deploy/clear-recipe', { id }) as Observable<void>;
+}
+
+function pinRecipeCall( { id, value }: { id: string; value: boolean; }) {
+  return socket.call('deploy/pin-recipe', { id, value }) as Observable<void>;
+}
+
+function startRecipeCall(id: string) {
+  return socket.call('deploy/start-recipe', { id }) as Observable<string>;
 }
 
 function parseNotification(notification: shared.UpdateDataNotification): Update {

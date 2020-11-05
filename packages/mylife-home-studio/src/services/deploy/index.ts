@@ -33,8 +33,9 @@ export class Deploy implements Service {
     await this.runs.init();
     this.notifiers.init();
 
-    Services.instance.sessionManager.registerServiceHandler('deploy/create-recipe', this.setRecipe);
-    Services.instance.sessionManager.registerServiceHandler('deploy/delete-recipe', this.deleteRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/set-recipe', this.setRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/clear-recipe', this.deleteRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/pin-recipe', this.pinRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
 
     Services.instance.sessionManager.registerServiceHandler('deploy/start-notify', this.startNotify);
@@ -52,6 +53,10 @@ export class Deploy implements Service {
 
   private readonly deleteRecipe = async (session: Session, { id }: { id: string; }) => {
     this.recipes.deleteRecipe(id);
+  };
+
+  private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean; }) => {
+    this.recipes.pinRecipe(id, value);
   };
 
   private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
