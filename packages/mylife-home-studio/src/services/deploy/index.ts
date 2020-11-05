@@ -5,13 +5,14 @@ import { Service, BuildParams } from '../types';
 import { Recipes } from './recipes';
 import { Runs } from './runs';
 import { listMeta } from './tasks';
+import * as directories from './directories';
 
 // TODO: files management API
 
 export class Deploy implements Service {
   private readonly recipes = new Recipes();
   private readonly runs = new Runs();
-  private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/events');
+  private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/updates');
 
   constructor(params: BuildParams) {
     this.recipes.on('recipe-created', this.handleRecipeSet);
@@ -26,6 +27,7 @@ export class Deploy implements Service {
   }
 
   async init() {
+    directories.configure();
     await this.recipes.init();
     await this.runs.init();
     this.notifiers.init();
