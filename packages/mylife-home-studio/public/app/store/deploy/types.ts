@@ -71,12 +71,12 @@ export interface SetRun extends Update {
 
 export interface ClearRun extends Update {
   operation: 'run-clear';
-  id: number;
+  id: string;
 }
 
 export interface AddRunLog extends Update {
   operation: 'run-add-log';
-  id: number;
+  id: string;
   log: RunLog;
 }
 
