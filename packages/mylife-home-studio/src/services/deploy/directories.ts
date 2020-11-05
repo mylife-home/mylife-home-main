@@ -5,11 +5,13 @@ import { Config } from './config';
 interface Directories {
   files: string;
   recipes: string;
+  pins: string;
 }
 
 const directories: Directories = {
   files: null,
   recipes: null,
+  pins: null,
 };
 
 export function configure() {
@@ -17,7 +19,10 @@ export function configure() {
   
   directories.files = path.resolve(config.filesPath);
   directories.recipes = path.resolve(config.recipesPath);
+  directories.recipes = path.resolve(config.recipesPath);
+  directories.pins = path.resolve(config.pinnedRecipesFile);
 }
 
 export const files = () => directories.files;
 export const recipes = () => directories.recipes;
+export const pins = () => directories.pins;

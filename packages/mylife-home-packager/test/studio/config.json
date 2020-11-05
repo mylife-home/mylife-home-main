@@ -16,6 +16,7 @@
   },
   "deploy": {
     "filesPath": "/tmp/mylife-home-deploy/files",
-    "recipesPath": "/tmp/mylife-home-deploy/recipes"
+    "recipesPath": "/tmp/mylife-home-deploy/recipes",
+    "pinnedRecipesFile": "/tmp/mylife-home-deploy/pinned-recipes.json"
   }
 }
