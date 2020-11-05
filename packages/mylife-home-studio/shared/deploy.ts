@@ -53,13 +53,14 @@ export interface UpdateDataNotification {
 // no clear, tasks are static
 export interface SetTaskNotification extends UpdateDataNotification {
   operation: 'task-set';
-  metadata: TaskMetadata & { name: string; };
+  name: string;
+  metadata: TaskMetadata;
 }
 
 export interface SetRecipeNotification extends UpdateDataNotification {
   operation: 'recipe-set';
   name: string;
-  config?: RecipeConfig;
+  config: RecipeConfig;
 }
 
 export interface ClearRecipeNotification extends UpdateDataNotification {

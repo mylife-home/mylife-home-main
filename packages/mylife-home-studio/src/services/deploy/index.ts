@@ -70,8 +70,8 @@ export class Deploy implements Service {
   };
 
   private emitTasks(notifier: SessionNotifier) {
-    for (const metadata of listMeta()) {
-      const notification: SetTaskNotification = { operation: 'task-set', metadata };
+    for (const { name, ...metadata } of listMeta()) {
+      const notification: SetTaskNotification = { operation: 'task-set', name, metadata };
       notifier.notify(notification);
     }
   }
