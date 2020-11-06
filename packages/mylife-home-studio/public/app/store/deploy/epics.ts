@@ -109,7 +109,7 @@ function clearRecipeCall(id: string) {
   return socket.call('deploy/clear-recipe', { id }) as Observable<void>;
 }
 
-function pinRecipeCall( { id, value }: { id: string; value: boolean; }) {
+function pinRecipeCall({ id, value }: { id: string; value: boolean; }) {
   return socket.call('deploy/pin-recipe', { id, value }) as Observable<void>;
 }
 
@@ -148,17 +148,17 @@ function parseNotification(notification: shared.UpdateDataNotification): Update 
       const typedNotification = notification as shared.ClearRecipeNotification;
       const update: ClearRecipe = {
         operation: 'recipe-clear',
-        id: typedNotification.id
+        id: typedNotification.id,
       };
       return update;
     }
 
-    case 'recipe-clear': {
+    case 'recipe-pin': {
       const typedNotification = notification as shared.PinRecipeNotification;
       const update: PinRecipe = {
         operation: 'recipe-pin',
         id: typedNotification.id,
-        value: typedNotification.value
+        value: typedNotification.value,
       };
       return update;
     }

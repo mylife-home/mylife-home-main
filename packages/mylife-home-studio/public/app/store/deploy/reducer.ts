@@ -51,6 +51,8 @@ export default createReducer(initialState, {
           const { id, value } = update as PinRecipe;
           const recipe = state.recipes.byId[id];
           recipe.pinned = value;
+
+          break;
         }
 
         case 'run-set': {
@@ -59,6 +61,8 @@ export default createReducer(initialState, {
           const existing = state.runs.byId[run.id];
           run.logs = existing?.logs || [];
           tableSet(state.runs, run);
+
+          break;
         }
 
         case 'run-clear': {
@@ -72,6 +76,8 @@ export default createReducer(initialState, {
           const { id, log } = update as AddRunLog;
           const run = state.runs.byId[id];
           run.logs.push(log);
+
+          break;
         }
       }
     }
