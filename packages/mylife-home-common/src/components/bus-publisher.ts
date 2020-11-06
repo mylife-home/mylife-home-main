@@ -68,7 +68,6 @@ class BusInstance {
   private view: RemoteMetadataView;
 
   constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string) {
-    console.log('BUS INSTANCE CTOR', instanceName);
     fireAsync(async () => {
       this.view = await this.transport.metadata.createView(this.instanceName);
       this.view.on('set', (path, value) => this.set(path, value));
