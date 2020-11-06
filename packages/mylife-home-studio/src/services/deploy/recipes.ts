@@ -12,7 +12,8 @@ export class Recipes extends EventEmitter {
   private readonly pins = new Set<string>();
 
   async init() {
-    // load recipes
+    log.debug(`loading recipes in: ${directories.recipes()}`);
+
     await fs.ensureDir(directories.recipes());
 
     for (const file of await fs.readdir(directories.recipes())) {
@@ -24,7 +25,8 @@ export class Recipes extends EventEmitter {
       log.info(`recipe loaded: ${name}`);
     }
 
-    // load pins
+    log.debug(`loading pins in: ${directories.pins()}`);
+    
     const fileName = directories.pins();
     if (await fs.pathExists(fileName)) {
       const arr: string[] = JSON.parse(await fs.readFile(fileName, 'utf8'));
