@@ -4,11 +4,7 @@ import { Table } from '../common/types';
 export const enum ActionTypes {
   SET_NOTIFICATION = 'online-components-view/set-notification',
   CLEAR_NOTIFICATION = 'online-components-view/clear-notification',
-  SET_PLUGIN = 'online-components-view/set-plugin',
-  CLEAR_PLUGIN = 'online-components-view/clear-plugin',
-  SET_COMPONENT = 'online-components-view/set-component',
-  CLEAR_COMPONENT = 'online-components-view/clear-component',
-  SET_STATE = 'online-components-view/set-state',
+  PUSH_UPDATES = 'online-components-view/push-updates',
 }
 
 export { Member, PluginUsage, MemberType, ConfigItem, NetPlugin, NetComponent };
@@ -28,7 +24,7 @@ export interface Plugin extends NetPlugin {
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
-  
+
   components: string[];
 }
 
@@ -53,4 +49,36 @@ export interface OnlineComponentsViewState {
   plugins: Table<Plugin>;
   components: Table<Component>;
   states: Table<State>;
+}
+
+export interface Update {
+  type: 'set-plugin' | 'clear-plugin' | 'set-component' | 'clear-component' | 'set-state';
+  instanceName: string;
+}
+
+export interface SetPluginUpdate extends Update {
+  type: 'set-plugin';
+  plugin: NetPlugin;
+}
+
+export interface ClearPluginUpdate extends Update {
+  type: 'clear-plugin';
+  id: string;
+}
+
+export interface SetComponentUpdate extends Update {
+  type: 'set-component';
+  component: NetComponent;
+}
+
+export interface ClearComponentUpdate extends Update {
+  type: 'clear-component';
+  id: string;
+}
+
+export interface SetStateUpdate extends Update {
+  type: 'set-state';
+  component: string;
+  name: string;
+  value: any;
 }

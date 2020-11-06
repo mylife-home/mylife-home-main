@@ -7,10 +7,10 @@ import * as shared from '../../../../shared/online';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { Plugin, Component, State } from './types';
-import { setNotification, clearNotification, setPlugin, clearPlugin, setComponent, clearComponent, setState } from './actions';
+import { Update, SetPluginUpdate, ClearPluginUpdate, SetComponentUpdate, ClearComponentUpdate, SetStateUpdate } from './types';
+import { setNotification, clearNotification, pushUpdates } from './actions';
 import { hasOnlineComponentsViewTab, getNotifierId } from './selectors';
-import { filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
 
 const startNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   filterNotifyChange(state$),
@@ -39,6 +39,8 @@ const fetchComponentsEpic = (action$: Observable<Action>, state$: StateObservabl
     withSelector(state$, getNotifierId),
     filter(([notification, notifierId]) => notification.notifierId === notifierId),
     map(([notification]) => parseUpdate(notification.data)),
+    bufferDebounceTime(100), // debounce to avoid multiple store updates
+    map((items) => pushUpdates(items)),
   );
 };
 
@@ -69,31 +71,31 @@ function stopCall({ notifierId }: { notifierId: string; }) {
   return socket.call('online/stop-notify-component', { notifierId }) as Observable<void>;
 }
 
-function parseUpdate(updateData: shared.UpdateComponentData) {
+function parseUpdate(updateData: shared.UpdateComponentData): Update {
   switch (`${updateData.type}-${updateData.operation}`) {
     case 'plugin-set': {
       const typedUpdate = updateData as shared.SetPluginData;
-      return setPlugin({ instanceName: typedUpdate.instanceName, plugin: typedUpdate.data });
+      return { type: 'set-plugin', instanceName: typedUpdate.instanceName, plugin: typedUpdate.data } as SetPluginUpdate;
     }
 
     case 'plugin-clear': {
       const typedUpdate = updateData as shared.ClearData;
-      return clearPlugin({ instanceName: typedUpdate.instanceName, id: typedUpdate.id });
+      return { type: 'clear-plugin', instanceName: typedUpdate.instanceName, id: typedUpdate.id } as ClearPluginUpdate;
     }
 
     case 'component-set': {
       const typedUpdate = updateData as shared.SetComponentData;
-      return setComponent({ instanceName: typedUpdate.instanceName, component: typedUpdate.data });
+      return { type: 'set-component', instanceName: typedUpdate.instanceName, component: typedUpdate.data } as SetComponentUpdate;
     }
 
     case 'component-clear': {
       const typedUpdate = updateData as shared.ClearData;
-      return clearComponent({ instanceName: typedUpdate.instanceName, id: typedUpdate.id });
+      return { type: 'clear-component', instanceName: typedUpdate.instanceName, id: typedUpdate.id } as ClearComponentUpdate;
     }
 
     case 'state-set': {
       const typedUpdate = updateData as shared.SetStateData;
-      return setState({ instanceName: typedUpdate.instanceName, ...typedUpdate.data });
+      return { type: 'set-state', instanceName: typedUpdate.instanceName, ...typedUpdate.data } as SetStateUpdate;
     }
 
     default:
