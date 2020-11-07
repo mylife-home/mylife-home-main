@@ -11,9 +11,11 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { RecipeIcon, StartIcon, RunsIcon, FileIcon } from './icons';
-import { getPinnedRecipesIds, getRunsIds } from '../../store/deploy/selectors';
+import { RecipeIcon, StartIcon, RunsIcon, FileIcon, RunningIcon, SuccessIcon, FailureIcon } from './icons';
+import { AppState } from '../../store/types';
+import { getPinnedRecipesIds, getRun, getRunsIds } from '../../store/deploy/selectors';
 import { startRecipe } from '../../store/deploy/actions';
+import { Run } from '../../store/deploy/types';
 
 const useStyles = makeStyles((theme) => ({
   section: {},
@@ -23,6 +25,12 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  runSuccessIcon: {
+    color: theme.palette.success.main,
+  },
+  runFailureIcon: {
+    color: theme.palette.error.main,
   },
 }));
 
@@ -78,16 +86,39 @@ const Runs: FunctionComponent = () => {
     <>
       <Section title="Exécutions" icon={RunsIcon} onClick={() => console.log('runs')} />
       {runsIds.map((id) => (
-        <Run key={id} id={id} />
+        <RunItem key={id} id={id} />
       ))}
     </>
   );
 };
 
-const Run: FunctionComponent<{ id: string }> = ({ id }) => {
-  // TODO: icon + id
-  return <Item title={id} icon={RunsIcon} onClick={() => console.log(`run ${id}`)} />;
+const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const run = useSelector((state: AppState) => getRun(state, id));
+  return <Item title={getRunTitle(run)} icon={getRunIcon(run)} onClick={() => console.log(`run ${id}`)} />;
 };
+
+const ColoredSuccessIcon: FunctionComponent = () => {
+  const classes = useStyles();
+  return <SuccessIcon className={classes.runSuccessIcon} />;
+};
+
+const ColoredFailureIcon: FunctionComponent = () => {
+  const classes = useStyles();
+  return <FailureIcon className={classes.runFailureIcon} />;
+};
+
+function getRunTitle(run: Run) {
+  // id is 'run-XXX'
+  return `#${run.id.substr(4)} - ${run.recipe}`;
+}
+
+function getRunIcon(run: Run) {
+  if (run.status !== 'ended') {
+    return RunningIcon;
+  }
+
+  return run.err ? ColoredFailureIcon : ColoredSuccessIcon;
+}
 
 const Files: FunctionComponent = () => {
   return (
