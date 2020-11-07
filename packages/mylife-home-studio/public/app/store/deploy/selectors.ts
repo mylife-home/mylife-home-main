@@ -15,3 +15,6 @@ export const getPinnedRecipesIds = createSelector(
   (state: AppState) => getDeploy(state).recipes,
   (recipes) => recipes.allIds.filter(id => recipes.byId[id].pinned)
 );
+
+export const getRunsIds = (state: AppState) => getDeploy(state).runs.allIds;
+export const getRun = (state: AppState, id: string) => getDeploy(state).runs.byId[id];

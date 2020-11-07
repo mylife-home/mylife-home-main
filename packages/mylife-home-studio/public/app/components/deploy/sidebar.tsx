@@ -1,5 +1,5 @@
-import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
+import React, { FunctionComponent, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import List from '@material-ui/core/List';
@@ -12,7 +12,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { RecipeIcon, StartIcon, RunsIcon, FileIcon } from './icons';
-import { getPinnedRecipesIds } from '../../store/deploy/selectors';
+import { getPinnedRecipesIds, getRunsIds } from '../../store/deploy/selectors';
+import { startRecipe } from '../../store/deploy/actions';
 
 const useStyles = makeStyles((theme) => ({
   section: {},
@@ -41,7 +42,7 @@ const SideBar: FunctionComponent = () => {
 export default SideBar;
 
 const Recipes: FunctionComponent = () => {
-  const { recipesIds } = useConnectRecipes();
+  const { recipesIds, startRecipe } = useRecipesConnect();
   return (
     <>
       <Section title="Recettes" icon={RecipeIcon} onClick={() => console.log('recipes')} />
@@ -51,25 +52,41 @@ const Recipes: FunctionComponent = () => {
           title={id}
           icon={RecipeIcon}
           onClick={() => console.log(`recipe ${id}`)}
-          secondary={{ tooltip: 'Démarrer la recette', icon: StartIcon, onClick: () => console.log(`start recipe ${id}`) }}
+          secondary={{ tooltip: 'Démarrer la recette', icon: StartIcon, onClick: () => startRecipe(id) }}
         />
       ))}
     </>
   );
 };
 
-function useConnectRecipes() {
+function useRecipesConnect() {
+  const dispatch = useDispatch();
   return {
     recipesIds: useSelector(getPinnedRecipesIds),
+    startRecipe: useCallback(
+      (id: string) => {
+        dispatch(startRecipe(id));
+      },
+      [dispatch]
+    ),
   };
 }
 
 const Runs: FunctionComponent = () => {
+  const runsIds = useSelector(getRunsIds);
   return (
     <>
       <Section title="Exécutions" icon={RunsIcon} onClick={() => console.log('runs')} />
+      {runsIds.map((id) => (
+        <Run key={id} id={id} />
+      ))}
     </>
   );
+};
+
+const Run: FunctionComponent<{ id: string }> = ({ id }) => {
+  // TODO: icon + id
+  return <Item title={id} icon={RunsIcon} onClick={() => console.log(`run ${id}`)} />;
 };
 
 const Files: FunctionComponent = () => {
