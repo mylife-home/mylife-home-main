@@ -1,15 +1,15 @@
 import React, { FunctionComponent } from 'react';
-import Box from '@material-ui/core/Box';
+import { useSelector } from 'react-redux';
 
+import { RunsIcon } from './icons';
 import { useSelection } from './selection';
+import { Title } from './layout';
 
 const Runs: FunctionComponent = () => {
   const { select } = useSelection();
 
   return (
-    <Box>
-      Runs
-    </Box>
+    <Title text="Exécutions" icon={RunsIcon} />
   );
 };
 

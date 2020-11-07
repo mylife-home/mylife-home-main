@@ -1,15 +1,15 @@
 import React, { FunctionComponent } from 'react';
-import Box from '@material-ui/core/Box';
+import { useSelector } from 'react-redux';
 
+import { RecipeIcon } from './icons';
 import { useSelection } from './selection';
+import { Title } from './layout';
 
 const Recipes: FunctionComponent = () => {
   const { select } = useSelection();
 
   return (
-    <Box>
-      Recipes
-    </Box>
+    <Title text='Recettes' icon={RecipeIcon} />
   );
 };
 

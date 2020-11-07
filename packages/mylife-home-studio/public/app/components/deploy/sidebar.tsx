@@ -16,7 +16,7 @@ import { useSelection } from './selection';
 import { AppState } from '../../store/types';
 import { getPinnedRecipesIds, getRun, getRunsIds } from '../../store/deploy/selectors';
 import { startRecipe } from '../../store/deploy/actions';
-import { Run } from '../../store/deploy/types';
+import { getRunTitle, getRunIcon } from './run';
 
 const useStyles = makeStyles((theme) => ({
   section: {},
@@ -26,12 +26,6 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-  },
-  runSuccessIcon: {
-    color: theme.palette.success.main,
-  },
-  runFailureIcon: {
-    color: theme.palette.error.main,
   },
 }));
 
@@ -100,29 +94,6 @@ const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const run = useSelector((state: AppState) => getRun(state, id));
   return <Item title={getRunTitle(run)} icon={getRunIcon(run)} onClick={() => select({ type: 'run', id })} />;
 };
-
-const ColoredSuccessIcon: FunctionComponent = () => {
-  const classes = useStyles();
-  return <SuccessIcon className={classes.runSuccessIcon} />;
-};
-
-const ColoredFailureIcon: FunctionComponent = () => {
-  const classes = useStyles();
-  return <FailureIcon className={classes.runFailureIcon} />;
-};
-
-function getRunTitle(run: Run) {
-  // id is 'run-XXX'
-  return `#${run.id.substr(4)} - ${run.recipe}`;
-}
-
-function getRunIcon(run: Run) {
-  if (run.status !== 'ended') {
-    return RunningIcon;
-  }
-
-  return run.err ? ColoredFailureIcon : ColoredSuccessIcon;
-}
 
 const Files: FunctionComponent = () => {
   const { select } = useSelection();

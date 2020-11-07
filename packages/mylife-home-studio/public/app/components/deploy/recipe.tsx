@@ -1,15 +1,20 @@
 import React, { FunctionComponent } from 'react';
-import Box from '@material-ui/core/Box';
+import { useSelector } from 'react-redux';
 
+import { AppState } from '../../store/types';
+import { RecipeIcon } from './icons';
 import { useSelection } from './selection';
+import { Title } from './layout';
+import { getRecipe } from '../../store/deploy/selectors';
 
 const Recipe: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const { select } = useSelection();
+  const { selection } = useSelection();
+  const recipe = useSelector((state: AppState) => getRecipe(state, id));
+
+  // TODO: handle recipe that becomes null
 
   return (
-    <Box>
-      Recipe {id}
-    </Box>
+    <Title text={recipe.id} icon={RecipeIcon} />
   );
 };
 

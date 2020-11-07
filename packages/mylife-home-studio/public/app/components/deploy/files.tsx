@@ -1,15 +1,15 @@
 import React, { FunctionComponent } from 'react';
-import Box from '@material-ui/core/Box';
+import { useSelector } from 'react-redux';
 
+import { FileIcon } from './icons';
 import { useSelection } from './selection';
+import { Title } from './layout';
 
 const Files: FunctionComponent = () => {
   const { select } = useSelection();
 
   return (
-    <Box>
-      Files
-    </Box>
+    <Title text='Fichiers' icon={FileIcon} />
   );
 };
 

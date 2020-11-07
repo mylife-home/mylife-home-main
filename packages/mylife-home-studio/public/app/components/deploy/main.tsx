@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 import Typography from '@material-ui/core/Typography';
 
 import { useSelection } from './selection';
+import { Title } from './layout';
 import Recipes from './recipes';
 import Recipe from './recipe';
 import Runs from './runs';
@@ -12,7 +13,7 @@ const Main: FunctionComponent = () => {
   const { selection } = useSelection();
 
   if (!selection) {
-    return <Typography>{`Aucune sélection`}</Typography>;
+    return <Title text="Aucune sélection" />;
   }
 
   switch (selection.type) {
