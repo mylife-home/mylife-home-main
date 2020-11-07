@@ -36,7 +36,9 @@ MyLife Home main
 
 ## Notes
 
-Livrer irc-bridge + ui:
+### Roadmap
+
+#### Livrer irc-bridge + ui:
 
  - nouveau core
    - rpi-home-core new (rpi3)
@@ -58,3 +60,7 @@ Livrer irc-bridge + ui:
  - fabrication de nouvelle image (+packager)
  - déploiement kube ui définitif
  - déploiement complet (sauf modules noyau et apps externes comme lirc) de core sur rpi
+
+#### Migrer absoluta
+
+car que sensor vers ui
