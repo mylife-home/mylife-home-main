@@ -1,4 +1,4 @@
-import React, { FunctionComponent, createContext, useContext, useMemo, useState } from 'react';
+import React, { FunctionComponent, createContext, useContext, useMemo, useState, useEffect } from 'react';
 
 type SelectionType = 'recipes' | 'recipe' | 'runs' | 'run' | 'files';
 
@@ -22,9 +22,15 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
   const [selection, select] = useState<Selection>(null);
   const contextProps = useMemo(() => ({ selection, select }), [selection, select]);
 
-  return (
-    <SelectionContext.Provider value={contextProps}>
-      {children}
-    </SelectionContext.Provider>
-  );
+  return <SelectionContext.Provider value={contextProps}>{children}</SelectionContext.Provider>;
 };
+
+export function useResetSelectionIfNull<T>(obj: T) {
+  const { select } = useSelection();
+
+  useEffect(() => {
+    if (!obj) {
+      select(null);
+    }
+  }, [obj]);
+}

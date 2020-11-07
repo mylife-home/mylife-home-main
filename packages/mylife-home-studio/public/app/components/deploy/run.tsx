@@ -4,16 +4,16 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { AppState } from '../../store/types';
 import { RunningIcon, SuccessIcon, FailureIcon } from './icons';
-import { useSelection } from './selection';
+import { useResetSelectionIfNull } from './selection';
 import { Title } from './layout';
 import { Run } from '../../store/deploy/types';
 import { getRun } from '../../store/deploy/selectors';
 
 const RunDisplay: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const { selection } = useSelection();
   const run = useSelector((state: AppState) => getRun(state, id));
 
-  // TODO: handle run that becomes null
+  // handle run that becomes null
+  useResetSelectionIfNull(run);
 
   return (
     <Title text={getRunTitle(run)} icon={getRunIcon(run)} />
