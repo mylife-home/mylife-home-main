@@ -11,7 +11,11 @@ const Recipe: FunctionComponent<{ id: string; }> = ({ id }) => {
   const recipe = useSelector((state: AppState) => getRecipe(state, id));
 
   // handle recipe that becomes null (after deletion)
-  useResetSelectionIfNull(run);
+  useResetSelectionIfNull(recipe);
+
+  if (!recipe) {
+    return null;
+  }
 
   return (
     <Title text={recipe.id} icon={RecipeIcon} />

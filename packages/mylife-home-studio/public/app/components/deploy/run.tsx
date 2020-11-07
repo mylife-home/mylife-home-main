@@ -15,6 +15,10 @@ const RunDisplay: FunctionComponent<{ id: string; }> = ({ id }) => {
   // handle run that becomes null
   useResetSelectionIfNull(run);
 
+  if (!run) {
+    return null;
+  }
+
   return (
     <Title text={getRunTitle(run)} icon={getRunIcon(run)} />
   );
