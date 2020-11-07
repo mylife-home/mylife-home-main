@@ -12,6 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { RecipeIcon, StartIcon, RunsIcon, FileIcon, RunningIcon, SuccessIcon, FailureIcon } from './icons';
+import { useSelection } from './selection';
 import { AppState } from '../../store/types';
 import { getPinnedRecipesIds, getRun, getRunsIds } from '../../store/deploy/selectors';
 import { startRecipe } from '../../store/deploy/actions';
@@ -50,16 +51,17 @@ const SideBar: FunctionComponent = () => {
 export default SideBar;
 
 const Recipes: FunctionComponent = () => {
+  const { select } = useSelection();
   const { recipesIds, startRecipe } = useRecipesConnect();
   return (
     <>
-      <Section title="Recettes" icon={RecipeIcon} onClick={() => console.log('recipes')} />
+      <Section title="Recettes" icon={RecipeIcon} onClick={() => select({ type: 'recipes' })} />
       {recipesIds.map((id) => (
         <Item
           key={id}
           title={id}
           icon={RecipeIcon}
-          onClick={() => console.log(`recipe ${id}`)}
+          onClick={() => select({ type: 'recipe', id })}
           secondary={{ tooltip: 'Démarrer la recette', icon: StartIcon, onClick: () => startRecipe(id) }}
         />
       ))}
@@ -81,10 +83,11 @@ function useRecipesConnect() {
 }
 
 const Runs: FunctionComponent = () => {
+  const { select } = useSelection();
   const runsIds = useSelector(getRunsIds);
   return (
     <>
-      <Section title="Exécutions" icon={RunsIcon} onClick={() => console.log('runs')} />
+      <Section title="Exécutions" icon={RunsIcon} onClick={() => select({ type: 'runs' })} />
       {runsIds.map((id) => (
         <RunItem key={id} id={id} />
       ))}
@@ -93,8 +96,9 @@ const Runs: FunctionComponent = () => {
 };
 
 const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { select } = useSelection();
   const run = useSelector((state: AppState) => getRun(state, id));
-  return <Item title={getRunTitle(run)} icon={getRunIcon(run)} onClick={() => console.log(`run ${id}`)} />;
+  return <Item title={getRunTitle(run)} icon={getRunIcon(run)} onClick={() => select({ type: 'run', id })} />;
 };
 
 const ColoredSuccessIcon: FunctionComponent = () => {
@@ -121,9 +125,10 @@ function getRunIcon(run: Run) {
 }
 
 const Files: FunctionComponent = () => {
+  const { select } = useSelection();
   return (
     <>
-      <Section title="Fichiers" icon={FileIcon} onClick={() => console.log('files')} />
+      <Section title="Fichiers" icon={FileIcon} onClick={() => select({ type: 'files' })} />
     </>
   );
 };
