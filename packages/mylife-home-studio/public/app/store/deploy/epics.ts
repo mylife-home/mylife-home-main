@@ -1,6 +1,6 @@
 import { Action } from 'redux';
 import { Observable } from 'rxjs';
-import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
 import * as shared from '../../../../shared/deploy';
@@ -48,6 +48,7 @@ const fetchUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<A
 const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   ofType(ActionTypes.SET_RECIPE),
   mergeMap((action: PayloadAction<{ id: string, config: RecipeConfig; }>) => setRecipeCall(action.payload).pipe(
+    ignoreElements(),
     handleError()
   ))
 );
@@ -55,6 +56,7 @@ const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppS
 const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   ofType(ActionTypes.CLEAR_RECIPE),
   mergeMap((action: PayloadAction<string>) => clearRecipeCall(action.payload).pipe(
+    ignoreElements(),
     handleError()
   ))
 );
@@ -62,6 +64,7 @@ const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
 const pinRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
   ofType(ActionTypes.CLEAR_RECIPE),
   mergeMap((action: PayloadAction<{ id: string, value: boolean; }>) => pinRecipeCall(action.payload).pipe(
+    ignoreElements(),
     handleError()
   ))
 );
@@ -70,6 +73,7 @@ const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
   ofType(ActionTypes.START_RECIPE),
   mergeMap((action: PayloadAction<string>) => startRecipeCall(action.payload).pipe(
     // string result: new run id
+    ignoreElements(),
     handleError()
   ))
 );
