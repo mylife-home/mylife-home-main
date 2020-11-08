@@ -15,7 +15,7 @@ const Main: FunctionComponent = () => {
   if (!selection) {
     return (
       <Box p={3}>
-        <Title text="<Aucune sélection>" />;
+        <Title text="<Aucune sélection>" />
       </Box>
     );
   }
