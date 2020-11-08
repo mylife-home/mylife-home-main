@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Typography from '@material-ui/core/Typography';
@@ -15,12 +16,12 @@ const useTitleStyles = makeStyles((theme) => ({
   }
 }));
 
-export const Title: FunctionComponent<{ text: string; icon?: typeof SvgIcon }> = ({ text, icon }) => {
+export const Title: FunctionComponent<{ className?: string; text: string; icon?: typeof SvgIcon }> = ({ className, text, icon }) => {
   const classes = useTitleStyles();
   const Icon = icon || React.Fragment;
 
   return (
-    <div className={classes.container}>
+    <div className={clsx(classes.container, className)}>
       <Icon />
       <Typography variant='h6' >
         {text}

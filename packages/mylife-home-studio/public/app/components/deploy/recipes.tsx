@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
+import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -9,6 +9,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@material-ui/core/Divider';
 
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { clearRecipe, pinRecipe, startRecipe } from '../../store/deploy/actions';
@@ -18,9 +19,24 @@ import { useSelection } from './selection';
 import { Title } from './layout';
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  title: {
+    margin: theme.spacing(3),
+  },
+  listWrapper: {
+    flex: '1 1 auto',
+    overflowY: 'auto',
+  },
   list: {
-    //overflowY: 'auto',
-    //height: '100%',
     width: 650,
   },
 }));
@@ -30,14 +46,19 @@ const Recipes: FunctionComponent = () => {
   const recipesIds = useSelector(getRecipesIds);
 
   return (
-    <Box p={3}>
-      <Title text="Recettes" icon={RecipeIcon} />
-      <List className={classes.list}>
-        {recipesIds.map((id) => (
-          <RecipeItem key={id} id={id} />
-        ))}
-      </List>
-    </Box>
+    <div className={classes.container}>
+      <Title className={classes.title} text="Recettes" icon={RecipeIcon} />
+
+      <Divider />
+
+      <div className={classes.listWrapper}>
+        <List disablePadding className={classes.list}>
+          {recipesIds.map((id) => (
+            <RecipeItem key={id} id={id} />
+          ))}
+        </List>
+      </div>
+    </div>
   );
 };
 
@@ -89,10 +110,13 @@ function useRecipeConnect(id: string) {
   const dispatch = useDispatch();
   return {
     recipe: useSelector((state: AppState) => getRecipe(state, id)),
-    ...useMemo(() => ({
-      clear: () => dispatch(clearRecipe(id)),
-      pin: (value: boolean) => dispatch(pinRecipe({ id, value })),
-      start: () => dispatch(startRecipe(id)),
-    }), [dispatch, id])
+    ...useMemo(
+      () => ({
+        clear: () => dispatch(clearRecipe(id)),
+        pin: (value: boolean) => dispatch(pinRecipe({ id, value })),
+        start: () => dispatch(startRecipe(id)),
+      }),
+      [dispatch, id]
+    ),
   };
 }
