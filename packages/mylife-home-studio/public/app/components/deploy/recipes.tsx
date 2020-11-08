@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Recipes: FunctionComponent = () => {
   const classes = useStyles();
-  const { select } = useSelection();
   const recipesIds = useSelector(getRecipesIds);
 
   return (
@@ -45,9 +44,10 @@ const Recipes: FunctionComponent = () => {
 export default Recipes;
 
 const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { select } = useSelection();
   const { recipe, clear, pin, start } = useRecipeConnect(id);
   return (
-    <ListItem>
+    <ListItem button onClick={() => select({ type: 'recipe', id })}>
       <ListItemIcon>
         <RecipeIcon />
       </ListItemIcon>
