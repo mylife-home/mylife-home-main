@@ -24,6 +24,7 @@ export interface RunLog {
 export type RunLogSeverity = 'debug' | 'info' | 'warning' | 'error';
 
 export interface RecipeConfig {
+  description: string;
   steps: StepConfig[];
 }
 
