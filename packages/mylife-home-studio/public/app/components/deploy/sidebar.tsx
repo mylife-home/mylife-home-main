@@ -11,7 +11,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { RecipeIcon, StartIcon, RunsIcon, FileIcon, RunningIcon, SuccessIcon, FailureIcon } from './icons';
+import { RecipeIcon, StartIcon, RunsIcon, FileIcon } from './icons';
 import { useSelection } from './selection';
 import { AppState } from '../../store/types';
 import { getPinnedRecipesIds, getRun, getRunsIds } from '../../store/deploy/selectors';
