@@ -19,6 +19,10 @@ import { startRecipe } from '../../store/deploy/actions';
 import { getRunTitle, getRunIcon } from './run';
 
 const useStyles = makeStyles((theme) => ({
+  list: {
+    overflowY: 'auto',
+    height: '100%',
+  },
   section: {},
   item: {
     paddingLeft: theme.spacing(8),
@@ -32,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 const SideBar: FunctionComponent = () => {
   const classes = useStyles();
   return (
-    <List>
+    <List className={classes.list}>
       <Recipes />
       <Divider className={classes.divider} />
       <Runs />
