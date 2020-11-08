@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
 import { useSelection } from './selection';
 import { Title } from './layout';
@@ -13,7 +13,11 @@ const Main: FunctionComponent = () => {
   const { selection } = useSelection();
 
   if (!selection) {
-    return <Title text="Aucune sélection" />;
+    return (
+      <Box p={3}>
+        <Title text="<Aucune sélection>" />;
+      </Box>
+    );
   }
 
   switch (selection.type) {

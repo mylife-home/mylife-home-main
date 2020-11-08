@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
 
 import { AppState } from '../../store/types';
 import { RunningIcon, SuccessIcon, FailureIcon } from './icons';
@@ -9,7 +10,7 @@ import { Title } from './layout';
 import { Run } from '../../store/deploy/types';
 import { getRun } from '../../store/deploy/selectors';
 
-const RunDisplay: FunctionComponent<{ id: string; }> = ({ id }) => {
+const RunDisplay: FunctionComponent<{ id: string }> = ({ id }) => {
   const run = useSelector((state: AppState) => getRun(state, id));
 
   // handle run that becomes null
@@ -20,7 +21,9 @@ const RunDisplay: FunctionComponent<{ id: string; }> = ({ id }) => {
   }
 
   return (
-    <Title text={getRunTitle(run)} icon={getRunIcon(run)} />
+    <Box p={3}>
+      <Title text={getRunTitle(run)} icon={getRunIcon(run)} />
+    </Box>
   );
 };
 
