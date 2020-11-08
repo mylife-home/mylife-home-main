@@ -62,7 +62,7 @@ const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
 );
 
 const pinRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
-  ofType(ActionTypes.CLEAR_RECIPE),
+  ofType(ActionTypes.PIN_RECIPE),
   mergeMap((action: PayloadAction<{ id: string, value: boolean; }>) => pinRecipeCall(action.payload).pipe(
     ignoreElements(),
     handleError()
