@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 
     '& > *': {
       marginRight: theme.spacing(8),
-    }
+    },
   },
   newButton: {
     color: theme.palette.success.main,
@@ -70,10 +70,9 @@ const Recipes: FunctionComponent = () => {
 
   return (
     <div className={classes.container}>
-
       <div className={classes.titleContainer}>
         <Title text="Recettes" icon={RecipeIcon} />
-        
+
         <Tooltip title="Nouvelle recette">
           <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
             <AddIcon />
@@ -106,7 +105,7 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
         <RecipeIcon />
       </ListItemIcon>
 
-      <ListItemText primary={id} secondary={recipe.config.description || null} />
+      <ListItemText primary={id} secondary={recipe.config.description || null} primaryTypographyProps={{ variant: 'body1' }} secondaryTypographyProps={{ variant: 'body1' }} />
 
       <ListItemSecondaryAction>
         {recipe.pinned ? (
