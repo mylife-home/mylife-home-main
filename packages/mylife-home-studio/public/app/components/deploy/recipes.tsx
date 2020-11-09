@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import { makeStyles, fade } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -11,10 +10,11 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 
+import DeleteButton from '../lib/delete-button';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { clearRecipe, pinRecipe, startRecipe } from '../../store/deploy/actions';
 import { AppState } from '../../store/types';
-import { RecipeIcon, StartIcon, DeleteIcon, PinIcon, UnpinIcon } from './icons';
+import { RecipeIcon, StartIcon, PinIcon, UnpinIcon } from './icons';
 import { useSelection } from './selection';
 import { Title } from './layout';
 
@@ -38,6 +38,16 @@ const useStyles = makeStyles((theme) => ({
   },
   list: {
     width: 650,
+  },
+  deleteButton: {
+    color: theme.palette.error.main,
+    backgroundColor: 'transparent',
+    '&:hover': {
+      backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity), // fade = alpha
+    },
+  },
+  startButton: {
+    color: theme.palette.success.main,
   },
 }));
 
@@ -65,6 +75,7 @@ const Recipes: FunctionComponent = () => {
 export default Recipes;
 
 const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
   const { select } = useSelection();
   const { recipe, clear, pin, start } = useRecipeConnect(id);
   return (
@@ -78,29 +89,25 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
       <ListItemSecondaryAction>
         {recipe.pinned ? (
           <Tooltip title="Désépingler">
-            <IconButton edge="end" onClick={() => pin(false)}>
+            <IconButton onClick={() => pin(false)}>
               <UnpinIcon />
             </IconButton>
           </Tooltip>
         ) : (
           <Tooltip title="Épingler">
-            <IconButton edge="end" onClick={() => pin(true)}>
+            <IconButton onClick={() => pin(true)}>
               <PinIcon />
             </IconButton>
           </Tooltip>
         )}
 
         <Tooltip title="Démarrer">
-          <IconButton edge="end" onClick={() => start()}>
+          <IconButton className={classes.startButton} onClick={() => start()}>
             <StartIcon />
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Supprimer">
-          <IconButton edge="end" onClick={() => console.log('TODO')}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
+        <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={() => clear()} />
       </ListItemSecondaryAction>
     </ListItem>
   );
