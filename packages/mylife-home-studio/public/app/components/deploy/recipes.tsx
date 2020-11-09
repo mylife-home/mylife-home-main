@@ -9,6 +9,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
+import AddIcon from '@material-ui/icons/Add';
 
 import DeleteButton from '../lib/delete-button';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
@@ -29,8 +30,20 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  title: {
+  titleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    //justifyContent: 'space-between',
+    alignItems: 'baseline',
     margin: theme.spacing(3),
+    width: 650,
+
+    '& > *': {
+      marginRight: theme.spacing(8),
+    }
+  },
+  newButton: {
+    color: theme.palette.success.main,
   },
   listWrapper: {
     flex: '1 1 auto',
@@ -57,7 +70,16 @@ const Recipes: FunctionComponent = () => {
 
   return (
     <div className={classes.container}>
-      <Title className={classes.title} text="Recettes" icon={RecipeIcon} />
+
+      <div className={classes.titleContainer}>
+        <Title text="Recettes" icon={RecipeIcon} />
+        
+        <Tooltip title="Nouvelle recette">
+          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
 
       <Divider />
 
