@@ -8,7 +8,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import Divider from '@material-ui/core/Divider';
 import AddIcon from '@material-ui/icons/Add';
 
 import DeleteButton from '../lib/delete-button';
@@ -17,35 +16,11 @@ import { clearRecipe, pinRecipe, startRecipe } from '../../store/deploy/actions'
 import { AppState } from '../../store/types';
 import { RecipeIcon, StartIcon, PinIcon, UnpinIcon } from './icons';
 import { useSelection } from './selection';
-import { Title } from './layout';
+import { Container, Title } from './layout';
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  titleContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    margin: theme.spacing(3),
-
-    '& > *': {
-      marginRight: theme.spacing(8),
-    },
-  },
   newButton: {
     color: theme.palette.success.main,
-  },
-  listWrapper: {
-    flex: '1 1 auto',
-    overflowY: 'auto',
   },
   list: {
     width: 900,
@@ -67,27 +42,25 @@ const Recipes: FunctionComponent = () => {
   const recipesIds = useSelector(getRecipesIds);
 
   return (
-    <div className={classes.container}>
-      <div className={classes.titleContainer}>
-        <Title text="Recettes" icon={RecipeIcon} />
+    <Container
+      title={
+        <>
+          <Title text="Recettes" icon={RecipeIcon} />
 
-        <Tooltip title="Nouvelle recette">
-          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
-      </div>
-
-      <Divider />
-
-      <div className={classes.listWrapper}>
-        <List disablePadding className={classes.list}>
-          {recipesIds.map((id) => (
-            <RecipeItem key={id} id={id} />
-          ))}
-        </List>
-      </div>
-    </div>
+          <Tooltip title="Nouvelle recette">
+            <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
+        </>
+      }
+    >
+      <List disablePadding className={classes.list}>
+        {recipesIds.map((id) => (
+          <RecipeItem key={id} id={id} />
+        ))}
+      </List>
+    </Container>
   );
 };
 
