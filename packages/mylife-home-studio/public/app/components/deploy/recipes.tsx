@@ -83,21 +83,21 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
             </IconButton>
           </Tooltip>
         ) : (
-          <Tooltip title="Épingler" onClick={() => pin(true)}>
-            <IconButton edge="end">
+          <Tooltip title="Épingler">
+            <IconButton edge="end" onClick={() => pin(true)}>
               <PinIcon />
             </IconButton>
           </Tooltip>
         )}
 
-        <Tooltip title="Démarrer" onClick={() => start()}>
-          <IconButton edge="end">
+        <Tooltip title="Démarrer">
+          <IconButton edge="end" onClick={() => start()}>
             <StartIcon />
           </IconButton>
         </Tooltip>
 
-        <Tooltip title="Supprimer" onClick={() => console.log('TODO')}>
-          <IconButton edge="end">
+        <Tooltip title="Supprimer">
+          <IconButton edge="end" onClick={() => console.log('TODO')}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
