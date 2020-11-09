@@ -33,10 +33,8 @@ const useStyles = makeStyles((theme) => ({
   titleContainer: {
     display: 'flex',
     flexDirection: 'row',
-    //justifyContent: 'space-between',
     alignItems: 'baseline',
     margin: theme.spacing(3),
-    width: 650,
 
     '& > *': {
       marginRight: theme.spacing(8),
@@ -50,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
   },
   list: {
-    width: 650,
+    width: 900,
   },
   deleteButton: {
     color: theme.palette.error.main,
