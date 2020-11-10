@@ -201,8 +201,8 @@ function parseRun(run: shared.Run): Run {
   const { creation, end, logs, ...props } = run;
   return {
     ...props,
-    creation: new Date(creation),
-    end: new Date(end),
+    creation: parseDate(creation),
+    end: parseDate(end),
     logs: logs && logs.map(parseRunLog),
   };
 }
@@ -210,4 +210,8 @@ function parseRun(run: shared.Run): Run {
 function parseRunLog(log: shared.RunLog): RunLog {
   const { date, ...props } = log;
   return { ...props, date: new Date(date) };
+}
+
+function parseDate(value: number) {
+  return value == null ? null : new Date(value);
 }
