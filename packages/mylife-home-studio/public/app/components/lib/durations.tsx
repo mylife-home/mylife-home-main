@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import humanizeDurationImpl from 'humanize-duration';
+import Tooltip from '@material-ui/core/Tooltip';
 import { useInterval } from './use-interval';
 
 export type HumanizeDurationOptions = humanizeDurationImpl.Options;
@@ -38,3 +39,15 @@ export function useDateAsFormattedDuration(value: Date, options: FormattedOption
   const duration = useDateAsDuration(value, options);
   return humanizeDuration(duration, options.format);
 }
+
+export const Duration: FunctionComponent<{ value: Date }> = ({ value }) => {
+  const duration = useDateAsFormattedDuration(value);
+
+  return (
+    <Tooltip title={value.toLocaleString('fr-FR')}>
+      <div>
+        {duration}
+      </div>
+    </Tooltip>
+  );
+};
