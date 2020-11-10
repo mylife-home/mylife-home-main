@@ -1,35 +1,36 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
+import Divider from '@material-ui/core/Divider';
 
 import { AppState } from '../../store/types';
-import { Run } from '../../store/deploy/types';
+import { Run, RunLogSeverity } from '../../store/deploy/types';
 import { getRun } from '../../store/deploy/selectors';
 import { humanizeDuration } from '../lib/durations';
+import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { RunningIcon, SuccessIcon, FailureIcon } from './icons';
 import { useSelection, useResetSelectionIfNull } from './selection';
 import { Container, Title } from './layout';
 
 const useStyles = makeStyles((theme) => ({
-  gridContainer: {
-    width: 900,
-    margin: theme.spacing(3),
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  props: {},
+  logs: {
+    flex: 1,
   },
 }));
-
-const STATUSES = {
-  created: 'Créé',
-  running: "En cours d'exécution",
-  ended: 'Terminé',
-};
 
 const RunDisplay: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const run = useSelector((state: AppState) => getRun(state, id));
-  const { select } = useSelection();
 
   // handle run that becomes null
   useResetSelectionIfNull(run);
@@ -40,59 +41,11 @@ const RunDisplay: FunctionComponent<{ id: string }> = ({ id }) => {
 
   return (
     <Container title={<Title text={getRunTitle(run)} icon={getRunIcon(run)} />}>
-      <Grid container spacing={3} className={classes.gridContainer}>
-        <Grid item xs={2}>
-          <Typography>État</Typography>
-        </Grid>
-        <Grid item xs={10}>
-          <Typography>{STATUSES[run.status]}</Typography>
-        </Grid>
-
-        <Grid item xs={2}>
-          <Typography>Recette</Typography>
-        </Grid>
-        <Grid item xs={10}>
-          <Link component="button" variant="body1" onClick={() => select({ type: 'recipe', id: run.recipe })}>
-            {run.recipe}
-          </Link>
-        </Grid>
-
-        <Grid item xs={2}>
-          <Typography>Début</Typography>
-        </Grid>
-        <Grid item xs={10}>
-          <Typography>{run.creation.toLocaleString('fr-FR')}</Typography>
-        </Grid>
-
-        {run.end && (
-          <>
-            <Grid item xs={2}>
-              <Typography>Fin</Typography>
-            </Grid>
-            <Grid item xs={10}>
-              <Typography>{run.end.toLocaleString('fr-FR')}</Typography>
-            </Grid>
-
-            <Grid item xs={2}>
-              <Typography>Durée</Typography>
-            </Grid>
-            <Grid item xs={10}>
-              <Typography>{humanizeDuration(run.end.valueOf() - run.creation.valueOf())}</Typography>
-            </Grid>
-          </>
-        )}
-
-        {run.err && (
-          <>
-            <Grid item xs={2}>
-              <Typography>Erreur</Typography>
-            </Grid>
-            <Grid item xs={10}>
-              <Typography>TODO</Typography>
-            </Grid>
-          </>
-        )}
-      </Grid>
+      <div className={classes.container}>
+        <RunProps id={run.id} className={classes.props} />
+        <Divider />
+        <RunLogs id={run.id} className={classes.logs} />
+      </div>
     </Container>
   );
 };
@@ -129,4 +82,137 @@ export function getRunIcon(run: Run) {
   }
 
   return run.err ? ColoredFailureIcon : ColoredSuccessIcon;
+}
+
+const usePropsStyles = makeStyles((theme) => ({
+  container: {
+    width: 900,
+    margin: theme.spacing(3),
+  },
+}));
+
+const STATUSES = {
+  created: 'Créé',
+  running: "En cours d'exécution",
+  ended: 'Terminé',
+};
+
+const RunProps: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
+  const classes = usePropsStyles();
+  const run = useSelector((state: AppState) => getRun(state, id));
+  const { select } = useSelection();
+  const error = run.err;
+
+  return (
+    <Grid container spacing={3} className={clsx(classes.container, className)}>
+      <Grid item xs={2}>
+        <Typography>État</Typography>
+      </Grid>
+      <Grid item xs={10}>
+        <Typography>{STATUSES[run.status]}</Typography>
+      </Grid>
+
+      <Grid item xs={2}>
+        <Typography>Recette</Typography>
+      </Grid>
+      <Grid item xs={10}>
+        <Link component="button" variant="body1" onClick={() => select({ type: 'recipe', id: run.recipe })}>
+          {run.recipe}
+        </Link>
+      </Grid>
+
+      <Grid item xs={2}>
+        <Typography>Début</Typography>
+      </Grid>
+      <Grid item xs={10}>
+        <Typography>{formatTimestamp(run.creation)}</Typography>
+      </Grid>
+
+      {run.end && (
+        <>
+          <Grid item xs={2}>
+            <Typography>Fin</Typography>
+          </Grid>
+          <Grid item xs={10}>
+            <Typography>{formatTimestamp(run.end)}</Typography>
+          </Grid>
+
+          <Grid item xs={2}>
+            <Typography>Durée</Typography>
+          </Grid>
+          <Grid item xs={10}>
+            <Typography>{humanizeDuration(run.end.valueOf() - run.creation.valueOf())}</Typography>
+          </Grid>
+        </>
+      )}
+
+      {error && (
+        <>
+          <Grid item xs={2}>
+            <Typography>Erreur</Typography>
+          </Grid>
+          <Grid item xs={10}>
+            <Typography>TODO</Typography>
+            <Typography>{error.name}</Typography>
+            <Typography>{error.message}</Typography>
+            <Typography>{error.stack}</Typography>
+          </Grid>
+        </>
+      )}
+    </Grid>
+  );
+};
+
+const RunLogs: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
+  const run = useSelector((state: AppState) => getRun(state, id));
+
+  const severityRenderer = (value: RunLogSeverity) => <Severity value={value} />;
+  const textRenderer = (value: string) => <Text value={value} />;
+
+  const columns: ColumnDefinition[] = [
+    { dataKey: 'date', width: 150, headerRenderer: 'Date/Heure', cellDataGetter: ({ rowData }) => formatTimestamp(rowData.date) },
+    { dataKey: 'severity', width: 100, headerRenderer: 'Gravité', cellRenderer: severityRenderer },
+    { dataKey: 'category', width: 500, headerRenderer: 'Catégorie' },
+    { dataKey: 'message', headerRenderer: 'Message', cellRenderer: textRenderer },
+  ];
+
+  return <VirtualizedTable data={run.logs} columns={columns} className={className} />;
+};
+
+const useSeverityStyles = makeStyles((theme) => ({
+  error: {
+    // red
+    color: '#cd3131',
+  },
+  warning: {
+    // magenta
+    color: '#bc05bc',
+  },
+  info: {
+    // cyan
+    color: '#0598bc',
+  },
+  debug: {
+    // yellow
+    color: '#949800',
+  },
+}));
+
+const Severity: FunctionComponent<{ value: RunLogSeverity }> = ({ value }) => {
+  const classes = useSeverityStyles();
+  return (
+    <Typography className={classes[value]} variant="body2">
+      {value.toUpperCase()}
+    </Typography>
+  );
+};
+
+const Text: FunctionComponent<{ value: string }> = ({ value }) => (
+  <Typography variant="body2" noWrap>
+    {value}
+  </Typography>
+);
+
+function formatTimestamp(value: Date) {
+  return value.toLocaleString('fr-FR');
 }
