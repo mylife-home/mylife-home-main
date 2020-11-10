@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import ListItemText, { ListItemTextProps } from '@material-ui/core/ListItemText';
 
 const useTitleStyles = makeStyles((theme) => ({
   container: {
@@ -13,8 +14,8 @@ const useTitleStyles = makeStyles((theme) => ({
 
     '& *': {
       marginRight: theme.spacing(3),
-    }
-  }
+    },
+  },
 }));
 
 export const Title: FunctionComponent<{ className?: string; text: string; icon?: typeof SvgIcon }> = ({ className, text, icon }) => {
@@ -24,9 +25,7 @@ export const Title: FunctionComponent<{ className?: string; text: string; icon?:
   return (
     <div className={clsx(classes.container, className)}>
       <Icon />
-      <Typography variant='h6' >
-        {text}
-      </Typography>
+      <Typography variant="h6">{text}</Typography>
     </div>
   );
 };
@@ -63,15 +62,21 @@ export const Container: FunctionComponent<{ title: ReactNode }> = ({ title, chil
 
   return (
     <div className={classes.container}>
-      <div className={classes.titleContainer}>
-        {title}
-      </div>
+      <div className={classes.titleContainer}>{title}</div>
 
       <Divider />
 
-      <div className={classes.contentWrapper}>
-        {children}
-      </div>
+      <div className={classes.contentWrapper}>{children}</div>
     </div>
+  );
+};
+
+export const CustomizedListItemText: FunctionComponent<ListItemTextProps<'span', 'p'>> = ({ primaryTypographyProps, secondaryTypographyProps, ...props }) => {
+  return (
+    <ListItemText
+      primaryTypographyProps={{ variant: 'body1', ...primaryTypographyProps }}
+      secondaryTypographyProps={{ variant: 'body1', ...secondaryTypographyProps }}
+      {...props}
+    />
   );
 };

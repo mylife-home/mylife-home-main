@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
@@ -16,7 +15,7 @@ import { clearRecipe, pinRecipe, startRecipe } from '../../store/deploy/actions'
 import { AppState } from '../../store/types';
 import { RecipeIcon, StartIcon, PinIcon, UnpinIcon } from './icons';
 import { useSelection } from './selection';
-import { Container, Title } from './layout';
+import { Container, Title, CustomizedListItemText } from './layout';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -76,7 +75,7 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
         <RecipeIcon />
       </ListItemIcon>
 
-      <ListItemText primary={id} secondary={recipe.config.description || null} primaryTypographyProps={{ variant: 'body1' }} secondaryTypographyProps={{ variant: 'body1' }} />
+      <CustomizedListItemText primary={id} secondary={recipe.config.description || null} />
 
       <ListItemSecondaryAction>
         {recipe.pinned ? (
