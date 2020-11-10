@@ -3,14 +3,15 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 import { getRunsIds, getRun } from '../../store/deploy/selectors';
 import { AppState } from '../../store/types';
+import { Run } from '../../store/deploy/types';
+import { useDateAsFormattedDuration, humanizeDuration } from '../lib/durations';
 import { RunsIcon } from './icons';
 import { useSelection } from './selection';
-import { Container, Title } from './layout';
+import { Container, Title, CustomizedListItemText } from './layout';
 import { getRunTitle, getRunIcon } from './run';
 
 const useStyles = makeStyles((theme) => ({
@@ -41,10 +42,10 @@ const Runs: FunctionComponent = () => {
 export default Runs;
 
 const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
-  const classes = useStyles();
   const { select } = useSelection();
   const run = useSelector((state: AppState) => getRun(state, id));
   const title = getRunTitle(run);
+  const detail = buildSecondaryText(run);
   const RunIcon = getRunIcon(run);
 
   return (
@@ -53,8 +54,18 @@ const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
         <RunIcon />
       </ListItemIcon>
 
-      <ListItemText primary={title} secondary={'secondary'} primaryTypographyProps={{ variant: 'body1' }} secondaryTypographyProps={{ variant: 'body1' }} />
+      <CustomizedListItemText primary={title} secondary={detail} />
 
     </ListItem>
   );
 };
+
+function buildSecondaryText(run: Run) {
+  const creation = useDateAsFormattedDuration(run.creation);
+  if(!run.end) {
+    return `Démarré il y a ${creation}`;
+  }
+
+  const duration = humanizeDuration(run.end.valueOf() - run.creation.valueOf());
+  return `Démarré il y a ${creation}, l'exécution a duré ${duration}`;
+}
