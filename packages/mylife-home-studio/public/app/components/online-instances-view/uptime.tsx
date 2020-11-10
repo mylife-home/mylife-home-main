@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
-import { useDateAsFormattedDuration } from '../lib/use-date-as-duration';
+import { useDateAsFormattedDuration } from '../lib/durations';
 
 const Uptime: FunctionComponent<{ value: Date }> = ({ value }) => {
   if (!value) {

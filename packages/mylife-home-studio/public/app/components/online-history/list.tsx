@@ -1,9 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
-import humanizeDuration from 'humanize-duration';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import { humanizeDuration } from '../lib/durations';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { AppState } from '../../store/types';
 import { ComponentHistoryItem, InstanceHistoryItem, StateHistoryItem } from '../../store/online-history/types';
@@ -106,7 +106,7 @@ const ValueDuration: FunctionComponent<{ id: string; }> = ({ id }) => {
   }
 
   const duration = item.timestamp.valueOf() - previousItem.timestamp.valueOf();
-  const value = humanizeDuration(duration, { language: 'fr', largest: 2, round: true });
+  const value = humanizeDuration(duration);
   return (<>{value}</>);
 };
 

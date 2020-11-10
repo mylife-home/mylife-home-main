@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react';
-import humanizeDuration from 'humanize-duration';
+import humanizeDurationImpl from 'humanize-duration';
 import { useInterval } from './use-interval';
+
+export type HumanizeDurationOptions = humanizeDurationImpl.Options;
+
+const DEFAULT_FORMAT: HumanizeDurationOptions = { language: 'fr', largest: 2, round: true };
+
+export function humanizeDuration(ms: number, options?: HumanizeDurationOptions) {
+  const format = { ...DEFAULT_FORMAT, ...options };
+  return humanizeDurationImpl(ms, format);
+}
 
 export interface Options {
   interval?: number;
@@ -21,13 +30,11 @@ export function useDateAsDuration(value: Date, options: Options = {}) {
 };
 
 export interface FormattedOptions extends Options {
-  format?: humanizeDuration.Options;
+  format?: HumanizeDurationOptions;
 }
 
-const DEFAULT_FORMAT = { language: 'fr', largest: 2, round: true };
 
 export function useDateAsFormattedDuration(value: Date, options: FormattedOptions = {}) {
   const duration = useDateAsDuration(value, options);
-  const format = { ...DEFAULT_FORMAT, ...options.format };
-  return humanizeDuration(duration, format);
+  return humanizeDuration(duration, options.format);
 }
