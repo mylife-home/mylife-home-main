@@ -52,7 +52,7 @@ const useContainerStyles = makeStyles((theme) => ({
     },
   },
   contentWrapper: {
-    flex: '1 1 auto',
+    flex: 1,
     overflowY: 'auto',
   },
 }));

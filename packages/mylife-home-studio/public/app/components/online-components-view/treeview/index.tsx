@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   typeSelector: {},
   actions: {},
   treeContainer: {
-    flex: '1 1 auto',
+    flex: 1,
   },
   tree: {
     overflowY: 'auto',
