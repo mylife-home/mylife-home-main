@@ -54,7 +54,6 @@ export class Deploy implements Service {
     Services.instance.sessionManager.registerServiceHandler('deploy/clear-recipe', this.deleteRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/pin-recipe', this.pinRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
-    Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/read-file', this.readFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/write-file', this.writeFile);
 
