@@ -1,9 +1,22 @@
-import { AddRunLogNotification, ClearRecipeNotification, ClearRunNotification, PinRecipeNotification, RecipeConfig, RunLog, SetRecipeNotification, SetRunNotification, SetTaskNotification } from '../../../shared/deploy';
+import {
+  AddRunLogNotification,
+  ClearFileNotification,
+  ClearRecipeNotification,
+  ClearRunNotification,
+  PinRecipeNotification,
+  RecipeConfig,
+  RunLog,
+  SetFileNotification,
+  SetRecipeNotification,
+  SetRunNotification,
+  SetTaskNotification,
+} from '../../../shared/deploy';
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
 import { Recipes } from './recipes';
 import { Runs } from './runs';
+import { Files } from './files';
 import { listMeta } from './tasks';
 import * as directories from './directories';
 
@@ -12,6 +25,7 @@ import * as directories from './directories';
 export class Deploy implements Service {
   private readonly recipes = new Recipes();
   private readonly runs = new Runs();
+  private readonly files = new Files();
   private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/updates');
 
   constructor(params: BuildParams) {
@@ -25,12 +39,17 @@ export class Deploy implements Service {
     this.runs.on('run-end', this.handleRunSet);
     this.runs.on('run-deleted', this.handleRunClear);
     this.runs.on('run-log', this.handleRunLog);
+
+    this.recipes.on('file-created', this.handleFileSet);
+    this.recipes.on('file-updated', this.handleFileSet);
+    this.recipes.on('file-deleted', this.handleFileClear);
   }
 
   async init() {
     directories.configure();
     await this.recipes.init();
     await this.runs.init();
+    await this.files.init();
     this.notifiers.init();
 
     Services.instance.sessionManager.registerServiceHandler('deploy/set-recipe', this.setRecipe);
@@ -45,21 +64,22 @@ export class Deploy implements Service {
   async terminate() {
     await this.recipes.terminate();
     await this.runs.terminate();
+    await this.files.terminate();
   }
 
-  private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig; }) => {
+  private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig }) => {
     this.recipes.setRecipe(id, config);
   };
 
-  private readonly deleteRecipe = async (session: Session, { id }: { id: string; }) => {
+  private readonly deleteRecipe = async (session: Session, { id }: { id: string }) => {
     this.recipes.deleteRecipe(id);
   };
 
-  private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean; }) => {
+  private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean }) => {
     this.recipes.pinRecipe(id, value);
   };
 
-  private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
+  private readonly startRecipe = async (session: Session, { id }: { id: string }) => {
     return this.runs.startRecipe(id);
   };
 
@@ -70,6 +90,7 @@ export class Deploy implements Service {
       this.emitTasks(notifier);
       this.emitRecipes(notifier);
       this.emitRuns(notifier);
+      this.emitFiles(notifier);
     });
 
     return { notifierId: notifier.id };
@@ -113,7 +134,14 @@ export class Deploy implements Service {
     }
   }
 
-  private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string; }) => {
+  private emitFiles(notifier: SessionNotifier) {
+    for (const file of this.files.listFiles()) {
+      const notification: SetFileNotification = { operation: 'file-set', file };
+      notifier.notify(notification);
+    }
+  }
+
+  private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string }) => {
     this.notifiers.removeNotifier(session, notifierId);
   };
 
@@ -146,6 +174,17 @@ export class Deploy implements Service {
 
   private readonly handleRunLog = (id: string, log: RunLog) => {
     const notification: AddRunLogNotification = { operation: 'run-add-log', id, log };
+    this.notifiers.notifyAll(notification);
+  };
+
+  private readonly handleFileSet = (id: string) => {
+    const file = this.files.getFile(id);
+    const notification: SetFileNotification = { operation: 'file-set', file };
+    this.notifiers.notifyAll(notification);
+  };
+
+  private readonly handleFileClear = (id: string) => {
+    const notification: ClearFileNotification = { operation: 'file-clear', id };
     this.notifiers.notifyAll(notification);
   };
 }

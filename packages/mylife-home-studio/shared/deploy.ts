@@ -41,6 +41,12 @@ export interface RecipeStepConfig extends StepConfig {
   recipe: string;
 }
 
+export interface FileInfo {
+  id: string;
+  size: number;
+  modifiedDate: number;
+}
+
 export interface TaskMetadata {
   description: string;
   parameters: {
@@ -51,10 +57,10 @@ export interface TaskMetadata {
   }[];
 }
 
-export type TaskParameters = { [key: string]: string; };
+export type TaskParameters = { [key: string]: string };
 
 export interface UpdateDataNotification {
-  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log';
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log' | 'file-set' | 'file-clear';
 }
 
 // no clear, tasks are static
@@ -95,4 +101,14 @@ export interface AddRunLogNotification extends UpdateDataNotification {
   operation: 'run-add-log';
   id: string;
   log: RunLog;
+}
+
+export interface SetFileNotification extends UpdateDataNotification {
+  operation: 'file-set';
+  file: FileInfo;
+}
+
+export interface ClearFileNotification extends UpdateDataNotification {
+  operation: 'file-clear';
+  id: string;
 }
