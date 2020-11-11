@@ -20,8 +20,6 @@ import { Files } from './files';
 import { listMeta } from './tasks';
 import * as directories from './directories';
 
-// TODO: files management API
-
 export class Deploy implements Service {
   private readonly recipes = new Recipes();
   private readonly runs = new Runs();
