@@ -8,6 +8,12 @@ import { FileInfo } from '../../../shared/deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:deploy:files');
 
+const OPEN_FLAGS = {
+  read: fs.constants.O_RDONLY,
+  init: fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_TRUNC,
+  append: fs.constants.O_WRONLY | fs.constants.O_APPEND,
+};
+
 export class Files extends EventEmitter {
   private readonly files = new Map<string, FileInfo>();
   private watcher: FSWatcher;
@@ -91,4 +97,46 @@ export class Files extends EventEmitter {
   getFile(id: string) {
     return this.files.get(id);
   }
+
+  async read(id: string, offset: number, size: number) {
+    const fullPath = path.join(directories.files(), id);
+    const buffer = Buffer.allocUnsafe(size);
+    let readSize;
+
+    const fd = await fs.open(fullPath, OPEN_FLAGS.read);
+    try {
+      const { bytesRead } = await fs.read(fd, buffer, 0, size, offset);
+      readSize = bytesRead;
+    } finally {
+      await fs.close(fd);
+    }
+
+    return base64Encode(buffer.slice(0, readSize));
+  }
+
+  async write(id: string, bufferBase64: string, type: 'init' | 'append') {
+    const buffer = base64Decode(bufferBase64);
+    const fullPath = path.join(directories.files(), id);
+    let writeSize;
+
+    const fd = await fs.open(fullPath, OPEN_FLAGS[type]);
+    try {
+      const { bytesWritten } = await fs.write(fd, buffer);
+      writeSize = bytesWritten;
+    } finally {
+      await fs.close(fd);
+    }
+
+    if (writeSize !== buffer.length) {
+      throw new Error(`Write succeeded but write size (${writeSize}) different than buffer size (${buffer.length})`);
+    }
+  }
+}
+
+function base64Encode(buffer: Buffer) {
+  return buffer.toString('base64');
+}
+
+function base64Decode(str: string) {
+  return Buffer.from(str, 'base64');
 }
