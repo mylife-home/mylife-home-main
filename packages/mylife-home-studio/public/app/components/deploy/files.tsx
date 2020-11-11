@@ -49,7 +49,7 @@ const Files: FunctionComponent = () => {
 
 
   const columns: ColumnDefinition[] = [
-    { dataKey: 'id', headerRenderer: 'Nom', cellDataGetter },
+    { dataKey: 'id', width: 500, headerRenderer: 'Nom', cellDataGetter },
     { dataKey: 'modifiedDate', width: 150, headerRenderer: 'Date de modification', cellDataGetter, cellRenderer: dateRenderer },
     { dataKey: 'size', width: 150, headerRenderer: 'Taille', cellDataGetter, cellRenderer: sizeRenderer },
     { dataKey: 'actions', width: 150, headerRenderer: actionHeaderRenderer, cellDataGetter, cellRenderer: actionsRenderer },
