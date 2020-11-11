@@ -13,8 +13,11 @@ export const getRecipe = (state: AppState, id: string) => getDeploy(state).recip
 
 export const getPinnedRecipesIds = createSelector(
   (state: AppState) => getDeploy(state).recipes,
-  (recipes) => recipes.allIds.filter(id => recipes.byId[id].pinned)
+  (recipes) => recipes.allIds.filter((id) => recipes.byId[id].pinned)
 );
 
 export const getRunsIds = (state: AppState) => getDeploy(state).runs.allIds;
 export const getRun = (state: AppState, id: string) => getDeploy(state).runs.byId[id];
+
+export const getFilesIds = (state: AppState) => getDeploy(state).files.allIds;
+export const getFile = (state: AppState, id: string) => getDeploy(state).files.byId[id];
