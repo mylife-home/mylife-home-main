@@ -9,3 +9,6 @@ export const setRecipe = createAction<{ id: string, config: RecipeConfig; }>(Act
 export const clearRecipe = createAction<string>(ActionTypes.CLEAR_RECIPE);
 export const pinRecipe = createAction<{ id: string, value: boolean; }>(ActionTypes.PIN_RECIPE);
 export const startRecipe = createAction<string>(ActionTypes.START_RECIPE);
+export const uploadFile = createAction(ActionTypes.UPLOAD_FILE);
+export const downloadFile = createAction<string>(ActionTypes.DOWNLOAD_FILE);
+export const deleteFile = createAction<string>(ActionTypes.DELETE_FILE);

@@ -1,6 +1,7 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
+import humanize from 'humanize-plus';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,7 +10,9 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
 import { AppState } from '../../store/types';
 import { getFilesIds, getFile } from '../../store/deploy/selectors';
+import { uploadFile, downloadFile, deleteFile } from '../../store/deploy/actions';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
+import DeleteButton from '../lib/delete-button';
 import { Container, Title } from './layout';
 import { FileIcon } from './icons';
 
@@ -47,7 +50,6 @@ const Files: FunctionComponent = () => {
   const actionHeaderRenderer = () => <ActionsHeader />;
   const actionsRenderer = (id: string) => <Actions id={id} />;
 
-
   const columns: ColumnDefinition[] = [
     { dataKey: 'id', width: 500, headerRenderer: 'Nom', cellDataGetter },
     { dataKey: 'modifiedDate', width: 150, headerRenderer: 'Date de modification', cellDataGetter, cellRenderer: dateRenderer },
@@ -83,7 +85,7 @@ const FileDate: FunctionComponent<{ id: string; }> = ({ id }) => {
 
 const FileSize: FunctionComponent<{ id: string; }> = ({ id }) => {
   const file = useSelector((state: AppState) => getFile(state, id));
-  const value = 'TODO ' + file.size;
+  const value = humanize.fileSize(file.size);
 
   return (
     <>
@@ -94,9 +96,11 @@ const FileSize: FunctionComponent<{ id: string; }> = ({ id }) => {
 
 const ActionsHeader: FunctionComponent = () => {
   const classes = useStyles();
+  const { uploadFile } = useHeaderActions();
+
   return (
-    <Tooltip title="Upload fichier">
-      <IconButton className={classes.uploadButton} onClick={() => console.log('TODO upload')}>
+    <Tooltip title="Nouveau fichier">
+      <IconButton className={classes.uploadButton} onClick={uploadFile}>
         <CloudUploadIcon />
       </IconButton>
     </Tooltip>
@@ -105,9 +109,32 @@ const ActionsHeader: FunctionComponent = () => {
 
 const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
   const classes = useStyles();
+  const { downloadFile, deleteFile } = useActions(id);
+
   return (
     <>
-      {'TODO Actions'}
+      <Tooltip title="Télécharger">
+        <IconButton className={classes.downloadButton} onClick={downloadFile}>
+          <CloudDownloadIcon />
+        </IconButton>
+      </Tooltip>
+
+      <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={deleteFile} />
     </>
   );
 };
+
+function useHeaderActions() {
+  const dispatch = useDispatch();
+  return useMemo(() => ({
+    uploadFile: () => dispatch(uploadFile()),
+  }), [dispatch]);
+}
+
+function useActions(id: string) {
+  const dispatch = useDispatch();
+  return useMemo(() => ({
+    downloadFile: () => dispatch(downloadFile(id)),
+    deleteFile: () => dispatch(deleteFile(id)),
+  }), [dispatch, id]);
+}
