@@ -1,19 +1,113 @@
 import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
-import Box from '@material-ui/core/Box';
+import { useSelector, useDispatch } from 'react-redux';
+import { TableCellDataGetterParams } from 'react-virtualized';
+import { makeStyles, fade } from '@material-ui/core/styles';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 
+import { AppState } from '../../store/types';
+import { getFilesIds, getFile } from '../../store/deploy/selectors';
+import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
+import { Container, Title } from './layout';
 import { FileIcon } from './icons';
-import { useSelection } from './selection';
-import { Title } from './layout';
+
+const useStyles = makeStyles((theme) => ({
+  uploadButton: {
+    color: theme.palette.success.main,
+  },
+  downloadButton: {
+    color: theme.palette.success.main,
+  },
+  deleteButton: {
+    color: theme.palette.error.main,
+    backgroundColor: 'transparent',
+    '&:hover': {
+      backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity), // fade = alpha
+    },
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  table: {
+    flex: 1,
+  }
+}));
 
 const Files: FunctionComponent = () => {
-  const { select } = useSelection();
+  const classes = useStyles();
+  const files = useSelector(getFilesIds);
+
+  const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
+  const dateRenderer = (id: string) => <FileDate id={id} />;
+  const sizeRenderer = (id: string) => <FileSize id={id} />;
+  const actionHeaderRenderer = () => <ActionsHeader />;
+  const actionsRenderer = (id: string) => <Actions id={id} />;
+
+
+  const columns: ColumnDefinition[] = [
+    { dataKey: 'id', headerRenderer: 'Nom', cellDataGetter },
+    { dataKey: 'modifiedDate', width: 150, headerRenderer: 'Date de modification', cellDataGetter, cellRenderer: dateRenderer },
+    { dataKey: 'size', width: 150, headerRenderer: 'Taille', cellDataGetter, cellRenderer: sizeRenderer },
+    { dataKey: 'actions', width: 150, headerRenderer: actionHeaderRenderer, cellDataGetter, cellRenderer: actionsRenderer },
+  ];
 
   return (
-    <Box p={3}>
-      <Title text="Fichiers" icon={FileIcon} />
-    </Box>
+    <Container
+      title={
+        <Title text="Fichiers" icon={FileIcon} />
+      }
+    >
+      <div className={classes.container}>
+        <VirtualizedTable data={files} columns={columns} className={classes.table} />
+      </div>
+    </Container>
   );
 };
 
 export default Files;
+
+const FileDate: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const file = useSelector((state: AppState) => getFile(state, id));
+  const value = file.modifiedDate.toLocaleString('fr-FR');
+
+  return (
+    <>
+      {value}
+    </>
+  );
+};
+
+const FileSize: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const file = useSelector((state: AppState) => getFile(state, id));
+  const value = 'TODO ' + file.size;
+
+  return (
+    <>
+      {value}
+    </>
+  );
+};
+
+const ActionsHeader: FunctionComponent = () => {
+  const classes = useStyles();
+  return (
+    <Tooltip title="Upload fichier">
+      <IconButton className={classes.uploadButton} onClick={() => console.log('TODO upload')}>
+        <CloudUploadIcon />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const classes = useStyles();
+  return (
+    <>
+      {'TODO Actions'}
+    </>
+  );
+};
