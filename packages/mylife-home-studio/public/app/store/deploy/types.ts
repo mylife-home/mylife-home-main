@@ -42,8 +42,14 @@ export interface RunLog {
 }
 
 
+export interface FileInfo {
+  id: string;
+  size: number;
+  modifiedDate: Date;
+}
+
 export interface Update {
-  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log';
+  operation: 'task-set' | 'recipe-set' | 'recipe-clear' | 'recipe-pin' | 'run-set' | 'run-clear' | 'run-add-log' | 'file-set' | 'file-clear';
 }
 
 // no clear, tasks are static
@@ -84,9 +90,20 @@ export interface AddRunLog extends Update {
   log: RunLog;
 }
 
+export interface SetFile extends Update {
+  operation: 'file-set';
+  file: FileInfo;
+}
+
+export interface ClearFile extends Update {
+  operation: 'file-clear';
+  id: string;
+}
+
 export interface DeployState {
   notifierId: string;
   tasks: Table<Task>;
   recipes: Table<Recipe>;
   runs: Table<Run>;
+  files: Table<FileInfo>;
 }

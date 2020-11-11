@@ -1,12 +1,13 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { createTable, tableRemove, tableSet } from '../common/reducer-tools';
-import { ActionTypes, AddRunLog, ClearRecipe, ClearRun, DeployState, PinRecipe, Recipe, Run, SetRecipe, SetRun, SetTask, Task, Update } from './types';
+import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, DeployState, FileInfo, PinRecipe, Recipe, Run, SetFile, SetRecipe, SetRun, SetTask, Task, Update } from './types';
 
 const initialState: DeployState = {
   notifierId: null,
   tasks: createTable<Task>(),
   recipes: createTable<Recipe>(),
   runs: createTable<Run>(),
+  files: createTable<FileInfo>(),
 };
 
 export default createReducer(initialState, {
@@ -19,6 +20,7 @@ export default createReducer(initialState, {
     state.tasks = createTable<Task>();
     state.recipes = createTable<Recipe>();
     state.runs = createTable<Run>();
+    state.files = createTable<FileInfo>();
   },
 
   [ActionTypes.PUSH_UPDATES]: (state, action: PayloadAction<Update[]>) => {
@@ -76,6 +78,20 @@ export default createReducer(initialState, {
           const { id, log } = update as AddRunLog;
           const run = state.runs.byId[id];
           run.logs.push(log);
+
+          break;
+        }
+
+        case 'file-set': {
+          const { file } = update as SetFile;
+          tableSet(state.files, file, true);
+
+          break;
+        }
+
+        case 'file-clear': {
+          const { id } = update as ClearFile;
+          tableRemove(state.files, id);
 
           break;
         }
