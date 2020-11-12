@@ -98,6 +98,12 @@ export class Files extends EventEmitter {
     return this.files.get(id);
   }
 
+  async rename(id: string, newId: string) {
+    const fullPath = path.join(directories.files(), id);
+    const newFullPath = path.join(directories.files(), newId);
+    await fs.rename(fullPath, newFullPath);
+  }
+
   async read(id: string, offset: number, size: number) {
     const fullPath = path.join(directories.files(), id);
     const buffer = Buffer.allocUnsafe(size);

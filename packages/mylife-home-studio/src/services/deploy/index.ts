@@ -54,6 +54,7 @@ export class Deploy implements Service {
     Services.instance.sessionManager.registerServiceHandler('deploy/clear-recipe', this.deleteRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/pin-recipe', this.pinRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/rename-file', this.renameFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/read-file', this.readFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/write-file', this.writeFile);
 
@@ -67,27 +68,31 @@ export class Deploy implements Service {
     await this.files.terminate();
   }
 
-  private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig }) => {
+  private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig; }) => {
     this.recipes.setRecipe(id, config);
   };
 
-  private readonly deleteRecipe = async (session: Session, { id }: { id: string }) => {
+  private readonly deleteRecipe = async (session: Session, { id }: { id: string; }) => {
     this.recipes.deleteRecipe(id);
   };
 
-  private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean }) => {
+  private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean; }) => {
     this.recipes.pinRecipe(id, value);
   };
 
-  private readonly startRecipe = async (session: Session, { id }: { id: string }) => {
+  private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
     return this.runs.startRecipe(id);
   };
 
-  private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number }) => {
+  private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number; }) => {
     return await this.files.read(id, offset, size);
   };
 
-  private readonly writeFile = async (session: Session, { id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append' }) => {
+  private readonly renameFile = async (session: Session, { id, newId }: { id: string; newId: string; }) => {
+    return await this.files.rename(id, newId);
+  };
+
+  private readonly writeFile = async (session: Session, { id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append'; }) => {
     await this.files.write(id, buffer, type);
   };
 
@@ -149,7 +154,7 @@ export class Deploy implements Service {
     }
   }
 
-  private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string }) => {
+  private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string; }) => {
     this.notifiers.removeNotifier(session, notifierId);
   };
 
