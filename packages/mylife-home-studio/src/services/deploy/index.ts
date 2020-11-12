@@ -84,12 +84,12 @@ export class Deploy implements Service {
     return this.runs.startRecipe(id);
   };
 
-  private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number; }) => {
-    return await this.files.read(id, offset, size);
-  };
-
   private readonly renameFile = async (session: Session, { id, newId }: { id: string; newId: string; }) => {
     return await this.files.rename(id, newId);
+  };
+
+  private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number; }) => {
+    return await this.files.read(id, offset, size);
   };
 
   private readonly writeFile = async (session: Session, { id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append'; }) => {
