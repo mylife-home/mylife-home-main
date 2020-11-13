@@ -13,7 +13,9 @@ import { AppState } from '../../store/types';
 import { getFilesIds, getFile } from '../../store/deploy/selectors';
 import { uploadFile, downloadFile, deleteFile } from '../../store/deploy/actions';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
+import { useFireAsync } from '../lib/use-error-handling';
 import DeleteButton from '../lib/delete-button';
+import { useInputDialog } from '../dialogs/input';
 import { Container, Title } from './layout';
 import { FileIcon } from './icons';
 
@@ -111,6 +113,15 @@ const ActionsHeader: FunctionComponent = () => {
 const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
   const classes = useStyles();
   const { downloadFile, deleteFile } = useActions(id);
+  const showModal = useInputDialog();
+  const fireAsync = useFireAsync();
+
+  const onRename = () => fireAsync(async () => {
+    const { status, text } = await showModal({ title: 'Nouveau nom', message: 'Entrer le nouveau nom de fichier', initialText: id });
+    if(status === 'ok') {
+      console.log('RENAME TODO', text);
+    }
+  });
 
   return (
     <>
@@ -121,7 +132,7 @@ const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
       </Tooltip>
 
       <Tooltip title="Renommer">
-        <IconButton onClick={() => console.log('rename TODO')}>
+        <IconButton onClick={onRename}>
           <EditIcon />
         </IconButton>
       </Tooltip>
