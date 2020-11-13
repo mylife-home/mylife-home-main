@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import EditIcon from '@material-ui/icons/Edit';
 
 import { AppState } from '../../store/types';
 import { getFilesIds, getFile } from '../../store/deploy/selectors';
@@ -116,6 +117,12 @@ const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
       <Tooltip title="Télécharger">
         <IconButton className={classes.downloadButton} onClick={downloadFile}>
           <CloudDownloadIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Renommer">
+        <IconButton onClick={() => console.log('rename TODO')}>
+          <EditIcon />
         </IconButton>
       </Tooltip>
 
