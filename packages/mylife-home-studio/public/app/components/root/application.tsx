@@ -6,6 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import StoreProvider from '../lib/store-provider';
 import { theme } from '../lib/theme';
+import DialogProvider from '../dialogs/provider';
 import Layout from './layout';
 
 import { store } from '../../store/store';
@@ -27,7 +28,9 @@ const Application: FunctionComponent = () => (
     <StoreProvider>
       <ThemeProvider theme={theme}>
         <DndProvider backend={HTML5Backend}>
-          <Layout />
+          <DialogProvider>
+            <Layout />
+          </DialogProvider>
         </DndProvider>
       </ThemeProvider>
     </StoreProvider>
