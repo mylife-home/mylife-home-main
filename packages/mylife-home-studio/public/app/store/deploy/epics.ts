@@ -54,7 +54,7 @@ const fetchUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<A
 const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
     ofType(ActionTypes.SET_RECIPE),
-    mergeMap((action: PayloadAction<{ id: string; config: RecipeConfig }>) => setRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
+    mergeMap((action: PayloadAction<{ id: string; config: RecipeConfig; }>) => setRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
   );
 
 const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -66,7 +66,7 @@ const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
 const pinRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
     ofType(ActionTypes.PIN_RECIPE),
-    mergeMap((action: PayloadAction<{ id: string; value: boolean }>) => pinRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
+    mergeMap((action: PayloadAction<{ id: string; value: boolean; }>) => pinRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
   );
 
 const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -81,9 +81,22 @@ const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
     )
   );
 
-// TODO: files api
+// TODO: UPLOAD_FILE
+// TODO: DOWNLOAD_FILE
 
-export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic);
+const deleteRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+  action$.pipe(
+    ofType(ActionTypes.DELETE_FILE),
+    mergeMap((action: PayloadAction<string>) => deleteFileCall(action.payload).pipe(ignoreElements(), handleError()))
+  );
+
+const renameRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+  action$.pipe(
+    ofType(ActionTypes.RENAME_FILE),
+    mergeMap((action: PayloadAction<{ id: string; newId: string; }>) => renameFileCall(action.payload).pipe(ignoreElements(), handleError()))
+  );
+
+export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, deleteRecipeEpic, renameRecipeEpic);
 
 function filterNotifyChange(state$: StateObservable<AppState>) {
   return (source: Observable<Action>) =>
@@ -104,14 +117,14 @@ function xor(a: boolean, b: boolean) {
 }
 
 function startNotifyCall() {
-  return socket.call('deploy/start-notify', null) as Observable<{ notifierId: string }>;
+  return socket.call('deploy/start-notify', null) as Observable<{ notifierId: string; }>;
 }
 
-function stopNotifyCall({ notifierId }: { notifierId: string }) {
+function stopNotifyCall({ notifierId }: { notifierId: string; }) {
   return socket.call('deploy/stop-notify', { notifierId }) as Observable<void>;
 }
 
-function setRecipeCall({ id, config }: { id: string; config: shared.RecipeConfig }) {
+function setRecipeCall({ id, config }: { id: string; config: shared.RecipeConfig; }) {
   return socket.call('deploy/set-recipe', { id, config }) as Observable<void>;
 }
 
@@ -119,12 +132,28 @@ function clearRecipeCall(id: string) {
   return socket.call('deploy/clear-recipe', { id }) as Observable<void>;
 }
 
-function pinRecipeCall({ id, value }: { id: string; value: boolean }) {
+function pinRecipeCall({ id, value }: { id: string; value: boolean; }) {
   return socket.call('deploy/pin-recipe', { id, value }) as Observable<void>;
 }
 
 function startRecipeCall(id: string) {
   return socket.call('deploy/start-recipe', { id }) as Observable<string>;
+}
+
+function deleteFileCall(id: string) {
+  return socket.call('deploy/delete-file', { id }) as Observable<void>;
+}
+
+function renameFileCall({ id, newId }: { id: string; newId: string; }) {
+  return socket.call('deploy/rename-file', { id, newId }) as Observable<void>;
+}
+
+function readFileCall({ id, offset, size }: { id: string; offset: number; size: number; }) {
+  return socket.call('deploy/read-file', { id, offset, size }) as Observable<string>;
+}
+
+function writeFileCall({ id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append'; }) {
+  return socket.call('deploy/write-file', { id, buffer, type }) as Observable<void>;
 }
 
 function parseNotification(notification: shared.UpdateDataNotification): Update {

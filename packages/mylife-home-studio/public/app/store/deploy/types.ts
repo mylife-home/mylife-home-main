@@ -12,6 +12,7 @@ export const enum ActionTypes {
   UPLOAD_FILE = 'deploy/upload-file',
   DOWNLOAD_FILE = 'deploy/download-file',
   DELETE_FILE = 'deploy/delete-file',
+  RENAME_FILE = 'deploy/rename-file',
 }
 
 export { TaskMetadata, RecipeConfig, RunLogSeverity, RunError };

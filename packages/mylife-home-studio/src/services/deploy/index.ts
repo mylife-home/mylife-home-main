@@ -93,6 +93,7 @@ export class Deploy implements Service {
     return await this.files.rename(id, newId);
   };
 
+  // TODO: use Buffers instead of base64
   private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number; }) => {
     return await this.files.read(id, offset, size);
   };
