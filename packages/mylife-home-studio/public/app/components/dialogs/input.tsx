@@ -61,7 +61,7 @@ export function useInputDialog() {
     // force new object creation
     setOptions({ title, message, label });
     setText(initialText);
-    setOnResult(resolve);
+    setOnResult(() => resolve); // else useState think resolve is a state updater
 
     showModal();
   });
