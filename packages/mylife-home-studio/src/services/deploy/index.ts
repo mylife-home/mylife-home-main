@@ -54,6 +54,7 @@ export class Deploy implements Service {
     Services.instance.sessionManager.registerServiceHandler('deploy/clear-recipe', this.deleteRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/pin-recipe', this.pinRecipe);
     Services.instance.sessionManager.registerServiceHandler('deploy/start-recipe', this.startRecipe);
+    Services.instance.sessionManager.registerServiceHandler('deploy/delete-file', this.deleteFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/rename-file', this.renameFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/read-file', this.readFile);
     Services.instance.sessionManager.registerServiceHandler('deploy/write-file', this.writeFile);
@@ -82,6 +83,10 @@ export class Deploy implements Service {
 
   private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
     return this.runs.startRecipe(id);
+  };
+
+  private readonly deleteFile = async (session: Session, { id }: { id: string; }) => {
+    return await this.files.delete(id);
   };
 
   private readonly renameFile = async (session: Session, { id, newId }: { id: string; newId: string; }) => {

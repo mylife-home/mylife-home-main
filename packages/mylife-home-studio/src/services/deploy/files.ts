@@ -98,6 +98,11 @@ export class Files extends EventEmitter {
     return this.files.get(id);
   }
 
+  async delete(id: string) {
+    const fullPath = path.join(directories.files(), id);
+    await fs.unlink(fullPath);
+  }
+
   async rename(id: string, newId: string) {
     const fullPath = path.join(directories.files(), id);
     const newFullPath = path.join(directories.files(), newId);
