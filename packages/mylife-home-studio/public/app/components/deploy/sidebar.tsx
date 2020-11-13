@@ -1,5 +1,5 @@
-import React, { FunctionComponent, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import List from '@material-ui/core/List';
@@ -11,6 +11,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 
+import { useActions } from '../lib/use-actions';
 import { RecipeIcon, StartIcon, RunsIcon, FileIcon } from './icons';
 import { useSelection } from './selection';
 import { AppState } from '../../store/types';
@@ -68,15 +69,9 @@ const Recipes: FunctionComponent = () => {
 };
 
 function useRecipesConnect() {
-  const dispatch = useDispatch();
   return {
     recipesIds: useSelector(getPinnedRecipesIds),
-    startRecipe: useCallback(
-      (id: string) => {
-        dispatch(startRecipe(id));
-      },
-      [dispatch]
-    ),
+    ... useActions({ startRecipe }),
   };
 }
 
