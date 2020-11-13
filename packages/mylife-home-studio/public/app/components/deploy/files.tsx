@@ -11,7 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import { AppState } from '../../store/types';
 import { getFilesIds, getFile } from '../../store/deploy/selectors';
-import { uploadFile, downloadFile, deleteFile } from '../../store/deploy/actions';
+import { uploadFile, downloadFile, deleteFile, renameFile } from '../../store/deploy/actions';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { useFireAsync } from '../lib/use-error-handling';
 import DeleteButton from '../lib/delete-button';
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     flex: 1,
-  }
+  },
 }));
 
 const Files: FunctionComponent = () => {
@@ -61,11 +61,7 @@ const Files: FunctionComponent = () => {
   ];
 
   return (
-    <Container
-      title={
-        <Title text="Fichiers" icon={FileIcon} />
-      }
-    >
+    <Container title={<Title text="Fichiers" icon={FileIcon} />}>
       <div className={classes.container}>
         <VirtualizedTable data={files} columns={columns} className={classes.table} />
       </div>
@@ -75,26 +71,18 @@ const Files: FunctionComponent = () => {
 
 export default Files;
 
-const FileDate: FunctionComponent<{ id: string; }> = ({ id }) => {
+const FileDate: FunctionComponent<{ id: string }> = ({ id }) => {
   const file = useSelector((state: AppState) => getFile(state, id));
   const value = file.modifiedDate.toLocaleString('fr-FR');
 
-  return (
-    <>
-      {value}
-    </>
-  );
+  return <>{value}</>;
 };
 
-const FileSize: FunctionComponent<{ id: string; }> = ({ id }) => {
+const FileSize: FunctionComponent<{ id: string }> = ({ id }) => {
   const file = useSelector((state: AppState) => getFile(state, id));
   const value = humanize.fileSize(file.size);
 
-  return (
-    <>
-      {value}
-    </>
-  );
+  return <>{value}</>;
 };
 
 const ActionsHeader: FunctionComponent = () => {
@@ -108,20 +96,21 @@ const ActionsHeader: FunctionComponent = () => {
       </IconButton>
     </Tooltip>
   );
-}
+};
 
-const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
+const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const { downloadFile, deleteFile } = useActions(id);
+  const { downloadFile, deleteFile, renameFile } = useActions(id);
   const showModal = useInputDialog();
   const fireAsync = useFireAsync();
 
-  const onRename = () => fireAsync(async () => {
-    const { status, text } = await showModal({ title: 'Nouveau nom', message: 'Entrer le nouveau nom de fichier', initialText: id });
-    if(status === 'ok') {
-      console.log('RENAME TODO', text);
-    }
-  });
+  const onRename = () =>
+    fireAsync(async () => {
+      const { status, text: newId } = await showModal({ title: 'Nouveau nom', message: 'Entrer le nouveau nom de fichier', initialText: id });
+      if (status === 'ok' && id !== newId) {
+        renameFile(newId);
+      }
+    });
 
   return (
     <>
@@ -144,15 +133,22 @@ const Actions: FunctionComponent<{ id: string; }> = ({ id }) => {
 
 function useHeaderActions() {
   const dispatch = useDispatch();
-  return useMemo(() => ({
-    uploadFile: () => dispatch(uploadFile()),
-  }), [dispatch]);
+  return useMemo(
+    () => ({
+      uploadFile: () => dispatch(uploadFile()),
+    }),
+    [dispatch]
+  );
 }
 
 function useActions(id: string) {
   const dispatch = useDispatch();
-  return useMemo(() => ({
-    downloadFile: () => dispatch(downloadFile(id)),
-    deleteFile: () => dispatch(deleteFile(id)),
-  }), [dispatch, id]);
+  return useMemo(
+    () => ({
+      downloadFile: () => dispatch(downloadFile(id)),
+      deleteFile: () => dispatch(deleteFile(id)),
+      renameFile: (newId: string) => dispatch(renameFile({ id, newId })),
+    }),
+    [dispatch, id]
+  );
 }
