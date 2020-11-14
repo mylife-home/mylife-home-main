@@ -101,31 +101,13 @@ const ActionsHeader: FunctionComponent = () => {
 const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const { downloadFile, deleteFile, renameFile } = useActions(id);
-  const showModal = useInputDialog();
   const fireAsync = useFireAsync();
-  const files = useSelector(getFilesIds);
+  const showRenameDialog = useRenameDialog(id);
 
   const onRename = () =>
     fireAsync(async () => {
-      const options = {
-        title: 'Nouveau nom',
-        message: 'Entrer le nouveau nom de fichier',
-        initialText: id,
-        validator(newId: string) {
-          if (newId === id) {
-            return; // permitted, but won't do anything
-          }
-          if (!newId) {
-            return 'Nom vide';
-          }
-          if (files.includes(newId)) {
-            return 'Ce nom existe déjà';
-          }
-        }
-      };
-
-      const { status, text: newId } = await showModal(options);
-      if (status === 'ok' && id !== newId) {
+      const { status, newId } = await showRenameDialog();
+      if (status === 'ok') {
         renameFile(newId);
       }
     });
@@ -169,4 +151,36 @@ function useActions(id: string) {
     }),
     [dispatch, id]
   );
+}
+
+function useRenameDialog(id: string) {
+  const showDialog = useInputDialog();
+  const files = useSelector(getFilesIds);
+
+  const options = {
+    title: 'Nouveau nom',
+    message: 'Entrer le nouveau nom de fichier',
+    initialText: id,
+    validator(newId: string) {
+      if (newId === id) {
+        return; // permitted, but won't do anything
+      }
+      if (!newId) {
+        return 'Nom vide';
+      }
+      if (files.includes(newId)) {
+        return 'Ce nom existe déjà';
+      }
+    }
+  };
+
+  return async () => {
+    const { status, text: newId } = await showDialog(options);
+    if (id === newId) {
+      // transform into cancel
+      return { status: 'cancel' };
+    }
+
+    return { status, newId };
+  };
 }
