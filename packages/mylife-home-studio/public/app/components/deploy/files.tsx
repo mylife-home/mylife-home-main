@@ -103,10 +103,28 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   const { downloadFile, deleteFile, renameFile } = useActions(id);
   const showModal = useInputDialog();
   const fireAsync = useFireAsync();
+  const files = useSelector(getFilesIds);
 
   const onRename = () =>
     fireAsync(async () => {
-      const { status, text: newId } = await showModal({ title: 'Nouveau nom', message: 'Entrer le nouveau nom de fichier', initialText: id });
+      const options = {
+        title: 'Nouveau nom',
+        message: 'Entrer le nouveau nom de fichier',
+        initialText: id,
+        validator(newId: string) {
+          if (newId === id) {
+            return; // permitted, but won't do anything
+          }
+          if (!newId) {
+            return 'Nom vide';
+          }
+          if (files.includes(newId)) {
+            return 'Ce nom existe déjà';
+          }
+        }
+      };
+
+      const { status, text: newId } = await showModal(options);
       if (status === 'ok' && id !== newId) {
         renameFile(newId);
       }

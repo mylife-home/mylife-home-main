@@ -19,6 +19,7 @@ export interface InputOptions {
   title?: string;
   message?: string;
   label?: string;
+  validator?: (text: string) => string;
 }
 
 export function useInputDialog() {
@@ -27,13 +28,20 @@ export function useInputDialog() {
   const [onResult, setOnResult] = useState<(value: Result) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
-    const { title, message, label } = options;
+    const { title, message, label, validator } = options;
+    
+    const error = validator(text);
+
     const cancel = () => {
       hideModal();
       onResult({ status: 'cancel' });
     };
 
     const validate = () => {
+      if (error) {
+        return;
+      }
+
       hideModal();
       onResult({ status: 'ok', text });
     };
@@ -50,7 +58,7 @@ export function useInputDialog() {
 
         <DialogContent dividers>
           {message && <DialogContentText>{message}</DialogContentText>}
-          <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown} />
+          <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown} error={!!error} helperText={error} />
         </DialogContent>
 
         <DialogActions>
@@ -63,9 +71,9 @@ export function useInputDialog() {
     );
   }, [options, text, setText, onResult]);
 
-  return ({ initialText, title, message, label }: InputOptions) => new Promise<Result>(resolve => {
+  return ({ initialText, title, message, label, validator = () => null }: InputOptions) => new Promise<Result>(resolve => {
     // force new object creation
-    setOptions({ title, message, label });
+    setOptions({ title, message, label, validator });
     setText(initialText);
     setOnResult(() => resolve); // else useState think resolve is a state updater
 
