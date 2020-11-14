@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useMemo, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
+import { useDropzone } from 'react-dropzone';
 import humanize from 'humanize-plus';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,7 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import { AppState } from '../../store/types';
 import { getFilesIds, getFile } from '../../store/deploy/selectors';
-import { uploadFile, downloadFile, deleteFile, renameFile } from '../../store/deploy/actions';
+import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../store/deploy/actions';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { useFireAsync } from '../lib/use-error-handling';
 import DeleteButton from '../lib/delete-button';
@@ -47,6 +48,8 @@ const useStyles = makeStyles((theme) => ({
 const Files: FunctionComponent = () => {
   const classes = useStyles();
   const files = useSelector(getFilesIds);
+  const { uploadFiles } = useHeaderActions();
+  const { getRootProps, getInputProps } = useDropzone({ onDrop: uploadFiles });
 
   const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
   const dateRenderer = (id: string) => <FileDate id={id} />;
@@ -63,7 +66,8 @@ const Files: FunctionComponent = () => {
 
   return (
     <Container title={<Title text="Fichiers" icon={FileIcon} />}>
-      <div className={classes.container}>
+      <div className={classes.container} {...getRootProps()}>
+        <input {...getInputProps()} />
         <VirtualizedTable data={files} columns={columns} className={classes.table} />
       </div>
     </Container>
@@ -88,12 +92,17 @@ const FileSize: FunctionComponent<{ id: string }> = ({ id }) => {
 
 const ActionsHeader: FunctionComponent = () => {
   const classes = useStyles();
-  const { uploadFile } = useHeaderActions();
+  const { uploadFiles } = useHeaderActions();
   const inputRef = useRef<HTMLInputElement>();
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files);
+    uploadFiles(files);
+  };
 
   return (
     <>
-      <input ref={inputRef} type="file" hidden multiple onChange={e => uploadFile(e.target.files)} />
+      <input ref={inputRef} type="file" hidden multiple onChange={handleUpload} />
 
       <Tooltip title="Nouveau fichier">
         <IconButton className={classes.uploadButton} onClick={() => inputRef.current.click()}>
@@ -138,7 +147,7 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
 };
 
 function useHeaderActions() {
-  return { ... useActions({ uploadFile }) };
+  return { ... useActions({ uploadFiles }) };
 }
 
 function useRowActions(id: string) {

@@ -9,7 +9,7 @@ export const enum ActionTypes {
   CLEAR_RECIPE = 'deploy/clear-recipe',
   PIN_RECIPE = 'deploy/pin-recipe',
   START_RECIPE = 'deploy/start-recipe',
-  UPLOAD_FILE = 'deploy/upload-file',
+  UPLOAD_FILES = 'deploy/upload-files',
   DOWNLOAD_FILE = 'deploy/download-file',
   DELETE_FILE = 'deploy/delete-file',
   RENAME_FILE = 'deploy/rename-file',
