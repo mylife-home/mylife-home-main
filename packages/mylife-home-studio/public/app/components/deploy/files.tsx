@@ -2,6 +2,7 @@ import React, { FunctionComponent, useMemo, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
 import { useDropzone } from 'react-dropzone';
+import clsx from 'clsx';
 import humanize from 'humanize-plus';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -39,6 +40,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
+    border: `2px solid transparent`,
+  },
+  fileDrag: {
+    border: `2px solid ${theme.palette.primary.main}`,
   },
   table: {
     flex: 1,
@@ -49,7 +54,7 @@ const Files: FunctionComponent = () => {
   const classes = useStyles();
   const files = useSelector(getFilesIds);
   const { uploadFiles } = useHeaderActions();
-  const { getRootProps, getInputProps } = useDropzone({ onDrop: uploadFiles });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: uploadFiles });
 
   const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
   const dateRenderer = (id: string) => <FileDate id={id} />;
@@ -66,7 +71,10 @@ const Files: FunctionComponent = () => {
 
   return (
     <Container title={<Title text="Fichiers" icon={FileIcon} />}>
-      <div className={classes.container} {...getRootProps()}>
+      <div {...getRootProps({
+        className: clsx(classes.container, { [classes.fileDrag]: isDragActive }) ,
+        onClick: e => { e.stopPropagation(); }
+      })}>
         <input {...getInputProps()} />
         <VirtualizedTable data={files} columns={columns} className={classes.table} />
       </div>
@@ -104,7 +112,7 @@ const ActionsHeader: FunctionComponent = () => {
     <>
       <input ref={inputRef} type="file" hidden multiple onChange={handleUpload} />
 
-      <Tooltip title="Nouveau fichier">
+      <Tooltip title="Nouveau fichier (ou drag'n'drop sur la liste)">
         <IconButton className={classes.uploadButton} onClick={() => inputRef.current.click()}>
           <CloudUploadIcon />
         </IconButton>
