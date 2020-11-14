@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
 import humanize from 'humanize-plus';
@@ -15,6 +15,7 @@ import { uploadFile, downloadFile, deleteFile, renameFile } from '../../store/de
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { useFireAsync } from '../lib/use-error-handling';
 import DeleteButton from '../lib/delete-button';
+import { useActions } from '../lib/use-actions';
 import { useInputDialog } from '../dialogs/input';
 import { Container, Title } from './layout';
 import { FileIcon } from './icons';
@@ -88,19 +89,24 @@ const FileSize: FunctionComponent<{ id: string }> = ({ id }) => {
 const ActionsHeader: FunctionComponent = () => {
   const classes = useStyles();
   const { uploadFile } = useHeaderActions();
+  const inputRef = useRef<HTMLInputElement>();
 
   return (
-    <Tooltip title="Nouveau fichier">
-      <IconButton className={classes.uploadButton} onClick={uploadFile}>
-        <CloudUploadIcon />
-      </IconButton>
-    </Tooltip>
+    <>
+      <input ref={inputRef} type="file" hidden multiple onChange={e => uploadFile(e.target.files)} />
+
+      <Tooltip title="Nouveau fichier">
+        <IconButton className={classes.uploadButton} onClick={() => inputRef.current.click()}>
+          <CloudUploadIcon />
+        </IconButton>
+      </Tooltip>
+    </>
   );
 };
 
 const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const { downloadFile, deleteFile, renameFile } = useActions(id);
+  const { downloadFile, deleteFile, renameFile } = useRowActions(id);
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(id);
 
@@ -132,16 +138,10 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
 };
 
 function useHeaderActions() {
-  const dispatch = useDispatch();
-  return useMemo(
-    () => ({
-      uploadFile: () => dispatch(uploadFile()),
-    }),
-    [dispatch]
-  );
+  return { ... useActions({ uploadFile }) };
 }
 
-function useActions(id: string) {
+function useRowActions(id: string) {
   const dispatch = useDispatch();
   return useMemo(
     () => ({
