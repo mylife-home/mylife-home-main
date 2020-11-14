@@ -298,7 +298,7 @@ describe('Tasks', () => {
       const context = await initContext();
       await tasks.ImageLs.execute(context, { path: '/' });
 
-      // TODO: expect logs ?
+      // expect logs ?
     });
   });
 
@@ -508,7 +508,7 @@ describe('Tasks', () => {
       await tasks.ConfigInit.execute(context, {});
       await tasks.ConfigLs.execute(context, { path: '/' });
 
-      // TODO: expect logs ?
+      // expect logs ?
     });
   });
 

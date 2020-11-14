@@ -5,7 +5,6 @@ import { InstanceNotifier } from './instance-notifier';
 import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
 
-// TODO
 /* 
   online instances API should be published here, at least:
    - component config access
