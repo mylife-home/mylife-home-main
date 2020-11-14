@@ -88,7 +88,19 @@ export default Recipes;
 const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const { select } = useSelection();
-  const { recipe, clear, pin, start } = useRecipeConnect(id);
+  const { recipe, clear, pin, start, setRecipe } = useRecipeConnect(id);
+  const fireAsync = useFireAsync();
+  const showNewNameDialog = useNewNameDialog();
+
+  const onDuplicate = () =>
+    fireAsync(async () => {
+      const { status, id } = await showNewNameDialog();
+      if (status === 'ok') {
+        const config = clone(recipe.config);
+        setRecipe({ id, config });
+      }
+    });
+
   return (
     <ListItem button onClick={() => select({ type: 'recipe', id })}>
       <ListItemIcon>
@@ -119,7 +131,7 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
         </Tooltip>
 
         <Tooltip title="Dupliquer">
-          <IconButton onClick={() => console.log('TODO duplicate')}>
+          <IconButton onClick={onDuplicate}>
             <FileCopyIcon />
           </IconButton>
         </Tooltip>
@@ -149,6 +161,7 @@ function useRecipeConnect(id: string) {
       }),
       [dispatch, id]
     ),
+    ...useActions({ setRecipe }),
   };
 }
 
@@ -174,4 +187,8 @@ function useNewNameDialog() {
     const { status, text: id } = await showDialog(options);
     return { status, id };
   };
+}
+
+function clone<T>(obj: T) {
+  return JSON.parse(JSON.stringify(obj)) as T;
 }
