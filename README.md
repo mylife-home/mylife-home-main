@@ -11,6 +11,10 @@ MyLife Home main
 
 ## TODO
 
+### general
+ - go to webpack 5
+ - clean build warnings
+
 ### common
  - nrpe binding
    - https://www.npmjs.com/package/jnrpe-lib
@@ -22,8 +26,6 @@ MyLife Home main
 
 ### core
  - store/mounted-fs
-
-### packager
 
 ### emulator
  - docker pi for raspbian: https://github.com/lukechilds/dockerpi
