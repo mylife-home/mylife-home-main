@@ -38,13 +38,19 @@ export function useInputDialog() {
       onResult({ status: 'ok', text });
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        validate();
+      }
+    };
+
     return (
       <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} scroll="paper" maxWidth="sm" fullWidth>
         {title && <DialogTitle id="dialog-title">{title}</DialogTitle>}
 
         <DialogContent dividers>
           {message && <DialogContentText>{message}</DialogContentText>}
-          <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} />
+          <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown} />
         </DialogContent>
 
         <DialogActions>
