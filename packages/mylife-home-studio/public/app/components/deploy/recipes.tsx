@@ -8,10 +8,15 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import DeleteButton from '../lib/delete-button';
+import { useFireAsync } from '../lib/use-error-handling';
+import { useActions } from '../lib/use-actions';
+import { useInputDialog } from '../dialogs/input';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
-import { clearRecipe, pinRecipe, startRecipe } from '../../store/deploy/actions';
+import { clearRecipe, pinRecipe, startRecipe, setRecipe } from '../../store/deploy/actions';
+import { RecipeConfig } from '../../store/deploy/types';
 import { AppState } from '../../store/types';
 import { RecipeIcon, StartIcon, PinIcon, UnpinIcon } from './icons';
 import { useSelection } from './selection';
@@ -36,18 +41,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const EMPTY_RECIPE_CONFIG: RecipeConfig = {
+  description: '',
+  steps: [],
+};
+
 const Recipes: FunctionComponent = () => {
   const classes = useStyles();
-  const recipesIds = useSelector(getRecipesIds);
+  const { recipesIds, setRecipe } = useRecipesConnect();
+  const fireAsync = useFireAsync();
+  const showNewNameDialog = useNewNameDialog();
 
-  return (
+  const onNew = () =>
+    fireAsync(async () => {
+      const { status, id } = await showNewNameDialog();
+      if (status === 'ok') {
+        setRecipe({ id, config: EMPTY_RECIPE_CONFIG });
+      }
+    });
+
+    return (
     <Container
       title={
         <>
           <Title text="Recettes" icon={RecipeIcon} />
 
           <Tooltip title="Nouvelle recette">
-            <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+            <IconButton className={classes.newButton} onClick={onNew}>
               <AddIcon />
             </IconButton>
           </Tooltip>
@@ -98,11 +118,24 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
           </IconButton>
         </Tooltip>
 
+        <Tooltip title="Dupliquer">
+          <IconButton onClick={() => console.log('TODO duplicate')}>
+            <FileCopyIcon />
+          </IconButton>
+        </Tooltip>
+
         <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={() => clear()} />
       </ListItemSecondaryAction>
     </ListItem>
   );
 };
+
+function useRecipesConnect() {
+  return {
+    recipesIds: useSelector(getRecipesIds),
+    ...useActions({ setRecipe })
+  };
+}
 
 function useRecipeConnect(id: string) {
   const dispatch = useDispatch();
@@ -116,5 +149,29 @@ function useRecipeConnect(id: string) {
       }),
       [dispatch, id]
     ),
+  };
+}
+
+function useNewNameDialog() {
+  const showDialog = useInputDialog();
+  const recipesIds = useSelector(getRecipesIds);
+
+  const options = {
+    title: 'Nouveau nom',
+    message: 'Entrer un nom de recette',
+    initialText: 'Nouvelle recette',
+    validator(newId: string) {
+      if (!newId) {
+        return 'Nom vide';
+      }
+      if (recipesIds.includes(newId)) {
+        return 'Ce nom existe déjà';
+      }
+    }
+  };
+
+  return async () => {
+    const { status, text: id } = await showDialog(options);
+    return { status, id };
   };
 }
