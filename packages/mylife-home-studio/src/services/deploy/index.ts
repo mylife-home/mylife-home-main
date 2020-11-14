@@ -38,9 +38,9 @@ export class Deploy implements Service {
     this.runs.on('run-deleted', this.handleRunClear);
     this.runs.on('run-log', this.handleRunLog);
 
-    this.recipes.on('file-created', this.handleFileSet);
-    this.recipes.on('file-updated', this.handleFileSet);
-    this.recipes.on('file-deleted', this.handleFileClear);
+    this.files.on('file-created', this.handleFileSet);
+    this.files.on('file-updated', this.handleFileSet);
+    this.files.on('file-deleted', this.handleFileClear);
   }
 
   async init() {
