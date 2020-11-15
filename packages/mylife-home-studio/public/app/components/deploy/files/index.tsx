@@ -19,6 +19,7 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
 import { useActions } from '../../lib/use-actions';
 import { useInputDialog } from '../../dialogs/input';
+import { useConfirmDialog } from '../../dialogs/confirm';
 import { Container, Title } from '../layout';
 import { FileIcon } from '../icons';
 import UploadProgressDialog from './upload-progress-dialog';
@@ -54,8 +55,7 @@ const useStyles = makeStyles((theme) => ({
 const Files: FunctionComponent = () => {
   const classes = useStyles();
   const files = useSelector(getFilesIds);
-  // TODO: confirm if we are overwriting files
-  const { uploadFiles } = useHeaderActions();
+  const uploadFiles = useUploadFiles();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: uploadFiles });
 
   const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
@@ -106,12 +106,11 @@ const FileSize: FunctionComponent<{ id: string }> = ({ id }) => {
 
 const ActionsHeader: FunctionComponent = () => {
   const classes = useStyles();
-  const { uploadFiles } = useHeaderActions();
+  const uploadFiles = useUploadFiles();
   const inputRef = useRef<HTMLInputElement>();
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files);
-  // TODO: confirm if we are overwriting files
     uploadFiles(files);
   };
 
@@ -161,8 +160,30 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-function useHeaderActions() {
-  return { ... useActions({ uploadFiles }) };
+function useUploadFiles() {
+  const files = useSelector(getFilesIds);
+  const actions = useActions({ uploadFiles });
+  const fireAsync = useFireAsync();
+  const showConfirm = useConfirmDialog();
+
+  return (uploadFiles: File[]) => {
+    const fileSet = new Set(files);
+    //const overwriteList = uploadFiles.filter(file => fileSet.has(file.name));
+    const overwriteList = ['Fichier 1', 'Fichier 2', 'Fichier 3'];
+
+    if (overwriteList.length === 0) {
+      actions.uploadFiles(uploadFiles);
+      return;
+    }
+
+    fireAsync(async () => {
+      const message = 'Vous allez écraser les fichiers suivants :\n' + overwriteList.join('\n');
+      const { status } = await showConfirm({ message });
+      if (status === 'ok') {
+        actions.uploadFiles(uploadFiles);
+      }
+    });
+  };
 }
 
 function useRowActions(id: string) {
@@ -178,7 +199,7 @@ function useRowActions(id: string) {
 }
 
 function useRenameDialog(id: string) {
-  const showDialog = useInputDialog();
+  const showInput = useInputDialog();
   const files = useSelector(getFilesIds);
 
   const options = {
@@ -199,7 +220,7 @@ function useRenameDialog(id: string) {
   };
 
   return async () => {
-    const { status, text: newId } = await showDialog(options);
+    const { status, text: newId } = await showInput(options);
     if (id === newId) {
       // transform into cancel
       return { status: 'cancel' };
