@@ -12,7 +12,7 @@ import { DialogText } from './common';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
-export type Result = { status: 'ok' | 'cancel'; text?: string };
+export type Result = { status: 'ok' | 'cancel'; text?: string; };
 
 export interface InputOptions {
   initialText?: string;
