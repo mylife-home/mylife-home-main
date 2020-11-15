@@ -14,6 +14,7 @@ export const enum ActionTypes {
   DELETE_FILE = 'deploy/delete-file',
   RENAME_FILE = 'deploy/rename-file',
   UPLOAD_FILES_PROGRESS = 'deploy/upload-files-progress',
+  DOWNLOAD_FILE_PROGRESS = 'deploy/download-file-progress',
 }
 
 export { TaskMetadata, RecipeConfig, RunLogSeverity, RunError };
@@ -109,7 +110,13 @@ export interface UpdateUploadFilesProgress {
   doneSize: number;
 }
 
-export interface UploadFileProgress {
+export interface TransferFileProgress {
+  name: string;
+  totalSize: number;
+  doneSize: number;
+}
+
+export interface TransferFileProgress {
   name: string;
   totalSize: number;
   doneSize: number;
@@ -123,5 +130,6 @@ export interface DeployState {
   files: Table<FileInfo>;
 
   // we can have it only once because it is used in a modal
-  uploadFilesProgress: UploadFileProgress[];
+  uploadFilesProgress: TransferFileProgress[];
+  downloadFileProgress: TransferFileProgress;
 }

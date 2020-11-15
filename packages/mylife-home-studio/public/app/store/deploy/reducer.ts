@@ -9,6 +9,7 @@ const initialState: DeployState = {
   runs: createTable<Run>(),
   files: createTable<FileInfo>(),
   uploadFilesProgress: null,
+  downloadFileProgress: null,
 };
 
 export default createReducer(initialState, {
@@ -120,5 +121,27 @@ export default createReducer(initialState, {
 
     const fileProgress = state.uploadFilesProgress[update.fileIndex];
     fileProgress.doneSize = update.doneSize;
+  },
+  
+  [ActionTypes.DOWNLOAD_FILE]: (state, action: PayloadAction<string>) => {
+    // init progress
+    const id = action.payload;
+    const file = state.files.byId[id];
+    state.downloadFileProgress = {
+      name: file.id,
+      totalSize: file.size,
+      doneSize: 0
+    };
+  },
+
+  [ActionTypes.DOWNLOAD_FILE_PROGRESS]: (state, action: PayloadAction<number>) => {
+    const doneSize = action.payload;
+    if (state.downloadFileProgress.totalSize === doneSize) {
+      // we reached the end
+      state.downloadFileProgress = null;
+      return;
+    }
+
+    state.downloadFileProgress.doneSize = doneSize;
   },
 });

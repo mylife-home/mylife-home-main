@@ -23,3 +23,4 @@ export const getFilesIds = (state: AppState) => getDeploy(state).files.allIds;
 export const getFile = (state: AppState, id: string) => getDeploy(state).files.byId[id];
 
 export const getUploadFilesProgress = (state: AppState) => getDeploy(state).uploadFilesProgress;
+export const getDownloadFileProgress = (state: AppState) => getDeploy(state).downloadFileProgress;

@@ -7,12 +7,12 @@ import * as shared from '../../../../shared/deploy';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { setNotification, clearNotification, pushUpdates, uploadFilesProgress } from './actions';
-import { hasDeployTab, getNotifierId } from './selectors';
+import { setNotification, clearNotification, pushUpdates, uploadFilesProgress, downloadFileProgress } from './actions';
+import { hasDeployTab, getNotifierId, getFile } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, RecipeConfig, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { readFile } from '../common/rx-files';
+import { uploadFile, downloadFile } from './rx-files';
 
 const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
@@ -92,7 +92,12 @@ action$.pipe(
 const downloadFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
 action$.pipe(
   ofType(ActionTypes.DOWNLOAD_FILE),
-  ignoreElements() // TODO DOWNLOAD_FILE
+  withLatestFrom(state$),
+  map(([action, state]: [PayloadAction<string>, AppState]) => getFile(state, action.payload)),
+  // cannot handle concurrent downloads
+  concatMap((file: FileInfo) => downloadFile(file.id, file.size).pipe(
+    map(fileProgress => downloadFileProgress(fileProgress.doneSize))
+  ))
 );
 
 const deleteFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -159,14 +164,6 @@ function renameFileCall({ id, newId }: { id: string; newId: string; }) {
   return socket.call('deploy/rename-file', { id, newId }) as Observable<void>;
 }
 
-function readFileCall({ id, offset, size }: { id: string; offset: number; size: number; }) {
-  return socket.call('deploy/read-file', { id, offset, size }) as Observable<string>;
-}
-
-function writeFileCall({ id, buffer, type }: { id: string; buffer: ArrayBuffer; type: 'init' | 'append'; }) {
-  return socket.call('deploy/write-file', { id, buffer, type }) as Observable<void>;
-}
-
 function uploadFiles(files: File[]) {
   const index$ = range(0, files.length);
   const files$ = from(files);
@@ -176,20 +173,6 @@ function uploadFiles(files: File[]) {
       map(fileProgress => uploadFilesProgress({ fileIndex, doneSize: fileProgress.doneSize }))
     ))
   );
-}
-
-function uploadFile(file: File) {
-  const id = file.name;
-  let first = true;
-
-  const writeChunk = async (buffer: ArrayBuffer) => {
-    const type = first ? 'init' : 'append';
-    first = false;
-
-    await writeFileCall({id, buffer, type}).toPromise();
-  };
-
-  return readFile(file, writeChunk);
 }
 
 function parseNotification(notification: shared.UpdateDataNotification): Update {

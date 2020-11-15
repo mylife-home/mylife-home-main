@@ -23,6 +23,7 @@ import { useConfirmDialog } from '../../dialogs/confirm';
 import { Container, Title } from '../layout';
 import { FileIcon } from '../icons';
 import UploadProgressDialog from './upload-progress-dialog';
+import DownloadProgressDialog from './download-progress-dialog';
 
 const useStyles = makeStyles((theme) => ({
   uploadButton: {
@@ -84,6 +85,7 @@ const Files: FunctionComponent = () => {
       </Container>
 
       <UploadProgressDialog />
+      <DownloadProgressDialog />
     </>
   );
 };

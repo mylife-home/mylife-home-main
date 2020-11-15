@@ -14,7 +14,7 @@ import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 import { getUploadFilesProgress } from '../../../store/deploy/selectors';
-import { UploadFileProgress } from '../../../store/deploy/types';
+import { TransferFileProgress } from '../../../store/deploy/types';
 
 const UploadProgressDialog: FunctionComponent = () => {
   const progress = useSelector(getUploadFilesProgress);
@@ -71,11 +71,11 @@ function getStatusIcon(status: FileStatus) {
 
 type FileStatus = 'pending' | 'done' | 'executing';
 
-interface DisplayFile extends UploadFileProgress {
+interface DisplayFile extends TransferFileProgress {
   status: FileStatus;
 }
 
-function useProgressInfo(progress: UploadFileProgress[]) {
+function useProgressInfo(progress: TransferFileProgress[]) {
   return useMemo(() => {
     if (!progress) {
       return {
@@ -107,7 +107,7 @@ function useProgressInfo(progress: UploadFileProgress[]) {
   }, [progress]);
 }
 
-function getStatus(file: UploadFileProgress): FileStatus {
+function getStatus(file: TransferFileProgress): FileStatus {
   if (file.doneSize === 0) {
     return 'pending';
   } else if (file.doneSize === file.totalSize) {

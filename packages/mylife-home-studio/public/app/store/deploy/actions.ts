@@ -16,3 +16,4 @@ export const renameFile = createAction<{id: string; newId: string; }>(ActionType
 
 // upload internal actions
 export const uploadFilesProgress = createAction<UpdateUploadFilesProgress>(ActionTypes.UPLOAD_FILES_PROGRESS);
+export const downloadFileProgress = createAction<number>(ActionTypes.DOWNLOAD_FILE_PROGRESS);
