@@ -1,7 +1,7 @@
 import { Observable, Subscriber } from 'rxjs';
 import { socket } from '../common/rx-socket';
 
-const CHUNK_SIZE = 16 * 1024;
+const CHUNK_SIZE = 4 * 1024 * 1024; // 2MB
 
 export interface FileProgress {
   totalSize: number;
