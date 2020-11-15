@@ -6,31 +6,24 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 
 import { DialogText } from './common';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
-export type InputResult = { status: 'ok' | 'cancel'; text?: string; };
+export type ConfirmResult = { status: 'ok' | 'cancel'; };
 
-export interface InputOptions {
-  initialText?: string;
+export interface ConfirmOptions {
   title?: string;
   message?: string;
-  label?: string;
-  validator?: (text: string) => string;
 }
 
-export function useInputDialog() {
-  const [options, setOptions] = useState<Omit<InputOptions, 'initialText'>>();
-  const [text, setText] = useState<string>();
-  const [onResult, setOnResult] = useState<(value: InputResult) => void>();
+export function useConfirmDialog() {
+  const [options, setOptions] = useState<ConfirmOptions>();
+  const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
-    const { title, message, label, validator } = options;
-    
-    const error = validator(text);
+    const { title, message } = options;
 
     const cancel = () => {
       hideModal();
@@ -38,12 +31,8 @@ export function useInputDialog() {
     };
 
     const validate = () => {
-      if (error) {
-        return;
-      }
-
       hideModal();
-      onResult({ status: 'ok', text });
+      onResult({ status: 'ok' });
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -53,12 +42,11 @@ export function useInputDialog() {
     };
 
     return (
-      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} onEscapeKeyDown={cancel} scroll="paper" maxWidth="sm" fullWidth>
+      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} onEscapeKeyDown={cancel} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
         {title && <DialogTitle id="dialog-title">{title}</DialogTitle>}
 
         <DialogContent dividers>
           <DialogText value={message} />
-          <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown} error={!!error} helperText={error} />
         </DialogContent>
 
         <DialogActions>
@@ -67,12 +55,11 @@ export function useInputDialog() {
         </DialogActions>
       </Dialog>
     );
-  }, [options, text, setText, onResult]);
+  }, [options, onResult]);
 
-  return ({ initialText, title, message, label, validator = () => null }: InputOptions) => new Promise<InputResult>(resolve => {
+  return ({ title, message }: ConfirmOptions) => new Promise<ConfirmResult>(resolve => {
     // force new object creation
-    setOptions({ title, message, label, validator });
-    setText(initialText);
+    setOptions({ title, message });
     setOnResult(() => resolve); // else useState think resolve is a state updater
 
     showModal();
