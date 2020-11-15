@@ -168,8 +168,7 @@ function useUploadFiles() {
 
   return (uploadFiles: File[]) => {
     const fileSet = new Set(files);
-    //const overwriteList = uploadFiles.filter(file => fileSet.has(file.name));
-    const overwriteList = ['Fichier 1', 'Fichier 2', 'Fichier 3'];
+    const overwriteList = uploadFiles.filter(file => fileSet.has(file.name)).map(file => file.name);
 
     if (overwriteList.length === 0) {
       actions.uploadFiles(uploadFiles);
