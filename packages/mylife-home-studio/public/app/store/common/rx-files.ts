@@ -20,7 +20,7 @@ async function readFileImpl(file: File, consumer: (chunk: ArrayBuffer) => Promis
   
     while (offset < size) {
       const chunkSize = Math.min(size - offset, CHUNK_SIZE);
-      const chunk = file.slice(offset, chunkSize);
+      const chunk = file.slice(offset, offset + chunkSize);
       offset += chunkSize;
   
       const buffer = await chunk.arrayBuffer();
