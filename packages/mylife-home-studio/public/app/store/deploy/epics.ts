@@ -168,7 +168,7 @@ function writeFileCall({ id, buffer, type }: { id: string; buffer: ArrayBuffer; 
 }
 
 function uploadFiles(files: File[]) {
-  const index$ = range(0);
+  const index$ = range(0, files.length);
   const files$ = from(files);
   
   return zip(files$, index$).pipe(
