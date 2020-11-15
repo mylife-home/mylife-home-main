@@ -66,7 +66,7 @@ export class Client extends EventEmitter {
       }
     };
     
-    const selfStateTopic = this.buildTopic(this.instanceName + '/#');
+    const selfStateTopic = this.buildTopic('#');
     this.client.on('message', clearTopic);
     await this.subscribe(selfStateTopic);
 
