@@ -31,7 +31,7 @@ export class Client extends EventEmitter {
 
     this.client.on('connect', () =>
       fireAsync(async () => {
-        // given the spec, it is unclear if LWT should be executed in case of takeover, so we run it to be sure
+        // given the spec, it is unclear if LWT should be executed in case of client takeover, so we run it to be sure
         await this.publish(this.buildTopic('online'), Buffer.allocUnsafe(0), true);
 
         await this.clearResidentState();
