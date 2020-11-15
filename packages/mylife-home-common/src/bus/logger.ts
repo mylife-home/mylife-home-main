@@ -100,7 +100,7 @@ export class Logger {
     });
   }
 
-  private createWritableStream(): Writable {
+  public createWritableStream(): Writable {
     return new PublishStream(this.client, this.offlineRetention);
   }
 
