@@ -122,11 +122,10 @@ export class Files extends EventEmitter {
       await fs.close(fd);
     }
 
-    return base64Encode(buffer.slice(0, readSize));
+    return buffer.slice(0, readSize);
   }
 
-  async write(id: string, bufferBase64: string, type: 'init' | 'append') {
-    const buffer = base64Decode(bufferBase64);
+  async write(id: string, buffer: Buffer, type: 'init' | 'append') {
     const fullPath = path.join(directories.files(), id);
     let writeSize;
 
@@ -142,12 +141,4 @@ export class Files extends EventEmitter {
       throw new Error(`Write succeeded but write size (${writeSize}) different than buffer size (${buffer.length})`);
     }
   }
-}
-
-function base64Encode(buffer: Buffer) {
-  return buffer.toString('base64');
-}
-
-function base64Decode(str: string) {
-  return Buffer.from(str, 'base64');
 }
