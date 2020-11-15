@@ -1,17 +1,18 @@
 import { Action } from 'redux';
-import { Observable } from 'rxjs';
-import { filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { from, Observable, range, zip } from 'rxjs';
+import { concatMap, filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
 import * as shared from '../../../../shared/deploy';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
-import { setNotification, clearNotification, pushUpdates, setRecipe } from './actions';
+import { setNotification, clearNotification, pushUpdates, uploadFilesProgress } from './actions';
 import { hasDeployTab, getNotifierId } from './selectors';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, RecipeConfig, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { readFile } from '../common/rx-files';
 
 const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
@@ -81,22 +82,32 @@ const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
     )
   );
 
-// TODO: UPLOAD_FILE
-// TODO: DOWNLOAD_FILE
+const uploadFilesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+action$.pipe(
+  ofType(ActionTypes.UPLOAD_FILES),
+  // cannot handle concurrent uploads
+  concatMap((action: PayloadAction<File[]>) => uploadFiles(action.payload))
+);
 
-const deleteRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+const downloadFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+action$.pipe(
+  ofType(ActionTypes.DOWNLOAD_FILE),
+  ignoreElements() // TODO DOWNLOAD_FILE
+);
+
+const deleteFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
     ofType(ActionTypes.DELETE_FILE),
     mergeMap((action: PayloadAction<string>) => deleteFileCall(action.payload).pipe(ignoreElements(), handleError()))
   );
 
-const renameRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+const renameFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
     ofType(ActionTypes.RENAME_FILE),
     mergeMap((action: PayloadAction<{ id: string; newId: string; }>) => renameFileCall(action.payload).pipe(ignoreElements(), handleError()))
   );
 
-export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, deleteRecipeEpic, renameRecipeEpic);
+export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, uploadFilesEpic, downloadFileEpic, deleteFileEpic, renameFileEpic);
 
 function filterNotifyChange(state$: StateObservable<AppState>) {
   return (source: Observable<Action>) =>
@@ -152,8 +163,33 @@ function readFileCall({ id, offset, size }: { id: string; offset: number; size: 
   return socket.call('deploy/read-file', { id, offset, size }) as Observable<string>;
 }
 
-function writeFileCall({ id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append'; }) {
+function writeFileCall({ id, buffer, type }: { id: string; buffer: ArrayBuffer; type: 'init' | 'append'; }) {
   return socket.call('deploy/write-file', { id, buffer, type }) as Observable<void>;
+}
+
+function uploadFiles(files: File[]) {
+  const index$ = range(0);
+  const files$ = from(files);
+  
+  return zip(files$, index$).pipe(
+    concatMap(([file, fileIndex]) => uploadFile(file).pipe(
+      map(fileProgress => uploadFilesProgress({ fileIndex, doneSize: fileProgress.doneSize }))
+    ))
+  );
+}
+
+function uploadFile(file: File) {
+  const id = file.name;
+  let first = true;
+
+  const writeChunk = async (buffer: ArrayBuffer) => {
+    const type = first ? 'init' : 'append';
+    first = false;
+
+    await writeFileCall({id, buffer, type}).toPromise();
+  };
+
+  return readFile(file, writeChunk);
 }
 
 function parseNotification(notification: shared.UpdateDataNotification): Update {

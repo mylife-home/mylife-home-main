@@ -2,13 +2,18 @@ import { Observable, Subscriber } from 'rxjs';
 
 const CHUNK_SIZE = 16 * 1024;
 
-export function readFile(file: File): Observable<ArrayBuffer> {
-  return new Observable<ArrayBuffer>((observer) => {
-    readFileImpl(file, observer);
+export interface FileProgress {
+  totalSize: number;
+  doneSize: number;
+}
+
+export function readFile(file: File, consumer: (chunk: ArrayBuffer) => Promise<void>): Observable<FileProgress> {
+  return new Observable<FileProgress>((observer) => {
+    readFileImpl(file, consumer, observer);
   });
 }
 
-async function readFileImpl(file: File, observer: Subscriber<ArrayBuffer>) {
+async function readFileImpl(file: File, consumer: (chunk: ArrayBuffer) => Promise<void>, observer: Subscriber<FileProgress>) {
   try {
     let offset: number = 0;
     const size = file.size;
@@ -19,7 +24,9 @@ async function readFileImpl(file: File, observer: Subscriber<ArrayBuffer>) {
       offset += chunkSize;
   
       const buffer = await chunk.arrayBuffer();
-      observer.next(buffer);
+      await consumer(buffer);
+
+      observer.next({ totalSize: size, doneSize: offset });
     }
   
     observer.complete();

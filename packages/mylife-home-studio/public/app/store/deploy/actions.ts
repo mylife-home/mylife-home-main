@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
-import { ActionTypes, RecipeConfig, Update } from './types';
+import { ActionTypes, RecipeConfig, Update, UpdateUploadFilesProgress } from './types';
 
 export const setNotification = createAction<string>(ActionTypes.SET_NOTIFICATION);
 export const clearNotification = createAction(ActionTypes.CLEAR_NOTIFICATION);
@@ -13,3 +13,6 @@ export const uploadFiles = createAction<File[]>(ActionTypes.UPLOAD_FILES);
 export const downloadFile = createAction<string>(ActionTypes.DOWNLOAD_FILE);
 export const deleteFile = createAction<string>(ActionTypes.DELETE_FILE);
 export const renameFile = createAction<{id: string; newId: string; }>(ActionTypes.RENAME_FILE);
+
+// upload internal actions
+export const uploadFilesProgress = createAction<UpdateUploadFilesProgress>(ActionTypes.UPLOAD_FILES_PROGRESS);

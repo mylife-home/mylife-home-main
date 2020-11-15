@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { createTable, tableRemove, tableSet } from '../common/reducer-tools';
-import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, DeployState, FileInfo, PinRecipe, Recipe, Run, SetFile, SetRecipe, SetRun, SetTask, Task, Update } from './types';
+import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, DeployState, FileInfo, PinRecipe, Recipe, Run, SetFile, SetRecipe, SetRun, SetTask, Task, Update, UpdateUploadFilesProgress } from './types';
 
 const initialState: DeployState = {
   notifierId: null,
@@ -8,6 +8,7 @@ const initialState: DeployState = {
   recipes: createTable<Recipe>(),
   runs: createTable<Run>(),
   files: createTable<FileInfo>(),
+  uploadFilesProgress: null,
 };
 
 export default createReducer(initialState, {
@@ -97,5 +98,27 @@ export default createReducer(initialState, {
         }
       }
     }
+  },
+
+  [ActionTypes.UPLOAD_FILES]: (state, action: PayloadAction<File[]>) => {
+    // init progress
+    state.uploadFilesProgress = action.payload.map(file => ({
+      name: file.name,
+      totalSize: file.size,
+      doneSize: 0
+    }));
+  },
+
+  [ActionTypes.UPLOAD_FILES_PROGRESS]: (state, action: PayloadAction<UpdateUploadFilesProgress>) => {
+    const lastIndex = state.uploadFilesProgress.length - 1;
+    const update = action.payload;
+    if (update.fileIndex === lastIndex && update.doneSize === state.uploadFilesProgress[lastIndex].totalSize) {
+      // we reached the end
+      state.uploadFilesProgress = null;
+      return;
+    }
+
+    const fileProgress = state.uploadFilesProgress[update.fileIndex];
+    fileProgress.doneSize = update.doneSize;
   },
 });

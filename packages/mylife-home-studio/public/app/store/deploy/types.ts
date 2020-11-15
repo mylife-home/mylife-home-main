@@ -13,6 +13,7 @@ export const enum ActionTypes {
   DOWNLOAD_FILE = 'deploy/download-file',
   DELETE_FILE = 'deploy/delete-file',
   RENAME_FILE = 'deploy/rename-file',
+  UPLOAD_FILES_PROGRESS = 'deploy/upload-files-progress',
 }
 
 export { TaskMetadata, RecipeConfig, RunLogSeverity, RunError };
@@ -103,10 +104,24 @@ export interface ClearFile extends Update {
   id: string;
 }
 
+export interface UpdateUploadFilesProgress {
+  fileIndex: number;
+  doneSize: number;
+}
+
+export interface UploadFileProgress {
+  name: string;
+  totalSize: number;
+  doneSize: number;
+}
+
 export interface DeployState {
   notifierId: string;
   tasks: Table<Task>;
   recipes: Table<Recipe>;
   runs: Table<Run>;
   files: Table<FileInfo>;
+
+  // we can have it only once because it is used in a modal
+  uploadFilesProgress: UploadFileProgress[];
 }
