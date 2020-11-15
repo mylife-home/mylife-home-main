@@ -15,7 +15,7 @@ describe('bus/client', () => {
       await expectMetaPaths(['garbage']);
       await session.closeTransport('tester');
 
-      await session.createTransport('tester');
+      await session.createTransport('tester', { residentStateDelay: 100 });
       await expectMetaPaths([]);
 
       async function expectMetaPaths(expectedPaths: string[]) {
