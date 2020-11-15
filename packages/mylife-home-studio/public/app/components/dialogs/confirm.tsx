@@ -36,13 +36,19 @@ export function useConfirmDialog() {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        validate();
+      switch (e.key) {
+        case 'Enter':
+          validate();
+          break;
+        
+        case 'Escape':
+          cancel();
+          break;
       }
     };
 
     return (
-      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} onEscapeKeyDown={cancel} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
+      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
         {title && <DialogTitle id="dialog-title">{title}</DialogTitle>}
 
         <DialogContent dividers>
