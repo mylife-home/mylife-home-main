@@ -12,7 +12,7 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
 
 import { AppState } from '../../../store/types';
-import { getFilesIds, getFile, getUploadFilesProgress } from '../../../store/deploy/selectors';
+import { getFilesIds, getFile } from '../../../store/deploy/selectors';
 import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../../store/deploy/actions';
 import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
 import { useFireAsync } from '../../lib/use-error-handling';
