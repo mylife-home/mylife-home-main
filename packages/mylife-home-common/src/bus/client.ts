@@ -22,7 +22,7 @@ export class Client extends EventEmitter {
   private _online: boolean = false;
   private readonly subscriptions = new Set<string>();
 
-  constructor(public readonly instanceName: string, serverUrl: string, private readonly residentStateDelay: number = 1000) {
+  constructor(public readonly instanceName: string, serverUrl: string, private readonly residentStateDelay: number = 10000) {
     super();
 
     const qos: mqtt.QoS = 0;
