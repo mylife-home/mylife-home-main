@@ -1,3 +1,12 @@
+import { Services } from '..';
+import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
+import { Service, BuildParams } from '../types';
+import { Recipes } from './recipes';
+import { Runs } from './runs';
+import { Files } from './files';
+import { listMeta } from './tasks';
+import * as directories from './directories';
+
 import {
   AddRunLogNotification,
   ClearFileNotification,
@@ -11,14 +20,6 @@ import {
   SetRunNotification,
   SetTaskNotification,
 } from '../../../shared/deploy';
-import { Services } from '..';
-import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
-import { Service, BuildParams } from '../types';
-import { Recipes } from './recipes';
-import { Runs } from './runs';
-import { Files } from './files';
-import { listMeta } from './tasks';
-import * as directories from './directories';
 
 export class Deploy implements Service {
   private readonly recipes = new Recipes();
@@ -93,12 +94,11 @@ export class Deploy implements Service {
     return await this.files.rename(id, newId);
   };
 
-  // TODO: use Buffers instead of base64
   private readonly readFile = async (session: Session, { id, offset, size }: { id: string; offset: number; size: number; }) => {
     return await this.files.read(id, offset, size);
   };
 
-  private readonly writeFile = async (session: Session, { id, buffer, type }: { id: string; buffer: string; type: 'init' | 'append'; }) => {
+  private readonly writeFile = async (session: Session, { id, buffer, type }: { id: string; buffer: Buffer; type: 'init' | 'append'; }) => {
     await this.files.write(id, buffer, type);
   };
 
