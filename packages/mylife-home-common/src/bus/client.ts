@@ -55,6 +55,7 @@ export class Client extends EventEmitter {
   }
 
   private async clearResidentState() {
+    // TODO: we should wait 1 sec after last message instead
     // register on self state for 1 sec, and remove on every message received
     const zeroBuffer = Buffer.allocUnsafe(0);
     const clearTopic = (topic: string, payload: Buffer) => {
