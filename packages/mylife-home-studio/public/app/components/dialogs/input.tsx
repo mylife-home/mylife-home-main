@@ -1,14 +1,14 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
+import { Transition } from 'react-transition-group'; // used by material-ui
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
-import { Transition } from 'react-transition-group'; // used by material-ui
+import { DialogText } from './common';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
@@ -57,14 +57,12 @@ export function useInputDialog() {
         {title && <DialogTitle id="dialog-title">{title}</DialogTitle>}
 
         <DialogContent dividers>
-          {message && <DialogContentText>{message}</DialogContentText>}
+          <DialogText value={message} />
           <TextField autoFocus fullWidth label={label} id="text" value={text || ''} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown} error={!!error} helperText={error} />
         </DialogContent>
 
         <DialogActions>
-          <Button color="primary" onClick={validate}>
-            OK
-          </Button>
+          <Button color="primary" onClick={validate}>OK</Button>
           <Button onClick={cancel}>Annuler</Button>
         </DialogActions>
       </Dialog>
