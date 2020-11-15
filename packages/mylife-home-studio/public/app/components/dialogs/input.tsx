@@ -12,7 +12,7 @@ import { DialogText } from './common';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
-export type Result = { status: 'ok' | 'cancel'; text?: string; };
+export type InputResult = { status: 'ok' | 'cancel'; text?: string; };
 
 export interface InputOptions {
   initialText?: string;
@@ -25,7 +25,7 @@ export interface InputOptions {
 export function useInputDialog() {
   const [options, setOptions] = useState<Omit<InputOptions, 'initialText'>>();
   const [text, setText] = useState<string>();
-  const [onResult, setOnResult] = useState<(value: Result) => void>();
+  const [onResult, setOnResult] = useState<(value: InputResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
     const { title, message, label, validator } = options;
@@ -69,7 +69,7 @@ export function useInputDialog() {
     );
   }, [options, text, setText, onResult]);
 
-  return ({ initialText, title, message, label, validator = () => null }: InputOptions) => new Promise<Result>(resolve => {
+  return ({ initialText, title, message, label, validator = () => null }: InputOptions) => new Promise<InputResult>(resolve => {
     // force new object creation
     setOptions({ title, message, label, validator });
     setText(initialText);
