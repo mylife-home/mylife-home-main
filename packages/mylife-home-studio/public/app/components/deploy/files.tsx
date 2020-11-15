@@ -53,6 +53,7 @@ const useStyles = makeStyles((theme) => ({
 const Files: FunctionComponent = () => {
   const classes = useStyles();
   const files = useSelector(getFilesIds);
+  // TODO: confirm if we are overwriting files
   const { uploadFiles } = useHeaderActions();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: uploadFiles });
 
@@ -105,6 +106,7 @@ const ActionsHeader: FunctionComponent = () => {
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files);
+  // TODO: confirm if we are overwriting files
     uploadFiles(files);
   };
 
