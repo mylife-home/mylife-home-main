@@ -11,16 +11,17 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
 
-import { AppState } from '../../store/types';
-import { getFilesIds, getFile } from '../../store/deploy/selectors';
-import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../store/deploy/actions';
-import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
-import { useFireAsync } from '../lib/use-error-handling';
-import DeleteButton from '../lib/delete-button';
-import { useActions } from '../lib/use-actions';
-import { useInputDialog } from '../dialogs/input';
-import { Container, Title } from './layout';
-import { FileIcon } from './icons';
+import { AppState } from '../../../store/types';
+import { getFilesIds, getFile, getUploadFilesProgress } from '../../../store/deploy/selectors';
+import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../../store/deploy/actions';
+import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
+import { useFireAsync } from '../../lib/use-error-handling';
+import DeleteButton from '../../lib/delete-button';
+import { useActions } from '../../lib/use-actions';
+import { useInputDialog } from '../../dialogs/input';
+import { Container, Title } from '../layout';
+import { FileIcon } from '../icons';
+import UploadProgressDialog from './upload-progress-dialog';
 
 const useStyles = makeStyles((theme) => ({
   uploadButton: {
@@ -71,15 +72,19 @@ const Files: FunctionComponent = () => {
   ];
 
   return (
-    <Container title={<Title text="Fichiers" icon={FileIcon} />}>
-      <div {...getRootProps({
-        className: clsx(classes.container, { [classes.fileDrag]: isDragActive }) ,
-        onClick: e => { e.stopPropagation(); }
-      })}>
-        <input {...getInputProps()} />
-        <VirtualizedTable data={files} columns={columns} className={classes.table} />
-      </div>
-    </Container>
+    <>
+      <Container title={<Title text="Fichiers" icon={FileIcon} />}>
+        <div {...getRootProps({
+          className: clsx(classes.container, { [classes.fileDrag]: isDragActive }) ,
+          onClick: e => { e.stopPropagation(); }
+        })}>
+          <input {...getInputProps()} />
+          <VirtualizedTable data={files} columns={columns} className={classes.table} />
+        </div>
+      </Container>
+
+      <UploadProgressDialog />
+    </>
   );
 };
 
