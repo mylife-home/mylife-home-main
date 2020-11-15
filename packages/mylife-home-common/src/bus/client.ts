@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import * as mqtt from 'async-mqtt';
 import * as encoding from './encoding';
-import { fireAsync, sleep } from '../tools';
+import { fireAsync, Deferred } from '../tools';
 import * as logger from '../logger';
 
 const log = logger.createLogger('mylife:home:common:bus:client');
@@ -55,19 +55,23 @@ export class Client extends EventEmitter {
   }
 
   private async clearResidentState() {
-    // TODO: we should wait 1 sec after last message instead
-    // register on self state for 1 sec, and remove on every message received
-    const zeroBuffer = Buffer.allocUnsafe(0);
+    // register on self state, and remove on every message received
+    // wait 1 sec after last message receive
+    const { promise: sleepPromise, reset: resetSleep } = sleepWithReset(this.residentStateDelay);
+
     const clearTopic = (topic: string, payload: Buffer) => {
       if (topic.startsWith(this.instanceName + '/')) {
+        resetSleep();
         fireAsync(() => this.clearRetain(topic));
       }
     };
-
-    const selfStateTopic = this.buildTopic('#');
+    
+    const selfStateTopic = this.buildTopic(this.instanceName + '/#');
     this.client.on('message', clearTopic);
     await this.subscribe(selfStateTopic);
-    await sleep(this.residentStateDelay);
+
+    await sleepPromise;
+
     this.client.off('message', clearTopic);
     await this.unsubscribe(selfStateTopic);
   }
@@ -134,4 +138,18 @@ export class Client extends EventEmitter {
       await this.client.unsubscribe(topic);
     }
   }
+}
+
+function sleepWithReset(delay: number) {
+  const deferred = new Deferred<void>();
+  let timeoutHandle: NodeJS.Timeout;
+
+  const reset = () => {
+    clearTimeout(timeoutHandle);
+    timeoutHandle = setTimeout(() => deferred.resolve(), delay);
+  };
+
+  reset();
+
+  return { promise: deferred.promise, reset };
 }
