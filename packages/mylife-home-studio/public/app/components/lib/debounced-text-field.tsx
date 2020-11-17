@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-import PropTypes from 'prop-types';
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField';
 import { useDebounced } from './use-debounced';
 
