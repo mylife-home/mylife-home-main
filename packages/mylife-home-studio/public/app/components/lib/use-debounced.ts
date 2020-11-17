@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
 const WAIT_INTERVAL = 300;
 
@@ -40,14 +40,17 @@ export function useDebounced<T>(value: T, onChange: (arg: T) => void, waitInterv
     debounceRef.current.reset();
   }, [value]);
 
-  const componentChange = (newValue: T) => {
-    setStateValue(newValue);
-    debounceRef.current.call(newValue);
-  };
+  const componentChange = useCallback((updaterOrValue: React.SetStateAction<T>) => {
+    setStateValue(value => {
+      const newValue = updaterOrValue instanceof Function ? updaterOrValue(value) : updaterOrValue;
+      debounceRef.current.call(newValue);
+      return newValue;
+    });
+  }, [setStateValue, debounceRef.current]);
 
-  const flush = () => {
+  const flush = useCallback(() => {
     debounceRef.current.forceCall(stateValue);
-  };
+  }, [stateValue, debounceRef.current]);
 
   return { componentValue: stateValue, componentChange, flush };
 }
