@@ -156,15 +156,13 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig,
     [cards]
   );
 
-  const renderItem = (card: { id: number; text: string }) => {
-    return (
-      <SortableListItem key={card.id} id={card.id} text={card.text} />
-    );
-  };
-
   return (
     <SortableList moveItem={moveItem}>
-      {cards.map(renderItem)}
+      {cards.map(card => (
+        <SortableListItem key={card.id}>
+          <ListItemText primary={card.text} />
+        </SortableListItem>
+      ))}
     </SortableList>
   );
 

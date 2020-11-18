@@ -22,18 +22,12 @@ const style = {
   cursor: 'move',
 };
 
-export interface SortableListItemProps {
-  id: any;
-  text: string;
-}
-
 interface DragItem {
   index: number;
-  id: string;
   type: string;
 }
 
-export const SortableListItem: FunctionComponent<SortableListItemProps> = ({ id, text }) => {
+export const SortableListItem: FunctionComponent = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { moveItem } = useContext(SortableListContext);
   const { index } = useContext(SortableListItemContext);
@@ -89,7 +83,7 @@ export const SortableListItem: FunctionComponent<SortableListItemProps> = ({ id,
   });
 
   const [{ isDragging }, drag] = useDrag({
-    item: { type: sortableListSymbol, id, index },
+    item: { type: sortableListSymbol, index },
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -97,9 +91,10 @@ export const SortableListItem: FunctionComponent<SortableListItemProps> = ({ id,
 
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
+
   return (
     <ListItem button disableRipple ref={ref} style={{ ...style, opacity }}>
-      <ListItemText primary={text} />
+      {children}
     </ListItem>
   );
 };
