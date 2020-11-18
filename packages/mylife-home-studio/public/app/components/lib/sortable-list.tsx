@@ -3,7 +3,9 @@ import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import { XYCoord } from 'dnd-core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+
+  // see https://react-dnd.github.io/react-dnd/examples/sortable/simple
+  // see https://react-dnd.github.io/react-dnd/examples/customize/handles-and-previews
 
 const sortableListSymbol = Symbol('dnd-sortable-list');
 
@@ -31,6 +33,7 @@ export const SortableListItem: FunctionComponent = ({ children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { moveItem } = useContext(SortableListContext);
   const { index } = useContext(SortableListItemContext);
+
   const [, drop] = useDrop({
     accept: sortableListSymbol,
     hover(item: DragItem, monitor: DropTargetMonitor) {
