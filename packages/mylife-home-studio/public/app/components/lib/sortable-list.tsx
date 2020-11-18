@@ -1,8 +1,10 @@
-import React, { FunctionComponent, Children, useRef, useState, useMemo, useCallback, createContext, useContext } from 'react';
-import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
+import React, { FunctionComponent, Children, forwardRef, useRef, useMemo, createContext, useContext } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import { XYCoord } from 'dnd-core';
+import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
+import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
+import ImportExportIcon from '@material-ui/icons/ImportExport';
 
   // see https://react-dnd.github.io/react-dnd/examples/sortable/simple
   // see https://react-dnd.github.io/react-dnd/examples/customize/handles-and-previews
@@ -20,16 +22,12 @@ interface SortableListItemContextProps {
 const SortableListContext = createContext<SortableListContextProps>(null);
 const SortableListItemContext = createContext<SortableListItemContextProps>(null);
 
-const style = {
-  cursor: 'move',
-};
-
 interface DragItem {
   index: number;
   type: string;
 }
 
-export const SortableListItem: FunctionComponent = ({ children }) => {
+export const SortableListItem: FunctionComponent<ListItemProps> = ({ children, style, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { moveItem } = useContext(SortableListContext);
   const { index } = useContext(SortableListItemContext);
@@ -84,7 +82,7 @@ export const SortableListItem: FunctionComponent = ({ children }) => {
     },
   });
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging }, drag, preview] = useDrag({
     item: { type: sortableListSymbol, index },
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
@@ -92,33 +90,55 @@ export const SortableListItem: FunctionComponent = ({ children }) => {
   });
 
   const opacity = isDragging ? 0 : 1;
-  drag(drop(ref));
+  preview(drop(ref));
+
+  // cannot bind props properly without that
+  const ListItemHack = ListItem as any;
 
   return (
-    <ListItem button disableRipple ref={ref} style={{ ...style, opacity }}>
+    <ListItemHack {...props} ref={ref} style={{ ...style, opacity }}>
+      <MoveHandle ref={drag} />
       {children}
-    </ListItem>
+    </ListItemHack>
+  );
+};
+
+const useHandleStyles = makeStyles((theme) => ({
+  container: {
+    border: `solid 1px ${theme.palette.divider}`,
+    display: 'inline-flex',
+    marginRight: '0.75rem',
+    cursor: 'move',
+  },
+}));
+
+const MoveHandle = forwardRef<HTMLDivElement>((props, ref) => {
+  const classes = useHandleStyles();
+  return (
+    <div ref={ref} className={classes.container}>
+      <ImportExportIcon />
+    </div>
+  );
+});
+
+// Only works if children are an array of (indirect) items, i.e.: each child correspond to exactly one item
+export const SortableList: FunctionComponent<{ moveItem: (from: number, to: number) => void; }> = ({ moveItem, children }) => {
+  const listContext: SortableListContextProps = useMemo(() => ({ moveItem }), [moveItem]);
+
+  return (
+    <SortableListContext.Provider value={listContext}>
+      <List>
+        {Children.map(children, (child, index) => (
+          <SortableListItemWrapper index={index}>
+            {child}
+          </SortableListItemWrapper>
+        ))}
+      </List>
+    </SortableListContext.Provider>
   );
 };
 
 const SortableListItemWrapper: FunctionComponent<{ index: number }> = ({ index, children }) => {
   const itemContext: SortableListItemContextProps = useMemo(() => ({ index }), [index]);
   return <SortableListItemContext.Provider value={itemContext}>{children}</SortableListItemContext.Provider>;
-};
-
-// Only works if children are an array of (indirect) items, i.e.: each child correspond to exactly one item
-export const SortableList: FunctionComponent<{ moveItem: (from: number, to: number) => void; }> = ({ moveItem, children }) => {
-    const listContext: SortableListContextProps = useMemo(() => ({ moveItem }), [moveItem]);
-
-    return (
-      <SortableListContext.Provider value={listContext}>
-        <List>
-          {Children.map(children, (child, index) => (
-            <SortableListItemWrapper index={index}>
-              {child}
-            </SortableListItemWrapper>
-          ))}
-        </List>
-      </SortableListContext.Provider>
-    );
 };
