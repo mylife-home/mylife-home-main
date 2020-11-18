@@ -1,22 +1,30 @@
-import React, { FunctionComponent, useRef, useState, useCallback } from 'react';
+import React, { FunctionComponent, Children, useRef, useState, useMemo, useCallback, createContext, useContext } from 'react';
 import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import { XYCoord } from 'dnd-core';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const sortableListSymbol = Symbol('dnd-sortable-list');
 
+interface SortableListContextProps {
+  moveItem: (dragIndex: number, hoverIndex: number) => void;
+}
+
+interface SortableListItemContextProps {
+  index: number;
+}
+
+const SortableListContext = createContext<SortableListContextProps>(null);
+const SortableListItemContext = createContext<SortableListItemContextProps>(null);
+
 const style = {
-  border: '1px dashed gray',
-  padding: '0.5rem 1rem',
-  marginBottom: '.5rem',
-  backgroundColor: 'white',
   cursor: 'move',
 };
 
-export interface CardProps {
+export interface SortableListItemProps {
   id: any;
   text: string;
-  index: number;
-  moveCard: (dragIndex: number, hoverIndex: number) => void;
 }
 
 interface DragItem {
@@ -25,8 +33,10 @@ interface DragItem {
   type: string;
 }
 
-export const Card: FunctionComponent<CardProps> = ({ id, text, index, moveCard }) => {
+export const SortableListItem: FunctionComponent<SortableListItemProps> = ({ id, text }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { moveItem } = useContext(SortableListContext);
+  const { index } = useContext(SortableListItemContext);
   const [, drop] = useDrop({
     accept: sortableListSymbol,
     hover(item: DragItem, monitor: DropTargetMonitor) {
@@ -68,7 +78,7 @@ export const Card: FunctionComponent<CardProps> = ({ id, text, index, moveCard }
       }
 
       // Time to actually perform the action
-      moveCard(dragIndex, hoverIndex);
+      moveItem(dragIndex, hoverIndex);
 
       // Note: we're mutating the monitor item here!
       // Generally it's better to avoid mutations,
@@ -88,63 +98,30 @@ export const Card: FunctionComponent<CardProps> = ({ id, text, index, moveCard }
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
   return (
-    <div ref={ref} style={{ ...style, opacity }}>
-      {text}
-    </div>
+    <ListItem button disableRipple ref={ref} style={{ ...style, opacity }}>
+      <ListItemText primary={text} />
+    </ListItem>
   );
 };
 
-export const SortableList: FunctionComponent = () => {
-  {
-    const [cards, setCards] = useState([
-      {
-        id: 1,
-        text: 'Write a cool JS library',
-      },
-      {
-        id: 2,
-        text: 'Make it generic enough',
-      },
-      {
-        id: 3,
-        text: 'Write README',
-      },
-      {
-        id: 4,
-        text: 'Create some examples',
-      },
-      {
-        id: 5,
-        text: 'Spam in Twitter and IRC to promote it (note that this element is taller than the others)',
-      },
-      {
-        id: 6,
-        text: '???',
-      },
-      {
-        id: 7,
-        text: 'PROFIT',
-      },
-    ]);
+const SortableListItemWrapper: FunctionComponent<{ index: number }> = ({ index, children }) => {
+  const itemContext: SortableListItemContextProps = useMemo(() => ({ index }), [index]);
+  return <SortableListItemContext.Provider value={itemContext}>{children}</SortableListItemContext.Provider>;
+};
 
-    const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
-      const dragCard = cards[dragIndex];
-
-      const newCards = [...cards];
-      newCards.splice(dragIndex, 1);
-      newCards.splice(hoverIndex, 0, dragCard);
-
-      setCards(newCards);
-    }, [cards]);
-
-    const renderCard = (card: { id: number; text: string }, index: number) => {
-      return <Card key={card.id} index={index} id={card.id} text={card.text} moveCard={moveCard} />;
-    };
+// Only works if children are an array of (indirect) items, i.e.: each child correspond to exactly one item
+export const SortableList: FunctionComponent<{ moveItem: (from: number, to: number) => void; }> = ({ moveItem, children }) => {
+    const listContext: SortableListContextProps = useMemo(() => ({ moveItem }), [moveItem]);
 
     return (
-      <>
-        <div style={style}>{cards.map((card, i) => renderCard(card, i))}</div>
-      </>
+      <SortableListContext.Provider value={listContext}>
+        <List>
+          {Children.map(children, (child, index) => (
+            <SortableListItemWrapper index={index}>
+              {child}
+            </SortableListItemWrapper>
+          ))}
+        </List>
+      </SortableListContext.Provider>
     );
-  }
 };
