@@ -37,9 +37,11 @@ export const SortableListItem: FunctionComponent = ({ children }) => {
   const [, drop] = useDrop({
     accept: sortableListSymbol,
     hover(item: DragItem, monitor: DropTargetMonitor) {
-      if (!ref.current) {
+      const element = ref.current;
+      if (!element) {
         return;
       }
+
       const dragIndex = item.index;
       const hoverIndex = index;
 
@@ -49,14 +51,11 @@ export const SortableListItem: FunctionComponent = ({ children }) => {
       }
 
       // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect();
-
+      const hoverBoundingRect = element.getBoundingClientRect();
       // Get vertical middle
       const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
       // Determine mouse position
       const clientOffset = monitor.getClientOffset();
-
       // Get pixels to the top
       const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top;
 
