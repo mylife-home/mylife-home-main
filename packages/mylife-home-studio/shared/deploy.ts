@@ -28,16 +28,20 @@ export interface RecipeConfig {
   steps: StepConfig[];
 }
 
+export type StepType = 'task' | 'recipe';
+
 export interface StepConfig {
-  type: string;
+  type: StepType;
 }
 
 export interface TaskStepConfig extends StepConfig {
+  type: 'task';
   task: string;
   parameters: TaskParameters;
 }
 
 export interface RecipeStepConfig extends StepConfig {
+  type: 'recipe';
   recipe: string;
 }
 

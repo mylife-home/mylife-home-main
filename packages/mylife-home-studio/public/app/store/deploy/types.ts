@@ -1,5 +1,5 @@
 import { Table } from '../common/types';
-import { TaskMetadata, RecipeConfig, RunLogSeverity, RunError } from '../../../../shared/deploy';
+import { TaskMetadata, RecipeConfig, StepConfig, StepType, RunLogSeverity, RunError } from '../../../../shared/deploy';
 
 export const enum ActionTypes {
   SET_NOTIFICATION = 'deploy/set-notification',
@@ -17,7 +17,7 @@ export const enum ActionTypes {
   DOWNLOAD_FILE_PROGRESS = 'deploy/download-file-progress',
 }
 
-export { TaskMetadata, RecipeConfig, RunLogSeverity, RunError };
+export { TaskMetadata, RecipeConfig, StepConfig, StepType, RunLogSeverity, RunError };
 
 export interface Task {
   id: string;
