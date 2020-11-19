@@ -149,7 +149,7 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig;
 
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   return (
-    <SortableListItem>
+    <SortableListItem useChildAsPreview>
       <Card style={{width: 900}} square>
         <CardContent>
           <SortableListMoveHandle />
