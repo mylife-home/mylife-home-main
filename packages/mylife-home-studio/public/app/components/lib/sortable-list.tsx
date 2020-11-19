@@ -1,7 +1,8 @@
-import React, { FunctionComponent, Children, forwardRef, useRef, useMemo, createContext, useContext } from 'react';
+import React, { FunctionComponent, Children, useRef, useMemo, createContext, useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
 import { XYCoord } from 'dnd-core';
-import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
+import { useDrag, useDrop, DropTargetMonitor, ConnectDragSource } from 'react-dnd';
 import List, { ListProps } from '@material-ui/core/List';
 import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
@@ -19,15 +20,20 @@ interface SortableListItemContextProps {
   index: number;
 }
 
+interface MoveHandleContextProps {
+  drag: ConnectDragSource;
+}
+
 const SortableListContext = createContext<SortableListContextProps>(null);
 const SortableListItemContext = createContext<SortableListItemContextProps>(null);
+const MoveHandleContext = createContext<MoveHandleContextProps>(null);
 
 interface DragItem {
   index: number;
   type: string;
 }
 
-export const SortableListItem: FunctionComponent<ListItemProps> = ({ children, style, ...props }) => {
+export const SortableListItem: FunctionComponent<ListItemProps> = ({ style, ...props }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { moveItem } = useContext(SortableListContext);
   const { index } = useContext(SortableListItemContext);
@@ -95,11 +101,12 @@ export const SortableListItem: FunctionComponent<ListItemProps> = ({ children, s
   // cannot bind props properly without that
   const ListItemHack = ListItem as any;
 
+  const moveHandleContext: MoveHandleContextProps = useMemo(() => ({ drag }), [drag]);
+
   return (
-    <ListItemHack {...props} ref={ref} style={{ ...style, opacity }}>
-      <MoveHandle ref={drag} />
-      {children}
-    </ListItemHack>
+    <MoveHandleContext.Provider value={moveHandleContext}>
+      <ListItemHack {...props} ref={ref} style={{ ...style, opacity }} />
+    </MoveHandleContext.Provider>
   );
 };
 
@@ -107,19 +114,20 @@ const useHandleStyles = makeStyles((theme) => ({
   container: {
     border: `solid 1px ${theme.palette.divider}`,
     display: 'inline-flex',
-    marginRight: '0.75rem',
     cursor: 'move',
   },
 }));
 
-const MoveHandle = forwardRef<HTMLDivElement>((props, ref) => {
+export const SortableListMoveHandle: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useHandleStyles();
+  const { drag } = useContext(MoveHandleContext);
+
   return (
-    <div ref={ref} className={classes.container}>
+    <div ref={drag} className={clsx(classes.container, className)}>
       <ImportExportIcon />
     </div>
   );
-});
+};
 
 // Only works if children are an array of (indirect) items, i.e.: each child correspond to exactly one item
 export const SortableList: FunctionComponent<ListProps & { moveItem: (from: number, to: number) => void; }> = ({ moveItem, children, ...props }) => {

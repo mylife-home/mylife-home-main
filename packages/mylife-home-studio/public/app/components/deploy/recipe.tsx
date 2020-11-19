@@ -1,14 +1,16 @@
-import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
-import ListItemText from '@material-ui/core/ListItemText';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
 
 import DebouncedTextField from '../lib/debounced-text-field';
 import { useDebounced } from '../lib/use-debounced';
-import { SortableList, SortableListItem } from '../lib/sortable-list';
+import { SortableList, SortableListItem, SortableListMoveHandle } from '../lib/sortable-list';
 import { useResetSelectionIfNull } from './selection';
 import { RecipeIcon } from './icons';
 import { Container, Title } from './layout';
@@ -148,7 +150,12 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig;
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   return (
     <SortableListItem>
-      <ListItemText primary={JSON.stringify(step)} />
+      <Card style={{width: 900}}>
+        <CardContent>
+          <SortableListMoveHandle />
+          <Typography>{JSON.stringify(step)}</Typography>
+        </CardContent>
+      </Card>
     </SortableListItem>
   );
 };
