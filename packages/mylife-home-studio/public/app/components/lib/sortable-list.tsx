@@ -2,7 +2,7 @@ import React, { FunctionComponent, Children, forwardRef, useRef, useMemo, create
 import { makeStyles } from '@material-ui/core/styles';
 import { XYCoord } from 'dnd-core';
 import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
-import List from '@material-ui/core/List';
+import List, { ListProps } from '@material-ui/core/List';
 import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
 
@@ -122,12 +122,12 @@ const MoveHandle = forwardRef<HTMLDivElement>((props, ref) => {
 });
 
 // Only works if children are an array of (indirect) items, i.e.: each child correspond to exactly one item
-export const SortableList: FunctionComponent<{ moveItem: (from: number, to: number) => void; }> = ({ moveItem, children }) => {
+export const SortableList: FunctionComponent<ListProps & { moveItem: (from: number, to: number) => void; }> = ({ moveItem, children, ...props }) => {
   const listContext: SortableListContextProps = useMemo(() => ({ moveItem }), [moveItem]);
 
   return (
     <SortableListContext.Provider value={listContext}>
-      <List>
+      <List {...props}>
         {Children.map(children, (child, index) => (
           <SortableListItemWrapper index={index}>
             {child}
