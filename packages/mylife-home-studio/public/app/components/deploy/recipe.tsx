@@ -150,7 +150,7 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig;
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   return (
     <SortableListItem>
-      <Card style={{width: 900}}>
+      <Card style={{width: 900}} square>
         <CardContent>
           <SortableListMoveHandle />
           <Typography>{JSON.stringify(step)}</Typography>
