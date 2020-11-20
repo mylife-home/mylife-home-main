@@ -23,6 +23,8 @@ import { setRecipe } from '../../../store/deploy/actions';
 import { getRecipe } from '../../../store/deploy/selectors';
 import { RecipeConfig, TaskStepConfig } from '../../../store/deploy/types';
 
+// TODO: JSON.stringify(step) cannot be used as step id (because we can create a same step twice), we need to define unique ids on steps
+
 const Recipe: FunctionComponent<{ id: string }> = ({ id }) => {
   const recipe = useSelector((state: AppState) => getRecipe(state, id));
 
