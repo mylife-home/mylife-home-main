@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const classes = useStyles();
   return (
@@ -55,7 +54,20 @@ export default StepEditor;
 const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newType = event.target.value as StepType;
-    // TODO: reset stuff + call setStep
+
+    switch(newType) {
+      case 'task': {
+        const newStep: TaskStepConfig = { type: 'task', task: null, parameters: {} };
+        setStep(newStep);
+        break;
+      }
+
+      case 'recipe': {
+        const newStep: RecipeStepConfig = { type: 'recipe', recipe: null};
+        setStep(newStep);
+        break;
+      }
+    }
   };
 
   return (
