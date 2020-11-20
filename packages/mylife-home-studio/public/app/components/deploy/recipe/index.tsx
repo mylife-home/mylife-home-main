@@ -4,6 +4,11 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
 
 import DebouncedTextField from '../../lib/debounced-text-field';
 import { useDebounced } from '../../lib/use-debounced';
@@ -16,9 +21,7 @@ import StepEditor, { SetStepConfig } from './step-editor';
 import { AppState } from '../../../store/types';
 import { setRecipe } from '../../../store/deploy/actions';
 import { getRecipe } from '../../../store/deploy/selectors';
-import { RecipeConfig } from '../../../store/deploy/types';
-
-// TODO: add step
+import { RecipeConfig, TaskStepConfig } from '../../../store/deploy/types';
 
 const Recipe: FunctionComponent<{ id: string }> = ({ id }) => {
   const recipe = useSelector((state: AppState) => getRecipe(state, id));
@@ -142,6 +145,36 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig;
 
         return <StepEditor key={JSON.stringify(step)} step={step} setStep={setStep} />;
       })}
+
+      <AddStepItem setConfig={setConfig} />
     </SortableList>
+  );
+};
+
+const useAddStepItemStyles = makeStyles((theme) => ({
+  newButton: {
+    color: theme.palette.success.main,
+  },
+}));
+
+const AddStepItem: FunctionComponent<{ setConfig: SetRecipeConfig }> = ({ setConfig }) => {
+  const classes = useAddStepItemStyles();
+
+  const onNew = () => setConfig((config) => {
+    const newStep: TaskStepConfig = { type: 'task', task: null, parameters: {} };
+    const newSteps = [...config.steps, newStep];
+    return { ...config, steps: newSteps };
+});
+
+  return (
+    <ListItem>
+      <ListItemIcon>
+        <Tooltip title="Nouvelle étape">
+          <IconButton className={classes.newButton} onClick={onNew}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+      </ListItemIcon>
+    </ListItem>
   );
 };
