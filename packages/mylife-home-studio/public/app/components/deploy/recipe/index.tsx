@@ -143,7 +143,13 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig;
             return { ...config, steps: newSteps };
           });
 
-        return <StepEditor key={JSON.stringify(step)} step={step} setStep={setStep} />;
+          const onDelete = () => setConfig((config) => {
+            const newSteps = [...config.steps];
+            newSteps.splice(index, 1);
+            return { ...config, steps: newSteps };
+          });
+
+        return <StepEditor key={JSON.stringify(step)} step={step} setStep={setStep} onDelete={onDelete} />;
       })}
 
       <AddStepItem setConfig={setConfig} />

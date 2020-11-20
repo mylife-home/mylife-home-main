@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
+const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, onDelete: () => void }> = ({ step, setStep, onDelete }) => {
   const classes = useStyles();
   return (
     <SortableListItem useChildAsPreview>
@@ -39,7 +39,7 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }
 
           <SortableListMoveHandle />
           <StepTypeSelector step={step} setStep={setStep} />
-          <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={() => console.log('TODO delete')} />
+          <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={onDelete} />
 
           <DetailEditor step={step} setStep={setStep} />
         </CardContent>
