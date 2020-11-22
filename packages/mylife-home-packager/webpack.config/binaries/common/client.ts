@@ -24,7 +24,7 @@ export default (context: Context, repoName: string, binName: string, partialConf
   
     const styleLoader = context.mode === 'prod' ? MiniCssExtractPlugin.loader : 'style-loader';
   
-    const base = {
+    const base: Configuration = {
       entry: `${repoName}/public/app/main`,
   
       output: {
@@ -60,7 +60,7 @@ export default (context: Context, repoName: string, binName: string, partialConf
       ]
     };
   
-    const modes = {
+    const modes: ConfigurationByMode = {
       dev: {
         mode: 'development',
         devtool: 'inline-source-map',
@@ -75,7 +75,7 @@ export default (context: Context, repoName: string, binName: string, partialConf
             },
           },
         }
-      } as Configuration,
+      },
       prod: {
         mode: 'production',
         devtool: 'nosources-source-map',
@@ -94,8 +94,8 @@ export default (context: Context, repoName: string, binName: string, partialConf
           new PurgecssPlugin({ paths: glob.sync(`${sourcePath}/**/*`, { nodir: true }) }),
           new CustomizedBundleAnalyzerPlugin({ analyzerMode: 'static' })
         ],
-      } as Configuration,
-    } as ConfigurationByMode;
+      },
+    };
   
     const mode = modes[context.mode];
     if (!mode) {
