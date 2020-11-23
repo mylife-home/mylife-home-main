@@ -16,4 +16,4 @@ export const client = (context: Context) => prepareClientConfiguration(context, 
       "react-dom": "preact/compat",
     },
   }
-}, ['ios_saf 9.3.5']);
+}, ['ios_saf 9.3']);

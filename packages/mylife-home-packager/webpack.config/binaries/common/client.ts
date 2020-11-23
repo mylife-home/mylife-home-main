@@ -14,7 +14,7 @@ import { ConfigurationByMode } from './types';
 export default (context: Context, repoName: string, binName: string, partialConfiguration: Configuration = {}, additionalBabelBrowsers: string[] = []) => {
   const babelOptions = {
     presets: [
-      [require.resolve('@babel/preset-env'), { targets: { browsers: ['last 2 versions', ...additionalBabelBrowsers] } }],
+      [require.resolve('@babel/preset-env'), { targets: { browsers: ['defaults', ...additionalBabelBrowsers] } }],
       require.resolve('@babel/preset-react'),
     ]
   };
