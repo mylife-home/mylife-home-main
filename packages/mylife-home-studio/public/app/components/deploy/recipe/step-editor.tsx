@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -7,11 +8,14 @@ import Typography from '@material-ui/core/Typography';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import DeleteButton from '../../lib/delete-button';
 import { SortableListItem, SortableListMoveHandle } from '../../lib/sortable-list';
 import { RecipeIcon } from '../icons';
 import { AppState } from '../../../store/types';
+import { getRecipesIds } from '../../../store/deploy/selectors';
 import { StepConfig, StepType, RecipeStepConfig, TaskStepConfig } from '../../../store/deploy/types';
 
 export type SetStepConfig = (value: StepConfig) => void;
@@ -92,5 +96,31 @@ const TaskStepEditor: FunctionComponent<{ step: TaskStepConfig; setStep: SetStep
 };
 
 const RecipeStepEditor: FunctionComponent<{ step: RecipeStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
-  return <Typography>{'RecipeStepEditor' + JSON.stringify(step)}</Typography>;
+  const handleChange = (newRecipe: string) => {
+    const newStep: RecipeStepConfig = { ...step, recipe: newRecipe };
+    setStep(newStep);
+  };
+
+  return <RecipeSelector value={step.recipe} onChange={handleChange} />;
+};
+
+const RecipeSelector: FunctionComponent<{ value: string, onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
+  const recipeIds = useSelector(getRecipesIds);
+
+  const FixedAutocomplete = Autocomplete as any;
+
+  return (
+    <Autocomplete
+      value={value}
+      onChange={(event: any, newValue: string) => onChange(newValue)}
+      selectOnFocus
+      clearOnBlur
+      handleHomeEndKeys
+      options={recipeIds}
+      freeSolo
+      renderInput={(params) => (
+        <TextField {...params} label="Recette" />
+      )}
+    />
+  );
 };
