@@ -107,8 +107,6 @@ const RecipeStepEditor: FunctionComponent<{ step: RecipeStepConfig; setStep: Set
 const RecipeSelector: FunctionComponent<{ value: string, onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
   const recipeIds = useSelector(getRecipesIds);
 
-  const FixedAutocomplete = Autocomplete as any;
-
   return (
     <Autocomplete
       value={value}
