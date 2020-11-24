@@ -11,8 +11,15 @@ import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles((theme) => ({
-  button: {
+  iconButton: {
     color: theme.palette.error.main,
+  },
+  button: {
+    color: theme.palette.getContrastText(theme.palette.error.main),
+    backgroundColor: theme.palette.error.main,
+    '&:hover': {
+      backgroundColor: theme.palette.error.dark,
+    },
   },
   paper: {
     padding: theme.spacing(2),
@@ -61,7 +68,7 @@ const DeleteButton: FunctionComponent<DeleteButtonProps> = ({
       {text}
     </Button>
   ) : (
-    <IconButton className={clsx(classes.button, className)} onClick={handleButtonClick}>
+    <IconButton className={clsx(classes.iconButton, className)} onClick={handleButtonClick}>
       <DeleteIcon />
     </IconButton>
   );
