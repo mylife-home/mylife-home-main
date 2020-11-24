@@ -45,7 +45,8 @@ function initTaskParameters(task: Task) {
 const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: string) => void }> = ({ value, onChange }) => {
   const classes = useStyles();
   const tasksIds = useSelector(getTasksIds);
-  const { metadata } = useSelector((state: AppState) => getTask(state, value));
+  const taskMeta = useSelector((state: AppState) => getTask(state, value));
+  const description = taskMeta?.metadata?.description; // in case task is null
 
   return (
     <Autocomplete
@@ -54,18 +55,23 @@ const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: stri
       onChange={(event: React.ChangeEvent, newValue: string) => onChange(newValue)}
       options={tasksIds}
       disableClearable
-      renderInput={(params) => <TextField {...params} label="Tâche" helperText={metadata.description} />}
+      renderInput={(params) => <TextField {...params} label="Tâche" helperText={description} />}
     />
   );
 };
 
 const TaskParametersEditor: FunctionComponent<{ task: string; parameters: TaskParameters; onChange: (name: string, value: any) => void }> = ({ task, parameters, onChange }) => {
   const classes = useStyles();
-  const { metadata } = useSelector((state: AppState) => getTask(state, task));
+  const taskMeta = useSelector((state: AppState) => getTask(state, task));
+
+  // in case task is null
+  if(!taskMeta) {
+    return null;
+  }
 
   return (
     <>
-      {metadata.parameters.map((parameter) => (
+      {taskMeta.metadata.parameters.map((parameter) => (
         <TextField
           key={parameter.name}
           className={classes.itemWidth}
