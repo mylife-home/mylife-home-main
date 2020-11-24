@@ -32,13 +32,6 @@ const useStyles = makeStyles((theme) => ({
   downloadButton: {
     color: theme.palette.success.main,
   },
-  deleteButton: {
-    color: theme.palette.error.main,
-    backgroundColor: 'transparent',
-    '&:hover': {
-      backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity), // fade = alpha
-    },
-  },
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -157,7 +150,7 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
         </IconButton>
       </Tooltip>
 
-      <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={deleteFile} />
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={deleteFile} />
     </>
   );
 };

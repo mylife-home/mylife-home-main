@@ -15,13 +15,6 @@ import { AppState } from '../../store/types';
 import { StartIcon, PinIcon, UnpinIcon } from './icons';
 
 const useStyles = makeStyles((theme) => ({
-  deleteButton: {
-    color: theme.palette.error.main,
-    backgroundColor: 'transparent',
-    '&:hover': {
-      backgroundColor: fade(theme.palette.text.primary, theme.palette.action.hoverOpacity), // fade = alpha
-    },
-  },
   startButton: {
     color: theme.palette.success.main,
   },
@@ -70,7 +63,7 @@ const RecipeActions: FunctionComponent<{ id: string }> = ({ id }) => {
         </IconButton>
       </Tooltip>
 
-      <DeleteButton icon tooltip="Supprimer" className={classes.deleteButton} onConfirmed={() => clear()} />
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={() => clear()} />
     </>
   );
 };

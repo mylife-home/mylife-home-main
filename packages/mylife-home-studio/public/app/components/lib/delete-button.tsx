@@ -12,11 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    color: theme.palette.getContrastText(theme.palette.error.main),
-    backgroundColor: theme.palette.error.main,
-    '&:hover': {
-      backgroundColor: theme.palette.error.dark,
-    },
+    color: theme.palette.error.main,
   },
   paper: {
     padding: theme.spacing(2),
