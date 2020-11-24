@@ -14,17 +14,20 @@ import TaskStepEditor from './task-step-editor';
 
 export type SetStepConfig = (value: StepConfig) => void;
 
-const useStyles = makeStyles((theme) => ({
+export const useStyles = makeStyles((theme) => ({
   card: {
     width: '100%',
   },
   container: {
     display: 'flex',
-    justifyContent: 'center',
+    alignItems: 'baseline',
     '& > *': {
       margin: theme.spacing(0.5),
     },
   },
+  itemWidth: {
+    width: 200
+  }
 }));
 
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, onDelete: () => void }> = ({ step, setStep, onDelete }) => {
@@ -35,8 +38,8 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, 
         <CardContent className={classes.container}>
 
           <SortableListMoveHandle />
-          <StepTypeSelector step={step} setStep={setStep} />
           <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+          <StepTypeSelector step={step} setStep={setStep} />
 
           <DetailEditor step={step} setStep={setStep} />
         </CardContent>

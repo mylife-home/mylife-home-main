@@ -6,7 +6,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { AppState } from '../../../store/types';
 import { getTasksIds, getTask, getTaskGetter } from '../../../store/deploy/selectors';
 import { TaskStepConfig, Task, TaskParameters } from '../../../store/deploy/types';
-import { SetStepConfig } from './step-editor';
+import { SetStepConfig, useStyles } from './step-editor';
 
 const TaskStepEditor: FunctionComponent<{ step: TaskStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const getTask = useSelector(getTaskGetter);
@@ -43,12 +43,13 @@ function initTaskParameters(task: Task) {
 }
 
 const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: string) => void }> = ({ value, onChange }) => {
+  const classes = useStyles();
   const tasksIds = useSelector(getTasksIds);
   const { metadata } = useSelector((state: AppState) => getTask(state, value));
 
   return (
     <Autocomplete
-      style={{ width: 300 }}
+      className={classes.itemWidth}
       value={value}
       onChange={(event: React.ChangeEvent, newValue: string) => onChange(newValue)}
       options={tasksIds}
@@ -59,6 +60,7 @@ const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: stri
 };
 
 const TaskParametersEditor: FunctionComponent<{ task: string; parameters: TaskParameters; onChange: (name: string, value: any) => void }> = ({ task, parameters, onChange }) => {
+  const classes = useStyles();
   const { metadata } = useSelector((state: AppState) => getTask(state, task));
 
   return (
@@ -66,6 +68,7 @@ const TaskParametersEditor: FunctionComponent<{ task: string; parameters: TaskPa
       {metadata.parameters.map((parameter) => (
         <TextField
           key={parameter.name}
+          className={classes.itemWidth}
           label={parameter.name}
           helperText={parameter.description}
           variant="outlined"

@@ -65,7 +65,7 @@ const RecipePanel: FunctionComponent<{ id: string }> = ({ id }) => {
 
 const useHeaderPanelStyles = makeStyles((theme) => ({
   container: {
-    width: 900,
+    width: '100%',
     margin: theme.spacing(3),
   },
 }));
@@ -95,7 +95,7 @@ const HeaderPanel: FunctionComponent<{ className?: string; id: string; config: R
 
 const useConfigPanelStyles = makeStyles((theme) => ({
   list: {
-    width: 900,
+    width: '100%',
   },
 }));
 
