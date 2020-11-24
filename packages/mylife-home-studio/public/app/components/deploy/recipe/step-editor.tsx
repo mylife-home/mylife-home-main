@@ -27,6 +27,11 @@ export const useStyles = makeStyles((theme) => ({
   },
   itemWidth: {
     width: 200
+  },
+  // try to remove this pate when Autocomplete is more stable
+  autoCompleteInput: {
+    marginTop: -6,
+    marginBottom: 0
   }
 }));
 

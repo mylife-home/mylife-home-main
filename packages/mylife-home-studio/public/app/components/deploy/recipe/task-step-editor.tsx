@@ -55,7 +55,7 @@ const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: stri
       onChange={(event: React.ChangeEvent, newValue: string) => onChange(newValue)}
       options={tasksIds}
       disableClearable
-      renderInput={(params) => <TextField {...params} label="Tâche" helperText={description} />}
+      renderInput={(params) => <TextField {...params} label="Tâche" helperText={description} variant="outlined" className={classes.autoCompleteInput} />}
     />
   );
 };
@@ -65,7 +65,7 @@ const TaskParametersEditor: FunctionComponent<{ task: string; parameters: TaskPa
   const taskMeta = useSelector((state: AppState) => getTask(state, task));
 
   // in case task is null
-  if(!taskMeta) {
+  if (!taskMeta) {
     return null;
   }
 
