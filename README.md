@@ -12,17 +12,7 @@ MyLife Home main
 ## TODO
 
 ### general
- - go to webpack 5
  - clean build warnings
-
-### common
- - nrpe binding
-   - https://www.npmjs.com/package/jnrpe-lib
-   - https://github.com/stockholmuniversity/Nagios-NRPE/blob/master/share/protocol-nrpe.md
- - publish os/app state
- - config access
- - logger
- - metadata: capabilities (keep compat with arduino) eg: osinfo, configurecomponents, ...
 
 ### core
  - store/mounted-fs
@@ -35,6 +25,7 @@ MyLife Home main
 
 ### deployment
  - openrc daemon: https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
+ - nrpe
 
 ## Notes
 
