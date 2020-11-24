@@ -114,6 +114,7 @@ const TaskSelector: FunctionComponent<{ value: string, onChange: (newValue: stri
       value={value}
       onChange={(event: any, newValue: string) => onChange(newValue)}
       options={tasksIds}
+      disableClearable
       renderInput={(params) => (
         <TextField {...params} label="Tâche" />
       )}
