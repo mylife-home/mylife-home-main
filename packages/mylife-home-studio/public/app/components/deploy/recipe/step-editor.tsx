@@ -15,7 +15,7 @@ import DeleteButton from '../../lib/delete-button';
 import { SortableListItem, SortableListMoveHandle } from '../../lib/sortable-list';
 import { RecipeIcon } from '../icons';
 import { AppState } from '../../../store/types';
-import { getRecipesIds } from '../../../store/deploy/selectors';
+import { getRecipesIds, getTasksIds } from '../../../store/deploy/selectors';
 import { StepConfig, StepType, RecipeStepConfig, TaskStepConfig } from '../../../store/deploy/types';
 
 export type SetStepConfig = (value: StepConfig) => void;
@@ -92,20 +92,46 @@ const DetailEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig
 };
 
 const TaskStepEditor: FunctionComponent<{ step: TaskStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
-  return <Typography>{'TaskStepEditor' + JSON.stringify(step)}</Typography>;
+  const handleTaskChange = (newTask: string) => {
+    const newStep: TaskStepConfig = { ...step, task: newTask, parameters: {} };
+    // TODO: init parameters
+    setStep(newStep);
+  };
+
+  return (
+    <>
+      <TaskSelector value={step.task} onChange={handleTaskChange} />
+      <Typography>{'TaskStepEditor' + JSON.stringify(step)}</Typography>
+    </>
+  );
+};
+
+const TaskSelector: FunctionComponent<{ value: string, onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
+  const tasksIds = useSelector(getTasksIds);
+
+  return (
+    <Autocomplete
+      value={value}
+      onChange={(event: any, newValue: string) => onChange(newValue)}
+      options={tasksIds}
+      renderInput={(params) => (
+        <TextField {...params} label="Tâche" />
+      )}
+    />
+  );
 };
 
 const RecipeStepEditor: FunctionComponent<{ step: RecipeStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
-  const handleChange = (newRecipe: string) => {
+  const handleRecipeChange = (newRecipe: string) => {
     const newStep: RecipeStepConfig = { ...step, recipe: newRecipe };
     setStep(newStep);
   };
 
-  return <RecipeSelector value={step.recipe} onChange={handleChange} />;
+  return <RecipeSelector value={step.recipe} onChange={handleRecipeChange} />;
 };
 
 const RecipeSelector: FunctionComponent<{ value: string, onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
-  const recipeIds = useSelector(getRecipesIds);
+  const recipesIds = useSelector(getRecipesIds);
 
   return (
     <Autocomplete
@@ -114,7 +140,7 @@ const RecipeSelector: FunctionComponent<{ value: string, onChange: (newValue: st
       selectOnFocus
       clearOnBlur
       handleHomeEndKeys
-      options={recipeIds}
+      options={recipesIds}
       freeSolo
       renderInput={(params) => (
         <TextField {...params} label="Recette" />
