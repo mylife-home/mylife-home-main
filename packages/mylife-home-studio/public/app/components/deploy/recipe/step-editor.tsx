@@ -24,6 +24,14 @@ const useStyles = makeStyles((theme) => ({
     '& > *': {
       margin: theme.spacing(0.5),
     },
+  },
+  buttonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  moveHandle: {
+    margin: theme.spacing(3)
   }
 }));
 
@@ -34,8 +42,8 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, 
       <Card className={classes.card} square>
         <CardContent className={classes.container}>
 
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            <SortableListMoveHandle />
+          <div className={classes.buttonsContainer}>
+            <SortableListMoveHandle className={classes.moveHandle} />
             <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
           </div>
 
