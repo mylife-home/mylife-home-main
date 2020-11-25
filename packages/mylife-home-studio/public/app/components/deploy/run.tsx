@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { Fragment, FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -8,7 +8,7 @@ import Link from '@material-ui/core/Link';
 import Divider from '@material-ui/core/Divider';
 
 import { AppState } from '../../store/types';
-import { Run, RunLogSeverity } from '../../store/deploy/types';
+import { Run, RunError, RunLogSeverity } from '../../store/deploy/types';
 import { getRun } from '../../store/deploy/selectors';
 import { humanizeDuration } from '../lib/durations';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
@@ -86,8 +86,11 @@ export function getRunIcon(run: Run) {
 
 const usePropsStyles = makeStyles((theme) => ({
   container: {
-    width: 900,
+    width: '100%',
     margin: theme.spacing(3),
+  },
+  error: {
+    color: theme.palette.error.main,
   },
 }));
 
@@ -105,42 +108,42 @@ const RunProps: FunctionComponent<{ className?: string; id: string }> = ({ class
 
   return (
     <Grid container spacing={3} className={clsx(classes.container, className)}>
-      <Grid item xs={2}>
+      <Grid item xs={1}>
         <Typography>État</Typography>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item xs={11}>
         <Typography>{STATUSES[run.status]}</Typography>
       </Grid>
 
-      <Grid item xs={2}>
+      <Grid item xs={1}>
         <Typography>Recette</Typography>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item xs={11}>
         <Link component="button" variant="body1" onClick={() => select({ type: 'recipe', id: run.recipe })}>
           {run.recipe}
         </Link>
       </Grid>
 
-      <Grid item xs={2}>
+      <Grid item xs={1}>
         <Typography>Début</Typography>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item xs={11}>
         <Typography>{formatTimestamp(run.creation)}</Typography>
       </Grid>
 
       {run.end && (
         <>
-          <Grid item xs={2}>
+          <Grid item xs={1}>
             <Typography>Fin</Typography>
           </Grid>
-          <Grid item xs={10}>
+          <Grid item xs={11}>
             <Typography>{formatTimestamp(run.end)}</Typography>
           </Grid>
 
-          <Grid item xs={2}>
+          <Grid item xs={1}>
             <Typography>Durée</Typography>
           </Grid>
-          <Grid item xs={10}>
+          <Grid item xs={11}>
             <Typography>{humanizeDuration(run.end.valueOf() - run.creation.valueOf())}</Typography>
           </Grid>
         </>
@@ -148,14 +151,11 @@ const RunProps: FunctionComponent<{ className?: string; id: string }> = ({ class
 
       {error && (
         <>
-          <Grid item xs={2}>
+          <Grid item xs={1}>
             <Typography>Erreur</Typography>
           </Grid>
-          <Grid item xs={10}>
-            <Typography>TODO</Typography>
-            <Typography>{error.name}</Typography>
-            <Typography>{error.message}</Typography>
-            <Typography>{error.stack}</Typography>
+          <Grid item xs={11}>
+            <Typography className={classes.error}>{formatError(error)}</Typography>
           </Grid>
         </>
       )}
@@ -215,4 +215,14 @@ const Text: FunctionComponent<{ value: string }> = ({ value }) => (
 
 function formatTimestamp(value: Date) {
   return value.toLocaleString('fr-FR');
+}
+
+function formatError(error: RunError) {
+  const lines = error.stack.split('\n');
+  return lines.map((line, index) => (
+    <Fragment key={index}>
+      {line}
+      {index < lines.length - 1 && <br />}
+    </Fragment>
+  ));
 }
