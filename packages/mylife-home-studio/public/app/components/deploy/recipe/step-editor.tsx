@@ -1,5 +1,8 @@
 import React, { FunctionComponent } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
+import { makeStyles, fade } from '@material-ui/core/styles';
+import blue from '@material-ui/core/colors/blue';
+import green from '@material-ui/core/colors/green';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -25,23 +28,34 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(0.5),
     },
   },
+  taskContainer: {
+    backgroundColor: fade(blue[100], 0.3),
+  },
+  recipeContainer: {
+    backgroundColor: fade(green[100], 0.3),
+  },
   buttonsContainer: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   moveHandle: {
-    margin: theme.spacing(3)
-  }
+    margin: theme.spacing(3),
+  },
 }));
 
-const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, onDelete: () => void }> = ({ step, setStep, onDelete }) => {
+const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; onDelete: () => void }> = ({ step, setStep, onDelete }) => {
   const classes = useStyles();
+  const containerClasses = clsx({
+    [classes.container]: true,
+    [classes.taskContainer]: step.type === 'task',
+    [classes.recipeContainer]: step.type === 'recipe',
+  });
+
   return (
     <SortableListItem useChildAsPreview>
       <Card className={classes.card} square>
-        <CardContent className={classes.container}>
-
+        <CardContent className={containerClasses}>
           <div className={classes.buttonsContainer}>
             <SortableListMoveHandle className={classes.moveHandle} />
             <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
@@ -51,7 +65,6 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, 
 
           <DetailEditor step={step} setStep={setStep} />
         </CardContent>
-
       </Card>
     </SortableListItem>
   );
@@ -63,7 +76,7 @@ const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepCo
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newType = event.target.value as StepType;
 
-    switch(newType) {
+    switch (newType) {
       case 'task': {
         const newStep: TaskStepConfig = { type: 'task', task: null, parameters: {} };
         setStep(newStep);
@@ -71,7 +84,7 @@ const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepCo
       }
 
       case 'recipe': {
-        const newStep: RecipeStepConfig = { type: 'recipe', recipe: null};
+        const newStep: RecipeStepConfig = { type: 'recipe', recipe: null };
         setStep(newStep);
         break;
       }
