@@ -29,10 +29,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   taskContainer: {
-    backgroundColor: fade(blue[100], 0.3),
+    backgroundColor: fade(blue[100], 0.2),
   },
   recipeContainer: {
-    backgroundColor: fade(green[100], 0.3),
+    backgroundColor: fade(green[100], 0.2),
   },
   buttonsContainer: {
     display: 'flex',
