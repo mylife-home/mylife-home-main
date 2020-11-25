@@ -6,7 +6,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { AppState } from '../../../store/types';
 import { getRecipesIds, getRecipe } from '../../../store/deploy/selectors';
 import { RecipeStepConfig } from '../../../store/deploy/types';
-import { SetStepConfig, useStyles } from './step-editor';
+import { SetStepConfig, useStyles, formatHelperText } from './step-common';
 
 const RecipeStepEditor: FunctionComponent<{ step: RecipeStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const handleRecipeChange = (newRecipe: string) => {
@@ -23,7 +23,7 @@ const RecipeSelector: FunctionComponent<{ value: string; onChange: (newValue: st
   const classes = useStyles();
   const recipesIds = useSelector(getRecipesIds);
   const recipe = useSelector((state: AppState) => getRecipe(state, value));
-  const description = recipe?.config?.description; // in case recipe is null
+  const helperText = formatHelperText(recipe?.config?.description); // in case recipe is null
 
   return (
     <Autocomplete
@@ -35,7 +35,7 @@ const RecipeSelector: FunctionComponent<{ value: string; onChange: (newValue: st
       handleHomeEndKeys
       options={recipesIds}
       freeSolo
-      renderInput={(params) => <TextField {...params} label="Recette" helperText={description} variant="outlined" className={classes.autoCompleteInput} />}
+      renderInput={(params) => <TextField {...params} label="Recette" helperText={helperText} variant="outlined" className={classes.autoCompleteInput} />}
     />
   );
 };

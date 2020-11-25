@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { makeStyles, fade } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -9,14 +9,14 @@ import Radio from '@material-ui/core/Radio';
 import DeleteButton from '../../lib/delete-button';
 import { SortableListItem, SortableListMoveHandle } from '../../lib/sortable-list';
 import { StepConfig, StepType, RecipeStepConfig, TaskStepConfig } from '../../../store/deploy/types';
+import { SetStepConfig } from './step-common';
 import RecipeStepEditor from './recipe-step-editor';
 import TaskStepEditor from './task-step-editor';
 
-export type SetStepConfig = (value: StepConfig) => void;
-
-export const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   card: {
     width: '100%',
+    height: 120, // allow several lines of helper text to diplay properly
   },
   container: {
     display: 'flex',
@@ -24,14 +24,6 @@ export const useStyles = makeStyles((theme) => ({
     '& > *': {
       margin: theme.spacing(0.5),
     },
-  },
-  itemWidth: {
-    width: 200
-  },
-  // try to remove this pate when Autocomplete is more stable
-  autoCompleteInput: {
-    marginTop: -6,
-    marginBottom: 0
   }
 }));
 
@@ -42,8 +34,11 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig, 
       <Card className={classes.card} square>
         <CardContent className={classes.container}>
 
-          <SortableListMoveHandle />
-          <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+          <div style={{display: 'flex', flexDirection: 'column'}}>
+            <SortableListMoveHandle />
+            <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+          </div>
+
           <StepTypeSelector step={step} setStep={setStep} />
 
           <DetailEditor step={step} setStep={setStep} />
@@ -76,7 +71,7 @@ const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepCo
   };
 
   return (
-    <RadioGroup row value={step.type} onChange={handleChange}>
+    <RadioGroup value={step.type} onChange={handleChange}>
       <FormControlLabel value="task" control={<Radio size="small" />} label="Tâche" />
       <FormControlLabel value="recipe" control={<Radio size="small" />} label="Recette" />
     </RadioGroup>

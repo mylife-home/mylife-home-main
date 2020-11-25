@@ -16,10 +16,12 @@ import { useResetSelectionIfNull } from '../selection';
 import { RecipeIcon } from '../icons';
 import { Container, Title } from '../layout';
 import RecipeActions from '../recipe-actions';
-import StepEditor, { SetStepConfig } from './step-editor';
 import { AppState } from '../../../store/types';
 import { getRecipe } from '../../../store/deploy/selectors';
+
 import { useRecipeConfigState, useStepOperations, RecipeConfigWithIds, SetRecipeConfig } from './use-recipe-config-state';
+import StepEditor from './step-editor';
+import { SetStepConfig } from './step-common';
 
 const Recipe: FunctionComponent<{ id: string }> = ({ id }) => {
   const recipe = useSelector((state: AppState) => getRecipe(state, id));

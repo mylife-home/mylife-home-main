@@ -6,7 +6,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { AppState } from '../../../store/types';
 import { getTasksIds, getTask, getTaskGetter } from '../../../store/deploy/selectors';
 import { TaskStepConfig, Task, TaskParameters } from '../../../store/deploy/types';
-import { SetStepConfig, useStyles } from './step-editor';
+import { SetStepConfig, useStyles, formatHelperText } from './step-common';
 
 const TaskStepEditor: FunctionComponent<{ step: TaskStepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const getTask = useSelector(getTaskGetter);
@@ -46,7 +46,7 @@ const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: stri
   const classes = useStyles();
   const tasksIds = useSelector(getTasksIds);
   const taskMeta = useSelector((state: AppState) => getTask(state, value));
-  const description = taskMeta?.metadata?.description; // in case task is null
+  const helperText = formatHelperText(taskMeta?.metadata?.description); // in case task is null
 
   return (
     <Autocomplete
@@ -55,7 +55,7 @@ const TaskSelector: FunctionComponent<{ value: string; onChange: (newValue: stri
       onChange={(event: React.ChangeEvent, newValue: string) => onChange(newValue)}
       options={tasksIds}
       disableClearable
-      renderInput={(params) => <TextField {...params} label="Tâche" helperText={description} variant="outlined" className={classes.autoCompleteInput} />}
+      renderInput={(params) => <TextField {...params} label="Tâche" helperText={helperText} variant="outlined" className={classes.autoCompleteInput} />}
     />
   );
 };
@@ -76,7 +76,7 @@ const TaskParametersEditor: FunctionComponent<{ task: string; parameters: TaskPa
           key={parameter.name}
           className={classes.itemWidth}
           label={parameter.name}
-          helperText={parameter.description}
+          helperText={formatHelperText(parameter.description)}
           variant="outlined"
           value={parameters[parameter.name] || ''}
           onChange={(e) => onChange(parameter.name, e.target.value)}
