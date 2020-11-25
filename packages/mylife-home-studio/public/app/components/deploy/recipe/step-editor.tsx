@@ -93,8 +93,8 @@ const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepCo
 
   return (
     <RadioGroup value={step.type} onChange={handleChange}>
-      <FormControlLabel value="task" control={<Radio size="small" />} label="Tâche" />
-      <FormControlLabel value="recipe" control={<Radio size="small" />} label="Recette" />
+      <FormControlLabel value="task" control={<Radio size="small" color="primary" />} label="Tâche" />
+      <FormControlLabel value="recipe" control={<Radio size="small" color="primary" />} label="Recette" />
     </RadioGroup>
   );
 };
