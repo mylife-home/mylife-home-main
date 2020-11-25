@@ -16,5 +16,5 @@ export const useStyles = makeStyles((theme) => ({
 
 export function formatHelperText(text: string) {
   // avoid line breaks on - (use non-breaking hyphens)
-  return text.replace(/-/g, '\u2011');
+  return text && text.replace(/-/g, '\u2011');
 }
