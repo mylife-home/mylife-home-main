@@ -72,7 +72,7 @@ car que sensor vers ui
 # TODO
 
 ## ui
-- fix layout bugs (popup, fixed numbers)
+- fix temp fixed numbers
 - fix failure on ipad
 
 ## core
