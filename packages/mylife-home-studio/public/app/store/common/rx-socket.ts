@@ -19,6 +19,25 @@ export interface EndRequestEvent extends RequestEvent {
   type: 'end';
 }
 
+class ServerError extends Error {
+  public readonly serverType: string;
+  public readonly serverStack: string;
+
+  constructor(serverError: { type: string; message: string; stack: string; }) {
+    super(`An error occured server-side: ${serverError.message}`);
+    this.serverType = serverError.type;
+    this.serverStack = serverError.stack;
+  }
+}
+
+class IdGenerator {
+  private counter = 0;
+
+  generate() {
+    return `${++this.counter}`;
+  }
+}
+
 export class RxSocket {
   private readonly socket = SocketIOClient();
   private readonly request$ = new Subject<RequestEvent>();
@@ -114,22 +133,3 @@ export class RxSocket {
 }
 
 export const socket = new RxSocket();
-
-class ServerError extends Error {
-  public readonly serverType: string;
-  public readonly serverStack: string;
-
-  constructor(serverError: { type: string; message: string; stack: string; }) {
-    super(`An error occured server-side: ${serverError.message}`);
-    this.serverType = serverError.type;
-    this.serverStack = serverError.stack;
-  }
-}
-
-class IdGenerator {
-  private counter = 0;
-
-  generate() {
-    return `${++this.counter}`;
-  }
-}
