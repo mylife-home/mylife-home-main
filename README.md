@@ -57,3 +57,20 @@ MyLife Home main
 #### Migrer absoluta
 
 car que sensor vers ui
+
+### Next tasks
+
+- packager
+  - fix build warnings
+- ui
+  - fix layout bugs (popup, fixed numbers)
+  - fix failure on ipad
+- studio
+  - core designer:
+    - main -> toolbox
+    - storage (git?)
+    - deploy
+  - ui designer
+    - main
+    - storage (git?)
+    - deploy
