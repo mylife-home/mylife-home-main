@@ -43,6 +43,16 @@ export class RxSocket {
   private readonly request$ = new Subject<RequestEvent>();
   private readonly requestIdGenerator = new IdGenerator();
 
+  constructor() {
+    this.socket.on('disconnect', (reason: string) => {
+      // failure on network === 'transport closed'
+      if(reason === 'io server disconnect') {
+        // need to reconnect manually
+        this.socket.connect();
+      }
+    });
+  }
+
   online() {
     const connect$ = fromEvent<void>(this.socket, 'connect');
     const disconnect$ = fromEvent<void>(this.socket, 'disconnect');
