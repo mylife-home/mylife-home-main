@@ -14,6 +14,11 @@ const useStyles = makeStyles((theme) => ({
     // backgroundColor: theme.palette.grey[100],
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
+
+    '& > *': {
+      marginLeft: theme.spacing(4),
+      marginRight: theme.spacing(4),
+    },
   },
   middle: {
     flex: 1,
@@ -24,7 +29,7 @@ const StatusBar: FunctionComponent<{className ?: string; }> = ({ className, chil
   const classes = useStyles();
 
   return (
-    <Toolbar className={clsx(className, classes.root)}>
+    <Toolbar className={clsx(className, classes.root)} disableGutters>
       {children}
     </Toolbar>
   );
