@@ -5,15 +5,19 @@ import Typography from '@material-ui/core/Typography';
 
 import CloseIcon from '@material-ui/icons/Close';
 import CheckIcon from '@material-ui/icons/Check';
+import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
 
 import { name, version } from '../../../../package.json';
-import { isOnline } from '../../store/status/selectors';
+import { isOnline, getRunningRequestsIds } from '../../store/status/selectors';
 import StatusBar, { StatusSeparator, StatusItem } from '../lib/status-bar';
 
 const useStyles = makeStyles((theme) => ({
   errorIcon: {
     color: theme.palette.error.main,
   },
+  waitingIcon: {
+    color: theme.palette.warning.main,
+  }
 }));
 
 const Status: FunctionComponent<{className ?: string; }> = ({ className }) => {
@@ -41,12 +45,24 @@ const Connection: FunctionComponent = () => {
 
   return (
     <StatusItem>
-      <Typography>Connexion : </Typography>
+      <Typography>{`Connexion `}</Typography>
       {online ? <CheckIcon /> : <CloseIcon className={classes.errorIcon} />}
     </StatusItem>
   );
 }
 
 const RunningRequests: FunctionComponent = () => {
-  return <Typography>RunningRequests</Typography>;
+  const classes = useStyles();
+  const ids = useSelector(getRunningRequestsIds);
+  // TODO: popup with requests detail (when it becomes relevant)
+
+  const count = ids.length;
+  const name = count > 1 ? 'requêtes' : 'requête';
+
+  return  (
+    <StatusItem>
+      <Typography>{`${count} ${name} en cours `}</Typography>
+      {count > 0 ? <HourglassEmptyIcon className={classes.waitingIcon} /> : <CheckIcon />}
+    </StatusItem>
+  );
 }
