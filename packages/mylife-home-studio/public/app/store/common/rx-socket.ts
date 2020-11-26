@@ -10,7 +10,7 @@ export interface RequestEvent {
   id: string;
 }
 
-export interface StartRequestEvent extends RequestEvent {
+export interface BeginRequestEvent extends RequestEvent {
   type: 'begin';
   service: string;
 }
@@ -53,7 +53,7 @@ export class RxSocket {
   private async wrapServiceCall(service: string, payload: any) {
     const id = this.requestIdGenerator.generate();
     
-    this.request$.next({ type: 'begin', id, service } as StartRequestEvent);
+    this.request$.next({ type: 'begin', id, service } as BeginRequestEvent);
     try {
       return await this.serviceCall(id, service, payload);
     } finally {
