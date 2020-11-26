@@ -3,12 +3,17 @@ import { ActionTypes, StatusState } from './types';
 
 const initialState: StatusState = {
   online: false,
-  error: null
+  busy: false,
+  error: null,
 };
 
 export default createReducer(initialState, {
   [ActionTypes.ONLINE]: (state, action: PayloadAction<boolean>) => {
     state.online = action.payload;
+  },
+
+  [ActionTypes.BUSY]: (state, action: PayloadAction<boolean>) => {
+    state.busy = action.payload;
   },
 
   [ActionTypes.SET_ERROR]: (state, action: PayloadAction<Error>) => {
