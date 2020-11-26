@@ -3,12 +3,14 @@ import { Mode, getConfigurationFactory, createContext } from '../webpack.config'
 
 export class WebpackBuild {
   private readonly compiler: Compiler;
+  private readonly statsOptions: any;
 
   constructor(binary: string, part: string, mode: Mode) {
     const context = createContext(mode);
     const configurationFactory = getConfigurationFactory(binary, part);
     const config = configurationFactory(context);
 
+    this.statsOptions = config.stats;
     this.compiler = webpack(config);
     Object.assign(this.task, { displayName: `webpack-build - ${binary}/${part} (${mode})` });
   }
@@ -22,7 +24,7 @@ export class WebpackBuild {
 
         if (stats.hasErrors() || stats.hasWarnings()) {
           // seen in https://github.com/webpack/webpack-cli/blob/next/packages/webpack-cli/lib/utils/CompilerOutput.js
-          process.stdout.write(stats.toString({ colors: true }) + '\n');
+          process.stdout.write(stats.toString({ ...this.statsOptions, colors: true }) + '\n');
         }
 
         if (stats.hasErrors()) {

@@ -20,24 +20,10 @@ export default (context: Context) => ({
     new DefinePlugin({
       __WEBPACK_BUILD_INFO__: JSON.stringify(createBuildInfo()),
     }),
-
-    ignore(/^utf-8-validate$/, /node_modules\/ws\/lib$/),
-    ignore(/^bufferutil$/, /node_modules\/ws\/lib$/),
-    ignore(/^.\/src\/build$/, /node_modules\/dtrace-provider$/),
-
-    // irc optional encoding
-    ignore(/^node-icu-charset-detector$/, /node_modules\/irc\/lib$/),
-    ignore(/^iconv$/, /node_modules\/irc\/lib$/),
   ],
   stats: {
-    // https://github.com/yargs/yargs/blob/HEAD/docs/webpack.md#webpack-configuration
-    // Ignore warnings due to yarg's dynamic module loading
-    warningsFilter: [
-      /node_modules\/yargs/,
-      /node_modules\/get-caller-file/,
-      /node_modules\/require-main-filename/,
-    ],
-  },
+    warningsFilter: createWarningFilter('yargs', 'dtrace-provider', 'get-caller-file', 'ws', 'chokidar', 'express', 'engine.io', 'socket.io')
+  }
 }) as Configuration;
 
 interface ModuleInfo {
@@ -62,6 +48,19 @@ function createBuildInfo() {
   return { timestamp: Date.now(), modules };
 }
 
-function ignore(resourceRegExp: RegExp, contextRegExp: RegExp) {
-  return new IgnorePlugin({ resourceRegExp, contextRegExp });
+function createWarningFilter(...modules: string[]) {
+  return (warning: any) => {
+    const name: string = warning.moduleName;
+    if(typeof name !== 'string') {
+      return false;
+    }
+
+    for(const module of modules) {
+      if(name.includes(`/node_modules/${module}/`)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
