@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import TabPanel from '../lib/tab-panel';
 import Panel from './panel';
+import StatusBar from './status-bar';
 
 import { closeTab, activateTab, moveTab } from '../../store/tabs/actions';
 import { getTabList, getSelectedTabId } from '../../store/tabs/selectors';
@@ -11,6 +12,14 @@ import { getTabList, getSelectedTabId } from '../../store/tabs/selectors';
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  tabPanel: {
+    flex: 1,
+  },
+  statusBar: {
+
   }
 }));
 
@@ -19,15 +28,21 @@ const Layout: FunctionComponent = () => {
   const classes = useStyles();
 
   return (
-    <TabPanel
-      className={classes.root}
-      items={tabs}
-      selectedId={selectedId}
-      onClose={closeTab}
-      onMove={moveTab}
-      onSelect={activateTab}
-      panelComponent={Panel}
-    />
+    <div className={classes.root}>
+
+      <TabPanel
+        className={classes.tabPanel}
+        items={tabs}
+        selectedId={selectedId}
+        onClose={closeTab}
+        onMove={moveTab}
+        onSelect={activateTab}
+        panelComponent={Panel}
+      />
+
+      <StatusBar className={classes.statusBar} />
+
+    </div>
   );
 };
 
