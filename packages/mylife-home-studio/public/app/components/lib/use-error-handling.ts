@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
-import { useActions } from './use-actions';
+import { useAction } from './use-actions';
 import { setError } from '../../store/status/actions';
 
 export function useReportError(): (err: Error) => void {
-  const actions = useActions({ setError });
-  return actions.setError;
+  return useAction(setError);
 }
 
 export function useFireAsync() {
