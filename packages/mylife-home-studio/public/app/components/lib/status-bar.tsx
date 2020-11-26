@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: STATUS_HEIGHT,
     height: STATUS_HEIGHT,
-    
+
     // backgroundColor: theme.palette.grey[100],
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -20,12 +20,17 @@ const useStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(4),
     },
   },
-  middle: {
+  separator: {
     flex: 1,
-  }
+  },
+  item: {
+    display: 'flex',
+    alignItems: 'center',
+    height: '100%',
+  },
 }));
 
-const StatusBar: FunctionComponent<{className ?: string; }> = ({ className, children }) => {
+const StatusBar: FunctionComponent<{ className?: string }> = ({ className, children }) => {
   const classes = useStyles();
 
   return (
@@ -39,6 +44,12 @@ export default StatusBar;
 
 export const StatusSeparator: FunctionComponent = () => {
   const classes = useStyles();
-  
-  return <div className={classes.middle} />
-}
+
+  return <div className={classes.separator} />;
+};
+
+export const StatusItem: FunctionComponent = ({ children }) => {
+  const classes = useStyles();
+
+  return <div className={classes.item}>{children}</div>;
+};
