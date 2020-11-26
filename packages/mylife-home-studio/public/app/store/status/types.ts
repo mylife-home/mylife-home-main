@@ -1,12 +1,13 @@
 export const enum ActionTypes {
   ONLINE = 'status/online',
-  BUSY = 'status/busy',
+  BEGIN_REQUEST = 'status/begin-request',
+  END_REQUEST = 'status/end-request',
   SET_ERROR = 'status/set-error',
   CLEAR_ERROR = 'status/clear-error',
 }
 
 export interface StatusState {
   online: boolean;
-  busy: boolean;
+  runningRequests: number;
   error: Error;
 }
