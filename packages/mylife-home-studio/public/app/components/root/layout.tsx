@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import TabPanel from '../lib/tab-panel';
 import Panel from './panel';
-import StatusBar from './status-bar';
+import Status from './status';
 
 import { closeTab, activateTab, moveTab } from '../../store/tabs/actions';
 import { getTabList, getSelectedTabId } from '../../store/tabs/selectors';
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   tabPanel: {
     flex: 1,
   },
-  statusBar: {
+  status: {
 
   }
 }));
@@ -40,7 +40,7 @@ const Layout: FunctionComponent = () => {
         panelComponent={Panel}
       />
 
-      <StatusBar className={classes.statusBar} />
+      <Status className={classes.status} />
 
     </div>
   );

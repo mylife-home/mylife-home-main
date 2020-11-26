@@ -1,6 +1,5 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
-import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Toolbar from '@material-ui/core/Toolbar';
@@ -18,12 +17,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const StatusBar: FunctionComponent<{className ?: string; }> = ({ className }) => {
+const StatusBar: FunctionComponent<{className ?: string; }> = ({ className, children }) => {
   const classes = useStyles();
 
   return (
     <Toolbar className={clsx(className, classes.root)}>
-      TODO
+      {children}
     </Toolbar>
   );
 };
