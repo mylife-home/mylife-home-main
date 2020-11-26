@@ -2,9 +2,6 @@
 
 # Notes:
 
-## TODO
- - display status information (disconnected, busy, error)
-
 ## Archi
  - Keep:
    - Deploy (tâche pour faire image + livraison ssh)
