@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Toolbar from '@material-ui/core/Toolbar';
 
-const STATUS_HEIGHT = 36;
+const STATUS_HEIGHT = 24;
 
 const useStyles = makeStyles((theme) => ({
   root: {
