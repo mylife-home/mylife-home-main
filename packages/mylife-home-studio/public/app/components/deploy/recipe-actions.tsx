@@ -7,7 +7,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import DeleteButton from '../lib/delete-button';
 import { useFireAsync } from '../lib/use-error-handling';
-import { useActions } from '../lib/use-actions';
+import { useAction } from '../lib/use-actions';
 import { useInputDialog } from '../dialogs/input';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { clearRecipe, pinRecipe, startRecipe, setRecipe } from '../../store/deploy/actions';
@@ -74,6 +74,7 @@ function useRecipeConnect(id: string) {
   const dispatch = useDispatch();
   return {
     recipe: useSelector((state: AppState) => getRecipe(state, id)),
+    setRecipe: useAction(setRecipe),
     ...useMemo(
       () => ({
         clear: () => dispatch(clearRecipe(id)),
@@ -82,7 +83,6 @@ function useRecipeConnect(id: string) {
       }),
       [dispatch, id]
     ),
-    ...useActions({ setRecipe }),
   };
 }
 

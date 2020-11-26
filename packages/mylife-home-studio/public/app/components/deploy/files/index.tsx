@@ -17,7 +17,7 @@ import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../../stor
 import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
 import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
-import { useActions } from '../../lib/use-actions';
+import { useAction } from '../../lib/use-actions';
 import { useInputDialog } from '../../dialogs/input';
 import { useConfirmDialog } from '../../dialogs/confirm';
 import { Container, Title } from '../layout';
@@ -157,7 +157,7 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
 
 function useUploadFiles() {
   const files = useSelector(getFilesIds);
-  const actions = useActions({ uploadFiles });
+  const upload = useAction(uploadFiles);
   const fireAsync = useFireAsync();
   const showConfirm = useConfirmDialog();
 
@@ -166,7 +166,7 @@ function useUploadFiles() {
     const overwriteList = uploadFiles.filter(file => fileSet.has(file.name)).map(file => file.name);
 
     if (overwriteList.length === 0) {
-      actions.uploadFiles(uploadFiles);
+      upload(uploadFiles);
       return;
     }
 
@@ -174,7 +174,7 @@ function useUploadFiles() {
       const message = 'Vous allez écraser les fichiers suivants :\n' + overwriteList.join('\n');
       const { status } = await showConfirm({ message });
       if (status === 'ok') {
-        actions.uploadFiles(uploadFiles);
+        upload(uploadFiles);
       }
     });
   };

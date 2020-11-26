@@ -10,7 +10,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 
 import { useFireAsync } from '../lib/use-error-handling';
-import { useActions } from '../lib/use-actions';
+import { useAction } from '../lib/use-actions';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { setRecipe } from '../../store/deploy/actions';
 import { RecipeConfig } from '../../store/deploy/types';
@@ -95,6 +95,6 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
 function useRecipesConnect() {
   return {
     recipesIds: useSelector(getRecipesIds),
-    ...useActions({ setRecipe })
+    setRecipe: useAction(setRecipe)
   };
 }

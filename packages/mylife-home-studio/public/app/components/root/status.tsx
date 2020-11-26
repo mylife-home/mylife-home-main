@@ -1,8 +1,7 @@
-import React, { FunctionComponent, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-
 import CloseIcon from '@material-ui/icons/Close';
 import CheckIcon from '@material-ui/icons/Check';
 import HourglassEmptyIcon from '@material-ui/icons/HourglassEmpty';
