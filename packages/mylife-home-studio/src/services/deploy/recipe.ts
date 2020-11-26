@@ -19,7 +19,7 @@ export class Recipe {
   constructor(public readonly id: string) {
     const fullname = path.join(directories.recipes(), id + '.json');
     if (!fs.existsSync(fullname)) {
-      throw new Error(`not such recipe : '${id}'`);
+      throw new Error(`No such recipe : '${id}'`);
     }
 
     const { steps } = JSON.parse(fs.readFileSync(fullname, 'utf8')) as RecipeConfig;
