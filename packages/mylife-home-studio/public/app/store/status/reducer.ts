@@ -1,9 +1,10 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, StatusState } from './types';
+import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
+import { ActionTypes, StatusState, RunningRequest } from './types';
 
 const initialState: StatusState = {
   online: false,
-  runningRequests: 0,
+  runningRequests: createTable<RunningRequest>(),
   error: null,
 };
 
@@ -12,12 +13,14 @@ export default createReducer(initialState, {
     state.online = action.payload;
   },
 
-  [ActionTypes.BEGIN_REQUEST]: (state) => {
-    ++state.runningRequests;
+  [ActionTypes.BEGIN_REQUEST]: (state, action: PayloadAction<{ id: string; service: string; }>) => {
+    const { id, service } = action.payload;
+    const begin = new Date();
+    tableAdd(state.runningRequests, { id, service, begin }, true);
   },
 
-  [ActionTypes.END_REQUEST]: (state) => {
-    --state.runningRequests;
+  [ActionTypes.END_REQUEST]: (state, action: PayloadAction<string>) => {
+    tableRemove(state.runningRequests, action.payload);
   },
 
   [ActionTypes.SET_ERROR]: (state, action: PayloadAction<Error>) => {

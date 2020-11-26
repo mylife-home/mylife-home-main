@@ -1,3 +1,5 @@
+import { Table } from '../common/types';
+
 export const enum ActionTypes {
   ONLINE = 'status/online',
   BEGIN_REQUEST = 'status/begin-request',
@@ -6,8 +8,14 @@ export const enum ActionTypes {
   CLEAR_ERROR = 'status/clear-error',
 }
 
+export interface RunningRequest {
+  id: string;
+  service: string;
+  begin: Date;
+}
+
 export interface StatusState {
   online: boolean;
-  runningRequests: number;
+  runningRequests: Table<RunningRequest>;
   error: Error;
 }
