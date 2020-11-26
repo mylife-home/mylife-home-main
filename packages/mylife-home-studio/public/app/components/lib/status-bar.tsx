@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
     // backgroundColor: theme.palette.grey[100],
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
+  },
+  middle: {
+    flex: 1,
   }
 }));
 
@@ -28,3 +31,9 @@ const StatusBar: FunctionComponent<{className ?: string; }> = ({ className, chil
 };
 
 export default StatusBar;
+
+export const StatusSeparator: FunctionComponent = () => {
+  const classes = useStyles();
+  
+  return <div className={classes.middle} />
+}
