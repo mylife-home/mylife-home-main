@@ -1,6 +1,3 @@
-# mylife-home-main
-MyLife Home main
-
 # General
 
 ## Update packages
@@ -35,31 +32,30 @@ Si on veut faire des modifs nommées, c'est des branches, et on squash/merge a l
 
 ### Client-side model
   
- - on connection, 
+- on connection, 
   - server send StaticModel hash, and ControlState values
   - client download (or hit cache) static model, init views[0] depending on url hash + defaultWindow
- - control state updates by websocket
- - actions component by websocket
- - action window only impact 'views' (so client only)
- - on server model change (update from studio), it resend static model hash
-
+- control state updates by websocket
+- actions component by websocket
+- action window only impact 'views' (so client only)
+- on server model change (update from studio), it resend static model hash
 
 # Roadmap
 
 ## Livrer irc-bridge + ui:
 
- - nouveau core
-   - rpi-home-core new (rpi3)
-   - creation du projet core avec juste les composants irc-bridge
-   - livraison avec nouveau deploy  
-   - nouvelle image alpine
-   - mosquitto
-   - core avec plugin irc-bridge
+- nouveau core
+  - rpi-home-core new (rpi3)
+  - creation du projet core avec juste les composants irc-bridge
+  - livraison avec nouveau deploy  
+  - nouvelle image alpine
+  - mosquitto
+  - core avec plugin irc-bridge
 
- - ui
-   - livraison sur kube
-   - accessible en lan sans auth
-   - accessible en remote avec auth
+- ui
+  - livraison sur kube
+  - accessible en lan sans auth
+  - accessible en remote avec auth
 
 => validation:
  - designer core
@@ -73,40 +69,36 @@ Si on veut faire des modifs nommées, c'est des branches, et on squash/merge a l
 
 car que sensor vers ui
 
-## TODO
+# TODO
 
-### general
- - clean build warnings
+## packager
+- fix build warnings
 
-### core
+## ui
+- fix layout bugs (popup, fixed numbers)
+- fix failure on ipad
+
+## core
  - store/mounted-fs
 
-### emulator
- - docker pi for raspbian: https://github.com/lukechilds/dockerpi
- - custom qemu raspbian kernel: https://github.com/dhruvvyas90/qemu-rpi-kernel
- - alpine qemu arm: https://superuser.com/questions/1397991/running-alpine-linux-on-qemu-arm-guests
- - cross-platform build tools: https://github.com/DDoSolitary/alpine-repo - https://github.com/DDoSolitary/alpine-repo/tree/docker
+## studio
+- core designer:
+  - main -> toolbox
+  - storage (git?)
+  - deploy
+- ui designer
+  - main
+  - storage (git?)
+  - deploy
 
-### deployment
- - openrc daemon: https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
- - nrpe
+# Notes
 
-## Notes
+## emulator
+- docker pi for raspbian: https://github.com/lukechilds/dockerpi
+- custom qemu raspbian kernel: https://github.com/dhruvvyas90/qemu-rpi-kernel
+- alpine qemu arm: https://superuser.com/questions/1397991/running-alpine-linux-on-qemu-arm-guests
+- cross-platform build tools: https://github.com/DDoSolitary/alpine-repo - https://github.com/DDoSolitary/alpine-repo/tree/docker
 
-
-### Next tasks
-
-- packager
-  - fix build warnings
-- ui
-  - fix layout bugs (popup, fixed numbers)
-  - fix failure on ipad
-- studio
-  - core designer:
-    - main -> toolbox
-    - storage (git?)
-    - deploy
-  - ui designer
-    - main
-    - storage (git?)
-    - deploy
+## deployment
+- openrc daemon: https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
+- nrpe
