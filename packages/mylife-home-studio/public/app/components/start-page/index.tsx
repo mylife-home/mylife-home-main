@@ -6,7 +6,6 @@ import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
 import { useActions } from '../lib/use-actions';
-import { NewTabData } from '../../store/tabs/types';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
   newCoreDesignerTab, newUiDesignerTab,
