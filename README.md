@@ -71,9 +71,6 @@ car que sensor vers ui
 
 # TODO
 
-## packager
-- fix build warnings
-
 ## ui
 - fix layout bugs (popup, fixed numbers)
 - fix failure on ipad
