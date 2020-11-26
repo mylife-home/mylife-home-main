@@ -5,7 +5,7 @@ import Typography from '@material-ui/core/Typography';
 
 import StatusBar, { StatusSeparator } from '../lib/status-bar';
 
-import { version } from '../../../../package.json';
+import { name, version } from '../../../../package.json';
 
 const useStyles = makeStyles((theme) => ({
 }));
@@ -26,7 +26,7 @@ const Status: FunctionComponent<{className ?: string; }> = ({ className }) => {
 export default Status;
 
 const Version: FunctionComponent = () => {
-  return <Typography>{`v${version}`}</Typography>;
+  return <Typography>{`${name} v${version}`}</Typography>;
 }
 
 const Connection: FunctionComponent = () => {
