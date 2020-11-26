@@ -19,7 +19,6 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
   },
   status: {
-
   }
 }));
 
