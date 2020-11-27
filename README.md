@@ -74,6 +74,7 @@ car que sensor vers ui
 ## ui
 - fix temp fixed numbers
 - fix failure on ipad
+- dynamic model + model store
 
 ## core
  - store/mounted-fs
