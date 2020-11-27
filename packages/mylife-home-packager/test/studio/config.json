@@ -10,9 +10,11 @@
     "staticDirectory": "./static"
   },
   "projectManager": {
-    "localPath": "/tmp/mylife-home-projects",
-    "githubUrl": "https://github.com/vincent-tr/mylife-home-projects-dev",
-    "githubToken": "%{GITHUB_TOKEN}"
+    "uiPath": "../../../studio-data/ui-projects",
+    "corePath": "../../../studio-data/core-projects",
+    "__old__localPath": "/tmp/mylife-home-projects",
+    "__old__githubUrl": "https://github.com/vincent-tr/mylife-home-projects-dev",
+    "__old__githubToken": "%{GITHUB_TOKEN}"
   },
   "deploy": {
     "filesPath": "../../../studio-data/files",
