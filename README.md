@@ -100,3 +100,10 @@ car que sensor vers ui
 ## deployment
 - openrc daemon: https://stackoverflow.com/questions/8251933/how-can-i-log-the-stdout-of-a-process-started-by-start-stop-daemon
 - nrpe
+
+## git
+- diff:
+  - https://isomorphic-git.org/docs/en/walk
+  - https://www.npmjs.com/package/diff
+- merge --squash
+  - https://stackoverflow.com/a/25387972/12023515
