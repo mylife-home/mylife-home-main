@@ -59,8 +59,8 @@ export class Client extends EventEmitter {
     // wait 1 sec after last message receive
     const { promise: sleepPromise, reset: resetSleep } = sleepWithReset(this.residentStateDelay);
 
-    const clearTopic = (topic: string, payload: Buffer) => {
-      if (topic.startsWith(this.instanceName + '/')) {
+    const clearTopic = (topic: string, payload: Buffer, packet: mqtt.IPublishPacket) => {
+      if (packet.retain && topic.startsWith(this.instanceName + '/')) {
         resetSleep();
         fireAsync(() => this.clearRetain(topic));
       }
