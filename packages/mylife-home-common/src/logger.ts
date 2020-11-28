@@ -42,9 +42,18 @@ export function readConfig() {
 
   if (config.console) {
     addStream({
-      stream: new TryStdOut(),
+      stream: process.stdout,
       closeOnExit: false,
       level: Logger.DEBUG,
+    });
+
+    // https://github.com/trentm/node-bunyan/issues/491#issuecomment-350327630
+    process.stdout.on('error', (err: any) => {
+      if (err.code === 'EPIPE') {
+        // ignore
+      } else {
+        throw err;
+      }
     });
   }
 
@@ -53,17 +62,5 @@ export function readConfig() {
       stream: new RotatingFileStream(config.file),
       level: Logger.DEBUG,
     });
-  }
-}
-
-// https://github.com/trentm/node-bunyan/issues/491#issuecomment-350327630
-class TryStdOut extends Writable {
-  _write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
-    try {
-      process.stdout.write(chunk, encoding, callback);
-    } catch(err) {
-      console.log('TryStdOut error', err.code);
-      throw err;
-    }
   }
 }
