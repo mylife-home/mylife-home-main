@@ -1,3 +1,4 @@
+import { Writable } from 'stream';
 import Logger from 'bunyan';
 import RotatingFileStream from 'bunyan-rotating-file-stream';
 import { getConfigItem } from './tools';
@@ -41,7 +42,7 @@ export function readConfig() {
 
   if (config.console) {
     addStream({
-      stream: process.stdout,
+      stream: new TryStdOut(),
       closeOnExit: false,
       level: Logger.DEBUG,
     });
@@ -52,5 +53,20 @@ export function readConfig() {
       stream: new RotatingFileStream(config.file),
       level: Logger.DEBUG,
     });
+  }
+}
+
+// https://github.com/trentm/node-bunyan/issues/491#issuecomment-350327630
+class TryStdOut extends Writable {
+  _write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
+    try {
+      process.stdout._write(chunk, encoding, callback);
+    } catch(err) {
+      if (err.code === 'EPIPE') {
+        // ignore
+      } else {
+        throw err;
+      }
+    }
   }
 }
