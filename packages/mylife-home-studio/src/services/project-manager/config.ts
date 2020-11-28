@@ -1,4 +1,4 @@
-interface Config {
+export interface Config {
   uiPath: string;
   corePath: string;
 }
