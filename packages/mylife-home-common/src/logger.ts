@@ -60,13 +60,10 @@ export function readConfig() {
 class TryStdOut extends Writable {
   _write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
     try {
-      process.stdout._write(chunk, encoding, callback);
+      process.stdout.write(chunk, encoding, callback);
     } catch(err) {
-      if (err.code === 'EPIPE') {
-        // ignore
-      } else {
-        throw err;
-      }
+      console.log('TryStdOut error', err.code);
+      throw err;
     }
   }
 }
