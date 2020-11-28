@@ -47,7 +47,7 @@ export function readConfig() {
       level: Logger.DEBUG,
     });
 
-    // https://github.com/trentm/node-bunyan/issues/491#issuecomment-350327630
+    // https://github.com/trentm/node-bunyan/issues/491
     process.stdout.on('error', (err: any) => {
       if (err.code === 'EPIPE') {
         // ignore
