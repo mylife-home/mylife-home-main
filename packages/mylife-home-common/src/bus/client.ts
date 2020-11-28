@@ -60,7 +60,8 @@ export class Client extends EventEmitter {
     const { promise: sleepPromise, reset: resetSleep } = sleepWithReset(this.residentStateDelay);
 
     const clearTopic = (topic: string, payload: Buffer, packet: mqtt.IPublishPacket) => {
-      if (packet.retain && topic.startsWith(this.instanceName + '/')) {
+      // only clear real retained messages
+      if (packet.retain && payload.length > 0 && topic.startsWith(this.instanceName + '/')) {
         resetSleep();
         fireAsync(() => this.clearRetain(topic));
       }
