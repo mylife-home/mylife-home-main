@@ -1,35 +1,35 @@
 import { DefinitionResource, UiProject, Window, ComponentData } from '../../../../shared/ui-model';
 import * as uiV1 from './ui-v1-types';
 
-export function convertUiProject(old: uiV1.Project): UiProject {
-  const resources = old.Images.map(convertResource);
-  const windows = old.Windows.map(convertWindow);
-  const componentData = convertComponents(old.Components);
+export function convertUiProject(input: uiV1.Project): UiProject {
+  const resources = input.Images.map(convertResource);
+  const windows = input.Windows.map(convertWindow);
+  const componentData = convertComponents(input.Components);
 
   const defaultWindow = {
-    desktop: old.DesktopDefaultWindow,
-    mobile: old.MobileDefaultWindow,
+    desktop: input.DesktopDefaultWindow,
+    mobile: input.MobileDefaultWindow,
   };
 
   return {
-    name: old.Name,
+    name: input.Name,
     definition: { resources, windows, defaultWindow },
     componentData
   };
 }
 
-function convertResource(old: uiV1.Image): DefinitionResource {
+function convertResource(input: uiV1.Image): DefinitionResource {
   return {
-    id: old.Id,
+    id: input.Id,
     mime: 'image/png',
-    data: old.Content
+    data: input.Content
   };
 }
 
-function convertWindow(raw: uiV1.Window): Window {
-  replaceKey(raw, 'background_resource_id', 'backgroundResource');
+function convertWindow(input: uiV1.Window): Window {
+  replaceKey(input, 'background_resource_id', 'backgroundResource');
 
-  for (const control of raw.controls) {
+  for (const control of input.controls) {
     replaceKey(control, 'primary_action', 'primaryAction');
     replaceKey(control, 'secondary_action', 'secondaryAction');
     replaceKey(control.display, 'default_resource_id', 'defaultResource');
@@ -72,7 +72,7 @@ function convertWindow(raw: uiV1.Window): Window {
     }
   }
 
-  return raw;
+  return input;
 }
 
 function convertComponents(old: uiV1.Component[]): ComponentData {
