@@ -2,12 +2,12 @@
 // we depend on mylife-home-ui only for this
 export * from 'mylife-home-ui/dist/shared/model';
 export * from 'mylife-home-ui/dist/src/model/definition';
-import { Model } from 'mylife-home-ui/dist/shared/model';
+import { Definition } from 'mylife-home-ui/dist/src/model/definition';
 import { Component, Plugin } from './component-model';
 
 export interface UiProject {
   name: string;
-  model: Model;
+  definition: Definition;
   componentData: ComponentData;
 }
 
