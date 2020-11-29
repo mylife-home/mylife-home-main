@@ -178,10 +178,3 @@ function replaceComponentId(obj: { [prop: string]: string }, prop: string) {
     obj[prop] = obj[prop].replace(/_/g, '-');
   }
 }
-
-function replaceKey(obj: { [prop: string]: string }, oldName: string, newName: string) {
-  if (obj) {
-    obj[newName] = obj[oldName];
-    delete obj[oldName];
-  }
-}
