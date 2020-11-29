@@ -53,7 +53,7 @@ export interface Control {
 export interface Display {
   default_resource_id: string;
   component_id: string; // can be null
-  component_attribute: string[];
+  component_attribute: string;
   map: {
     resource_id: string;
     min: number;
