@@ -13,5 +13,9 @@ export interface UiProject {
 
 export interface ComponentData {
   components: Component[]; // plugin points to plugin instanceName:module.name
-  plugins: { [instanceName: string]: Plugin[]; };
+  plugins: { [id: string]: PluginData[]; }; // id: instanceName:module.name
+}
+
+export interface PluginData extends Omit<Plugin, 'usage' | 'config'> {
+  instanceName: string;
 }
