@@ -38,7 +38,7 @@ export interface ControlDisplay {
 export interface ControlDisplayMapItem {
   readonly min: number;
   readonly max: number;
-  readonly value: string;
+  readonly value: string | boolean; // or others ?
   readonly resource: Resource;
 }
 
