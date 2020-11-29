@@ -11,8 +11,3 @@ export interface DefinitionResource {
   readonly mime: string;
   readonly data: string;
 }
-
-export interface Resource {
-  readonly mime: string;
-  readonly data: Buffer;
-}

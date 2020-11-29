@@ -2,12 +2,17 @@ import { EventEmitter } from 'events';
 import crypto from 'crypto';
 import { logger } from 'mylife-home-common';
 import { Model, Control, Window } from '../../shared/model';
-import { Definition, Resource } from './definition';
+import { Definition, DefinitionResource } from './definition';
 
-export * from './definition';
 export * as model from '../../shared/model';
+export  { Definition, DefinitionResource };
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
+
+export interface Resource {
+  readonly mime: string;
+  readonly data: Buffer;
+}
 
 export interface RequiredComponentState {
   readonly componentId: string;
