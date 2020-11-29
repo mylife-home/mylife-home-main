@@ -1,3 +1,5 @@
+import { Definition, DefinitionResource, Window } from '../../../shared/ui-model';
+
 namespace oldUi {
 
   export interface TProject {
@@ -88,9 +90,9 @@ namespace oldUi {
   }
 }
 
-function prepareDefinition(raw: oldUi.TProject): Definition {
-  const resources = raw.Images.map(prepareResource);
-  const windows = raw.Windows.map(prepareWindow);
+export function convertUiProject(raw: oldUi.TProject): Definition {
+  const resources = raw.Images.map(convertResource);
+  const windows = raw.Windows.map(convertWindow);
 
   const defaultWindow = {
     desktop: raw.DesktopDefaultWindow,
@@ -100,7 +102,7 @@ function prepareDefinition(raw: oldUi.TProject): Definition {
   return { resources, windows, defaultWindow };
 }
 
-function prepareResource(raw: oldUi.TImage): DefinitionResource {
+function convertResource(raw: oldUi.TImage): DefinitionResource {
   return {
     id: raw.Id,
     mime: 'image/png',
@@ -108,7 +110,7 @@ function prepareResource(raw: oldUi.TImage): DefinitionResource {
   };
 }
 
-function prepareWindow(raw: oldUi.TWindow): model.Window {
+function convertWindow(raw: oldUi.TWindow): Window {
   replaceKey(raw, 'background_resource_id', 'backgroundResource');
 
   for (const control of raw.controls) {
