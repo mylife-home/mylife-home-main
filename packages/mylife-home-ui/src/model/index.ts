@@ -2,27 +2,12 @@ import { EventEmitter } from 'events';
 import crypto from 'crypto';
 import { logger } from 'mylife-home-common';
 import { Model, Control, Window } from '../../shared/model';
+import { Definition, Resource } from './definition';
 
+export * from './definition';
 export * as model from '../../shared/model';
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
-
-export interface Definition {
-  readonly resources: DefinitionResource[];
-  readonly windows: Window[];
-  readonly defaultWindow: { [type: string]: string; };
-}
-
-export interface DefinitionResource {
-  readonly id: string;
-  readonly mime: string;
-  readonly data: string;
-}
-
-export interface Resource {
-  readonly mime: string;
-  readonly data: Buffer;
-}
 
 export interface RequiredComponentState {
   readonly componentId: string;
@@ -49,7 +34,7 @@ export class ModelManager extends EventEmitter {
     const resourceTranslation = new Map<string, string>();
 
     for (const resource of definition.resources) {
-      const data = new Buffer(resource.data, 'base64');
+      const data = Buffer.from(resource.data, 'base64');
       const hash = this.setResource(resource.mime, data); // for now all png
       resourceTranslation.set(resource.id, hash);
       log.info(`Creating resource from id '${resource.id}': hash='${hash}', size='${data.length}'`);
