@@ -1,7 +1,7 @@
 import { DefinitionResource, UiProject, Window, ComponentData } from '../../../../shared/ui-model';
-import * as oldUi from './old-ui';
+import * as uiV1 from './ui-v1-types';
 
-export function convertUiProject(old: oldUi.TProject): UiProject {
+export function convertUiProject(old: uiV1.Project): UiProject {
   const resources = old.Images.map(convertResource);
   const windows = old.Windows.map(convertWindow);
   const componentData = convertComponents(old.Components);
@@ -18,7 +18,7 @@ export function convertUiProject(old: oldUi.TProject): UiProject {
   };
 }
 
-function convertResource(old: oldUi.TImage): DefinitionResource {
+function convertResource(old: uiV1.Image): DefinitionResource {
   return {
     id: old.Id,
     mime: 'image/png',
@@ -26,7 +26,7 @@ function convertResource(old: oldUi.TImage): DefinitionResource {
   };
 }
 
-function convertWindow(raw: oldUi.TWindow): Window {
+function convertWindow(raw: uiV1.Window): Window {
   replaceKey(raw, 'background_resource_id', 'backgroundResource');
 
   for (const control of raw.controls) {
@@ -75,7 +75,7 @@ function convertWindow(raw: oldUi.TWindow): Window {
   return raw;
 }
 
-function convertComponents(old: oldUi.TComponent[]): ComponentData {
+function convertComponents(old: uiV1.Component[]): ComponentData {
 
 }
 
