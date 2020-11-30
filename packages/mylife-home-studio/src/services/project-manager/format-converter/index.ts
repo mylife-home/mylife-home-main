@@ -79,21 +79,12 @@ function convertControl(window: Window, input: uiV1.Control): Control {
     control.secondaryAction = convertAction(input.secondary_action);
   }
 
-  // replace ids comp_id with comp-id (naming convention)
-  replaceComponentId(control.primaryAction?.component, 'id');
-  replaceComponentId(control.secondaryAction?.component, 'id');
-  replaceComponentId(control.display, 'componentId');
-
-  for (const item of control.text?.context || []) {
-    replaceComponentId(item, 'componentId');
-  }
-
   return control;
 }
 
 function convertDisplay(input: uiV1.Display): ControlDisplay {
   const display: ControlDisplay = {
-    componentId: input.component_id,
+    componentId: convertComponentId(input.component_id),
     componentState: input.component_attribute,
     defaultResource: input.default_resource_id,
     map: [],
@@ -139,7 +130,7 @@ function convertText(input: uiV1.Text): ControlText {
 
   for (const item of input.context) {
     text.context.push({
-      id: item.id,
+      id: convertComponentId(item.id),
       componentId: item.component_id,
       componentState: item.component_attribute,
     });
@@ -156,7 +147,7 @@ function convertAction(input: uiV1.Action): Action {
 
   if (input.component) {
     action.component = {
-      id: input.component.component_id,
+      id: convertComponentId(input.component.component_id),
       action: input.component.component_action,
     };
   }
@@ -175,16 +166,12 @@ function convertComponents(old: uiV1.Component[]): ComponentData {
   // TODO
 }
 
-function replaceComponentId(obj: { [prop: string]: string; }, prop: string) {
-  if (obj && obj[prop]) {
-    obj[prop] = obj[prop].replace(/_/g, '-');
-  }
-}
-
-function convertUiId(id: string) {
+// replace ids comp_id with comp-id (naming convention)
+function convertComponentId(id: string) {
   return id.replace(/_/g, '-');
 }
 
-function convertComponentId(id: string) {
-
+// same for ui objects
+function convertUiId(id: string) {
+  return id.replace(/_/g, '-');
 }
