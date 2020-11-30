@@ -26,7 +26,7 @@ export function convertUiProject(input: uiV1.Project): UiProject {
 
 function convertResource(input: uiV1.Image): DefinitionResource {
   return {
-    id: input.Id,
+    id: convertUiId(input.Id),
     mime: 'image/png',
     data: input.Content,
   };
@@ -38,7 +38,7 @@ function convertWindow(input: uiV1.Window): Window {
     style: input.style || null,
     height: input.height,
     width: input.width,
-    backgroundResource: input.background_resource_id,
+    backgroundResource: convertUiId(input.background_resource_id),
     controls: [],
   };
 
@@ -86,13 +86,13 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
   const display: ControlDisplay = {
     componentId: convertComponentId(input.component_id),
     componentState: input.component_attribute,
-    defaultResource: input.default_resource_id,
+    defaultResource: convertUiId(input.default_resource_id),
     map: [],
   };
 
   for (const inputItem of input.map) {
     const item: Mutable<ControlDisplayMapItem> = {
-      resource: inputItem.resource_id,
+      resource: convertUiId(inputItem.resource_id),
       min: null,
       max: null,
       value: null,
