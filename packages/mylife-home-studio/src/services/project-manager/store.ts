@@ -32,13 +32,12 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     log.info(`${this.projects.size} projects loaded in store`);
   }
 
-  async create(name: string) {
+  async create(name: string, project: TProject = this.initNew(name)) {
     await this.mutex.runExclusive(async () => {
       if (this.projects.has(name)) {
         throw new Error(`A project named '${name}' already exists`);
       }
 
-      const project = this.initNew(name);
       project.name = name;
 
       await this.save(project);
@@ -104,4 +103,17 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   }
 
   protected abstract initNew(name: string): TProject;
+
+  getProjects() {
+    return Array.from(this.projects.values());
+  }
+
+  getProject(name: string) {
+    const project = this.projects.get(name);
+    if (!project) {
+      throw new Error(`Project named '${name}' does not exist`);
+    }
+
+    return project;
+  }
 }
