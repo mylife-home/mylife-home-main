@@ -5,8 +5,6 @@ type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
 };
 
-// TODO: naming on window/control ids
-
 export function convertUiProject(input: uiV1.Project): UiProject {
   const resources = input.Images.map(convertResource);
   const windows = input.Windows.map(convertWindow);
