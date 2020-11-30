@@ -193,7 +193,7 @@ export class Enum implements Type {
     if (values.length < 2) {
       throw new Error('Cannot build an enum without at least 2 values');
     }
-    this.values = values;
+    this.values = values.sort();
   }
 
   toString() {
