@@ -111,6 +111,7 @@ function createDevCorePluginTask(name: string) {
   return series(plugin.ts.task, plugin.dev.task);
 }
 
+// warning: studio also depends on ui
 const buildProdStudio = parallel(
   projects.studio.client.prod.task,
   series(
