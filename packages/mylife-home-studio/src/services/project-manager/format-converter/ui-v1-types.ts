@@ -11,10 +11,10 @@ export interface Project {
 
 export interface Component {
   Id: string;
-  Plugin: PluginV1;
+  Plugin: Plugin;
 }
 
-export interface PluginV1 {
+export interface Plugin {
   library: string;
   type: string;
   usage: 2; //always ui here
