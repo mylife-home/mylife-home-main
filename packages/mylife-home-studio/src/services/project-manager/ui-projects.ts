@@ -12,7 +12,8 @@ export class UiProjects extends Store<UiProject> {
     };
   }
 
-  async importV1(projectV1: uiV1.Project) {
+  async importV1(content: string) {
+    const projectV1 = JSON.parse(content) as uiV1.Project;
     const project = convertUiProject(projectV1);
     await this.create(project.name, project);
   }
