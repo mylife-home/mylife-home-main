@@ -20,3 +20,26 @@ export interface CoreProject {
   name: string;
   // TODO
 }
+
+export type ProjectType = 'ui' | 'core';
+
+export interface UpdateListNotification {
+  operation: 'create' | 'delete' | 'rename';
+  type: ProjectType;
+}
+
+export interface CreateListNotification extends UpdateListNotification {
+  operation: 'create';
+  name: string;
+}
+
+export interface DeleteListNotification extends UpdateListNotification {
+  operation: 'delete';
+  name: string;
+}
+
+export interface RenameListNotification extends UpdateListNotification {
+  operation: 'rename';
+  oldName: string;
+  newName: string;
+}
