@@ -5,14 +5,16 @@ type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
 };
 
+// TODO: naming on window/control ids
+
 export function convertUiProject(input: uiV1.Project): UiProject {
   const resources = input.Images.map(convertResource);
   const windows = input.Windows.map(convertWindow);
   const componentData = convertComponents(input.Components);
 
   const defaultWindow = {
-    desktop: input.DesktopDefaultWindow,
-    mobile: input.MobileDefaultWindow,
+    desktop: convertUiId(input.DesktopDefaultWindow),
+    mobile: convertUiId(input.MobileDefaultWindow),
   };
 
   return {
@@ -32,7 +34,7 @@ function convertResource(input: uiV1.Image): DefinitionResource {
 
 function convertWindow(input: uiV1.Window): Window {
   const window: Window = {
-    id: input.id,
+    id: convertUiId(input.id),
     style: input.style || null,
     height: input.height,
     width: input.width,
@@ -49,12 +51,12 @@ function convertWindow(input: uiV1.Window): Window {
 
 function convertControl(window: Window, input: uiV1.Control): Control {
   const control: Mutable<Control> = {
-    id: input.id,
+    id: convertUiId(input.id),
     style: input.style,
     height: input.height,
     width: input.width,
-    x: input.x * window.width, // convert to absolute
-    y: input.y * window.height, // convert to absolute
+    x: Math.round(input.x * window.width), // convert to absolute
+    y: Math.round(input.y * window.height), // convert to absolute
     display: null,
     text: null,
     primaryAction: null,
@@ -105,7 +107,7 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
       value: null,
     };
 
-    if(inputItem.value != null) {
+    if (inputItem.value != null) {
       // replace 'off' 'on' with true false
       switch (inputItem.value) {
         case 'on':
@@ -161,7 +163,7 @@ function convertAction(input: uiV1.Action): Action {
 
   if (input.window) {
     action.window = {
-      id: input.window.id,
+      id: convertUiId(input.window.id),
       popup: input.window.popup,
     };
   }
@@ -173,8 +175,16 @@ function convertComponents(old: uiV1.Component[]): ComponentData {
   // TODO
 }
 
-function replaceComponentId(obj: { [prop: string]: string }, prop: string) {
+function replaceComponentId(obj: { [prop: string]: string; }, prop: string) {
   if (obj && obj[prop]) {
     obj[prop] = obj[prop].replace(/_/g, '-');
   }
+}
+
+function convertUiId(id: string) {
+  return id.replace(/_/g, '-');
+}
+
+function convertComponentId(id: string) {
+
 }
