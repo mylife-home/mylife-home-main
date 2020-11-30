@@ -1,4 +1,5 @@
-import { DefinitionResource, UiProject, Window, Control, ControlDisplay, ControlText, Action, ComponentData, ControlDisplayMapItem, PluginData } from '../../../../shared/ui-model';
+import { DefinitionResource, Window, Control, ControlDisplay, ControlText, Action, ControlDisplayMapItem } from '../../../../shared/ui-model';
+import { UiProject, ComponentData, PluginData } from '../../../../shared/project-manager';
 import * as uiV1 from './ui-v1-types';
 import { convertPluginMembers } from './core-converter';
 
