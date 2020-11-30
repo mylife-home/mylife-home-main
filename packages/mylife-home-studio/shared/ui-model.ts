@@ -13,7 +13,7 @@ export interface UiProject {
 
 export interface ComponentData {
   components: Component[]; // plugin points to plugin instanceName:module.name
-  plugins: { [id: string]: PluginData[]; }; // id: instanceName:module.name
+  plugins: { [id: string]: PluginData; }; // id: instanceName:module.name
 }
 
 export interface PluginData extends Omit<Plugin, 'usage' | 'config'> {
