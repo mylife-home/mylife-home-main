@@ -5,9 +5,9 @@ import { hasOnlineComponentsViewTab, getNotifierId } from './selectors';
 import { createNotifierEpic } from '../common/notifier-epic';
 
 export default createNotifierEpic({
-  notificationType:'online/component',
-  startNotifierService:'online/start-notify-component',
-  stopNotifierService:'online/stop-notify-component',
+  notificationType: 'online/component',
+  startNotifierService: 'online/start-notify-component',
+  stopNotifierService: 'online/stop-notify-component',
   getNotifierId,
   hasTypedTab: hasOnlineComponentsViewTab,
   setNotification,
