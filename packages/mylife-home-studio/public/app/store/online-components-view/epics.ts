@@ -1,75 +1,20 @@
-import { Action } from 'redux';
-import { Observable } from 'rxjs';
-import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { combineEpics, ofType, StateObservable } from 'redux-observable';
-
 import * as shared from '../../../../shared/online';
-import { socket } from '../common/rx-socket';
-import { AppState } from '../types';
-import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { Update, SetPluginUpdate, ClearPluginUpdate, SetComponentUpdate, ClearComponentUpdate, SetStateUpdate } from './types';
 import { setNotification, clearNotification, pushUpdates } from './actions';
 import { hasOnlineComponentsViewTab, getNotifierId } from './selectors';
-import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { createNotifierEpic } from '../common/notifier-epic';
 
-const startNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
-  filterNotifyChange(state$),
-  withSelector(state$, getNotifierId),
-  filter(([, notifierId]) => !notifierId),
-  mergeMap(() => startCall().pipe(
-    map(({ notifierId }) => setNotification(notifierId)),
-    handleError()
-  ))
-);
-
-const stopNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
-  filterNotifyChange(state$),
-  withSelector(state$, getNotifierId),
-  filter(([, notifierId]) => !!notifierId),
-  mergeMap(([, notifierId]) => stopCall({ notifierId }).pipe(
-    map(() => clearNotification()),
-    handleError()
-  ))
-);
-
-const fetchComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
-  const notification$ = socket.notifications();
-  return notification$.pipe(
-    filterNotification('online/component'),
-    withSelector(state$, getNotifierId),
-    filter(([notification, notifierId]) => notification.notifierId === notifierId),
-    map(([notification]) => parseUpdate(notification.data)),
-    bufferDebounceTime(100), // debounce to avoid multiple store updates
-    map((items) => pushUpdates(items)),
-  );
-};
-
-export default combineEpics(startNotifyComponentsEpic, stopNotifyComponentsEpic, fetchComponentsEpic);
-
-function filterNotifyChange(state$: StateObservable<AppState>) {
-  return (source: Observable<Action>) => source.pipe(
-    ofType(TabActionTypes.NEW, TabActionTypes.CLOSE),
-    withLatestFrom(state$),
-    filter(([, state]) => {
-      const hasTab = hasOnlineComponentsViewTab(state);
-      const hasNotifications = !!getNotifierId(state);
-      return xor(hasTab, hasNotifications);
-    }),
-    map(([action]) => action)
-  );
-}
-
-function xor(a: boolean, b: boolean) {
-  return a && !b || !a && b;
-}
-
-function startCall() {
-  return socket.call('online/start-notify-component', null) as Observable<{ notifierId: string; }>;
-}
-
-function stopCall({ notifierId }: { notifierId: string; }) {
-  return socket.call('online/stop-notify-component', { notifierId }) as Observable<void>;
-}
+export default createNotifierEpic({
+  notificationType:'online/component',
+  startNotifierService:'online/start-notify-component',
+  stopNotifierService:'online/stop-notify-component',
+  getNotifierId,
+  hasTypedTab: hasOnlineComponentsViewTab,
+  setNotification,
+  clearNotification,
+  applyUpdates: pushUpdates,
+  parseUpdate,
+});
 
 function parseUpdate(updateData: shared.UpdateComponentData): Update {
   switch (`${updateData.type}-${updateData.operation}`) {

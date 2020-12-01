@@ -16,7 +16,7 @@ interface Parameters<TUpdateData, TUpdate> {
 
   // selectors
   getNotifierId: (state: AppState) => string;
-  hasTab: (state: AppState) => boolean;
+  hasTypedTab: (state: AppState) => boolean;
 
   // action creators
   setNotification: (notifierId: string) => Action;
@@ -24,11 +24,11 @@ interface Parameters<TUpdateData, TUpdate> {
   applyUpdates: (updates: TUpdate[]) => Action;
 
   // parse
-  parseUpdates: (updateData: TUpdateData) => TUpdate | TUpdate[];
+  parseUpdate: (updateData: TUpdateData) => TUpdate | TUpdate[];
 }
 
 // notifier for all tabs (created on first tab of type open, deleted on last tab of type close)
-export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, startNotifierService, stopNotifierService, getNotifierId, hasTab, setNotification, clearNotification, applyUpdates, parseUpdates }: Parameters<TUpdateNetData, TUpdate>) {
+export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, startNotifierService, stopNotifierService, getNotifierId, hasTypedTab, setNotification, clearNotification, applyUpdates, parseUpdate }: Parameters<TUpdateData, TUpdate>) {
   const startNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
     filterNotifyChange(state$),
     withSelector(state$, getNotifierId),
@@ -55,7 +55,7 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
       filterNotification(notificationType),
       withSelector(state$, getNotifierId),
       filter(([notification, notifierId]) => notification.notifierId === notifierId),
-      concatMap(([notification]) => streamParseUpdates(notification.data)),
+      concatMap(([notification]) => streamParseUpdate(notification.data)),
       bufferDebounceTime(100), // debounce to avoid multiple store updates
       map((items) => applyUpdates(items)),
     );
@@ -68,9 +68,9 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
       ofType(TabActionTypes.NEW, TabActionTypes.CLOSE),
       withLatestFrom(state$),
       filter(([, state]) => {
-        const hasTabValue = hasTab(state);
+        const hasTab = hasTypedTab(state);
         const hasNotifications = !!getNotifierId(state);
-        return xor(hasTabValue, hasNotifications);
+        return xor(hasTab, hasNotifications);
       }),
       map(([action]) => action)
     );
@@ -88,8 +88,8 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
     return socket.call(stopNotifierService, { notifierId }) as Observable<void>;
   }
 
-  function streamParseUpdates(updateData: TUpdateData) {
-    const singleOrArray = parseUpdates(updateData);
+  function streamParseUpdate(updateData: TUpdateData) {
+    const singleOrArray = parseUpdate(updateData);
     const items = Array.isArray(singleOrArray) ? singleOrArray : [singleOrArray];
     return from(items);
   }
