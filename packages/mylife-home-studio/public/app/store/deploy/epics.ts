@@ -1,56 +1,31 @@
 import { Action } from 'redux';
+import { PayloadAction } from '@reduxjs/toolkit';
 import { from, Observable, range, zip } from 'rxjs';
-import { concatMap, filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { concatMap, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
 import * as shared from '../../../../shared/deploy';
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
-import { ActionTypes as TabActionTypes } from '../tabs/types';
 import { setNotification, clearNotification, pushUpdates, uploadFilesProgress, downloadFileProgress } from './actions';
 import { hasDeployTab, getNotifierId, getFile } from './selectors';
-import { bufferDebounceTime, filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { handleError } from '../common/rx-operators';
+import { createNotifierEpic } from '../common/notifier-epic';
 import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, RecipeConfig, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
-import { PayloadAction } from '@reduxjs/toolkit';
 import { uploadFile, downloadFile } from './rx-files';
 
-const startNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    filterNotifyChange(state$),
-    withSelector(state$, getNotifierId),
-    filter(([, notifierId]) => !notifierId),
-    mergeMap(() =>
-      startNotifyCall().pipe(
-        map(({ notifierId }) => setNotification(notifierId)),
-        handleError()
-      )
-    )
-  );
 
-const stopNotifyUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    filterNotifyChange(state$),
-    withSelector(state$, getNotifierId),
-    filter(([, notifierId]) => !!notifierId),
-    mergeMap(([, notifierId]) =>
-      stopNotifyCall({ notifierId }).pipe(
-        map(() => clearNotification()),
-        handleError()
-      )
-    )
-  );
-
-const fetchUpdatesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
-  const notification$ = socket.notifications();
-  return notification$.pipe(
-    filterNotification('deploy/updates'),
-    withSelector(state$, getNotifierId),
-    filter(([notification, notifierId]) => notification.notifierId === notifierId),
-    map(([notification]) => parseNotification(notification.data)),
-    bufferDebounceTime(100), // debounce to avoid multiple store updates
-    map((items) => pushUpdates(items))
-  );
-};
+const notifierEpic = createNotifierEpic({
+  notificationType: 'deploy/updates',
+  startNotifierService: 'deploy/start-notify',
+  stopNotifierService: 'deploy/stop-notify',
+  getNotifierId,
+  hasTypedTab: hasDeployTab,
+  setNotification,
+  clearNotification,
+  applyUpdates: pushUpdates,
+  parseUpdate: parseNotification,
+});
 
 const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
@@ -112,33 +87,7 @@ const renameFileEpic = (action$: Observable<Action>, state$: StateObservable<App
     mergeMap((action: PayloadAction<{ id: string; newId: string; }>) => renameFileCall(action.payload).pipe(ignoreElements(), handleError()))
   );
 
-export default combineEpics(startNotifyUpdatesEpic, stopNotifyUpdatesEpic, fetchUpdatesEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, uploadFilesEpic, downloadFileEpic, deleteFileEpic, renameFileEpic);
-
-function filterNotifyChange(state$: StateObservable<AppState>) {
-  return (source: Observable<Action>) =>
-    source.pipe(
-      ofType(TabActionTypes.NEW, TabActionTypes.CLOSE),
-      withLatestFrom(state$),
-      filter(([, state]) => {
-        const hasTab = hasDeployTab(state);
-        const hasNotifications = !!getNotifierId(state);
-        return xor(hasTab, hasNotifications);
-      }),
-      map(([action]) => action)
-    );
-}
-
-function xor(a: boolean, b: boolean) {
-  return (a && !b) || (!a && b);
-}
-
-function startNotifyCall() {
-  return socket.call('deploy/start-notify', null) as Observable<{ notifierId: string; }>;
-}
-
-function stopNotifyCall({ notifierId }: { notifierId: string; }) {
-  return socket.call('deploy/stop-notify', { notifierId }) as Observable<void>;
-}
+export default combineEpics(notifierEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, uploadFilesEpic, downloadFileEpic, deleteFileEpic, renameFileEpic);
 
 function setRecipeCall({ id, config }: { id: string; config: shared.RecipeConfig; }) {
   return socket.call('deploy/set-recipe', { id, config }) as Observable<void>;
