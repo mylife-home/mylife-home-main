@@ -1,8 +1,7 @@
 export const enum ActionTypes {
   SET_NOTIFICATION = 'online-instances-view/set-notification',
   CLEAR_NOTIFICATION = 'online-instances-view/clear-notification',
-  SET_INSTANCE = 'online-instances-view/set-instance',
-  CLEAR_INSTANCE = 'online-instances-view/clear-instance',
+  PUSH_UPDATES = 'online-instances-view/push-updates',
 }
 
 export interface OnlineInstancesViewState {
@@ -26,4 +25,19 @@ export interface InstanceInfo {
 
 export interface NamedInstanceInfo extends InstanceInfo {
   instanceName: string;
+}
+
+
+export interface Update {
+  type: 'set' | 'clear';
+  instanceName: string;
+}
+
+export interface SetUpdate extends Update {
+  type: 'set';
+  data: InstanceInfo;
+}
+
+export interface ClearUpdate extends Update {
+  type: 'clear';
 }

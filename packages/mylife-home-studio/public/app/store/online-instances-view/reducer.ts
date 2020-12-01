@@ -1,5 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, OnlineInstancesViewState, InstanceInfo } from './types';
+import { ActionTypes, OnlineInstancesViewState, Update, SetUpdate, ClearUpdate } from './types';
 
 const initialState: OnlineInstancesViewState = {
   notifierId: null,
@@ -16,13 +16,21 @@ export default createReducer(initialState, {
     state.instances = {};
   },
 
-  [ActionTypes.SET_INSTANCE]: (state, action: PayloadAction<{ instanceName: string, data: InstanceInfo; }>) => {
-    const { instanceName, data } = action.payload;
-    state.instances[instanceName] = data;
-  },
+  [ActionTypes.PUSH_UPDATES]: (state, action: PayloadAction<Update[]>) => {
+    for (const update of action.payload) {
+      switch (update.type) {
+        case 'set': {
+          const { instanceName, data } = update as SetUpdate;
+          state.instances[instanceName] = data;
+          break;
+        }
 
-  [ActionTypes.CLEAR_INSTANCE]: (state, action: PayloadAction<{ instanceName: string; }>) => {
-    const { instanceName } = action.payload;
-    delete state.instances[instanceName];
+        case 'clear': {
+          const { instanceName } = update as ClearUpdate;
+          delete state.instances[instanceName];
+          break;
+        }
+      }
+    }
   },
 });
