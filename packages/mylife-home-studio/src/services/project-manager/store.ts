@@ -32,17 +32,28 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     log.info(`${this.projects.size} projects loaded in store`);
   }
 
-  async create(name: string, project: TProject = this.initNew(name)) {
+  protected async create(project: TProject) {
     await this.mutex.runExclusive(async () => {
-      if (this.projects.has(name)) {
-        throw new Error(`A project named '${name}' already exists`);
+      if (this.projects.has(project.name)) {
+        throw new Error(`A project named '${project.name}' already exists`);
       }
-
-      project.name = name;
 
       await this.save(project);
       this.projects.set(name, project);
       this.emit('created', name);
+    });
+  }
+
+  protected async update(name: string, updater: (project: TProject) => void) {
+    await this.mutex.runExclusive(async () => {
+      const project = this.projects.get(name);
+      if (!project) {
+        throw new Error(`Project named '${name}' does not exist`);
+      }
+
+      updater(project);
+      await this.save(project);
+      this.emit('updated', name);
     });
   }
 
@@ -76,19 +87,6 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
       await fs.unlink(this.projectFullPath(name));
       this.projects.delete(name);
       this.emit('deleted', name);
-    });
-  }
-
-  protected async update(name: string, updater: (project: TProject) => void) {
-    await this.mutex.runExclusive(async () => {
-      const project = this.projects.get(name);
-      if (!project) {
-        throw new Error(`Project named '${name}' does not exist`);
-      }
-
-      updater(project);
-      await this.save(project);
-      this.emit('updated', name);
     });
   }
 
