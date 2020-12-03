@@ -16,6 +16,7 @@ async function init() {
     await manager.init();
   } catch(err) {
     console.error('init error', err);
+    process.exit(1);
   }
 }
 
