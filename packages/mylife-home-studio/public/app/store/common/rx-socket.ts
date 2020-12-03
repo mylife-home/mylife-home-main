@@ -66,6 +66,7 @@ export class RxSocket {
   notifications() {
     const message$ = fromEvent<ServerMessage>(this.socket, 'message');
     return message$.pipe(
+      observeOn(asyncScheduler), // else notifications can come before service-call response with notifierId
       filter(msg => msg.type === 'notification'),
       map(msg => msg as Notification)
     );
