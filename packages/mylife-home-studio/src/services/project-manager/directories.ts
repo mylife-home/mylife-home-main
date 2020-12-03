@@ -13,7 +13,7 @@ const directories: Directories = {
 };
 
 export function configure() {
-  const config = tools.getConfigItem<Config>('deploy');
+  const config = tools.getConfigItem<Config>('projectManager');
   
   directories.core = path.resolve(config.corePath);
   directories.ui = path.resolve(config.uiPath);
