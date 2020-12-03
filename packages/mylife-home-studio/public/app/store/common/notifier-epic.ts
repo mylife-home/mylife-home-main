@@ -7,6 +7,7 @@ import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { bufferDebounceTime, filterNotification, handleError, withSelector } from './rx-operators';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
+import { isOnline } from '../status/selectors';
 
 interface Parameters<TUpdateData, TUpdate> {
   // defines
@@ -29,7 +30,7 @@ interface Parameters<TUpdateData, TUpdate> {
 
 // notifier for all tabs (created on first tab of type open, deleted on last tab of type close)
 export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, startNotifierService, stopNotifierService, getNotifierId, hasTypedTab, setNotification, clearNotification, applyUpdates, parseUpdate }: Parameters<TUpdateData, TUpdate>) {
-  const startNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  const startNotifyEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
     filterNotifyChange(state$),
     withSelector(state$, getNotifierId),
     filter(([, notifierId]) => !notifierId),
@@ -39,7 +40,7 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
     ))
   );
 
-  const stopNotifyComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+  const stopNotifyEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
     filterNotifyChange(state$),
     withSelector(state$, getNotifierId),
     filter(([, notifierId]) => !!notifierId),
@@ -49,7 +50,7 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
     ))
   );
 
-  const fetchComponentsEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
+  const fetchEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
     const notification$ = socket.notifications();
     return notification$.pipe(
       filterNotification(notificationType),
@@ -61,7 +62,7 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
     );
   };
 
-  return combineEpics(startNotifyComponentsEpic, stopNotifyComponentsEpic, fetchComponentsEpic);
+  return combineEpics(startNotifyEpic, stopNotifyEpic, fetchEpic);
 
   function filterNotifyChange(state$: StateObservable<AppState>) {
     return (source: Observable<Action>) => source.pipe(
