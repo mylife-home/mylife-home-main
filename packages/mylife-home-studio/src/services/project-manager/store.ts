@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import fs from 'fs-extra';
 import { Mutex } from 'async-mutex';
 import { logger } from 'mylife-home-common';
+import { ProjectInfo } from '../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:store');
 
@@ -100,7 +101,9 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     return path.join(this.directory, name + '.json');
   }
 
-  protected abstract initNew(name: string): TProject;
+  getProjectsNames() {
+    return Array.from(this.projects.keys());
+  }
 
   getProjects() {
     return Array.from(this.projects.values());
@@ -114,4 +117,6 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
     return project;
   }
+
+  abstract getProjectInfo(name: string): ProjectInfo;
 }

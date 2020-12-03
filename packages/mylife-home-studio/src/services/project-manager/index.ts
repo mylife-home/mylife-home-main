@@ -1,4 +1,4 @@
-import { ProjectType, CreateListNotification, DeleteListNotification, RenameListNotification } from '../../../shared/project-manager';
+import { ProjectType, SetListNotification, ClearListNotification } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
@@ -13,13 +13,15 @@ export class ProjectManager implements Service {
   private readonly coreProjects = new CoreProjects();
 
   constructor(params: BuildParams) {
-    this.coreProjects.on('created', this.handleCoreProjectCreate);
+    this.coreProjects.on('created', this.handleCoreProjectSet);
     this.coreProjects.on('renamed', this.handleCoreProjectRename);
     this.coreProjects.on('deleted', this.handleCoreProjectDelete);
+    this.coreProjects.on('updated', this.handleCoreProjectSet);
 
-    this.uiProjects.on('created', this.handleUiProjectCreate);
+    this.uiProjects.on('created', this.handleUiProjectSet);
     this.uiProjects.on('renamed', this.handleUiProjectRename);
     this.uiProjects.on('deleted', this.handleUiProjectDelete);
+    this.uiProjects.on('updated', this.handleUiProjectSet);
   }
 
   async init() {
@@ -47,8 +49,9 @@ export class ProjectManager implements Service {
   };
 
   private emitList(notifier: SessionNotifier, store: Store<ProjectBase>, type: ProjectType) {
-    for (const { name } of store.getProjects()) {
-      const notification: CreateListNotification = { operation: 'create', type, name };
+    for (const name of store.getProjectsNames()) {
+      const info = store.getProjectInfo(name);
+      const notification: SetListNotification = { operation: 'set', type, name, info };
       notifier.notify(notification);
     }
   }
@@ -57,34 +60,36 @@ export class ProjectManager implements Service {
     this.listNotifiers.removeNotifier(session, notifierId);
   };
 
-  private readonly handleCoreProjectCreate = (name: string) => {
-    const notification: CreateListNotification = { operation: 'create', type: 'core', name };
+  private readonly handleCoreProjectSet = (name: string) => {
+    const info = this.coreProjects.getProjectInfo(name);
+    const notification: SetListNotification = { operation: 'set', type: 'core', name, info };
     this.listNotifiers.notifyAll(notification);
   };
 
   private readonly handleCoreProjectDelete = (name: string) => {
-    const notification: DeleteListNotification = { operation: 'delete', type: 'core', name };
+    const notification: ClearListNotification = { operation: 'clear', type: 'core', name };
     this.listNotifiers.notifyAll(notification);
   };
 
   private readonly handleCoreProjectRename = (oldName: string, newName: string) => {
-    const notification: RenameListNotification = { operation: 'rename', type: 'core', oldName, newName };
-    this.listNotifiers.notifyAll(notification);
+    this.handleCoreProjectDelete(oldName);
+    this.handleCoreProjectSet(newName);
   };
 
-  private readonly handleUiProjectCreate = (name: string) => {
-    const notification: CreateListNotification = { operation: 'create', type: 'ui', name };
+  private readonly handleUiProjectSet = (name: string) => {
+    const info = this.uiProjects.getProjectInfo(name);
+    const notification: SetListNotification = { operation: 'set', type: 'ui', name, info };
     this.listNotifiers.notifyAll(notification);
   };
 
   private readonly handleUiProjectDelete = (name: string) => {
-    const notification: DeleteListNotification = { operation: 'delete', type: 'ui', name };
+    const notification: ClearListNotification = { operation: 'clear', type: 'ui', name };
     this.listNotifiers.notifyAll(notification);
   };
 
   private readonly handleUiProjectRename = (oldName: string, newName: string) => {
-    const notification: RenameListNotification = { operation: 'rename', type: 'ui', oldName, newName };
-    this.listNotifiers.notifyAll(notification);
+    this.handleUiProjectDelete(oldName);
+    this.handleUiProjectSet(newName);
   };
 
 }

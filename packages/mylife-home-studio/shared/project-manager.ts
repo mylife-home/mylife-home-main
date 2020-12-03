@@ -24,22 +24,29 @@ export interface CoreProject {
 export type ProjectType = 'ui' | 'core';
 
 export interface UpdateListNotification {
-  operation: 'create' | 'delete' | 'rename';
+  operation: 'set' | 'clear';
   type: ProjectType;
-}
-
-export interface CreateListNotification extends UpdateListNotification {
-  operation: 'create';
   name: string;
 }
 
-export interface DeleteListNotification extends UpdateListNotification {
-  operation: 'delete';
-  name: string;
+export interface SetListNotification extends UpdateListNotification {
+  info: ProjectInfo;
 }
 
-export interface RenameListNotification extends UpdateListNotification {
-  operation: 'rename';
-  oldName: string;
-  newName: string;
+export interface ClearListNotification extends UpdateListNotification {
+}
+
+export interface ProjectInfo {
+
+}
+
+export interface UiProjectInfo extends ProjectInfo {
+  windowsCount: number;
+  resourcesCount: number;
+  resourcesSize: number;
+  componentsCount: number;
+}
+
+export interface CoreProjectInfo extends ProjectInfo {
+  
 }
