@@ -5,8 +5,9 @@ import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
 import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
-import { bufferDebounceTime, filterNotification, handleError, withSelector } from './rx-operators';
+import { bufferDebounceTime, filterNotification, handleError, withSelector, filterFromState } from './rx-operators';
 import { ActionTypes as TabActionTypes } from '../tabs/types';
+import { ActionTypes as StatusActionTypes } from '../status/types';
 import { isOnline } from '../status/selectors';
 
 interface Parameters<TUpdateData, TUpdate> {
@@ -28,12 +29,19 @@ interface Parameters<TUpdateData, TUpdate> {
   parseUpdate: (updateData: TUpdateData) => TUpdate | TUpdate[];
 }
 
+type ActionTypes = TabActionTypes | StatusActionTypes;
+
 // notifier for all tabs (created on first tab of type open, deleted on last tab of type close)
 export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, startNotifierService, stopNotifierService, getNotifierId, hasTypedTab, setNotification, clearNotification, applyUpdates, parseUpdate }: Parameters<TUpdateData, TUpdate>) {
   const startNotifyEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
-    filterNotifyChange(state$),
-    withSelector(state$, getNotifierId),
-    filter(([, notifierId]) => !notifierId),
+    ofType(TabActionTypes.NEW as ActionTypes, StatusActionTypes.ONLINE as ActionTypes),
+    filterFromState(state$, state => {
+      const hasTab = hasTypedTab(state);
+      const online = isOnline(state);
+      const shouldHaveNotifications = hasTab && online;
+      const hasNotifications = !!getNotifierId(state);
+      return shouldHaveNotifications && !hasNotifications;
+    }),
     mergeMap(() => startCall().pipe(
       map(({ notifierId }) => setNotification(notifierId)),
       handleError()
@@ -41,13 +49,32 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
   );
 
   const stopNotifyEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
-    filterNotifyChange(state$),
+    ofType(TabActionTypes.CLOSE),
+    filterFromState(state$, state => {
+      // if we have a notifierId then we are online
+      const hasTab = hasTypedTab(state);
+      const shouldHaveNotifications = hasTab;
+      const hasNotifications = !!getNotifierId(state);
+      return !shouldHaveNotifications && hasNotifications;
+    }),
     withSelector(state$, getNotifierId),
     filter(([, notifierId]) => !!notifierId),
     mergeMap(([, notifierId]) => stopCall({ notifierId }).pipe(
       map(() => clearNotification()),
       handleError()
     ))
+  );
+
+  const clearNotifyEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => action$.pipe(
+    ofType(StatusActionTypes.ONLINE),
+    filterFromState(state$, state => {
+      const online = isOnline(state);
+      const hasNotifications = !!getNotifierId(state);
+      return !online && hasNotifications;
+    }),
+    withSelector(state$, getNotifierId),
+    filter(([, notifierId]) => !!notifierId),
+    map(() => clearNotification()),
   );
 
   const fetchEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
@@ -62,24 +89,7 @@ export function createNotifierEpic<TUpdateData, TUpdate>({ notificationType, sta
     );
   };
 
-  return combineEpics(startNotifyEpic, stopNotifyEpic, fetchEpic);
-
-  function filterNotifyChange(state$: StateObservable<AppState>) {
-    return (source: Observable<Action>) => source.pipe(
-      ofType(TabActionTypes.NEW, TabActionTypes.CLOSE),
-      withLatestFrom(state$),
-      filter(([, state]) => {
-        const hasTab = hasTypedTab(state);
-        const hasNotifications = !!getNotifierId(state);
-        return xor(hasTab, hasNotifications);
-      }),
-      map(([action]) => action)
-    );
-  }
-
-  function xor(a: boolean, b: boolean) {
-    return a && !b || !a && b;
-  }
+  return combineEpics(startNotifyEpic, stopNotifyEpic, clearNotifyEpic, fetchEpic);
 
   function startCall() {
     return socket.call(startNotifierService, null) as Observable<{ notifierId: string; }>;
