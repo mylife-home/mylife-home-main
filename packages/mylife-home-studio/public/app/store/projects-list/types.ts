@@ -1,4 +1,4 @@
-import { CoreProjectInfo, UiProjectInfo } from '../../../../shared/project-manager';
+import { CoreProjectInfo, UiProjectInfo, ProjectType } from '../../../../shared/project-manager';
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
@@ -7,14 +7,14 @@ export const enum ActionTypes {
   PUSH_UPDATES = 'projects-list/push-updates'
 }
 
-export interface CoreProjectItem extends CoreProjectInfo {
-  id: string;
-  name: string;
+export interface BaseProjectItem {
+  id: string; // = name
 }
 
-export interface UiProjectItem extends UiProjectInfo {
-  id: string;
-  name: string;
+export interface CoreProjectItem extends BaseProjectItem, CoreProjectInfo {
+}
+
+export interface UiProjectItem extends BaseProjectItem, UiProjectInfo {
 }
 
 export interface ProjectsListState {
@@ -24,5 +24,22 @@ export interface ProjectsListState {
 }
 
 export interface Update {
-  // TODO
+  operation: 'set' | 'clear' | 'rename';
+  type: ProjectType;
+}
+
+export interface SetProject extends Update {
+  operation: 'set';
+  item: BaseProjectItem;
+}
+
+export interface ClearProject extends Update {
+  operation: 'clear';
+  id: string;
+}
+
+export interface RenameProject extends Update {
+  operation: 'rename';
+  oldId: string;
+  newId: string;
 }
