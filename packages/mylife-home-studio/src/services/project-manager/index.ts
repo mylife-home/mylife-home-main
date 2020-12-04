@@ -1,4 +1,4 @@
-import { ProjectType, SetListNotification, ClearListNotification } from '../../../shared/project-manager';
+import { ProjectType, SetListNotification, ClearListNotification, RenameListNotification } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
@@ -71,9 +71,9 @@ export class ProjectManager implements Service {
     this.listNotifiers.notifyAll(notification);
   };
 
-  private readonly handleCoreProjectRename = (oldName: string, newName: string) => {
-    this.handleCoreProjectDelete(oldName);
-    this.handleCoreProjectSet(newName);
+  private readonly handleCoreProjectRename = (name: string, newName: string) => {
+    const notification: RenameListNotification = { operation: 'rename', type: 'core', name, newName };
+    this.listNotifiers.notifyAll(notification);
   };
 
   private readonly handleUiProjectSet = (name: string) => {
@@ -87,9 +87,9 @@ export class ProjectManager implements Service {
     this.listNotifiers.notifyAll(notification);
   };
 
-  private readonly handleUiProjectRename = (oldName: string, newName: string) => {
-    this.handleUiProjectDelete(oldName);
-    this.handleUiProjectSet(newName);
+  private readonly handleUiProjectRename = (name: string, newName: string) => {
+    const notification: RenameListNotification = { operation: 'rename', type: 'ui', name, newName };
+    this.listNotifiers.notifyAll(notification);
   };
 
 }

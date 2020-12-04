@@ -24,16 +24,23 @@ export interface CoreProject {
 export type ProjectType = 'ui' | 'core';
 
 export interface UpdateListNotification {
-  operation: 'set' | 'clear';
+  operation: 'set' | 'clear' | 'rename';
   type: ProjectType;
   name: string;
 }
 
 export interface SetListNotification extends UpdateListNotification {
+  operation: 'set';
   info: ProjectInfo;
 }
 
 export interface ClearListNotification extends UpdateListNotification {
+  operation: 'clear';
+}
+
+export interface RenameListNotification extends UpdateListNotification {
+  operation: 'rename';
+  newName: string;
 }
 
 export interface ProjectInfo {
