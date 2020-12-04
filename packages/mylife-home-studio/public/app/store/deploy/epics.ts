@@ -58,22 +58,22 @@ const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<Ap
   );
 
 const uploadFilesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-action$.pipe(
-  ofType(ActionTypes.UPLOAD_FILES),
-  // cannot handle concurrent uploads
-  concatMap((action: PayloadAction<File[]>) => uploadFiles(action.payload))
-);
+  action$.pipe(
+    ofType(ActionTypes.UPLOAD_FILES),
+    // cannot handle concurrent uploads
+    concatMap((action: PayloadAction<File[]>) => uploadFiles(action.payload))
+  );
 
 const downloadFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-action$.pipe(
-  ofType(ActionTypes.DOWNLOAD_FILE),
-  withLatestFrom(state$),
-  map(([action, state]: [PayloadAction<string>, AppState]) => getFile(state, action.payload)),
-  // cannot handle concurrent downloads
-  concatMap((file: FileInfo) => downloadFile(file.id, file.size).pipe(
-    map(fileProgress => downloadFileProgress(fileProgress.doneSize))
-  ))
-);
+  action$.pipe(
+    ofType(ActionTypes.DOWNLOAD_FILE),
+    withLatestFrom(state$),
+    map(([action, state]: [PayloadAction<string>, AppState]) => getFile(state, action.payload)),
+    // cannot handle concurrent downloads
+    concatMap((file: FileInfo) => downloadFile(file.id, file.size).pipe(
+      map(fileProgress => downloadFileProgress(fileProgress.doneSize))
+    ))
+  );
 
 const deleteFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
@@ -116,7 +116,7 @@ function renameFileCall({ id, newId }: { id: string; newId: string; }) {
 function uploadFiles(files: File[]) {
   const index$ = range(0, files.length);
   const files$ = from(files);
-  
+
   return zip(files$, index$).pipe(
     concatMap(([file, fileIndex]) => uploadFile(file).pipe(
       map(fileProgress => uploadFilesProgress({ fileIndex, doneSize: fileProgress.doneSize }))
