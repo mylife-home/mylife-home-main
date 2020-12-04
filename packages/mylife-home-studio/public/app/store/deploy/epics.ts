@@ -14,7 +14,6 @@ import { createNotifierEpic } from '../common/notifier-epic';
 import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, RecipeConfig, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
 import { uploadFile, downloadFile } from './rx-files';
 
-
 const notifierEpic = createNotifierEpic({
   notificationType: 'deploy/updates',
   startNotifierService: 'deploy/start-notify',
