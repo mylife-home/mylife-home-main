@@ -1,10 +1,13 @@
+import { combineEpics } from 'redux-observable';
+
 import { SetListNotification, ClearListNotification, RenameListNotification, UpdateListNotification, UiProjectInfo, CoreProjectInfo } from '../../../../shared/project-manager';
 import { createNotifierEpic } from '../common/notifier-epic';
+import { createSocketCallEpic } from '../common/call-epic';
 import { setNotification, clearNotification, pushUpdates } from './actions';
 import { getNotifierId, hasStartPageTab } from './selectors';
-import { Update, SetProject, ClearProject, RenameProject, BaseProjectItem, CoreProjectItem, UiProjectItem } from './types';
+import { Update, SetProject, ClearProject, RenameProject, BaseProjectItem, CoreProjectItem, UiProjectItem, ActionTypes } from './types';
 
-export default createNotifierEpic({
+const notifierEpic = createNotifierEpic({
   notificationType: 'project-manager/list',
   startNotifierService: 'project-manager/start-notify-list',
   stopNotifierService: 'project-manager/stop-notify-list',
@@ -15,6 +18,13 @@ export default createNotifierEpic({
   applyUpdates: pushUpdates,
   parseUpdate: parseUpdate,
 });
+
+const importV1ProjectEpic = createSocketCallEpic(ActionTypes.IMPORT_V1, 'project-manager/import-v1');
+const createNewProjectEpic = createSocketCallEpic(ActionTypes.CREATE_NEW, 'project-manager/create-new');
+const renameProjectEpic = createSocketCallEpic(ActionTypes.RENAME, 'project-manager/rename');
+const deleteProjectEpic = createSocketCallEpic(ActionTypes.DELETE, 'project-manager/delete');
+
+export default combineEpics(notifierEpic, importV1ProjectEpic, createNewProjectEpic, renameProjectEpic, deleteProjectEpic);
 
 function parseUpdate(input: UpdateListNotification): Update {
   switch (input.operation) {

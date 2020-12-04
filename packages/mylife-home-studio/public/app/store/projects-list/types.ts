@@ -4,8 +4,15 @@ import { Table } from '../common/types';
 export const enum ActionTypes {
   SET_NOTIFICATION = 'projects-list/set-notification',
   CLEAR_NOTIFICATION = 'projects-list/clear-notification',
-  PUSH_UPDATES = 'projects-list/push-updates'
+  PUSH_UPDATES = 'projects-list/push-updates',
+
+  IMPORT_V1 = 'projects-list/import-v1',
+  CREATE_NEW = 'projects-list/create-new',
+  RENAME = 'projects-list/rename',
+  DELETE = 'projects-list/delete',
 }
+
+export { ProjectType };
 
 export interface BaseProjectItem {
   id: string; // = name

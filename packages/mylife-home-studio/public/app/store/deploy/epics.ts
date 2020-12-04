@@ -1,17 +1,16 @@
 import { Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { from, Observable, range, zip } from 'rxjs';
-import { concatMap, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { concatMap, map, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, ofType, StateObservable } from 'redux-observable';
 
 import * as shared from '../../../../shared/deploy';
-import { socket } from '../common/rx-socket';
 import { AppState } from '../types';
 import { setNotification, clearNotification, pushUpdates, uploadFilesProgress, downloadFileProgress } from './actions';
 import { hasDeployTab, getNotifierId, getFile } from './selectors';
-import { handleError } from '../common/rx-operators';
 import { createNotifierEpic } from '../common/notifier-epic';
-import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, RecipeConfig, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
+import { createSocketCallEpic } from '../common/call-epic';
+import { ActionTypes, AddRunLog, ClearFile, ClearRecipe, ClearRun, FileInfo, PinRecipe, Run, RunLog, SetFile, SetRecipe, SetRun, SetTask, Update } from './types';
 import { uploadFile, downloadFile } from './rx-files';
 
 const notifierEpic = createNotifierEpic({
@@ -26,36 +25,13 @@ const notifierEpic = createNotifierEpic({
   parseUpdate: parseNotification,
 });
 
-const setRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.SET_RECIPE),
-    mergeMap((action: PayloadAction<{ id: string; config: RecipeConfig; }>) => setRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
-  );
-
-const clearRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.CLEAR_RECIPE),
-    mergeMap((action: PayloadAction<string>) => clearRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
-  );
-
-const pinRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.PIN_RECIPE),
-    mergeMap((action: PayloadAction<{ id: string; value: boolean; }>) => pinRecipeCall(action.payload).pipe(ignoreElements(), handleError()))
-  );
-
-const startRecipeEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.START_RECIPE),
-    mergeMap((action: PayloadAction<string>) =>
-      startRecipeCall(action.payload).pipe(
-        // string result: new run id
-        ignoreElements(),
-        handleError()
-      )
-    )
-  );
-
+const setRecipeEpic = createSocketCallEpic(ActionTypes.SET_RECIPE, 'deploy/set-recipe');
+const clearRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/clear-recipe', (id: string) => ({ id }));
+const pinRecipeEpic = createSocketCallEpic(ActionTypes.PIN_RECIPE, 'deploy/pin-recipe');
+const startRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/start-recipe', (id: string) => ({ id }));
+const deleteFileEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/delete-file', (id: string) => ({ id }));
+const renameFileEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/rename-file');
+  
 const uploadFilesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
     ofType(ActionTypes.UPLOAD_FILES),
@@ -74,43 +50,7 @@ const downloadFileEpic = (action$: Observable<Action>, state$: StateObservable<A
     ))
   );
 
-const deleteFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.DELETE_FILE),
-    mergeMap((action: PayloadAction<string>) => deleteFileCall(action.payload).pipe(ignoreElements(), handleError()))
-  );
-
-const renameFileEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-  action$.pipe(
-    ofType(ActionTypes.RENAME_FILE),
-    mergeMap((action: PayloadAction<{ id: string; newId: string; }>) => renameFileCall(action.payload).pipe(ignoreElements(), handleError()))
-  );
-
 export default combineEpics(notifierEpic, setRecipeEpic, clearRecipeEpic, pinRecipeEpic, startRecipeEpic, uploadFilesEpic, downloadFileEpic, deleteFileEpic, renameFileEpic);
-
-function setRecipeCall({ id, config }: { id: string; config: shared.RecipeConfig; }) {
-  return socket.call('deploy/set-recipe', { id, config }) as Observable<void>;
-}
-
-function clearRecipeCall(id: string) {
-  return socket.call('deploy/clear-recipe', { id }) as Observable<void>;
-}
-
-function pinRecipeCall({ id, value }: { id: string; value: boolean; }) {
-  return socket.call('deploy/pin-recipe', { id, value }) as Observable<void>;
-}
-
-function startRecipeCall(id: string) {
-  return socket.call('deploy/start-recipe', { id }) as Observable<string>;
-}
-
-function deleteFileCall(id: string) {
-  return socket.call('deploy/delete-file', { id }) as Observable<void>;
-}
-
-function renameFileCall({ id, newId }: { id: string; newId: string; }) {
-  return socket.call('deploy/rename-file', { id, newId }) as Observable<void>;
-}
 
 function uploadFiles(files: File[]) {
   const index$ = range(0, files.length);
