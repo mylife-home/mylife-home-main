@@ -32,10 +32,50 @@ export class ProjectManager implements Service {
 
     Services.instance.sessionManager.registerServiceHandler('project-manager/start-notify-list', this.startNotifyList);
     Services.instance.sessionManager.registerServiceHandler('project-manager/stop-notify-list', this.stopNotifyList);
+
+    Services.instance.sessionManager.registerServiceHandler('project-manager/import-v1', this.importV1Project);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/create-new', this.createNewProject);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/rename', this.renameProject);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/delete', this.deleteProject);
   }
 
   async terminate() {
   }
+
+  private getStoreByType(type: ProjectType): Store<ProjectBase> {
+    switch(type) {
+      case 'core':
+        return this.coreProjects;
+      case 'ui':
+        return this.uiProjects;
+    }
+  }
+
+  private readonly importV1Project = async (session: Session, { type, content }: { type: ProjectType; content: string; }) => {
+    switch(type) {
+      case 'core':
+        throw new Error('TODO');
+
+      case 'ui':
+        await this.uiProjects.importV1(JSON.parse(content));
+        break;
+    }
+  };
+
+  private readonly createNewProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
+    const store = this.getStoreByType(type);
+    await store.createNew(id);
+  };
+
+  private readonly renameProject = async (session: Session, { type, id, newId }: { type: ProjectType; id: string; newId: string; }) => {
+    const store = this.getStoreByType(type);
+    await store.rename(id, newId);
+  };
+
+  private readonly deleteProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
+    const store = this.getStoreByType(type);
+    await store.delete(id);
+  };
 
   private readonly startNotifyList = async (session: Session) => {
     const notifier = this.listNotifiers.createNotifier(session);

@@ -119,4 +119,5 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   }
 
   abstract getProjectInfo(name: string): ProjectInfo;
+  abstract createNew(name: string): Promise<void>;
 }
