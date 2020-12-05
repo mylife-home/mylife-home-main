@@ -22,19 +22,17 @@ store.dispatch(newTab({
 }));
 
 const Application: FunctionComponent = () => (
-  <>
-    <CssBaseline />
-    
-    <StoreProvider>
-      <ThemeProvider theme={theme}>
-        <DndProvider backend={HTML5Backend}>
-          <DialogProvider>
-            <Layout />
-          </DialogProvider>
-        </DndProvider>
-      </ThemeProvider>
-    </StoreProvider>
-  </>
+  <StoreProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+      <DndProvider backend={HTML5Backend}>
+        <DialogProvider>
+          <Layout />
+        </DialogProvider>
+      </DndProvider>
+    </ThemeProvider>
+  </StoreProvider>
 );
 
 export default Application;
