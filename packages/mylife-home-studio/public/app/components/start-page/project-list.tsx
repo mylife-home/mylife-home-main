@@ -21,11 +21,11 @@ const ProjectList: FunctionComponent = () => {
   return (
     <>
       <List>
-        {ids.map((id) => {
+        {ids.map((id) => (
           <ListItem key={id}>
             <ListItemText primary={id} />
           </ListItem>
-        })}
+        ))}
       </List>
       
       <ImportV1Button />
