@@ -51,7 +51,7 @@ const ImportV1Button = () => {
   return (
     <>
       <input ref={inputRef} type="file" hidden onChange={handleUpload} />
-        <Button onClick={() => inputRef.current.click()}>Import V1</Button>
+      <Button onClick={() => inputRef.current.click()}>Import V1</Button>
     </>
   );
 }
