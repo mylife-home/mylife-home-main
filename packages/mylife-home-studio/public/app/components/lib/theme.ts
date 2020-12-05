@@ -56,7 +56,16 @@ export const theme = responsiveFontSizes(createMuiTheme({
       variant: 'dense',
     },
   },
+
   overrides: {
+    MuiCssBaseline: {
+      '@global': {
+        body: {
+          overflow: 'hidden',
+        },
+      },
+    },
+
     MuiIconButton: {
       sizeSmall: {
         // Adjust spacing to reach minimal touch target hitbox
