@@ -40,8 +40,8 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
       }
 
       await this.save(project);
-      this.projects.set(name, project);
-      this.emit('created', name);
+      this.projects.set(project.name, project);
+      this.emit('created', project.name);
     });
   }
 
