@@ -7,6 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import SearchIcon from '@material-ui/icons/Search';
 
+import { addLineBreaks } from '../lib/add-line-breaks';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
@@ -97,19 +98,4 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
 
 function formatTimestamp(value: Date) {
   return value.toLocaleString('fr-FR');
-}
-
-function addLineBreaks(values: string | string[]) {
-  if(typeof values === 'string') {
-    values = values.split('\n');
-  }
-  
-  return values.map((text, index) => (
-    <React.Fragment key={index}>
-      {text}
-      {index < values.length -1 && (
-        <br />
-      )}
-    </React.Fragment>
-  ));
 }
