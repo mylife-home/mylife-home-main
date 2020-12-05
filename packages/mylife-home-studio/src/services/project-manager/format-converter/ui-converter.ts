@@ -203,11 +203,11 @@ function convertPlugin(plugins: { [id: string]: PluginData; }, input: uiV1.Plugi
 
 // replace ids comp_id with comp-id (naming convention)
 function convertComponentId(id: string) {
-  return id.replace(/_/g, '-');
+  return id && id.replace(/_/g, '-');
 }
 
 // same for ui objects
 function convertUiId(id: string) {
-  return id.replace(/_/g, '-');
+  return id && id.replace(/_/g, '-');
 }
 
