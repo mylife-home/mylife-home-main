@@ -7,3 +7,7 @@ export const hasStartPageTab = (state: AppState) => getTabsCount(state, TabType.
 
 const getProjectLists = (state: AppState) => state.projectsList;
 export const getNotifierId = (state: AppState) => getProjectLists(state).notifierId;
+
+export const getCoreProjectsIds = (state: AppState) => getProjectLists(state).coreProjects.allIds;
+
+export const getUiProjectsIds = (state: AppState) => getProjectLists(state).uiProjects.allIds;

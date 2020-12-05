@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
+import ProjectList from './project-list';
 import { useActions } from '../lib/use-actions';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import { 
@@ -48,6 +49,9 @@ const StartPage: FunctionComponent = () => {
     <Grid container spacing={3} className={classes.container}>
       <Grid item xs={12}>
         <Typography variant='h6'>Designers</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <ProjectList />
       </Grid>
       <Grid item xs={12}>
         <Link className={classes.link} component='button' variant='body1' onClick={newCoreDesigner}>Nouveau designer core</Link>
