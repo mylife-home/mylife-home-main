@@ -1,6 +1,6 @@
 import { DefinitionResource } from 'mylife-home-ui/dist/src/model/definition';
 import { UiProject, UiProjectInfo } from '../../../shared/project-manager';
-import { convertUiProject, uiV1 } from './format-converter';
+import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
 import { Store } from './store';
 
 export class UiProjects extends Store<UiProject> {
