@@ -12,9 +12,16 @@ const UiProjectList: FunctionComponent = () => {
   const createNew = useAction(createNewProject);
 
   return (
-    <ProjectList ids={ids} onCreateNew={(id) => createNew({ type: 'ui', id })} onImportV1={(content) => importV1({ type: 'ui', content })}>
+    <ProjectList
+      ids={ids}
+      onCreateNew={(id) => createNew({ type: 'ui', id })}
+      onImportV1={(content) => importV1({ type: 'ui', content })}
+      onRename={() => console.log('rename')}
+      onDelete={() => console.log('delete')}
+      onOpen={() => console.log('delete')}
+    >
       {ids.map((id) => (
-        <ProjectItem key={id} id={id} info={['a', 'b']} onRename={() => console.log('rename')} onDelete={() => console.log('delete')} />
+        <ProjectItem key={id} id={id} info={['a', 'b']} />
       ))}
     </ProjectList>
   );
