@@ -5,7 +5,6 @@ import { useActions } from '../lib/use-actions';
 import { CoreDesignerNewTabData } from '../../store/core-designer/types';
 import {
   newCoreDesignerTab,
-  newUiDesignerTab,
   newOnlineComponentsViewTab,
   newOnlineHistoryTab,
   newOnlineInstancesViewTab,
@@ -20,7 +19,6 @@ let counter = 0;
 const Online: FunctionComponent<{ className?: string }> = ({ className }) => {
   const {
     newCoreDesignerTab,
-    newUiDesignerTab,
     newOnlineComponentsViewTab: newOnlineComponentsView,
     newOnlineHistoryTab: newOnlineHistory,
     newOnlineInstancesViewTab: newOnlineInstancesView,
@@ -33,16 +31,11 @@ const Online: FunctionComponent<{ className?: string }> = ({ className }) => {
     newCoreDesignerTab({ title: `Core designer ${++counter}`, data });
   };
 
-  const newUiDesigner = () => {
-    newUiDesignerTab({ title: `UI designer ${++counter}`, data: null });
-  };
-
   return (
     <Container className={className}>
       <Section title="Temp" />
 
       <ItemLink text="Nouveau designer core" onClick={newCoreDesigner} />
-      <ItemLink text="Nouveau designer UI" onClick={newUiDesigner} />
 
       <Section title="En ligne" />
 
@@ -60,7 +53,6 @@ export default Online;
 function useConnect() {
   return useActions({
     newCoreDesignerTab,
-    newUiDesignerTab,
     newOnlineComponentsViewTab,
     newOnlineHistoryTab,
     newOnlineInstancesViewTab,

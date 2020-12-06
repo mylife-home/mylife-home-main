@@ -6,6 +6,7 @@ import { useAction } from '../lib/use-actions';
 import { AppState } from '../../store/types';
 import { getUiProjectsIds, getUiProjectInfo } from '../../store/projects-list/selectors';
 import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
+import { newUiDesignerTab } from '../../store/tabs/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const UiProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
@@ -15,6 +16,7 @@ const UiProjectList: FunctionComponent<{ className?: string }> = ({ className })
   const duplicate = useAction(duplicateProject);
   const rename = useAction(renameProject);
   const doDelete = useAction(deleteProject);
+  const openTab = useAction(newUiDesignerTab);
 
   return (
     <ProjectList
@@ -26,7 +28,7 @@ const UiProjectList: FunctionComponent<{ className?: string }> = ({ className })
       onDuplicate={(id, newId) => duplicate({ type: 'ui', id, newId })}
       onRename={(id, newId) => rename({ type: 'ui', id, newId })}
       onDelete={(id) => doDelete({ type: 'ui', id })}
-      onOpen={(id) => console.log('TODO open', id)}
+      onOpen={(id) => openTab({ projectId: id })}
     >
       {ids.map((id) => (
         <UiPojectItem key={id} id={id} />
