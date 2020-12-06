@@ -20,7 +20,7 @@ export const newCoreDesignerTab = (data: CoreDesignerNewTabData) => newTab({
 });
 
 export const newUiDesignerTab = (data: UiDesignerNewTabData) => newTab({
-  id: `core-designer-${++idCounter}`,
+  id: `ui-designer-${++idCounter}`,
   title: `Designer UI '${data.projectId}'`,
   type: TabType.UI_DESIGNER,
   closable: true,
