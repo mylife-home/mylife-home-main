@@ -18,7 +18,6 @@ export const newCoreDesignerTab = ({title, data} : { title: string, data: CoreDe
   data
 });
 
-
 export const newUiDesignerTab = ({title, data} : { title: string, data: NewTabData }) => newTab({
   id: `core-designer-${++idCounter}`,
   title,
