@@ -18,6 +18,7 @@ const UiProjectList: FunctionComponent = () => {
 
   return (
     <ProjectList
+      title="Designers UI"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'ui', id })}
       onImportV1={(content) => importV1({ type: 'ui', content })}

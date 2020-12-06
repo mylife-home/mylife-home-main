@@ -2,10 +2,6 @@ import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
-
 import UiProjectList from './ui-project-list';
 import CoreProjectList from './core-project-list';
 import Online from './online';
@@ -36,19 +32,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-let counter = 0;
-
 const StartPage: FunctionComponent = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
       <div className={clsx(classes.flexContent, classes.subContainer)}>
         <div className={classes.flexContent}>
-          <UiDesigner />
+          <CoreProjectList />
         </div>
 
         <div className={classes.flexContent}>
-          <CoreDesigner />
+          <UiProjectList />
         </div>
       </div>
 
@@ -56,34 +50,6 @@ const StartPage: FunctionComponent = () => {
         <Online />
       </div>
     </div>
-  );
-};
-
-const CoreDesigner: FunctionComponent = () => {
-  const classes = useStyles();
-  return (
-    <Grid container spacing={3} className={classes.gridContainer}>
-      <Grid item xs={12}>
-        <Typography variant="h6">Designers UI</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <UiProjectList />
-      </Grid>
-    </Grid>
-  );
-};
-
-const UiDesigner: FunctionComponent = () => {
-  const classes = useStyles();
-  return (
-    <Grid container spacing={3} className={classes.gridContainer}>
-      <Grid item xs={12}>
-        <Typography variant="h6">Designers Core</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <CoreProjectList />
-      </Grid>
-    </Grid>
   );
 };
 

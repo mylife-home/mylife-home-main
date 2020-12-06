@@ -17,6 +17,7 @@ const CoreProjectList: FunctionComponent = () => {
 
   return (
     <ProjectList
+      title="Designers Core"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'core', id })}
       onImportV1={(content) => importV1({ type: 'core', content })}

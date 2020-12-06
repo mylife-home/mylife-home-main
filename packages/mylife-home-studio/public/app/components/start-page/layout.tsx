@@ -23,7 +23,7 @@ export const Container: FunctionComponent = ({ children }) => {
   );
 };
 
-export const Section: FunctionComponent<{ title: string; }> = ({ title }) => {
+export const Section: FunctionComponent<{ title: string }> = ({ title }) => {
   const classes = useStyles();
   return (
     <Grid item xs={12}>
@@ -32,13 +32,19 @@ export const Section: FunctionComponent<{ title: string; }> = ({ title }) => {
   );
 };
 
-export const ItemLink: FunctionComponent<{ text: string; onClick: () => void; }> = ({ text, onClick }) => {
+export const Item: FunctionComponent = ({ children }) => (
+  <Grid item xs={12}>
+    {children}
+  </Grid>
+);
+
+export const ItemLink: FunctionComponent<{ text: string; onClick: () => void }> = ({ text, onClick }) => {
   const classes = useStyles();
   return (
-    <Grid item xs={12}>
+    <Item>
       <Link className={classes.link} component="button" variant="body1" onClick={onClick}>
         {text}
       </Link>
-    </Grid>
+    </Item>
   );
 };
