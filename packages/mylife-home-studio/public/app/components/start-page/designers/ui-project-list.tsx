@@ -19,6 +19,7 @@ const UiProjectList: FunctionComponent = () => {
       onCreateNew={(id) => createNew({ type: 'ui', id })}
       onImportV1={(content) => importV1({ type: 'ui', content })}
       onRename={() => console.log('rename')}
+      onDuplicate={() => console.log('duplicate')}
       onDelete={() => console.log('delete')}
       onOpen={() => console.log('delete')}
     >

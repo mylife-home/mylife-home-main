@@ -3,26 +3,36 @@ import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import AddIcon from '@material-ui/icons/Add';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import EditIcon from '@material-ui/icons/Edit';
 
+import DeleteButton from '../../lib/delete-button';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useInputDialog } from '../../dialogs/input';
 
-const useStyles = makeStyles((theme) => ({}));
+const useStyles = makeStyles((theme) => ({
+  newButton: {
+    color: theme.palette.success.main,
+  },
+}));
 
 type CreateNewCallback = (id: string) => void;
 type ImportV1Callback = (content: string) => void;
 type DeleteCallback = (id: string) => void;
 type RenameCallback = (id: string, newId: string) => void;
+type DuplicateCallback = (id: string, newId: string) => void;
 type OpenCallback = (id: string) => void;
 
 interface ListContextProps {
   ids: string[];
   onDelete: DeleteCallback;
   onRename: RenameCallback;
+  onDuplicate: DuplicateCallback;
   onOpen: OpenCallback;
 }
 
@@ -34,12 +44,13 @@ export interface ProjectListProps {
   onImportV1: ImportV1Callback;
   onDelete: DeleteCallback;
   onRename: RenameCallback;
+  onDuplicate: DuplicateCallback;
   onOpen: OpenCallback;
 }
 
-export const ProjectList: FunctionComponent<ProjectListProps> = ({ ids, onCreateNew, onImportV1, onDelete, onRename, onOpen, children }) => {
+export const ProjectList: FunctionComponent<ProjectListProps> = ({ ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
   const classes = useStyles();
-  const contextProps = useMemo(() => ({ ids, onDelete, onRename, onOpen } as ListContextProps), [ids, onDelete, onRename, onOpen]);
+  const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen } as ListContextProps), [ids, onDelete, onRename, onDuplicate, onOpen]);
 
   return (
     <>
@@ -47,8 +58,8 @@ export const ProjectList: FunctionComponent<ProjectListProps> = ({ ids, onCreate
         <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
       </List>
 
-      <ImportV1Button onImportV1={onImportV1} />
-      <CreateNewButton ids={ids} onCreateNew={onCreateNew} />
+      <ImportV1Button onImportV1={onImportV1} className={classes.newButton} />
+      <CreateNewButton ids={ids} onCreateNew={onCreateNew} className={classes.newButton} />
     </>
   );
 };
@@ -60,7 +71,7 @@ export interface ProjectItemProps {
 
 export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) => {
   const classes = useStyles();
-  const { ids, onDelete, onRename, onOpen } = useContext(ListContext);
+  const { ids, onDelete, onRename, onDuplicate, onOpen } = useContext(ListContext);
   const fireAsync = useFireAsync();
   const showNewNewDialog = useNewNameDialog(ids, id);
 
@@ -71,19 +82,44 @@ export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) =
         onRename(id, newId);
       }
     });
+  
+  const handleDuplicate = () => 
+    fireAsync(async () => {
+      const { status, newId } = await showNewNewDialog();
+      if (status === 'ok') {
+        onDuplicate(id, newId);
+      }
+    });
 
   const handleDelete = () => onDelete(id);
 
-  // TODO
+  const handleOpen = () => onOpen(id);
 
   return (
-    <ListItem>
+    <ListItem button onClick={handleOpen}>
       <ListItemText primary={id} primaryTypographyProps={{ variant: 'body1' }} secondary={info.join(', ')} />
+
+      <ListItemSecondaryAction>
+        <Tooltip title="Renommer">
+          <IconButton onClick={handleRename}>
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Dupliquer">
+          <IconButton onClick={handleDuplicate} className={classes.newButton}>
+            <FileCopyIcon />
+          </IconButton>
+        </Tooltip>
+
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={handleDelete} />
+      </ListItemSecondaryAction>
+
     </ListItem>
   );
 };
 
-const ImportV1Button: FunctionComponent<{ onImportV1: ImportV1Callback }> = ({ onImportV1 }) => {
+const ImportV1Button: FunctionComponent<{ className?: string; onImportV1: ImportV1Callback }> = ({ className, onImportV1 }) => {
   const inputRef = useRef<HTMLInputElement>();
   const fireAsync = useFireAsync();
 
@@ -100,7 +136,7 @@ const ImportV1Button: FunctionComponent<{ onImportV1: ImportV1Callback }> = ({ o
       <input ref={inputRef} type="file" hidden onChange={handleUpload} />
 
       <Tooltip title="Import v1">
-        <IconButton onClick={() => inputRef.current.click()}>
+        <IconButton onClick={() => inputRef.current.click()} className={className}>
           <CloudUploadIcon />
         </IconButton>
       </Tooltip>
@@ -108,7 +144,7 @@ const ImportV1Button: FunctionComponent<{ onImportV1: ImportV1Callback }> = ({ o
   );
 };
 
-const CreateNewButton: FunctionComponent<{ ids: string[]; onCreateNew: CreateNewCallback }> = ({ ids, onCreateNew }) => {
+const CreateNewButton: FunctionComponent<{ className?: string; ids: string[]; onCreateNew: CreateNewCallback }> = ({ className, ids, onCreateNew }) => {
   const fireAsync = useFireAsync();
   const showNewNewDialog = useNewNameDialog(ids);
 
@@ -122,7 +158,7 @@ const CreateNewButton: FunctionComponent<{ ids: string[]; onCreateNew: CreateNew
 
   return (
     <Tooltip title="Créer un nouveau projet">
-      <IconButton onClick={handleClick}>
+      <IconButton onClick={handleClick} className={className}>
         <AddIcon />
       </IconButton>
     </Tooltip>
