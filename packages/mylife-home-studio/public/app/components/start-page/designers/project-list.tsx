@@ -116,7 +116,7 @@ const ImportV1Button: FunctionComponent<{ className?: string; onImportV1: Import
 
 const CreateNewButton: FunctionComponent<{ className?: string; ids: string[]; onCreateNew: CreateNewCallback }> = ({ className, ids, onCreateNew }) => {
   const fireAsync = useFireAsync();
-  const showNewNewDialog = useNewNameDialog(ids);
+  const showNewNewDialog = useNewNameDialog('Nouveau projet', 'Entrer le nom du nouveau projet', ids);
 
   const handleClick = () =>
     fireAsync(async () => {
@@ -138,7 +138,7 @@ const CreateNewButton: FunctionComponent<{ className?: string; ids: string[]; on
 const DuplicateButton: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
   const { ids, onDuplicate } = useContext(ListContext);
   const fireAsync = useFireAsync();
-  const showNewNewDialog = useNewNameDialog(ids);
+  const showNewNewDialog = useNewNameDialog('Duplication de projet', 'Entrer le nom du projet dupliqué', ids);
   
   const handleDuplicate = () => 
     fireAsync(async () => {
@@ -160,7 +160,7 @@ const DuplicateButton: FunctionComponent<{ className?: string; id: string; }> = 
 const RenameButton: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
   const { ids, onRename } = useContext(ListContext);
   const fireAsync = useFireAsync();
-  const showNewNewDialog = useNewNameDialog(ids, id);
+  const showNewNewDialog = useNewNameDialog('Renommage', 'Entrer le nouveau nom du projet', ids, id);
 
   const handleRename = () =>
     fireAsync(async () => {
@@ -179,12 +179,12 @@ const RenameButton: FunctionComponent<{ className?: string; id: string; }> = ({ 
   );
 };
 
-function useNewNameDialog(existingIds: string[], id: string = null) {
+function useNewNameDialog(title: string, message: string, existingIds: string[], id: string = null) {
   const showInput = useInputDialog();
 
   const options = {
-    title: 'Nouveau nom',
-    message: 'Entrer le nouveau nom de projet',
+    title,
+    message,
     initialText: id || 'Nouveau projet',
     validator(newId: string) {
       if (id && newId === id) {
