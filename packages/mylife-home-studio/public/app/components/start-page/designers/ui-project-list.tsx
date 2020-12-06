@@ -36,8 +36,8 @@ const UiPojectItem: FunctionComponent<{ id: string }> = ({ id }) => {
 
   const formattedInfo = useMemo(() => [
     `${info.windowsCount} fenêtres`,
-    `${info.componentsCount} componsants importés`,
     `${info.resourcesCount} ressources (${humanize.fileSize(info.resourcesSize)})`,
+    `${info.componentsCount} componsants importés`,
   ], [info]);
 
   return <ProjectItem id={id} info={formattedInfo} />;
