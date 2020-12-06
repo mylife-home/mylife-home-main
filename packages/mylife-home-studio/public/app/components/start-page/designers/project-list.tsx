@@ -71,28 +71,8 @@ export interface ProjectItemProps {
 
 export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) => {
   const classes = useStyles();
-  const { ids, onDelete, onRename, onDuplicate, onOpen } = useContext(ListContext);
-  const fireAsync = useFireAsync();
-  const showNewNewDialog = useNewNameDialog(ids, id);
-
-  const handleRename = () =>
-    fireAsync(async () => {
-      const { status, newId } = await showNewNewDialog();
-      if (status === 'ok') {
-        onRename(id, newId);
-      }
-    });
-  
-  const handleDuplicate = () => 
-    fireAsync(async () => {
-      const { status, newId } = await showNewNewDialog();
-      if (status === 'ok') {
-        onDuplicate(id, newId);
-      }
-    });
-
+  const { ids, onDelete, onOpen } = useContext(ListContext);
   const handleDelete = () => onDelete(id);
-
   const handleOpen = () => onOpen(id);
 
   return (
@@ -100,18 +80,8 @@ export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) =
       <ListItemText primary={id} primaryTypographyProps={{ variant: 'body1' }} secondary={info.join(', ')} />
 
       <ListItemSecondaryAction>
-        <Tooltip title="Renommer">
-          <IconButton onClick={handleRename}>
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title="Dupliquer">
-          <IconButton onClick={handleDuplicate} className={classes.newButton}>
-            <FileCopyIcon />
-          </IconButton>
-        </Tooltip>
-
+        <DuplicateButton id={id} className={classes.newButton} />
+        <RenameButton id={id} />
         <DeleteButton icon tooltip="Supprimer" onConfirmed={handleDelete} />
       </ListItemSecondaryAction>
 
@@ -160,6 +130,50 @@ const CreateNewButton: FunctionComponent<{ className?: string; ids: string[]; on
     <Tooltip title="Créer un nouveau projet">
       <IconButton onClick={handleClick} className={className}>
         <AddIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+const DuplicateButton: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
+  const { ids, onDuplicate } = useContext(ListContext);
+  const fireAsync = useFireAsync();
+  const showNewNewDialog = useNewNameDialog(ids);
+  
+  const handleDuplicate = () => 
+    fireAsync(async () => {
+      const { status, newId } = await showNewNewDialog();
+      if (status === 'ok') {
+        onDuplicate(id, newId);
+      }
+    });
+
+  return (
+    <Tooltip title="Dupliquer">
+      <IconButton onClick={handleDuplicate} className={className}>
+        <FileCopyIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+const RenameButton: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
+  const { ids, onRename } = useContext(ListContext);
+  const fireAsync = useFireAsync();
+  const showNewNewDialog = useNewNameDialog(ids, id);
+
+  const handleRename = () =>
+    fireAsync(async () => {
+      const { status, newId } = await showNewNewDialog();
+      if (status === 'ok') {
+        onRename(id, newId);
+      }
+    });
+
+  return (
+    <Tooltip title="Renommer">
+      <IconButton onClick={handleRename} className={className}>
+        <EditIcon />
       </IconButton>
     </Tooltip>
   );
