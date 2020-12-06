@@ -17,7 +17,7 @@ import * as schema from '../../files/schema';
 
 let counter = 0;
 
-const Online: FunctionComponent = () => {
+const Online: FunctionComponent<{ className?: string }> = ({ className }) => {
   const {
     newCoreDesignerTab,
     newUiDesignerTab,
@@ -38,7 +38,7 @@ const Online: FunctionComponent = () => {
   };
 
   return (
-    <Container>
+    <Container className={className}>
       <Section title="Temp" />
 
       <ItemLink text="Nouveau designer core" onClick={newCoreDesigner} />
@@ -51,7 +51,6 @@ const Online: FunctionComponent = () => {
       <ItemLink text="Vue des instances" onClick={newOnlineInstancesView} />
       <ItemLink text="Vue des composants" onClick={newOnlineComponentsView} />
       <ItemLink text="Déploiement" onClick={newDeploy} />
-
     </Container>
   );
 };

@@ -44,6 +44,7 @@ interface ListContextProps {
 const ListContext = createContext<ListContextProps>(null);
 
 export interface ProjectListProps {
+  className?: string;
   title: string;
   ids: string[];
   onCreateNew: CreateNewCallback;
@@ -54,18 +55,18 @@ export interface ProjectListProps {
   onOpen: OpenCallback;
 }
 
-export const ProjectList: FunctionComponent<ProjectListProps> = ({ title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
+export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
   const classes = useStyles();
   const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen } as ListContextProps), [ids, onDelete, onRename, onDuplicate, onOpen]);
 
   return (
-    <Container>
+    <Container className={className}>
       <Section title={title} />
 
       <CreateNewLink ids={ids} onCreateNew={onCreateNew} />
       <ImportV1Link onImportV1={onImportV1} />
 
-      <Item>
+      <Item fullHeight>
         <List className={classes.list}>
           <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
         </List>

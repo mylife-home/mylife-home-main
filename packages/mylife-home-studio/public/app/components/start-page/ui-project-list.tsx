@@ -8,7 +8,7 @@ import { getUiProjectsIds, getUiProjectInfo } from '../../store/projects-list/se
 import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
-const UiProjectList: FunctionComponent = () => {
+const UiProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
   const ids = useSelector(getUiProjectsIds);
   const importV1 = useAction(importV1Project);
   const createNew = useAction(createNewProject);
@@ -18,6 +18,7 @@ const UiProjectList: FunctionComponent = () => {
 
   return (
     <ProjectList
+      className={className}
       title="Designers UI"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'ui', id })}

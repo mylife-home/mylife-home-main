@@ -22,22 +22,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Container: FunctionComponent = ({ children }) => {
+export const Container: FunctionComponent<{ className?: string }> = ({ className, children }) => {
   const classes = useStyles();
-  return (
-    <div className={classes.container}>
-      {children}
-    </div>
-  );
+  return <div className={clsx(classes.container, className)}>{children}</div>;
 };
 
 export const Item: FunctionComponent<{ fullHeight?: boolean }> = ({ fullHeight = false, children }) => {
   const classes = useStyles();
-  return (
-    <div className={clsx(classes.item, { [classes.fullHeight]: fullHeight })}>
-      {children}
-    </div>
-  );
+  return <div className={clsx(classes.item, { [classes.fullHeight]: fullHeight })}>{children}</div>;
 };
 
 export const Section: FunctionComponent<{ title: string }> = ({ title }) => {

@@ -7,7 +7,7 @@ import { getCoreProjectsIds, getCoreProjectInfo } from '../../store/projects-lis
 import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
-const CoreProjectList: FunctionComponent = () => {
+const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
   const ids = useSelector(getCoreProjectsIds);
   const importV1 = useAction(importV1Project);
   const createNew = useAction(createNewProject);
@@ -17,6 +17,7 @@ const CoreProjectList: FunctionComponent = () => {
 
   return (
     <ProjectList
+      className={className}
       title="Designers Core"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'core', id })}
@@ -38,9 +39,7 @@ export default CoreProjectList;
 const CorePojectItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
-  const formattedInfo = useMemo(() => [
-    'TODO',
-  ], [info]);
+  const formattedInfo = useMemo(() => ['TODO'], [info]);
 
   return <ProjectItem id={id} info={formattedInfo} />;
 };

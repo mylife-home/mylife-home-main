@@ -21,7 +21,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
-  content: {
+  row: {
+    height: 0,
+    flex: 1,
+  },
+  column: {
+    width: 0,
     flex: 1,
   },
 }));
@@ -30,19 +35,12 @@ const StartPage: FunctionComponent = () => {
   const classes = useStyles();
   return (
     <div className={classes.container}>
-      <div className={clsx(classes.content, classes.subContainer)}>
-        <div className={classes.content}>
-          <CoreProjectList />
-        </div>
-
-        <div className={classes.content}>
-          <UiProjectList />
-        </div>
+      <div className={clsx(classes.column, classes.subContainer)}>
+        <CoreProjectList className={classes.row} />
+        <UiProjectList className={classes.row} />
       </div>
 
-      <div className={classes.content}>
-        <Online />
-      </div>
+      <Online className={classes.column} />
     </div>
   );
 };
