@@ -5,23 +5,26 @@ import humanize from 'humanize-plus';
 import { useAction } from '../../lib/use-actions';
 import { AppState } from '../../../store/types';
 import { getUiProjectsIds, getUiProjectInfo } from '../../../store/projects-list/selectors';
-import { importV1Project, createNewProject } from '../../../store/projects-list/actions';
+import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const UiProjectList: FunctionComponent = () => {
   const ids = useSelector(getUiProjectsIds);
   const importV1 = useAction(importV1Project);
   const createNew = useAction(createNewProject);
+  const duplicate = useAction(duplicateProject);
+  const rename = useAction(renameProject);
+  const doDelete = useAction(deleteProject);
 
   return (
     <ProjectList
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'ui', id })}
       onImportV1={(content) => importV1({ type: 'ui', content })}
-      onRename={() => console.log('rename')}
-      onDuplicate={() => console.log('duplicate')}
-      onDelete={() => console.log('delete')}
-      onOpen={() => console.log('delete')}
+      onDuplicate={(id, newId) => duplicate({ type: 'ui', id, newId })}
+      onRename={(id, newId) => rename({ type: 'ui', id, newId })}
+      onDelete={(id) => doDelete({ type: 'ui', id })}
+      onOpen={(id) => console.log('TODO open', id)}
     >
       {ids.map((id) => (
         <UiPojectItem key={id} id={id} />
