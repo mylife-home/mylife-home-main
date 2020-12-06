@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useRef, createContext, useContext, useMemo } from 'react';
-import { AutoSizer } from 'react-virtualized';
-import { makeStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
+import { makeStyles, darken } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,12 +14,16 @@ import DeleteButton from '../lib/delete-button';
 import { useFireAsync } from '../lib/use-error-handling';
 import { useInputDialog } from '../dialogs/input';
 
-import { Container, Section, Item, ItemLink } from './layout';
+import { useLayoutStyles, Container, Section, ItemLink } from './layout';
 
 const useStyles = makeStyles((theme) => ({
   list: {
-    width: 500,
+    maxWidth: 500,
     overflowY: 'auto',
+
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: darken(theme.palette.background.paper, 0.1),
   },
   newButton: {
     color: theme.palette.success.main,
@@ -56,7 +60,7 @@ export interface ProjectListProps {
 }
 
 export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
-  const classes = useStyles();
+  const classes = { ...useStyles(), ...useLayoutStyles() };
   const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen } as ListContextProps), [ids, onDelete, onRename, onDuplicate, onOpen]);
 
   return (
@@ -66,11 +70,9 @@ export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, ti
       <CreateNewLink ids={ids} onCreateNew={onCreateNew} />
       <ImportV1Link onImportV1={onImportV1} />
 
-      <Item fullHeight>
-        <List className={classes.list}>
-          <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
-        </List>
-      </Item>
+      <List className={clsx(classes.list, classes.item, classes.fullHeight)}>
+        <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
+      </List>
     </Container>
   );
 };
