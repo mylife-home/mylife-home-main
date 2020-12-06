@@ -16,6 +16,10 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { useInputDialog } from '../../dialogs/input';
 
 const useStyles = makeStyles((theme) => ({
+  list: {
+    width: 500,
+    overflowY: 'auto',
+  },
   newButton: {
     color: theme.palette.success.main,
   },
@@ -54,7 +58,7 @@ export const ProjectList: FunctionComponent<ProjectListProps> = ({ ids, onCreate
 
   return (
     <>
-      <List>
+      <List className={classes.list}>
         <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
       </List>
 
