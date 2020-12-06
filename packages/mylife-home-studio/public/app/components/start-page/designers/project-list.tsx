@@ -6,6 +6,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import AddIcon from '@material-ui/icons/Add';
 
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useInputDialog } from '../../dialogs/input';
@@ -122,7 +123,7 @@ const CreateNewButton: FunctionComponent<{ ids: string[]; onCreateNew: CreateNew
   return (
     <Tooltip title="Créer un nouveau projet">
       <IconButton onClick={handleClick}>
-        <CloudUploadIcon />
+        <AddIcon />
       </IconButton>
     </Tooltip>
   );

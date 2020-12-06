@@ -20,5 +20,5 @@ export function createSocketCallEpic<TActionType, TActionPayload = any, TService
 }
 
 function socketCall<TPayload>(service: string, payload: TPayload) {
-  return socket.call('project-manager/import-v1', payload) as Observable<void>;
+  return socket.call(service, payload) as Observable<void>;
 }
