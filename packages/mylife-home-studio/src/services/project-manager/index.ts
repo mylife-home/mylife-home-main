@@ -35,6 +35,7 @@ export class ProjectManager implements Service {
 
     Services.instance.sessionManager.registerServiceHandler('project-manager/import-v1', this.importV1Project);
     Services.instance.sessionManager.registerServiceHandler('project-manager/create-new', this.createNewProject);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/duplicate', this.duplicateProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/rename', this.renameProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/delete', this.deleteProject);
   }
@@ -65,6 +66,11 @@ export class ProjectManager implements Service {
   private readonly createNewProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
     const store = this.getStoreByType(type);
     await store.createNew(id);
+  };
+
+  private readonly duplicateProject = async (session: Session, { type, id, newId }: { type: ProjectType; id: string; newId: string; }) => {
+    const store = this.getStoreByType(type);
+    await store.duplicate(id, newId);
   };
 
   private readonly renameProject = async (session: Session, { type, id, newId }: { type: ProjectType; id: string; newId: string; }) => {

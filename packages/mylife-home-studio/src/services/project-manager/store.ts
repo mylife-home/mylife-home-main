@@ -58,6 +58,25 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     });
   }
 
+  async duplicate(name: string, newName: string) {
+    await this.mutex.runExclusive(async () => {
+      const project = this.projects.get(name);
+      if (!project) {
+        throw new Error(`Project named '${name}' does not exist`);
+      }
+      if (this.projects.has(newName)) {
+        throw new Error(`A project named '${newName}' already exists`);
+      }
+
+      const newProject = clone(project);
+      newProject.name = newName;
+      this.projects.set(newName, newProject);
+
+      await this.save(newProject);
+      this.emit('created', newName);
+    });
+  }
+
   async rename(oldName: string, newName: string) {
     await this.mutex.runExclusive(async () => {
       const project = this.projects.get(oldName);
@@ -120,4 +139,8 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
   abstract getProjectInfo(name: string): ProjectInfo;
   abstract createNew(name: string): Promise<void>;
+}
+
+function clone<T>(source: T): T {
+  return JSON.parse(JSON.stringify(source));
 }
