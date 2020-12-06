@@ -3,9 +3,7 @@ import { Table } from '../common/types';
 import { NewTabData } from '../tabs/types';
 
 export interface CoreDesignerNewTabData extends NewTabData {
-  plugins: Plugin[];
-  components: Component[];
-  bindings: Binding[];
+  projectId: string;
 }
 
 export interface MoveComponentAction {

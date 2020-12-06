@@ -5,6 +5,7 @@ import { useAction } from '../lib/use-actions';
 import { AppState } from '../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../store/projects-list/selectors';
 import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
+import { newCoreDesignerTab } from '../../store/tabs/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
@@ -14,6 +15,7 @@ const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className 
   const duplicate = useAction(duplicateProject);
   const rename = useAction(renameProject);
   const doDelete = useAction(deleteProject);
+  const openTab = useAction(newCoreDesignerTab);
 
   return (
     <ProjectList
@@ -25,7 +27,7 @@ const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className 
       onDuplicate={(id, newId) => duplicate({ type: 'core', id, newId })}
       onRename={(id, newId) => rename({ type: 'core', id, newId })}
       onDelete={(id) => doDelete({ type: 'core', id })}
-      onOpen={(id) => console.log('TODO open', id)}
+      onOpen={(id) => openTab({ projectId: id })}
     >
       {ids.map((id) => (
         <CorePojectItem key={id} id={id} />

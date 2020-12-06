@@ -1,10 +1,8 @@
 import React, { FunctionComponent } from 'react';
 
 import { Container, Section, ItemLink } from './layout';
-import { useActions } from '../lib/use-actions';
-import { CoreDesignerNewTabData } from '../../store/core-designer/types';
+import { useAction } from '../lib/use-actions';
 import {
-  newCoreDesignerTab,
   newOnlineComponentsViewTab,
   newOnlineHistoryTab,
   newOnlineInstancesViewTab,
@@ -12,31 +10,15 @@ import {
   newDeployTab,
 } from '../../store/tabs/actions';
 
-import * as schema from '../../files/schema';
-
-let counter = 0;
-
 const Online: FunctionComponent<{ className?: string }> = ({ className }) => {
-  const {
-    newCoreDesignerTab,
-    newOnlineComponentsViewTab: newOnlineComponentsView,
-    newOnlineHistoryTab: newOnlineHistory,
-    newOnlineInstancesViewTab: newOnlineInstancesView,
-    newOnlineLogsTab: newOnlineLogs,
-    newDeployTab: newDeploy,
-  } = useConnect();
-
-  const newCoreDesigner = () => {
-    const data: CoreDesignerNewTabData = schema.vpanelCore;
-    newCoreDesignerTab({ title: `Core designer ${++counter}`, data });
-  };
+  const newOnlineComponentsView = useAction(newOnlineComponentsViewTab);
+  const newOnlineHistory = useAction(newOnlineHistoryTab);
+  const newOnlineInstancesView = useAction(newOnlineInstancesViewTab);
+  const newOnlineLogs = useAction(newOnlineLogsTab);
+  const newDeploy = useAction(newDeployTab);
 
   return (
     <Container className={className}>
-      <Section title="Temp" />
-
-      <ItemLink text="Nouveau designer core" onClick={newCoreDesigner} />
-
       <Section title="En ligne" />
 
       <ItemLink text="Logs" onClick={newOnlineLogs} />
@@ -49,14 +31,3 @@ const Online: FunctionComponent<{ className?: string }> = ({ className }) => {
 };
 
 export default Online;
-
-function useConnect() {
-  return useActions({
-    newCoreDesignerTab,
-    newOnlineComponentsViewTab,
-    newOnlineHistoryTab,
-    newOnlineInstancesViewTab,
-    newOnlineLogsTab,
-    newDeployTab,
-  });
-}

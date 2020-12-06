@@ -5,6 +5,8 @@ import { createTable } from '../common/reducer-tools';
 
 const initialState: CoreDesignersState = {};
 
+import * as schema from '../../files/schema';
+
 export default createReducer(initialState, {
   [TabsActionTypes.NEW]: (state, action: PayloadAction<NewTabAction>) => {
     const { id, type, data } = action.payload;
@@ -12,7 +14,9 @@ export default createReducer(initialState, {
       return;
     }
 
-    const { plugins, components, bindings } = data as CoreDesignerNewTabData;
+    // TODO: open project
+    const { projectId } = data as CoreDesignerNewTabData;
+    const { plugins, components, bindings } = schema.vpanelCore;
 
     state[id] = {
       plugins: createTable(plugins),
