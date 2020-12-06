@@ -1,13 +1,21 @@
 import React, { FunctionComponent } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 
 const useStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(3),
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  item: {
+    marginTop: theme.spacing(3),
+  },
+  fullHeight: {
+    flex: 1,
   },
   link: {
     marginLeft: theme.spacing(3),
@@ -17,26 +25,29 @@ const useStyles = makeStyles((theme) => ({
 export const Container: FunctionComponent = ({ children }) => {
   const classes = useStyles();
   return (
-    <Grid container spacing={3} className={classes.container}>
+    <div className={classes.container}>
       {children}
-    </Grid>
+    </div>
+  );
+};
+
+export const Item: FunctionComponent<{ fullHeight?: boolean }> = ({ fullHeight = false, children }) => {
+  const classes = useStyles();
+  return (
+    <div className={clsx(classes.item, { [classes.fullHeight]: fullHeight })}>
+      {children}
+    </div>
   );
 };
 
 export const Section: FunctionComponent<{ title: string }> = ({ title }) => {
   const classes = useStyles();
   return (
-    <Grid item xs={12}>
+    <Item>
       <Typography variant="h6">{title}</Typography>
-    </Grid>
+    </Item>
   );
 };
-
-export const Item: FunctionComponent = ({ children }) => (
-  <Grid item xs={12}>
-    {children}
-  </Grid>
-);
 
 export const ItemLink: FunctionComponent<{ text: string; onClick: () => void }> = ({ text, onClick }) => {
   const classes = useStyles();
