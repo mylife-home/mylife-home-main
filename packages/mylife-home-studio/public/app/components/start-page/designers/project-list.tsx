@@ -7,7 +7,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
-import { addLineBreaks } from '../../lib/add-line-breaks';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useInputDialog } from '../../dialogs/input';
 
@@ -77,11 +76,9 @@ export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) =
   // TODO
 
   return (
-    <Tooltip title={addLineBreaks(info)}>
-      <ListItem>
-        <ListItemText primary={id} />
-      </ListItem>
-    </Tooltip>
+    <ListItem>
+      <ListItemText primary={id} primaryTypographyProps={{ variant: 'body1' }} secondary={info.join(', ')} />
+    </ListItem>
   );
 };
 

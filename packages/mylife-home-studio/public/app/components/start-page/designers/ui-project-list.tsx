@@ -1,8 +1,10 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import humanize from 'humanize-plus';
 
 import { useAction } from '../../lib/use-actions';
-import { getUiProjectsIds } from '../../../store/projects-list/selectors';
+import { AppState } from '../../../store/types';
+import { getUiProjectsIds, getUiProjectInfo } from '../../../store/projects-list/selectors';
 import { importV1Project, createNewProject } from '../../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
@@ -21,10 +23,22 @@ const UiProjectList: FunctionComponent = () => {
       onOpen={() => console.log('delete')}
     >
       {ids.map((id) => (
-        <ProjectItem key={id} id={id} info={['a', 'b']} />
+        <UiPojectItem key={id} id={id} />
       ))}
     </ProjectList>
   );
 };
 
 export default UiProjectList;
+
+const UiPojectItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const info = useSelector((state: AppState) => getUiProjectInfo(state, id));
+
+  const formattedInfo = useMemo(() => [
+    `${info.windowsCount} fenêtres`,
+    `${info.componentsCount} componsants importés`,
+    `${info.resourcesCount} ressources (${humanize.fileSize(info.resourcesSize)})`,
+  ], [info]);
+
+  return <ProjectItem id={id} info={formattedInfo} />;
+};
