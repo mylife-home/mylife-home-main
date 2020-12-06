@@ -71,7 +71,7 @@ export interface ProjectItemProps {
 
 export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) => {
   const classes = useStyles();
-  const { ids, onDelete, onOpen } = useContext(ListContext);
+  const { onDelete, onOpen } = useContext(ListContext);
   const handleDelete = () => onDelete(id);
   const handleOpen = () => onOpen(id);
 
