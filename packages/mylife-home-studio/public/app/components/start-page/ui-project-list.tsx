@@ -2,10 +2,10 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import humanize from 'humanize-plus';
 
-import { useAction } from '../../lib/use-actions';
-import { AppState } from '../../../store/types';
-import { getUiProjectsIds, getUiProjectInfo } from '../../../store/projects-list/selectors';
-import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../../store/projects-list/actions';
+import { useAction } from '../lib/use-actions';
+import { AppState } from '../../store/types';
+import { getUiProjectsIds, getUiProjectInfo } from '../../store/projects-list/selectors';
+import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const UiProjectList: FunctionComponent = () => {

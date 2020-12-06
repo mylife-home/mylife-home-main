@@ -11,9 +11,9 @@ import AddIcon from '@material-ui/icons/Add';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import EditIcon from '@material-ui/icons/Edit';
 
-import DeleteButton from '../../lib/delete-button';
-import { useFireAsync } from '../../lib/use-error-handling';
-import { useInputDialog } from '../../dialogs/input';
+import DeleteButton from '../lib/delete-button';
+import { useFireAsync } from '../lib/use-error-handling';
+import { useInputDialog } from '../dialogs/input';
 
 const useStyles = makeStyles((theme) => ({
   list: {

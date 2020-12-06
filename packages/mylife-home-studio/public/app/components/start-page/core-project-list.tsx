@@ -1,10 +1,10 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
-import { useAction } from '../../lib/use-actions';
-import { AppState } from '../../../store/types';
-import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
-import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../../store/projects-list/actions';
+import { useAction } from '../lib/use-actions';
+import { AppState } from '../../store/types';
+import { getCoreProjectsIds, getCoreProjectInfo } from '../../store/projects-list/selectors';
+import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const CoreProjectList: FunctionComponent = () => {
