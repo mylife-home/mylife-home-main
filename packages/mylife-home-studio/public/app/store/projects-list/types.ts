@@ -8,6 +8,7 @@ export const enum ActionTypes {
 
   IMPORT_V1 = 'projects-list/import-v1',
   CREATE_NEW = 'projects-list/create-new',
+  DUPLICATE = 'projects-list/duplicate',
   RENAME = 'projects-list/rename',
   DELETE = 'projects-list/delete',
 }

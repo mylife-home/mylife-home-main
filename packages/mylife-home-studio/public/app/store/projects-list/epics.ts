@@ -21,10 +21,11 @@ const notifierEpic = createNotifierEpic({
 
 const importV1ProjectEpic = createSocketCallEpic(ActionTypes.IMPORT_V1, 'project-manager/import-v1');
 const createNewProjectEpic = createSocketCallEpic(ActionTypes.CREATE_NEW, 'project-manager/create-new');
+const duplicateProjectEpic = createSocketCallEpic(ActionTypes.DUPLICATE, 'project-manager/duplicate');
 const renameProjectEpic = createSocketCallEpic(ActionTypes.RENAME, 'project-manager/rename');
 const deleteProjectEpic = createSocketCallEpic(ActionTypes.DELETE, 'project-manager/delete');
 
-export default combineEpics(notifierEpic, importV1ProjectEpic, createNewProjectEpic, renameProjectEpic, deleteProjectEpic);
+export default combineEpics(notifierEpic, importV1ProjectEpic, createNewProjectEpic, duplicateProjectEpic, renameProjectEpic, deleteProjectEpic);
 
 function parseUpdate(input: UpdateListNotification): Update {
   switch (input.operation) {
