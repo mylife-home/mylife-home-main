@@ -65,13 +65,30 @@ export interface ProjectListProps {
 export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
   const layoutClasses = useLayoutStyles();
   const classes = useStyles();
-  const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen } as ListContextProps), [ids, onDelete, onRename, onDuplicate, onOpen]);
+
+  // open after create, duplicate
+  // should also open after import-v1 but we don't have a name
+
+  const contextProps = useMemo(() => {
+    const handleDuplicate = (id: string, newId : string) => {
+      onDuplicate(id, newId);
+      onOpen(newId);
+    };
+
+    const props: ListContextProps = { ids, onDelete, onRename, onDuplicate: handleDuplicate, onOpen };
+    return props;
+  }, [ids, onDelete, onRename, onDuplicate, onOpen]);
+
+  const handleCreateNew = (id: string) => {
+    onCreateNew(id);
+    onOpen(id);
+  };
 
   return (
     <Container className={clsx(classes.container, className)}>
       <Section title={title} />
 
-      <CreateNewLink ids={ids} onCreateNew={onCreateNew} />
+      <CreateNewLink ids={ids} onCreateNew={handleCreateNew} />
       <ImportV1Link onImportV1={onImportV1} />
 
       <List className={clsx(classes.list, layoutClasses.item, layoutClasses.fullHeight)}>
