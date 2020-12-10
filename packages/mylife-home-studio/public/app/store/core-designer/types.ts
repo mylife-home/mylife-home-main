@@ -6,6 +6,21 @@ export interface CoreDesignerNewTabData extends NewTabData {
   projectId: string;
 }
 
+export interface CoreOpenedProject {
+  id: string; // = tabId
+  projectId: string; // TODO: can change, need to update tab title on change
+  notifierId: string;
+
+  // TODO
+  plugins: PluginsState;
+  components: ComponentsState;
+  bindings: BindingsState;
+}
+
+export interface CoreDesignerState {
+  openedProjects: Table<CoreOpenedProject>;
+}
+
 export interface MoveComponentAction {
   tabId: string;
   componentId: string;
@@ -48,11 +63,3 @@ export interface Binding {
 export type PluginsState = Table<Plugin>;
 export type ComponentsState = Table<Component>;
 export type BindingsState = Table<Binding>;
-
-export interface CoreDesignerState {
-  plugins: PluginsState;
-  components: ComponentsState;
-  bindings: BindingsState;
-}
-
-export type CoreDesignersState = { [tabKey: string]: CoreDesignerState; };

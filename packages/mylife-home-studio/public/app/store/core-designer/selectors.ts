@@ -1,6 +1,6 @@
 import { AppState } from '../types';
 
-const getCoreDesigner = (state: AppState, tabId: string) => state.coreDesigner[tabId];
+const getCoreDesigner = (state: AppState, tabId: string) => state.coreDesigner.openedProjects.byId[tabId];
 export const getPluginIds = (state: AppState, tabId: string) => getCoreDesigner(state, tabId).plugins.allIds;
 export const getPlugin = (state: AppState, tabId: string, pluginId: string) => getCoreDesigner(state, tabId).plugins.byId[pluginId];
 export const getComponentIds = (state: AppState, tabId: string) => getCoreDesigner(state, tabId).components.allIds;

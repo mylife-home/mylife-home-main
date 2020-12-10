@@ -1,9 +1,11 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
-import { ActionTypes, CoreDesignersState, CoreDesignerNewTabData, MoveComponentAction } from './types';
-import { createTable } from '../common/reducer-tools';
+import { ActionTypes, CoreDesignerState, CoreDesignerNewTabData, MoveComponentAction, CoreOpenedProject } from './types';
+import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 
-const initialState: CoreDesignersState = {};
+const initialState: CoreDesignerState = {
+  openedProjects: createTable<CoreOpenedProject>()
+};
 
 import * as schema from '../../files/schema';
 
@@ -17,21 +19,28 @@ export default createReducer(initialState, {
     // TODO: open project
     const { projectId } = data as CoreDesignerNewTabData;
     const { plugins, components, bindings } = schema.vpanelCore;
-
-    state[id] = {
+    
+    const openedProject: CoreOpenedProject = {
+      id,
+      projectId,
+      notifierId: null,
       plugins: createTable(plugins),
       components: createTable(components),
-      bindings: createTable(bindings),
+      bindings: createTable(bindings)
     };
+
+    tableAdd(state.openedProjects, openedProject);
   },
 
   [TabsActionTypes.CLOSE]: (state, action: PayloadAction<TabIdAction>) => {
     const { id } = action.payload;
-    delete state[id];
+    // TODO: close project
+    tableRemove(state.openedProjects, id);
   },
 
   [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<MoveComponentAction>) => {
     const { tabId, componentId, position } = action.payload;
-    state[tabId].components.byId[componentId].position = position;
+    const openedProject = state.openedProjects.byId[tabId];
+    openedProject.components.byId[componentId].position = position;
   },
 });
