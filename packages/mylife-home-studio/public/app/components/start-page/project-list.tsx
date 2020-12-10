@@ -17,6 +17,9 @@ import { useInputDialog } from '../dialogs/input';
 import { useLayoutStyles, Container, Section, ItemLink } from './layout';
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    minWidth: 500,
+  },
   list: {
     maxWidth: 500,
     overflowY: 'auto',
@@ -60,17 +63,18 @@ export interface ProjectListProps {
 }
 
 export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
-  const classes = { ...useStyles(), ...useLayoutStyles() };
+  const layoutClasses = useLayoutStyles();
+  const classes = useStyles();
   const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen } as ListContextProps), [ids, onDelete, onRename, onDuplicate, onOpen]);
 
   return (
-    <Container className={className}>
+    <Container className={clsx(classes.container, className)}>
       <Section title={title} />
 
       <CreateNewLink ids={ids} onCreateNew={onCreateNew} />
       <ImportV1Link onImportV1={onImportV1} />
 
-      <List className={clsx(classes.list, classes.item, classes.fullHeight)}>
+      <List className={clsx(classes.list, layoutClasses.item, layoutClasses.fullHeight)}>
         <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
       </List>
     </Container>
