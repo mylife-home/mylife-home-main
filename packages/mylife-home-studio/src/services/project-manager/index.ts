@@ -58,19 +58,21 @@ export class ProjectManager implements Service {
         throw new Error('TODO');
 
       case 'ui':
-        await this.uiProjects.importV1(JSON.parse(content));
-        break;
+        const createdId = await this.uiProjects.importV1(JSON.parse(content));
+        return { type, createdId };
     }
   };
 
   private readonly createNewProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
     const store = this.getStoreByType(type);
-    await store.createNew(id);
+    const createdId = await store.createNew(id);
+    return { type, createdId };
   };
 
   private readonly duplicateProject = async (session: Session, { type, id, newId }: { type: ProjectType; id: string; newId: string; }) => {
     const store = this.getStoreByType(type);
-    await store.duplicate(id, newId);
+    const createdId = await store.duplicate(id, newId);
+    return { type, createdId };
   };
 
   private readonly renameProject = async (session: Session, { type, id, newId }: { type: ProjectType; id: string; newId: string; }) => {

@@ -13,11 +13,13 @@ export class UiProjects extends Store<UiProject> {
     };
     
     await this.create(project);
+    return project.name;
   }
 
   async importV1(projectV1: uiV1.Project) {
     const project = convertUiProject(projectV1);
     await this.create(project);
+    return project.name;
   }
 
   getProjectInfo(name: string): UiProjectInfo {

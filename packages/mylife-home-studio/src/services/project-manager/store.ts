@@ -59,7 +59,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   }
 
   async duplicate(name: string, newName: string) {
-    await this.mutex.runExclusive(async () => {
+    return await this.mutex.runExclusive(async () => {
       const project = this.projects.get(name);
       if (!project) {
         throw new Error(`Project named '${name}' does not exist`);
@@ -74,6 +74,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
       await this.save(newProject);
       this.emit('created', newName);
+      return newName;
     });
   }
 
@@ -138,7 +139,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   }
 
   abstract getProjectInfo(name: string): ProjectInfo;
-  abstract createNew(name: string): Promise<void>;
+  abstract createNew(name: string): Promise<string>;
 }
 
 function clone<T>(source: T): T {

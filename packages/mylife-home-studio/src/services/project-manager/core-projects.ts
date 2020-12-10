@@ -9,6 +9,7 @@ export class CoreProjects extends Store<CoreProject> {
     };
 
     await this.create(project);
+    return project.name;
   }
 
   getProjectInfo(name: string): CoreProjectInfo {
