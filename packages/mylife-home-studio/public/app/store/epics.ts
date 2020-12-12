@@ -1,10 +1,11 @@
 import { combineEpics } from 'redux-observable';
 import status from './status/epics';
 import projectsList from './projects-list/epics';
+import uiDesigner from './ui-designer/epics';
 import onlineLogs from './online-logs/epics';
 import onlineHistory from './online-history/epics';
 import onlineInstancesView from './online-instances-view/epics';
 import onlineComponentsView from './online-components-view/epics';
 import deploy from './deploy/epics';
 
-export default combineEpics(status, projectsList, onlineLogs, onlineHistory, onlineInstancesView, onlineComponentsView, deploy);
+export default combineEpics(status, projectsList, uiDesigner, onlineLogs, onlineHistory, onlineInstancesView, onlineComponentsView, deploy);

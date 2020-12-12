@@ -2,7 +2,7 @@ import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'ui-designer/set-notifier',
-  CLEAR_NOTIFICATION = 'ui-designer/clear-notifier',
+  CLEAR_ALL_NOTIFIERS = 'ui-designer/clear-all-notifiers',
   REMOVE_OPENED_PROJECT = 'ui-designer/remove-opened-project',
 }
 
