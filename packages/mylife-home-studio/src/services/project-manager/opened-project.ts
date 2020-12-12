@@ -9,6 +9,7 @@ export class OpenedProject {
   private readonly notifiers = new Map<string, SessionNotifier>();
 
   // id = type:name
+  // TODO: project rename?
   constructor(public readonly id: string) {
     log.debug(`Opening project '${this.id}'`);
   }
