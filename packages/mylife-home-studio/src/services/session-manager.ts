@@ -7,11 +7,9 @@ import { Services } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:session-manager');
 
-export interface SessionFeature {
-}
+export interface SessionFeature {}
 
 export interface Session {
-
   readonly id: string;
 
   addFeature(key: string, feature: SessionFeature): void;
@@ -89,15 +87,14 @@ class SessionImpl extends EventEmitter implements Session {
 }
 
 export class SessionNotifier {
-  constructor(readonly session: SessionImpl, readonly id: string, readonly type: string) {
-  }
+  constructor(readonly session: SessionImpl, readonly id: string, readonly type: string) {}
 
   notify(data: any) {
     const message: Notification = {
       type: 'notification',
       notifierId: this.id,
       notifierType: this.type,
-      data
+      data,
     };
 
     this.session.send(message);
@@ -118,8 +115,7 @@ export class SessionManager implements Service {
     this.server.on('connection', this.handleConnection);
   }
 
-  async init() {
-  }
+  async init() {}
 
   async terminate() {
     this.server.off('connection', this.handleConnection);
@@ -179,7 +175,6 @@ async function executeServiceHandler(session: Session, request: ServiceRequest, 
 
     const result = await handler(session, payload);
     return { type: 'service-response', requestId, result };
-
   } catch (err) {
     log.error(err, `Error running service handler for service '${service}' on session '${session.id}'`);
 
@@ -193,7 +188,7 @@ function createErrorResponse(err: Error, requestId: string): ServiceResponse {
   return {
     type: 'service-response',
     requestId,
-    error: { message, stack, type }
+    error: { message, stack, type },
   };
 }
 
@@ -201,8 +196,7 @@ function createErrorResponse(err: Error, requestId: string): ServiceResponse {
 export class SessionNotifierManager {
   private readonly notifiers = new Map<string, SessionNotifier>();
 
-  constructor(private readonly featureName: string, private readonly notifierType: string) {
-  }
+  constructor(private readonly featureName: string, private readonly notifierType: string) {}
 
   init() {
     Services.instance.sessionManager.registerSessionHandler(this.sessionHandler);
@@ -241,9 +235,9 @@ export class SessionNotifierManager {
   }
 
   private getNotifiersFromSession(session: Session, createIfNotExist = true) {
-    const existing = session.findFeature(this.featureName);
+    const existing = session.findFeature(this.featureName) as SessionNotifiers;
     if (existing) {
-      return (existing as SessionNotifiers).notifierIds;
+      return existing.notifierIds;
     }
 
     if (!createIfNotExist) {
