@@ -36,10 +36,10 @@ export function filterNotification(type: string) {
   );
 }
 
-export function filterFromState<ActionType>(state$: StateObservable<AppState>, predicate: (state: AppState) => boolean) {
+export function filterFromState<ActionType>(state$: StateObservable<AppState>, predicate: (state: AppState, action: ActionType) => boolean) {
   return (source: Observable<ActionType>) => source.pipe(
     withLatestFrom(state$),
-    filter(([, state]) => predicate(state)),
+    filter(([action, state]) => predicate(state, action)),
     map(([action]) => action)
   );
 }
