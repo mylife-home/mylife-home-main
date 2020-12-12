@@ -6,11 +6,13 @@ import * as directories from './directories';
 import { ProjectBase, Store } from './store';
 import { CoreProjects } from './core-projects';
 import { UiProjects } from './ui-projects';
+import { OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {
   private readonly listNotifiers = new SessionNotifierManager('project-manager/list-notifiers', 'project-manager/list');
   private readonly uiProjects = new UiProjects();
   private readonly coreProjects = new CoreProjects();
+  private readonly openedProjects = new OpenedProjects();
 
   constructor(params: BuildParams) {
     this.coreProjects.on('created', this.handleCoreProjectSet);
@@ -29,6 +31,7 @@ export class ProjectManager implements Service {
     await this.uiProjects.init(directories.ui());
     await this.coreProjects.init(directories.core());
     this.listNotifiers.init();
+    this.openedProjects.init();
 
     Services.instance.sessionManager.registerServiceHandler('project-manager/start-notify-list', this.startNotifyList);
     Services.instance.sessionManager.registerServiceHandler('project-manager/stop-notify-list', this.stopNotifyList);
@@ -44,6 +47,7 @@ export class ProjectManager implements Service {
   }
 
   async terminate() {
+    this.openedProjects.terminate();
   }
 
   private getStoreByType(type: ProjectType): Store<ProjectBase> {
@@ -144,11 +148,11 @@ export class ProjectManager implements Service {
   };
 
   private readonly openProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
-    // TODO
-    return { notifierId: `todo-notifier-id-${type}-${id}` };
+    const notifierId = this.openedProjects.openProject(session, type, id);
+    return { notifierId };
   };
 
   private readonly closeProject = async (session: Session, { notifierId }: { notifierId: string; }) => {
-    // TODO
+    this.openedProjects.closeProject(notifierId);
   };
 }
