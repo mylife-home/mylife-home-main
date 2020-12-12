@@ -38,6 +38,9 @@ export class ProjectManager implements Service {
     Services.instance.sessionManager.registerServiceHandler('project-manager/duplicate', this.duplicateProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/rename', this.renameProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/delete', this.deleteProject);
+
+    Services.instance.sessionManager.registerServiceHandler('project-manager/open', this.openProject);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/close', this.closeProject);
   }
 
   async terminate() {
@@ -140,4 +143,12 @@ export class ProjectManager implements Service {
     this.listNotifiers.notifyAll(notification);
   };
 
+  private readonly openProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
+    // TODO
+    return { notifierId: `todo-notifier-id-${type}-${id}` };
+  };
+
+  private readonly closeProject = async (session: Session, { notifierId }: { notifierId: string; }) => {
+    // TODO
+  };
 }
