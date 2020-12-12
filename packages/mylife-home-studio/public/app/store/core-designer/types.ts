@@ -2,6 +2,10 @@ import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetP
 import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
+export const enum ActionTypes {
+  MOVE_COMPONENT = 'core-designer/move-component',
+}
+
 export { DesignerNewTabData };
 
 export interface CoreOpenedProject extends OpenedProjectBase {
@@ -17,10 +21,6 @@ export interface MoveComponentAction {
   tabId: string;
   componentId: string;
   position: Position;
-}
-
-export const enum ActionTypes {
-  MOVE_COMPONENT = 'core-designer/move-component',
 }
 
 export { PluginUsage, Member, ConfigItem, MemberType, ConfigType };
