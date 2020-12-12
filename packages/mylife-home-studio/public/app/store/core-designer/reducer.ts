@@ -1,5 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
+import { ActionTypes as TabsActionTypes, NewTabAction, TabType } from '../tabs/types';
 import { ActionTypes, CoreDesignerState, DesignerNewTabData, MoveComponentAction, CoreOpenedProject } from './types';
 import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 
@@ -31,11 +31,24 @@ export default createReducer(initialState, {
 
     tableAdd(state.openedProjects, openedProject);
   },
-
-  [TabsActionTypes.CLOSE]: (state, action: PayloadAction<TabIdAction>) => {
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
     const { id } = action.payload;
-    // TODO: close project
+
     tableRemove(state.openedProjects, id);
+  },
+  
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string; }>) => {
+    const { id, notifierId } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
+    openedProject.notifierId = notifierId;
+  },
+  
+  [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
+    for(const openedProject of Object.values(state.openedProjects.byId)) {
+      openedProject.notifierId = null;
+
+      // TODO: reset project state
+    }
   },
 
   [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<MoveComponentAction>) => {

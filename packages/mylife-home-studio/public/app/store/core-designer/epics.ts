@@ -6,8 +6,8 @@ import { setNotifier, clearAllNotifiers, removeOpenedProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList } from './selectors';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
-  projectType: 'ui',
-  tabType: TabType.UI_DESIGNER,
+  projectType: 'core',
+  tabType: TabType.CORE_DESIGNER,
   setNotifier, clearAllNotifiers, removeOpenedProject,
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList
 });

@@ -40,6 +40,8 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for(const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
+
+      // TODO: reset project state
     }
   },
 

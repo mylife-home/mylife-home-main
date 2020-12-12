@@ -16,6 +16,7 @@ import { DesignerNewTabData, OpenedProjectBase } from './designer-types';
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
   projectType: ProjectType;
+  tabType: TabType;
 
   // selectors
   hasOpenedProjects: (state: AppState) => boolean;
@@ -30,6 +31,7 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
 
 export function createOpendProjectManagementEpic<TOpenedProject extends OpenedProjectBase>({
   projectType,
+  tabType,
   hasOpenedProjects,
   getOpenedProject,
   getOpenedProjectsIdAndProjectIdList,
@@ -40,7 +42,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
   const openProjectEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
     action$.pipe(
       ofType(TabActionTypes.NEW),
-      filter((action: PayloadAction<NewTabAction>) => action.payload.type === TabType.UI_DESIGNER),
+      filter((action: PayloadAction<NewTabAction>) => action.payload.type === tabType),
       mergeMap((action: PayloadAction<NewTabAction>) => {
         const { id, data } = action.payload;
         const { projectId } = data as DesignerNewTabData;

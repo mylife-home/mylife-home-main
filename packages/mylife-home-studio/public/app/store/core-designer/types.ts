@@ -3,6 +3,10 @@ import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
+  SET_NOTIFIER = 'core-designer/set-notifier',
+  CLEAR_ALL_NOTIFIERS = 'core-designer/clear-all-notifiers',
+  REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
+
   MOVE_COMPONENT = 'core-designer/move-component',
 }
 
