@@ -15,6 +15,8 @@ export class OpenedProject {
 
   constructor(public id: string) {
     log.debug(`Opening project '${this.id}'`);
+
+    // TODO: register project state
   }
 
   terminate() {
@@ -37,6 +39,9 @@ export class OpenedProject {
   addNotifier(session: Session) {
     const notifier = session.createNotifier(NOTIFIER_TYPE);
     this.notifiers.set(notifier.id, notifier);
+
+    setImmediate(() => this.emitAllState(notifier));
+
     return notifier.id;
   }
 
@@ -46,6 +51,16 @@ export class OpenedProject {
 
   get unused() {
     return this.notifiers.size === 0;
+  }
+
+  notifyAll(data: any) {
+    for (const notifier of this.notifiers.values()) {
+      notifier.notify(data);
+    }
+  }
+
+  emitAllState(notifier: SessionNotifier) {
+    // TODO
   }
 }
 
