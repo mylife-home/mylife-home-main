@@ -35,7 +35,8 @@ export class UiProjects extends Store<UiProject> {
   // TODO
 
   async updateWindow() {
-
+    //await this.update();
+    //this.emit('update-window')
   }
 
   async addResource() {
