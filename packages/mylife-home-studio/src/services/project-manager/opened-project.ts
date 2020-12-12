@@ -2,6 +2,8 @@ import { logger } from 'mylife-home-common';
 import { ProjectType } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionFeature, SessionNotifier } from '../session-manager';
+import { UiProjects } from './ui-projects';
+import { CoreProjects } from './core-projects';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:opened-projects');
 
@@ -11,14 +13,17 @@ const SESSION_FEATURE_NAME = 'project-manager/opened-projects';
 export class OpenedProject {
   private readonly notifiers = new Map<string, SessionNotifier>();
 
-  // id = type:name
-  // TODO: project rename?
-  constructor(public readonly id: string) {
+  constructor(public id: string) {
     log.debug(`Opening project '${this.id}'`);
   }
 
   terminate() {
     log.debug(`Closing project '${this.id}'`);
+  }
+
+  rename(newId: string) {
+    log.debug(`Renaming project '${this.id}' into '${newId}'`);
+    this.id = newId;
   }
 
   sessionClose(session: Session) {
@@ -47,11 +52,19 @@ export class OpenedProject {
 export class OpenedProjects {
   private readonly openedProjects = new Map<string, OpenedProject>();
 
+  constructor(private readonly coreProjects: CoreProjects, private readonly uiProjects: UiProjects) {}
+
   init() {
     Services.instance.sessionManager.registerSessionHandler(this.sessionHandler);
+
+    this.coreProjects.on('renamed', this.renameCoreProject);
+    this.uiProjects.on('renamed', this.renameUiProject);
   }
 
   terminate() {
+    this.coreProjects.off('renamed', this.renameCoreProject);
+    this.uiProjects.off('renamed', this.renameUiProject);
+
     for (const openedProject of this.openedProjects.values()) {
       openedProject.terminate();
     }
@@ -75,8 +88,29 @@ export class OpenedProjects {
     }
   };
 
+  private renameCoreProject = (oldName: string, newName: string) => {
+    this.renameProject('core', oldName, newName);
+  };
+
+  private renameUiProject = (oldName: string, newName: string) => {
+    this.renameProject('ui', oldName, newName);
+  };
+
+  private renameProject(type: ProjectType, oldName: string, newName: string) {
+    const oldId = this.makeId(type, oldName);
+    const openedProject = this.openedProjects.get(oldId);
+    if (!openedProject) {
+      return;
+    }
+
+    const newId = this.makeId(type, newName);
+    openedProject.rename(newId);
+    this.openedProjects.delete(oldId);
+    this.openedProjects.set(newId, openedProject);
+  }
+
   openProject(session: Session, type: ProjectType, name: string) {
-    const id = `${type}:${name}`;
+    const id = this.makeId(type, name);
     let openedProject = this.openedProjects.get(id);
     if (!openedProject) {
       // TODO: create opened project
@@ -95,6 +129,10 @@ export class OpenedProjects {
     sessionNotifiers.delete(notifierId);
     openedProject.removeNotifier(notifierId);
     this.checkCloseProject(openedProject);
+  }
+
+  private makeId(type: ProjectType, name: string) {
+    return `${type}:${name}`;
   }
 
   private checkCloseProject(openedProject: OpenedProject) {

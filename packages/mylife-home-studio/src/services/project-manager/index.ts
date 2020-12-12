@@ -10,9 +10,9 @@ import { OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {
   private readonly listNotifiers = new SessionNotifierManager('project-manager/list-notifiers', 'project-manager/list');
-  private readonly uiProjects = new UiProjects();
   private readonly coreProjects = new CoreProjects();
-  private readonly openedProjects = new OpenedProjects();
+  private readonly uiProjects = new UiProjects();
+  private readonly openedProjects = new OpenedProjects(this.coreProjects, this.uiProjects);
 
   constructor(params: BuildParams) {
     this.coreProjects.on('created', this.handleCoreProjectSet);
