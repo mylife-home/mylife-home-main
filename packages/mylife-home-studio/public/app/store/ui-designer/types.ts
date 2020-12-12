@@ -1,17 +1,9 @@
-import { Table } from '../common/types';
-import { NewTabData } from '../tabs/types';
+import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 
-export interface UiDesignerNewTabData extends NewTabData {
-  projectId: string;
-}
+export { DesignerNewTabData };
 
-export interface UiOpenedProject {
-  id: string; // = tabId
-  projectId: string; // TODO: can change, need to update tab title on change
-  notifierId: string;
+export interface UiOpenedProject extends OpenedProjectBase {
   // TODO
 }
 
-export interface UiDesignerState {
-  openedProjects: Table<UiOpenedProject>;
-}
+export type UiDesignerState = DesignerState<UiOpenedProject>;

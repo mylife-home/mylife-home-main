@@ -1,7 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
-import { UiDesignerState, UiOpenedProject, UiDesignerNewTabData } from './types';
+import { UiDesignerState, UiOpenedProject, DesignerNewTabData } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -15,7 +15,7 @@ export default createReducer(initialState, {
     }
 
     // TODO: epic to open project server side (notifierId)
-    const { projectId } = data as UiDesignerNewTabData;
+    const { projectId } = data as DesignerNewTabData;
 
     const openedProject: UiOpenedProject = {
       id,

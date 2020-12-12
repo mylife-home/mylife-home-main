@@ -1,7 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { ActionTypes, NewTabAction, MoveTabAction, TabIdAction, ChangeTabTitleAction, TabType } from './types';
-import { CoreDesignerNewTabData } from '../core-designer/types';
-import { UiDesignerNewTabData } from '../ui-designer/types';
+import { DesignerNewTabData } from '../common/designer-types';
 
 export const newTab = createAction<NewTabAction>(ActionTypes.NEW);
 export const closeTab = createAction<TabIdAction>(ActionTypes.CLOSE);
@@ -11,7 +10,7 @@ export const changeTabTitle = createAction<ChangeTabTitleAction>(ActionTypes.CHA
 
 let idCounter = 0;
 
-export const newCoreDesignerTab = (data: CoreDesignerNewTabData) => newTab({
+export const newCoreDesignerTab = (data: DesignerNewTabData) => newTab({
   id: `core-designer-${++idCounter}`,
   title: `Designer Core '${data.projectId}'`,
   type: TabType.CORE_DESIGNER,
@@ -19,7 +18,7 @@ export const newCoreDesignerTab = (data: CoreDesignerNewTabData) => newTab({
   data
 });
 
-export const newUiDesignerTab = (data: UiDesignerNewTabData) => newTab({
+export const newUiDesignerTab = (data: DesignerNewTabData) => newTab({
   id: `ui-designer-${++idCounter}`,
   title: `Designer UI '${data.projectId}'`,
   type: TabType.UI_DESIGNER,

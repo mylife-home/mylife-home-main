@@ -1,25 +1,17 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
+import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
-import { NewTabData } from '../tabs/types';
 
-export interface CoreDesignerNewTabData extends NewTabData {
-  projectId: string;
-}
+export { DesignerNewTabData };
 
-export interface CoreOpenedProject {
-  id: string; // = tabId
-  projectId: string; // TODO: can change, need to update tab title on change
-  notifierId: string;
-
+export interface CoreOpenedProject extends OpenedProjectBase {
   // TODO
   plugins: PluginsState;
   components: ComponentsState;
   bindings: BindingsState;
 }
 
-export interface CoreDesignerState {
-  openedProjects: Table<CoreOpenedProject>;
-}
+export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
 export interface MoveComponentAction {
   tabId: string;

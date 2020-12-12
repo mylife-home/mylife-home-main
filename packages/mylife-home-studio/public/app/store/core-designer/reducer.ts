@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, CoreDesignerNewTabData, MoveComponentAction, CoreOpenedProject } from './types';
+import { ActionTypes, CoreDesignerState, DesignerNewTabData, MoveComponentAction, CoreOpenedProject } from './types';
 import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 
 const initialState: CoreDesignerState = {
@@ -17,7 +17,7 @@ export default createReducer(initialState, {
     }
 
     // TODO: open project
-    const { projectId } = data as CoreDesignerNewTabData;
+    const { projectId } = data as DesignerNewTabData;
     const { plugins, components, bindings } = schema.vpanelCore;
     
     const openedProject: CoreOpenedProject = {
