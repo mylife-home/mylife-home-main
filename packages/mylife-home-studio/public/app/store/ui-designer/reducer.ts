@@ -20,6 +20,8 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
+      definition: null,
+      componentData: null,
     };
 
     tableAdd(state.openedProjects, openedProject);
