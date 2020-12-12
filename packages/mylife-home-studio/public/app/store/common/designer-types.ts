@@ -1,7 +1,7 @@
-import { NewTabData } from '../tabs/types';
+import { TabActionData } from '../tabs/types';
 import { Table } from './types';
 
-export interface DesignerNewTabData extends NewTabData {
+export interface DesignerTabActionData extends TabActionData {
   projectId: string;
 }
 

@@ -11,7 +11,7 @@ import { socket } from '../common/rx-socket';
 import { ProjectType } from '../projects-list/types';
 import { ActionTypes as StatusActionTypes } from '../status/types';
 import { isOnline } from '../status/selectors';
-import { DesignerNewTabData, OpenedProjectBase } from './designer-types';
+import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
 
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
@@ -45,7 +45,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
       filter((action: PayloadAction<NewTabAction>) => action.payload.type === tabType),
       mergeMap((action: PayloadAction<NewTabAction>) => {
         const { id, data } = action.payload;
-        const { projectId } = data as DesignerNewTabData;
+        const { projectId } = data as DesignerTabActionData;
         return openProject(id, projectId);
       })
     );

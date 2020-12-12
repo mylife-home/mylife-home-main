@@ -1,4 +1,6 @@
-import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { ComponentData } from '../../../../shared/project-manager';
+import { Definition } from '../../../../shared/ui-model';
+import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'ui-designer/set-notifier',
@@ -6,10 +8,11 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'ui-designer/remove-opened-project',
 }
 
-export { DesignerNewTabData };
+export { DesignerTabActionData };
 
 export interface UiOpenedProject extends OpenedProjectBase {
-  // TODO
+  definition: Definition;
+  componentData: ComponentData;
 }
 
 export type UiDesignerState = DesignerState<UiOpenedProject>;

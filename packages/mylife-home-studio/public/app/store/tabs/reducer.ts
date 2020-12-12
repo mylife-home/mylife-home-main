@@ -1,5 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes, NewTabAction, TabIdAction, MoveTabAction, ChangeTabTitleAction, TabsState, TabState } from './types';
+import { ActionTypes, NewTabAction, TabIdAction, MoveTabAction, UpdateTabAction, TabsState, TabState } from './types';
 import { createTable } from '../common/reducer-tools';
 
 const initialState: TabsState = {
@@ -61,7 +61,7 @@ export default createReducer(initialState, {
     activate(state, action.payload.id);
   },
 
-  [ActionTypes.CHANGE_TITLE]: (state, action: PayloadAction<ChangeTabTitleAction>) => {
+  [ActionTypes.UPDATE]: (state, action: PayloadAction<UpdateTabAction>) => {
     const { id, title } = action.payload;
     const tab = state.byId[id];
     tab.title = title;

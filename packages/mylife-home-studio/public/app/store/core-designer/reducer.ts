@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { ActionTypes as TabsActionTypes, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerNewTabData, MoveComponentAction, CoreOpenedProject } from './types';
+import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject } from './types';
 import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 
 const initialState: CoreDesignerState = {
@@ -17,7 +17,7 @@ export default createReducer(initialState, {
     }
 
     // TODO: open project
-    const { projectId } = data as DesignerNewTabData;
+    const { projectId } = data as DesignerTabActionData;
     const { plugins, components, bindings } = schema.vpanelCore;
     
     const openedProject: CoreOpenedProject = {
@@ -31,6 +31,17 @@ export default createReducer(initialState, {
 
     tableAdd(state.openedProjects, openedProject);
   },
+
+  [TabsActionTypes.UPDATE]: (state, action: PayloadAction<UpdateTabAction>) => {
+    const { id, data } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
+    if (openedProject) {
+      // else it's another type
+      const { projectId } = data as DesignerTabActionData;
+      openedProject.projectId = projectId;
+    }
+  },
+
   [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
     const { id } = action.payload;
 

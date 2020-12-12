@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
-import { DesignerNewTabData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
@@ -10,7 +10,7 @@ export const enum ActionTypes {
   MOVE_COMPONENT = 'core-designer/move-component',
 }
 
-export { DesignerNewTabData };
+export { DesignerTabActionData };
 
 export interface CoreOpenedProject extends OpenedProjectBase {
   // TODO

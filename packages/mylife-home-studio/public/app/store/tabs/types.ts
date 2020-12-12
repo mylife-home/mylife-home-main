@@ -11,14 +11,14 @@ export const enum TabType {
   DEPLOY = 'deploy',
 }
 
-export interface NewTabData { }
+export interface TabActionData { }
 
 export interface NewTabAction {
   id: string;
   type: TabType;
   title: string;
   closable: boolean;
-  data: NewTabData;
+  data: TabActionData;
 }
 
 export interface MoveTabAction {
@@ -26,9 +26,10 @@ export interface MoveTabAction {
   position: number;
 }
 
-export interface ChangeTabTitleAction {
+export interface UpdateTabAction {
   id: string;
   title: string;
+  data: TabActionData;
 }
 
 export interface TabIdAction {
@@ -40,7 +41,7 @@ export const enum ActionTypes {
   CLOSE = 'tabs/close',
   MOVE = 'tabs/move',
   ACTIVATE = 'tabs/activate',
-  CHANGE_TITLE = 'tabs/change-title',
+  UPDATE = 'tabs/update',
 }
 
 export interface TabState {
