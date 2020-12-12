@@ -153,6 +153,6 @@ export class ProjectManager implements Service {
   };
 
   private readonly closeProject = async (session: Session, { notifierId }: { notifierId: string; }) => {
-    this.openedProjects.closeProject(notifierId);
+    this.openedProjects.closeProject(session, notifierId);
   };
 }
