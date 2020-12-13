@@ -1,6 +1,8 @@
 import { DefinitionResource } from 'mylife-home-ui/dist/src/model/definition';
 import { UiProject, UiProjectInfo } from '../../../shared/project-manager';
+import { SessionNotifier } from '../session-manager';
 import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
+import { OpenedProject } from './opened-project';
 import { Store } from './store';
 
 export class UiProjects extends Store<UiProject> {
@@ -32,7 +34,25 @@ export class UiProjects extends Store<UiProject> {
     };
   }
 
-  // TODO
+  openProject(id: string) {
+    return new UiOpenedProject(id);
+  }
+}
+
+class UiOpenedProject extends OpenedProject {
+  constructor(id: string) {
+    super(id);
+  }
+
+  terminate() {
+    super.terminate();
+  }
+
+  protected emitAllState(notifier: SessionNotifier) {
+    super.emitAllState(notifier);
+
+    // TODO
+  }
 
   async updateWindow() {
     //await this.update();

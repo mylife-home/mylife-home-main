@@ -57,3 +57,12 @@ export interface UiProjectInfo extends ProjectInfo {
 export interface CoreProjectInfo extends ProjectInfo {
   
 }
+
+export interface UpdateProjectNotification {
+  operation: 'set-name';
+}
+
+export interface SetNameProjectNotification extends UpdateProjectNotification {
+  operation: 'set-name';
+  name: string;
+}
