@@ -52,7 +52,7 @@ class UiOpenedProject extends OpenedProject {
 
   // https://github.com/microsoft/TypeScript/issues/24509#issuecomment-393564346
   private async updateDefinition(updater: (definition: Mutable<Definition>) => void) {
-    await this.owner.update(this.name, (project) => updater(project.definition));
+    await this.updateProject((project) => updater(project.definition));
   }
 
   protected emitAllState(notifier: SessionNotifier) {
