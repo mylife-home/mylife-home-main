@@ -68,7 +68,7 @@ export interface SetNameProjectNotification extends UpdateProjectNotification {
   name: string;
 }
 
-export interface SetUiDefaultWindowProjectNotification extends UpdateProjectNotification {
+export interface SetUiDefaultWindowNotification extends UpdateProjectNotification {
   operation: 'set-ui-default-window';
   defaultWindow: DefaultWindow;
 }
@@ -107,5 +107,32 @@ export interface CoreProjectUpdate {
 }
 
 export interface UiProjectUpdate {
-  
+  operation: 'set-default-window' | 'set-resource' | 'clear-resource' | 'set-window' | 'clear-window'
+}
+
+export interface SetDefaultWindowUiProjectUpdate extends UiProjectUpdate {
+  operation: 'set-default-window';
+  defaultWindow: DefaultWindow;
+}
+
+// TODO: component data
+
+export interface SetResourceUiProjectUpdate extends UiProjectUpdate {
+  operation: 'set-resource';
+  resource: DefinitionResource;
+}
+
+export interface ClearResourceUiProjectUpdate extends UiProjectUpdate {
+  operation: 'clear-resource';
+  id: string;
+}
+
+export interface SetWindowUiProjectUpdate extends UiProjectUpdate {
+  operation: 'set-window';
+  window: Window;
+}
+
+export interface ClearWindowUiProjectUpdate extends UiProjectUpdate {
+  operation: 'clear-window';
+  id: string;
 }

@@ -1,4 +1,8 @@
-import { ClearUiResourceNotification, ClearUiWindowNotification, SetUiComponentDataNotification, SetUiDefaultWindowProjectNotification, SetUiResourceNotification, SetUiWindowNotification, UiProject, UiProjectInfo, UiProjectUpdate } from '../../../shared/project-manager';
+import { 
+  UiProject, UiProjectInfo, UiProjectUpdate,
+  ClearResourceUiProjectUpdate, ClearWindowUiProjectUpdate, SetDefaultWindowUiProjectUpdate, SetResourceUiProjectUpdate, SetWindowUiProjectUpdate,
+  ClearUiResourceNotification, ClearUiWindowNotification, SetUiComponentDataNotification, SetUiDefaultWindowNotification, SetUiResourceNotification, SetUiWindowNotification,
+} from '../../../shared/project-manager';
 import { Window, DefaultWindow, Definition, DefinitionResource } from '../../../shared/ui-model';
 import { SessionNotifier } from '../session-manager';
 import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
@@ -60,7 +64,7 @@ class UiOpenedProject extends OpenedProject {
 
     const project = this.owner.getProject(this.name);
 
-    notifier.notify({ operation: 'set-ui-default-window', defaultWindow: project.definition.defaultWindow } as SetUiDefaultWindowProjectNotification);
+    notifier.notify({ operation: 'set-ui-default-window', defaultWindow: project.definition.defaultWindow } as SetUiDefaultWindowNotification);
     notifier.notify({ operation: 'set-ui-component-data', componentData: project.componentData } as SetUiComponentDataNotification);
 
     for (const resource of project.definition.resources) {
@@ -73,38 +77,58 @@ class UiOpenedProject extends OpenedProject {
   }
 
   async update(updateData: UiProjectUpdate) {
-    
+    switch(updateData.operation) {
+      case 'set-default-window':
+        await this.setDefaultWindow(updateData as SetDefaultWindowUiProjectUpdate);
+        break;
+
+      case 'set-resource':
+        await this.setResource(updateData as SetResourceUiProjectUpdate);
+        break;
+
+      case 'clear-resource':
+        await this.clearResource(updateData as ClearResourceUiProjectUpdate);
+        break;
+
+      case 'set-window':
+        await this.setWindow(updateData as SetWindowUiProjectUpdate);
+        break;
+
+      case 'clear-window':
+        await this.clearWindow(updateData as ClearWindowUiProjectUpdate);
+        break;
+    }
   }
 
-  async setDefaultWindow(defaultWindow: DefaultWindow) {
+  private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       definition.defaultWindow = defaultWindow;
-      this.notifyAll<SetUiDefaultWindowProjectNotification>({ operation: 'set-ui-default-window', defaultWindow });
+      this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow });
     });
   }
 
-  async setResource(resource: DefinitionResource) {
+  private async setResource({ resource }: SetResourceUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       arraySet(definition.resources, resource);
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
     });
   }
 
-  async clearResource(id: string) {
+  private async clearResource({ id }: ClearResourceUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       arrayClear(definition.resources, id);
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
     });
   }
 
-  async setWindow(window: Window) {
+  private async setWindow({ window }: SetWindowUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       arraySet(definition.windows, window);
       this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window });
     });
   }
 
-  async clearWindow(id: string) {
+  private async clearWindow({ id }: ClearWindowUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       arrayClear(definition.windows, id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
@@ -112,7 +136,7 @@ class UiOpenedProject extends OpenedProject {
   }
 
   // TODO
-  async refreshComponents() {
+  private async refreshComponents() {
 
   }
 
