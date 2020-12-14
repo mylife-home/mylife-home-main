@@ -1,4 +1,4 @@
-import { CoreProject, CoreProjectInfo } from '../../../shared/project-manager';
+import { CoreProject, CoreProjectInfo, CoreProjectUpdate } from '../../../shared/project-manager';
 import { SessionNotifier } from '../session-manager';
 import { OpenedProject } from './opened-project';
 import { Store } from './store';
@@ -38,6 +38,10 @@ class CoreOpenedProject extends OpenedProject {
     const project = this.owner.getProject(this.name);
 
     // TODO
+  }
+
+  async update(updateData: CoreProjectUpdate) {
+    
   }
 
   // TODO

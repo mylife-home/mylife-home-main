@@ -97,3 +97,15 @@ export interface ClearUiWindowNotification extends UpdateProjectNotification {
   operation: 'clear-ui-window';
   id: string;
 }
+
+export interface ProjectUpdate {
+
+}
+
+export interface CoreProjectUpdate {
+  
+}
+
+export interface UiProjectUpdate {
+  
+}

@@ -1,4 +1,4 @@
-import { ClearUiResourceNotification, ClearUiWindowNotification, SetUiComponentDataNotification, SetUiDefaultWindowProjectNotification, SetUiResourceNotification, SetUiWindowNotification, UiProject, UiProjectInfo } from '../../../shared/project-manager';
+import { ClearUiResourceNotification, ClearUiWindowNotification, SetUiComponentDataNotification, SetUiDefaultWindowProjectNotification, SetUiResourceNotification, SetUiWindowNotification, UiProject, UiProjectInfo, UiProjectUpdate } from '../../../shared/project-manager';
 import { Window, DefaultWindow, Definition, DefinitionResource } from '../../../shared/ui-model';
 import { SessionNotifier } from '../session-manager';
 import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
@@ -70,6 +70,10 @@ class UiOpenedProject extends OpenedProject {
     for (const window of project.definition.windows) {
       notifier.notify({ operation: 'set-ui-window', window } as SetUiWindowNotification);
     }
+  }
+
+  async update(updateData: UiProjectUpdate) {
+    
   }
 
   async setDefaultWindow(defaultWindow: DefaultWindow) {
