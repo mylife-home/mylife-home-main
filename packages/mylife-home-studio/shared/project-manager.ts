@@ -1,4 +1,4 @@
-import { Window, Definition, DefinitionResource } from './ui-model';
+import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
 import { Component, Plugin } from './component-model';
 
 export interface UiProject {
@@ -70,7 +70,7 @@ export interface SetNameProjectNotification extends UpdateProjectNotification {
 
 export interface SetUiDefaultWindowProjectNotification extends UpdateProjectNotification {
   operation: 'set-ui-default-window';
-  defaultWindow: { [type: string]: string; };
+  defaultWindow: DefaultWindow;
 }
 
 export interface SetUiComponentDataNotification extends UpdateProjectNotification {
