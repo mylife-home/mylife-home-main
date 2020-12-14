@@ -45,7 +45,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     });
   }
 
-  protected async update(name: string, updater: (project: TProject) => void) {
+  async update(name: string, updater: (project: TProject) => void) {
     await this.mutex.runExclusive(async () => {
       const project = this.projects.get(name);
       if (!project) {

@@ -35,21 +35,23 @@ export class UiProjects extends Store<UiProject> {
   }
 
   openProject(name: string) {
-    return new UiOpenedProject(name);
+    return new UiOpenedProject(this, name);
   }
 }
 
 class UiOpenedProject extends OpenedProject {
-  constructor(name: string) {
+  constructor(private readonly owner: UiProjects, name: string) {
     super('ui', name);
   }
 
-  terminate() {
-    super.terminate();
+  private async updateProject(updater: (project: UiProject) => void) {
+    await this.owner.update(this.name, updater);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
     super.emitAllState(notifier);
+
+    const project = this.owner.getProject(this.name);
 
     // TODO
   }
@@ -66,6 +68,7 @@ class UiOpenedProject extends OpenedProject {
   async refreshComponents() {
 
   }
+
 }
 
 function resourceBinaryLength(resource: DefinitionResource) {

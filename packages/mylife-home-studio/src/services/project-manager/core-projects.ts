@@ -19,21 +19,23 @@ export class CoreProjects extends Store<CoreProject> {
   }
 
   openProject(name: string) {
-    return new CoreOpenedProject(name);
+    return new CoreOpenedProject(this, name);
   }
 }
 
 class CoreOpenedProject extends OpenedProject {
-  constructor(name: string) {
+  constructor(private readonly owner: CoreProjects, name: string) {
     super('core', name);
   }
 
-  terminate() {
-    super.terminate();
+  private async updateProject(updater: (project: CoreProject) => void) {
+    await this.owner.update(this.name, updater);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
     super.emitAllState(notifier);
+
+    const project = this.owner.getProject(this.name);
 
     // TODO
   }
