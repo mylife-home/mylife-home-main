@@ -1,9 +1,9 @@
-import { Window } from '../../shared/model';
+import { Window, DefaultWindow } from '../../shared/model';
 
 export interface Definition {
   readonly resources: DefinitionResource[];
   readonly windows: Window[];
-  readonly defaultWindow: { [type: string]: string; };
+  readonly defaultWindow: DefaultWindow;
 }
 
 export interface DefinitionResource {

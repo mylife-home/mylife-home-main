@@ -3,8 +3,10 @@ export type Resource = string;
 
 export interface Model {
   windows: Window[];
-  defaultWindow: { [type: string]: string; };
+  defaultWindow: DefaultWindow;
 }
+
+export type DefaultWindow = { [type: string]: string; };
 
 export interface Window {
   readonly id: string;
