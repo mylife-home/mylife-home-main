@@ -13,8 +13,7 @@ const SESSION_FEATURE_NAME = 'project-manager/opened-projects';
 export abstract class OpenedProject {
   private readonly notifiers = new Map<string, SessionNotifier>();
 
-  // TODO: keep name and type and merge id at getter
-  constructor(public id: string) {
+  constructor(private readonly type: ProjectType, private _name: string) {
     log.debug(`Opening project '${this.id}'`);
   }
 
@@ -22,11 +21,20 @@ export abstract class OpenedProject {
     log.debug(`Closing project '${this.id}'`);
   }
 
-  rename(newName: string, newId: string) {
-    log.debug(`Renaming project '${this.id}' into '${newId}'`);
-    this.id = newId;
+  get name() {
+    return this._name;
+  }
 
-    this.notifyAll<SetNameProjectNotification>({ operation: 'set-name', name: newName });
+  get id() {
+    return makeId(this.type, this.name);
+  }
+
+  rename(newName: string) {
+    const oldId = this.id;
+    this._name = newName
+    log.debug(`Renaming project '${oldId}' into '${this.id}'`);
+
+    this.notifyAll<SetNameProjectNotification>({ operation: 'set-name', name: this.name });
   }
 
   sessionClose(session: Session) {
@@ -61,8 +69,7 @@ export abstract class OpenedProject {
   }
 
   protected emitAllState(notifier: SessionNotifier) {
-    const name = TODO;
-    notifier.notify({ operation: 'set-name', name } as SetNameProjectNotification);
+    notifier.notify({ operation: 'set-name', name: this.name } as SetNameProjectNotification);
   }
 }
 
@@ -114,23 +121,22 @@ export class OpenedProjects {
   };
 
   private renameProject(type: ProjectType, oldName: string, newName: string) {
-    const oldId = this.makeId(type, oldName);
+    const oldId = makeId(type, oldName);
     const openedProject = this.openedProjects.get(oldId);
     if (!openedProject) {
       return;
     }
 
-    const newId = this.makeId(type, newName);
-    openedProject.rename(newName, newId);
+    openedProject.rename(newName);
     this.openedProjects.delete(oldId);
-    this.openedProjects.set(newId, openedProject);
+    this.openedProjects.set(openedProject.id, openedProject);
   }
 
   openProject(session: Session, type: ProjectType, name: string) {
-    const id = this.makeId(type, name);
+    const id = makeId(type, name);
     let openedProject = this.openedProjects.get(id);
     if (!openedProject) {
-      openedProject = this.createOpenedProject(type, id);
+      openedProject = this.createOpenedProject(type, name);
       this.openedProjects.set(openedProject.id, openedProject);
     }
 
@@ -139,12 +145,12 @@ export class OpenedProjects {
     return notifierId;
   }
 
-  private createOpenedProject(type: ProjectType, id: string) {
+  private createOpenedProject(type: ProjectType, name: string) {
     switch (type) {
       case 'core':
-        return this.coreProjects.openProject(id);
+        return this.coreProjects.openProject(name);
       case 'ui':
-        return this.uiProjects.openProject(id);
+        return this.uiProjects.openProject(name);
       default:
         throw new Error(`Unknown project type: '${type}'`);
     }
@@ -156,10 +162,6 @@ export class OpenedProjects {
     sessionNotifiers.delete(notifierId);
     openedProject.removeNotifier(notifierId);
     this.checkCloseProject(openedProject);
-  }
-
-  private makeId(type: ProjectType, name: string) {
-    return `${type}:${name}`;
   }
 
   private checkCloseProject(openedProject: OpenedProject) {
@@ -183,6 +185,10 @@ export class OpenedProjects {
     session.addFeature(SESSION_FEATURE_NAME, feature);
     return feature.notifiers;
   }
+}
+
+function makeId(type: ProjectType, name: string) {
+  return `${type}:${name}`;
 }
 
 class SessionNotifiers implements SessionFeature {

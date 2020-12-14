@@ -18,14 +18,14 @@ export class CoreProjects extends Store<CoreProject> {
     return {};
   }
 
-  openProject(id: string) {
-    return new CoreOpenedProject(id);
+  openProject(name: string) {
+    return new CoreOpenedProject(name);
   }
 }
 
 class CoreOpenedProject extends OpenedProject {
-  constructor(id: string) {
-    super(id);
+  constructor(name: string) {
+    super('core', name);
   }
 
   terminate() {

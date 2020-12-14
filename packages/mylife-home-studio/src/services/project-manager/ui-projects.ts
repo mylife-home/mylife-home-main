@@ -34,14 +34,14 @@ export class UiProjects extends Store<UiProject> {
     };
   }
 
-  openProject(id: string) {
-    return new UiOpenedProject(id);
+  openProject(name: string) {
+    return new UiOpenedProject(name);
   }
 }
 
 class UiOpenedProject extends OpenedProject {
-  constructor(id: string) {
-    super(id);
+  constructor(name: string) {
+    super('ui', name);
   }
 
   terminate() {
