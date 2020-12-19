@@ -108,6 +108,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
         const update = notification.data as UpdateProjectNotification;
         return { id, update };
       }),
+      filter(update => !!update.id), // else project not found => different project type
       bufferDebounceTime(100), // debounce to avoid multiple store updates
       map((updates) => updateProject(updates))
     );
