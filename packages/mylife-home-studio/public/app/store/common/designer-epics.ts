@@ -1,10 +1,10 @@
 import { Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { from, Observable } from 'rxjs';
-import { filter, map, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { combineEpics, ofType, StateObservable } from 'redux-observable';
+import { concatMap, filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { combineEpics, Epic, ofType, StateObservable } from 'redux-observable';
 
-import { filterFromState, handleError, withSelector } from '../common/rx-operators';
+import { bufferDebounceTime, filterFromState, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
 import { socket } from '../common/rx-socket';
@@ -12,6 +12,7 @@ import { ProjectType } from '../projects-list/types';
 import { ActionTypes as StatusActionTypes } from '../status/types';
 import { isOnline } from '../status/selectors';
 import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
+import { ProjectUpdate, UpdateProjectNotification } from '../../../../shared/project-manager';
 
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
@@ -22,11 +23,16 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   hasOpenedProjects: (state: AppState) => boolean;
   getOpenedProject: (state: AppState, tabId: string) => TOpenedProject;
   getOpenedProjectsIdAndProjectIdList: (state: AppState) => { id: string; projectId: string }[];
+  getOpenedProjectIdByNotifierId: (state: AppState, notifierId: string) => string;
 
   // action creators
   setNotifier: ({ id, notifierId }: { id: string; notifierId: string }) => Action;
   clearAllNotifiers: () => Action;
   removeOpenedProject: ({ id }: { id: string }) => Action;
+  updateProject: (updates: { id: string; update: UpdateProjectNotification }[]) => Action;
+
+  // project updates (client to server)
+  updateMappers: { [actionType: string]: (payload: any) => ProjectUpdate };
 }
 
 export function createOpendProjectManagementEpic<TOpenedProject extends OpenedProjectBase>({
@@ -35,9 +41,12 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
   hasOpenedProjects,
   getOpenedProject,
   getOpenedProjectsIdAndProjectIdList,
+  getOpenedProjectIdByNotifierId,
   setNotifier,
   clearAllNotifiers,
   removeOpenedProject,
+  updateProject,
+  updateMappers,
 }: Parameters<TOpenedProject>) {
   const openProjectEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
     action$.pipe(
@@ -89,13 +98,47 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
       map(() => clearAllNotifiers())
     );
 
-  return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic);
+  const fetchEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) => {
+    const notification$ = socket.notifications();
+    return notification$.pipe(
+      filterNotification('project-manager/opened-project'),
+      withLatestFrom(state$),
+      map(([notification, state]) => {
+        const id = getOpenedProjectIdByNotifierId(state, notification.notifierId);
+        const update = notification.data as UpdateProjectNotification;
+        return { id, update };
+      }),
+      bufferDebounceTime(100), // debounce to avoid multiple store updates
+      map((updates) => updateProject(updates))
+    );
+  };
+
+  const updaters: Epic[] = [];
+
+  for (const [actionType, mapper] of Object.entries(updateMappers)) {
+    updaters.push(createProjectUpdateEpic(actionType, mapper));
+  }
+
+  return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...updaters);
 
   function openProject(id: string, projectId: string) {
     return openProjectCall(projectType, projectId).pipe(
       map(({ notifierId }) => setNotifier({ id, notifierId })),
       handleError()
     );
+  }
+
+  function createProjectUpdateEpic<TActionType, TActionPayload extends { id: string } = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectUpdate) {
+    return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
+      action$.pipe(
+        ofType(actionType),
+        withLatestFrom(state$),
+        mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
+          const { notifierId } = getOpenedProject(state, action.payload.id);
+          const updateData = mapper(action.payload);
+          return updateProjectCall(notifierId, updateData).pipe(ignoreElements(), handleError());
+        })
+      );
   }
 }
 
@@ -105,4 +148,8 @@ function openProjectCall(type: ProjectType, id: string) {
 
 function closeProjectCall(notifierId: string) {
   return socket.call('project-manager/close', { notifierId }) as Observable<void>;
+}
+
+function updateProjectCall(notifierId: string, updateData: ProjectUpdate) {
+  return socket.call('project-manager/update-opened', { notifierId, updateData }) as Observable<void>;
 }

@@ -8,3 +8,13 @@ export const getOpenedProjectsIdAndProjectIdList = (state: AppState) => {
   const openedProjects = getOpenedProjects(state);
   return Object.values(openedProjects.byId).map(({ id, projectId }) => ({ id, projectId }));
 };
+
+// TODO: memoized selector
+export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: string) => {
+  const projects = getOpenedProjects(state);
+  for (const project of Object.values(projects.byId)) {
+    if (project.notifierId === notifierId) {
+      return project.id;
+    }
+  }
+};
