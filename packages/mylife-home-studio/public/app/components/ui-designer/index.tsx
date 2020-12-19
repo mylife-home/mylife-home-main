@@ -10,3 +10,8 @@ const UiDesigner: FunctionComponent = () => (
 );
 
 export default UiDesigner;
+
+// TODO
+// - state+debounce comme recipe au niveau d'une fenêtre
+// - les ressources en live
+// - l'update de composants sur le serveur
