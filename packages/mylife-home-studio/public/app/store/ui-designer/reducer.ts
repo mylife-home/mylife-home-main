@@ -81,7 +81,7 @@ export default createReducer(initialState, {
   },
 });
 
-function applyProjectUpdate(openedProject: Mutable<UiOpenedProject>, update: UpdateProjectNotification) {
+function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjectNotification) {
   const definition: Mutable<Definition> = openedProject.definition;
   switch (update.operation) {
     case 'set-name': {

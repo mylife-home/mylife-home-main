@@ -1,11 +1,13 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
+export { UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'core-designer/set-notifier',
   CLEAR_ALL_NOTIFIERS = 'core-designer/clear-all-notifiers',
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
+  UPDATE_PROJECT = 'core-designer/update-project',
 
   MOVE_COMPONENT = 'core-designer/move-component',
 }

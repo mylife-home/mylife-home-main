@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification } from './types';
 import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
 
 const initialState: CoreDesignerState = {
@@ -62,9 +62,28 @@ export default createReducer(initialState, {
     }
   },
 
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification }[]>) => {
+    for (const { id, update } of action.payload) {
+      const openedProject = state.openedProjects.byId[id];
+      applyProjectUpdate(openedProject, update);
+    }
+  },
+
   [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<MoveComponentAction>) => {
     const { tabId, componentId, position } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.components.byId[componentId].position = position;
   },
 });
+
+function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProjectNotification) {
+  switch (update.operation) {
+    case 'set-name': {
+      const typedUpdate = update as SetNameProjectNotification;
+      openedProject.projectId = typedUpdate.name;
+      break;
+    }
+
+    // TODO
+  }
+}

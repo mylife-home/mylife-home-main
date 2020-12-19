@@ -10,6 +10,16 @@ export const getOpenedProjectsIdAndProjectIdList = (state: AppState) => {
   return Object.values(openedProjects.byId).map(({ id, projectId }) => ({ id, projectId }));
 };
 
+// TODO: memoized selector
+export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: string) => {
+  const projects = getOpenedProjects(state);
+  for (const project of Object.values(projects.byId)) {
+    if (project.notifierId === notifierId) {
+      return project.id;
+    }
+  }
+};
+
 export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.allIds;
 export const getPlugin = (state: AppState, tabId: string, pluginId: string) => getOpenedProject(state, tabId).plugins.byId[pluginId];
 export const getComponentIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components.allIds;
