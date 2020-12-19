@@ -2,8 +2,17 @@ import { ComponentData } from '../../../../shared/project-manager';
 import { Definition } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 
-export { UpdateProjectNotification } from '../../../../shared/project-manager';
-export { DefaultWindow, DefinitionResource, Window } from '../../../../shared/ui-model';
+export {
+  UpdateProjectNotification,
+  SetNameProjectNotification,
+  SetUiDefaultWindowNotification,
+  SetUiComponentDataNotification,
+  SetUiResourceNotification,
+  ClearUiResourceNotification,
+  SetUiWindowNotification,
+  ClearUiWindowNotification,
+} from '../../../../shared/project-manager';
+export { Definition, DefaultWindow, DefinitionResource, Window } from '../../../../shared/ui-model';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'ui-designer/set-notifier',

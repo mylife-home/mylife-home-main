@@ -63,3 +63,21 @@ export function arrayRemove(array: string[], id: string) {
   const index = array.indexOf(id);
   array.splice(index, 1);
 }
+
+// ------------ array as only container ------------
+
+export function arraySet<T extends ItemWithId>(array: T[], item: T) {
+  const index = array.findIndex(({ id }) => id === item.id);
+  if (index === -1) {
+    array.push(item);
+  } else {
+    array[index] = item;
+  }
+}
+
+export function arrayClear<T extends ItemWithId>(array: T[], id: string) {
+  const index = array.findIndex(item => item.id === id);
+  if (index !== -1) {
+    array.splice(index, 1);
+  }
+}
