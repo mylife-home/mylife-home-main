@@ -12,7 +12,7 @@ import { ProjectType } from '../projects-list/types';
 import { ActionTypes as StatusActionTypes } from '../status/types';
 import { isOnline } from '../status/selectors';
 import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
-import { ProjectUpdate, UpdateProjectNotification } from '../../../../shared/project-manager';
+import { ProjectUpdate, SetNameProjectNotification, UpdateProjectNotification } from '../../../../shared/project-manager';
 
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
@@ -30,6 +30,7 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   clearAllNotifiers: () => Action;
   removeOpenedProject: ({ id }: { id: string }) => Action;
   updateProject: (updates: { id: string; update: UpdateProjectNotification }[]) => Action;
+  updateTab: (id: string, data: DesignerTabActionData) => Action;
 
   // project updates (client to server)
   updateMappers: { [actionType: string]: (payload: any) => ProjectUpdate };
@@ -46,6 +47,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
   clearAllNotifiers,
   removeOpenedProject,
   updateProject,
+  updateTab,
   updateMappers,
 }: Parameters<TOpenedProject>) {
   const openProjectEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -108,9 +110,9 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
         const update = notification.data as UpdateProjectNotification;
         return { id, update };
       }),
-      filter(update => !!update.id), // else project not found => different project type
+      filter((update) => !!update.id), // else project not found => different project type
       bufferDebounceTime(100), // debounce to avoid multiple store updates
-      map((updates) => updateProject(updates))
+      concatMap(createActionFromUpdates)
     );
   };
 
@@ -140,6 +142,20 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
           return updateProjectCall(notifierId, updateData).pipe(ignoreElements(), handleError());
         })
       );
+  }
+
+  function createActionFromUpdates(updates: { id: string; update: UpdateProjectNotification }[]) {
+    const actions = [updateProject(updates)];
+
+    // create additional updates for tabs
+    for (const { id, update } of updates) {
+      if (update.operation === 'set-name') {
+        const typedUpdate = update as SetNameProjectNotification;
+        actions.push(updateTab(id, { projectId: typedUpdate.name }));
+      }
+    }
+
+    return from(actions);
   }
 }
 

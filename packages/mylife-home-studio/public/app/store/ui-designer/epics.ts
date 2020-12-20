@@ -2,6 +2,7 @@ import { combineEpics } from 'redux-observable';
 
 import { createOpendProjectManagementEpic } from '../common/designer-epics';
 import { TabType } from '../tabs/types';
+import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
 import { ActionTypes, DefaultWindow, DefinitionResource, Window } from './types';
@@ -10,7 +11,7 @@ import { ClearResourceUiProjectUpdate, ClearWindowUiProjectUpdate, SetDefaultWin
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'ui',
   tabType: TabType.UI_DESIGNER,
-  setNotifier, clearAllNotifiers, removeOpenedProject, updateProject,
+  setNotifier, clearAllNotifiers, removeOpenedProject, updateProject, updateTab: updateUiDesignerTab,
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   updateMappers: {
     [ActionTypes.SET_DEFAULT_WINDOW]: ({ defaultWindow }: { defaultWindow: DefaultWindow }) => {
