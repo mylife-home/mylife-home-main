@@ -26,16 +26,19 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   return map.get(notifierId);
 };
 
+// TODO: memoize?
 export const getComponentsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.componentData.components.map(comp => comp.id).sort();
 }
 
+// TODO: memoize?
 export const getResourcesIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.definition.resources.map(res => res.id).sort();
 }
 
+// TODO: memoize?
 export const getWindowsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.definition.windows.map(res => res.id).sort();

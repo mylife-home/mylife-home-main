@@ -32,8 +32,8 @@ const useStyles = makeStyles((theme) => ({
 const ObjectList: FunctionComponent = () => {
   const classes = useStyles();
   const tabId = useTabPanelId();
-  const resources = useSelector((state: AppState) => getResourcesIds(state, tabId));
   const windows = useSelector((state: AppState) => getWindowsIds(state, tabId));
+  const resources = useSelector((state: AppState) => getResourcesIds(state, tabId));
   const components = useSelector((state: AppState) => getComponentsIds(state, tabId));
 
   return (
@@ -41,12 +41,12 @@ const ObjectList: FunctionComponent = () => {
       <List component="nav" className={classes.list}>
         <Item title="Projet" icon={ProjectIcon} />
 
-        <Group title="Ressources" icon={ImageIcon}>
-          {resources.map(id => <Item key={id} title={id} nested />)}
-        </Group>
-
         <Group title="Fenêtres" icon={WindowIcon}>
           {windows.map(id => <Item key={id} title={id} nested />)}
+        </Group>
+
+        <Group title="Ressources" icon={ImageIcon}>
+          {resources.map(id => <Item key={id} title={id} nested />)}
         </Group>
 
         <Group title="Composants" icon={ComponentIcon}>
