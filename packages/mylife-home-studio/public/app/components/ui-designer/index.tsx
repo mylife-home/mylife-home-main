@@ -1,12 +1,17 @@
 import React, { FunctionComponent } from 'react';
 
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
+import SplitPane from '../lib/split-pane';
+import ObjectList from './object-list';
+import MainView from './main-view';
 
 const UiDesigner: FunctionComponent = () => (
-  <Box p={3}>
-    <Typography>Designer UI</Typography>
-  </Box>
+  <SplitPane split="vertical" defaultSize={300} minSize={300}>
+
+    <ObjectList />
+
+    <MainView />
+
+  </SplitPane>
 );
 
 export default UiDesigner;
