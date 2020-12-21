@@ -25,3 +25,18 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   const map = projectIdByNotifierIdMap(state);
   return map.get(notifierId);
 };
+
+export const getComponentsIds = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.componentData.components.map(comp => comp.id).sort();
+}
+
+export const getResourcesIds = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.definition.resources.map(res => res.id).sort();
+}
+
+export const getWindowsIds = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.definition.windows.map(res => res.id).sort();
+}

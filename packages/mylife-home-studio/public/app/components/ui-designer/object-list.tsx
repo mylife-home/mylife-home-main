@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
@@ -7,12 +8,12 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import DraftsIcon from '@material-ui/icons/Drafts';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-
 import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
+import { useTabPanelId } from '../lib/tab-panel';
+import { AppState } from '../../store/types';
+import { getComponentsIds, getResourcesIds, getWindowsIds } from '../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,27 +26,25 @@ const useStyles = makeStyles((theme) => ({
 
 const ObjectList: FunctionComponent = () => {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(true);
-
-  const handleClick = () => {
-    setOpen(!open);
-  };
+  const tabId = useTabPanelId();
+  const resources = useSelector((state: AppState) => getResourcesIds(state, tabId));
+  const windows = useSelector((state: AppState) => getWindowsIds(state, tabId));
+  const components = useSelector((state: AppState) => getComponentsIds(state, tabId));
 
   return (
     <List component="nav" className={classes.root}>
       <Item title="Projet" icon={ProjectIcon} />
 
       <Group title="Ressources" icon={ImageIcon}>
-        <Item title="res1" nested />
+        {resources.map(id => <Item key={id} title={id} nested />)}
       </Group>
 
       <Group title="Fenêtres" icon={WindowIcon}>
-        <Item title="window1" nested />
+        {windows.map(id => <Item key={id} title={id} nested />)}
       </Group>
 
-
       <Group title="Composants" icon={ComponentIcon}>
-        <Item title="compo1" nested />
+        {components.map(id => <Item key={id} title={id} nested />)}
       </Group>
     </List>
   );
