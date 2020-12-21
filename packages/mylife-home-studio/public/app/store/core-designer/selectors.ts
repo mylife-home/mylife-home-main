@@ -1,3 +1,4 @@
+import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
 
 const getOpenedProjects = (state: AppState) => state.coreDesigner.openedProjects;
@@ -10,14 +11,20 @@ export const getOpenedProjectsIdAndProjectIdList = (state: AppState) => {
   return Object.values(openedProjects.byId).map(({ id, projectId }) => ({ id, projectId }));
 };
 
-// TODO: memoized selector
-export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: string) => {
-  const projects = getOpenedProjects(state);
-  for (const project of Object.values(projects.byId)) {
-    if (project.notifierId === notifierId) {
-      return project.id;
+const projectIdByNotifierIdMap = createSelector(
+  getOpenedProjects,
+  (projects) => {
+    const map = new Map<string, string>();
+    for (const project of Object.values(projects.byId)) {
+      map.set(project.notifierId, project.id);
     }
-  }
+    return map;
+  },
+);
+
+export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: string) => {
+  const map = projectIdByNotifierIdMap(state);
+  return map.get(notifierId);
 };
 
 export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.allIds;
