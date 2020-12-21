@@ -16,7 +16,12 @@ import { AppState } from '../../store/types';
 import { getComponentsIds, getResourcesIds, getWindowsIds } from '../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  container: {
+    width: '100%',
+    height: '100%',
+    overflow: 'auto',
+  },
+  list: {
     width: '100%',
   },
   nested: {
@@ -32,21 +37,23 @@ const ObjectList: FunctionComponent = () => {
   const components = useSelector((state: AppState) => getComponentsIds(state, tabId));
 
   return (
-    <List component="nav" className={classes.root}>
-      <Item title="Projet" icon={ProjectIcon} />
+    <div className={classes.container}>
+      <List component="nav" className={classes.list}>
+        <Item title="Projet" icon={ProjectIcon} />
 
-      <Group title="Ressources" icon={ImageIcon}>
-        {resources.map(id => <Item key={id} title={id} nested />)}
-      </Group>
+        <Group title="Ressources" icon={ImageIcon}>
+          {resources.map(id => <Item key={id} title={id} nested />)}
+        </Group>
 
-      <Group title="Fenêtres" icon={WindowIcon}>
-        {windows.map(id => <Item key={id} title={id} nested />)}
-      </Group>
+        <Group title="Fenêtres" icon={WindowIcon}>
+          {windows.map(id => <Item key={id} title={id} nested />)}
+        </Group>
 
-      <Group title="Composants" icon={ComponentIcon}>
-        {components.map(id => <Item key={id} title={id} nested />)}
-      </Group>
-    </List>
+        <Group title="Composants" icon={ComponentIcon}>
+          {components.map(id => <Item key={id} title={id} nested />)}
+        </Group>
+      </List>
+    </div>
   );
 };
 
