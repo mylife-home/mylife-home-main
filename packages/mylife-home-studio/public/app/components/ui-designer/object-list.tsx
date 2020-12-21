@@ -41,7 +41,7 @@ const ObjectList: FunctionComponent = () => {
       <List component="nav" className={classes.list}>
         <Item title="Projet" icon={ProjectIcon} />
 
-        <Group title="Fenêtres" icon={WindowIcon}>
+        <Group title="Fenêtres" icon={WindowIcon} initialOpen>
           {windows.map(id => <Item key={id} title={id} nested />)}
         </Group>
 
@@ -59,10 +59,10 @@ const ObjectList: FunctionComponent = () => {
 
 export default ObjectList;
 
-const Group: FunctionComponent<{ title: string; icon: typeof SvgIcon }> = ({ title, icon, children }) => {
+const Group: FunctionComponent<{ title: string; icon: typeof SvgIcon; initialOpen?: boolean }> = ({ title, icon, initialOpen = false, children }) => {
   const Icon = icon;
 
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(initialOpen);
 
   const handleClick = () => {
     setOpen(!open);
