@@ -1,6 +1,8 @@
-import { ComponentData } from '../../../../shared/project-manager';
-import { Definition } from '../../../../shared/ui-model';
+import { Component } from '../../../../shared/component-model';
+import { ComponentData, PluginData } from '../../../../shared/project-manager';
+import { Control, DefaultWindow, Definition, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { Table } from '../common/types';
 
 export {
   UpdateProjectNotification,
@@ -12,7 +14,7 @@ export {
   SetUiWindowNotification,
   ClearUiWindowNotification,
 } from '../../../../shared/project-manager';
-export { Definition, DefaultWindow, DefinitionResource, Window } from '../../../../shared/ui-model';
+export { Definition, DefaultWindow, DefinitionResource, Window, Control } from '../../../../shared/ui-model';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'ui-designer/set-notifier',
@@ -33,6 +35,27 @@ export { DesignerTabActionData };
 export interface UiOpenedProject extends OpenedProjectBase {
   definition: Definition;
   componentData: ComponentData;
+}
+
+export interface PluginModel extends PluginData {
+  id: string; // id: instanceName:module.name
+}
+
+export interface WindowModel extends Omit<Window, 'controls'> {
+  controls: string[];
+}
+
+// TODO
+export interface UiOpenedProject2 extends OpenedProjectBase {
+  components: Table<Component>; // plugin points to plugin instanceName:module.name
+  plugins: Table<PluginModel>;
+
+  resources: Table<DefinitionResource>;
+
+  windows: Table<WindowModel>;
+  controls: Table<Control>; // id = window:control
+
+  defaultWindow: DefaultWindow;
 }
 
 export type UiDesignerState = DesignerState<UiOpenedProject>;
