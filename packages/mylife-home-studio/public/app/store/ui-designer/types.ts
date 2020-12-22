@@ -28,6 +28,8 @@ export const enum ActionTypes {
   CLEAR_RESOURCE = 'ui-designer/clear-resource',
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
+  // TODO: rename resource, rename windows, rename control
+  // TODO: SET_CONTROL, CLEAR_CONTROL
 }
 
 export { DesignerTabActionData };
