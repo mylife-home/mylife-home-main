@@ -114,6 +114,9 @@ class UiOpenedProject extends OpenedProject {
         await this.clearWindow(updateData as ClearWindowUiProjectUpdate);
         break;
 
+      default:
+        throw new Error(`Unhandle update operation: ${updateData.operation}`);
+
       // TODO renames (+ propage)
       // TODO controls
       // TODO: handle deletion of used objects

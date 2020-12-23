@@ -165,6 +165,9 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
       // TODO
       break;
     }
+
+    default:
+      throw new Error(`Unhandle update operation: ${update.operation}`);
   }
 }
 
