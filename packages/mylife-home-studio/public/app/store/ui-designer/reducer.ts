@@ -1,4 +1,5 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
+import { table } from 'console';
 import {
   ClearUiControlNotification,
   ClearUiResourceNotification,
@@ -15,7 +16,7 @@ import {
   SetUiWindowNotification,
   UpdateProjectNotification,
 } from '../../../../shared/project-manager';
-import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { arrayAdd, arrayRemove, createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
 import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl } from './types';
 
@@ -124,8 +125,11 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     case 'rename-ui-resource': {
-      const typedUpdate = update as RenameUiResourceNotification;
-      // TODO
+      const { id, newId } = update as RenameUiResourceNotification;
+      const resource = openedProject.resources.byId[id];
+      tableRemove(openedProject.resources, id);
+      resource.id = newId;
+      tableSet(openedProject.resources, resource, true);
       break;
     }
 
@@ -136,33 +140,71 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     case 'clear-ui-window': {
-      const typedUpdate = update as ClearUiWindowNotification;
-      tableRemove(openedProject.windows, typedUpdate.id);
-      // TODO: remove controls
+      const { id } = update as ClearUiWindowNotification;
+      const window = openedProject.windows.byId[id];
+      tableRemove(openedProject.windows, id);
+
+      for (const controlId of window.controls) {
+        const fullId = `${id}:${controlId}`;
+        tableRemove(openedProject.controls, fullId);
+      }
+
       break;
     }
 
     case 'rename-ui-window': {
-      const typedUpdate = update as RenameUiWindowNotification;
-      // TODO
+      const { id, newId } = update as RenameUiWindowNotification;
+      const window = openedProject.windows.byId[id];
+      tableRemove(openedProject.windows, id);
+      window.id = newId;
+      tableSet(openedProject.windows, window, true);
+
+      for (const [index, fullId] of window.controls.entries()) {
+        const [, controlId] = fullId.split(':');
+        const fullNewId = `${newId}:${controlId}`;
+        window.controls[index] = fullNewId;
+
+        const control = openedProject.controls.byId[fullId];
+        tableRemove(openedProject.controls, fullId);
+        control.id = fullNewId;
+        tableSet(openedProject.controls, control, true);
+      }
+
       break;
     }
 
     case 'set-ui-control': {
-      const typedUpdate = update as SetUiControlNotification;
-      // TODO
+      const { windowId, control } = update as SetUiControlNotification;
+      const fullId = `${windowId}:${control.id}`;
+      const window = openedProject.windows.byId[windowId];
+
+      tableSet(openedProject.controls, { ...control, id: fullId }, true);
+      arrayAdd(window.controls, fullId, true);
       break;
     }
 
     case 'clear-ui-control': {
-      const typedUpdate = update as ClearUiControlNotification;
-      // TODO
+      const { windowId, id } = update as ClearUiControlNotification;
+      const fullId = `${windowId}:${id}`;
+      const window = openedProject.windows.byId[windowId];
+
+      tableRemove(openedProject.controls, fullId);
+      arrayRemove(window.controls, fullId);
       break;
     }
 
     case 'rename-ui-control': {
-      const typedUpdate = update as RenameUiControlNotification;
-      // TODO
+      const { windowId, id, newId } = update as RenameUiControlNotification;
+      const fullId = `${windowId}:${id}`;
+      const fullNewId = `${windowId}:${newId}`;
+      const control = openedProject.controls.byId[fullId];
+      const window = openedProject.windows.byId[windowId];
+
+      tableRemove(openedProject.controls, fullId);
+      arrayRemove(window.controls, fullId);
+      control.id = fullNewId;
+      tableSet(openedProject.controls, control, true);
+      arrayAdd(window.controls, fullNewId, true);
       break;
     }
 
