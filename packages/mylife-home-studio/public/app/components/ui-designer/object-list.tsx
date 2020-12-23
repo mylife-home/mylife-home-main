@@ -143,28 +143,6 @@ const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
           <WindowIcon />
         </IconButton>
       </Tooltip>
-
-      <Tooltip title="Ajouter une ressource">
-        <IconButton className={classes.newButton} onClick={() => console.log('TODO')}>
-          <ImageIcon />
-        </IconButton>
-      </Tooltip>
-
-      <Tooltip title="Rafraîchir les composants depuis un projet core">
-        <IconButton onClick={() => console.log('TODO')}>
-          <Badge badgeContent={<ProjectIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
-            <ComponentIcon />
-          </Badge>
-        </IconButton>
-      </Tooltip>
-
-      <Tooltip title="Rafraîchir les composants depuis les instances en ligne">
-        <IconButton onClick={() => console.log('TODO')}>
-          <Badge badgeContent={<InstanceIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
-            <ComponentIcon />
-          </Badge>
-        </IconButton>
-      </Tooltip>
     </Toolbar>
   );
 };
