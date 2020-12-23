@@ -1,15 +1,18 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, darken } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+
 import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
 import { useTabPanelId } from '../lib/tab-panel';
 import { AppState } from '../../store/types';
@@ -19,6 +22,14 @@ const useStyles = makeStyles((theme) => ({
   container: {
     width: '100%',
     height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  toolbar: {
+    background: darken(theme.palette.background.paper, 0.1),
+  },
+  listContainer: {
+    flex: 1,
     overflow: 'auto',
   },
   list: {
@@ -38,21 +49,27 @@ const ObjectList: FunctionComponent = () => {
 
   return (
     <div className={classes.container}>
-      <List component="nav" className={classes.list}>
-        <Item title="Projet" icon={ProjectIcon} />
 
-        <Group title="Fenêtres" icon={WindowIcon} initialOpen>
-          {windows.map(id => <Item key={id} title={id} nested />)}
-        </Group>
+      <div className={classes.listContainer}>
+        <List component="nav" className={classes.list}>
+          <Item title="Projet" icon={ProjectIcon} />
 
-        <Group title="Ressources" icon={ImageIcon}>
-          {resources.map(id => <Item key={id} title={id} nested />)}
-        </Group>
+          <Group title="Fenêtres" icon={WindowIcon} initialOpen>
+            {windows.map(id => <Item key={id} title={id} nested />)}
+          </Group>
 
-        <Group title="Composants" icon={ComponentIcon}>
-          {components.map(id => <Item key={id} title={id} nested />)}
-        </Group>
-      </List>
+          <Group title="Ressources" icon={ImageIcon}>
+            {resources.map(id => <Item key={id} title={id} nested />)}
+          </Group>
+
+          <Group title="Composants" icon={ComponentIcon}>
+            {components.map(id => <Item key={id} title={id} nested />)}
+          </Group>
+        </List>
+      </div>
+
+      <ActionsToolbar className={classes.toolbar} />
+
     </div>
   );
 };
@@ -101,5 +118,15 @@ const Item: FunctionComponent<{ title: string; icon?: typeof SvgIcon; nested?: b
 
       <ListItemText primary={title} primaryTypographyProps={{ variant: nested ? 'body1' : 'h6' }} />
     </ListItem>
+  );
+};
+
+const ActionsToolbar: FunctionComponent<{ className?: string }> = ({ className }) => {
+  return (
+    <Toolbar className={className}>
+      <IconButton edge="start">
+        <ExpandLess />
+      </IconButton>
+    </Toolbar>
   );
 };
