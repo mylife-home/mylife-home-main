@@ -25,15 +25,17 @@ export const enum ActionTypes {
 
 export { DesignerTabActionData, DefaultWindow };
 
+type Mutable<T> = { -readonly[P in keyof T]: T[P]};
+
 export type UiComponent = Component;
-export type UiResource = DefinitionResource;
-export type UiControl = Control; // with id = windowId:controlId
+export type UiResource = Mutable<DefinitionResource>;
+export type UiControl = Mutable<Control>; // with id = windowId:controlId
 
 export interface UiPlugin extends PluginData {
   id: string; // id: instanceName:module.name
 }
 
-export interface UiWindow extends Omit<Window, 'controls'> {
+export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
   controls: string[];
 }
 
