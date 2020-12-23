@@ -27,7 +27,7 @@ export { DesignerTabActionData, DefaultWindow };
 
 export type UiComponent = Component;
 export type UiResource = DefinitionResource;
-export type UiControl = Control;
+export type UiControl = Control; // with id = windowId:controlId
 
 export interface UiPlugin extends PluginData {
   id: string; // id: instanceName:module.name
