@@ -1,23 +1,23 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { arrayClear, arraySet, createTable, tableAdd, tableRemove } from '../common/reducer-tools';
-import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
 import {
-  ActionTypes,
-  UiDesignerState,
-  UiOpenedProject,
-  DesignerTabActionData,
-  UpdateProjectNotification,
-  SetNameProjectNotification,
-  SetUiDefaultWindowNotification,
-  SetUiComponentDataNotification,
-  SetUiResourceNotification,
+  ClearUiControlNotification,
   ClearUiResourceNotification,
-  SetUiWindowNotification,
   ClearUiWindowNotification,
-  Definition
-} from './types';
-
-type Mutable<T> = { -readonly [P in keyof T]: T[P] };
+  ComponentData,
+  RenameUiControlNotification,
+  RenameUiResourceNotification,
+  RenameUiWindowNotification,
+  SetNameProjectNotification,
+  SetUiComponentDataNotification,
+  SetUiControlNotification,
+  SetUiDefaultWindowNotification,
+  SetUiResourceNotification,
+  SetUiWindowNotification,
+  UpdateProjectNotification,
+} from '../../../../shared/project-manager';
+import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -36,8 +36,13 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
-      definition: { resources: [], windows: [], defaultWindow: {} },
-      componentData: { components: [], plugins: {} },
+
+      components: createTable<UiComponent>(),
+      plugins: createTable<UiPlugin>(),
+      resources: createTable<UiResource>(),
+      windows: createTable<UiWindow>(),
+      controls: createTable<UiControl>(),
+      defaultWindow: {},
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -68,8 +73,13 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
-      openedProject.definition = { resources: [], windows: [], defaultWindow: {} };
-      openedProject.componentData = { components: [], plugins: {} };
+
+      openedProject.components = createTable<UiComponent>();
+      openedProject.plugins = createTable<UiPlugin>();
+      openedProject.resources = createTable<UiResource>();
+      openedProject.windows = createTable<UiWindow>();
+      openedProject.controls = createTable<UiControl>();
+      openedProject.defaultWindow = {};
     }
   },
 
@@ -82,7 +92,6 @@ export default createReducer(initialState, {
 });
 
 function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjectNotification) {
-  const definition: Mutable<Definition> = openedProject.definition;
   switch (update.operation) {
     case 'set-name': {
       const typedUpdate = update as SetNameProjectNotification;
@@ -92,39 +101,86 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
 
     case 'set-ui-component-data': {
       const typedUpdate = update as SetUiComponentDataNotification;
-      openedProject.componentData = typedUpdate.componentData;
+      updateComponentData(openedProject, typedUpdate.componentData);
       break;
     }
 
     case 'set-ui-default-window': {
       const typedUpdate = update as SetUiDefaultWindowNotification;
-      definition.defaultWindow = typedUpdate.defaultWindow;
+      openedProject.defaultWindow = typedUpdate.defaultWindow;
       break;
     }
 
-
     case 'set-ui-resource': {
       const typedUpdate = update as SetUiResourceNotification;
-      arraySet(definition.resources, typedUpdate.resource);
+      tableSet(openedProject.resources, typedUpdate.resource, true);
       break;
     }
 
     case 'clear-ui-resource': {
       const typedUpdate = update as ClearUiResourceNotification;
-      arrayClear(definition.resources, typedUpdate.id);
+      tableRemove(openedProject.resources, typedUpdate.id);
+      break;
+    }
+
+    case 'rename-ui-resource': {
+      const typedUpdate = update as RenameUiResourceNotification;
+      // TODO
       break;
     }
 
     case 'set-ui-window': {
       const typedUpdate = update as SetUiWindowNotification;
-      arraySet(definition.windows, typedUpdate.window);
+      tableSet(openedProject.windows, typedUpdate.window, true);
       break;
     }
 
     case 'clear-ui-window': {
       const typedUpdate = update as ClearUiWindowNotification;
-      arrayClear(definition.windows, typedUpdate.id);
+      tableRemove(openedProject.windows, typedUpdate.id);
+      // TODO: remove controls
+      break;
+    }
+
+    case 'rename-ui-window': {
+      const typedUpdate = update as RenameUiWindowNotification;
+      // TODO
+      break;
+    }
+
+    case 'set-ui-control': {
+      const typedUpdate = update as SetUiControlNotification;
+      // TODO
+      break;
+    }
+
+    case 'clear-ui-control': {
+      const typedUpdate = update as ClearUiControlNotification;
+      // TODO
+      break;
+    }
+
+    case 'rename-ui-control': {
+      const typedUpdate = update as RenameUiControlNotification;
+      // TODO
       break;
     }
   }
+}
+
+function updateComponentData(openedProject: UiOpenedProject, componentData: ComponentData) {
+  const components = createTable<UiComponent>();
+  const plugins = createTable<UiPlugin>();
+
+  for (const [id, plugin] of Object.entries(componentData.plugins)) {
+    const uiPlugin: UiPlugin = { id, ...plugin };
+    tableSet(plugins, uiPlugin, true);
+  }
+
+  for (const component of componentData.components) {
+    tableSet(components, component, true);
+  }
+
+  openedProject.plugins = plugins;
+  openedProject.components = components;
 }
