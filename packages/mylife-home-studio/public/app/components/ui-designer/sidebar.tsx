@@ -6,7 +6,7 @@ import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layou
 import { useSelection } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 import { AppState } from '../../store/types';
-import { getComponentsIds, getResourcesIds, getWindowsIds } from '../../store/ui-designer/selectors';
+import { getWindowsIds } from '../../store/ui-designer/selectors';
 
 const SideBar: FunctionComponent = () => {
   return (
