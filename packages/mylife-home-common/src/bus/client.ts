@@ -24,6 +24,7 @@ export class Client extends EventEmitter {
 
   constructor(public readonly instanceName: string, serverUrl: string, private readonly residentStateDelay: number = 1000) {
     super();
+    this.setMaxListeners(0); // many components or rpc can listen for updates here
 
     const qos: mqtt.QoS = 0;
     const will = { topic: this.buildTopic('online'), payload: Buffer.allocUnsafe(0), retain: true, qos };
