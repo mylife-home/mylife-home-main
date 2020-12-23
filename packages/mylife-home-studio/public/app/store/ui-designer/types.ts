@@ -43,7 +43,7 @@ export interface UiOpenedProject extends OpenedProjectBase {
   components: Table<UiComponent>; // plugin points to plugin instanceName:module.name
   plugins: Table<UiPlugin>;
 
-  resources: Table<DefinitionResource>;
+  resources: Table<UiResource>;
 
   windows: Table<UiWindow>;
   controls: Table<UiControl>; // id = window:control
