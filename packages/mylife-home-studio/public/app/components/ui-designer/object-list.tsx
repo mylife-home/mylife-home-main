@@ -9,11 +9,13 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Collapse from '@material-ui/core/Collapse';
 import Toolbar from '@material-ui/core/Toolbar';
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
-import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
+import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon, InstanceIcon } from '../lib/icons';
 import { useTabPanelId } from '../lib/tab-panel';
 import { AppState } from '../../store/types';
 import { getComponentsIds, getResourcesIds, getWindowsIds } from '../../store/ui-designer/selectors';
@@ -27,6 +29,17 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     background: darken(theme.palette.background.paper, 0.1),
+  },
+  newButton: {
+    color: theme.palette.success.main,
+  },
+  badge: {
+    background: null,
+    color: darken(theme.palette.background.paper, 0.4),
+  },
+  badgeIcon: {
+    height: 12,
+    width: 12,
   },
   listContainer: {
     flex: 1,
@@ -68,7 +81,7 @@ const ObjectList: FunctionComponent = () => {
         </List>
       </div>
 
-      <ActionsToolbar className={classes.toolbar} />
+      <Actions className={classes.toolbar} />
 
     </div>
   );
@@ -121,12 +134,37 @@ const Item: FunctionComponent<{ title: string; icon?: typeof SvgIcon; nested?: b
   );
 };
 
-const ActionsToolbar: FunctionComponent<{ className?: string }> = ({ className }) => {
+const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
+  const classes = useStyles();
   return (
     <Toolbar className={className}>
-      <IconButton edge="start">
-        <ExpandLess />
-      </IconButton>
+      <Tooltip title="Nouvelle fenêtre">
+        <IconButton className={classes.newButton}>
+          <WindowIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Ajouter une ressource">
+        <IconButton className={classes.newButton}>
+          <ImageIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Rafraîchir les composants depuis un projet core">
+        <IconButton>
+          <Badge badgeContent={<ProjectIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
+            <ComponentIcon />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Rafraîchir les composants depuis les instances en ligne">
+        <IconButton>
+          <Badge badgeContent={<InstanceIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
+            <ComponentIcon />
+          </Badge>
+        </IconButton>
+      </Tooltip>
     </Toolbar>
   );
 };
