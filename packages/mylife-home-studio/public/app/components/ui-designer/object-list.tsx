@@ -74,7 +74,7 @@ const Group: FunctionComponent<{ title: string; icon: typeof SvgIcon; initialOpe
         <ListItemIcon>
           <Icon />
         </ListItemIcon>
-        <ListItemText primary={title} />
+        <ListItemText primary={title} primaryTypographyProps={{ variant: 'h6' }} />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
 
@@ -99,7 +99,7 @@ const Item: FunctionComponent<{ title: string; icon?: typeof SvgIcon; nested?: b
         </ListItemIcon>
       )}
 
-      <ListItemText primary={title} />
+      <ListItemText primary={title} primaryTypographyProps={{ variant: nested ? 'body1' : 'h6' }} />
     </ListItem>
   );
 };
