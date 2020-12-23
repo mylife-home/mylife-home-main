@@ -1,17 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import { useAction } from '../lib/use-actions';
+import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { RecipeIcon, StartIcon, RunsIcon, FileIcon } from './icons';
 import { useSelection } from './selection';
 import { AppState } from '../../store/types';
@@ -19,31 +10,15 @@ import { getPinnedRecipesIds, getRun, getRunsIds } from '../../store/deploy/sele
 import { startRecipe } from '../../store/deploy/actions';
 import { getRunTitle, getRunIcon } from './run';
 
-const useStyles = makeStyles((theme) => ({
-  list: {
-    overflowY: 'auto',
-    height: '100%',
-  },
-  section: {},
-  item: {
-    paddingLeft: theme.spacing(8),
-  },
-  divider: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-  },
-}));
-
 const SideBar: FunctionComponent = () => {
-  const classes = useStyles();
   return (
-    <List className={classes.list}>
+    <SideBarList>
       <Recipes />
-      <Divider className={classes.divider} />
+      <SideBarDivider />
       <Runs />
-      <Divider className={classes.divider} />
+      <SideBarDivider />
       <Files />
-    </List>
+    </SideBarList>
   );
 };
 
@@ -97,62 +72,6 @@ const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
 const Files: FunctionComponent = () => {
   const { select } = useSelection();
   return (
-    <>
-      <Section title="Fichiers" icon={FileIcon} onClick={() => select({ type: 'files' })} />
-    </>
-  );
-};
-
-interface BaseItemProps {
-  title: string;
-  icon: typeof SvgIcon;
-  onClick: () => void;
-}
-
-interface SectionProps extends BaseItemProps {}
-
-interface ItemProps extends BaseItemProps {
-  secondary?: {
-    tooltip: string;
-    icon: typeof SvgIcon;
-    onClick: () => void;
-  };
-}
-
-const Section: FunctionComponent<SectionProps> = ({ title, icon, onClick }) => {
-  const classes = useStyles();
-  const Icon = icon;
-
-  return (
-    <ListItem button className={classes.section} onClick={onClick}>
-      <ListItemIcon>
-        <Icon />
-      </ListItemIcon>
-      <ListItemText primary={title} primaryTypographyProps={{ variant: 'h6' }} />
-    </ListItem>
-  );
-};
-
-const Item: FunctionComponent<ItemProps> = ({ title, icon, onClick, secondary }) => {
-  const classes = useStyles();
-  const Icon = icon;
-  const SecondaryIcon = secondary?.icon;
-
-  return (
-    <ListItem button className={classes.item} onClick={onClick}>
-      <ListItemIcon>
-        <Icon />
-      </ListItemIcon>
-      <ListItemText primary={title} primaryTypographyProps={{ variant: 'body1' }} />
-      {secondary && (
-        <ListItemSecondaryAction>
-          <Tooltip title={secondary.tooltip}>
-            <IconButton edge="end" onClick={secondary.onClick}>
-              <SecondaryIcon />
-            </IconButton>
-          </Tooltip>
-        </ListItemSecondaryAction>
-      )}
-    </ListItem>
+    <Section title="Fichiers" icon={FileIcon} onClick={() => select({ type: 'files' })} />
   );
 };
