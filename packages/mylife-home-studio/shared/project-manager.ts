@@ -1,4 +1,4 @@
-import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
+import { Window, Control, DefaultWindow, Definition, DefinitionResource } from './ui-model';
 import { Component, Plugin } from './component-model';
 
 export interface UiProject {
@@ -60,7 +60,7 @@ export interface CoreProjectInfo extends ProjectInfo {
 
 export interface UpdateProjectNotification {
   operation: 'set-name'
-  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'set-ui-window' | 'clear-ui-window';
+  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'set-ui-control' | 'clear-ui-control';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -88,13 +88,27 @@ export interface ClearUiResourceNotification extends UpdateProjectNotification {
   id: string;
 }
 
+export type WindowOnly = Omit<Window, 'controls'>;
+
 export interface SetUiWindowNotification extends UpdateProjectNotification {
   operation: 'set-ui-window';
-  window: Window;
+  window: WindowOnly;
 }
 
 export interface ClearUiWindowNotification extends UpdateProjectNotification {
   operation: 'clear-ui-window';
+  id: string;
+}
+
+export interface SetUiControlNotification extends UpdateProjectNotification {
+  operation: 'set-ui-control';
+  windowId: string;
+  control: Control;
+}
+
+export interface ClearUiControlNotification extends UpdateProjectNotification {
+  operation: 'clear-ui-control';
+  windowId: string;
   id: string;
 }
 
