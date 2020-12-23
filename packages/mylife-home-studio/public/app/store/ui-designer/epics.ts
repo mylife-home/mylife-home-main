@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow } from './types';
+import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl } from './types';
 import { ClearResourceUiProjectUpdate, ClearWindowUiProjectUpdate, SetDefaultWindowUiProjectUpdate, SetResourceUiProjectUpdate, SetWindowUiProjectUpdate } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -19,6 +19,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     // TODO: component data
+    // TODO: RENAME_RESOURCE, RENAME_WINDOW, RENAME_CONTROL
 
     [ActionTypes.SET_RESOURCE]: ({ resource }: { resource: UiResource }) => {
       return { operation: 'set-resource', resource } as SetResourceUiProjectUpdate;
@@ -33,10 +34,16 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       // return { operation: 'set-window', window } as SetWindowUiProjectUpdate;
     },
 
-    // TODO: SET/CLEAR_CONTROL update controls too
-
     [ActionTypes.CLEAR_WINDOW]: ({ windowId }: { windowId: string }) => {
       return { operation: 'clear-window', id: windowId } as ClearWindowUiProjectUpdate;
+    },
+
+    [ActionTypes.SET_CONTROL]: ({ control }: { control: UiControl }) => {
+      throw new Error('TODO: set control');
+    },
+
+    [ActionTypes.CLEAR_CONTROL]: ({ controlId }: { controlId: string }) => {
+      throw new Error('TODO: clear control');
     },
   }
 });

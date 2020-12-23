@@ -14,10 +14,13 @@ export const enum ActionTypes {
   // TODO: refresh components
   SET_RESOURCE = 'ui-designer/set-resource',
   CLEAR_RESOURCE = 'ui-designer/clear-resource',
+  RENAME_RESOURCE = 'ui-designer/rename-resource',
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
-  // TODO: rename resource, rename windows, rename control
-  // TODO: SET_CONTROL, CLEAR_CONTROL (and SET_WINDOW only change window props without controls??)
+  RENAME_WINDOW = 'ui-designer/rename-window',
+  SET_CONTROL = 'ui-designer/set-control',
+  CLEAR_CONTROL = 'ui-designer/clear-control',
+  RENAME_CONTROL = 'ui-designer/rename-control',
 }
 
 export { DesignerTabActionData, DefaultWindow };
