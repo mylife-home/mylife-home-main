@@ -1,9 +1,21 @@
-import { 
-  UiProject, UiProjectInfo, UiProjectUpdate,
-  ClearResourceUiProjectUpdate, ClearWindowUiProjectUpdate, SetDefaultWindowUiProjectUpdate, SetResourceUiProjectUpdate, SetWindowUiProjectUpdate,
-  ClearUiResourceNotification, ClearUiWindowNotification, SetUiComponentDataNotification, SetUiDefaultWindowNotification, SetUiResourceNotification, SetUiWindowNotification,
+import {
+  UiProject,
+  UiProjectInfo,
+  UiProjectUpdate,
+  ClearResourceUiProjectUpdate,
+  ClearWindowUiProjectUpdate,
+  SetDefaultWindowUiProjectUpdate,
+  SetResourceUiProjectUpdate,
+  SetWindowUiProjectUpdate,
+  ClearUiResourceNotification,
+  ClearUiWindowNotification,
+  SetUiComponentDataNotification,
+  SetUiDefaultWindowNotification,
+  SetUiResourceNotification,
+  SetUiWindowNotification,
+  SetUiControlNotification,
 } from '../../../shared/project-manager';
-import { Window, DefaultWindow, Definition, DefinitionResource } from '../../../shared/ui-model';
+import { Definition, DefinitionResource } from '../../../shared/ui-model';
 import { SessionNotifier } from '../session-manager';
 import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
 import { OpenedProject } from './opened-project';
@@ -12,12 +24,11 @@ import { Store } from './store';
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export class UiProjects extends Store<UiProject> {
-
   async createNew(name: string) {
     const project: UiProject = {
       name,
       definition: { resources: [], windows: [], defaultWindow: {} },
-      componentData: { components: [], plugins: {} }
+      componentData: { components: [], plugins: {} },
     };
 
     await this.create(project);
@@ -36,7 +47,7 @@ export class UiProjects extends Store<UiProject> {
       windowsCount: project.definition.windows.length,
       resourcesCount: project.definition.resources.length,
       resourcesSize: project.definition.resources.reduce((sum, res) => sum + resourceBinaryLength(res), 0),
-      componentsCount: project.componentData.components.length
+      componentsCount: project.componentData.components.length,
     };
   }
 
@@ -72,12 +83,17 @@ class UiOpenedProject extends OpenedProject {
     }
 
     for (const window of project.definition.windows) {
-      notifier.notify({ operation: 'set-ui-window', window } as SetUiWindowNotification);
+      const { controls, ...windowOnly } = window;
+      notifier.notify({ operation: 'set-ui-window', window: windowOnly } as SetUiWindowNotification);
+
+      for (const control of controls) {
+        notifier.notify({ operation: 'set-ui-control', windowId: window.id, control } as SetUiControlNotification);
+      }
     }
   }
 
   async update(updateData: UiProjectUpdate) {
-    switch(updateData.operation) {
+    switch (updateData.operation) {
       case 'set-default-window':
         await this.setDefaultWindow(updateData as SetDefaultWindowUiProjectUpdate);
         break;
@@ -97,6 +113,10 @@ class UiOpenedProject extends OpenedProject {
       case 'clear-window':
         await this.clearWindow(updateData as ClearWindowUiProjectUpdate);
         break;
+
+      // TODO renames (+ propage)
+      // TODO controls
+      // TODO: handle deletion of used objects
     }
   }
 
@@ -136,15 +156,12 @@ class UiOpenedProject extends OpenedProject {
   }
 
   // TODO
-  private async refreshComponents() {
-
-  }
-
+  private async refreshComponents() {}
 }
 
 function resourceBinaryLength(resource: DefinitionResource) {
   // base64 length = 4 chars represents 3 binary bytes
-  return resource.data.length * 3 / 4;
+  return (resource.data.length * 3) / 4;
 }
 
 interface WithId {
@@ -161,7 +178,7 @@ function arraySet<T extends WithId>(array: T[], item: T) {
 }
 
 function arrayClear<T extends WithId>(array: T[], id: string) {
-  const index = array.findIndex(item => item.id === id);
+  const index = array.findIndex((item) => item.id === id);
   if (index !== -1) {
     array.splice(index, 1);
   }
