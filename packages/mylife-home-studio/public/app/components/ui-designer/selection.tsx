@@ -19,7 +19,7 @@ export function useSelection() {
 }
 
 export const SelectionProvider: FunctionComponent = ({ children }) => {
-  const [selection, select] = useState<Selection>(null);
+  const [selection, select] = useState<Selection>({ type: 'project' });
   const contextProps = useMemo(() => ({ selection, select }), [selection, select]);
 
   return <SelectionContext.Provider value={contextProps}>{children}</SelectionContext.Provider>;
@@ -30,7 +30,7 @@ export function useResetSelectionIfNull<T>(obj: T) {
 
   useEffect(() => {
     if (!obj) {
-      select(null);
+      select({ type: 'project' });
     }
   }, [obj]);
 }

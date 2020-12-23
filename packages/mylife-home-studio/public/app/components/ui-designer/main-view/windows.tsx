@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const WindowsView: FunctionComponent = () => {
+const Windows: FunctionComponent = () => {
   const classes = useStyles();
   return (
     <Box>
@@ -28,4 +28,4 @@ const WindowsView: FunctionComponent = () => {
   );
 };
 
-export default WindowsView;
+export default Windows;

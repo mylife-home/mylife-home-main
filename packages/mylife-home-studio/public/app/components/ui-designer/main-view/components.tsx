@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ComponentsView: FunctionComponent = () => {
+const Components: FunctionComponent = () => {
   const classes = useStyles();
   return (
     <Box>
@@ -47,4 +47,4 @@ const ComponentsView: FunctionComponent = () => {
   );
 };
 
-export default ComponentsView;
+export default Components;

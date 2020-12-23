@@ -2,10 +2,10 @@ import React, { FunctionComponent } from 'react';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-const WindowView: FunctionComponent = () => (
+const Project: FunctionComponent = () => (
   <Box>
-    <Typography>Window</Typography>
+    <Typography>Project</Typography>
   </Box>
 );
 
-export default WindowView;
+export default Project;

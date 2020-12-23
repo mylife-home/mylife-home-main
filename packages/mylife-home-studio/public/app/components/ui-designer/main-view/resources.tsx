@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ResourcesView: FunctionComponent = () => {
+const Resources: FunctionComponent = () => {
   const classes = useStyles();
   return (
     <Box>
@@ -28,4 +28,4 @@ const ResourcesView: FunctionComponent = () => {
   );
 };
 
-export default ResourcesView;
+export default Resources;

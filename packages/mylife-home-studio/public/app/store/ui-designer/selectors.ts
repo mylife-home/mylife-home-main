@@ -40,3 +40,8 @@ export const getWindowsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.windows.allIds;
 }
+
+export const getWindow = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.windows.byId[id];
+}

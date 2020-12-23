@@ -37,7 +37,7 @@ const Windows: FunctionComponent = () => {
   const windowsIds = useSelector((state: AppState) => getWindowsIds(state, tabId));
   return (
     <>
-      <Section title="Recettes" icon={WindowIcon} onClick={() => select({ type: 'windows' })} />
+      <Section title="Fenêtres" icon={WindowIcon} onClick={() => select({ type: 'windows' })} />
       {windowsIds.map((id) => (
         <Item key={id} title={id} icon={WindowIcon} onClick={() => select({ type: 'window', id })} />
       ))}
