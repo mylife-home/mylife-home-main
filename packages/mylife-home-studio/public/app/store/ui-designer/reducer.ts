@@ -1,5 +1,4 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
-import { table } from 'console';
 import {
   ClearUiControlNotification,
   ClearUiResourceNotification,
@@ -95,32 +94,32 @@ export default createReducer(initialState, {
 function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjectNotification) {
   switch (update.operation) {
     case 'set-name': {
-      const typedUpdate = update as SetNameProjectNotification;
-      openedProject.projectId = typedUpdate.name;
+      const { name } = update as SetNameProjectNotification;
+      openedProject.projectId = name;
       break;
     }
 
     case 'set-ui-component-data': {
-      const typedUpdate = update as SetUiComponentDataNotification;
-      updateComponentData(openedProject, typedUpdate.componentData);
+      const { componentData } = update as SetUiComponentDataNotification;
+      updateComponentData(openedProject, componentData);
       break;
     }
 
     case 'set-ui-default-window': {
-      const typedUpdate = update as SetUiDefaultWindowNotification;
-      openedProject.defaultWindow = typedUpdate.defaultWindow;
+      const { defaultWindow } = update as SetUiDefaultWindowNotification;
+      openedProject.defaultWindow = defaultWindow;
       break;
     }
 
     case 'set-ui-resource': {
-      const typedUpdate = update as SetUiResourceNotification;
-      tableSet(openedProject.resources, typedUpdate.resource, true);
+      const { resource } = update as SetUiResourceNotification;
+      tableSet(openedProject.resources, resource, true);
       break;
     }
 
     case 'clear-ui-resource': {
-      const typedUpdate = update as ClearUiResourceNotification;
-      tableRemove(openedProject.resources, typedUpdate.id);
+      const { id } = update as ClearUiResourceNotification;
+      tableRemove(openedProject.resources, id);
       break;
     }
 
@@ -134,8 +133,10 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     case 'set-ui-window': {
-      const typedUpdate = update as SetUiWindowNotification;
-      tableSet(openedProject.windows, typedUpdate.window, true);
+      const { window } = update as SetUiWindowNotification;
+      // reuse existing controls or init array
+      const controls = openedProject.windows.byId[window.id]?.controls || [];
+      tableSet(openedProject.windows, { ...window, controls }, true);
       break;
     }
 
