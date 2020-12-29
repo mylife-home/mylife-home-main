@@ -53,8 +53,8 @@ const Resources: FunctionComponent = () => {
         <>
           <Title text="Resources" icon={ImageIcon} />
   
-          <Tooltip title="Ajouter une ressource">
-            <IconButton className={classes.newButton} onClick={() => console.log('TODO')}>
+          <Tooltip title="Ajouter une ressource (ou drag'n'drop sur l'écran)">
+            <IconButton className={classes.newButton} onClick={() => console.log('TODO + add drop zone')}>
               <CloudUploadIcon />
             </IconButton>
           </Tooltip>
