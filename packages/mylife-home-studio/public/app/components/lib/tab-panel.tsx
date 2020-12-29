@@ -181,6 +181,11 @@ export function useTabPanelId() {
   return useContext(TabIdContext);
 }
 
+export function useTabPanelSelector<TValue>(selector: (state: AppState, tabId: string) => TValue) {
+  const tabId = useTabPanelId();
+  return useSelector(state => selector(state, tabId));
+}
+
 const TabPanel: FunctionComponent<TabPanelProps> = ({ className, items, selectedId, onClose, onMove, onSelect, panelComponent }) => {
   const classes = useTabPanelStyles();
   const PanelComponent = panelComponent;
