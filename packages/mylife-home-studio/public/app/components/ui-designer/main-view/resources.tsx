@@ -1,6 +1,7 @@
-import React, { SyntheticEvent, FunctionComponent, useState, useEffect, useCallback } from 'react';
+import React, { SyntheticEvent, ChangeEvent, FunctionComponent, useState, useEffect, useCallback } from 'react';
 import clsx from 'clsx';
 import humanize from 'humanize-plus';
+import { AutoSizer } from 'react-virtualized';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -9,6 +10,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Toolbar from '@material-ui/core/Toolbar';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
@@ -123,27 +128,77 @@ function formatBinaryLength(resource: UiResource) {
   return humanize.fileSize(size);
 }
 const useDisplayStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  imageWrapper: {
+    flex: '1 1 auto',
+  },
   image: {
     width: '100%',
     height: '100%',
-    objectFit: 'contain',
     border: `solid 1px ${theme.palette.primary.main}`,
   },
+  imageFit: {
+    objectFit: 'contain',
+  },
+  imageOriginal: {
+
+  },
+  toolbar: {
+  },
+  toolbarTitle: {
+    flex: 1,
+    textAlign: 'center',
+  }
 }));
+
+type DisplayStyle = 'fit' | 'original';
 
 const ResourceDisplay : FunctionComponent<{ id: string; className?: string; }> = ({ id, className }) => {
   const classes = useDisplayStyles();
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
   const url = `data://${resource.mime};base64,${resource.data}`;
   const [size, onLoad] = useImageSizeWithElement(url);
+  const [style, setStyle] = useState<DisplayStyle>('fit');
+  const imageClasses = clsx(classes.image, { [classes.imageFit]: style === 'fit', [classes.imageOriginal]: style === 'original' });
+
+  const handleChangeStyle = (event: ChangeEvent<HTMLInputElement>) => {
+    setStyle(event.currentTarget.value as DisplayStyle);
+  };
 
   return (
-    <>
-      <img className={clsx(className, classes.image)} src={url} onLoad={onLoad} />
-      {size && (
-        <Typography>{`${size.width} x ${size.height}`}</Typography>
-      )}
-    </>
+    <div className={clsx(className, classes.container)}>
+
+      <Toolbar className={classes.toolbar}>
+        <RadioGroup row value={style} onChange={handleChangeStyle}>
+          <FormControlLabel value="fit" control={<Radio color="primary" />} label="Fit" />
+          <FormControlLabel value="original" control={<Radio color="primary" />} label="Original" />
+        </RadioGroup>
+
+        <Typography variant="h6" className={classes.toolbarTitle}>
+          {resource.id}
+        </Typography>
+
+        {size && (
+          <Typography className={classes.toolbar}>{`${size.width} x ${size.height}`}</Typography>
+        )}
+
+      </Toolbar>
+
+      <div className={classes.imageWrapper}>
+        <AutoSizer>
+          {({ height, width }) => (
+            <div style={{height, width}}>
+              <img className={imageClasses} src={url} onLoad={onLoad} />
+            </div>
+          )}
+        </AutoSizer>
+      </div>
+
+    </div>
   );
 };
 
