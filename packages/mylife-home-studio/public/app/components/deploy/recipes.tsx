@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,13 +12,13 @@ import AddIcon from '@material-ui/icons/Add';
 
 import { useFireAsync } from '../lib/use-error-handling';
 import { useAction } from '../lib/use-actions';
+import { Container, Title } from '../lib/main-view-layout';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { setRecipe } from '../../store/deploy/actions';
 import { RecipeConfig } from '../../store/deploy/types';
 import { AppState } from '../../store/types';
 import { RecipeIcon } from './icons';
 import { useSelection } from './selection';
-import { Container, Title, CustomizedListItemText } from './layout';
 import RecipeActions, { useNewNameDialog } from './recipe-actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -83,7 +84,7 @@ const RecipeItem: FunctionComponent<{ id: string }> = ({ id }) => {
         <RecipeIcon />
       </ListItemIcon>
 
-      <CustomizedListItemText primary={id} secondary={recipe.config.description || null} />
+      <ListItemText primary={id} secondary={recipe.config.description || null} />
 
       <ListItemSecondaryAction>
         <RecipeActions id={id} />

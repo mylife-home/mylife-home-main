@@ -18,9 +18,9 @@ import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table'
 import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
 import { useAction } from '../../lib/use-actions';
+import { Container, Title } from '../../lib/main-view-layout';
 import { useInputDialog } from '../../dialogs/input';
 import { useConfirmDialog } from '../../dialogs/confirm';
-import { Container, Title } from '../layout';
 import { FileIcon } from '../icons';
 import UploadProgressDialog from './upload-progress-dialog';
 import DownloadProgressDialog from './download-progress-dialog';

@@ -1,8 +1,8 @@
 import React, { FunctionComponent } from 'react';
 import Box from '@material-ui/core/Box';
 
+import { Title } from '../lib/main-view-layout';
 import { useSelection } from './selection';
-import { Title } from './layout';
 import Recipes from './recipes';
 import Recipe from './recipe';
 import Runs from './runs';

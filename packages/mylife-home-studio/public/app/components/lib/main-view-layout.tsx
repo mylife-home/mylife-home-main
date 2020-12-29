@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import ListItemText, { ListItemTextProps } from '@material-ui/core/ListItemText';
 
 const useTitleStyles = makeStyles((theme) => ({
   container: {
@@ -68,15 +67,5 @@ export const Container: FunctionComponent<{ title: ReactNode }> = ({ title, chil
 
       <div className={classes.contentWrapper}>{children}</div>
     </div>
-  );
-};
-
-export const CustomizedListItemText: FunctionComponent<ListItemTextProps<'span', 'p'>> = ({ primaryTypographyProps, secondaryTypographyProps, ...props }) => {
-  return (
-    <ListItemText
-      primaryTypographyProps={{ ...primaryTypographyProps }}
-      secondaryTypographyProps={{ ...secondaryTypographyProps }}
-      {...props}
-    />
   );
 };

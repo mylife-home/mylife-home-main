@@ -3,15 +3,16 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 import { getRunsIds, getRun } from '../../store/deploy/selectors';
 import { AppState } from '../../store/types';
 import { Run } from '../../store/deploy/types';
 import { useDateAsFormattedDuration, humanizeDuration } from '../lib/durations';
+import { Container, Title } from '../lib/main-view-layout';
 import { RunsIcon } from './icons';
 import { useSelection } from './selection';
-import { Container, Title, CustomizedListItemText } from './layout';
 import { getRunTitle, getRunIcon } from './run';
 
 const useStyles = makeStyles((theme) => ({
@@ -54,7 +55,7 @@ const RunItem: FunctionComponent<{ id: string }> = ({ id }) => {
         <RunIcon />
       </ListItemIcon>
 
-      <CustomizedListItemText primary={title} secondary={detail} />
+      <ListItemText primary={title} secondary={detail} />
 
     </ListItem>
   );

@@ -12,9 +12,9 @@ import AddIcon from '@material-ui/icons/Add';
 
 import DebouncedTextField from '../../lib/debounced-text-field';
 import { SortableList } from '../../lib/sortable-list';
+import { Container, Title } from '../../lib/main-view-layout';
 import { useResetSelectionIfNull } from '../selection';
 import { RecipeIcon } from '../icons';
-import { Container, Title } from '../layout';
 import RecipeActions from '../recipe-actions';
 import { AppState } from '../../../store/types';
 import { getRecipe } from '../../../store/deploy/selectors';

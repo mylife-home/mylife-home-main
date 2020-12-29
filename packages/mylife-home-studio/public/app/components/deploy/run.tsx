@@ -14,7 +14,7 @@ import { humanizeDuration } from '../lib/durations';
 import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { RunningIcon, SuccessIcon, FailureIcon } from './icons';
 import { useSelection, useResetSelectionIfNull } from './selection';
-import { Container, Title } from './layout';
+import { Container, Title } from '../lib/main-view-layout';
 
 const useStyles = makeStyles((theme) => ({
   container: {
