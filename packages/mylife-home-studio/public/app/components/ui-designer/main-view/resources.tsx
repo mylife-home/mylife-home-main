@@ -1,5 +1,6 @@
-import React, { FunctionComponent, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { SyntheticEvent, FunctionComponent, useState, useEffect, useCallback } from 'react';
+import clsx from 'clsx';
+import humanize from 'humanize-plus';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -8,6 +9,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Typography from '@material-ui/core/Typography';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
@@ -15,8 +17,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteButton from '../../lib/delete-button';
 import { Container, Title } from '../../lib/main-view-layout';
 import { ImageIcon } from '../../lib/icons';
-import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { getResourcesIds, getResource } from '../../../store/ui-designer/selectors';
+import { UiResource } from '../../../store/ui-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -66,8 +69,10 @@ const Resources: FunctionComponent = () => {
             <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
           ))}
         </List>
-        
-        <ResourceDisplay className={classes.display} id={selected} />
+
+        {selected && (
+          <ResourceDisplay className={classes.display} id={selected} />
+        )}
       </div>
     </Container>
   );
@@ -77,13 +82,15 @@ export default Resources;
 
 const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; }> = ({ id, selected, onSelect }) => {
   const classes = useStyles();
+  const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+
   return (
     <ListItem button selected={selected} onClick={onSelect}>
       <ListItemIcon>
         <ImageIcon />
       </ListItemIcon>
 
-      <ListItemText primary={id} secondary={'TODO size/type'} />
+      <ListItemText primary={id} secondary={`${resource.mime} - ${formatBinaryLength(resource)}`} />
 
       <ListItemSecondaryAction>
         <Tooltip title="Renommer">
@@ -110,6 +117,49 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   );
 };
 
-const ResourceDisplay: FunctionComponent<{ id: string; className: string; }> = ({ id }) => {
-  return <>{id}</>;
+function formatBinaryLength(resource: UiResource) {
+  // base64 length = 4 chars represents 3 binary bytes
+  const size = (resource.data.length * 3) / 4;
+  return humanize.fileSize(size);
+}
+const useDisplayStyles = makeStyles((theme) => ({
+  image: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
+    border: `solid 1px ${theme.palette.primary.main}`,
+  },
+}));
+
+const ResourceDisplay : FunctionComponent<{ id: string; className?: string; }> = ({ id, className }) => {
+  const classes = useDisplayStyles();
+  const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const url = `data://${resource.mime};base64,${resource.data}`;
+  const [size, onLoad] = useImageSizeWithElement(url);
+
+  return (
+    <>
+      <img className={clsx(className, classes.image)} src={url} onLoad={onLoad} />
+      {size && (
+        <Typography>{`${size.width} x ${size.height}`}</Typography>
+      )}
+    </>
+  );
+};
+
+type Size = { width: number; height: number; };
+
+function useImageSizeWithElement(url: string): [Size, (e: SyntheticEvent<HTMLImageElement>) => void] {
+  const [size, setSize] = useState<Size>(null);
+
+  const onLoad = useCallback((e: SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth: width , naturalHeight: height } = e.currentTarget;
+    setSize({ width, height });
+  }, [setSize]);
+
+  useEffect(() => {
+    setSize(null);
+  }, [url]);
+
+  return [size, onLoad];
 };

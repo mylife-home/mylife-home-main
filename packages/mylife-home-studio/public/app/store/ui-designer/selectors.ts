@@ -36,6 +36,11 @@ export const getResourcesIds = (state: AppState, tabId: string) => {
   return project.resources.allIds;
 }
 
+export const getResource = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.resources.byId[id];
+}
+
 export const getWindowsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.windows.allIds;
