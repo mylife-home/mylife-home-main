@@ -1,11 +1,9 @@
 import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
 
 import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
 import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { useSelection } from './selection';
-import { useTabPanelId } from '../lib/tab-panel';
-import { AppState } from '../../store/types';
+import { useTabSelector } from '../lib/use-tab-selector';
 import { getWindowsIds } from '../../store/ui-designer/selectors';
 
 const SideBar: FunctionComponent = () => {
@@ -33,8 +31,7 @@ const Project: FunctionComponent = () => {
 
 const Windows: FunctionComponent = () => {
   const { select } = useSelection();
-  const tabId = useTabPanelId();
-  const windowsIds = useSelector((state: AppState) => getWindowsIds(state, tabId));
+  const windowsIds = useTabSelector(getWindowsIds);
   return (
     <>
       <Section title="Fenêtres" icon={WindowIcon} onClick={() => select({ type: 'windows' })} />

@@ -16,8 +16,7 @@ import DeleteButton from '../../lib/delete-button';
 import { Container, Title } from '../../lib/main-view-layout';
 import { ImageIcon } from '../../lib/icons';
 import { useTabPanelId } from '../../lib/tab-panel';
-import { AppState } from '../../../store/types';
-import { getResourcesIds } from '../../../store/ui-designer/selectors';
+import { useTabSelector } from '../../lib/use-tab-selector';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -44,8 +43,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Resources: FunctionComponent = () => {
   const classes = useStyles();
-  const tabId = useTabPanelId();
-  const resourcesIds = useSelector((state: AppState) => getResourcesIds(state, tabId));
+  const resourcesIds = useTabSelector(getResourcesIds);
   const [selected, setSelected] = useState<string>(null);
 
   return (
