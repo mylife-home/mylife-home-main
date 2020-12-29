@@ -139,7 +139,7 @@ const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   return (
     <>
       <Tooltip title="Télécharger">
-        <IconButton className={classes.downloadButton} onClick={downloadFile}>
+        <IconButton onClick={downloadFile}>
           <CloudDownloadIcon />
         </IconButton>
       </Tooltip>
