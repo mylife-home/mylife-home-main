@@ -53,6 +53,7 @@ const useContainerStyles = makeStyles((theme) => ({
   contentWrapper: {
     flex: 1,
     overflowY: 'auto',
+    position: 'relative',
   },
 }));
 

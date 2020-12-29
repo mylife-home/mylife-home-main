@@ -13,8 +13,6 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
 
 import DeleteButton from '../../lib/delete-button';
-import { useFireAsync } from '../../lib/use-error-handling';
-import { useAction } from '../../lib/use-actions';
 import { Container, Title } from '../../lib/main-view-layout';
 import { ImageIcon } from '../../lib/icons';
 import { useTabPanelId } from '../../lib/tab-panel';
@@ -25,11 +23,22 @@ const useStyles = makeStyles((theme) => ({
   newButton: {
     color: theme.palette.success.main,
   },
+  wrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+
+    display: 'flex',
+    flexDirection: 'row',
+  },
   list: {
     width: 500,
+    overflowY: 'auto',
   },
   display: {
-
+    flex: 1,
   },
 }));
 
@@ -53,12 +62,15 @@ const Resources: FunctionComponent = () => {
         </>
       }
     >
-      <List disablePadding className={classes.list}>
-        {resourcesIds.map((id) => (
-          <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
-        ))}
-      </List>
-      <ResourceDisplay className={classes.display} id={selected} />
+      <div className={classes.wrapper}>
+        <List disablePadding className={classes.list}>
+          {resourcesIds.map((id) => (
+            <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
+          ))}
+        </List>
+        
+        <ResourceDisplay className={classes.display} id={selected} />
+      </div>
     </Container>
   );
 };
