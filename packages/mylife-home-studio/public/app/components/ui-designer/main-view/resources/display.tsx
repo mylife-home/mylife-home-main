@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getResource } from '../../../../store/ui-designer/selectors';
 import Image, { useImageSizeWithElement } from './image';
+import { makeDataUrl } from './utils';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -34,7 +35,7 @@ export type DisplayStyle = 'fit' | 'original';
 const Display : FunctionComponent<{ id: string; className?: string; }> = ({ id, className }) => {
   const classes = useStyles();
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
-  const url = `data://${resource.mime};base64,${resource.data}`;
+  const url = makeDataUrl(resource);
   const [size, onLoad] = useImageSizeWithElement(url);
   const [style, setStyle] = useState<DisplayStyle>('fit');
 

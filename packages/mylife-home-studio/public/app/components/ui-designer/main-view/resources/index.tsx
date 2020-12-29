@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useState } from 'react';
-import humanize from 'humanize-plus';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,8 +16,8 @@ import { Container, Title } from '../../../lib/main-view-layout';
 import { ImageIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getResourcesIds, getResource } from '../../../../store/ui-designer/selectors';
-import { UiResource } from '../../../../store/ui-designer/types';
 import Display from './display';
+import { formatBinaryLength, download } from './utils';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -99,7 +98,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
         </Tooltip>
 
         <Tooltip title="Télécharger">
-          <IconButton onClick={() => console.log('TODO')}>
+          <IconButton onClick={() => download(resource)}>
             <CloudDownloadIcon />
           </IconButton>
         </Tooltip>
@@ -115,9 +114,3 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
     </ListItem>
   );
 };
-
-function formatBinaryLength(resource: UiResource) {
-  // base64 length = 4 chars represents 3 binary bytes
-  const size = (resource.data.length * 3) / 4;
-  return humanize.fileSize(size);
-}
