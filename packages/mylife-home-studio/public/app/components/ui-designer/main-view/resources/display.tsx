@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FunctionComponent, useState } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, darken } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     flex: '1 1 auto',
   },
   toolbar: {
+    backgroundColor: darken(theme.palette.background.paper, 0.03)
   },
   toolbarTitle: {
     flex: 1,
