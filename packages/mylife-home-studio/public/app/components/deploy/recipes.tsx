@@ -49,7 +49,7 @@ const Recipes: FunctionComponent = () => {
       }
     });
 
-    return (
+  return (
     <Container
       title={
         <>
