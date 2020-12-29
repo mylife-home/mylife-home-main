@@ -76,7 +76,7 @@ export const Item: FunctionComponent<ItemProps> = ({ title, icon, onClick, secon
       <ListItemIcon>
         <Icon />
       </ListItemIcon>
-      <ListItemText primary={title} primaryTypographyProps={{ variant: 'body1' }} />
+      <ListItemText primary={title} />
       {secondary && (
         <ListItemSecondaryAction>
           <Tooltip title={secondary.tooltip}>

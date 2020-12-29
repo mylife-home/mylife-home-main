@@ -38,7 +38,7 @@ export const theme = responsiveFontSizes(createMuiTheme({
       margin: 'dense',
     },
     MuiListItem: {
-      dense: true,
+      // dense: true,
     },
     MuiOutlinedInput: {
       margin: 'dense',

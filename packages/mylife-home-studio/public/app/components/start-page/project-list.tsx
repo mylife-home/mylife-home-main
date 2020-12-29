@@ -94,7 +94,7 @@ export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) =
 
   return (
     <ListItem button onClick={handleOpen}>
-      <ListItemText primary={id} primaryTypographyProps={{ variant: 'body1' }} secondary={info.join(', ')} />
+      <ListItemText primary={id} secondary={info.join(', ')} />
 
       <ListItemSecondaryAction>
         <DuplicateButton id={id} className={classes.newButton} />

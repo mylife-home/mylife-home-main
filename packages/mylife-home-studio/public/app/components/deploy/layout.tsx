@@ -74,8 +74,8 @@ export const Container: FunctionComponent<{ title: ReactNode }> = ({ title, chil
 export const CustomizedListItemText: FunctionComponent<ListItemTextProps<'span', 'p'>> = ({ primaryTypographyProps, secondaryTypographyProps, ...props }) => {
   return (
     <ListItemText
-      primaryTypographyProps={{ variant: 'body1', ...primaryTypographyProps }}
-      secondaryTypographyProps={{ variant: 'body1', ...secondaryTypographyProps }}
+      primaryTypographyProps={{ ...primaryTypographyProps }}
+      secondaryTypographyProps={{ ...secondaryTypographyProps }}
       {...props}
     />
   );
