@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,6 +12,7 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
 
 import DeleteButton from '../../../lib/delete-button';
+import UploadButton from '../../../lib/upload-button';
 import { Container, Title } from '../../../lib/main-view-layout';
 import { ImageIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
@@ -46,6 +47,7 @@ const Resources: FunctionComponent = () => {
   const classes = useStyles();
   const resourcesIds = useTabSelector(getResourcesIds);
   const [selected, setSelected] = useState<string>(null);
+  const uploadFiles = useUploadFiles();
 
   return (
     <Container
@@ -53,10 +55,10 @@ const Resources: FunctionComponent = () => {
         <>
           <Title text="Resources" icon={ImageIcon} />
   
-          <Tooltip title="Ajouter une ressource (ou drag'n'drop sur l'écran)">
-            <IconButton className={classes.newButton} onClick={() => console.log('TODO + add drop zone')}>
+          <Tooltip title="Ajouter des ressources (ou drag'n'drop)">
+            <UploadButton className={classes.newButton} accept="image/*" multiple onUploadFiles={uploadFiles}>
               <CloudUploadIcon />
-            </IconButton>
+            </UploadButton>
           </Tooltip>
         </>
       }
@@ -114,3 +116,9 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
     </ListItem>
   );
 };
+
+function useUploadFiles() {
+  return (uploadFiles: File[]) => {
+    console.log('TODO');
+  };
+}
