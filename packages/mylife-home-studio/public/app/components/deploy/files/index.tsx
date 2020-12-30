@@ -17,6 +17,7 @@ import { uploadFiles, downloadFile, deleteFile, renameFile } from '../../../stor
 import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table';
 import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
+import UploadButton from '../../lib/upload-button';
 import { useAction } from '../../lib/use-actions';
 import { Container, Title } from '../../lib/main-view-layout';
 import { useInputDialog } from '../../dialogs/input';
@@ -102,23 +103,13 @@ const FileSize: FunctionComponent<{ id: string }> = ({ id }) => {
 const ActionsHeader: FunctionComponent = () => {
   const classes = useStyles();
   const uploadFiles = useUploadFiles();
-  const inputRef = useRef<HTMLInputElement>();
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files);
-    uploadFiles(files);
-  };
 
   return (
-    <>
-      <input ref={inputRef} type="file" hidden multiple onChange={handleUpload} />
-
-      <Tooltip title="Nouveau fichier (ou drag'n'drop sur la liste)">
-        <IconButton className={classes.uploadButton} onClick={() => inputRef.current.click()}>
-          <CloudUploadIcon />
-        </IconButton>
-      </Tooltip>
-    </>
+    <Tooltip title="Nouveau fichier (ou drag'n'drop sur la liste)">
+      <UploadButton multiple onUploadFiles={uploadFiles} className={classes.uploadButton}>
+        <CloudUploadIcon />
+      </UploadButton>
+    </Tooltip>
   );
 };
 
