@@ -28,9 +28,9 @@ const notifierEpic = createNotifierEpic({
 const setRecipeEpic = createSocketCallEpic(ActionTypes.SET_RECIPE, 'deploy/set-recipe');
 const clearRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/clear-recipe', (id: string) => ({ id }));
 const pinRecipeEpic = createSocketCallEpic(ActionTypes.PIN_RECIPE, 'deploy/pin-recipe');
-const startRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/start-recipe', (id: string) => ({ id }));
-const deleteFileEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/delete-file', (id: string) => ({ id }));
-const renameFileEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/rename-file');
+const startRecipeEpic = createSocketCallEpic(ActionTypes.START_RECIPE, 'deploy/start-recipe', (id: string) => ({ id }));
+const deleteFileEpic = createSocketCallEpic(ActionTypes.DELETE_FILE, 'deploy/delete-file', (id: string) => ({ id }));
+const renameFileEpic = createSocketCallEpic(ActionTypes.RENAME_FILE, 'deploy/rename-file');
   
 const uploadFilesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
   action$.pipe(
