@@ -17,6 +17,8 @@ import UploadZone from '../../../lib/upload-zone';
 import { Container, Title } from '../../../lib/main-view-layout';
 import { ImageIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
+import { useRenameDialog } from '../../../dialogs/rename';
+import { useFireAsync } from '../../../lib/use-error-handling';
 import { getResourcesIds, getResource } from '../../../../store/ui-designer/selectors';
 import Display from './display';
 import { formatBinaryLength, download } from './utils';
@@ -64,7 +66,7 @@ const Resources: FunctionComponent = () => {
         </>
       }
     >
-      <UploadZone  accept="image/*" multiple className={classes.wrapper} onUploadFiles={uploadFiles}>
+      <UploadZone accept="image/*" multiple className={classes.wrapper} onUploadFiles={uploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
             <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
@@ -83,7 +85,18 @@ export default Resources;
 
 const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; }> = ({ id, selected, onSelect }) => {
   const classes = useStyles();
+  const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const fireAsync = useFireAsync();
+  const showRenameDialog = useRenameDialog(resources, resource.id, 'Entrer le nouveau nom de ressource');
+
+  const onRename = () =>
+    fireAsync(async () => {
+      const { status, newName } = await showRenameDialog();
+      if (status === 'ok') {
+        console.log('TODO rename', resource.id, newName);
+      }
+    });
 
   return (
     <ListItem button selected={selected} onClick={onSelect}>
@@ -95,7 +108,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
 
       <ListItemSecondaryAction>
         <Tooltip title="Renommer">
-          <IconButton onClick={() => console.log('TODO')}>
+          <IconButton onClick={onRename}>
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -107,12 +120,12 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
         </Tooltip>
 
         <Tooltip title="Remplacer">
-          <IconButton className={classes.newButton} onClick={() => console.log('TODO')}>
+          <UploadButton className={classes.newButton} accept="image/*" onUploadFiles={(files) => console.log('TODO replace', files[0])}>
             <CloudUploadIcon />
-          </IconButton>
+          </UploadButton>
         </Tooltip>
 
-        <DeleteButton icon tooltip="Supprimer" onConfirmed={() => console.log('TODO')} />
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={() => console.log('TODO delete', resource.id)} />
       </ListItemSecondaryAction>
     </ListItem>
   );

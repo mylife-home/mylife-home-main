@@ -1,8 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
-import { useDropzone } from 'react-dropzone';
-import clsx from 'clsx';
 import humanize from 'humanize-plus';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
@@ -21,8 +19,8 @@ import UploadButton from '../../lib/upload-button';
 import UploadZone from '../../lib/upload-zone';
 import { useAction } from '../../lib/use-actions';
 import { Container, Title } from '../../lib/main-view-layout';
-import { useInputDialog } from '../../dialogs/input';
 import { useConfirmDialog } from '../../dialogs/confirm';
+import { useRenameDialog } from '../../dialogs/rename';
 import { FileIcon } from '../icons';
 import UploadProgressDialog from './upload-progress-dialog';
 import DownloadProgressDialog from './download-progress-dialog';
@@ -108,14 +106,15 @@ const ActionsHeader: FunctionComponent = () => {
 const Actions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const { downloadFile, deleteFile, renameFile } = useRowActions(id);
+  const files = useSelector(getFilesIds);
   const fireAsync = useFireAsync();
-  const showRenameDialog = useRenameDialog(id);
+  const showRenameDialog = useRenameDialog(files, id, 'Entrer le nouveau nom de fichier');
 
   const onRename = () =>
     fireAsync(async () => {
-      const { status, newId } = await showRenameDialog();
+      const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
-        renameFile(newId);
+        renameFile(newName);
       }
     });
 
@@ -173,36 +172,4 @@ function useRowActions(id: string) {
     }),
     [dispatch, id]
   );
-}
-
-function useRenameDialog(id: string) {
-  const showInput = useInputDialog();
-  const files = useSelector(getFilesIds);
-
-  const options = {
-    title: 'Nouveau nom',
-    message: 'Entrer le nouveau nom de fichier',
-    initialText: id,
-    validator(newId: string) {
-      if (newId === id) {
-        return; // permitted, but won't do anything
-      }
-      if (!newId) {
-        return 'Nom vide';
-      }
-      if (files.includes(newId)) {
-        return 'Ce nom existe déjà';
-      }
-    }
-  };
-
-  return async () => {
-    const { status, text: newId } = await showInput(options);
-    if (id === newId) {
-      // transform into cancel
-      return { status: 'cancel' };
-    }
-
-    return { status, newId };
-  };
 }
