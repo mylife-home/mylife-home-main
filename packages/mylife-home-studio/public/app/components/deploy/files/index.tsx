@@ -1,10 +1,10 @@
-import React, { FunctionComponent, useMemo, useRef } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { TableCellDataGetterParams } from 'react-virtualized';
 import { useDropzone } from 'react-dropzone';
 import clsx from 'clsx';
 import humanize from 'humanize-plus';
-import { makeStyles, fade } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -18,6 +18,7 @@ import VirtualizedTable, { ColumnDefinition } from '../../lib/virtualized-table'
 import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
 import UploadButton from '../../lib/upload-button';
+import UploadZone from '../../lib/upload-zone';
 import { useAction } from '../../lib/use-actions';
 import { Container, Title } from '../../lib/main-view-layout';
 import { useInputDialog } from '../../dialogs/input';
@@ -37,10 +38,6 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    border: `2px solid transparent`,
-  },
-  fileDrag: {
-    border: `2px solid ${theme.palette.primary.main}`,
   },
   table: {
     flex: 1,
@@ -51,7 +48,6 @@ const Files: FunctionComponent = () => {
   const classes = useStyles();
   const files = useSelector(getFilesIds);
   const uploadFiles = useUploadFiles();
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: uploadFiles });
 
   const cellDataGetter = ({ rowData }: TableCellDataGetterParams) => rowData;
   const dateRenderer = (id: string) => <FileDate id={id} />;
@@ -69,13 +65,9 @@ const Files: FunctionComponent = () => {
   return (
     <>
       <Container title={<Title text="Fichiers" icon={FileIcon} />}>
-        <div {...getRootProps({
-          className: clsx(classes.container, { [classes.fileDrag]: isDragActive }) ,
-          onClick: e => { e.stopPropagation(); }
-        })}>
-          <input {...getInputProps()} />
+        <UploadZone className={classes.container} onUploadFiles={uploadFiles}>
           <VirtualizedTable data={files} columns={columns} className={classes.table} />
-        </div>
+        </UploadZone>
       </Container>
 
       <UploadProgressDialog />
