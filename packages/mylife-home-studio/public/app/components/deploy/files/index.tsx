@@ -65,7 +65,7 @@ const Files: FunctionComponent = () => {
   return (
     <>
       <Container title={<Title text="Fichiers" icon={FileIcon} />}>
-        <UploadZone className={classes.container} onUploadFiles={uploadFiles}>
+        <UploadZone multiple className={classes.container} onUploadFiles={uploadFiles}>
           <VirtualizedTable data={files} columns={columns} className={classes.table} />
         </UploadZone>
       </Container>

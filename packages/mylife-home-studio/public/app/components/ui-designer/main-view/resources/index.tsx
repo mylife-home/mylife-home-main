@@ -64,7 +64,7 @@ const Resources: FunctionComponent = () => {
         </>
       }
     >
-      <UploadZone className={classes.wrapper} onUploadFiles={uploadFiles}>
+      <UploadZone  accept="image/*" multiple className={classes.wrapper} onUploadFiles={uploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
             <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />

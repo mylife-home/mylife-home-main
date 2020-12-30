@@ -14,17 +14,15 @@ const useStyles = makeStyles((theme) => ({
 
 export interface UploadZoneProps {
   className?: string;
+  accept?: string;
+  multiple?: boolean;
   onUploadFiles: (uploadFiles: File[]) => void;
 }
 
-const UploadZone: FunctionComponent<UploadZoneProps> = ({ className, children, onUploadFiles }) => {
+const UploadZone: FunctionComponent<UploadZoneProps> = ({ className, children, onUploadFiles, accept, multiple = false }) => {
   const classes = useStyles();
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onUploadFiles });
-
-  const rootProps = getRootProps({
-    className: clsx(isDragActive ? classes.fileDrag : classes.idle, className),
-    onClick: e => { e.stopPropagation(); }
-  });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept, multiple, onDrop: onUploadFiles, noClick: true, noKeyboard: true });
+  const rootProps = getRootProps({ className: clsx(isDragActive ? classes.fileDrag : classes.idle, className) });
 
   return (
     <div {...rootProps}>
