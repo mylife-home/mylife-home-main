@@ -91,7 +91,7 @@ const Resources: FunctionComponent = () => {
       <UploadZone accept="image/*" multiple className={classes.wrapper} onUploadFiles={onUploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
-            <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
+            <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} onClearSelect={() => setSelected(null)} />
           ))}
         </List>
 
@@ -105,7 +105,7 @@ const Resources: FunctionComponent = () => {
 
 export default Resources;
 
-const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; }> = ({ id, selected, onSelect }) => {
+const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; onClearSelect: () => void; }> = ({ id, selected, onSelect, onClearSelect }) => {
   const classes = useStyles();
   const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
@@ -118,6 +118,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
       const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
         renameResource(resource.id, newName);
+        onClearSelect(); // we should select the new id, but no way to know when the server will emit it
       }
     });
 
@@ -134,6 +135,13 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
       resource.id = id; // keep old name, as we replace
       setResource(resource);
     });
+
+  const onDelete = () => {
+    clearResource(resource.id);
+    if (selected) {
+      onClearSelect();
+    }
+  }
 
   return (
     <ListItem button selected={selected} onClick={onSelect}>
@@ -162,7 +170,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
           </UploadButton>
         </Tooltip>
 
-        <DeleteButton icon tooltip="Supprimer" onConfirmed={() => clearResource(resource.id)} />
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
       </ListItemSecondaryAction>
     </ListItem>
   );
