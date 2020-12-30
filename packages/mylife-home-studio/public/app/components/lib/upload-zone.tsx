@@ -10,6 +10,9 @@ const useStyles = makeStyles((theme) => ({
   fileDrag: {
     border: `2px solid ${theme.palette.primary.main}`,
   },
+  fileDragError: {
+    border: `2px solid ${theme.palette.error.main}`,
+  },
 }));
 
 export interface UploadZoneProps {
@@ -20,9 +23,9 @@ export interface UploadZoneProps {
 }
 
 const UploadZone: FunctionComponent<UploadZoneProps> = ({ className, children, onUploadFiles, accept, multiple = false }) => {
-  const classes = useStyles();
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept, multiple, onDrop: onUploadFiles, noClick: true, noKeyboard: true });
-  const rootProps = getRootProps({ className: clsx(isDragActive ? classes.fileDrag : classes.idle, className) });
+  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({ accept, multiple, onDrop: onUploadFiles, noClick: true, noKeyboard: true });
+  const rootClasses = useRootClasses(isDragActive, isDragReject);
+  const rootProps = getRootProps({ className: clsx(rootClasses, className) });
 
   return (
     <div {...rootProps}>
@@ -33,3 +36,13 @@ const UploadZone: FunctionComponent<UploadZoneProps> = ({ className, children, o
 };
 
 export default UploadZone;
+
+function useRootClasses(isDragActive: boolean, isDragReject: boolean) {
+  const classes = useStyles();
+
+  if (!isDragActive) {
+    return classes.idle;
+  }
+
+  return isDragReject ? classes.fileDragError : classes.fileDrag;
+}

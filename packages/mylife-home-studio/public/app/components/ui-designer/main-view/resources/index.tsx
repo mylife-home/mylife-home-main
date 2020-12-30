@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef, useState } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -120,6 +120,6 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
 
 function useUploadFiles() {
   return (uploadFiles: File[]) => {
-    console.log('TODO');
+    console.log('TODO + check mime types for images only');
   };
 }
