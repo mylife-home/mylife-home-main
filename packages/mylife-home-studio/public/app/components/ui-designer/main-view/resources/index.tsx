@@ -91,7 +91,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   const classes = useStyles();
   const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
-  const { renameResource, clearResource } = useResourcesActions();
+  const { setResource, renameResource, clearResource } = useResourcesActions();
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(resources, resource.id, 'Entrer le nouveau nom de ressource');
 
@@ -101,6 +101,13 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
       if (status === 'ok') {
         renameResource(resource.id, newName);
       }
+    });
+
+  const onReplace = (uploadFiles: File[]) =>
+    fireAsync(async () => {
+      const resource = await fileToResource(uploadFiles[0]);
+      resource.id = id; // keep old name, as we replace
+      setResource(resource);
     });
 
   return (
@@ -125,7 +132,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
         </Tooltip>
 
         <Tooltip title="Remplacer">
-          <UploadButton className={classes.newButton} accept="image/*" onUploadFiles={(files) => console.log('TODO replace', files[0])}>
+          <UploadButton className={classes.newButton} accept="image/*" onUploadFiles={onReplace}>
             <CloudUploadIcon />
           </UploadButton>
         </Tooltip>
@@ -151,4 +158,15 @@ function useResourcesActions() {
     clearResource: (resourceId: string) => dispatch(clearResource({ id, resourceId })),
     renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ id, resourceId, newId })),
   }), [dispatch, id]);
+}
+
+async function fileToResource(file: File) {
+  const buffer = await file.arrayBuffer();
+  const binaryString = new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), '');
+  const data = btoa(binaryString);
+
+  const filename = file.name;
+  const id = filename.substring(0, filename.lastIndexOf('.')) || filename;
+
+  return { id, mime: file.type, data } as UiResource;
 }
