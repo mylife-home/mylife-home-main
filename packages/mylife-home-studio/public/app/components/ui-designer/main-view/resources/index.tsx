@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useMemo } from 'react';
+import React, { FunctionComponent, useState, useMemo, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -52,9 +52,27 @@ const useStyles = makeStyles((theme) => ({
 
 const Resources: FunctionComponent = () => {
   const classes = useStyles();
+  const fireAsync = useFireAsync();
   const resourcesIds = useTabSelector(getResourcesIds);
+  const { setResource } = useResourcesActions();
   const [selected, setSelected] = useState<string>(null);
-  const uploadFiles = useUploadFiles();
+  
+  const onUploadFiles = (uploadFiles: File[]) =>
+    fireAsync(async () => {
+      // this does not really support concurrency
+      const existingIds = new Set(resourcesIds);
+      for (const file of uploadFiles) {
+        // ignore non-image files
+        if (!file.type.startsWith('image/')) {
+          continue;
+        }
+
+        const resource = await fileToResource(file);
+        resource.id = makeUniqueId(existingIds, resource.id);
+        existingIds.add(resource.id);
+        setResource(resource);
+      }
+    });
 
   return (
     <Container
@@ -63,14 +81,14 @@ const Resources: FunctionComponent = () => {
           <Title text="Resources" icon={ImageIcon} />
   
           <Tooltip title="Ajouter des ressources (ou drag'n'drop)">
-            <UploadButton className={classes.newButton} accept="image/*" multiple onUploadFiles={uploadFiles}>
+            <UploadButton className={classes.newButton} accept="image/*" multiple onUploadFiles={onUploadFiles}>
               <CloudUploadIcon />
             </UploadButton>
           </Tooltip>
         </>
       }
     >
-      <UploadZone accept="image/*" multiple className={classes.wrapper} onUploadFiles={uploadFiles}>
+      <UploadZone accept="image/*" multiple className={classes.wrapper} onUploadFiles={onUploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
             <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
@@ -105,7 +123,14 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
 
   const onReplace = (uploadFiles: File[]) =>
     fireAsync(async () => {
-      const resource = await fileToResource(uploadFiles[0]);
+      const file = uploadFiles[0];
+
+      // ignore non-image files
+      if (!file.type.startsWith('image/')) {
+        return;
+      }
+
+      const resource = await fileToResource(file);
       resource.id = id; // keep old name, as we replace
       setResource(resource);
     });
@@ -143,12 +168,6 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   );
 };
 
-function useUploadFiles() {
-  return (uploadFiles: File[]) => {
-    console.log('TODO + check mime types for images only');
-  };
-}
-
 function useResourcesActions() {
   const id = useTabPanelId();
   const dispatch = useDispatch();
@@ -169,4 +188,17 @@ async function fileToResource(file: File) {
   const id = filename.substring(0, filename.lastIndexOf('.')) || filename;
 
   return { id, mime: file.type, data } as UiResource;
+}
+
+function makeUniqueId(existingIds: Set<string>, wantedId: string) {
+  if (!existingIds.has(wantedId)) {
+    return wantedId;
+  }
+
+  for (let i=1;; ++i) {
+    const candidate = `${wantedId}_${i}`;
+    if (!existingIds.has(candidate)) {
+      return candidate;
+    }
+  }
 }
