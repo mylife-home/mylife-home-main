@@ -13,6 +13,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import DeleteButton from '../../../lib/delete-button';
 import UploadButton from '../../../lib/upload-button';
+import UploadZone from '../../../lib/upload-zone';
 import { Container, Title } from '../../../lib/main-view-layout';
 import { ImageIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
@@ -63,7 +64,7 @@ const Resources: FunctionComponent = () => {
         </>
       }
     >
-      <div className={classes.wrapper}>
+      <UploadZone className={classes.wrapper} onUploadFiles={uploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
             <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} />
@@ -73,7 +74,7 @@ const Resources: FunctionComponent = () => {
         {selected && (
           <Display className={classes.display} id={selected} />
         )}
-      </div>
+      </UploadZone>
     </Container>
   );
 };
