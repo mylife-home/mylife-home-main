@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -19,7 +20,10 @@ import { ImageIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useRenameDialog } from '../../../dialogs/rename';
 import { useFireAsync } from '../../../lib/use-error-handling';
+import { useTabPanelId } from '../../../lib/tab-panel';
 import { getResourcesIds, getResource } from '../../../../store/ui-designer/selectors';
+import { setResource, clearResource, renameResource } from '../../../../store/ui-designer/actions';
+import { UiResource } from '../../../../store/ui-designer/types';
 import Display from './display';
 import { formatBinaryLength, download } from './utils';
 
@@ -87,6 +91,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   const classes = useStyles();
   const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const { renameResource, clearResource } = useResourcesActions();
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(resources, resource.id, 'Entrer le nouveau nom de ressource');
 
@@ -94,7 +99,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
     fireAsync(async () => {
       const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
-        console.log('TODO rename', resource.id, newName);
+        renameResource(resource.id, newName);
       }
     });
 
@@ -125,7 +130,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
           </UploadButton>
         </Tooltip>
 
-        <DeleteButton icon tooltip="Supprimer" onConfirmed={() => console.log('TODO delete', resource.id)} />
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={() => clearResource(resource.id)} />
       </ListItemSecondaryAction>
     </ListItem>
   );
@@ -135,4 +140,15 @@ function useUploadFiles() {
   return (uploadFiles: File[]) => {
     console.log('TODO + check mime types for images only');
   };
+}
+
+function useResourcesActions() {
+  const id = useTabPanelId();
+  const dispatch = useDispatch();
+
+  return useMemo(() => ({
+    setResource: (resource: UiResource) => dispatch(setResource({ id, resource })),
+    clearResource: (resourceId: string) => dispatch(clearResource({ id, resourceId })),
+    renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ id, resourceId, newId })),
+  }), [dispatch, id]);
 }
