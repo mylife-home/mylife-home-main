@@ -18,7 +18,6 @@ export function useRecipeConfigState(id: string): [RecipeConfigWithIds, SetRecip
   const dispatch = useDispatch();
   const persistRecipeConfig = useCallback(
     (config: RecipeConfigWithIds) => {
-      console.log(config);
       dispatch(setRecipe({ id, config: withoutIds(config) }));
     },
     [dispatch]
