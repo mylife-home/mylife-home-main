@@ -23,9 +23,9 @@ async function uploadFileImpl(file: File, observer: Subscriber<FileProgress>) {
     while (offset < size) {
       const chunkSize = Math.min(size - offset, CHUNK_SIZE);
       const chunk = file.slice(offset, offset + chunkSize);
-      offset += chunkSize;
-
       const type = offset === 0 ? 'init' : 'append';
+
+      offset += chunkSize;
   
       const buffer = await chunk.arrayBuffer();
       await writeFileCall({ id, buffer, type }).toPromise();
