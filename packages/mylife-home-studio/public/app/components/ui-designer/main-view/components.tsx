@@ -1,13 +1,13 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import { Container, Title } from '../../lib/main-view-layout';
 import { ProjectIcon, ComponentIcon, InstanceIcon, StateIcon, ActionIcon } from '../../lib/icons';
@@ -42,6 +42,11 @@ const useStyles = makeStyles((theme) => ({
 const Components: FunctionComponent = () => {
   const classes = useStyles();
   const componentsIds = useTabSelector(getComponentsIds);
+  const [selection, setSelection] = useState<string>(null);
+  
+  const createSelectHandler = (id: string) => () => {
+    setSelection(selection => selection === id ? null : id);
+  };
 
   return (
     <Container
@@ -67,31 +72,34 @@ const Components: FunctionComponent = () => {
         </>
       }
     >
-      <List disablePadding className={classes.list}>
+      <div className={classes.list}>
         {componentsIds.map((id) => (
-          <ComponentItem key={id} id={id} />
+          <ComponentItem key={id} id={id} selected={id === selection} select={createSelectHandler(id)} />
         ))}
-      </List>
+      </div>
     </Container>
   );
 };
 
 export default Components;
 
-const ComponentItem: FunctionComponent<{ id: string; }> = ({ id }) => {
+const ComponentItem: FunctionComponent<{ id: string; selected: boolean; select: () => void; }> = ({ id, selected, select }) => {
   const classes = useStyles();
   const { component, plugin } = useTabSelector((state, tabId) => getComponentAndPlugin(state, tabId, id));
   const text = plugin.description ? `${plugin.id} - ${plugin.description}` : plugin.id;
 
   return (
-    <ListItem>
-      <ListItemText primary={component.id} secondary={text} />
-      <ListItemSecondaryAction className={classes.members}>
-        {Object.entries(plugin.members).map(([id, member]) => (
+    <Accordion expanded={selected} onChange={select}>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography>{component.id}</Typography>
+        <Typography>{text}</Typography>
+      </AccordionSummary>
+      <AccordionDetails className={classes.members}>
+      {Object.entries(plugin.members).map(([id, member]) => (
           <ComponentMember key={id} id={id} member={member} />
         ))}
-      </ListItemSecondaryAction>
-    </ListItem>
+      </AccordionDetails>
+    </Accordion>
   )
 };
 
