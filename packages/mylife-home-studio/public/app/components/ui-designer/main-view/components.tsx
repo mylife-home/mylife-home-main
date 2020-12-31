@@ -31,13 +31,33 @@ const useStyles = makeStyles((theme) => ({
     width: 500,
     overflowY: 'auto',
   },
+  componentContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  componentId: {
+    width: 200,
+  },
+  componentDescription: {
+    width: 200,
+    marginLeft: theme.spacing(4),
+  },
   members: {
     display: 'flex',
     flexDirection: 'column',
   },
   memberContainer: {
     display: 'flex',
-  }
+    alignItems: 'center',
+  },
+  memberName: {
+    width: 80,
+    marginLeft: theme.spacing(4),
+    marginRight: theme.spacing(4),
+  },
+  memberValueType: {
+    width: 200,
+  },
 }));
 
 const Components: FunctionComponent = () => {
@@ -93,8 +113,10 @@ const ComponentItem: FunctionComponent<{ id: string; selected: boolean; select: 
     <Accordion expanded={selected} onChange={select}>
 
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography>{component.id}</Typography>
-        <Typography variant="body2">{text}</Typography>
+        <div className={classes.componentContainer}>
+          <Typography className={classes.componentId}>{component.id}</Typography>
+          <Typography className={classes.componentDescription} variant="body2" color="textSecondary">{text}</Typography>
+        </div>
       </AccordionSummary>
 
       <AccordionDetails className={classes.members}>
@@ -117,8 +139,8 @@ const ComponentMember: FunctionComponent<{ id: string, member: Member }> = ({ id
   return (
     <div className={classes.memberContainer}>
       <Icon />
-      <Typography>{id}</Typography>
-      <Typography variant="body2">{member.valueType}</Typography>
+      <Typography className={classes.memberName}>{id}</Typography>
+      <Typography className={classes.memberValueType} variant="body2" color="textSecondary">{member.valueType}</Typography>
     </div>
   );
 };
