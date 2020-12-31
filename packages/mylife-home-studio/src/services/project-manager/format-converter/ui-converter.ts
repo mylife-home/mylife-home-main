@@ -187,18 +187,18 @@ function convertPlugin(plugins: { [id: string]: PluginData; }, input: uiV1.Plugi
   const name = input.type;
   const pluginId = `${instanceName}:${module}.${name}`;
 
-  if (plugins[pluginId]) {
-    return pluginId;
+  if (!plugins[pluginId]) {
+    plugins[pluginId] = {
+      instanceName,
+      description: null, // v1 model has no description
+      name,
+      module,
+      version: input.version,
+      members: convertPluginMembers(input.clazz),
+    };
   }
 
-  plugins[pluginId] = {
-    instanceName,
-    description: null, // v1 model has no description
-    name,
-    module,
-    version: input.version,
-    members: convertPluginMembers(input.clazz),
-  };
+  return pluginId;
 }
 
 // replace ids comp_id with comp-id (naming convention)
