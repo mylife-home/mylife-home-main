@@ -49,7 +49,6 @@ const Components: FunctionComponent = () => {
         <>
           <Title text="Composants" icon={ComponentIcon} />
   
-
           <Tooltip title="Rafraîchir les composants depuis un projet core">
             <IconButton onClick={() => console.log('TODO')}>
               <Badge badgeContent={<ProjectIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
