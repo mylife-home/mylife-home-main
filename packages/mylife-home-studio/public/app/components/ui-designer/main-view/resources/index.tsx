@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useMemo, useCallback } from 'react';
+import React, { FunctionComponent, useState, useMemo, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -55,7 +55,7 @@ const Resources: FunctionComponent = () => {
   const fireAsync = useFireAsync();
   const resourcesIds = useTabSelector(getResourcesIds);
   const { setResource } = useResourcesActions();
-  const [selected, setSelected] = useState<string>(null);
+  const [selection, select] = useSelection(resourcesIds);
   
   const onUploadFiles = (uploadFiles: File[]) =>
     fireAsync(async () => {
@@ -91,12 +91,12 @@ const Resources: FunctionComponent = () => {
       <UploadZone accept="image/*" multiple className={classes.wrapper} onUploadFiles={onUploadFiles}>
         <List disablePadding className={classes.list}>
           {resourcesIds.map((id) => (
-            <ResourceItem key={id} id={id} selected={selected === id} onSelect={() => setSelected(id)} onClearSelect={() => setSelected(null)} />
+            <ResourceItem key={id} id={id} selected={selection === id} onSelect={() => select(id)} />
           ))}
         </List>
-
-        {selected && (
-          <Display className={classes.display} id={selected} />
+        
+        {selection && (
+          <Display className={classes.display} id={selection} />
         )}
       </UploadZone>
     </Container>
@@ -105,7 +105,7 @@ const Resources: FunctionComponent = () => {
 
 export default Resources;
 
-const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; onClearSelect: () => void; }> = ({ id, selected, onSelect, onClearSelect }) => {
+const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; }> = ({ id, selected, onSelect }) => {
   const classes = useStyles();
   const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
@@ -118,7 +118,6 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
       const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
         renameResource(resource.id, newName);
-        onClearSelect(); // we should select the new id, but no way to know when the server will emit it
       }
     });
 
@@ -138,10 +137,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
 
   const onDelete = () => {
     clearResource(resource.id);
-    if (selected) {
-      onClearSelect();
-    }
-  }
+  };
 
   return (
     <ListItem button selected={selected} onClick={onSelect}>
@@ -209,4 +205,20 @@ function makeUniqueId(existingIds: Set<string>, wantedId: string) {
       return candidate;
     }
   }
+}
+
+function useSelection(ids: string[]): [string, (id: string) => void] {
+  const [selection, select] = useState<string>(null);
+  const idSet = useMemo(() => new Set(ids), [ids]);
+
+  // auto-reset selection to null if id does not exist anymore (deleted/renamed)
+  useEffect(() => {
+    if (selection && !idSet.has(selection)) {
+      select(null);
+    }
+  }, [selection, idSet]);
+
+  const finalSelection = idSet.has(selection) ? selection : null;
+
+  return [finalSelection, select];
 }
