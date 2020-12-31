@@ -6,11 +6,14 @@ import Badge from '@material-ui/core/Badge';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Typography from '@material-ui/core/Typography';
 
 import { Container, Title } from '../../lib/main-view-layout';
-import { ProjectIcon, ComponentIcon, InstanceIcon } from '../../lib/icons';
+import { ProjectIcon, ComponentIcon, InstanceIcon, StateIcon, ActionIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { getComponentsIds, getComponentAndPlugin } from '../../../store/ui-designer/selectors';
+import { Member, MemberType } from '../../../../../shared/component-model';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -28,6 +31,12 @@ const useStyles = makeStyles((theme) => ({
     width: 900,
     overflowY: 'auto',
   },
+  members: {
+    display: 'flex',
+  },
+  memberContainer: {
+    display: 'flex',
+  }
 }));
 
 const Components: FunctionComponent = () => {
@@ -71,11 +80,35 @@ const Components: FunctionComponent = () => {
 export default Components;
 
 const ComponentItem: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const classes = useStyles();
   const { component, plugin } = useTabSelector((state, tabId) => getComponentAndPlugin(state, tabId, id));
+  const text = plugin.description ? `${plugin.id} - ${plugin.description}` : plugin.id;
 
   return (
     <ListItem>
-      <ListItemText primary={component.id} secondary={plugin.id} />
+      <ListItemText primary={component.id} secondary={text} />
+      <ListItemSecondaryAction className={classes.members}>
+        {Object.entries(plugin.members).map(([id, member]) => (
+          <ComponentMember key={id} id={id} member={member} />
+        ))}
+      </ListItemSecondaryAction>
     </ListItem>
   )
+};
+
+const MEMBER_ICON = {
+  [MemberType.STATE]: StateIcon,
+  [MemberType.ACTION]: ActionIcon,
+};
+
+const ComponentMember: FunctionComponent<{ id: string, member: Member }> = ({ id, member }) => {
+  const classes = useStyles();
+  const Icon = MEMBER_ICON[member.memberType];
+  return (
+    <div className={classes.memberContainer}>
+      <Icon />
+      <Typography>{id}</Typography>
+      <Typography>{member.valueType}</Typography>
+    </div>
+  );
 };
