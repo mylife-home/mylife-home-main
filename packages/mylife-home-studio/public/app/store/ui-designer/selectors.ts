@@ -31,6 +31,17 @@ export const getComponentsIds = (state: AppState, tabId: string) => {
   return project.components.allIds;
 }
 
+export const getComponentAndPlugin = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  const component = project.components.byId[id];
+  if (!component) {
+    return;
+  }
+
+  const plugin = project.plugins.byId[component.plugin];
+  return { component, plugin };
+}
+
 export const getResourcesIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.resources.allIds;
