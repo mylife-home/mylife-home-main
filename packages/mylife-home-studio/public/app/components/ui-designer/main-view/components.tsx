@@ -28,11 +28,12 @@ const useStyles = makeStyles((theme) => ({
     width: 12,
   },
   list: {
-    width: 900,
+    width: 500,
     overflowY: 'auto',
   },
   members: {
     display: 'flex',
+    flexDirection: 'column',
   },
   memberContainer: {
     display: 'flex',
