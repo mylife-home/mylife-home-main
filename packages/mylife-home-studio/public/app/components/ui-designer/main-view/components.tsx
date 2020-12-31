@@ -91,12 +91,14 @@ const ComponentItem: FunctionComponent<{ id: string; selected: boolean; select: 
 
   return (
     <Accordion expanded={selected} onChange={select}>
+
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Typography>{component.id}</Typography>
-        <Typography>{text}</Typography>
+        <Typography variant="body2">{text}</Typography>
       </AccordionSummary>
+
       <AccordionDetails className={classes.members}>
-      {Object.entries(plugin.members).map(([id, member]) => (
+        {Object.entries(plugin.members).map(([id, member]) => (
           <ComponentMember key={id} id={id} member={member} />
         ))}
       </AccordionDetails>
@@ -116,7 +118,7 @@ const ComponentMember: FunctionComponent<{ id: string, member: Member }> = ({ id
     <div className={classes.memberContainer}>
       <Icon />
       <Typography>{id}</Typography>
-      <Typography>{member.valueType}</Typography>
+      <Typography variant="body2">{member.valueType}</Typography>
     </div>
   );
 };
