@@ -14,6 +14,10 @@ import {
   SetUiResourceNotification,
   SetUiWindowNotification,
   SetUiControlNotification,
+  RenameResourceUiProjectUpdate,
+  RenameWindowUiProjectUpdate,
+  RenameUiResourceNotification,
+  RenameUiWindowNotification,
 } from '../../../shared/project-manager';
 import { Definition, DefinitionResource } from '../../../shared/ui-model';
 import { SessionNotifier } from '../session-manager';
@@ -106,6 +110,10 @@ class UiOpenedProject extends OpenedProject {
         await this.clearResource(updateData as ClearResourceUiProjectUpdate);
         break;
 
+        case 'rename-resource':
+          await this.renameResource(updateData as RenameResourceUiProjectUpdate);
+          break;
+  
       case 'set-window':
         await this.setWindow(updateData as SetWindowUiProjectUpdate);
         break;
@@ -114,10 +122,14 @@ class UiOpenedProject extends OpenedProject {
         await this.clearWindow(updateData as ClearWindowUiProjectUpdate);
         break;
 
+      case 'rename-window':
+        await this.renameWindow(updateData as RenameWindowUiProjectUpdate);
+        break;
+
       default:
         throw new Error(`Unhandle update operation: ${updateData.operation}`);
 
-      // TODO renames (+ propage)
+      // TODO renames propage
       // TODO controls
       // TODO: handle deletion of used objects
     }
@@ -144,6 +156,14 @@ class UiOpenedProject extends OpenedProject {
     });
   }
 
+  private async renameResource({ id, newId }: RenameResourceUiProjectUpdate) {
+    await this.updateDefinition((definition) => {
+      throw new Error('TODO');
+      //arrayClear(definition.resources, id);
+      this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
+    });
+  }
+
   private async setWindow({ window }: SetWindowUiProjectUpdate) {
     await this.updateDefinition((definition) => {
       arraySet(definition.windows, window);
@@ -155,6 +175,14 @@ class UiOpenedProject extends OpenedProject {
     await this.updateDefinition((definition) => {
       arrayClear(definition.windows, id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
+    });
+  }
+
+  private async renameWindow({ id, newId }: RenameWindowUiProjectUpdate) {
+    await this.updateDefinition((definition) => {
+      throw new Error('TODO');
+      //arrayClear(definition.windows, id);
+      this.notifyAll<RenameUiWindowNotification>({ operation: 'rename-ui-window', id, newId });
     });
   }
 
