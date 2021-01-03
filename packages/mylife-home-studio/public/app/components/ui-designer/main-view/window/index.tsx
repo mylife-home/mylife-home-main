@@ -7,6 +7,7 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
+import { WindowStateProvider } from './use-window-state';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -52,15 +53,17 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         </>
       }
     >
-      <div className={classes.wrapper}>
-        <div className={classes.main}>
-          main
+      <WindowStateProvider id={id}>
+        <div className={classes.wrapper}>
+          <div className={classes.main}>
+            main
+          </div>
+          
+          <div className={classes.toolbox}>
+            toolbox
+          </div>
         </div>
-        
-        <div className={classes.toolbox}>
-          toolbox
-        </div>
-      </div>
+      </WindowStateProvider>
     </Container>
   );
 };
