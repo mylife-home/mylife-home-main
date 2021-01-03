@@ -1,15 +1,36 @@
 import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
-import { useTabPanelId } from '../../../lib/tab-panel';
-import { AppState } from '../../../../store/types';
+import { makeStyles } from '@material-ui/core/styles';
+
+import { Container, Title } from '../../../lib/main-view-layout';
+import { WindowIcon } from '../../../lib/icons';
+import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
+import DeleteButton from '../../../lib/delete-button';
+
+const useStyles = makeStyles((theme) => ({
+  wrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  main: {
+    flex: 1,
+  },
+  toolbox: {
+    width: 300,
+    overflowY: 'auto',
+  },
+}));
 
 const Window: FunctionComponent<{ id: string }> = ({ id }) => {
-  const tabId = useTabPanelId();
-  const window = useSelector((state: AppState) => getWindow(state, tabId, id));
+  const classes = useStyles();
+  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
 
   // handle window that becomes null (after deletion)
   useResetSelectionIfNull(window);
@@ -18,10 +39,29 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
     return null;
   }
 
+  const onDelete = () => {
+    console.log('TODO: delete');
+  };
+
   return (
-    <Box>
-      <Typography>Window {window.id}</Typography>
-    </Box>
+    <Container
+      title={
+        <>
+          <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
+          <DeleteButton icon tooltip="Supprimer la fenêtre" onConfirmed={onDelete} />
+        </>
+      }
+    >
+      <div className={classes.wrapper}>
+        <div className={classes.main}>
+          main
+        </div>
+        
+        <div className={classes.toolbox}>
+          toolbox
+        </div>
+      </div>
+    </Container>
   );
 };
 
