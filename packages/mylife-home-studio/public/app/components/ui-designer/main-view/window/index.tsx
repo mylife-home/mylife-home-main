@@ -2,10 +2,10 @@ import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import { useTabPanelId } from '../../lib/tab-panel';
-import { AppState } from '../../../store/types';
-import { getWindow } from '../../../store/ui-designer/selectors';
-import { useResetSelectionIfNull } from '../selection';
+import { useTabPanelId } from '../../../lib/tab-panel';
+import { AppState } from '../../../../store/types';
+import { getWindow } from '../../../../store/ui-designer/selectors';
+import { useResetSelectionIfNull } from '../../selection';
 
 const Window: FunctionComponent<{ id: string }> = ({ id }) => {
   const tabId = useTabPanelId();
