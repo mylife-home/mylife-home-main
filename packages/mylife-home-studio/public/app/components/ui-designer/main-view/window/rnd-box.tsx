@@ -12,6 +12,7 @@ export interface Position {
 }
 
 export interface RndBoxProps {
+  className?: string;
   size: Size;
   onResize: (size: Size) => void;
   // no position => not movable
@@ -30,8 +31,10 @@ const RESIZING = {
   topRight: false
 };
 
-const RndBox: FunctionComponent<RndBoxProps> = ({ children, size, onResize, position, onMove }) => (
+const RndBox: FunctionComponent<RndBoxProps> = ({ children, className, size, onResize, position, onMove }) => (
   <Rnd
+    className={className}
+
     enableResizing={RESIZING}
     size={size}
     onResizeStop={(e, direction, ref) => { onResize({ width: parseInt(ref.style.width), height: parseInt(ref.style.height) }); }}

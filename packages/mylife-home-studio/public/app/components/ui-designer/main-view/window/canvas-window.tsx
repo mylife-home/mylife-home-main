@@ -29,9 +29,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CanvasWindow: FunctionComponent<{ className: string; }> = ({ className }) => {
-  const { window, updater, selection, select } = useWindowState();
+  const { window, /*updater,*/ selection, select } = useWindowState();
   const classes = useStyles();
   const selected = !selection;
+
+  const updater = (arg: any) => {};
 
   //connectDropTarget
   return (
