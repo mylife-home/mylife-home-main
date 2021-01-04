@@ -8,6 +8,7 @@ import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './use-window-state';
+import CanvasWindow from './canvas-window';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
   },
-  main: {
+  canvas: {
     flex: 1,
   },
   toolbox: {
@@ -55,9 +56,7 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
     >
       <WindowStateProvider id={id}>
         <div className={classes.wrapper}>
-          <div className={classes.main}>
-            main
-          </div>
+          <CanvasWindow className={classes.canvas} />
           
           <div className={classes.toolbox}>
             toolbox
