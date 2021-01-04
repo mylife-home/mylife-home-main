@@ -8,6 +8,8 @@ import { setControl } from '../../../../store/ui-designer/actions';
 import { getControl } from '../../../../store/ui-designer/selectors';
 import { UiControl } from '../../../../store/ui-designer/types';
 
+// TODO: we need one state with window/controls, shared between canvas and toolbox
+
 export function useControlState(id: string) {
   const tabId = useTabPanelId();
   const control = useTabSelector((state, tabId) => getControl(state, tabId, id));
