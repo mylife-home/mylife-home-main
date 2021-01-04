@@ -61,3 +61,8 @@ export const getWindow = (state: AppState, tabId: string, id: string) => {
   const project = getOpenedProject(state, tabId);
   return project.windows.byId[id];
 }
+
+export const getControl = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.controls.byId[id];
+}

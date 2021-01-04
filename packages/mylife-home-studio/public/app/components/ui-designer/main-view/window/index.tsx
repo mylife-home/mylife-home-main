@@ -8,7 +8,6 @@ import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
 import { SelectionProvider } from './selection';
-import { WindowStateProvider } from './use-window-state';
 import CanvasWindow from './canvas-window';
 
 const useStyles = makeStyles((theme) => ({
@@ -56,15 +55,13 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
       }
     >
       <SelectionProvider>
-        <WindowStateProvider id={id}>
-          <div className={classes.wrapper}>
-            <CanvasWindow className={classes.canvas} />
-            
-            <div className={classes.toolbox}>
-              toolbox
-            </div>
+        <div className={classes.wrapper}>
+          <CanvasWindow className={classes.canvas} id={id} />
+          
+          <div className={classes.toolbox}>
+            toolbox
           </div>
-        </WindowStateProvider>
+        </div>
       </SelectionProvider>
     </Container>
   );

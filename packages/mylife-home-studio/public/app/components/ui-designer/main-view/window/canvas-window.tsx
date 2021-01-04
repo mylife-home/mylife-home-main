@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.divider}`,
     position: 'relative',
   },
-  windowSelected: {
+  selected: {
     border: `1px solid ${theme.palette.primary.main}`,
   },
   background: {
@@ -31,8 +31,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const CanvasWindow: FunctionComponent<{ className: string; }> = ({ className }) => {
-  const { window, /*updater,*/ } = useWindowState();
+const CanvasWindow: FunctionComponent<{ className: string; id: string; }> = ({ className, id }) => {
+  const { window, /*updater,*/ } = useWindowState(id);
   const { selection, select } = useSelection();
   const classes = useStyles();
   const selected = !selection;
@@ -44,7 +44,7 @@ const CanvasWindow: FunctionComponent<{ className: string; }> = ({ className }) 
     <div className={clsx(classes.container, className)} onClick={(e) => { e.stopPropagation(); select(null); }}>
       <div className={classes.windowContainer}>
         <RndBox size={{ width: window.width, height: window.height}} onResize={(size) => updater(size)}>
-          <div className={clsx(classes.window, selected && classes.windowSelected)}>
+          <div className={clsx(classes.window, selected && classes.selected)}>
             <Image resource={window.backgroundResource} className={classes.background}/>
             {window.controls.map((id) => (
               <CanvasControl key={id} id={id} />)
