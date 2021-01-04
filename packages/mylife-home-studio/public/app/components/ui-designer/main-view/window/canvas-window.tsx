@@ -10,12 +10,14 @@ import Image from './image';
 const useStyles = makeStyles((theme) => ({
   container: {
     overflow : 'auto',
+    position: 'relative', // RndBox is absolute
   },
   windowContainer: {
     margin: '10px',
   },
   window: {
     height: '100%',
+    width: '100%',
     border: `1px solid ${theme.palette.divider}`,
     position: 'relative',
   },
