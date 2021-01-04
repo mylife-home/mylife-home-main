@@ -7,6 +7,7 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
+import { SelectionProvider } from './selection';
 import { WindowStateProvider } from './use-window-state';
 import CanvasWindow from './canvas-window';
 
@@ -54,15 +55,17 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         </>
       }
     >
-      <WindowStateProvider id={id}>
-        <div className={classes.wrapper}>
-          <CanvasWindow className={classes.canvas} />
-          
-          <div className={classes.toolbox}>
-            toolbox
+      <SelectionProvider>
+        <WindowStateProvider id={id}>
+          <div className={classes.wrapper}>
+            <CanvasWindow className={classes.canvas} />
+            
+            <div className={classes.toolbox}>
+              toolbox
+            </div>
           </div>
-        </div>
-      </WindowStateProvider>
+        </WindowStateProvider>
+      </SelectionProvider>
     </Container>
   );
 };

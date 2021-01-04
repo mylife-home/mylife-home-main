@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useWindowState } from './use-window-state';
+import { useSelection } from './selection';
 import RndBox from './rnd-box';
 import CanvasControl from './canvas-control';
 import Image from './image';
@@ -31,7 +32,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CanvasWindow: FunctionComponent<{ className: string; }> = ({ className }) => {
-  const { window, /*updater,*/ selection, select } = useWindowState();
+  const { window, /*updater,*/ } = useWindowState();
+  const { selection, select } = useSelection();
   const classes = useStyles();
   const selected = !selection;
 
