@@ -55,8 +55,9 @@ function convertControl(window: Window, input: uiV1.Control): Control {
     style: input.style,
     height: input.height,
     width: input.width,
-    x: Math.round(input.x * window.width), // convert to absolute
-    y: Math.round(input.y * window.height), // convert to absolute
+    // convert to absolute + old point is from control middle
+    x: Math.round((window.width * input.x) - (input.width / 2)),
+    y: Math.round((window.height * input.y) - (input.height / 2)),
     display: null,
     text: null,
     primaryAction: null,
