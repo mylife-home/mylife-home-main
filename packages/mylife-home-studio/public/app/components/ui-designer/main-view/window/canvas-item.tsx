@@ -54,6 +54,7 @@ const CanvasItem: FunctionComponent<RndBoxProps> = ({ children, className, size,
   return (
     <Rnd
       className={className}
+      onMouseDown={(e) => { e.stopPropagation(); onSelect(); }}
 
       enableResizing={RESIZING}
       size={size}
@@ -62,7 +63,6 @@ const CanvasItem: FunctionComponent<RndBoxProps> = ({ children, className, size,
       disableDragging={!position}
       position={position}
       onDragStop={(e, d) => { onMove({ x: d.x, y: d.y }); }}
-      onMouseDown={onSelect}
     >
       <div className={clsx(classes.wrapper, selected && classes.selected)}>
         {children}
