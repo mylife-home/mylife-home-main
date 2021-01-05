@@ -3,8 +3,7 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
 
-import { useControlState } from './use-control-state';
-import { useSelection } from './selection';
+import { useControlState } from './window-state';
 import RndBox from './rnd-box';
 import Image from './image';
 
@@ -26,16 +25,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CanvasControl: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const { control, /*updater,*/ } = useControlState(id);
-  const { selection, select } = useSelection();
+  const { control, update, selected, select } = useControlState(id);
   const classes = useStyles();
-  const selected = selection === id;
-
-  const updater = (arg: any) => {};
 
   return (
-    <div onClick={(e) => { e.stopPropagation(); select(id); }}>
-      <RndBox size={{ width: control.width, height: control.height}} position={{ x: control.x, y: control.y}} onResize={(size) => updater(size)} onMove={(position) => updater(position)}>
+    <div onClick={(e) => { e.stopPropagation(); select(); }}>
+      <RndBox size={{ width: control.width, height: control.height}} position={{ x: control.x, y: control.y}} onResize={(size) => update(size)} onMove={(position) => update(position)}>
         <div className={clsx(classes.control, selected && classes.selected)}>
           {control.text ?
             (<TextFieldsIcon className={classes.item} />)

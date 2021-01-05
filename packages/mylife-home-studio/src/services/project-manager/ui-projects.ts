@@ -13,7 +13,6 @@ import {
   SetUiDefaultWindowNotification,
   SetUiResourceNotification,
   SetUiWindowNotification,
-  SetUiControlNotification,
   RenameResourceUiProjectUpdate,
   RenameWindowUiProjectUpdate,
   RenameUiResourceNotification,
@@ -87,12 +86,7 @@ class UiOpenedProject extends OpenedProject {
     }
 
     for (const window of project.definition.windows) {
-      const { controls, ...windowOnly } = window;
-      notifier.notify({ operation: 'set-ui-window', window: windowOnly } as SetUiWindowNotification);
-
-      for (const control of controls) {
-        notifier.notify({ operation: 'set-ui-control', windowId: window.id, control } as SetUiControlNotification);
-      }
+      notifier.notify({ operation: 'set-ui-window', window } as SetUiWindowNotification);
     }
   }
 
@@ -130,7 +124,6 @@ class UiOpenedProject extends OpenedProject {
         throw new Error(`Unhandle update operation: ${updateData.operation}`);
 
       // TODO renames propage
-      // TODO controls
       // TODO: handle deletion of used objects
     }
   }

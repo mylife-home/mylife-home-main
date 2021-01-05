@@ -1,15 +1,12 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import {
-  ClearUiControlNotification,
   ClearUiResourceNotification,
   ClearUiWindowNotification,
   ComponentData,
-  RenameUiControlNotification,
   RenameUiResourceNotification,
   RenameUiWindowNotification,
   SetNameProjectNotification,
   SetUiComponentDataNotification,
-  SetUiControlNotification,
   SetUiDefaultWindowNotification,
   SetUiResourceNotification,
   SetUiWindowNotification,
@@ -41,7 +38,6 @@ export default createReducer(initialState, {
       plugins: createTable<UiPlugin>(),
       resources: createTable<UiResource>(),
       windows: createTable<UiWindow>(),
-      controls: createTable<UiControl>(),
       defaultWindow: {},
     };
 
@@ -78,7 +74,6 @@ export default createReducer(initialState, {
       openedProject.plugins = createTable<UiPlugin>();
       openedProject.resources = createTable<UiResource>();
       openedProject.windows = createTable<UiWindow>();
-      openedProject.controls = createTable<UiControl>();
       openedProject.defaultWindow = {};
     }
   },
@@ -135,21 +130,13 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     case 'set-ui-window': {
       const { window } = update as SetUiWindowNotification;
       // reuse existing controls or init array
-      const controls = openedProject.windows.byId[window.id]?.controls || [];
-      tableSet(openedProject.windows, { ...window, controls }, true);
+      tableSet(openedProject.windows, window, true);
       break;
     }
 
     case 'clear-ui-window': {
       const { id } = update as ClearUiWindowNotification;
-      const window = openedProject.windows.byId[id];
       tableRemove(openedProject.windows, id);
-
-      for (const controlId of window.controls) {
-        const fullId = `${id}:${controlId}`;
-        tableRemove(openedProject.controls, fullId);
-      }
-
       break;
     }
 
@@ -160,52 +147,6 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
       window.id = newId;
       tableSet(openedProject.windows, window, true);
 
-      for (const [index, fullId] of window.controls.entries()) {
-        const [, controlId] = fullId.split(':');
-        const fullNewId = `${newId}:${controlId}`;
-        window.controls[index] = fullNewId;
-
-        const control = openedProject.controls.byId[fullId];
-        tableRemove(openedProject.controls, fullId);
-        control.id = fullNewId;
-        tableSet(openedProject.controls, control, true);
-      }
-
-      break;
-    }
-
-    case 'set-ui-control': {
-      const { windowId, control } = update as SetUiControlNotification;
-      const fullId = `${windowId}:${control.id}`;
-      const window = openedProject.windows.byId[windowId];
-
-      tableSet(openedProject.controls, { ...control, id: fullId }, true);
-      arrayAdd(window.controls, fullId, true);
-      break;
-    }
-
-    case 'clear-ui-control': {
-      const { windowId, id } = update as ClearUiControlNotification;
-      const fullId = `${windowId}:${id}`;
-      const window = openedProject.windows.byId[windowId];
-
-      tableRemove(openedProject.controls, fullId);
-      arrayRemove(window.controls, fullId);
-      break;
-    }
-
-    case 'rename-ui-control': {
-      const { windowId, id, newId } = update as RenameUiControlNotification;
-      const fullId = `${windowId}:${id}`;
-      const fullNewId = `${windowId}:${newId}`;
-      const control = openedProject.controls.byId[fullId];
-      const window = openedProject.windows.byId[windowId];
-
-      tableRemove(openedProject.controls, fullId);
-      arrayRemove(window.controls, fullId);
-      control.id = fullNewId;
-      tableSet(openedProject.controls, control, true);
-      arrayAdd(window.controls, fullNewId, true);
       break;
     }
 

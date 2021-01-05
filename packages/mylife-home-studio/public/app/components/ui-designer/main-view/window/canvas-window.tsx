@@ -2,8 +2,7 @@ import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useWindowState } from './use-window-state';
-import { useSelection } from './selection';
+import { useWindowState } from './window-state';
 import RndBox from './rnd-box';
 import CanvasControl from './canvas-control';
 import Image from './image';
@@ -31,22 +30,19 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const CanvasWindow: FunctionComponent<{ className: string; id: string; }> = ({ className, id }) => {
-  const { window, /*updater,*/ } = useWindowState(id);
-  const { selection, select } = useSelection();
+const CanvasWindow: FunctionComponent<{ className: string; }> = ({ className }) => {
+  const { window, update, selected, select } = useWindowState();
   const classes = useStyles();
-  const selected = !selection;
-
-  const updater = (arg: any) => {};
 
   //connectDropTarget
   return (
-    <div className={clsx(classes.container, className)} onClick={(e) => { e.stopPropagation(); select(null); }}>
+    <div className={clsx(classes.container, className)} onClick={(e) => { e.stopPropagation(); select(); }}>
       <div className={classes.windowContainer}>
-        <RndBox size={{ width: window.width, height: window.height}} onResize={(size) => updater(size)}>
+        <RndBox size={{ width: window.width, height: window.height}} onResize={(size) => update(size)}>
           <div className={clsx(classes.window, selected && classes.selected)}>
             <Image resource={window.backgroundResource} className={classes.background}/>
-            {window.controls.map((id) => (
+
+            {window.controls.map(({ id }) => (
               <CanvasControl key={id} id={id} />)
             )}
           </div>

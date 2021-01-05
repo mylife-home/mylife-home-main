@@ -1,4 +1,4 @@
-import { Window, Control, DefaultWindow, Definition, DefinitionResource } from './ui-model';
+import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
 import { Component, Plugin } from './component-model';
 
 export interface UiProject {
@@ -6,8 +6,6 @@ export interface UiProject {
   definition: Definition;
   componentData: ComponentData;
 }
-
-export type WindowOnly = Omit<Window, 'controls'>;
 
 export interface ComponentData {
   components: Component[]; // plugin points to plugin instanceName:module.name
@@ -62,7 +60,7 @@ export interface CoreProjectInfo extends ProjectInfo {
 
 export interface UpdateProjectNotification {
   operation: 'set-name'
-  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window' | 'set-ui-control' | 'clear-ui-control' | 'rename-ui-control';
+  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -98,7 +96,7 @@ export interface RenameUiResourceNotification extends UpdateProjectNotification 
 
 export interface SetUiWindowNotification extends UpdateProjectNotification {
   operation: 'set-ui-window';
-  window: WindowOnly;
+  window: Window;
 }
 
 export interface ClearUiWindowNotification extends UpdateProjectNotification {
@@ -112,25 +110,6 @@ export interface RenameUiWindowNotification extends UpdateProjectNotification {
   newId: string;
 }
 
-export interface SetUiControlNotification extends UpdateProjectNotification {
-  operation: 'set-ui-control';
-  windowId: string;
-  control: Control;
-}
-
-export interface ClearUiControlNotification extends UpdateProjectNotification {
-  operation: 'clear-ui-control';
-  windowId: string;
-  id: string;
-}
-
-export interface RenameUiControlNotification extends UpdateProjectNotification {
-  operation: 'rename-ui-control';
-  windowId: string;
-  id: string;
-  newId: string;
-}
-
 export interface ProjectUpdate {
 
 }
@@ -140,7 +119,7 @@ export interface CoreProjectUpdate {
 }
 
 export interface UiProjectUpdate {
-  operation: 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window' | 'set-control' | 'clear-control' | 'rename-control'
+  operation: 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
 }
 
 export interface SetDefaultWindowUiProjectUpdate extends UiProjectUpdate {
@@ -168,7 +147,7 @@ export interface RenameResourceUiProjectUpdate extends UiProjectUpdate {
 
 export interface SetWindowUiProjectUpdate extends UiProjectUpdate {
   operation: 'set-window';
-  window: WindowOnly;
+  window: Window;
 }
 
 export interface ClearWindowUiProjectUpdate extends UiProjectUpdate {
@@ -178,25 +157,6 @@ export interface ClearWindowUiProjectUpdate extends UiProjectUpdate {
 
 export interface RenameWindowUiProjectUpdate extends UiProjectUpdate {
   operation: 'rename-window';
-  id: string;
-  newId: string;
-}
-
-export interface SetControlUiProjectUpdate extends UiProjectUpdate {
-  operation: 'set-control';
-  windowId: string;
-  control: Control;
-}
-
-export interface ClearControlUiProjectUpdate extends UiProjectUpdate {
-  operation: 'clear-control';
-  windowId: string;
-  id: string;
-}
-
-export interface RenameControlUiProjectUpdate extends UiProjectUpdate {
-  operation: 'rename-control';
-  windowId: string;
   id: string;
   newId: string;
 }

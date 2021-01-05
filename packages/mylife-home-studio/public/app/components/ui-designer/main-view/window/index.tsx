@@ -7,7 +7,7 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
-import { SelectionProvider } from './selection';
+import { WindowStateProvider } from './window-state';
 import CanvasWindow from './canvas-window';
 
 const useStyles = makeStyles((theme) => ({
@@ -54,15 +54,15 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         </>
       }
     >
-      <SelectionProvider>
+      <WindowStateProvider id={id}>
         <div className={classes.wrapper}>
-          <CanvasWindow className={classes.canvas} id={id} />
+          <CanvasWindow className={classes.canvas} />
           
           <div className={classes.toolbox}>
             toolbox
           </div>
         </div>
-      </SelectionProvider>
+      </WindowStateProvider>
     </Container>
   );
 };

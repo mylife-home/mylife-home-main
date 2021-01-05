@@ -18,9 +18,6 @@ export const enum ActionTypes {
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
-  SET_CONTROL = 'ui-designer/set-control',
-  CLEAR_CONTROL = 'ui-designer/clear-control',
-  RENAME_CONTROL = 'ui-designer/rename-control',
 }
 
 export { DesignerTabActionData, DefaultWindow };
@@ -29,14 +26,14 @@ type Mutable<T> = { -readonly[P in keyof T]: T[P]};
 
 export type UiComponent = Component;
 export type UiResource = Mutable<DefinitionResource>;
-export type UiControl = Mutable<Control>; // with id = windowId:controlId
+export type UiControl = Mutable<Control>;
 
 export interface UiPlugin extends PluginData {
   id: string; // id: instanceName:module.name
 }
 
 export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
-  controls: string[];
+  controls: UiControl[];
 }
 
 export interface UiOpenedProject extends OpenedProjectBase {
@@ -46,7 +43,6 @@ export interface UiOpenedProject extends OpenedProjectBase {
   resources: Table<UiResource>;
 
   windows: Table<UiWindow>;
-  controls: Table<UiControl>; // id = window:control
 
   defaultWindow: DefaultWindow;
 }

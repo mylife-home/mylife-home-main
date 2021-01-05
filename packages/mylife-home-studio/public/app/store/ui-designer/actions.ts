@@ -15,6 +15,3 @@ export const renameResource = createAction<{ id: string; resourceId: string; new
 export const setWindow = createAction<{ id: string; window: UiWindow; }>(ActionTypes.SET_WINDOW);
 export const clearWindow = createAction<{ id: string; windowId: string; }>(ActionTypes.CLEAR_WINDOW);
 export const renameWindow = createAction<{ id: string; resourceId: string; newId: string}>(ActionTypes.RENAME_WINDOW);
-export const setControl = createAction<{ id: string; control: UiControl; }>(ActionTypes.SET_CONTROL);
-export const clearControl = createAction<{ id: string; controlId: string; }>(ActionTypes.CLEAR_CONTROL);
-export const renameControl = createAction<{ id: string; controlId: string; newId: string}>(ActionTypes.RENAME_CONTROL);

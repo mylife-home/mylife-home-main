@@ -5,15 +5,12 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl } from './types';
+import { ActionTypes, DefaultWindow, UiResource, UiWindow } from './types';
 import {
-  ClearControlUiProjectUpdate,
   ClearResourceUiProjectUpdate,
   ClearWindowUiProjectUpdate,
-  RenameControlUiProjectUpdate,
   RenameResourceUiProjectUpdate,
   RenameWindowUiProjectUpdate,
-  SetControlUiProjectUpdate,
   SetDefaultWindowUiProjectUpdate,
   SetResourceUiProjectUpdate,
   SetWindowUiProjectUpdate,
@@ -51,8 +48,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.SET_WINDOW]: ({ window }: { window: UiWindow }) => {
-      const { controls, ...windowOnly } = window;
-      return { operation: 'set-window', window: windowOnly } as SetWindowUiProjectUpdate;
+      return { operation: 'set-window', window } as SetWindowUiProjectUpdate;
     },
 
     [ActionTypes.CLEAR_WINDOW]: ({ windowId }: { windowId: string }) => {
@@ -61,19 +57,6 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.RENAME_WINDOW]: ({ windowId, newId }: { windowId: string; newId: string }) => {
       return { operation: 'rename-window', id: windowId, newId } as RenameWindowUiProjectUpdate;
-    },
-
-    [ActionTypes.SET_CONTROL]: ({ control }: { control: UiControl }) => {
-      const [windowId, id] = control.id.split(':');
-      return { operation: 'set-control', windowId, control: { ...control, id } } as SetControlUiProjectUpdate;
-    },
-
-    [ActionTypes.CLEAR_CONTROL]: ({ windowId, controlId }: { windowId: string; controlId: string }) => {
-      return { operation: 'clear-control', windowId, id: controlId } as ClearControlUiProjectUpdate;
-    },
-
-    [ActionTypes.RENAME_CONTROL]: ({ windowId, controlId, newId }: { windowId: string; controlId: string; newId: string }) => {
-      return { operation: 'rename-control', windowId, id: controlId, newId } as RenameControlUiProjectUpdate;
     },
   },
 });
