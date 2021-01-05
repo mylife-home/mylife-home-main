@@ -81,7 +81,9 @@ car que sensor vers ui
 
 ## studio
 - core designer:
-  - main -> toolbox
+  - main
+    - toolbox
+    - multi-select + duplicate
   - storage (git?)
   - deploy
 - ui designer
