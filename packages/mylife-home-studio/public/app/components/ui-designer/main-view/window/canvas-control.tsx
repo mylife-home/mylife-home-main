@@ -1,5 +1,4 @@
 import React, { FunctionComponent } from 'react';
-import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
 
