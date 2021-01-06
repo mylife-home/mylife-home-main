@@ -13,7 +13,7 @@
     "__clean": "rm -rf dist",
     "__build:prod": "webpack --config=webpack.config/cli.ts --env mode=prod --env wait",
     "__build:dev": "webpack --config=webpack.config/cli.ts --env mode=dev --env wait",
-    "__webpack:studio": "webpack --watch --config=webpack.config/cli.ts --env mode=dev --env binary=studio --env part=client"
+    "__webpack:studio": "webpack --watch --config=webpack.config/cli.ts --env mode=dev --env binary=studio --env part=client",
     "build-all:prod": "gulp build:prod:ui && gulp build:prod:core && gulp build:prod:studio",
     "build-all:dev": "gulp build:dev:ui && gulp build:dev:core && gulp build:dev:studio",
     "build-all:docker": "gulp docker:build:ui && gulp docker:build:irc-bridge",
@@ -26,7 +26,7 @@
     "docker:restart:ui": "npm run docker:stop:ui && npm run docker:start:ui",
     "docker:start:irc-bridge": "docker run --rm -d --network host --name mylife-home-core-irc-bridge mylife-home-core-irc-bridge",
     "docker:stop:irc-bridge": "docker rm -f mylife-home-core-irc-bridge",
-    "docker:restart:irc-bridge": "npm run docker:stop:irc-bridge && npm run docker:start:irc-bridge",
+    "docker:restart:irc-bridge": "npm run docker:stop:irc-bridge && npm run docker:start:irc-bridge"
   },
   "devDependencies": {
     "@babel/core": "^7.12.7",
