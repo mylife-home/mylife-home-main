@@ -137,7 +137,7 @@ function useWindowsConnect() {
   const dispatch = useDispatch();
 
   const newWindow = useCallback((id: string) => {
-    const window: UiWindow = { id, ...NEW_WINDOW_TEMPLATE };
+    const window: UiWindow = { ...NEW_WINDOW_TEMPLATE, id };
     dispatch(setWindow({ id: tabId, window }));
   }, [dispatch, tabId]);
 
@@ -153,7 +153,7 @@ function useWindowConnect(id: string) {
     duplicate: (newId: string) => {
       const newWindow = clone(window);
       newWindow.id = newId;
-      dispatch(setWindow({ id: tabId, window }));
+      dispatch(setWindow({ id: tabId, window: newWindow }));
     },
     rename: (newId: string) => {
       dispatch(renameWindow({ id: tabId, windowId: id, newId }));
