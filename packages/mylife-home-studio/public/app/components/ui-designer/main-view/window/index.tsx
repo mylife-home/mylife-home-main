@@ -59,7 +59,9 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
           <CanvasWindow className={classes.canvas} />
           
           <div className={classes.toolbox}>
-            toolbox
+            <div>toolbox</div>
+            <div>- duplicate control</div>
+            <div>- checkbox for grid + custom size + stick positions/sizes</div>
           </div>
         </div>
       </WindowStateProvider>

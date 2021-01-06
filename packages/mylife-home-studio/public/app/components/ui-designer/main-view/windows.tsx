@@ -24,6 +24,8 @@ const Windows: FunctionComponent = () => {
           <WindowIcon />
         </IconButton>
       </Tooltip>
+
+      <div>rename/duplicate/delete window</div>
     </Box>
   );
 };
