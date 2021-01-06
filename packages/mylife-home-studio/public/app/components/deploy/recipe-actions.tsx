@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles, fade } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
