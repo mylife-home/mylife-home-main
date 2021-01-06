@@ -16,7 +16,8 @@ export default (context: Context, repoName: string, binName: string, partialConf
     presets: [
       [require.resolve('@babel/preset-env'), { targets: { browsers: ['defaults', ...additionalBabelBrowsers] } }],
       require.resolve('@babel/preset-react'),
-    ]
+    ],
+    cacheDirectory: true,
   };
 
   const repoPath = path.dirname(require.resolve(`${repoName}/package.json`));
@@ -70,7 +71,7 @@ export default (context: Context, repoName: string, binName: string, partialConf
   const modes: ConfigurationByMode = {
     dev: {
       mode: 'development',
-      devtool: 'inline-source-map',
+      devtool: 'eval',
       optimization: {
         splitChunks: {
           cacheGroups: {
