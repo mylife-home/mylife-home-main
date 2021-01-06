@@ -8,6 +8,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Divider from '@material-ui/core/Divider';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
@@ -94,6 +95,8 @@ const Resources: FunctionComponent = () => {
             <ResourceItem key={id} id={id} selected={selection === id} onSelect={() => select(id)} />
           ))}
         </List>
+
+        <Divider orientation="vertical" />
         
         {selection && (
           <Display className={classes.display} id={selection} />
