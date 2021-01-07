@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { Rnd } from 'react-rnd';
+import { Rnd, RndDragCallback, RndResizeCallback } from 'react-rnd';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -51,6 +51,18 @@ const useStyles = makeStyles((theme) => ({
 const CanvasItem: FunctionComponent<RndBoxProps> = ({ children, className, size, onResize, position, onMove, selected, onSelect }) => {
   const classes = useStyles();
 
+  const onDragStop: RndDragCallback = (e, data) => {
+    if (data.x !== position.x || data.y !== position.y) {
+      onMove({ x: data.x, y: data.y });
+    }
+  };
+
+  const onResizeStop: RndResizeCallback = (e, direction, ref) => {
+    const width = parseInt(ref.style.width);
+    const height = parseInt(ref.style.height);
+    onResize({ width, height });
+  };
+
   return (
     <Rnd
       className={className}
@@ -58,11 +70,11 @@ const CanvasItem: FunctionComponent<RndBoxProps> = ({ children, className, size,
 
       enableResizing={RESIZING}
       size={size}
-      onResizeStop={(e, direction, ref) => { onResize({ width: parseInt(ref.style.width), height: parseInt(ref.style.height) }); }}
+      onResizeStop={onResizeStop}
 
       disableDragging={!position}
       position={position}
-      onDragStop={(e, d) => { onMove({ x: d.x, y: d.y }); }}
+      onDragStop={onDragStop}
     >
       <div className={clsx(classes.wrapper, selected && classes.selected)}>
         {children}
