@@ -9,6 +9,7 @@ import { useResetSelectionIfNull } from '../../selection';
 import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './window-state';
 import CanvasWindow from './canvas-window';
+import Toolbox from './toolbox';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -26,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbox: {
     width: 300,
-    overflowY: 'auto',
   },
 }));
 
@@ -51,18 +51,14 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         <>
           <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
           <DeleteButton icon tooltip="Supprimer la fenêtre" onConfirmed={onDelete} />
+          TODO: checkbox for grid + custom size + stick positions/sizes
         </>
       }
     >
       <WindowStateProvider id={id}>
         <div className={classes.wrapper}>
           <CanvasWindow className={classes.canvas} />
-          
-          <div className={classes.toolbox}>
-            <div>toolbox</div>
-            <div>- duplicate control</div>
-            <div>- checkbox for grid + custom size + stick positions/sizes</div>
-          </div>
+          <Toolbox className={classes.toolbox} />
         </div>
       </WindowStateProvider>
     </Container>

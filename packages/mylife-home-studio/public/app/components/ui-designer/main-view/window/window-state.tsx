@@ -92,3 +92,13 @@ export function useControlState(id: string) {
 
   return { control, update, selected, select };
 }
+
+export type SelectionType = 'control' | 'window';
+
+export function useSelection() {
+  const { selection } = useContext(Context);
+  return useMemo(() => {
+    const type: SelectionType = selection ? 'control' : 'window';
+    return { type, id: selection };
+  }, [selection]);
+}
