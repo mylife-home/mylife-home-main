@@ -7,6 +7,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import ImageIcon from '@material-ui/icons/Image';
+import TextFieldsIcon from '@material-ui/icons/TextFields';
 
 export const ProjectIcon = AccountTreeIcon;
 
@@ -19,3 +20,4 @@ export const ConfigIcon = SettingsIcon;
 
 export const WindowIcon = DesktopWindowsIcon;
 export { ImageIcon };
+export const TextIcon = TextFieldsIcon;

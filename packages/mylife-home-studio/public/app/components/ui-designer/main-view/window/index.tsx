@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Divider from '@material-ui/core/Divider';
 
 import { Container, Title } from '../../../lib/main-view-layout';
 import { WindowIcon } from '../../../lib/icons';
@@ -58,6 +59,7 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
       <WindowStateProvider id={id}>
         <div className={classes.wrapper}>
           <CanvasWindow className={classes.canvas} />
+          <Divider orientation="vertical" />
           <Toolbox className={classes.toolbox} />
         </div>
       </WindowStateProvider>

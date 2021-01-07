@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import TextFieldsIcon from '@material-ui/icons/TextFields';
 
+import { TextIcon } from '../../../lib/icons';
 import { useControlState } from './window-state';
 import CanvasItem from './canvas-item';
 import Image from './image';
@@ -26,7 +26,7 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
       onMove={(position) => update(position)}
       onSelect={select}
     >
-      {control.text ? <TextFieldsIcon className={classes.content} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
+      {control.text ? <TextIcon className={classes.content} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
     </CanvasItem>
   );
 };

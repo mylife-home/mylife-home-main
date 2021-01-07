@@ -1,11 +1,28 @@
 import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import SvgIcon from '@material-ui/core/SvgIcon';
 
+import { ImageIcon, TextIcon } from '../../../lib/icons';
 import { useSelection, useWindowState, useControlState, SelectionType } from './window-state';
 
 const useStyles = makeStyles((theme) => ({
   container: {
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  controls: {
+  },
+  control: {
+    margin: theme.spacing(4),
+    cursor: 'copy',
+  },
+  properties: {
+    flex: 1,
     overflowY: 'auto',
   },
 }));
@@ -16,39 +33,65 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <div className={clsx(classes.container, className)}>
-      {getDisplay(type, id)}
+      <Controls />
+      {getProperties(type, id)}
     </div>
   );
 };
 
 export default Toolbox;
 
-function getDisplay(type: SelectionType, id: string) {
-  switch (type) {
-    case 'window':
-      return <WindowToolbox />;
-    case 'control':
-      return <ControlToolbox id={id} />;
-  }
-}
-
-const WindowToolbox: FunctionComponent = () => {
-  const { window, update } = useWindowState();
-
+const Controls: FunctionComponent = () => {
+  const classes = useStyles();
   return (
-    <>
-      <div>toolbox window</div>
-    </>
+    <div className={classes.controls}>
+      <Control image={ImageIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un control de type image" />
+      <Control image={TextIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un control de type image" />
+    </div>
   );
 };
 
-const ControlToolbox: FunctionComponent<{ id: string }> = ({ id }) => {
+const Control: FunctionComponent<{ tooltip: string; image: typeof SvgIcon; }> = ({ tooltip, image }) => {
+  const classes = useStyles();
+  const Image = image;
+
+  return (
+    <Tooltip title={tooltip}>
+      <IconButton disableRipple className={classes.control}>
+        <Image fontSize="large" />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+function getProperties(type: SelectionType, id: string) {
+  switch (type) {
+    case 'window':
+      return <WindowProperties />;
+    case 'control':
+      return <ControlProperties id={id} />;
+  }
+}
+
+const WindowProperties: FunctionComponent = () => {
+  const classes = useStyles();
+  const { window, update } = useWindowState();
+
+  return (
+    <div className={classes.properties}>
+      <div>toolbox window</div>
+    </div>
+  );
+};
+
+const ControlProperties: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
   const { control, update } = useControlState(id);
 
   return (
-    <>
+    <div className={classes.properties}>
       <div>toolbox control {control.id}</div>
       <div>TODO: duplicate control</div>
-    </>
+    </div>
   );
 };
