@@ -1,4 +1,4 @@
-import React, { CSSProperties, FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Resizable, ResizeCallback } from 're-resizable';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
