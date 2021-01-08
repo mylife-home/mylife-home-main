@@ -6,6 +6,7 @@ import { useWindowState } from './window-state';
 import CanvasItem from './canvas-item';
 import CanvasControl from './canvas-control';
 import Image from './image';
+import { useDroppable } from './canvas-dnd';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -24,10 +25,10 @@ const useStyles = makeStyles((theme) => ({
 const CanvasWindow: FunctionComponent<{ className: string }> = ({ className }) => {
   const { window, update, selected, select } = useWindowState();
   const classes = useStyles();
+  const ref = useDroppable();
 
-  //connectDropTarget
   return (
-    <div className={clsx(classes.container, className)}>
+    <div className={clsx(classes.container, className)} ref={ref}>
       <div className={classes.windowContainer}>
         <CanvasItem size={{ width: window.width, height: window.height }} onResize={(size) => update(size)} selected={selected} onSelect={select}>
           <Image resource={window.backgroundResource} className={classes.background} />

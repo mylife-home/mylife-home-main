@@ -1,19 +1,16 @@
-import React, { FunctionComponent } from 'react';
-import { Rnd, RndDragCallback, RndResizeCallback } from 'react-rnd';
+import React, { CSSProperties, FunctionComponent } from 'react';
+import { Resizable, ResizeCallback } from 're-resizable';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { useMoveable, Position } from './canvas-dnd';
 
 export interface Size {
   width: number;
   height: number;
 }
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export interface RndBoxProps {
+export interface CanvasItemProps {
   className?: string;
   selected: boolean;
   onSelect: () => void;
@@ -37,6 +34,9 @@ const RESIZING = {
 };
 
 const useStyles = makeStyles((theme) => ({
+  moveable: {
+    position: 'absolute',
+  },
   wrapper: {
     height: '100%',
     width: '100%',
@@ -48,39 +48,60 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CanvasItem: FunctionComponent<RndBoxProps> = ({ children, className, size, onResize, position, onMove, selected, onSelect }) => {
+const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, size, onResize, position, onMove, selected, onSelect }) => {
   const classes = useStyles();
 
-  const onDragStop: RndDragCallback = (e, data) => {
-    if (data.x !== position.x || data.y !== position.y) {
-      onMove({ x: data.x, y: data.y });
-    }
+  const onClick = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    onSelect();
   };
 
-  const onResizeStop: RndResizeCallback = (e, direction, ref) => {
+  const onResizeStop: ResizeCallback = (e, direction, ref) => {
     const width = parseInt(ref.style.width);
     const height = parseInt(ref.style.height);
     onResize({ width, height });
   };
 
-  return (
-    <Rnd
-      className={className}
-      onMouseDown={(e) => { e.stopPropagation(); onSelect(); }}
-
-      enableResizing={RESIZING}
-      size={size}
-      onResizeStop={onResizeStop}
-
-      disableDragging={!position}
-      position={position}
-      onDragStop={onDragStop}
-    >
+  const content = (
+    <Resizable size={size} onResizeStop={onResizeStop} enable={RESIZING}>
       <div className={clsx(classes.wrapper, selected && classes.selected)}>
         {children}
       </div>
-    </Rnd>
+    </Resizable>
   );
+
+  if(position) {
+    return (
+      <MoveableItem className={className} onClick={onClick} position={position} onMove={onMove}>
+        {content}
+      </MoveableItem>
+    );
+  } else {
+    return (
+      <div className={className} onClick={onClick}>
+        {content}
+      </div>
+    );
+  }
 };
 
 export default CanvasItem;
+
+interface MoveableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+  position: Position;
+  onMove: (position: Position) => void;
+}
+
+const MoveableItem: FunctionComponent<MoveableItemProps> = ({ position, onMove, className, ...props }) => {
+  const classes = useStyles();
+  const left = position.x;
+  const top = position.y;
+  const { ref, isMoving } = useMoveable(position, onMove);
+
+  if (isMoving) {
+    return <div ref={ref} />
+  }
+
+  return <div {...props} className={clsx(className, classes.moveable)} ref={ref} style={{ left: position.x, top: position.y }} />;
+};
+
