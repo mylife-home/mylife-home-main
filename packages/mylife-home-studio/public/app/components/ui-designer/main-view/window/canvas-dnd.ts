@@ -6,15 +6,17 @@ export interface Position {
   y: number;
 }
 
+const itemType = Symbol('dnd-canvas-move');
+
 interface DragItem {
-  type: 'canvas-move';
+  type: symbol;
 }
 
 export function useDroppable() {
   const dropRef = useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
-    accept: 'canvas-move',
+    accept: itemType,
     drop(item: DragItem, monitor) {
       const containerPosition = getContainerPosition(dropRef.current);
       const offset = monitor.getSourceClientOffset();
@@ -35,7 +37,7 @@ function getContainerPosition(element: HTMLElement) {
 
 export function useMoveable(onMove: (position: Position) => void) {
   const [{ isDragging }, ref] = useDrag({
-    item: { type: 'canvas-move' },
+    item: { type: itemType },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
