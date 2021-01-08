@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef, createContext, useContext, useMemo } from 'react';
+import React, { FunctionComponent, useRef, createContext, useContext } from 'react';
 import clsx from 'clsx';
 import { makeStyles, darken } from '@material-ui/core/styles';
 
