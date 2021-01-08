@@ -94,9 +94,7 @@ interface MoveableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes
 
 const MoveableItem: FunctionComponent<MoveableItemProps> = ({ position, onMove, className, ...props }) => {
   const classes = useStyles();
-  const left = position.x;
-  const top = position.y;
-  const { ref, isMoving } = useMoveable(position, onMove);
+  const { ref, isMoving } = useMoveable(onMove);
 
   if (isMoving) {
     return <div ref={ref} />

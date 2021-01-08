@@ -6,17 +6,15 @@ export interface Position {
   y: number;
 }
 
-type ItemTypes = 'move' | 'new';
-
 interface DragItem {
-  type: ItemTypes;
+  type: 'canvas-move';
 }
 
 export function useDroppable() {
   const dropRef = useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
-    accept: ['move', 'new'],
+    accept: 'canvas-move',
     drop(item: DragItem, monitor) {
       const containerPosition = getContainerPosition(dropRef.current);
       const offset = monitor.getSourceClientOffset();
@@ -35,10 +33,9 @@ function getContainerPosition(element: HTMLElement) {
   return { x: rect.x - scrollLeft, y: rect.y - scrollTop };
 }
 
-export function useMoveable(position: Position, onMove: (position: Position) => void) {
-
+export function useMoveable(onMove: (position: Position) => void) {
   const [{ isDragging }, ref] = useDrag({
-    item: { type: 'move' } as DragItem,
+    item: { type: 'canvas-move' },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -51,19 +48,3 @@ export function useMoveable(position: Position, onMove: (position: Position) => 
 
   return { ref, isMoving: isDragging };
 }
-
-export function useCreatable(onCreate: (position: Position) => void) {
-  const [{ isDragging }, drag] = useDrag({
-    item: { type: 'new' } as DragItem,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-    end(item: DragItem, monitor) {
-      if (monitor.didDrop()) {
-        onCreate(monitor.getDropResult());
-      }
-    }
-  });
-
-  return { drag, isDragging };
-};
