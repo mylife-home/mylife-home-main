@@ -9,6 +9,7 @@ export interface Position {
 const ItemTypes = {
   CREATE: Symbol('dnd-canvas-create'),
   MOVE: Symbol('dnd-canvas-move'),
+  RESIZE: Symbol('dnd-canvas-resize'),
 }
 
 interface DragItem {
@@ -19,7 +20,7 @@ export function useDroppable() {
   const dropRef = useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
-    accept: [ItemTypes.CREATE, ItemTypes.MOVE],
+    accept: [ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE],
     drop(item: DragItem, monitor) {
 
       switch(item.type) {
@@ -30,8 +31,9 @@ export function useDroppable() {
           return { x: offset.x - containerPosition.x, y: offset.y - containerPosition.y } as Position;
         }
 
-        case ItemTypes.MOVE: {
-          // on move return delta
+        case ItemTypes.MOVE: 
+        case ItemTypes.RESIZE: {
+          // on move/resize return delta
           return monitor.getDifferenceFromInitialOffset();
         }
       }
@@ -83,9 +85,9 @@ export function useCreatable(onCreate: (position: Position) => void) {
 
 export function useResizable(onResize: (delta: Position) => void) {
   const [{ delta }, ref] = useDrag({
-    item: { type: ItemTypes.MOVE },
+    item: { type: ItemTypes.RESIZE },
     collect: (monitor) => ({
-      delta: monitor.getDifferenceFromInitialOffset(),
+      delta: monitor.isDragging ? monitor.getDifferenceFromInitialOffset() : null,
     }),
     end(item: DragItem, monitor) {
       if (monitor.didDrop()) {
