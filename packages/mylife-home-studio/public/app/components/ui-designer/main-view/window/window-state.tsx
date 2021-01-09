@@ -132,8 +132,8 @@ export function useCreateControl() {
     const existingIds = new Set(window.controls.map(control => control.id));
     const newControl = clone(NEW_CONTROL_TEMPLATE);
     newControl.id = makeUniqueId(existingIds, 'new-control');
-    newControl.x = position.x;
-    newControl.y = position.y;
+    newControl.x = position.x - newControl.width / 2;
+    newControl.y = position.y - newControl.height / 2;
 
     setSelection(newControl.id);
 

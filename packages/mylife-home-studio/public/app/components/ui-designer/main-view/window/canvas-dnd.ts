@@ -27,7 +27,7 @@ export function useDroppable() {
           // on create return cursor position
           const containerPosition = getContainerPosition(dropRef.current);
           const offset = monitor.getClientOffset();
-          return { x: offset.x - containerPosition.x - 10, y: offset.y - containerPosition.y - 10 } as Position;
+          return { x: offset.x - containerPosition.x, y: offset.y - containerPosition.y } as Position;
         }
 
         case ItemTypes.MOVE: {
@@ -35,10 +35,6 @@ export function useDroppable() {
           return monitor.getDifferenceFromInitialOffset();
         }
       }
-
-      const containerPosition = getContainerPosition(dropRef.current);
-      const offset = monitor.getClientOffset();
-      return { x: offset.x - containerPosition.x - 10, y: offset.y - containerPosition.y - 10 } as Position;
     }
   });
 
@@ -47,10 +43,12 @@ export function useDroppable() {
   return dropRef;
 }
 
+const CONTAINER_MARGIN = 10;
+
 function getContainerPosition(element: HTMLElement) {
   const rect = element.getBoundingClientRect();
   const { scrollLeft, scrollTop } = element;
-  return { x: rect.x - scrollLeft, y: rect.y - scrollTop };
+  return { x: rect.x - scrollLeft + CONTAINER_MARGIN, y: rect.y - scrollTop + CONTAINER_MARGIN };
 }
 
 export function useMoveable(position: Position, onMove: (newPosition: Position) => void) {
