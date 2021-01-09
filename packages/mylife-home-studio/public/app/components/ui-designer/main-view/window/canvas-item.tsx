@@ -62,12 +62,19 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, s
     onResize({ width, height });
   };
 
+  const stopProgapationOnly = (name: string) => (e: { stopPropagation: () => void }) => {
+    console.log('stopProgapationOnly', name)
+    e.stopPropagation();
+  }
+
   const content = (
-    <Resizable size={size} onResizeStop={onResizeStop} enable={RESIZING}>
-      <div className={clsx(classes.wrapper, selected && classes.selected)}>
-        {children}
-      </div>
-    </Resizable>
+    <div onMouseDown={stopProgapationOnly('onMouseDown')} onMouseUp={stopProgapationOnly('onMouseUp')}>
+      <Resizable size={size} onResizeStop={onResizeStop} enable={RESIZING}>
+        <div className={clsx(classes.wrapper, selected && classes.selected)}>
+          {children}
+        </div>
+      </Resizable>
+    </div>
   );
 
   if(position) {

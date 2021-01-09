@@ -5,8 +5,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import SvgIcon from '@material-ui/core/SvgIcon';
 
-import { ImageIcon, TextIcon } from '../../../lib/icons';
-import { useSelection, useWindowState, useControlState, SelectionType } from './window-state';
+import { ImageIcon } from '../../../lib/icons';
+import { useSelection, useWindowState, useControlState, useCreateControl, SelectionType } from './window-state';
+import { useMoveable } from './canvas-dnd';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -43,21 +44,23 @@ export default Toolbox;
 
 const Controls: FunctionComponent = () => {
   const classes = useStyles();
+
   return (
     <div className={classes.controls}>
-      <Control image={ImageIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un control de type image" />
-      <Control image={TextIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un control de type image" />
+      <Control image={ImageIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un contrôle" />
     </div>
   );
 };
 
 const Control: FunctionComponent<{ tooltip: string; image: typeof SvgIcon; }> = ({ tooltip, image }) => {
   const classes = useStyles();
+  const onCreate = useCreateControl();
+  const { ref, isMoving } = useMoveable(onCreate);
   const Image = image;
 
   return (
     <Tooltip title={tooltip}>
-      <IconButton disableRipple className={classes.control}>
+      <IconButton disableRipple className={classes.control} ref={ref}>
         <Image fontSize="large" />
       </IconButton>
     </Tooltip>

@@ -4,9 +4,12 @@ import { useDispatch } from 'react-redux';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useDebounced } from '../../../lib/use-debounced';
 import { useTabPanelId } from '../../../lib/tab-panel';
+import { makeUniqueId } from '../../../lib/make-unique-id';
+import { clone } from '../../../lib/clone';
 import { setWindow } from '../../../../store/ui-designer/actions';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
+import { Position } from './canvas-dnd';
 
 interface ContextProps {
   window: UiWindow;
@@ -101,4 +104,39 @@ export function useSelection() {
     const type: SelectionType = selection ? 'control' : 'window';
     return { type, id: selection };
   }, [selection]);
+}
+
+const NEW_CONTROL_TEMPLATE: UiControl = {
+  id: null,
+  x: null,
+  y: null,
+
+  style: null,
+  height: 50,
+  width: 50,
+  display: {
+    componentId: null,
+    componentState: null,
+    defaultResource: null,
+    map: [],
+  },
+  text: null,
+  primaryAction: null,
+  secondaryAction: null,
+}
+
+export function useCreateControl() {
+  const { updateWindow, setSelection } = useContext(Context);
+  
+  return useCallback((position: Position) => updateWindow(window => {
+    const existingIds = new Set(window.controls.map(control => control.id));
+    const newControl = clone(NEW_CONTROL_TEMPLATE);
+    newControl.id = makeUniqueId(existingIds, 'new-control');
+    newControl.x = position.x;
+    newControl.y = position.y;
+
+    setSelection(newControl.id);
+
+    return { ...window, controls: [...window.controls, newControl] };
+  }), [updateWindow, setSelection]);
 }
