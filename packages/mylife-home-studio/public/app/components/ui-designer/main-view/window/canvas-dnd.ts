@@ -1,12 +1,15 @@
 import { useRef } from 'react';
-import { useDrop, useDrag } from 'react-dnd';
+import { useDrop, useDrag, XYCoord } from 'react-dnd';
 
 export interface Position {
   x: number;
   y: number;
 }
 
-const itemType = Symbol('dnd-canvas-move');
+const ItemTypes = {
+  CREATE: Symbol('dnd-canvas-create'),
+  MOVE: Symbol('dnd-canvas-move'),
+}
 
 interface DragItem {
   type: symbol;
@@ -16,11 +19,26 @@ export function useDroppable() {
   const dropRef = useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
-    accept: itemType,
+    accept: [ItemTypes.CREATE, ItemTypes.MOVE],
     drop(item: DragItem, monitor) {
+
+      switch(item.type) {
+        case ItemTypes.CREATE: {
+          // on create return cursor position
+          const containerPosition = getContainerPosition(dropRef.current);
+          const offset = monitor.getClientOffset();
+          return { x: offset.x - containerPosition.x - 10, y: offset.y - containerPosition.y - 10 } as Position;
+        }
+
+        case ItemTypes.MOVE: {
+          // on move return delta
+          return monitor.getDifferenceFromInitialOffset();
+        }
+      }
+
       const containerPosition = getContainerPosition(dropRef.current);
-      const offset = monitor.getSourceClientOffset();
-      return { x: offset.x - containerPosition.x, y: offset.y - containerPosition.y } as Position;
+      const offset = monitor.getClientOffset();
+      return { x: offset.x - containerPosition.x - 10, y: offset.y - containerPosition.y - 10 } as Position;
     }
   });
 
@@ -35,18 +53,32 @@ function getContainerPosition(element: HTMLElement) {
   return { x: rect.x - scrollLeft, y: rect.y - scrollTop };
 }
 
-export function useMoveable(onMove: (position: Position) => void) {
+export function useMoveable(position: Position, onMove: (newPosition: Position) => void) {
   const [{ isDragging }, ref] = useDrag({
-    item: { type: itemType },
+    item: { type: ItemTypes.MOVE },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
     end(item: DragItem, monitor) {
       if (monitor.didDrop()) {
-        onMove(monitor.getDropResult());
+        const delta = monitor.getDropResult() as XYCoord;
+        onMove({ x: position.x + delta.x, y: position.y + delta.y });
       }
     }
   });
 
   return { ref, isMoving: isDragging };
+}
+
+export function useCreatable(onCreate: (position: Position) => void) {
+  const [, ref] = useDrag({
+    item: { type: ItemTypes.CREATE },
+    end(item: DragItem, monitor) {
+      if (monitor.didDrop()) {
+        onCreate(monitor.getDropResult());
+      }
+    }
+  });
+
+  return ref;
 }

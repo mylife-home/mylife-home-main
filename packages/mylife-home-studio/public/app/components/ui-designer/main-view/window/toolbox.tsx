@@ -7,7 +7,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 
 import { ImageIcon } from '../../../lib/icons';
 import { useSelection, useWindowState, useControlState, useCreateControl, SelectionType } from './window-state';
-import { useMoveable } from './canvas-dnd';
+import { useCreatable } from './canvas-dnd';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -55,7 +55,7 @@ const Controls: FunctionComponent = () => {
 const Control: FunctionComponent<{ tooltip: string; image: typeof SvgIcon; }> = ({ tooltip, image }) => {
   const classes = useStyles();
   const onCreate = useCreateControl();
-  const { ref, isMoving } = useMoveable(onCreate);
+  const ref = useCreatable(onCreate);
   const Image = image;
 
   return (
