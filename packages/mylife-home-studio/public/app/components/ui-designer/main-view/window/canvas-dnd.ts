@@ -80,3 +80,20 @@ export function useCreatable(onCreate: (position: Position) => void) {
 
   return ref;
 }
+
+export function useResizable(onResize: (delta: Position) => void) {
+  const [{ delta }, ref] = useDrag({
+    item: { type: ItemTypes.MOVE },
+    collect: (monitor) => ({
+      delta: monitor.getDifferenceFromInitialOffset(),
+    }),
+    end(item: DragItem, monitor) {
+      if (monitor.didDrop()) {
+        const delta = monitor.getDropResult() as XYCoord;
+        onResize(delta);
+      }
+    }
+  });
+
+  return { ref, delta };
+}
