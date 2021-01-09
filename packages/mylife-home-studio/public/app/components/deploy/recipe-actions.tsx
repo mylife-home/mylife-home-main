@@ -8,6 +8,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 import DeleteButton from '../lib/delete-button';
 import { useFireAsync } from '../lib/use-error-handling';
 import { useAction } from '../lib/use-actions';
+import { clone } from '../lib/clone';
 import { useInputDialog } from '../dialogs/input';
 import { getRecipesIds, getRecipe } from '../../store/deploy/selectors';
 import { clearRecipe, pinRecipe, startRecipe, setRecipe } from '../../store/deploy/actions';
@@ -108,8 +109,4 @@ export function useNewNameDialog() {
     const { status, text: id } = await showDialog(options);
     return { status, id };
   };
-}
-
-function clone<T>(obj: T) {
-  return JSON.parse(JSON.stringify(obj)) as T;
 }

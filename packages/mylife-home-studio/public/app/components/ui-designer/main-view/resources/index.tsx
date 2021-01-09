@@ -22,6 +22,7 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useRenameDialog } from '../../../dialogs/rename';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useTabPanelId } from '../../../lib/tab-panel';
+import { makeUniqueId } from '../../../lib/make-unique-id';
 import { getResourcesIds, getResource } from '../../../../store/ui-designer/selectors';
 import { setResource, clearResource, renameResource } from '../../../../store/ui-designer/actions';
 import { UiResource } from '../../../../store/ui-designer/types';
@@ -195,19 +196,6 @@ async function fileToResource(file: File) {
   const id = filename.substring(0, filename.lastIndexOf('.')) || filename;
 
   return { id, mime: file.type, data } as UiResource;
-}
-
-function makeUniqueId(existingIds: Set<string>, wantedId: string) {
-  if (!existingIds.has(wantedId)) {
-    return wantedId;
-  }
-
-  for (let i=1;; ++i) {
-    const candidate = `${wantedId}_${i}`;
-    if (!existingIds.has(candidate)) {
-      return candidate;
-    }
-  }
 }
 
 function useSelection(ids: string[]): [string, (id: string) => void] {

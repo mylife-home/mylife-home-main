@@ -18,6 +18,7 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { useFireAsync } from '../../lib/use-error-handling';
 import DeleteButton from '../../lib/delete-button';
+import { clone } from '../../lib/clone';
 import { useInputDialog } from '../../dialogs/input';
 import { AppState } from '../../../store/types';
 import { setWindow, clearWindow, renameWindow } from '../../../store/ui-designer/actions';
@@ -137,8 +138,9 @@ function useWindowsConnect() {
   const dispatch = useDispatch();
 
   const newWindow = useCallback((id: string) => {
-    const window: UiWindow = { ...NEW_WINDOW_TEMPLATE, id };
-    dispatch(setWindow({ id: tabId, window }));
+    const newWindow = clone(NEW_WINDOW_TEMPLATE);
+    newWindow.id = id;
+    dispatch(setWindow({ id: tabId, window: newWindow }));
   }, [dispatch, tabId]);
 
   return { windowsIds, newWindow };
@@ -189,8 +191,4 @@ function useNewNameDialog() {
     const { status, text: id } = await showDialog(options);
     return { status, id };
   };
-}
-
-function clone<T>(obj: T) {
-  return JSON.parse(JSON.stringify(obj)) as T;
 }
