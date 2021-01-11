@@ -11,6 +11,7 @@ import { getDefaultWindow } from '../../../store/ui-designer/selectors';
 import { setDefaultWindow } from '../../../store/ui-designer/actions';
 import { DefaultWindow } from '../../../../../shared/ui-model';
 import WindowSelector from './common/window-selector';
+import { Group, Item } from './common/properties-layout';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -22,20 +23,6 @@ const useStyles = makeStyles((theme) => ({
 
     display: 'flex',
     flexDirection: 'column',
-  },
-  group: {
-    margin: theme.spacing(3),
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  item: {
-    margin: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  itemTitle: {
-    width: 80,
   }
 }));
 
@@ -65,28 +52,6 @@ const Project: FunctionComponent = () => {
 };
 
 export default Project;
-
-const Group: FunctionComponent<{ title: string }> = ({ title, children }) => {
-  const classes = useStyles();
-
-  return (
-    <div className={classes.group}>
-      <Typography variant="h6">{title}</Typography>
-      {children}
-    </div>
-  );
-};
-
-const Item: FunctionComponent<{ title: string }> = ({title, children }) => {
-  const classes = useStyles();
-
-  return (
-    <div className={classes.item}>
-      <Typography className={classes.itemTitle}>{title}</Typography>
-      {children}
-    </div>
-  );
-}
 
 function useProjectConnect() {
   const tabId = useTabPanelId();

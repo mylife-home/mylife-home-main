@@ -6,8 +6,10 @@ import IconButton from '@material-ui/core/IconButton';
 import SvgIcon from '@material-ui/core/SvgIcon';
 
 import { ImageIcon } from '../../../lib/icons';
-import { useSelection, useWindowState, useControlState, useCreateControl, SelectionType } from './window-state';
+import { useSelection, useCreateControl, SelectionType } from './window-state';
 import { useCreatable } from './canvas-dnd';
+import PropertiesWindow from './properties-window';
+import PropertiesControl from './properties-control';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -35,7 +37,7 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
   return (
     <div className={clsx(classes.container, className)}>
       <Controls />
-      {getProperties(type, id)}
+      {getProperties(type, id, classes.properties)}
     </div>
   );
 };
@@ -67,34 +69,11 @@ const Control: FunctionComponent<{ tooltip: string; image: typeof SvgIcon; }> = 
   );
 };
 
-function getProperties(type: SelectionType, id: string) {
+function getProperties(type: SelectionType, id: string, className: string) {
   switch (type) {
     case 'window':
-      return <WindowProperties />;
+      return <PropertiesWindow className={className} />;
     case 'control':
-      return <ControlProperties id={id} />;
+      return <PropertiesControl id={id} className={className} />;
   }
 }
-
-const WindowProperties: FunctionComponent = () => {
-  const classes = useStyles();
-  const { window, update } = useWindowState();
-
-  return (
-    <div className={classes.properties}>
-      <div>toolbox window</div>
-    </div>
-  );
-};
-
-const ControlProperties: FunctionComponent<{ id: string }> = ({ id }) => {
-  const classes = useStyles();
-  const { control, update } = useControlState(id);
-
-  return (
-    <div className={classes.properties}>
-      <div>toolbox control {control.id}</div>
-      <div>TODO: duplicate control</div>
-    </div>
-  );
-};
