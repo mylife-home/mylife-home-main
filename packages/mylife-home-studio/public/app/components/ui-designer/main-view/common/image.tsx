@@ -26,6 +26,11 @@ type NotNullImageProps = ImageProps & { resource: string };
 
 const NotNullImage: FunctionComponent<NotNullImageProps> = ({ resource: id, ...props }) => {
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  if(!resource) {
+    console.warn(`Resource not found: '${id}'`);
+    return null;
+  }
+  
   const url = makeDataUrl(resource);
   return (
     <img src={url} {...props} />

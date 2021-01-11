@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useWindowState } from './window-state';
 import CanvasItem from './canvas-item';
 import CanvasControl from './canvas-control';
-import Image from './image';
+import Image from '../common/image';
 import { useDroppable } from './canvas-dnd';
 
 const useStyles = makeStyles((theme) => ({

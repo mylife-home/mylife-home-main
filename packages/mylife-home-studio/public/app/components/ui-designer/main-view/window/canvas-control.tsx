@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { TextIcon } from '../../../lib/icons';
 import { useControlState } from './window-state';
 import CanvasItem from './canvas-item';
-import Image from './image';
+import Image from '../common/image';
 
 const useStyles = makeStyles((theme) => ({
   content: {
