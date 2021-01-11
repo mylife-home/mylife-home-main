@@ -29,9 +29,9 @@ const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = fal
       options={windowsIds}
       className={classes.component}
       renderInput={(params) => <TextField {...params} label={label} variant="outlined" />}
-      value={value || ''}
+      value={value}
       onChange={(event: any, newValue: string) => {
-        onChange(newValue || null);
+        onChange(newValue);
       }}
     />
   );
