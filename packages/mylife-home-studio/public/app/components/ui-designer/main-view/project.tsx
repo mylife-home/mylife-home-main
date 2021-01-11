@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 import { Container, Title } from '../../lib/main-view-layout';
 import { ProjectIcon } from '../../lib/icons';
@@ -22,12 +23,25 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  group: {
+    margin: theme.spacing(3),
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  item: {
+    margin: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itemTitle: {
+    width: 80,
+  }
 }));
 
 const Project: FunctionComponent = () => {
   const classes = useStyles();
   const { defaultWindow, updateDefaultWindow } = useProjectConnect();
-
   
   return (
     <Container
@@ -36,14 +50,43 @@ const Project: FunctionComponent = () => {
       }
     >
       <div className={classes.wrapper}>
-        Desktop: <WindowSelector value={defaultWindow.desktop} onChange={id => updateDefaultWindow('desktop', id)} />
-        Mobile: <WindowSelector value={defaultWindow.mobile} onChange={id => updateDefaultWindow('mobile', id)} />
+
+        <Group title={"Fenêtre par défaut"}>
+          <Item title={"Desktop"}>
+            <WindowSelector value={defaultWindow.desktop} onChange={id => updateDefaultWindow('desktop', id)} />
+          </Item>
+          <Item title={"Mobile"}>
+            <WindowSelector value={defaultWindow.mobile} onChange={id => updateDefaultWindow('mobile', id)} />
+          </Item>
+        </Group>
       </div>
     </Container>
   );
 };
 
 export default Project;
+
+const Group: FunctionComponent<{ title: string }> = ({ title, children }) => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.group}>
+      <Typography variant="h6">{title}</Typography>
+      {children}
+    </div>
+  );
+};
+
+const Item: FunctionComponent<{ title: string }> = ({title, children }) => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.item}>
+      <Typography className={classes.itemTitle}>{title}</Typography>
+      {children}
+    </div>
+  );
+}
 
 function useProjectConnect() {
   const tabId = useTabPanelId();
