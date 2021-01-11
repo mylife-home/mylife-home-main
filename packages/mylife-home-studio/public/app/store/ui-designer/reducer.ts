@@ -38,7 +38,7 @@ export default createReducer(initialState, {
       plugins: createTable<UiPlugin>(),
       resources: createTable<UiResource>(),
       windows: createTable<UiWindow>(),
-      defaultWindow: {},
+      defaultWindow: { desktop: null, mobile: null },
     };
 
     tableAdd(state.openedProjects, openedProject);
