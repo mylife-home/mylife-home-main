@@ -1,6 +1,7 @@
 import humanize from 'humanize-plus';
-import { UiResource } from '../../../../store/ui-designer/types';
 import mime from 'mime/lite';
+
+import { UiResource } from '../../../../store/ui-designer/types';
 
 export function makeDataUrl(resource: UiResource) {
   return `data://${resource.mime};base64,${resource.data}`;
