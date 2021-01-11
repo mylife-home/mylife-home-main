@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 
 import { Container, Title } from '../../lib/main-view-layout';
 import { ProjectIcon } from '../../lib/icons';
