@@ -10,7 +10,7 @@ import { getDefaultWindow } from '../../../store/ui-designer/selectors';
 import { setDefaultWindow } from '../../../store/ui-designer/actions';
 import { DefaultWindow } from '../../../../../shared/ui-model';
 import WindowSelector from './common/window-selector';
-import { Group, Item } from './common/properties-layout';
+import { Group, Item } from './common/properties';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
