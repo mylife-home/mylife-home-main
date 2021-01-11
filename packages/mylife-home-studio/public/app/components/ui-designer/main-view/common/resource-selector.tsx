@@ -37,9 +37,9 @@ const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable =
       className={classes.component}
       renderOption={(option) => <OptionRenderer option={option} />}
       renderInput={(params) => <InputRenderer params={params} label={label} value={value} />}
-      value={value || ''}
+      value={value}
       onChange={(event: any, newValue: string) => {
-        onChange(newValue || null);
+        onChange(newValue);
       }}
     />
   );
