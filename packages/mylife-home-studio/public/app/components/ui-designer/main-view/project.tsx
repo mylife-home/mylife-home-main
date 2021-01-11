@@ -1,12 +1,15 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Container, Title } from '../../lib/main-view-layout';
 import { ProjectIcon } from '../../lib/icons';
-import { useTabSelector } from '../../lib/use-tab-selector';
+import { useTabPanelId } from '../../lib/tab-panel';
+import { AppState } from '../../../store/types';
 import { getDefaultWindow } from '../../../store/ui-designer/selectors';
+import { setDefaultWindow } from '../../../store/ui-designer/actions';
+import { DefaultWindow } from '../../../../../shared/ui-model';
 import WindowSelector from './common/window-selector';
-import ResourceSelector from './common/resource-selector';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -23,11 +26,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Project: FunctionComponent = () => {
   const classes = useStyles();
-  const defaultWindow = useTabSelector(getDefaultWindow);
+  const { defaultWindow, updateDefaultWindow } = useProjectConnect();
 
-  const [w1, setw1] = useState<string>(null);
-  const [w2, setw2] = useState<string>('desktop-ext');
-  const [r, setr] = useState<string>('color-blue');
   
   return (
     <Container
@@ -36,14 +36,24 @@ const Project: FunctionComponent = () => {
       }
     >
       <div className={classes.wrapper}>
-        TODO
-        {JSON.stringify(defaultWindow)}
-        <WindowSelector value={w1} onChange={setw1} nullable />
-        <WindowSelector value={w2} onChange={setw2} />
-        <ResourceSelector value={r} onChange={setr} />
+        Desktop: <WindowSelector value={defaultWindow.desktop} onChange={id => updateDefaultWindow('desktop', id)} />
+        Mobile: <WindowSelector value={defaultWindow.mobile} onChange={id => updateDefaultWindow('mobile', id)} />
       </div>
     </Container>
   );
 };
 
 export default Project;
+
+function useProjectConnect() {
+  const tabId = useTabPanelId();
+  const defaultWindow = useSelector((state: AppState) => getDefaultWindow(state, tabId));
+  const dispatch = useDispatch();
+
+  const updateDefaultWindow = useCallback((type: string, windowId: string) => {
+    const newDefaultWindow: DefaultWindow = { ...defaultWindow, [type]: windowId };
+    dispatch(setDefaultWindow({ id: tabId, defaultWindow: newDefaultWindow }));
+  }, [defaultWindow, dispatch]);
+
+  return { defaultWindow, tabId, updateDefaultWindow };
+}
