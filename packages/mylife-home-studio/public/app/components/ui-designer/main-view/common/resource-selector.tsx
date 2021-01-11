@@ -53,13 +53,7 @@ const InputRenderer: FunctionComponent<{ params: AutocompleteRenderInputParams; 
   const showImage = value && editorValue === value; // do not show image while editing
 
   params.InputProps.startAdornment = (
-    <InputAdornment position="start">
-      {showImage ? (
-        <Image resource={value} className={classes.image} />
-      ) : (
-        <div className={classes.image} />
-      )}
-    </InputAdornment>
+    <InputAdornment position="start">{showImage ? <Image resource={value} className={classes.image} /> : <div className={classes.image} />}</InputAdornment>
   );
 
   console.log(params);
