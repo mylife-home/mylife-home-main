@@ -17,20 +17,22 @@ export interface WindowSelectorProps {
   label?: string;
   value: string;
   onChange: (value: string) => void;
-} 
+}
 
-const WindowSelector: FunctionComponent<WindowSelectorProps> = ({nullable = false,  label, value, onChange }) => {
-  const classes= useStyles();
+const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = false, label, value, onChange }) => {
+  const classes = useStyles();
   const windowsIds = useTabSelector(getWindowsIds);
-  
+
   return (
     <Autocomplete
       disableClearable={!nullable}
       options={windowsIds}
       className={classes.component}
       renderInput={(params) => <TextField {...params} label={label} variant="outlined" />}
-      value={value}
-      onChange={(event: any, newValue: string) => { onChange(newValue); }}
+      value={value || ''}
+      onChange={(event: any, newValue: string) => {
+        onChange(newValue || null);
+      }}
     />
   );
 };
