@@ -1,16 +1,10 @@
 import React, { FunctionComponent } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindowsIds } from '../../../../store/ui-designer/selectors';
-
-const useStyles = makeStyles((theme) => ({
-  component: {
-    width: 300,
-  },
-}));
+import { useComponentStyles } from './properties-layout';
 
 export interface WindowSelectorProps {
   nullable?: boolean;
@@ -20,7 +14,7 @@ export interface WindowSelectorProps {
 }
 
 const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = false, label, value, onChange }) => {
-  const classes = useStyles();
+  const classes = useComponentStyles();
   const windowsIds = useTabSelector(getWindowsIds);
 
   return (

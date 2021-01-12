@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   itemTitle: {
-    width: 80,
+    width: 100,
   }
 }));
 
@@ -40,3 +40,9 @@ export const Item: FunctionComponent<{ title: string }> = ({title, children }) =
     </div>
   );
 }
+
+export const useComponentStyles = makeStyles((theme) => ({
+  component: {
+    width: 300,
+  },
+}));

@@ -6,12 +6,10 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getResourcesIds } from '../../../../store/ui-designer/selectors';
-import Image from '../common/image';
+import Image from './image';
+import { useComponentStyles } from './properties-layout';
 
 const useStyles = makeStyles((theme) => ({
-  component: {
-    width: 300,
-  },
   image: {
     width: 16,
     height: 16,
@@ -27,7 +25,7 @@ export interface ResourceSelectorProps {
 }
 
 const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable = false, label, value, onChange }) => {
-  const classes = useStyles();
+  const classes = useComponentStyles();
   const resourcesIds = useTabSelector(getResourcesIds);
 
   return (
