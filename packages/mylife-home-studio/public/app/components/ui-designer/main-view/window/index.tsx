@@ -53,7 +53,6 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         <>
           <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
           <DeleteButton icon tooltip="Supprimer la fenêtre" onConfirmed={onDelete} />
-          TODO: checkbox for grid + custom size + stick positions/sizes
         </>
       }
     >
