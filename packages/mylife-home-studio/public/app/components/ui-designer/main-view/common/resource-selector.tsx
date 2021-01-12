@@ -53,8 +53,6 @@ const InputRenderer: FunctionComponent<{ params: AutocompleteRenderInputParams; 
     <InputAdornment position="start">{showImage ? <Image resource={value} className={classes.image} /> : <div className={classes.image} />}</InputAdornment>
   );
 
-  console.log(params);
-
   return <TextField {...params} variant="outlined" />;
 };
 
