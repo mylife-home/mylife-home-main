@@ -11,6 +11,7 @@ import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './window-state';
 import CanvasWindow from './canvas-window';
 import Toolbox from './toolbox';
+import { SnapContextProvider } from './snap';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -56,13 +57,15 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
         </>
       }
     >
-      <WindowStateProvider id={id}>
-        <div className={classes.wrapper}>
-          <CanvasWindow className={classes.canvas} />
-          <Divider orientation="vertical" />
-          <Toolbox className={classes.toolbox} />
-        </div>
-      </WindowStateProvider>
+      <SnapContextProvider>
+        <WindowStateProvider id={id}>
+          <div className={classes.wrapper}>
+            <CanvasWindow className={classes.canvas} />
+            <Divider orientation="vertical" />
+            <Toolbox className={classes.toolbox} />
+          </div>
+        </WindowStateProvider>
+      </SnapContextProvider>
     </Container>
   );
 };
