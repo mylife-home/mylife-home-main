@@ -3,11 +3,13 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import SvgIcon from '@material-ui/core/SvgIcon';
+import Slider, { Mark } from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
 
 import { ImageIcon } from '../../../lib/icons';
 import { useSelection, useCreateControl, SelectionType } from './window-state';
 import { useCreatable } from './canvas-dnd';
+import { useSnapEditor } from './snap';
 import PropertiesWindow from './properties-window';
 import PropertiesControl from './properties-control';
 
@@ -19,10 +21,25 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'stretch',
   },
   controls: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   control: {
     margin: theme.spacing(4),
     cursor: 'copy',
+  },
+  snapEditor: {
+    flex: 1,
+    margin: theme.spacing(4),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  snapSliderWrapper: {
+    width: '100%',
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
   },
   properties: {
     flex: 1,
@@ -49,23 +66,55 @@ const Controls: FunctionComponent = () => {
 
   return (
     <div className={classes.controls}>
-      <Control image={ImageIcon} tooltip="Drag and drop sur la fenêtre pour ajouter un contrôle" />
+      <Control />
+      <SnapEditor />
     </div>
   );
 };
 
-const Control: FunctionComponent<{ tooltip: string; image: typeof SvgIcon; }> = ({ tooltip, image }) => {
+const Control: FunctionComponent = () => {
   const classes = useStyles();
   const onCreate = useCreateControl();
   const ref = useCreatable(onCreate);
-  const Image = image;
 
   return (
-    <Tooltip title={tooltip}>
+    <Tooltip title="Drag and drop sur la fenêtre pour ajouter un contrôle">
       <IconButton disableRipple className={classes.control} ref={ref}>
-        <Image fontSize="large" />
+        <ImageIcon fontSize="large" />
       </IconButton>
     </Tooltip>
+  );
+};
+
+const MARKS: Mark[] = [];
+
+for (let index = 1; index <= 20; ++index) {
+  const mark: Mark = { value: index };
+  if (index === 1 || index === 20) {
+    mark.label = index.toString();
+  }
+
+  MARKS.push(mark);
+}
+
+const SnapEditor: FunctionComponent = () => {
+  const classes = useStyles();
+  const { value, setValue } = useSnapEditor();
+
+  return (
+    <div className={classes.snapEditor}>
+      <Typography gutterBottom>Grille de positionnement</Typography>
+      <div className={classes.snapSliderWrapper}>
+        <Slider
+          value={value}
+          onChange={(e, newValue) => setValue(newValue as number)}
+          min={1}
+          max={20}
+          marks={MARKS}
+          valueLabelDisplay="auto"
+        />
+      </div>
+    </div>
   );
 };
 
