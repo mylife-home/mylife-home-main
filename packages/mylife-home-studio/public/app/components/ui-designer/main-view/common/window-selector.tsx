@@ -8,12 +8,11 @@ import { useComponentStyles } from './properties-layout';
 
 export interface WindowSelectorProps {
   nullable?: boolean;
-  label?: string;
   value: string;
   onChange: (value: string) => void;
 }
 
-const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = false, label, value, onChange }) => {
+const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = false, value, onChange }) => {
   const classes = useComponentStyles();
   const windowsIds = useTabSelector(getWindowsIds);
 
@@ -22,7 +21,7 @@ const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = fal
       disableClearable={!nullable}
       options={windowsIds}
       className={classes.component}
-      renderInput={(params) => <TextField {...params} label={label} variant="outlined" />}
+      renderInput={(params) => <TextField {...params} variant="outlined" />}
       value={value}
       onChange={(event: any, newValue: string) => {
         onChange(newValue);

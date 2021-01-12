@@ -1,28 +1,22 @@
 import React, { FunctionComponent } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { useComponentStyles } from './properties-layout';
 
 export interface SnapedIntegerEditorProps {
   nullable?: boolean;
-  label?: string;
   snap: number;
   value: number;
   onChange: (value: number) => void;
 }
 
-const SnapedIntegerEditor: FunctionComponent<SnapedIntegerEditorProps> = ({ nullable = false, label, snap, value, onChange }) => {
+const SnapedIntegerEditor: FunctionComponent<SnapedIntegerEditorProps> = ({ nullable = false, snap, value, onChange }) => {
   const classes = useComponentStyles();
   return (
     <TextField
       className={classes.component}
       value={format(value)}
       onChange={(e) => onChange(parse(e.target.value, nullable))}
-      label={label}
       type="number"
-      InputLabelProps={{
-        shrink: true,
-      }}
       inputProps={{
         min: 0,
         step: snap,

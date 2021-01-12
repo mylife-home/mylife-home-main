@@ -19,12 +19,11 @@ const useStyles = makeStyles((theme) => ({
 
 export interface ResourceSelectorProps {
   nullable?: boolean;
-  label?: string;
   value: string;
   onChange: (value: string) => void;
 }
 
-const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable = false, label, value, onChange }) => {
+const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable = false, value, onChange }) => {
   const classes = useComponentStyles();
   const resourcesIds = useTabSelector(getResourcesIds);
 
@@ -34,7 +33,7 @@ const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable =
       options={resourcesIds}
       className={classes.component}
       renderOption={(option) => <OptionRenderer option={option} />}
-      renderInput={(params) => <InputRenderer params={params} label={label} value={value} />}
+      renderInput={(params) => <InputRenderer params={params} value={value} />}
       value={value}
       onChange={(event: any, newValue: string) => {
         onChange(newValue);
@@ -45,7 +44,7 @@ const ResourceSelector: FunctionComponent<ResourceSelectorProps> = ({ nullable =
 
 export default ResourceSelector;
 
-const InputRenderer: FunctionComponent<{ params: AutocompleteRenderInputParams; label?: string; value: string }> = ({ params, label, value }) => {
+const InputRenderer: FunctionComponent<{ params: AutocompleteRenderInputParams; value: string }> = ({ params, value }) => {
   const classes = useStyles();
   const editorValue = (params.inputProps as { value: string })?.value;
   const showImage = value && editorValue === value; // do not show image while editing
@@ -56,7 +55,7 @@ const InputRenderer: FunctionComponent<{ params: AutocompleteRenderInputParams; 
 
   console.log(params);
 
-  return <TextField {...params} label={label} variant="outlined" />;
+  return <TextField {...params} variant="outlined" />;
 };
 
 const OptionRenderer: FunctionComponent<{ option: string }> = ({ option }) => {
