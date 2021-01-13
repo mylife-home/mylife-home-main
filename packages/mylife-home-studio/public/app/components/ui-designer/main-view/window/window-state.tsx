@@ -90,10 +90,34 @@ export function useControlState(id: string) {
     return newWindow;
   }), [id, setSelection, index]);
 
+  const duplicate = useCallback(() => updateWindow(window => {
+    const control = window.controls[index];
+    const existingIds = new Set(window.controls.map(control => control.id));
+    const newControl = clone(control);
+    const newWindow = { ...window, controls: [...window.controls, newControl] };
+
+    newControl.id = makeUniqueId(existingIds, control.id);
+    newControl.x = control.x +10;
+    newControl.y = control.y +10;
+
+    setSelection(newControl.id);
+
+    return newWindow;
+  }), [id, setSelection, index]);
+
+  const remove = useCallback(() => updateWindow(window => {
+    const newWindow = { ...window, controls: window.controls.slice() };
+    newWindow.controls.splice(index, 1);
+
+    setSelection(null);
+
+    return newWindow;
+  }), [id, setSelection, index]);
+
   const selected = selection === id;
   const select = useCallback(() => setSelection(id), [setSelection]);
 
-  return { control, update, selected, select };
+  return { control, update, duplicate, remove, selected, select };
 }
 
 export type SelectionType = 'control' | 'window';
