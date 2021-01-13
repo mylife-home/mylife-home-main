@@ -28,7 +28,10 @@ export function useDroppable() {
           // on create return cursor position
           const containerPosition = getContainerPosition(dropRef.current);
           const offset = monitor.getClientOffset();
-          return { x: offset.x - containerPosition.x, y: offset.y - containerPosition.y } as Position;
+          return { 
+            x: Math.round(offset.x - containerPosition.x),
+            y: Math.round(offset.y - containerPosition.y)
+          } as Position;
         }
 
         case ItemTypes.MOVE: 
