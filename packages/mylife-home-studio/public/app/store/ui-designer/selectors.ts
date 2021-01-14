@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
+import { UiComponent, UiPlugin } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
@@ -40,6 +41,26 @@ export const getComponentAndPlugin = (state: AppState, tabId: string, id: string
 
   const plugin = project.plugins.byId[component.plugin];
   return { component, plugin };
+}
+
+// components data does not change often in the project lifecycle
+function makeGetComponentsData() {
+  return createSelector(
+    getOpenedProject,
+    (project) => ({ components: project.components, plugins: project.plugins })
+  );
+}
+
+export function makeGetComponentsAndPlugins() {
+  const getCompnentsData = makeGetComponentsData();
+  return createSelector(
+    getCompnentsData,
+    ({ components, plugins }) => components.allIds.map(id => {
+      const component = components.byId[id];
+      const plugin = plugins.byId[component.plugin];
+      return { component, plugin };
+    })
+  );
 }
 
 export const getResourcesIds = (state: AppState, tabId: string) => {

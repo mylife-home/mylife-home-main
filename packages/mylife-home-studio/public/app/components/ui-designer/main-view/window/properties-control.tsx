@@ -8,6 +8,9 @@ import Radio from '@material-ui/core/Radio';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 
+import { UiControl } from '../../../../store/ui-designer/types';
+import { ControlDisplay, ControlText} from '../../../../../../shared/ui-model';
+import { MemberType } from '../../../../../../shared/component-model';
 import DeleteButton from '../../../lib/delete-button';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useInputDialog } from '../../../dialogs/input';
@@ -16,6 +19,7 @@ import SnappedIntegerEditor from '../common/snapped-integer-editor';
 import ResourceSelector from '../common/resource-selector';
 import WindowSelector from '../common/window-selector';
 import ReadonlyStringEditor from '../common/readonly-string-editor';
+import ComponentMemberSelector from '../common/component-member-selector';
 import { createNewControlDisplay, createNewControlText } from '../common/templates';
 import { useControlState, useWindowState } from './window-state';
 import { useSnapValue } from './snap';
@@ -105,6 +109,8 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
           <FormControlLabel value="text" control={<Radio color="primary" />} label="Texte" />
         </RadioGroup>
 
+        {getAppearenceElement(appearence, control, update)}
+
       </Group>
 
       <Group title={"Actions"}>
@@ -115,6 +121,52 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
 };
 
 export default PropertiesControl;
+
+function getAppearenceElement(appearence: Appearence, control: UiControl, update: (props: Partial<UiControl>) => void) {
+  switch (appearence) {
+
+    case 'display': {
+      const { display } = control;
+      const updateDisplay = (props: Partial<ControlDisplay>) => {
+        const newDisplay = { ...display, ...props };
+        update({ display: newDisplay });
+      };
+
+      return <PropertiesControlDisplay display={display} update={updateDisplay} />;
+    }
+
+    case 'text': {
+      const { text } = control;
+      const updateText = (props: Partial<ControlText>) => {
+        const newText = { ...text, ...props };
+        update({ text: newText });
+      };
+
+      return <PropertiesControlText text={text} update={updateText} />;
+    }
+  }
+}
+
+const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void; }> = ({ display, update }) => {
+  return (
+    <>
+      <Item title={"Par défaut"}>
+        <ResourceSelector value={display.defaultResource} onChange={value => update({ defaultResource: value })} />
+      </Item>
+      <Item title={"Composant/État"}>
+        <ComponentMemberSelector memberType={MemberType.STATE} value={{ component: display.componentId, member: display.componentState }} onChange={value => update({ componentId: value.component, componentState: value.member })} />
+      </Item>
+    </>
+  );
+};
+
+const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void; }> = ({ text, update }) => {
+  return (
+    <>
+    </>
+  );
+};
+
 
 function useNewNameDialog() {
   const showDialog = useInputDialog();
