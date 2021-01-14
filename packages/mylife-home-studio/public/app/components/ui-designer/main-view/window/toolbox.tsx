@@ -86,16 +86,7 @@ const Control: FunctionComponent = () => {
   );
 };
 
-const MARKS: Mark[] = [];
-
-for (let index = 1; index <= 20; ++index) {
-  const mark: Mark = { value: index };
-  if (index === 1 || index === 20) {
-    mark.label = index.toString();
-  }
-
-  MARKS.push(mark);
-}
+const MARKS = buildMarks();
 
 const SnapEditor: FunctionComponent = () => {
   const classes = useStyles();
@@ -117,6 +108,22 @@ const SnapEditor: FunctionComponent = () => {
     </div>
   );
 };
+
+function buildMarks() {
+  const visibleMarks = new Set([1, 5, 10, 15, 20]);
+  const marks: Mark[] = [];
+
+  for (let index = 1; index <= 20; ++index) {
+    const mark: Mark = { value: index };
+    if (visibleMarks.has(index)) {
+      mark.label = index.toString();
+    }
+  
+    marks.push(mark);
+  }
+  
+  return marks;
+}
 
 function getProperties(type: SelectionType, id: string, className: string) {
   switch (type) {
