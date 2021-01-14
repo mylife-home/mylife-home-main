@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -28,17 +29,21 @@ const CanvasWindow: FunctionComponent<{ className?: string }> = ({ className }) 
   const ref = useDroppable();
 
   return (
-    <div className={clsx(classes.container, className)} ref={ref}>
-      <div className={classes.windowContainer}>
-        <CanvasItem size={{ width: window.width, height: window.height }} onResize={(size) => update(size)} selected={selected} onSelect={select}>
-          <Image resource={window.backgroundResource} className={classes.background} />
+    <AutoSizer>
+      {({ height, width }) => (
+        <div style={{ height, width }} className={clsx(classes.container, className)} ref={ref}>
+          <div className={classes.windowContainer}>
+            <CanvasItem size={{ width: window.width, height: window.height }} onResize={(size) => update(size)} selected={selected} onSelect={select}>
+              <Image resource={window.backgroundResource} className={classes.background} />
 
-          {window.controls.map(({ id }) => (
-            <CanvasControl key={id} id={id} />
-          ))}
-        </CanvasItem>
-      </div>
-    </div>
+              {window.controls.map(({ id }) => (
+                <CanvasControl key={id} id={id} />
+              ))}
+            </CanvasItem>
+          </div>
+        </div>
+      )}
+    </AutoSizer>
   );
 };
 
