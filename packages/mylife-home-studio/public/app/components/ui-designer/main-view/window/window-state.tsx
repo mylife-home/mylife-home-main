@@ -9,6 +9,7 @@ import { clone } from '../../../lib/clone';
 import { setWindow } from '../../../../store/ui-designer/actions';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
+import { createNewControl } from '../common/templates';
 import { Position } from './canvas-dnd';
 
 interface ContextProps {
@@ -130,31 +131,12 @@ export function useSelection() {
   }, [selection]);
 }
 
-const NEW_CONTROL_TEMPLATE: UiControl = {
-  id: null,
-  x: null,
-  y: null,
-
-  style: null,
-  height: 50,
-  width: 50,
-  display: {
-    componentId: null,
-    componentState: null,
-    defaultResource: null,
-    map: [],
-  },
-  text: null,
-  primaryAction: null,
-  secondaryAction: null,
-}
-
 export function useCreateControl() {
   const { updateWindow, setSelection } = useContext(Context);
   
   return useCallback((position: Position) => updateWindow(window => {
     const existingIds = new Set(window.controls.map(control => control.id));
-    const newControl = clone(NEW_CONTROL_TEMPLATE);
+    const newControl = createNewControl();
     newControl.id = makeUniqueId(existingIds, 'new-control');
     newControl.x = position.x - newControl.width / 2;
     newControl.y = position.y - newControl.height / 2;

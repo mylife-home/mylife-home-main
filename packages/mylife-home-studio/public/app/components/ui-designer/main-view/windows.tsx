@@ -23,7 +23,7 @@ import { useInputDialog } from '../../dialogs/input';
 import { AppState } from '../../../store/types';
 import { setWindow, clearWindow, renameWindow } from '../../../store/ui-designer/actions';
 import { getWindowsIds, getWindow } from '../../../store/ui-designer/selectors';
-import { UiWindow } from '../../../store/ui-designer/types';
+import { createNewWindow } from './common/templates';
 import { useSelection } from '../selection';
 
 const useStyles = makeStyles((theme) => ({
@@ -123,22 +123,13 @@ const WindowItem: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-const NEW_WINDOW_TEMPLATE: UiWindow = {
-  id: null,
-  style: null,
-  height: 500,
-  width: 500,
-  backgroundResource: null,
-  controls: []
-};
-
 function useWindowsConnect() {
   const tabId = useTabPanelId();
   const windowsIds = useSelector((state: AppState) => getWindowsIds(state, tabId));
   const dispatch = useDispatch();
 
   const newWindow = useCallback((id: string) => {
-    const newWindow = clone(NEW_WINDOW_TEMPLATE);
+    const newWindow = createNewWindow();
     newWindow.id = id;
     dispatch(setWindow({ id: tabId, window: newWindow }));
   }, [dispatch, tabId]);

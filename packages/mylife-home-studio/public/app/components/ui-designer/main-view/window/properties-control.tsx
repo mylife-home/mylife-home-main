@@ -2,6 +2,9 @@ import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 
@@ -13,6 +16,7 @@ import SnappedIntegerEditor from '../common/snapped-integer-editor';
 import ResourceSelector from '../common/resource-selector';
 import WindowSelector from '../common/window-selector';
 import ReadonlyStringEditor from '../common/readonly-string-editor';
+import { createNewControlDisplay, createNewControlText } from '../common/templates';
 import { useControlState, useWindowState } from './window-state';
 import { useSnapValue } from './snap';
 
@@ -23,6 +27,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
   }
 }));
+
+type Appearence = 'display' | 'text';
 
 const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
   const classes = useStyles();
@@ -38,6 +44,23 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
         update({ id: newId });
       }
     });
+
+  const appearence: Appearence = control.display ? 'display' : 'text';
+  const setAppearence = (newAppearence: Appearence) => {
+    if (newAppearence === appearence) {
+      return;
+    }
+
+    switch(newAppearence) {
+      case 'display':
+        update({ text: null, display: createNewControlDisplay() });
+        break;
+
+      case 'text':
+        update({ display: null, text: createNewControlText() });
+        break;
+    }
+  };
 
   return (
     <div className={className}>
@@ -73,6 +96,19 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
         <Item title={"Longueur"}>
           <SnappedIntegerEditor snap={snap} value={control.height} onChange={value => update({ height: value })} />
         </Item>
+      </Group>
+
+      <Group title={"Apparence"}>
+
+        <RadioGroup value={appearence} onChange={e => setAppearence(e.target.value as Appearence)} row>
+          <FormControlLabel value="display" control={<Radio color="primary" />} label="Image" />
+          <FormControlLabel value="text" control={<Radio color="primary" />} label="Texte" />
+        </RadioGroup>
+
+      </Group>
+
+      <Group title={"Actions"}>
+
       </Group>
     </div>
   );
