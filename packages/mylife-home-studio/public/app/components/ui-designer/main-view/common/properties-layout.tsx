@@ -30,12 +30,14 @@ export const Group: FunctionComponent<{ title: string }> = ({ title, children })
   );
 };
 
-export const Item: FunctionComponent<{ title: string }> = ({ title, children }) => {
+export const Item: FunctionComponent<{ title?: string }> = ({ title, children }) => {
   const classes = useStyles();
 
   return (
     <div className={classes.item}>
-      <Typography className={classes.itemTitle}>{title}</Typography>
+      {title && (
+        <Typography className={classes.itemTitle}>{title}</Typography>
+      )}
       {children}
     </div>
   );

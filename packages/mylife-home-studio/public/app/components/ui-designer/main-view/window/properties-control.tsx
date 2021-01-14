@@ -1,15 +1,18 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import AddIcon from '@material-ui/icons/Add';
 
 import { UiControl } from '../../../../store/ui-designer/types';
-import { ControlDisplay, ControlText} from '../../../../../../shared/ui-model';
+import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem, Action, ActionComponent, ActionWindow } from '../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../shared/component-model';
 import DeleteButton from '../../../lib/delete-button';
 import { useFireAsync } from '../../../lib/use-error-handling';
@@ -29,17 +32,22 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     display: 'flex',
     flexDirection: 'row',
-  }
+  },
+  newButton: {
+    color: theme.palette.success.main,
+  },
 }));
 
 type Appearence = 'display' | 'text';
+type ActionType = 'primaryAction' | 'secondaryAction';
 
-const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> = ({ className, id }) => {
+const PropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
   const { control, update, duplicate, remove } = useControlState(id);
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
+  const [currentAction, setCurrentAction] = useState<ActionType>('primaryAction');
 
   const onRename = () =>
     fireAsync(async () => {
@@ -55,7 +63,7 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
       return;
     }
 
-    switch(newAppearence) {
+    switch (newAppearence) {
       case 'display':
         update({ text: null, display: createNewControlDisplay() });
         break;
@@ -68,7 +76,7 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
 
   return (
     <div className={className}>
-      <Group title={"Contrôle"}>
+      <Group title={'Contrôle'}>
         <div className={classes.actions}>
           <Tooltip title="Dupliquer">
             <IconButton onClick={duplicate}>
@@ -85,36 +93,46 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string; }> 
           <DeleteButton icon tooltip="Supprimer" onConfirmed={remove} />
         </div>
 
-        <Item title={"Identifiant"}>
+        <Item title={'Identifiant'}>
           <ReadonlyStringEditor value={control.id} />
         </Item>
-        <Item title={"X"}>
-          <SnappedIntegerEditor snap={snap} value={control.x} onChange={value => update({ x: value })} />
+        <Item title={'X'}>
+          <SnappedIntegerEditor snap={snap} value={control.x} onChange={(value) => update({ x: value })} />
         </Item>
-        <Item title={"Y"}>
-          <SnappedIntegerEditor snap={snap} value={control.y} onChange={value => update({ y: value })} />
+        <Item title={'Y'}>
+          <SnappedIntegerEditor snap={snap} value={control.y} onChange={(value) => update({ y: value })} />
         </Item>
-        <Item title={"Largeur"}>
-          <SnappedIntegerEditor snap={snap} value={control.width} onChange={value => update({ width: value })} />
+        <Item title={'Largeur'}>
+          <SnappedIntegerEditor snap={snap} value={control.width} onChange={(value) => update({ width: value })} />
         </Item>
-        <Item title={"Longueur"}>
-          <SnappedIntegerEditor snap={snap} value={control.height} onChange={value => update({ height: value })} />
+        <Item title={'Longueur'}>
+          <SnappedIntegerEditor snap={snap} value={control.height} onChange={(value) => update({ height: value })} />
         </Item>
       </Group>
 
-      <Group title={"Apparence"}>
-
-        <RadioGroup value={appearence} onChange={e => setAppearence(e.target.value as Appearence)} row>
+      <Group title={'Apparence'}>
+        <RadioGroup value={appearence} onChange={(e) => setAppearence(e.target.value as Appearence)} row>
           <FormControlLabel value="display" control={<Radio color="primary" />} label="Image" />
           <FormControlLabel value="text" control={<Radio color="primary" />} label="Texte" />
         </RadioGroup>
 
         {getAppearenceElement(appearence, control, update)}
-
       </Group>
 
-      <Group title={"Actions"}>
+      <Group title={'Actions'}>
 
+        <Tabs value={currentAction} onChange={(e, newValue) => setCurrentAction(newValue)} indicatorColor="primary" textColor="primary">
+          <Tab label="Primaire" value="primaryAction"/>
+          <Tab label="Secondaire" value="secondaryAction" />
+        </Tabs>
+        
+        <div role="tabpanel" hidden={currentAction !== 'primaryAction'}>
+          {currentAction === 'primaryAction' && getActionElement('primaryAction', control, update)}
+        </div>
+
+        <div role="tabpanel" hidden={currentAction !== 'secondaryAction'}>
+          {currentAction === 'secondaryAction' && getActionElement('secondaryAction', control, update)}
+        </div>
       </Group>
     </div>
   );
@@ -124,7 +142,6 @@ export default PropertiesControl;
 
 function getAppearenceElement(appearence: Appearence, control: UiControl, update: (props: Partial<UiControl>) => void) {
   switch (appearence) {
-
     case 'display': {
       const { display } = control;
       const updateDisplay = (props: Partial<ControlDisplay>) => {
@@ -147,33 +164,85 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
   }
 }
 
-const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void; }> = ({ display, update }) => {
+const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void }> = ({ display, update }) => {
+  const classes = useStyles();
+
+  const onNewMapping = () => {
+    // TODO: min/max depends on state type
+    const newItem: ControlDisplayMapItem = {
+      min: null,
+      max: null,
+      value: null,
+      resource: null,
+    };
+
+    update({ map: [...display.map, newItem] });
+  };
+
   return (
     <>
-      <Item title={"Par défaut"}>
-        <ResourceSelector value={display.defaultResource} onChange={value => update({ defaultResource: value })} />
+      <Item title={'Par défaut'}>
+        <ResourceSelector value={display.defaultResource} onChange={(value) => update({ defaultResource: value })} />
       </Item>
-      <Item title={"Composant/État"}>
-        <ComponentMemberSelector memberType={MemberType.STATE} value={{ component: display.componentId, member: display.componentState }} onChange={value => update({ componentId: value.component, componentState: value.member })} />
+      <Item title={'Composant/État'}>
+        <ComponentMemberSelector
+          memberType={MemberType.STATE}
+          value={{ component: display.componentId, member: display.componentState }}
+          onChange={(value) => update({ componentId: value.component, componentState: value.member })}
+        />
       </Item>
+      <Item title={'Associations'}>
+        <IconButton className={classes.newButton} onClick={onNewMapping}>
+          <AddIcon />
+        </IconButton>
+      </Item>
+
+      {display.map.map((item, index) => (
+        <Item key={index}>
+          <span>TODO value/range editors</span>
+          <ResourceSelector value={item.resource} onChange={() => console.log('TODO')} />
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={() => console.log('TODO')} />
+        </Item>
+      ))}
+
     </>
   );
 };
 
-const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void; }> = ({ text, update }) => {
-  return (
-    <>
-    </>
-  );
+/*
+// TODO: add constraint for type Object[key] === Array<Item>
+function useArrayManager<Object>(value: Object, update: (props: Partial<Object>) => void, key: keyof Object) {
+  const onNew = () => {};
+  const onRemove = (index: number) => {};
+  const onUpdate = (index: number, props: Partial<Item>) => {};
+  return { onNew, onRemove, onUpdate };
+}
+*/
+
+const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
+  return <>Text</>;
 };
 
+function getActionElement(prop: ActionType, control: UiControl, update: (props: Partial<UiControl>) => void) {
+  const action = control[prop];
+  const updateAction = (props: Partial<Action>) => {
+    const newAction = { ...action, ...props };
+    update({ [prop]: newAction });
+  };
+
+  return <PropertiesAction action={action} update={updateAction} />;
+}
+
+const PropertiesAction: FunctionComponent<{ action: Action; update: (props: Partial<Action>) => void }> = ({ action, update }) => {
+  return <>Action</>;
+}
 
 function useNewNameDialog() {
   const showDialog = useInputDialog();
   const { window } = useWindowState();
 
   return async (initialId: string = null) => {
-    const controlIds = new Set(window.controls.map(control => control.id));
+    const controlIds = new Set(window.controls.map((control) => control.id));
     const options = {
       title: 'Nouveau nom',
       message: 'Entrer un nom de contrôle',
@@ -188,7 +257,7 @@ function useNewNameDialog() {
         if (controlIds.has(newId)) {
           return 'Ce nom existe déjà';
         }
-      }
+      },
     };
 
     const { status, text: id } = await showDialog(options);
