@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CanvasWindow: FunctionComponent<{ className: string }> = ({ className }) => {
+const CanvasWindow: FunctionComponent<{ className?: string }> = ({ className }) => {
   const { window, update, selected, select } = useWindowState();
   const classes = useStyles();
   const ref = useDroppable();

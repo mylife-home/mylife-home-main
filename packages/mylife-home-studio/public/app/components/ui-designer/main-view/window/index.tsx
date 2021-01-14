@@ -1,15 +1,14 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import { Container, Title } from '../../../lib/main-view-layout';
 import { WindowIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
+import SplitPane from '../../../lib/split-pane';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
 import { useWindowActions } from '../common/window-actions';
@@ -20,26 +19,10 @@ import Toolbox from './toolbox';
 import { SnapContextProvider } from './snap';
 
 const useStyles = makeStyles((theme) => ({
-  wrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-
-    display: 'flex',
-    flexDirection: 'row',
-  },
   titleActions: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  canvas: {
-    flex: 1,
-  },
-  toolbox: {
-    width: 300,
   },
 }));
 
@@ -89,11 +72,10 @@ const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
     >
       <SnapContextProvider>
         <WindowStateProvider id={id}>
-          <div className={classes.wrapper}>
-            <CanvasWindow className={classes.canvas} />
-            <Divider orientation="vertical" />
-            <Toolbox className={classes.toolbox} />
-          </div>
+          <SplitPane split="vertical" defaultSize={300} minSize={300} primary="second">
+            <CanvasWindow />
+            <Toolbox />
+          </SplitPane>
         </WindowStateProvider>
       </SnapContextProvider>
     </Container>
