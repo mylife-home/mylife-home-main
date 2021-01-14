@@ -1,12 +1,18 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import { Container, Title } from '../../../lib/main-view-layout';
 import { WindowIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { useResetSelectionIfNull } from '../../selection';
+import { useWindowActions } from '../common/window-actions';
 import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './window-state';
 import CanvasWindow from './canvas-window';
@@ -24,6 +30,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
   },
+  titleActions: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   canvas: {
     flex: 1,
   },
@@ -33,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Window: FunctionComponent<{ id: string }> = ({ id }) => {
-  const classes = useStyles();
   const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
 
   // handle window that becomes null (after deletion)
@@ -43,16 +53,37 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
     return null;
   }
 
-  const onDelete = () => {
-    console.log('TODO: delete');
-  };
+  return <NotNullWindow id={id} />;
+};
+
+export default Window;
+
+const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
+  const { onDuplicate, onRename, onRemove } = useWindowActions(id);
 
   return (
     <Container
       title={
         <>
           <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
-          <DeleteButton icon tooltip="Supprimer la fenêtre" onConfirmed={onDelete} />
+
+          <div className={classes.titleActions}>
+            <Tooltip title="Dupliquer la fenêtre">
+              <IconButton onClick={onDuplicate}>
+                <FileCopyIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Renommer la fenêtre">
+              <IconButton onClick={onRename}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+
+            <DeleteButton icon tooltip="Supprimer la fenêtre" onConfirmed={onRemove} />
+          </div>
         </>
       }
     >
@@ -68,5 +99,3 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
     </Container>
   );
 };
-
-export default Window;
