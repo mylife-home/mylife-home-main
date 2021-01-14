@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
   wrapper: {
     position: 'absolute',
     left: 0,
-    right: 0,
+    width: 450,
     top: 0,
     bottom: 0,
 

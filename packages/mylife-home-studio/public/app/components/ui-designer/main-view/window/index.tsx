@@ -72,7 +72,7 @@ const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
     >
       <SnapContextProvider>
         <WindowStateProvider id={id}>
-          <SplitPane split="vertical" defaultSize={300} minSize={300} primary="second">
+          <SplitPane split="vertical" defaultSize={450} minSize={300} primary="second">
             <CanvasWindow />
             <Toolbox />
           </SplitPane>

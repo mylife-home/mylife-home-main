@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   itemTitle: {
-    width: 100,
+    width: 200,
   }
 }));
 
@@ -30,7 +30,7 @@ export const Group: FunctionComponent<{ title: string }> = ({ title, children })
   );
 };
 
-export const Item: FunctionComponent<{ title: string }> = ({title, children }) => {
+export const Item: FunctionComponent<{ title: string }> = ({ title, children }) => {
   const classes = useStyles();
 
   return (
@@ -43,6 +43,6 @@ export const Item: FunctionComponent<{ title: string }> = ({title, children }) =
 
 export const useComponentStyles = makeStyles((theme) => ({
   component: {
-    width: 300,
+    width: '100%',
   },
 }));
