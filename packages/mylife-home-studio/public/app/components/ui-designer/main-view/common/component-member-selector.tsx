@@ -3,7 +3,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
-import { MemberType } from '../../../../../../shared/component-model';
+import { Member, MemberType } from '../../../../../../shared/component-model';
 import { makeGetComponentsAndPlugins } from '../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useComponentStyles } from './properties-layout';
@@ -20,13 +20,14 @@ interface Option extends ComponentAndMember {
 export interface ComponentMemberSelectorProps {
   nullable?: boolean;
   memberType: MemberType;
+  filter?: (name: string, member: Member) => boolean;
   value: ComponentAndMember;
   onChange: (value: ComponentAndMember) => void;
 }
 
-const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> = ({ nullable = false, memberType, value, onChange }) => {
+const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> = ({ nullable = false, memberType, filter = defaultFilter, value, onChange }) => {
   const classes = useComponentStyles();
-  const options = useOptions(memberType);
+  const options = useOptions(memberType, filter);
 
   return (
     <Autocomplete
@@ -54,7 +55,11 @@ const OptionDisplay: FunctionComponent<{ option: Option }> = ({ option }) => (
   </>
 );
 
-function useOptions(memberType: MemberType) {
+function defaultFilter() {
+  return true;
+}
+
+function useOptions(memberType: MemberType, filter: (name: string, member: Member) => boolean) {
   const getComponentsAndPlugins = useMemo(() => makeGetComponentsAndPlugins(), []);
   const componentsAndPlugins = useTabSelector(getComponentsAndPlugins);
 
@@ -63,7 +68,7 @@ function useOptions(memberType: MemberType) {
 
     for (const { component, plugin } of componentsAndPlugins) {
       for (const [name, member] of Object.entries(plugin.members)) {
-        if (member.memberType === memberType) {
+        if (member.memberType === memberType && filter(name, member)) {
           list.push({ component: component.id, member: name, type: member.valueType });
         }
       }
@@ -71,7 +76,7 @@ function useOptions(memberType: MemberType) {
 
     return list;
 
-  }, [componentsAndPlugins, memberType]);
+  }, [componentsAndPlugins, memberType, filter]);
 }
 
 function getOptionSelected(option: Option, value: ComponentAndMember) {

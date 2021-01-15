@@ -1,4 +1,4 @@
-import { ControlDisplay, ControlText } from '../../../../../../shared/ui-model';
+import { Action, ControlDisplay, ControlText } from '../../../../../../shared/ui-model';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { clone } from '../../../lib/clone';
 
@@ -37,6 +37,22 @@ const CONTROL_TEMPLATE: UiControl = {
   secondaryAction: null,
 };
 
+const CONTROL_ACTION_COMPONENT: Action = {
+  component: {
+    id: null,
+    action: null,
+  },
+  window: null,
+};
+
+const CONTROL_ACTION_WINDOW: Action = {
+  component: null,
+  window: {
+    id: null,
+    popup: false,
+  },
+};
+
 /**
  * Note: window will miss id
  */
@@ -57,4 +73,12 @@ export function createNewControlDisplay() {
 
 export function createNewControlText() {
   return clone(CONTROL_TEXT_TEMPLATE);
+}
+
+export function createNewControlActionComponent() {
+  return clone(CONTROL_ACTION_COMPONENT);
+}
+
+export function createNewControlActionWindow() {
+  return clone(CONTROL_ACTION_WINDOW);
 }
