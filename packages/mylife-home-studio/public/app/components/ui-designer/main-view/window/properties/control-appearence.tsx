@@ -10,10 +10,12 @@ import { UiControl } from '../../../../../store/ui-designer/types';
 import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../../shared/component-model';
 import DeleteButton from '../../../../lib/delete-button';
+import { clone } from '../../../../lib/clone';
 import { Group, Item } from '../../common/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
 import ComponentMemberSelector from '../../common/component-member-selector';
 import { createNewControlDisplay, createNewControlText } from '../../common/templates';
+import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
 
 const useStyles = makeStyles((theme) => ({
@@ -85,17 +87,15 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
 const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void }> = ({ display, update }) => {
   const classes = useStyles();
 
-  const onNewMapping = () => {
-    // TODO: min/max depends on state type
-    const newItem: ControlDisplayMapItem = {
-      min: null,
-      max: null,
-      value: null,
-      resource: null,
-    };
-
-    update({ map: [...display.map, newItem] });
+  // TODO: min/max depends on state type
+  const newItemTemplate: ControlDisplayMapItem = {
+    min: null,
+    max: null,
+    value: null,
+    resource: null,
   };
+
+  const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', newItemTemplate);
 
   return (
     <>
@@ -110,7 +110,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
         />
       </Item>
       <Item title={'Associations'}>
-        <IconButton className={classes.newButton} onClick={onNewMapping}>
+        <IconButton className={classes.newButton} onClick={onNew}>
           <AddIcon />
         </IconButton>
       </Item>
@@ -118,8 +118,8 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
       {display.map.map((item, index) => (
         <Item key={index}>
           <span>TODO value/range editors</span>
-          <ResourceSelector value={item.resource} onChange={() => console.log('TODO')} />
-          <DeleteButton icon tooltip="Supprimer" onConfirmed={() => console.log('TODO')} />
+          <ResourceSelector value={item.resource} onChange={value => onUpdate(index, { resource: value })} />
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={() => onRemove(index)} />
         </Item>
       ))}
 
@@ -127,16 +127,68 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
   );
 };
 
-/*
-// TODO: add constraint for type Object[key] === Array<Item>
-function useArrayManager<Object>(value: Object, update: (props: Partial<Object>) => void, key: keyof Object) {
-  const onNew = () => {};
-  const onRemove = (index: number) => {};
-  const onUpdate = (index: number, props: Partial<Item>) => {};
+const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
+  const classes = useStyles();
+
+  const newItemTemplate: ControlTextContextItem = {
+    id: null,
+    componentId: null,
+    componentState: null,
+  };
+
+  const { onNew, onRemove, onUpdate } = useArrayManager(text, update, 'context', newItemTemplate);
+
+  return (
+    <>
+      {/* TODO: code editor */}
+      {/* TODO: tooltip */}
+      <Item title={'Format'}>
+        <StringEditor value={text.format} onChange={value => update({ format: value })} />
+      </Item>
+
+      <Item title={'Contexte'}>
+        <IconButton className={classes.newButton} onClick={onNew}>
+          <AddIcon />
+        </IconButton>
+      </Item>
+
+      {text.context.map((item, index) => (
+        <Item key={index}>
+          <StringEditor value={item.id} onChange={value => onUpdate(index, { id: value })} />
+          <ComponentMemberSelector
+            memberType={MemberType.STATE}
+            value={{ component: item.componentId, member: item.componentState }}
+            onChange={(value) => onUpdate(index, { componentId: value.component, componentState: value.member })}
+          />
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={() => onRemove(index)} />
+        </Item>
+      ))}
+    </>
+  );
+};
+
+// https://stackoverflow.com/questions/41687152/is-it-possible-to-constrain-a-generic-type-to-be-a-subset-of-keyof-in-typescript
+function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key extends keyof Object>(object: Object, update: (props: Partial<Object>) => void, key: Key & keyof Object, newItemTemplate: Item) {
+  const array = object[key];
+  const updateArray = (newArray: Item[]) => {
+    update({ [key]: newArray } as any); // should do better :(
+  }
+
+  const onNew = () => {
+    updateArray([...array, clone(newItemTemplate)]);
+  };
+
+  const onRemove = (index: number) => {
+    const newArray = [...array];
+    newArray.splice(index, 1);
+    updateArray(newArray);
+  };
+
+  const onUpdate = (index: number, props: Partial<Item>) => {
+    const newArray = [...array];
+    newArray[index] = {...array[index], ...props};
+    updateArray(newArray);
+  };
+
   return { onNew, onRemove, onUpdate };
 }
-*/
-
-const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
-  return <>Text</>;
-};

@@ -12,8 +12,8 @@ const StringEditor: FunctionComponent<StringEditorProps> = ({ value, onChange })
   return (
     <TextField
       className={classes.component}
-      value={value}
-      onChange={e => onChange(e.target.value)}
+      value={value || ''}
+      onChange={e => onChange(e.target.value || null)}
     />
   );
 }

@@ -12,7 +12,7 @@ const ReadonlyStringEditor: FunctionComponent<ReadonlyStringEditorProps> = ({ va
     <TextField
       disabled
       className={classes.component}
-      value={value}
+      value={value || ''}
       onChange={() => {}}
     />
   );
