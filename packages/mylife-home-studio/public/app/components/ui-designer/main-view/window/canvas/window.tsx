@@ -3,11 +3,11 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useWindowState } from './window-state';
-import CanvasItem from './canvas-item';
-import CanvasControl from './canvas-control';
-import Image from '../common/image';
-import { useDroppable } from './canvas-dnd';
+import Image from '../../common/image';
+import { useWindowState } from '../window-state';
+import CanvasItem from './item';
+import CanvasControl from './control';
+import { useDroppable } from './dnd';
 
 const useStyles = makeStyles((theme) => ({
   container: {

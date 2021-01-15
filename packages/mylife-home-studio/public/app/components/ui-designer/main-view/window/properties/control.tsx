@@ -11,21 +11,21 @@ import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import AddIcon from '@material-ui/icons/Add';
 
-import { UiControl } from '../../../../store/ui-designer/types';
-import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem, Action, ActionComponent, ActionWindow } from '../../../../../../shared/ui-model';
-import { MemberType } from '../../../../../../shared/component-model';
-import DeleteButton from '../../../lib/delete-button';
-import { useFireAsync } from '../../../lib/use-error-handling';
-import { useInputDialog } from '../../../dialogs/input';
-import { Group, Item } from '../common/properties-layout';
-import SnappedIntegerEditor from '../common/snapped-integer-editor';
-import ResourceSelector from '../common/resource-selector';
-import WindowSelector from '../common/window-selector';
-import ReadonlyStringEditor from '../common/readonly-string-editor';
-import ComponentMemberSelector from '../common/component-member-selector';
-import { createNewControlDisplay, createNewControlText } from '../common/templates';
-import { useControlState, useWindowState } from './window-state';
-import { useSnapValue } from './snap';
+import { UiControl } from '../../../../../store/ui-designer/types';
+import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem, Action, ActionComponent, ActionWindow } from '../../../../../../../shared/ui-model';
+import { MemberType } from '../../../../../../../shared/component-model';
+import DeleteButton from '../../../../lib/delete-button';
+import { useFireAsync } from '../../../../lib/use-error-handling';
+import { useInputDialog } from '../../../../dialogs/input';
+import { Group, Item } from '../../common/properties-layout';
+import SnappedIntegerEditor from '../../common/snapped-integer-editor';
+import ResourceSelector from '../../common/resource-selector';
+import WindowSelector from '../../common/window-selector';
+import ReadonlyStringEditor from '../../common/readonly-string-editor';
+import ComponentMemberSelector from '../../common/component-member-selector';
+import { createNewControlDisplay, createNewControlText } from '../../common/templates';
+import { useControlState, useWindowState } from '../window-state';
+import { useSnapValue } from '../snap';
 
 const useStyles = makeStyles((theme) => ({
   actions: {

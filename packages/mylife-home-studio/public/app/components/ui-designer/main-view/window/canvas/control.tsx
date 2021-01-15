@@ -1,10 +1,10 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { TextIcon } from '../../../lib/icons';
-import { useControlState } from './window-state';
-import CanvasItem from './canvas-item';
-import Image from '../common/image';
+import { TextIcon } from '../../../../lib/icons';
+import Image from '../../common/image';
+import { useControlState } from '../window-state';
+import CanvasItem from './item';
 
 const useStyles = makeStyles((theme) => ({
   content: {

@@ -14,7 +14,7 @@ import { useResetSelectionIfNull } from '../../selection';
 import { useWindowActions } from '../common/window-actions';
 import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './window-state';
-import CanvasWindow from './canvas-window';
+import CanvasWindow from './canvas/window';
 import Toolbox from './toolbox';
 import { SnapContextProvider } from './snap';
 

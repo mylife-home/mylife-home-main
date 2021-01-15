@@ -8,10 +8,10 @@ import Typography from '@material-ui/core/Typography';
 
 import { ImageIcon } from '../../../lib/icons';
 import { useSelection, useCreateControl, SelectionType } from './window-state';
-import { useCreatable } from './canvas-dnd';
+import { useCreatable } from './canvas/dnd';
 import { useSnapEditor } from './snap';
-import PropertiesWindow from './properties-window';
-import PropertiesControl from './properties-control';
+import PropertiesWindow from './properties/window';
+import PropertiesControl from './properties/control';
 
 const useStyles = makeStyles((theme) => ({
   container: {

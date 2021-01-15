@@ -1,11 +1,11 @@
 import React, { FunctionComponent } from 'react';
 
-import { useWindowState } from './window-state';
-import { Group, Item } from '../common/properties-layout';
-import SnappedIntegerEditor from '../common/snapped-integer-editor';
-import ResourceSelector from '../common/resource-selector';
-import ReadonlyStringEditor from '../common/readonly-string-editor';
-import { useSnapValue } from './snap';
+import { Group, Item } from '../../common/properties-layout';
+import SnappedIntegerEditor from '../../common/snapped-integer-editor';
+import ResourceSelector from '../../common/resource-selector';
+import ReadonlyStringEditor from '../../common/readonly-string-editor';
+import { useWindowState } from '../window-state';
+import { useSnapValue } from '../snap';
 
 const PropertiesWindow: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const { window, update } = useWindowState();
