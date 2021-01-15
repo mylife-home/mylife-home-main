@@ -9,11 +9,10 @@ import AddIcon from '@material-ui/icons/Add';
 import CodeIcon from '@material-ui/icons/Code';
 
 import { UiControl } from '../../../../../store/ui-designer/types';
-import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../../shared/ui-model';
+import { ControlDisplay, ControlText } from '../../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../../shared/component-model';
 import { getComponentMemberValueType } from '../../../../../store/ui-designer/selectors';
 import DeleteButton from '../../../../lib/delete-button';
-import { clone } from '../../../../lib/clone';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import { Group, Item } from '../../common/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
@@ -21,6 +20,7 @@ import ComponentMemberSelector, { ComponentAndMember } from '../../common/compon
 import { createNewControlDisplay, createNewControlDisplayMapItem, createNewControlText, createNewControlTextContextItem } from '../../common/templates';
 import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
+import TypeEditor from './type-editor';
 
 type Mutable<T> = { -readonly[P in keyof T]: T[P]};
 
@@ -141,7 +141,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
 
       {display.map.map((item, index) => (
         <Item key={index}>
-          <span>TODO value/range editors</span>
+          <TypeEditor valueType={memberValueType} item={item} onChange={(props) => onUpdate(index, props)} />
           <Spacer />
           <ResourceSelector value={item.resource} onChange={(value) => onUpdate(index, { resource: value })} />
           <DeleteButton icon tooltip="Supprimer" onConfirmed={() => onRemove(index)} />
