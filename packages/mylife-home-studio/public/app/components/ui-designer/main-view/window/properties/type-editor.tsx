@@ -1,5 +1,7 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import Box from '@material-ui/core/Box';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../common/properties-layout';
@@ -53,9 +55,14 @@ function useType(value: string) {
   return useMemo(() => (value ? parseType(value) : null), [value]);
 }
 
-const Unhandled: FunctionComponent<{ reason: string }> = ({ reason }) => (
-  <Box fontStyle="italic">({reason})</Box>
-);
+const Unhandled: FunctionComponent<{ reason: string }> = ({ reason }) => {
+  const classes = useComponentStyles();
+  return (
+    <Box fontStyle="italic" className={classes.component}>
+      ({reason})
+    </Box>
+  );
+};
 
 const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> = ({ item, onChange }) => {
   const classes = useComponentStyles();
@@ -74,7 +81,14 @@ const FloatEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
 
 const BoolEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
   const classes = useComponentStyles();
-  return <>BoolEditor</>;
+  return (
+    <FormControlLabel
+      className={classes.component}
+      label="Valeur"
+      labelPlacement="start"
+      control={<Checkbox color="primary" checked={(item.value as boolean) || false} onChange={(e) => onChange({ value: e.target.checked })} />}
+    />
+  );
 };
 
 const EnumEditor: FunctionComponent<ItemProps & { options: string[] }> = ({ options, item, onChange }) => {
