@@ -1,12 +1,32 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../common/properties-layout';
 import StringEditor from '../../common/string-editor';
 import { parseType, Range, Enum } from './member-types';
+
+const useStyles = makeStyles((theme) => ({
+  floatEditorContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    '& > *': {
+      flex: 1,
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+    }
+  },
+}), { name: 'properties-type-editor' });
+
 
 interface ItemProps {
   item: ControlDisplayMapItem;
@@ -67,7 +87,7 @@ const Unhandled: FunctionComponent<{ reason: string }> = ({ reason }) => {
 
 const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> = ({ item, onChange }) => {
   const classes = useComponentStyles();
-  return <>RangeEditor</>;
+  return <>TODO RangeEditor</>;
 };
 
 const TextEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
@@ -75,9 +95,24 @@ const TextEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
 };
 
 const FloatEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
-  const classes = useComponentStyles();
-  return <>FloatEditor</>;
+  const componentClasses = useComponentStyles();
+  const classes = useStyles();
+  return (
+    <div className={clsx(componentClasses.component, classes.floatEditorContainer)}>
+      <TextField label="min" value={format(item.min)} onChange={(e) => onChange({ min: parse(e.target.value) })} type="number" />
+      <TextField label="max" value={format(item.max)} onChange={(e) => onChange({ max: parse(e.target.value) })} type="number" />
+    </div>
+  );
 };
+
+function format(value: number) {
+  return value === null ? '' : value.toString(10);
+}
+
+function parse(value: string) {
+  const number = parseFloat(value);
+  return isNaN(number) ? null : number;
+}
 
 const BoolEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
   const classes = useComponentStyles();
@@ -93,5 +128,11 @@ const BoolEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
 
 const EnumEditor: FunctionComponent<ItemProps & { options: string[] }> = ({ options, item, onChange }) => {
   const classes = useComponentStyles();
-  return <>EnumEditor</>;
+  return (
+    <Select className={classes.component} value={item.value as string} onChange={e => onChange({ value: e.target.value as string })}>
+      {options.map(option => (
+        <MenuItem key={option} value={option}>{option}</MenuItem>
+      ))}
+    </Select>
+  );
 };
