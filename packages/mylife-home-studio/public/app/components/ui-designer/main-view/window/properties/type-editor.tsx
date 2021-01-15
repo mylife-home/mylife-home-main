@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import Box from '@material-ui/core/Box';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../common/properties-layout';
@@ -17,7 +18,7 @@ const TypeEditor: FunctionComponent<TypeEditorProps> = ({ valueType, ...itemProp
   const type = useType(valueType);
 
   if (!type) {
-    return <>Sélectionner un composant</>;
+    return <Unhandled reason="Sélectionner un composant" />;
   }
 
   switch (type.name) {
@@ -42,7 +43,7 @@ const TypeEditor: FunctionComponent<TypeEditorProps> = ({ valueType, ...itemProp
 
     //case 'complex':
     default:
-      return <>Non supporté : {type.name}</>;
+      return <Unhandled reason={`Non supporté : ${type.name}`} />;
   }
 };
 
@@ -51,6 +52,10 @@ export default TypeEditor;
 function useType(value: string) {
   return useMemo(() => (value ? parseType(value) : null), [value]);
 }
+
+const Unhandled: FunctionComponent<{ reason: string }> = ({ reason }) => (
+  <Box fontStyle="italic">({reason})</Box>
+);
 
 const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> = ({ item, onChange }) => {
   const classes = useComponentStyles();
