@@ -1,4 +1,4 @@
-import { Action, ControlDisplay, ControlText } from '../../../../../../shared/ui-model';
+import { Action, ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../shared/ui-model';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { clone } from '../../../lib/clone';
 
@@ -37,7 +37,20 @@ const CONTROL_TEMPLATE: UiControl = {
   secondaryAction: null,
 };
 
-const CONTROL_ACTION_COMPONENT: Action = {
+const CONTROL_DISPLAY_MAP_ITEM_TEMPLATE: ControlDisplayMapItem = {
+  min: null,
+  max: null,
+  value: null,
+  resource: null,
+};
+
+const CONTROL_TEXT_CONTEXT_ITEM_TEMPLATE: ControlTextContextItem = {
+  id: null,
+  componentId: null,
+  componentState: null,
+};
+
+const CONTROL_ACTION_COMPONENT_TEMPLATE: Action = {
   component: {
     id: null,
     action: null,
@@ -45,7 +58,7 @@ const CONTROL_ACTION_COMPONENT: Action = {
   window: null,
 };
 
-const CONTROL_ACTION_WINDOW: Action = {
+const CONTROL_ACTION_WINDOW_TEMPLATE: Action = {
   component: null,
   window: {
     id: null,
@@ -75,10 +88,18 @@ export function createNewControlText() {
   return clone(CONTROL_TEXT_TEMPLATE);
 }
 
+export function createNewControlDisplayMapItem() {
+  return clone(CONTROL_DISPLAY_MAP_ITEM_TEMPLATE);
+}
+
+export function createNewControlTextContextItem() {
+  return clone(CONTROL_TEXT_CONTEXT_ITEM_TEMPLATE);
+}
+
 export function createNewControlActionComponent() {
-  return clone(CONTROL_ACTION_COMPONENT);
+  return clone(CONTROL_ACTION_COMPONENT_TEMPLATE);
 }
 
 export function createNewControlActionWindow() {
-  return clone(CONTROL_ACTION_WINDOW);
+  return clone(CONTROL_ACTION_WINDOW_TEMPLATE);
 }

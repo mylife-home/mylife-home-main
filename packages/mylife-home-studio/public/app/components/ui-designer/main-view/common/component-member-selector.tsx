@@ -13,7 +13,7 @@ export interface ComponentAndMember {
   member: string;
 }
 
-interface Option extends ComponentAndMember {
+export interface Option extends ComponentAndMember {
   type: string;  
 }
 
@@ -22,7 +22,7 @@ export interface ComponentMemberSelectorProps {
   memberType: MemberType;
   filter?: (name: string, member: Member) => boolean;
   value: ComponentAndMember;
-  onChange: (value: ComponentAndMember) => void;
+  onChange: (value: ComponentAndMember, memberType: string) => void;
 }
 
 const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> = ({ nullable = false, memberType, filter = defaultFilter, value, onChange }) => {
@@ -39,8 +39,8 @@ const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> =
       getOptionSelected={getOptionSelected}
       renderInput={(params) => <TextField {...params} variant="outlined" />}
       value={trimInput(value)}
-      onChange={(event: any, newValue: ComponentAndMember) => {
-        onChange(formatOutput(newValue));
+      onChange={(event: any, newValue: Option) => {
+        onChange(formatOutput(newValue), newValue?.type);
       }}
     />
   );

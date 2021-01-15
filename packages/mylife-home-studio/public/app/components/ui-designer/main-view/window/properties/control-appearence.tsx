@@ -11,14 +11,18 @@ import CodeIcon from '@material-ui/icons/Code';
 import { UiControl } from '../../../../../store/ui-designer/types';
 import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../../shared/component-model';
+import { getComponentMemberValueType } from '../../../../../store/ui-designer/selectors';
 import DeleteButton from '../../../../lib/delete-button';
 import { clone } from '../../../../lib/clone';
+import { useTabSelector } from '../../../../lib/use-tab-selector';
 import { Group, Item } from '../../common/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
-import ComponentMemberSelector from '../../common/component-member-selector';
-import { createNewControlDisplay, createNewControlText } from '../../common/templates';
+import ComponentMemberSelector, { ComponentAndMember } from '../../common/component-member-selector';
+import { createNewControlDisplay, createNewControlDisplayMapItem, createNewControlText, createNewControlTextContextItem } from '../../common/templates';
 import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
+
+type Mutable<T> = { -readonly[P in keyof T]: T[P]};
 
 const useStyles = makeStyles(
   (theme) => ({
@@ -94,17 +98,24 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
 
 const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void }> = ({ display, update }) => {
   const classes = useStyles();
+  const memberValueType = useTabSelector((state, tabId) => getComponentMemberValueType(state, tabId, display.componentId, display.componentState));
+  const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', createNewControlDisplayMapItem);
 
-  // TODO: min/max depends on state type
-  // TODO: useEffect on state type, and reset values on change
-  const newItemTemplate: ControlDisplayMapItem = {
-    min: null,
-    max: null,
-    value: null,
-    resource: null,
+  const componentChange = (newValue: ComponentAndMember, newMemberValueType: string) => {
+    const props: Mutable<Partial<ControlDisplay>> = {
+      componentId: newValue.component,
+      componentState: newValue.member,
+    };
+
+    // if type has changed, we need to reset mappings values
+    if (memberValueType !== newMemberValueType) {
+      props.map = display.map.map(item => ({
+        ...item, min: null, max: null, value: null, 
+      }));
+    }
+
+    update(props);
   };
-
-  const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', newItemTemplate);
 
   return (
     <>
@@ -116,7 +127,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
         <ComponentMemberSelector
           memberType={MemberType.STATE}
           value={{ component: display.componentId, member: display.componentState }}
-          onChange={(value) => update({ componentId: value.component, componentState: value.member })}
+          onChange={componentChange}
         />
       </Item>
 
@@ -142,14 +153,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
 
 const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
   const classes = useStyles();
-
-  const newItemTemplate: ControlTextContextItem = {
-    id: null,
-    componentId: null,
-    componentState: null,
-  };
-
-  const { onNew, onRemove, onUpdate } = useArrayManager(text, update, 'context', newItemTemplate);
+  const { onNew, onRemove, onUpdate } = useArrayManager(text, update, 'context', createNewControlTextContextItem);
 
   return (
     <>
@@ -196,7 +200,7 @@ function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key exte
   object: Object,
   update: (props: Partial<Object>) => void,
   key: Key & keyof Object,
-  newItemTemplate: Item
+  newItemFactory: () => Item
 ) {
   const array = object[key];
   const updateArray = (newArray: Item[]) => {
@@ -204,7 +208,7 @@ function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key exte
   };
 
   const onNew = () => {
-    updateArray([...array, clone(newItemTemplate)]);
+    updateArray([...array, newItemFactory()]);
   };
 
   const onRemove = (index: number) => {

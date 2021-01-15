@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   control: {
     margin: theme.spacing(4),
+    color: theme.palette.success.main,
     cursor: 'copy',
   },
   snapEditor: {

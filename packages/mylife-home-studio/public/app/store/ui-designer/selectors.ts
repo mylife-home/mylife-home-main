@@ -43,6 +43,17 @@ export const getComponentAndPlugin = (state: AppState, tabId: string, id: string
   return { component, plugin };
 }
 
+export const getComponentMemberValueType = (state: AppState, tabId: string, componentId: string, memberName: string) => {
+  const project = getOpenedProject(state, tabId);
+  const component = project.components.byId[componentId];
+  if (!component) {
+    return;
+  }
+
+  const plugin = project.plugins.byId[component.plugin];
+  return plugin.members[memberName]?.valueType;
+}
+
 // components data does not change often in the project lifecycle
 function makeGetComponentsData() {
   return createSelector(
