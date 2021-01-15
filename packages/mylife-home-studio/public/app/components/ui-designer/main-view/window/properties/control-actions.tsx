@@ -20,13 +20,15 @@ type ActionType = 'primaryAction' | 'secondaryAction';
 const PropertiesControlActions: FunctionComponent<{ id: string }> = ({ id }) => {
   const { control, update } = useControlState(id);
   const [currentAction, setCurrentAction] = useState<ActionType>('primaryAction');
+  const isPrimary = !!control.primaryAction;
+  const isSecondary = !!control.secondaryAction;
 
   return (
     <Group title={'Actions'} collapse>
 
       <Tabs value={currentAction} onChange={(e, newValue) => setCurrentAction(newValue)} indicatorColor="primary" textColor="primary">
-        <Tab label="Primaire" value="primaryAction"/>
-        <Tab label="Secondaire" value="secondaryAction" />
+        <Tab label={'Primaire' + mark(isPrimary)} value="primaryAction"/>
+        <Tab label={'Secondaire' + mark(isSecondary)} value="secondaryAction" />
       </Tabs>
 
       <TabPanel value="primaryAction" currentValue={currentAction}>
@@ -41,6 +43,10 @@ const PropertiesControlActions: FunctionComponent<{ id: string }> = ({ id }) => 
 };
 
 export default PropertiesControlActions;
+
+function mark(value: boolean) {
+  return value ? ' *' : '';
+}
 
 const TabPanel: FunctionComponent<{ value: ActionType; currentValue: ActionType }> = ({ value, currentValue, children }) => (
   <div role="tabpanel" hidden={currentValue !== value}>
