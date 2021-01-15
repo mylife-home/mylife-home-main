@@ -5,6 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Slider, { Mark } from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
 import { ImageIcon } from '../../../lib/icons';
 import { useSelection, useCreateControl, SelectionType } from './window-state';
@@ -15,7 +16,12 @@ import PropertiesControl from './properties/control';
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    overflowY: 'auto',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
@@ -45,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     overflowY: 'auto',
   },
-}));
+}), { name: 'window-toolbox' });
 
 const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
@@ -54,6 +60,7 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
   return (
     <div className={clsx(classes.container, className)}>
       <Controls />
+      <Divider />
       {getProperties(type, id, classes.properties)}
     </div>
   );
