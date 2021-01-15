@@ -5,6 +5,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../common/properties-layout';
+import StringEditor from '../../common/string-editor';
 import { parseType, Range, Enum } from './member-types';
 
 interface ItemProps {
@@ -70,8 +71,7 @@ const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> =
 };
 
 const TextEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
-  const classes = useComponentStyles();
-  return <>TextEditor</>;
+  return <StringEditor value={item.value as string} onChange={value => onChange({ value })} />;
 };
 
 const FloatEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
