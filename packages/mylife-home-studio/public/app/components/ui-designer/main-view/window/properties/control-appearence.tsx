@@ -1,10 +1,12 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import AddIcon from '@material-ui/icons/Add';
+import CodeIcon from '@material-ui/icons/Code';
 
 import { UiControl } from '../../../../../store/ui-designer/types';
 import { ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../../shared/ui-model';
@@ -18,15 +20,21 @@ import { createNewControlDisplay, createNewControlText } from '../../common/temp
 import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
 
-const useStyles = makeStyles((theme) => ({
-  newButton: {
-    color: theme.palette.success.main,
-  },
-}), { name: 'properties-control-appearence' });
+const useStyles = makeStyles(
+  (theme) => ({
+    newButton: {
+      color: theme.palette.success.main,
+    },
+    spacer: {
+      marginLeft: theme.spacing(3),
+    },
+  }),
+  { name: 'properties-control-appearence' }
+);
 
 type Appearence = 'display' | 'text';
 
-const PropertiesControlAppearence: FunctionComponent<{ id: string; }> = ({ id }) => {
+const PropertiesControlAppearence: FunctionComponent<{ id: string }> = ({ id }) => {
   const { control, update } = useControlState(id);
 
   const appearence: Appearence = control.display ? 'display' : 'text';
@@ -88,6 +96,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
   const classes = useStyles();
 
   // TODO: min/max depends on state type
+  // TODO: useEffect on state type, and reset values on change
   const newItemTemplate: ControlDisplayMapItem = {
     min: null,
     max: null,
@@ -102,6 +111,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
       <Item title={'Par défaut'}>
         <ResourceSelector value={display.defaultResource} onChange={(value) => update({ defaultResource: value })} />
       </Item>
+
       <Item title={'Composant/État'}>
         <ComponentMemberSelector
           memberType={MemberType.STATE}
@@ -109,20 +119,23 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
           onChange={(value) => update({ componentId: value.component, componentState: value.member })}
         />
       </Item>
+
       <Item title={'Associations'}>
-        <IconButton className={classes.newButton} onClick={onNew}>
-          <AddIcon />
-        </IconButton>
+        <Tooltip title="Ajouter une association">
+          <IconButton className={classes.newButton} onClick={onNew}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </Item>
 
       {display.map.map((item, index) => (
         <Item key={index}>
           <span>TODO value/range editors</span>
-          <ResourceSelector value={item.resource} onChange={value => onUpdate(index, { resource: value })} />
+          <Spacer />
+          <ResourceSelector value={item.resource} onChange={(value) => onUpdate(index, { resource: value })} />
           <DeleteButton icon tooltip="Supprimer" onConfirmed={() => onRemove(index)} />
         </Item>
       ))}
-
     </>
   );
 };
@@ -140,21 +153,27 @@ const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (pro
 
   return (
     <>
-      {/* TODO: code editor */}
-      {/* TODO: tooltip */}
       <Item title={'Format'}>
-        <StringEditor value={text.format} onChange={value => update({ format: value })} />
+        <StringEditor value={text.format} onChange={(value) => update({ format: value })} />
+        <Tooltip title="Editer">
+          <IconButton onClick={() => console.log('TODO: code editor (display code mirror + pouvoir tester la sortie en fournissant des valeurs de context)')}>
+            <CodeIcon />
+          </IconButton>
+        </Tooltip>
       </Item>
 
       <Item title={'Contexte'}>
-        <IconButton className={classes.newButton} onClick={onNew}>
-          <AddIcon />
-        </IconButton>
+        <Tooltip title="Ajouter un élément de contexte">
+          <IconButton className={classes.newButton} onClick={onNew}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </Item>
 
       {text.context.map((item, index) => (
         <Item key={index}>
-          <StringEditor value={item.id} onChange={value => onUpdate(index, { id: value })} />
+          <StringEditor value={item.id} onChange={(value) => onUpdate(index, { id: value })} />
+          <Spacer />
           <ComponentMemberSelector
             memberType={MemberType.STATE}
             value={{ component: item.componentId, member: item.componentState }}
@@ -167,12 +186,22 @@ const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (pro
   );
 };
 
+const Spacer = () => {
+  const classes = useStyles();
+  return <div className={classes.spacer} />;
+};
+
 // https://stackoverflow.com/questions/41687152/is-it-possible-to-constrain-a-generic-type-to-be-a-subset-of-keyof-in-typescript
-function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key extends keyof Object>(object: Object, update: (props: Partial<Object>) => void, key: Key & keyof Object, newItemTemplate: Item) {
+function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key extends keyof Object>(
+  object: Object,
+  update: (props: Partial<Object>) => void,
+  key: Key & keyof Object,
+  newItemTemplate: Item
+) {
   const array = object[key];
   const updateArray = (newArray: Item[]) => {
     update({ [key]: newArray } as any); // should do better :(
-  }
+  };
 
   const onNew = () => {
     updateArray([...array, clone(newItemTemplate)]);
@@ -186,7 +215,7 @@ function useArrayManager<Item, Object extends { [key in Key]: Item[] }, Key exte
 
   const onUpdate = (index: number, props: Partial<Item>) => {
     const newArray = [...array];
-    newArray[index] = {...array[index], ...props};
+    newArray[index] = { ...array[index], ...props };
     updateArray(newArray);
   };
 
