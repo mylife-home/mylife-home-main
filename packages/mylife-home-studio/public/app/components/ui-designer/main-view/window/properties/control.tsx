@@ -110,7 +110,7 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
         </Item>
       </Group>
 
-      <Group title={'Apparence'}>
+      <Group title={'Apparence'} collapse>
         <RadioGroup value={appearence} onChange={(e) => setAppearence(e.target.value as Appearence)} row>
           <FormControlLabel value="display" control={<Radio color="primary" />} label="Image" />
           <FormControlLabel value="text" control={<Radio color="primary" />} label="Texte" />
@@ -119,7 +119,7 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
         {getAppearenceElement(appearence, control, update)}
       </Group>
 
-      <Group title={'Actions'}>
+      <Group title={'Actions'} collapse>
 
         <Tabs value={currentAction} onChange={(e, newValue) => setCurrentAction(newValue)} indicatorColor="primary" textColor="primary">
           <Tab label="Primaire" value="primaryAction"/>
