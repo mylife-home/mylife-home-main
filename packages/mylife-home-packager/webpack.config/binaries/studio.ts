@@ -7,4 +7,8 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
   },
 });
 
-export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-studio', 'studio');
+export const client = (context: Context) => prepareClientConfiguration(context, 'mylife-home-studio', 'studio', {
+  module: {
+    rules: [{ test: /\.css$/, use: ['style-loader', 'css-loader'] }],
+  },
+});

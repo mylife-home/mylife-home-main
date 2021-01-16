@@ -1,7 +1,4 @@
 import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/theme/neat.css';
-import 'codemirror/mode/xml/xml.js';
 import 'codemirror/mode/javascript/javascript.js';
 
 import React, { FunctionComponent } from 'react';
@@ -10,8 +7,8 @@ import { EditorConfiguration } from 'codemirror';
 
 const options: EditorConfiguration = {
   mode: 'javascript',
-  theme: 'xq-light',
-  lineNumbers: true
+  theme: 'default',
+  lineNumbers: true,
 }
 
 const CodeEditor: FunctionComponent<{ value: string; onChange: (newValue: string) => void; }> = ({ value, onChange }) => {

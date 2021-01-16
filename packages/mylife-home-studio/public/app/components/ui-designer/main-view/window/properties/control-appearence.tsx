@@ -14,6 +14,7 @@ import { MemberType } from '../../../../../../../shared/component-model';
 import { getComponentMemberValueType } from '../../../../../store/ui-designer/selectors';
 import DeleteButton from '../../../../lib/delete-button';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
+import { useFireAsync } from '../../../../lib/use-error-handling';
 import { Group, Item } from '../../common/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
 import ComponentMemberSelector, { ComponentAndMember } from '../../common/component-member-selector';
@@ -21,6 +22,7 @@ import { createNewControlDisplay, createNewControlDisplayMapItem, createNewContr
 import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
 import TypeEditor from './type-editor';
+import { useFormatEditorDialog } from './control-text-format-editor-dialog';
 
 type Mutable<T> = { -readonly[P in keyof T]: T[P]};
 
@@ -154,13 +156,23 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
 const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
   const classes = useStyles();
   const { onNew, onRemove, onUpdate } = useArrayManager(text, update, 'context', createNewControlTextContextItem);
+  const fireAsync = useFireAsync();
+  const showFormatEditorDialog = useFormatEditorDialog();
+
+  const onEdit = () =>
+    fireAsync(async () => {
+      const { status, format } = await showFormatEditorDialog(text);
+      if (status === 'ok') {
+        update({ format });
+      }
+    });
 
   return (
     <>
       <Item title={'Format'}>
         <StringEditor value={text.format} onChange={(value) => update({ format: value })} rows={3} />
         <Tooltip title="Editer">
-          <IconButton onClick={() => console.log('TODO: code editor (display code mirror + pouvoir tester la sortie en fournissant des valeurs de context)')}>
+          <IconButton onClick={onEdit}>
             <CodeIcon />
           </IconButton>
         </Tooltip>
