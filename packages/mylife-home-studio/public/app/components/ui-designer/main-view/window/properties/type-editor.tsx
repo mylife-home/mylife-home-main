@@ -7,6 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Slider from '@material-ui/core/Slider';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../common/properties-layout';
@@ -85,9 +86,21 @@ const Unhandled: FunctionComponent<{ reason: string }> = ({ reason }) => {
   );
 };
 
-const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> = ({ item, onChange }) => {
-  const classes = useComponentStyles();
-  return <>TODO RangeEditor</>;
+const RangeEditor: FunctionComponent<ItemProps & { min: number; max: number }> = ({ item, onChange, min, max }) => {
+  const componentClasses = useComponentStyles();
+  const classes = useStyles();
+  const onSliderChange = (event: React.ChangeEvent, newValue: number[]) => {
+    const [min, max] = newValue;
+    onChange({ min, max });
+  };
+
+  return (
+    <div className={clsx(componentClasses.component, classes.floatEditorContainer)}>
+      <TextField label="min" value={format(item.min)} onChange={(e) => onChange({ min: parse(e.target.value, 'int') })} type="number" inputProps={{ min, max }} />
+      <TextField label="max" value={format(item.max)} onChange={(e) => onChange({ max: parse(e.target.value, 'int') })} type="number" inputProps={{ min, max }} />
+      <Slider min={min} max={max} value={[item.min, item.max]} onChange={onSliderChange} />
+    </div>
+  );
 };
 
 const TextEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
@@ -99,20 +112,11 @@ const FloatEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
   const classes = useStyles();
   return (
     <div className={clsx(componentClasses.component, classes.floatEditorContainer)}>
-      <TextField label="min" value={format(item.min)} onChange={(e) => onChange({ min: parse(e.target.value) })} type="number" />
-      <TextField label="max" value={format(item.max)} onChange={(e) => onChange({ max: parse(e.target.value) })} type="number" />
+      <TextField label="min" value={format(item.min)} onChange={(e) => onChange({ min: parse(e.target.value, 'float') })} type="number" />
+      <TextField label="max" value={format(item.max)} onChange={(e) => onChange({ max: parse(e.target.value, 'float') })} type="number" />
     </div>
   );
 };
-
-function format(value: number) {
-  return value === null ? '' : value.toString(10);
-}
-
-function parse(value: string) {
-  const number = parseFloat(value);
-  return isNaN(number) ? null : number;
-}
 
 const BoolEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
   const classes = useComponentStyles();
@@ -136,3 +140,12 @@ const EnumEditor: FunctionComponent<ItemProps & { options: string[] }> = ({ opti
     </Select>
   );
 };
+
+function format(value: number) {
+  return value === null ? '' : value.toString(10);
+}
+
+function parse(value: string, type: 'float' | 'int') {
+  const number = type === 'float' ? parseFloat(value) : parseInt(value, 10);
+  return isNaN(number) ? null : number;
+}
