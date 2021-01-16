@@ -2,7 +2,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/javascript/javascript.js';
 
 import React, { FunctionComponent } from 'react';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import { Controlled as CodeMirror } from 'react-codemirror2';
 import { EditorConfiguration } from 'codemirror';
 
 const options: EditorConfiguration = {
@@ -13,7 +13,7 @@ const options: EditorConfiguration = {
 
 const CodeEditor: FunctionComponent<{ value: string; onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
   return (
-    <CodeMirror options={options} value={value} onChange={(editor, data, value) => onChange(value)} />
+    <CodeMirror options={options} value={value} onBeforeChange={(editor, data, value) => onChange(value)} />
   );
 };
 
