@@ -158,7 +158,7 @@ const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (pro
   return (
     <>
       <Item title={'Format'}>
-        <StringEditor value={text.format} onChange={(value) => update({ format: value })} />
+        <StringEditor value={text.format} onChange={(value) => update({ format: value })} rows={3} />
         <Tooltip title="Editer">
           <IconButton onClick={() => console.log('TODO: code editor (display code mirror + pouvoir tester la sortie en fournissant des valeurs de context)')}>
             <CodeIcon />
