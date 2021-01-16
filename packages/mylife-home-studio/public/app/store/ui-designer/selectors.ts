@@ -63,9 +63,9 @@ function makeGetComponentsData() {
 }
 
 export function makeGetComponentsAndPlugins() {
-  const getCompnentsData = makeGetComponentsData();
+  const getComponentsData = makeGetComponentsData();
   return createSelector(
-    getCompnentsData,
+    getComponentsData,
     ({ components, plugins }) => components.allIds.map(id => {
       const component = components.byId[id];
       const plugin = plugins.byId[component.plugin];
