@@ -22,16 +22,21 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
   return (
     <>
       {compileError && (
-        <Typography color="error">Erreur de compilation : {compileError.message}</Typography>
+        <Typography variant="h6" color="error">Erreur de compilation : {compileError.message}</Typography>
       )}
       {runtimeError && (
-        <Typography color="error">Erreur d'exécution : {runtimeError.message}</Typography>
+        <Typography variant="h6" color="error">Erreur d'exécution : {runtimeError.message}</Typography>
       )}
       {!compileError && !runtimeError && (
-        <Typography>Sortie : {result}</Typography>
+        <Typography variant="h6">Sortie : "{result}"</Typography>
       )}
-      TODO: editeurs
-      {JSON.stringify(contextData)}
+
+      {contextData.map((item, index) => (
+        <div key={index}>
+          {item.id} ({item.componentId}.{item.componentState}) ({item.valueType})
+          <TestValueEditor value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
+        </div>
+      ))}
     </>
   );
 };
@@ -54,20 +59,23 @@ function useContextData(context: ControlTextContextItem[]) {
 }
 
 function useValues(context: ControlTextContextItem[]) {
-  const [values, setValues] = useState<Values>({});
+  const [values, setValues] = useState<Values>(valuesFromContext(context));
 
   useEffect(() => {
-    const newValues: Values = {};
-    for (const { id } of context) {
-      newValues[id] = null;
-    }
-
-    setValues(newValues);
+    setValues(valuesFromContext(context));
   }, [context]);
 
   const updateValue = useCallback((id: string, newValue: any) => setValues(values => ({ ...values, [id]: newValue })), [setValues]);
 
   return { values, updateValue };
+}
+
+function valuesFromContext(context: ControlTextContextItem[]) {
+  const values: Values = {};
+  for (const { id } of context) {
+    values[id] = null;
+  }
+  return values;
 }
 
 function useTest(format: string, context: ControlTextContextItem[], values: Values): TestResult {
