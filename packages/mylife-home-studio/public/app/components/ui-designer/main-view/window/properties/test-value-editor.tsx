@@ -49,8 +49,9 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
       return (
         <Checkbox
           color="primary"
+          indeterminate={value === null}
           checked={(value as boolean) || false}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={() => onChange(nextBoolValue(value))}
         />
       );
 
@@ -82,6 +83,17 @@ export default TestValueEditor;
 
 function useType(value: string) {
   return useMemo(() => (value ? parseType(value) : null), [value]);
+}
+
+function nextBoolValue(actualValue: boolean) {
+  switch (actualValue) {
+    case null:
+      return true;
+    case true:
+      return false;
+    case false:
+      return null;
+  }
 }
 
 function formatNumber(value: number) {
