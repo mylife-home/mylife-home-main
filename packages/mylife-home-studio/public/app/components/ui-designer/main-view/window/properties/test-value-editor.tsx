@@ -7,12 +7,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { parseType, Range, Enum } from './member-types';
 
 export interface TestValueEditorProps {
+  className?: string;
   valueType: string;
   value: any;
   onChange: (newValue: any) => void;
 }
 
-const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, value, onChange }) => {
+const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ className, valueType, value, onChange }) => {
   const type = useType(valueType);
 
   switch (type.name) {
@@ -20,6 +21,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
       const rangeType = type as Range;
       return (
         <TextField
+          className={className}
           value={formatNumber(value)}
           onChange={(e) => onChange(parseNumber(e.target.value, 'int'))}
           type="number"
@@ -31,6 +33,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
     case 'text':
       return (
         <TextField
+          className={className}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -39,6 +42,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
     case 'float':
       return (
         <TextField
+          className={className}
           value={formatNumber(value)}
           onChange={(e) => onChange(parseNumber(e.target.value, 'float'))}
           type="number"
@@ -48,6 +52,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
     case 'bool':
       return (
         <Checkbox
+          className={className}
           color="primary"
           indeterminate={value === null}
           checked={(value as boolean) || false}
@@ -58,7 +63,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
     case 'enum': {
       const enumType = type as Enum;
       return (
-        <Select value={value} onChange={e => onChange(e.target.value)}>
+        <Select className={className} value={value} onChange={e => onChange(e.target.value)}>
           {enumType.values.map(option => (
             <MenuItem key={option} value={option}>{option}</MenuItem>
           ))}
@@ -69,6 +74,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ valueType, v
     case 'complex':
       return (
         <TextField
+          className={className}
           value={formatComplex(value)}
           onChange={(e) => onChange(parseComplex(e.target.value))}
         />

@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState, useMemo, useEffect, useCallback } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
@@ -14,13 +15,31 @@ interface TestResult {
 
 type Values = { [id: string]: any; };
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    padding: theme.spacing(2),
+  },
+  value: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  valueId: {
+  },
+  valueDetail: {
+  },
+  valueEditor: {
+  }
+}), { name: 'window-test-panel'});
+
 const TestPanel: FunctionComponent<{ format: string; context: ControlTextContextItem[] }> = ({ format, context }) => {
+  const classes = useStyles();
   const contextData = useContextData(context);
   const { values, updateValue } = useValues(context);
   const { compileError, runtimeError, result } = useTest(format, context, values);
 
   return (
-    <>
+    <div className={classes.container}>
       {compileError && (
         <Typography variant="h6" color="error">Erreur de compilation : {compileError.message}</Typography>
       )}
@@ -32,12 +51,13 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
       )}
 
       {contextData.map((item, index) => (
-        <div key={index}>
-          {item.id} ({item.componentId}.{item.componentState}) ({item.valueType})
-          <TestValueEditor value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
+        <div key={index} className={classes.value}>
+          <Typography className={classes.valueId}>{item.id}</Typography>
+          <Typography className={classes.valueDetail} variant="caption">{`${item.componentId}.${item.componentState} - ${item.valueType}`}</Typography>
+          <TestValueEditor className={classes.valueEditor} value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
         </div>
       ))}
-    </>
+    </div>
   );
 };
 
