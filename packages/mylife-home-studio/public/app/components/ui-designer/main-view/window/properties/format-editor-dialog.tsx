@@ -9,6 +9,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 
 import { ControlText } from '../../../../../../../shared/ui-model';
+import SplitPane from '../../../../lib/split-pane';
 import { useTabPanelId, TabIdContext } from '../../../../lib/tab-panel';
 import CodeEditor from './code-editor';
 import TestPanel from './test-panel';
@@ -43,6 +44,10 @@ const useStyles = makeStyles((theme) => ({
   dialog: {
     height: 'calc(100% - 64px)', // same than fullWidth
   },
+  content: {
+    position: 'relative',
+    padding: 0,
+  }
 }), { name: 'properties-format-editor-dialog'});
 
 interface FormatDialogProps {
@@ -75,9 +80,11 @@ const FormatDialog: FunctionComponent<FormatDialogProps> = ({ open, hideModal, o
     <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} maxWidth="xl" fullWidth classes={{ paper: classes.dialog }}>
       <DialogTitle id="dialog-title">Format</DialogTitle>
     
-      <DialogContent dividers>
-        <TestPanel format={format} context={text.context} />
-        <CodeEditor value={format} onChange={setFormat} />
+      <DialogContent dividers classes={{ root: classes.content }}>
+        <SplitPane split="vertical" defaultSize={300} minSize={300}>
+          <TestPanel format={format} context={text.context} />
+          <CodeEditor value={format} onChange={setFormat} />
+        </SplitPane>
       </DialogContent>
     
       <DialogActions>

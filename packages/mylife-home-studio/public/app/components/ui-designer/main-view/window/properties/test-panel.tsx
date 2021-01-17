@@ -3,6 +3,7 @@ import React, { FunctionComponent, useState, useMemo, useEffect, useCallback } f
 import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
 import { makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
+import TestValueEditor from './test-value-editor';
 
 interface TestResult {
   result: string;
@@ -84,6 +85,11 @@ function useTest(format: string, context: ControlTextContextItem[], values: Valu
     const args = context.map(item => values[item.id]);
     try {
       const result = executor(args);
+
+      if (typeof result !== 'string') {
+        throw new Error(`Result type is not a string: '${result}'`);
+      }
+
       return { result, compileError: null, runtimeError: null } as TestResult;
     } catch (runtimeError) {
       return { result: null, compileError: null, runtimeError } as TestResult;
