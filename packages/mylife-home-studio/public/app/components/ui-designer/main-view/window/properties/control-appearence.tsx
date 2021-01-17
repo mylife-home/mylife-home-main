@@ -22,7 +22,7 @@ import { createNewControlDisplay, createNewControlDisplayMapItem, createNewContr
 import StringEditor from '../../common/string-editor';
 import { useControlState } from '../window-state';
 import TypeEditor from './type-editor';
-import { useFormatEditorDialog } from './control-text-format-editor-dialog';
+import { useFormatEditorDialog } from './format-editor-dialog';
 
 type Mutable<T> = { -readonly[P in keyof T]: T[P]};
 
