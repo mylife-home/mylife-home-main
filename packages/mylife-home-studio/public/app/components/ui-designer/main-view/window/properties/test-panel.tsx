@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState, useMemo, useEffect, useCallback } from 'react';
+import Typography from '@material-ui/core/Typography';
 
 import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
 import { makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
@@ -16,11 +17,20 @@ type Values = { [id: string]: any; };
 const TestPanel: FunctionComponent<{ format: string; context: ControlTextContextItem[] }> = ({ format, context }) => {
   const contextData = useContextData(context);
   const { values, updateValue } = useValues(context);
-  const testResult = useTest(format, context, values);
+  const { compileError, runtimeError, result } = useTest(format, context, values);
 
   return (
     <>
-      TODO: pouvoir tester la sortie en fournissant des valeurs de context
+      {compileError && (
+        <Typography color="error">Erreur de compilation : {compileError.message}</Typography>
+      )}
+      {runtimeError && (
+        <Typography color="error">Erreur d'exécution : {runtimeError.message}</Typography>
+      )}
+      {!compileError && !runtimeError && (
+        <Typography>Sortie : {result}</Typography>
+      )}
+      TODO: editeurs
       {JSON.stringify(contextData)}
     </>
   );
