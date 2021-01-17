@@ -80,7 +80,7 @@ function valuesFromContext(context: ControlTextContextItem[]) {
 
 function useTest(format: string, context: ControlTextContextItem[], values: Values): TestResult {
   interface CompileResult {
-    executor: (args: any[]) => string;
+    executor: (...args: any[]) => string;
     compileError: Error;
   }
 
@@ -88,7 +88,7 @@ function useTest(format: string, context: ControlTextContextItem[], values: Valu
     const argNames = context.map(item => item.id).join(',');
   
     try {
-      const executor = new Function(argNames, format) as (args: any[]) => string;
+      const executor = new Function(argNames, format) as (...args: any[]) => string;
       return { executor, compileError: null } as CompileResult;
     } catch (compileError) {
       return { executor: null, compileError } as CompileResult;
@@ -102,7 +102,7 @@ function useTest(format: string, context: ControlTextContextItem[], values: Valu
 
     const args = context.map(item => values[item.id]);
     try {
-      const result = executor(args);
+      const result = executor(...args);
 
       if (typeof result !== 'string') {
         throw new Error(`Result type is not a string: '${result}'`);
