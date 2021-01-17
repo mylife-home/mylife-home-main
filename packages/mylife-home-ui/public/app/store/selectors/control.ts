@@ -116,9 +116,9 @@ function createTextResolver(text: ControlText): (componentStates: ProvidedCompon
   }
 
   const argNames = text.context.map((item) => item.id).join(',');
-  let func: (args: string[]) => string;
+  let func: (args: any[]) => string;
   try {
-    func = new Function(argNames, text.format) as (args: string[]) => string;
+    func = new Function(argNames, text.format) as (args: any[]) => string;
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
     func = () => err.message;
