@@ -116,9 +116,9 @@ function createTextResolver(text: ControlText): (componentStates: ProvidedCompon
   }
 
   const argNames = text.context.map((item) => item.id).join(',');
-  let func: (args: any[]) => string;
+  let func: (...args: any[]) => string;
   try {
-    func = new Function(argNames, text.format) as (args: any[]) => string;
+    func = new Function(argNames, text.format) as (...args: any[]) => string;
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
     func = () => err.message;
@@ -128,7 +128,7 @@ function createTextResolver(text: ControlText): (componentStates: ProvidedCompon
     const args = text.context.map((item) => findComponentState(componentStates, item.componentId, item.componentState));
 
     try {
-      return func(args);
+      return func(...args);
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
       return err.message as string;
