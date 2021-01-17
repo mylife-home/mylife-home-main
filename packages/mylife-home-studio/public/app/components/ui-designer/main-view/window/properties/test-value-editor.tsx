@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
@@ -50,14 +51,18 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ className, v
       );
 
     case 'bool':
+      // avoid full width for checkbox
       return (
-        <Checkbox
-          className={className}
-          color="primary"
-          indeterminate={value === null}
-          checked={(value as boolean) || false}
-          onChange={() => onChange(nextBoolValue(value))}
-        />
+        <div className={className}>
+          <FormControl>
+            <Checkbox
+              color="primary"
+              indeterminate={value === null}
+              checked={(value as boolean) || false}
+              onChange={() => onChange(nextBoolValue(value))}
+            />
+          </FormControl>
+        </div>
       );
 
     case 'enum': {

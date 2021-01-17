@@ -20,16 +20,20 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   },
   value: {
+    marginTop: theme.spacing(4),
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
   valueId: {
-  },
-  valueDetail: {
+    width: 80,
   },
   valueEditor: {
-  }
+    flex: 1
+  },
+  valueDetail: {
+    marginLeft: theme.spacing(4),
+  },
 }), { name: 'window-test-panel'});
 
 const TestPanel: FunctionComponent<{ format: string; context: ControlTextContextItem[] }> = ({ format, context }) => {
@@ -51,11 +55,13 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
       )}
 
       {contextData.map((item, index) => (
-        <div key={index} className={classes.value}>
-          <Typography className={classes.valueId}>{item.id}</Typography>
+        <React.Fragment key={index} >
+          <div className={classes.value}>
+            <Typography className={classes.valueId}>{item.id}</Typography>
+            <TestValueEditor className={classes.valueEditor} value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
+          </div>
           <Typography className={classes.valueDetail} variant="caption">{`${item.componentId}.${item.componentState} - ${item.valueType}`}</Typography>
-          <TestValueEditor className={classes.valueEditor} value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
-        </div>
+        </React.Fragment>
       ))}
     </div>
   );
