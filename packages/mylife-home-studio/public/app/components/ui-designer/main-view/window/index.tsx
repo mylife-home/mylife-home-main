@@ -14,7 +14,7 @@ import { useResetSelectionIfNull } from '../../selection';
 import { useWindowActions } from '../common/window-actions';
 import DeleteButton from '../../../lib/delete-button';
 import { WindowStateProvider } from './window-state';
-import CanvasWindow from './canvas/window';
+import Canvas from './canvas';
 import Toolbox from './toolbox';
 import { SnapContextProvider } from './snap';
 
@@ -73,7 +73,7 @@ const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
       <SnapContextProvider>
         <WindowStateProvider id={id}>
           <SplitPane split="vertical" defaultSize={450} minSize={300} primary="second">
-            <CanvasWindow />
+            <Canvas />
             <Toolbox />
           </SplitPane>
         </WindowStateProvider>
