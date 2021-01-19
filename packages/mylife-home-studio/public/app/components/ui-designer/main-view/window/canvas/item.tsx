@@ -31,9 +31,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, size, onResize, position, onMove, selected, onSelect }) => {
-  const classes = useStyles();
-
-  const onClick = (e: { stopPropagation: () => void }) => {
+  const onMouseDown = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     onSelect();
   };
@@ -46,13 +44,13 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, s
 
   if(position) {
     return (
-      <MoveableItem className={className} onClick={onClick} position={position} onMove={onMove}>
+      <MoveableItem className={className} onMouseDown={onMouseDown} position={position} onMove={onMove}>
         {content}
       </MoveableItem>
     );
   } else {
     return (
-      <div className={className} onClick={onClick}>
+      <div className={className} onMouseDown={onMouseDown}>
         {content}
       </div>
     );
