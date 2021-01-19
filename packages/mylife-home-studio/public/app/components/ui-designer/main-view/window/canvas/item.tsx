@@ -87,16 +87,16 @@ const ResizableItem: FunctionComponent<ResizableItemProps> = ({ size, onResize, 
     const newSize = { ... size };
     switch (orientation) {
       case 'right':
-        newSize.width += delta.x;
+        newSize.width = Math.max(0, newSize.width + delta.x);
         break;
 
       case 'bottom':
-        newSize.height += delta.y;
+        newSize.height = Math.max(0, newSize.height + delta.y);
         break;
 
       case 'bottomRight':
-        newSize.width += delta.x;
-        newSize.height += delta.y;
+        newSize.width = Math.max(0, newSize.width + delta.x);
+        newSize.height = Math.max(0, newSize.height + delta.y);
         break;
     }
 
