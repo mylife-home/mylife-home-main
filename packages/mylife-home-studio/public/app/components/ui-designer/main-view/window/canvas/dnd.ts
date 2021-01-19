@@ -17,14 +17,17 @@ interface DragItem {
 }
 
 interface CreateDragItem extends DragItem {
+  type: typeof ItemTypes.CREATE;
   // no additional data
 }
 
 interface MoveDragItem extends DragItem {
+  type: typeof ItemTypes.MOVE;
   id: string; // control id being moved
 }
 
 interface ResizeDragItem extends DragItem {
+  type: typeof ItemTypes.RESIZE;
   id: string; // control id being resized, or null for window
   direction: 'right' | 'bottom' | 'bottomRight';
 }
