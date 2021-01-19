@@ -1,21 +1,11 @@
 import React, { FunctionComponent } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 
-import { TextIcon } from '../../../../lib/icons';
-import Image from '../../common/image';
 import { useControlState } from '../window-state';
 import CanvasItem from './item';
-
-const useStyles = makeStyles((theme) => ({
-  content: {
-    height: '100%',
-    width: '100%',
-  },
-}));
+import { CanvasControlView } from './view';
 
 const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
   const { control, update, selected, select } = useControlState(id);
-  const classes = useStyles();
 
   return (
     <CanvasItem
@@ -26,7 +16,7 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
       onMove={(position) => update(position)}
       onSelect={select}
     >
-      {control.text ? <TextIcon className={classes.content} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
+      <CanvasControlView id={id} />
     </CanvasItem>
   );
 };

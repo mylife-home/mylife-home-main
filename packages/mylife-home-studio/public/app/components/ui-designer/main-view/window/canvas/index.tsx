@@ -4,9 +4,10 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useWindowState } from '../window-state';
+import { useDroppable } from './dnd';
+import DragLayer from './drag-layer';
 import CanvasControl from './control';
 import CanvasWindow from './window';
-import { useDroppable } from './dnd';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -24,21 +25,25 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
   const drop = useDroppable();
 
   return (
-    <AutoSizer>
-      {({ height, width }) => (
-        <div style={{ height, width }} className={clsx(classes.container, className)} ref={drop}>
-          <div className={classes.wrapper}>
+    <>
+      <AutoSizer>
+        {({ height, width }) => (
+          <div style={{ height, width }} className={clsx(classes.container, className)} ref={drop}>
+            <div className={classes.wrapper}>
 
-            <CanvasWindow />
+              <CanvasWindow />
 
-            {window.controls.map(({ id }) => (
-              <CanvasControl key={id} id={id} />
-            ))}
+              {window.controls.map(({ id }) => (
+                <CanvasControl key={id} id={id} />
+              ))}
 
+            </div>
           </div>
-        </div>
-      )}
-    </AutoSizer>
+        )}
+      </AutoSizer>
+
+      <DragLayer />
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useDrop, useDrag, XYCoord } from 'react-dnd';
+import { useDrop, useDrag, useDragLayer, XYCoord } from 'react-dnd';
 
 export interface Position {
   x: number;
@@ -10,10 +10,23 @@ const ItemTypes = {
   CREATE: Symbol('dnd-canvas-create'),
   MOVE: Symbol('dnd-canvas-move'),
   RESIZE: Symbol('dnd-canvas-resize'),
-}
+};
 
 interface DragItem {
   type: symbol;
+}
+
+interface CreateDragItem extends DragItem {
+  // no additional data
+}
+
+interface MoveDragItem extends DragItem {
+  id: string; // control id being moved
+}
+
+interface ResizeDragItem extends DragItem {
+  id: string; // control id being resized, or null for window
+  direction: 'right' | 'bottom' | 'bottomRight';
 }
 
 export function useDroppable() {
@@ -23,18 +36,18 @@ export function useDroppable() {
     accept: [ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE],
     drop(item: DragItem, monitor) {
 
-      switch(item.type) {
+      switch (item.type) {
         case ItemTypes.CREATE: {
           // on create return cursor position
           const containerPosition = getContainerPosition(dropRef.current);
           const offset = monitor.getClientOffset();
-          return { 
+          return {
             x: Math.round(offset.x - containerPosition.x),
             y: Math.round(offset.y - containerPosition.y)
           } as Position;
         }
 
-        case ItemTypes.MOVE: 
+        case ItemTypes.MOVE:
         case ItemTypes.RESIZE: {
           // on move/resize return delta
           return monitor.getDifferenceFromInitialOffset();
@@ -101,4 +114,16 @@ export function useResizable(onResize: (delta: Position) => void) {
   });
 
   return { ref, delta };
+}
+
+const SUPPORTED_DRAG_TYPES = new Set([ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE]);
+
+export function useCanvasDragLayer() {
+  return useDragLayer((monitor) => ({
+    item: monitor.getItem(),
+    itemType: monitor.getItemType(),
+    initialOffset: monitor.getInitialSourceClientOffset(),
+    currentOffset: monitor.getSourceClientOffset(),
+    isDragging: monitor.isDragging() && SUPPORTED_DRAG_TYPES.has(monitor.getItemType() as symbol),
+  }));
 }
