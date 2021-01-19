@@ -28,15 +28,6 @@ const useStyles = makeStyles((theme) => ({
   resizable: {
     position: 'relative',
   },
-  wrapper: {
-    height: '100%',
-    width: '100%',
-    border: `1px solid ${theme.palette.divider}`,
-    position: 'relative',
-  },
-  selected: {
-    border: `1px solid ${theme.palette.primary.main}`,
-  },
 }));
 
 const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, size, onResize, position, onMove, selected, onSelect }) => {
@@ -49,9 +40,7 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, s
 
   const content = (
     <ResizableItem size={size} onResize={onResize}>
-      <div className={clsx(classes.wrapper, selected && classes.selected)}>
-        {children}
-      </div>
+      {children}
     </ResizableItem>
   );
 
