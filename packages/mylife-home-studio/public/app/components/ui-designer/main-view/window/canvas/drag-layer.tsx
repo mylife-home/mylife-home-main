@@ -1,5 +1,6 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 import { createNewControl } from '../../common/templates';
 import { useWindowState, useControlState } from '../window-state';
@@ -21,6 +22,11 @@ const useStyles = makeStyles((theme) => ({
   component: {
     position: 'absolute',
   },
+  label: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  }
 }));
 
 const DragLayer: FunctionComponent = () => {
@@ -82,12 +88,15 @@ function fixDelta(delta: Position, direction: ResizeDirection) {
 const WindowPreview: FunctionComponent<{ sizeDelta?: Position }> = ({ sizeDelta }) => {
   const classes = useStyles();
   const { window } = useWindowState();
+  const getContainerRect = useContainerRect();
 
   const size = computePreviewSize(window, sizeDelta);
+  const { left, top } = getContainerRect();
 
   return (
-    <div className={classes.component} style={{ width: size.width, height: size.height }}>
+    <div className={classes.component} style={{ left, top, width: size.width, height: size.height }}>
       <CanvasWindowView />
+      <PreviewLabel size={size} />
     </div>
   );
 };
@@ -108,6 +117,7 @@ const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position
   return (
     <div className={classes.component} style={{ left: position.x, top: position.y, width: size.width, height: size.height }}>
       <CanvasControlView id={id} />
+      <PreviewLabel position={currentPosition} size={sizeDelta ? size : null} />
     </div>
   );
 };
@@ -123,6 +133,7 @@ const CreateControlPreview: FunctionComponent<{ currentPosition: Position }> = (
   return (
     <div className={classes.component} style={{ left: currentPosition.x, top: currentPosition.y, width: size.width, height: size.height }}>
       <CanvasControlCreationView />
+      <PreviewLabel position={currentPosition} />
     </div>
   );
 };
@@ -138,4 +149,26 @@ function computePreviewSize<TModel extends Size>(model: TModel, sizeDelta: Posit
     height: Math.max(0, model.height + sizeDelta.y),
   };
   return size;
+}
+
+const PreviewLabel: FunctionComponent<{ size?: Size; position?: Position }> = ({ size, position }) => {
+  const classes = useStyles();
+  const text = computePreviewLabelText(size, position);
+  if (!text) {
+    return null;
+  }
+
+  return (
+    <Typography className={classes.label}>{text}</Typography>
+  );
+};
+
+function computePreviewLabelText(size: Size, position: Position) {
+  if(size) {
+    return `${size.width} x ${size.height}`;
+  }
+
+  if(position) {
+    return `x=${position.x}, y=${position.y}`;
+  }
 }
