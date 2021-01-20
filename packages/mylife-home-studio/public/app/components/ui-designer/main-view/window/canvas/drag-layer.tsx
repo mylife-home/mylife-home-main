@@ -18,8 +18,6 @@ const DragLayer: FunctionComponent = () => {
   const classes = useStyles();
   const { isDragging } = useCanvasDragLayer();
 
-  console.log('isDragging', isDragging)
-
   if (!isDragging) {
     return null;
   }
