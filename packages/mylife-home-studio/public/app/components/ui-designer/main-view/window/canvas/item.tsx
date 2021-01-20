@@ -2,12 +2,7 @@ import React, { FunctionComponent, forwardRef, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useMoveable, Position, useResizable, ResizeDirection } from './dnd';
-
-export interface Size {
-  width: number;
-  height: number;
-}
+import { Position, Size, ResizeDirection, useMoveable, useResizable } from './dnd';
 
 export interface CanvasItemProps {
   className?: string;

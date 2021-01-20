@@ -9,6 +9,7 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
 
   return (
     <CanvasItem
+      id={id}
       size={{ width: control.width, height: control.height }}
       position={{ x: control.x, y: control.y }}
       selected={selected}

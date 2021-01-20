@@ -7,6 +7,11 @@ export interface Position {
   y: number;
 }
 
+export interface Size {
+  width: number;
+  height: number;
+}
+
 export type ResizeDirection = 'right' | 'bottom' | 'bottomRight';
 
 const ItemTypes = {
@@ -15,21 +20,21 @@ const ItemTypes = {
   RESIZE: Symbol('dnd-canvas-resize'),
 };
 
-interface DragItem {
+export interface DragItem {
   type: symbol;
 }
 
-interface CreateDragItem extends DragItem {
+export interface CreateDragItem extends DragItem {
   type: typeof ItemTypes.CREATE;
   // no additional data
 }
 
-interface MoveDragItem extends DragItem {
+export interface MoveDragItem extends DragItem {
   type: typeof ItemTypes.MOVE;
   id: string; // control id being moved
 }
 
-interface ResizeDragItem extends DragItem {
+export interface ResizeDragItem extends DragItem {
   type: typeof ItemTypes.RESIZE;
   id: string; // control id being resized, or null for window
   direction: ResizeDirection;
@@ -128,7 +133,7 @@ export function useMoveable(id: string, position: Position, onMove: (newPosition
   });
 
   useEffect(() => {
-    preview(getEmptyImage());
+    preview(getEmptyImage(), { captureDraggingState: true });
   }, [preview]);
 
   return { ref, isMoving: isDragging };
@@ -157,10 +162,8 @@ const SUPPORTED_DRAG_TYPES = new Set([ItemTypes.CREATE, ItemTypes.MOVE, ItemType
 
 export function useCanvasDragLayer() {
   return useDragLayer((monitor) => ({
-    item: monitor.getItem(),
-    itemType: monitor.getItemType(),
-    initialOffset: monitor.getInitialSourceClientOffset(),
-    currentOffset: monitor.getSourceClientOffset(),
+    item: monitor.getItem() as DragItem,
+    currentOffset: monitor.getSourceClientOffset() as Position,
     isDragging: monitor.isDragging() && SUPPORTED_DRAG_TYPES.has(monitor.getItemType() as symbol),
   }));
 }
