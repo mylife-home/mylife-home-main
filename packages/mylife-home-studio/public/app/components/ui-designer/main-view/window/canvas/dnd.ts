@@ -34,11 +34,11 @@ interface CreateDropResult {
 }
 
 interface MoveDropResult {
-  delta: XYCoord;
+  delta: Position;
 }
 
 interface ResizeDropResult {
-  delta: XYCoord;
+  delta: Position;
 }
 
 export function useDroppable() {
