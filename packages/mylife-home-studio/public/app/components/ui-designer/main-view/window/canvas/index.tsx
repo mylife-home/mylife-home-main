@@ -1,9 +1,9 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent } from 'react';
 import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useWindowState } from '../window-state';
+import { useSelectableControlList } from '../window-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
-  const { window } = useWindowState();
+  const { controlsIds } = useSelectableControlList();
   const classes = useStyles();
   const drop = useDroppable();
 
@@ -34,7 +34,7 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
 
               <CanvasWindow />
 
-              {window.controls.map(({ id }) => (
+              {controlsIds.map(id => (
                 <CanvasControl key={id} id={id} />
               ))}
 
@@ -49,3 +49,6 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
 };
 
 export default Canvas;
+
+// TODO: snap to grid (create, move, resize)
+// TODO: control cannot go outside of window (create, move, resize) + handle that on window resize => compute position ratio, and move to find inside window. window cannot be smaller that larger of its control

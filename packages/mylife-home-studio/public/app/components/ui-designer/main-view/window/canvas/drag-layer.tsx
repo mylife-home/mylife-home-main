@@ -129,16 +129,21 @@ const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position
 
 const CreateControlPreview: FunctionComponent<{ currentPosition: Position }> = ({ currentPosition }) => {
   const classes = useStyles();
+  const getContainerRect = useContainerRect();
+
   const size = useMemo(() => {
     const { width, height } = createNewControl();
     const size: Size = { width, height };
     return size;
   }, []);
 
+  const { left, top } = getContainerRect();
+  const realPosition = { x: currentPosition.x - left, y: currentPosition.y - top };
+
   return (
     <div className={classes.component} style={{ left: currentPosition.x, top: currentPosition.y, width: size.width, height: size.height }}>
       <CanvasControlCreationView />
-      <PreviewLabel position={currentPosition} />
+      <PreviewLabel position={realPosition} />
     </div>
   );
 };
