@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,
+
+    padding: theme.spacing(1),
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.primary.main}`,
   }
 }));
 
@@ -169,6 +174,6 @@ function computePreviewLabelText(size: Size, position: Position) {
   }
 
   if(position) {
-    return `x=${position.x}, y=${position.y}`;
+    return `{${position.x}; ${position.y}}`;
   }
 }
