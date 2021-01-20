@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDrop, useDrag, useDragLayer, XYCoord } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 
 export interface Position {
   x: number;
@@ -32,6 +33,18 @@ interface ResizeDragItem extends DragItem {
   direction: 'right' | 'bottom' | 'bottomRight';
 }
 
+interface CreateDropResult {
+  position: Position;
+}
+
+interface MoveDropResult {
+  delta: XYCoord;
+}
+
+interface ResizeDropResult {
+  delta: XYCoord;
+}
+
 export function useDroppable() {
   const dropRef = useRef<HTMLDivElement>(null);
 
@@ -44,16 +57,25 @@ export function useDroppable() {
           // on create return cursor position
           const containerPosition = getContainerPosition(dropRef.current);
           const offset = monitor.getClientOffset();
-          return {
+          const position = {
             x: Math.round(offset.x - containerPosition.x),
             y: Math.round(offset.y - containerPosition.y)
-          } as Position;
+          };
+
+          const result: CreateDropResult = { position };
+          return result;
         }
 
-        case ItemTypes.MOVE:
+        case ItemTypes.MOVE: {
+          const delta = monitor.getDifferenceFromInitialOffset();
+          const result: MoveDropResult = { delta };
+          return result;
+        }
+
         case ItemTypes.RESIZE: {
-          // on move/resize return delta
-          return monitor.getDifferenceFromInitialOffset();
+          const delta = monitor.getDifferenceFromInitialOffset();
+          const result: ResizeDropResult = { delta };
+          return result;
         }
       }
     }
@@ -72,47 +94,60 @@ function getContainerPosition(element: HTMLElement) {
   return { x: rect.x - scrollLeft + CONTAINER_MARGIN, y: rect.y - scrollTop + CONTAINER_MARGIN };
 }
 
-export function useMoveable(position: Position, onMove: (newPosition: Position) => void) {
-  const [{ isDragging }, ref] = useDrag({
-    item: { type: ItemTypes.MOVE },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-    end(item: DragItem, monitor) {
-      if (monitor.didDrop()) {
-        const delta = monitor.getDropResult() as XYCoord;
-        onMove({ x: position.x + delta.x, y: position.y + delta.y });
-      }
-    }
-  });
-
-  return { ref, isMoving: isDragging };
-}
-
 export function useCreatable(onCreate: (position: Position) => void) {
   const [, ref] = useDrag({
     item: { type: ItemTypes.CREATE },
-    end(item: DragItem, monitor) {
-      if (monitor.didDrop()) {
-        onCreate(monitor.getDropResult());
+    end(item: CreateDragItem, monitor) {
+      if (!monitor.didDrop()) {
+        return;
       }
+
+      onCreate(monitor.getDropResult());
     }
   });
 
   return ref;
 }
 
+export function useMoveable(position: Position, onMove: (newPosition: Position) => void) {
+  const id: string = null; // TODO
+  const [{ isDragging }, ref, preview] = useDrag({
+    item: { type: ItemTypes.MOVE, id },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+    end(item: MoveDragItem, monitor) {
+      if (!monitor.didDrop()) {
+        return;
+      }
+
+      const result = monitor.getDropResult() as MoveDropResult;
+      onMove({ x: position.x + result.delta.x, y: position.y + result.delta.y });
+    }
+  });
+
+  useEffect(() => {
+    preview(getEmptyImage());
+  }, [preview]);
+
+  return { ref, isMoving: isDragging };
+}
+
 export function useResizable(onResize: (delta: Position) => void) {
+  const id: string = null; // TODO
+  const direction = 'bottomRight'; // TODO
   const [{ delta }, ref] = useDrag({
-    item: { type: ItemTypes.RESIZE },
+    item: { type: ItemTypes.RESIZE, id, direction },
     collect: (monitor) => ({
       delta: monitor.isDragging ? monitor.getDifferenceFromInitialOffset() : null,
     }),
-    end(item: DragItem, monitor) {
-      if (monitor.didDrop()) {
-        const delta = monitor.getDropResult() as XYCoord;
-        onResize(delta);
+    end(item: ResizeDragItem, monitor) {
+      if (!monitor.didDrop()) {
+        return;
       }
+
+      const result = monitor.getDropResult() as ResizeDropResult;
+      onResize(result.delta);
     }
   });
 
