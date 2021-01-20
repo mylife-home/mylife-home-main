@@ -50,5 +50,6 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
 
 export default Canvas;
 
+// TODO: cleanup: preview and drop should use same algo to compute new layout
 // TODO: snap to grid (create, move, resize)
 // TODO: control cannot go outside of window (create, move, resize) + handle that on window resize => compute position ratio, and move to find inside window. window cannot be smaller that larger of its control
