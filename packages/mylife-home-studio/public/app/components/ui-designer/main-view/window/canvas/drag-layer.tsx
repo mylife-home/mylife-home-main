@@ -164,7 +164,7 @@ const PreviewLabel: FunctionComponent<{ size?: Size; position?: Position }> = ({
   }
 
   return (
-    <Typography className={classes.label}>{text}</Typography>
+    <Typography className={classes.label} noWrap>{text}</Typography>
   );
 };
 
