@@ -7,6 +7,8 @@ export interface Position {
   y: number;
 }
 
+export type ResizeDirection = 'right' | 'bottom' | 'bottomRight';
+
 const ItemTypes = {
   CREATE: Symbol('dnd-canvas-create'),
   MOVE: Symbol('dnd-canvas-move'),
@@ -30,7 +32,7 @@ interface MoveDragItem extends DragItem {
 interface ResizeDragItem extends DragItem {
   type: typeof ItemTypes.RESIZE;
   id: string; // control id being resized, or null for window
-  direction: 'right' | 'bottom' | 'bottomRight';
+  direction: ResizeDirection;
 }
 
 interface CreateDropResult {
@@ -109,8 +111,7 @@ export function useCreatable(onCreate: (position: Position) => void) {
   return ref;
 }
 
-export function useMoveable(position: Position, onMove: (newPosition: Position) => void) {
-  const id: string = null; // TODO
+export function useMoveable(id: string, position: Position, onMove: (newPosition: Position) => void) {
   const [{ isDragging }, ref, preview] = useDrag({
     item: { type: ItemTypes.MOVE, id },
     collect: (monitor) => ({
@@ -133,9 +134,7 @@ export function useMoveable(position: Position, onMove: (newPosition: Position) 
   return { ref, isMoving: isDragging };
 }
 
-export function useResizable(onResize: (delta: Position) => void) {
-  const id: string = null; // TODO
-  const direction = 'bottomRight'; // TODO
+export function useResizable(id: string, direction: ResizeDirection, onResize: (delta: Position) => void) {
   const [{ delta }, ref] = useDrag({
     item: { type: ItemTypes.RESIZE, id, direction },
     collect: (monitor) => ({

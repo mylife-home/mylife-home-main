@@ -2,7 +2,7 @@ import React, { FunctionComponent, forwardRef, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useMoveable, Position, useResizable } from './dnd';
+import { useMoveable, Position, useResizable, ResizeDirection } from './dnd';
 
 export interface Size {
   width: number;
@@ -11,6 +11,8 @@ export interface Size {
 
 export interface CanvasItemProps {
   className?: string;
+  id?: string;
+
   selected: boolean;
   onSelect: () => void;
 
@@ -30,21 +32,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, size, onResize, position, onMove, selected, onSelect }) => {
+const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, id = null, size, onResize, position, onMove, selected, onSelect }) => {
   const onMouseDown = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     onSelect();
   };
 
   const content = (
-    <ResizableItem size={size} onResize={onResize}>
+    <ResizableItem id={id} size={size} onResize={onResize}>
       {children}
     </ResizableItem>
   );
 
   if(position) {
     return (
-      <MoveableItem className={className} onMouseDown={onMouseDown} position={position} onMove={onMove}>
+      <MoveableItem className={className} id={id} onMouseDown={onMouseDown} position={position} onMove={onMove}>
         {content}
       </MoveableItem>
     );
@@ -60,27 +62,29 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, s
 export default CanvasItem;
 
 interface MoveableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+  id: string;
   position: Position;
   onMove: (position: Position) => void;
 }
 
-const MoveableItem: FunctionComponent<MoveableItemProps> = ({ position, onMove, className, ...props }) => {
+const MoveableItem: FunctionComponent<MoveableItemProps> = ({ id, position, onMove, className, ...props }) => {
   const classes = useStyles();
-  const { ref, isMoving } = useMoveable(position, onMove);
+  const { ref, isMoving } = useMoveable(id, position, onMove);
   return <div {...props} className={clsx(className, classes.moveable)} ref={ref} style={{ left: position.x, top: position.y, opacity: isMoving ? 0 : 1 }} />;
 };
 
 interface ResizableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+  id: string;
   size: Size;
   onResize: (size: Size) => void;
 }
 
-const ResizableItem: FunctionComponent<ResizableItemProps> = ({ size, onResize, className, children, ...props }) => {
+const ResizableItem: FunctionComponent<ResizableItemProps> = ({ id, size, onResize, className, children, ...props }) => {
   const classes = useStyles();
 
-  const onResizerResize = (orientation: ResizerOrientation, delta: Position) => {
+  const onResizerResize = (direction: ResizeDirection, delta: Position) => {
     const newSize = { ... size };
-    switch (orientation) {
+    switch (direction) {
       case 'right':
         newSize.width = Math.max(0, newSize.width + delta.x);
         break;
@@ -98,9 +102,9 @@ const ResizableItem: FunctionComponent<ResizableItemProps> = ({ size, onResize, 
     onResize(newSize);
   };
 
-  const right = useResizable(delta => onResizerResize('right', delta));
-  const bottom = useResizable(delta => onResizerResize('bottom', delta));
-  const bottomRight = useResizable(delta => onResizerResize('bottomRight', delta));
+  const right = useResizable(id, 'right', delta => onResizerResize('right', delta));
+  const bottom = useResizable(id, 'bottom', delta => onResizerResize('bottom', delta));
+  const bottomRight = useResizable(id, 'bottomRight', delta => onResizerResize('bottomRight', delta));
 
   const localSize = useMemo(() => {
     if (right.delta) {
@@ -128,17 +132,15 @@ const ResizableItem: FunctionComponent<ResizableItemProps> = ({ size, onResize, 
   return (
     <div {...props} className={clsx(className, classes.resizable)} style={{ width: localSize.width, height: localSize.height }}>
       {children}
-      <Resizer ref={right.ref} orientation='right'/>
-      <Resizer ref={bottom.ref} orientation='bottom'/>
-      <Resizer ref={bottomRight.ref} orientation='bottomRight'/>
+      <Resizer ref={right.ref} direction='right'/>
+      <Resizer ref={bottom.ref} direction='bottom'/>
+      <Resizer ref={bottomRight.ref} direction='bottomRight'/>
     </div>
   );
 };
 
-type ResizerOrientation = 'right' | 'bottom' | 'bottomRight';
-
 interface ResizerProps {
-  orientation: ResizerOrientation;
+  direction: ResizeDirection;
 }
 
 const RESIZER_WIDTH = 5; // on each side
@@ -183,7 +185,7 @@ const useResizerStyles = makeStyles((theme) => ({
   },
 }));
 
-const Resizer = forwardRef<HTMLDivElement, ResizerProps>(({ orientation }, ref) => {
+const Resizer = forwardRef<HTMLDivElement, ResizerProps>(({ direction }, ref) => {
   const classes = useResizerStyles();
-  return <div ref={ref} className={clsx(classes.common, classes[orientation])} />
+  return <div ref={ref} className={clsx(classes.common, classes[direction])} />
 });
