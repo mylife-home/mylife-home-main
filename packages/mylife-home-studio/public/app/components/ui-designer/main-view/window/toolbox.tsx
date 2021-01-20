@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -6,9 +6,11 @@ import IconButton from '@material-ui/core/IconButton';
 import Slider, { Mark } from '@material-ui/core/Slider';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import { ImageIcon } from '../../../lib/icons';
-import { useSelection, useCreateControl, SelectionType } from './window-state';
+import { useSelection, useCreateControl, SelectionType, useSelectableControlList } from './window-state';
 import { useCreatable } from './canvas/dnd';
 import { useSnapEditor } from './snap';
 import PropertiesWindow from './properties/window';
@@ -32,13 +34,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   control: {
-    margin: theme.spacing(4),
+    margin: theme.spacing(2),
     color: theme.palette.success.main,
     cursor: 'copy',
   },
   snapEditor: {
     flex: 1,
-    margin: theme.spacing(4),
+    margin: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -47,6 +49,10 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
+  },
+  controlSelector: {
+    margin: theme.spacing(2),
+    flex: 1,
   },
   properties: {
     flex: 1,
@@ -76,6 +82,7 @@ const Controls: FunctionComponent = () => {
     <div className={classes.controls}>
       <Control />
       <SnapEditor />
+      <ControlSelector />
     </div>
   );
 };
@@ -141,3 +148,36 @@ function getProperties(type: SelectionType, id: string, className: string) {
       return <PropertiesControl id={id} className={className} />;
   }
 }
+
+const ControlSelector = () => {
+  const classes = useStyles();
+  const { controlsIds, selectControl } = useSelectableControlList();
+  const [inputValue, setInputValue] = useState('');
+
+  return (
+    <Autocomplete
+      className={classes.controlSelector}
+      value={null}
+      onChange={(event, controlId) => {
+        selectControl(controlId);
+        setInputValue('');
+      }}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue) => {
+        setInputValue(newInputValue);
+      }}
+      options={controlsIds}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="outlined"
+          label="Accès rapide"
+          inputProps={{
+            ...params.inputProps,
+            autoComplete: 'new-password', // disable autocomplete and autofill
+          }}
+        />
+      )}
+    />
+  );
+};

@@ -146,3 +146,9 @@ export function useCreateControl() {
     return { ...window, controls: [...window.controls, newControl] };
   }), [updateWindow, setSelection]);
 }
+
+export function useSelectableControlList() {
+  const { window, setSelection } = useContext(Context);
+  const controlsIds = useMemo(() => window.controls.map(control => control.id), [window.controls]);
+  return { controlsIds, selectControl: setSelection };
+}
