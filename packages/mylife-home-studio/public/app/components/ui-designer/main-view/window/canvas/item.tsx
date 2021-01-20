@@ -67,12 +67,7 @@ interface MoveableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes
 const MoveableItem: FunctionComponent<MoveableItemProps> = ({ position, onMove, className, ...props }) => {
   const classes = useStyles();
   const { ref, isMoving } = useMoveable(position, onMove);
-
-  if (isMoving) {
-    return <div ref={ref} />
-  }
-
-  return <div {...props} className={clsx(className, classes.moveable)} ref={ref} style={{ left: position.x, top: position.y }} />;
+  return <div {...props} className={clsx(className, classes.moveable)} ref={ref} style={{ left: position.x, top: position.y, opacity: isMoving ? 0 : 1 }} />;
 };
 
 interface ResizableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
