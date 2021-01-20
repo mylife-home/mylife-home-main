@@ -1,4 +1,4 @@
-import React, { FunctionComponent, forwardRef, useMemo } from 'react';
+import React, { FunctionComponent, forwardRef, useRef } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -102,35 +102,14 @@ const ResizableItem: FunctionComponent<ResizableItemProps> = ({ id, size, onResi
   const bottom = useResizable(id, 'bottom', delta => onResizerResize('bottom', delta));
   const bottomRight = useResizable(id, 'bottomRight', delta => onResizerResize('bottomRight', delta));
 
-  const localSize = useMemo(() => {
-    if (right.delta) {
-      const localSize = { ...size };
-      localSize.width += right.delta.x;
-      return localSize;
-    }
-
-    if (bottom.delta) {
-      const localSize = { ...size };
-      localSize.height += bottom.delta.y;
-      return localSize;
-    }
-
-    if (bottomRight.delta) {
-      const localSize = { ...size };
-      localSize.width += bottomRight.delta.x;
-      localSize.height += bottomRight.delta.y;
-      return localSize;
-    }
-
-    return size;
-  }, [size, right.delta, bottom.delta, bottomRight.delta]);
+  const isResizing = right.isResizing || bottom.isResizing || bottomRight.isResizing;
 
   return (
-    <div {...props} className={clsx(className, classes.resizable)} style={{ width: localSize.width, height: localSize.height }}>
+    <div {...props} className={clsx(className, classes.resizable)} style={{ width: size.width, height: size.height, opacity: isResizing ? 0 : 1 }}>
       {children}
-      <Resizer ref={right.ref} direction='right'/>
-      <Resizer ref={bottom.ref} direction='bottom'/>
-      <Resizer ref={bottomRight.ref} direction='bottomRight'/>
+      <Resizer ref={right.resizerRef} direction='right'/>
+      <Resizer ref={bottom.resizerRef} direction='bottom'/>
+      <Resizer ref={bottomRight.resizerRef} direction='bottomRight'/>
     </div>
   );
 };
@@ -154,8 +133,6 @@ const useResizerStyles = makeStyles((theme) => ({
     right: RESIZER_WIDTH,
 
     cursor: 'row-resize',
-
-    backgroundColor: 'blue',
   },
   right: {
     width: RESIZER_WIDTH * 2,
@@ -165,8 +142,6 @@ const useResizerStyles = makeStyles((theme) => ({
     bottom: RESIZER_WIDTH,
 
     cursor: 'col-resize',
-
-    backgroundColor: 'red',
   },
   bottomRight: {
     height: RESIZER_WIDTH * 2,
@@ -176,8 +151,6 @@ const useResizerStyles = makeStyles((theme) => ({
     bottom: -RESIZER_WIDTH,
 
     cursor: 'se-resize',
-
-    backgroundColor: 'pink',
   },
 }));
 

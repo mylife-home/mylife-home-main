@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useDrop, useDrag, useDragLayer, XYCoord, ConnectDragPreview } from 'react-dnd';
+import React, { useEffect, useRef } from 'react';
+import { useDrop, useDrag, useDragLayer, ConnectDragPreview } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { Position, ResizeDirection } from './types';
 
@@ -130,10 +130,10 @@ export function useMoveable(id: string, position: Position, onMove: (newPosition
 }
 
 export function useResizable(id: string, direction: ResizeDirection, onResize: (delta: Position) => void) {
-  const [{ delta }, ref] = useDrag({
+  const [{ isDragging }, resizerRef, preview] = useDrag({
     item: { type: ItemTypes.RESIZE, id, direction },
     collect: (monitor) => ({
-      delta: monitor.isDragging ? monitor.getDifferenceFromInitialOffset() : null,
+      isDragging: monitor.isDragging(),
     }),
     end(item: ResizeDragItem, monitor) {
       if (!monitor.didDrop()) {
@@ -145,7 +145,9 @@ export function useResizable(id: string, direction: ResizeDirection, onResize: (
     }
   });
 
-  return { ref, delta };
+  useHidePreview(preview);
+
+  return { resizerRef, isResizing: isDragging };
 }
 
 const SUPPORTED_DRAG_TYPES = new Set([ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE]);
@@ -153,6 +155,7 @@ const SUPPORTED_DRAG_TYPES = new Set([ItemTypes.CREATE, ItemTypes.MOVE, ItemType
 export function useCanvasDragLayer() {
   return useDragLayer((monitor) => ({
     item: monitor.getItem() as DragItem,
+    delta: monitor.getDifferenceFromInitialOffset() as Position,
     currentOffset: monitor.getSourceClientOffset() as Position,
     isDragging: monitor.isDragging() && SUPPORTED_DRAG_TYPES.has(monitor.getItemType() as symbol),
   }));

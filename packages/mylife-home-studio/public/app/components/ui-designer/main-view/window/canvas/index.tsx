@@ -1,10 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useRef } from 'react';
 import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useWindowState } from '../window-state';
 import { useDroppable } from './dnd';
+import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
 import CanvasControl from './control';
 import CanvasWindow from './window';
@@ -25,11 +26,11 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
   const drop = useDroppable();
 
   return (
-    <>
+    <CanvasContainerContextProvider>
       <AutoSizer>
         {({ height, width }) => (
           <div style={{ height, width }} className={clsx(classes.container, className)} ref={drop}>
-            <div className={classes.wrapper}>
+            <CanvasContainer className={classes.wrapper}>
 
               <CanvasWindow />
 
@@ -37,13 +38,13 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
                 <CanvasControl key={id} id={id} />
               ))}
 
-            </div>
+            </CanvasContainer>
           </div>
         )}
       </AutoSizer>
 
       <DragLayer />
-    </>
+    </CanvasContainerContextProvider>
   );
 };
 
