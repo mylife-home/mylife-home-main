@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   component: {
     position: 'absolute',
-  }
+  },
 }));
 
 const DragLayer: FunctionComponent = () => {
@@ -30,24 +30,18 @@ const DragLayer: FunctionComponent = () => {
     return null;
   }
 
-  return (
-    <div className={classes.layer}>
-      {createPreview(item, currentOffset)}
-    </div>
-  )
+  return <div className={classes.layer}>{createPreview(item, currentOffset)}</div>;
 };
 
 function createPreview(item: DragItem, currentOffset: Position) {
   switch (item.type) {
     case ItemTypes.CREATE: {
       const createItem = item as CreateDragItem;
-      if(!currentOffset) {
+      if (!currentOffset) {
         return null;
       }
 
-      return (
-        <CreateControlPreview currentPosition={currentOffset} />
-      );
+      return <CreateControlPreview currentPosition={currentOffset} />;
     }
 
     case ItemTypes.MOVE: {
@@ -56,9 +50,7 @@ function createPreview(item: DragItem, currentOffset: Position) {
         return null;
       }
 
-      return (
-        <ControlPreview id={moveItem.id} currentPosition={currentOffset} />
-      );
+      return <ControlPreview id={moveItem.id} currentPosition={currentOffset} />;
     }
 
     case ItemTypes.RESIZE: {
@@ -71,7 +63,7 @@ function createPreview(item: DragItem, currentOffset: Position) {
 
 export default DragLayer;
 
-const WindowPreview: FunctionComponent<{ currentSize?: Size; }> = ({ currentSize }) => {
+const WindowPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
   const classes = useStyles();
   const { window } = useWindowState();
 
@@ -84,7 +76,7 @@ const WindowPreview: FunctionComponent<{ currentSize?: Size; }> = ({ currentSize
   );
 };
 
-const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; currentSize?: Size; }> = ({ id, currentPosition, currentSize }) => {
+const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; currentSize?: Size }> = ({ id, currentPosition, currentSize }) => {
   const classes = useStyles();
   const { control } = useControlState(id);
 
@@ -98,7 +90,7 @@ const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position
   );
 };
 
-const CreateControlPreview: FunctionComponent<{ currentPosition: Position; }> = ({ currentPosition }) => {
+const CreateControlPreview: FunctionComponent<{ currentPosition: Position }> = ({ currentPosition }) => {
   const classes = useStyles();
   const size = useMemo(() => {
     const { width, height } = createNewControl();
@@ -110,5 +102,5 @@ const CreateControlPreview: FunctionComponent<{ currentPosition: Position; }> = 
     <div className={classes.component} style={{ left: currentPosition.x, top: currentPosition.y, width: size.width, height: size.height }}>
       <CanvasControlCreationView />
     </div>
-  )
-}
+  );
+};
