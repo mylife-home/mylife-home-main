@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { TextIcon, ImageIcon } from '../../../../lib/icons';
+import { TextIcon } from '../../../../lib/icons';
 import Image from '../../common/image';
 import { useWindowState, useControlState } from '../window-state';
 
@@ -54,7 +54,7 @@ export const CanvasControlCreationView: FunctionComponent = () => {
 
   return (
     <Wrapper selected>
-      <TextIcon className={classes.content} />
+      <div className={classes.content} />
     </Wrapper>
   );
 }

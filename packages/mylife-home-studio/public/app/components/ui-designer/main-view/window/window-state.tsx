@@ -10,7 +10,7 @@ import { setWindow } from '../../../../store/ui-designer/actions';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { createNewControl } from '../common/templates';
-import { Position } from './canvas/dnd';
+import { Position } from './canvas/types';
 
 interface ContextProps {
   window: UiWindow;

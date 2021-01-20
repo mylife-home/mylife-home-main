@@ -1,20 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { useDrop, useDrag, useDragLayer, XYCoord } from 'react-dnd';
+import { useDrop, useDrag, useDragLayer, XYCoord, ConnectDragPreview } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import { Position, ResizeDirection } from './types';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export interface Size {
-  width: number;
-  height: number;
-}
-
-export type ResizeDirection = 'right' | 'bottom' | 'bottomRight';
-
-const ItemTypes = {
+export const ItemTypes = {
   CREATE: Symbol('dnd-canvas-create'),
   MOVE: Symbol('dnd-canvas-move'),
   RESIZE: Symbol('dnd-canvas-resize'),
@@ -102,16 +91,19 @@ function getContainerPosition(element: HTMLElement) {
 }
 
 export function useCreatable(onCreate: (position: Position) => void) {
-  const [, ref] = useDrag({
+  const [, ref, preview] = useDrag({
     item: { type: ItemTypes.CREATE },
     end(item: CreateDragItem, monitor) {
       if (!monitor.didDrop()) {
         return;
       }
 
-      onCreate(monitor.getDropResult());
+      const result = monitor.getDropResult() as CreateDropResult;
+      onCreate(result.position);
     }
   });
+
+  useHidePreview(preview);
 
   return ref;
 }
@@ -132,9 +124,7 @@ export function useMoveable(id: string, position: Position, onMove: (newPosition
     }
   });
 
-  useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true });
-  }, [preview]);
+  useHidePreview(preview);
 
   return { ref, isMoving: isDragging };
 }
@@ -166,4 +156,10 @@ export function useCanvasDragLayer() {
     currentOffset: monitor.getSourceClientOffset() as Position,
     isDragging: monitor.isDragging() && SUPPORTED_DRAG_TYPES.has(monitor.getItemType() as symbol),
   }));
+}
+
+function useHidePreview(preview: ConnectDragPreview) {
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true });
+  }, [preview]);
 }

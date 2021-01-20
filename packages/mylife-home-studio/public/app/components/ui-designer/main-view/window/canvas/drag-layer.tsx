@@ -1,9 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { Position, Size, useCanvasDragLayer, MoveDragItem } from './dnd';
-import { CanvasControlView } from './view';
-import { useControlState } from '../window-state';
+import { createNewControl } from '../../common/templates';
+import { useWindowState, useControlState } from '../window-state';
+import { ItemTypes, useCanvasDragLayer, DragItem, CreateDragItem, MoveDragItem, ResizeDragItem } from './dnd';
+import { Position, Size } from './types';
+import { CanvasWindowView, CanvasControlView, CanvasControlCreationView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   layer: {
@@ -28,18 +30,61 @@ const DragLayer: FunctionComponent = () => {
     return null;
   }
 
-  const moveItem = item as MoveDragItem;
-
   return (
     <div className={classes.layer}>
-      <ControlPreview id={moveItem.id} currentPosition={currentOffset} />
+      {createPreview(item, currentOffset)}
     </div>
   )
 };
 
+function createPreview(item: DragItem, currentOffset: Position) {
+  switch (item.type) {
+    case ItemTypes.CREATE: {
+      const createItem = item as CreateDragItem;
+      if(!currentOffset) {
+        return null;
+      }
+
+      return (
+        <CreateControlPreview currentPosition={currentOffset} />
+      );
+    }
+
+    case ItemTypes.MOVE: {
+      const moveItem = item as MoveDragItem;
+      if (!currentOffset) {
+        return null;
+      }
+
+      return (
+        <ControlPreview id={moveItem.id} currentPosition={currentOffset} />
+      );
+    }
+
+    case ItemTypes.RESIZE: {
+      const resizeItem = item as ResizeDragItem;
+      // TODO
+      return null;
+    }
+  }
+}
+
 export default DragLayer;
 
-const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; currentSize?: Size }> = ({ id, currentPosition, currentSize }) => {
+const WindowPreview: FunctionComponent<{ currentSize?: Size; }> = ({ currentSize }) => {
+  const classes = useStyles();
+  const { window } = useWindowState();
+
+  const size = currentSize || { width: window.width, height: window.height };
+
+  return (
+    <div className={classes.component} style={{ width: size.width, height: size.height }}>
+      <CanvasWindowView />
+    </div>
+  );
+};
+
+const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; currentSize?: Size; }> = ({ id, currentPosition, currentSize }) => {
   const classes = useStyles();
   const { control } = useControlState(id);
 
@@ -52,3 +97,18 @@ const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position
     </div>
   );
 };
+
+const CreateControlPreview: FunctionComponent<{ currentPosition: Position; }> = ({ currentPosition }) => {
+  const classes = useStyles();
+  const size = useMemo(() => {
+    const { width, height } = createNewControl();
+    const size: Size = { width, height };
+    return size;
+  }, []);
+
+  return (
+    <div className={classes.component} style={{ left: currentPosition.x, top: currentPosition.y, width: size.width, height: size.height }}>
+      <CanvasControlCreationView />
+    </div>
+  )
+}
