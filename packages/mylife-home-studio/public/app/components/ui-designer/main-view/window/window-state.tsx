@@ -10,7 +10,7 @@ import { setWindow } from '../../../../store/ui-designer/actions';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { createNewControl } from '../common/templates';
-import { Position } from './canvas/types';
+import { Position, Size } from './canvas/types';
 
 interface ContextProps {
   window: UiWindow;
@@ -134,12 +134,14 @@ export function useSelection() {
 export function useCreateControl() {
   const { updateWindow, setSelection } = useContext(Context);
   
-  return useCallback((position: Position) => updateWindow(window => {
+  return useCallback((position: Position, size: Size) => updateWindow(window => {
     const existingIds = new Set(window.controls.map(control => control.id));
     const newControl = createNewControl();
     newControl.id = makeUniqueId(existingIds, 'new-control');
-    newControl.x = position.x - newControl.width / 2;
-    newControl.y = position.y - newControl.height / 2;
+    newControl.x = position.x;
+    newControl.y = position.y;
+    newControl.width = size.width;
+    newControl.height = size.height;
 
     setSelection(newControl.id);
 
