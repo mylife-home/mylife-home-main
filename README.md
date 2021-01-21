@@ -12,6 +12,13 @@
 
 ## studio
 
+### Ameliorations
+
+ - ui-designer
+   - control cannot go outside of window (create, move, resize)
+   - on window resize, compute control position ratio + force then to be inside window if on borders
+   - on window resize window cannot be smaller that larger of its control
+
 ### Archi
  - Keep:
    - Deploy (tâche pour faire image + livraison ssh)
@@ -87,7 +94,6 @@ car que sensor vers ui
   - storage (git?)
   - deploy
 - ui designer
-  - main
   - storage (git?)
   - deploy
 
