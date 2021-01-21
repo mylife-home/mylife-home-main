@@ -3,12 +3,12 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useSelectableControlList } from '../window-state';
+import { useSelectableControlList, useWindowState, useControlState } from '../window-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
-import CanvasControl from './control';
-import CanvasWindow from './window';
+import CanvasItem from './item';
+import { CanvasWindowView, CanvasControlView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -59,6 +59,35 @@ const DropContainer: FunctionComponent<{ style?: React.CSSProperties, className?
     </div>
   );
 }
+
+const CanvasWindow: FunctionComponent = () => {
+  const { window, update, selected, select } = useWindowState();
+
+  return (
+    <CanvasItem size={{ width: window.width, height: window.height }} onResize={(size) => update(size)} selected={selected} onSelect={select}>
+      <CanvasWindowView />
+    </CanvasItem>
+  );
+};
+
+const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { control, update, selected, select } = useControlState(id);
+
+  return (
+    <CanvasItem
+      id={id}
+      size={{ width: control.width, height: control.height }}
+      position={{ x: control.x, y: control.y }}
+      selected={selected}
+      onResize={(size) => update(size)}
+      onMove={(position) => update(position)}
+      onSelect={select}
+    >
+      <CanvasControlView id={id} />
+    </CanvasItem>
+  );
+};
+
 
 // TODO: cleanup CanvasItem
 // TODO: cleanup: preview and drop should use same algo to compute new layout
