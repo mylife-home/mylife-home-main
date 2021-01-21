@@ -94,6 +94,7 @@ car que sensor vers ui
   - storage (git?)
   - deploy
 - ui designer
+  - import components
   - storage (git?)
   - deploy
 
