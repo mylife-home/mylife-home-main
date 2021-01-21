@@ -1,12 +1,11 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { createNewControl } from '../../common/templates';
 import { useWindowState, useControlState } from '../window-state';
-import { ItemTypes, useCanvasDragLayer, DragItem, CreateDragItem, MoveDragItem, ResizeDragItem } from './dnd';
+import { ItemTypes, useCanvasDragLayer, ComponentData, CreateComponentData, MoveComponentData, ResizeComponentData } from './dnd';
 import { useContainerRect } from './container';
-import { Position, ResizeDirection, Size } from './types';
+import { Position, Size } from './types';
 import { CanvasWindowView, CanvasControlView, CanvasControlCreationView } from './view';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,130 +35,84 @@ const useStyles = makeStyles((theme) => ({
 
 const DragLayer: FunctionComponent = () => {
   const classes = useStyles();
-  const { isDragging, item, currentOffset, delta } = useCanvasDragLayer();
+  const componentData = useCanvasDragLayer();
 
-  if (!isDragging) {
+  if (!componentData) {
     return null;
   }
 
-  return <div className={classes.layer}>{createPreview(item, currentOffset, delta)}</div>;
+  return <div className={classes.layer}>{createPreview(componentData)}</div>;
 };
 
-function createPreview(item: DragItem, currentOffset: Position, delta: Position) {
-  switch (item.type) {
+function createPreview(componentData: ComponentData) {
+  switch (componentData.type) {
     case ItemTypes.CREATE: {
-      const createItem = item as CreateDragItem;
-      if (!currentOffset) {
-        return null;
-      }
-
-      return <CreateControlPreview currentPosition={currentOffset} />;
+      const createData = componentData as CreateComponentData;
+      return <CreateControlPreview currentPosition={createData.newPosition} currentSize={createData.newSize} />;
     }
 
     case ItemTypes.MOVE: {
-      const moveItem = item as MoveDragItem;
-      if (!currentOffset) {
-        return null;
-      }
-
-      return <ControlPreview id={moveItem.id} currentPosition={currentOffset} />;
+      const moveData = componentData as MoveComponentData;
+      return <ControlPreview id={moveData.id} currentPosition={moveData.newPosition} />;
     }
 
     case ItemTypes.RESIZE: {
-      const resizeItem = item as ResizeDragItem;
-      if (!delta) {
-        return null;
-      }
-
-      const sizeDelta = fixDelta(delta, resizeItem.direction);
-      return resizeItem.id ? <ControlPreview id={resizeItem.id} sizeDelta={sizeDelta} /> : <WindowPreview sizeDelta={sizeDelta} />;
+      const resizeData = componentData as ResizeComponentData;
+      return resizeData.id ? <ControlPreview id={resizeData.id} currentSize={resizeData.newSize} /> : <WindowPreview currentSize={resizeData.newSize} />;
     }
   }
 }
 
 export default DragLayer;
 
-function fixDelta(delta: Position, direction: ResizeDirection) {
-  switch (direction) {
-    case 'right':
-      return { ...delta, y: 0 };
-    case 'bottom':
-      return { ...delta, x: 0 };
-    case 'bottomRight':
-      return delta;
-  }
-}
-
-const WindowPreview: FunctionComponent<{ sizeDelta?: Position }> = ({ sizeDelta }) => {
+const WindowPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
   const classes = useStyles();
   const { window } = useWindowState();
   const getContainerRect = useContainerRect();
 
-  const size = computePreviewSize(window, sizeDelta);
+  const size = currentSize || { width: window.width, height: window.height };
   const { left, top } = getContainerRect();
 
   return (
-    <div className={classes.component} style={{ left, top, width: size.width, height: size.height }}>
+    <div className={classes.component} style={{ left, top, ...currentSize }}>
       <CanvasWindowView />
       <PreviewLabel size={size} />
     </div>
   );
 };
 
-const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; sizeDelta?: Position }> = ({ id, currentPosition, sizeDelta }) => {
+const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position; currentSize?: Size }> = ({ id, currentPosition, currentSize }) => {
   const classes = useStyles();
   const { control } = useControlState(id);
   const getContainerRect = useContainerRect();
 
-  let position = currentPosition;
-  if (!position) {
-    const { left, top } = getContainerRect();
-    position = { x: control.x + left, y: control.y + top };
-  }
-  
-  const size = computePreviewSize(control, sizeDelta);
+  const position = currentPosition || { x: control.x, y: control.y };
+  const { left, top } = getContainerRect();
+  const offset = { left: position.x + left, top: position.y + top };
+  const size = currentSize || { width: control.width, height: control.height };
 
   return (
-    <div className={classes.component} style={{ left: position.x, top: position.y, width: size.width, height: size.height }}>
+    <div className={classes.component} style={{ ...offset, ...size }}>
       <CanvasControlView id={id} />
-      <PreviewLabel position={currentPosition} size={sizeDelta ? size : null} />
+      <PreviewLabel position={currentPosition} size={currentSize} />
     </div>
   );
 };
 
-const CreateControlPreview: FunctionComponent<{ currentPosition: Position }> = ({ currentPosition }) => {
+const CreateControlPreview: FunctionComponent<{ currentPosition: Position; currentSize: Size }> = ({ currentPosition, currentSize }) => {
   const classes = useStyles();
   const getContainerRect = useContainerRect();
 
-  const size = useMemo(() => {
-    const { width, height } = createNewControl();
-    const size: Size = { width, height };
-    return size;
-  }, []);
-
   const { left, top } = getContainerRect();
-  const realPosition = { x: currentPosition.x - left, y: currentPosition.y - top };
+  const offset = { left: currentPosition.x + left, top: currentPosition.y + top };
 
   return (
-    <div className={classes.component} style={{ left: currentPosition.x, top: currentPosition.y, width: size.width, height: size.height }}>
+    <div className={classes.component} style={{ ...offset, ...currentSize }}>
       <CanvasControlCreationView />
-      <PreviewLabel position={realPosition} />
+      <PreviewLabel position={currentPosition} />
     </div>
   );
 };
-
-function computePreviewSize<TModel extends Size>(model: TModel, sizeDelta: Position) {
-  if (!sizeDelta) {
-    const size: Size = { width: model.width, height: model.height };
-    return size;
-  }
-
-  const size: Size = {
-    width: Math.max(0, model.width + sizeDelta.x),
-    height: Math.max(0, model.height + sizeDelta.y),
-  };
-  return size;
-}
 
 const PreviewLabel: FunctionComponent<{ size?: Size; position?: Position }> = ({ size, position }) => {
   const classes = useStyles();

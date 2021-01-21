@@ -1,4 +1,4 @@
-import React, { FunctionComponent, forwardRef, useRef } from 'react';
+import React, { FunctionComponent, forwardRef } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -77,30 +77,9 @@ interface ResizableItemProps extends React.DetailedHTMLProps<React.HTMLAttribute
 
 const ResizableItem: FunctionComponent<ResizableItemProps> = ({ id, size, onResize, className, children, ...props }) => {
   const classes = useStyles();
-
-  const onResizerResize = (direction: ResizeDirection, delta: Position) => {
-    const newSize = { ... size };
-    switch (direction) {
-      case 'right':
-        newSize.width = Math.max(0, newSize.width + delta.x);
-        break;
-
-      case 'bottom':
-        newSize.height = Math.max(0, newSize.height + delta.y);
-        break;
-
-      case 'bottomRight':
-        newSize.width = Math.max(0, newSize.width + delta.x);
-        newSize.height = Math.max(0, newSize.height + delta.y);
-        break;
-    }
-
-    onResize(newSize);
-  };
-
-  const right = useResizable(id, 'right', delta => onResizerResize('right', delta));
-  const bottom = useResizable(id, 'bottom', delta => onResizerResize('bottom', delta));
-  const bottomRight = useResizable(id, 'bottomRight', delta => onResizerResize('bottomRight', delta));
+  const right = useResizable(id, 'right', size, onResize);
+  const bottom = useResizable(id, 'bottom', size, onResize);
+  const bottomRight = useResizable(id, 'bottomRight', size, onResize);
 
   const isResizing = right.isResizing || bottom.isResizing || bottomRight.isResizing;
 

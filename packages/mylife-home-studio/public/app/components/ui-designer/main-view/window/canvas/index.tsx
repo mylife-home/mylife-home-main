@@ -21,15 +21,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
-  const { controlsIds } = useSelectableControlList();
   const classes = useStyles();
-  const drop = useDroppable();
+  const { controlsIds } = useSelectableControlList();
 
   return (
     <CanvasContainerContextProvider>
       <AutoSizer>
         {({ height, width }) => (
-          <div style={{ height, width }} className={clsx(classes.container, className)} ref={drop}>
+          <DropContainer style={{ height, width }} className={clsx(classes.container, className)}>
             <CanvasContainer className={classes.wrapper}>
 
               <CanvasWindow />
@@ -39,16 +38,27 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
               ))}
 
             </CanvasContainer>
-          </div>
+          </DropContainer>
         )}
       </AutoSizer>
-
+  
       <DragLayer />
     </CanvasContainerContextProvider>
   );
 };
 
 export default Canvas;
+
+const DropContainer: FunctionComponent<{ style?: React.CSSProperties, className?: string }> = ({ style, className, children }) => {
+  // need to access useDroppable inner CanvasContainerContextProvider
+  const drop = useDroppable();
+
+  return (
+    <div style={style} className={className} ref={drop}>
+      {children}
+    </div>
+  );
+}
 
 // TODO: cleanup CanvasItem
 // TODO: cleanup: preview and drop should use same algo to compute new layout
