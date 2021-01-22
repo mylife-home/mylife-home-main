@@ -1,6 +1,13 @@
-import { useCallback, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
+import DeleteButton from '../../../lib/delete-button';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useFireAsync } from '../../../lib/use-error-handling';
@@ -11,7 +18,48 @@ import { setWindow, clearWindow, renameWindow } from '../../../../store/ui-desig
 import { getWindowsIds, getWindow } from '../../../../store/ui-designer/selectors';
 import { createNewWindow } from './templates';
 
-export function useWindowsActions() {
+const useStyles = makeStyles((theme) => ({
+  newButton: {
+    color: theme.palette.success.main,
+  },
+}));
+
+export const WindowsActions: FunctionComponent = () => {
+  const classes = useStyles();
+  const { onNew } = useWindowsActions();
+
+  return (
+    <Tooltip title="Nouvelle fenêtre">
+      <IconButton className={classes.newButton} onClick={onNew}>
+        <AddIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
+
+export const WindowActions: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { onDuplicate, onRename, onRemove } = useWindowActions(id);
+
+  return (
+    <>
+      <Tooltip title="Dupliquer">
+        <IconButton onClick={onDuplicate}>
+          <FileCopyIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Renommer">
+        <IconButton onClick={onRename}>
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
+
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+    </>
+  );
+};
+
+function useWindowsActions() {
   const { newWindow } = useWindowsConnect();
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
@@ -27,7 +75,7 @@ export function useWindowsActions() {
   return { onNew };
 }
 
-export function useWindowActions(id: string) {
+function useWindowActions(id: string) {
   const { duplicate, rename, remove } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
