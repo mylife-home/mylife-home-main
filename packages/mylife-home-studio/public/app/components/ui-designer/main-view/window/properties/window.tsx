@@ -1,11 +1,5 @@
 import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Typography from '@material-ui/core/Typography';
-import Tooltip from '@material-ui/core/Tooltip';
-import SvgIcon from '@material-ui/core/SvgIcon';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import HomeIcon from '@material-ui/icons/Home';
 
 import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../../store/ui-designer/selectors';
 import { WindowUsageNode } from '../../../../../store/ui-designer/types';
@@ -15,6 +9,7 @@ import { Group, Item } from '../../common/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ResourceSelector from '../../common/resource-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
+import WindowUsageBreadcrumbs from '../../common/window-usage-breadcrumbs';
 import { useWindowState } from '../window-state';
 import { useSnapValue } from '../snap';
 
@@ -22,15 +17,6 @@ const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
     flex: 1,
     margin: theme.spacing(1),
-  },
-  breadcrumbsItem: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  breadcrumbsItemIcon: {
-    marginRight: theme.spacing(1),
-    width: '1em',
-    height: '1em',
   },
 }));
 
@@ -60,14 +46,7 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
       <Group title={'Utilisation'}>
         {usage.map((item, index) => (
           <Item key={index}>
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className={classes.breadcrumbs}>
-              {item.map((node, index) => (
-                <Typography key={index} color="textPrimary" className={classes.breadcrumbsItem}>
-                  {renderIcon(node, classes.breadcrumbsItemIcon)}
-                  {node.id}
-                </Typography>
-              ))}
-            </Breadcrumbs>
+            <WindowUsageBreadcrumbs className={classes.breadcrumbs} item={item} />
           </Item>
         ))}
       </Group>
@@ -80,39 +59,4 @@ export default PropertiesWindow;
 function useWindowUsage(id: string) {
   const getWindowUsage = useMemo(() => makeGetWindowUsage(), []);
   return useTabSelector((state, tabId) => getWindowUsage(state, tabId, id));
-}
-
-function renderIcon(node: WindowUsageNode, className: string) {
-  switch (node.type) {
-    case 'defaultWindow':
-      return (
-        <Tooltip title="Fenêtre par défaut">
-          <HomeIcon className={className} />
-        </Tooltip>
-      );
-
-    case 'window':
-      return (
-        <Tooltip title="Fenêtre">
-          <WindowIcon className={className} />
-        </Tooltip>
-      );
-
-    case 'control':
-      return (
-        <Tooltip title="Contrôle">
-          <ImageIcon className={className} />
-        </Tooltip>
-      );
-
-    case 'action':
-      return (
-        <Tooltip title="Action">
-          <ActionIcon className={className} />
-        </Tooltip>
-      );
-
-    default:
-      throw new Error(`Unsupported node type: '${node.type}'`);
-  }
 }
