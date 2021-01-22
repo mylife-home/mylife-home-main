@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { UiComponent, UiOpenedProject, UiPlugin, WindowUsage } from './types';
+import { WindowUsage } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
