@@ -15,7 +15,7 @@ import { clone } from '../../../lib/clone';
 import { useInputDialog } from '../../../dialogs/input';
 import { AppState } from '../../../../store/types';
 import { setWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
-import { getWindowsIds, getWindow } from '../../../../store/ui-designer/selectors';
+import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
 import { createNewWindow } from './templates';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,40 +26,6 @@ const useStyles = makeStyles((theme) => ({
 
 export const WindowsActions: FunctionComponent = () => {
   const classes = useStyles();
-  const { onNew } = useWindowsActions();
-
-  return (
-    <Tooltip title="Nouvelle fenêtre">
-      <IconButton className={classes.newButton} onClick={onNew}>
-        <AddIcon />
-      </IconButton>
-    </Tooltip>
-  );
-};
-
-export const WindowActions: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const { onDuplicate, onRename, onRemove } = useWindowActions(id);
-
-  return (
-    <>
-      <Tooltip title="Dupliquer">
-        <IconButton onClick={onDuplicate}>
-          <FileCopyIcon />
-        </IconButton>
-      </Tooltip>
-
-      <Tooltip title="Renommer">
-        <IconButton onClick={onRename}>
-          <EditIcon />
-        </IconButton>
-      </Tooltip>
-
-      <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
-    </>
-  );
-};
-
-function useWindowsActions() {
   const { newWindow } = useWindowsConnect();
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
@@ -72,11 +38,17 @@ function useWindowsActions() {
       }
     });
 
-  return { onNew };
-}
+  return (
+    <Tooltip title="Nouvelle fenêtre">
+      <IconButton className={classes.newButton} onClick={onNew}>
+        <AddIcon />
+      </IconButton>
+    </Tooltip>
+  );
+};
 
-function useWindowActions(id: string) {
-  const { duplicate, rename, remove } = useWindowConnect(id);
+export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { duplicate, rename, remove, usage } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
 
@@ -98,40 +70,66 @@ function useWindowActions(id: string) {
 
   const onRemove = remove;
 
-  return { onDuplicate, onRename, onRemove };
-}
+  return (
+    <>
+      <Tooltip title="Dupliquer">
+        <IconButton onClick={onDuplicate}>
+          <FileCopyIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Renommer">
+        <IconButton onClick={onRename}>
+          <EditIcon />
+        </IconButton>
+      </Tooltip>
+
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+    </>
+  );
+};
 
 function useWindowsConnect() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
-  const newWindow = useCallback((id: string) => {
-    const newWindow = createNewWindow();
-    newWindow.id = id;
-    dispatch(setWindow({ id: tabId, window: newWindow }));
-  }, [dispatch, tabId]);
+  const newWindow = useCallback(
+    (id: string) => {
+      const newWindow = createNewWindow();
+      newWindow.id = id;
+      dispatch(setWindow({ id: tabId, window: newWindow }));
+    },
+    [dispatch, tabId]
+  );
 
   return { newWindow };
 }
 
 function useWindowConnect(id: string) {
   const tabId = useTabPanelId();
+  const getWindowUsage = useMemo(() => makeGetWindowUsage(), []);
   const window = useSelector((state: AppState) => getWindow(state, tabId, id));
+  const usage = useSelector((state: AppState) => getWindowUsage(state, tabId, id));
   const dispatch = useDispatch();
 
-  return useMemo(() => ({
-    duplicate: (newId: string) => {
-      const newWindow = clone(window);
-      newWindow.id = newId;
-      dispatch(setWindow({ id: tabId, window: newWindow }));
-    },
-    rename: (newId: string) => {
-      dispatch(renameWindow({ id: tabId, windowId: id, newId }));
-    },
-    remove: () => {
-      dispatch(clearWindow({ id: tabId, windowId: id }));
-    },
-  }), [dispatch, tabId, id]);
+  const callbacks = useMemo(
+    () => ({
+      duplicate: (newId: string) => {
+        const newWindow = clone(window);
+        newWindow.id = newId;
+        dispatch(setWindow({ id: tabId, window: newWindow }));
+      },
+      rename: (newId: string) => {
+        dispatch(renameWindow({ id: tabId, windowId: id, newId }));
+      },
+      remove: () => {
+        dispatch(clearWindow({ id: tabId, windowId: id }));
+      },
+    }),
+    [dispatch, tabId, id]
+  );
+
+  return { ...callbacks, usage };
 }
 
 function useNewNameDialog() {
@@ -153,7 +151,7 @@ function useNewNameDialog() {
         if (windowsIds.includes(newId)) {
           return 'Ce nom existe déjà';
         }
-      }
+      },
     };
 
     const { status, text: id } = await showDialog(options);

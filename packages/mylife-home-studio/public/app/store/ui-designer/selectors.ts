@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { UiComponent, UiPlugin } from './types';
+import { UiComponent, UiOpenedProject, UiPlugin } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
@@ -73,6 +73,16 @@ export function makeGetComponentsAndPlugins() {
     })
   );
 }
+
+export function makeGetWindowUsage() {
+  return createSelector(
+    getOpenedProject,
+    (state: AppState, tabId: string, windowId: string) => windowId,
+    (project, windowId) => {
+      return windowId;
+    }
+  );
+};
 
 export const getResourcesIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
