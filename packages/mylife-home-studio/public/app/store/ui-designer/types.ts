@@ -48,3 +48,11 @@ export interface UiOpenedProject extends OpenedProjectBase {
 }
 
 export type UiDesignerState = DesignerState<UiOpenedProject>;
+
+export interface WindowUsageNode {
+  type: string;
+  id: string;
+}
+
+export type WindowUsageItem = WindowUsageNode[];
+export type WindowUsage = WindowUsageItem[];

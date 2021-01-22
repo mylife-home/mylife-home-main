@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { UiComponent, UiOpenedProject, UiPlugin } from './types';
+import { UiComponent, UiOpenedProject, UiPlugin, WindowUsage } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
@@ -30,7 +30,7 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
 export const getComponentsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.components.allIds;
-}
+};
 
 export const getComponentAndPlugin = (state: AppState, tabId: string, id: string) => {
   const project = getOpenedProject(state, tabId);
@@ -41,7 +41,7 @@ export const getComponentAndPlugin = (state: AppState, tabId: string, id: string
 
   const plugin = project.plugins.byId[component.plugin];
   return { component, plugin };
-}
+};
 
 export const getComponentMemberValueType = (state: AppState, tabId: string, componentId: string, memberName: string) => {
   const project = getOpenedProject(state, tabId);
@@ -52,7 +52,7 @@ export const getComponentMemberValueType = (state: AppState, tabId: string, comp
 
   const plugin = project.plugins.byId[component.plugin];
   return plugin.members[memberName]?.valueType;
-}
+};
 
 // components data does not change often in the project lifecycle
 function makeGetComponentsData() {
@@ -79,7 +79,30 @@ export function makeGetWindowUsage() {
     getOpenedProject,
     (state: AppState, tabId: string, windowId: string) => windowId,
     (project, windowId) => {
-      return windowId;
+      const usage: WindowUsage = [];
+
+      for (const [key, value] of Object.entries(project.defaultWindow)) {
+        if (value === windowId) {
+          usage.push([{ type: 'defaultWindow', id: key }]);
+        }
+      }
+
+      for (const wid of project.windows.allIds) {
+        const window = project.windows.byId[wid];
+        for (const control of window.controls) {
+          for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+            if (control[aid]?.window?.id === windowId) {
+              usage.push([
+                { type: 'window', id: wid },
+                { type: 'control', id: control.id },
+                { type: 'action', id: aid },
+              ]);
+            }
+          }
+        }
+      }
+
+      return usage;
     }
   );
 };
@@ -87,24 +110,24 @@ export function makeGetWindowUsage() {
 export const getResourcesIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.resources.allIds;
-}
+};
 
 export const getResource = (state: AppState, tabId: string, id: string) => {
   const project = getOpenedProject(state, tabId);
   return project.resources.byId[id];
-}
+};
 
 export const getWindowsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.windows.allIds;
-}
+};
 
 export const getWindow = (state: AppState, tabId: string, id: string) => {
   const project = getOpenedProject(state, tabId);
   return project.windows.byId[id];
-}
+};
 
 export const getDefaultWindow = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.defaultWindow;
-}
+};
