@@ -2,14 +2,14 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../../store/ui-designer/selectors';
-import { WindowUsageNode } from '../../../../../store/ui-designer/types';
+import { UsageNode } from '../../../../../store/ui-designer/types';
 import { WindowIcon, ImageIcon, ActionIcon } from '../../../../lib/icons';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import { Group, Item } from '../../common/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ResourceSelector from '../../common/resource-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
-import WindowUsageBreadcrumbs from '../../common/window-usage-breadcrumbs';
+import UsageBreadcrumbs from '../../common/usage-breadcrumbs';
 import { useWindowState } from '../window-state';
 import { useSnapValue } from '../snap';
 
@@ -46,7 +46,7 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
       <Group title={'Utilisation'}>
         {usage.map((item, index) => (
           <Item key={index}>
-            <WindowUsageBreadcrumbs className={classes.breadcrumbs} item={item} />
+            <UsageBreadcrumbs className={classes.breadcrumbs} item={item} />
           </Item>
         ))}
       </Group>

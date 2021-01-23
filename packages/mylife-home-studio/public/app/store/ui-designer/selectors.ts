@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { WindowUsage } from './types';
+import { Usage } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
@@ -79,7 +79,7 @@ export function makeGetWindowUsage() {
     getOpenedProject,
     (state: AppState, tabId: string, windowId: string) => windowId,
     (project, windowId) => {
-      const usage: WindowUsage = [];
+      const usage: Usage = [];
 
       for (const [key, value] of Object.entries(project.defaultWindow)) {
         if (value === windowId) {

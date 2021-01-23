@@ -11,14 +11,14 @@ import ListItem from '@material-ui/core/ListItem';
 
 import { DialogText } from '../../../dialogs/common';
 import { ConfirmResult } from '../../../dialogs/confirm';
-import { WindowUsage } from '../../../../store/ui-designer/types';
-import WindowUsageBreadcrumbs from './window-usage-breadcrumbs';
+import { Usage } from '../../../../store/ui-designer/types';
+import UsageBreadcrumbs from './usage-breadcrumbs';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
 export function useWindowRemoveConfirmDialog() {
 
-  const [usage, setUsage] = useState<WindowUsage>();
+  const [usage, setUsage] = useState<Usage>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
@@ -53,7 +53,7 @@ export function useWindowRemoveConfirmDialog() {
           <List>
             {usage.map((item, index) => (
               <ListItem key={index}>
-                <WindowUsageBreadcrumbs item={item} />
+                <UsageBreadcrumbs item={item} />
               </ListItem>
             ))}
           </List>
@@ -68,7 +68,7 @@ export function useWindowRemoveConfirmDialog() {
     );
   }, [usage, onResult]);
 
-  return (usage: WindowUsage) => new Promise<ConfirmResult>(resolve => {
+  return (usage: Usage) => new Promise<ConfirmResult>(resolve => {
     setUsage(usage);
     setOnResult(() => resolve); // else useState think resolve is a state updater
 

@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import HomeIcon from '@material-ui/icons/Home';
 
-import { WindowUsageItem, WindowUsageNode } from '../../../../store/ui-designer/types';
+import { UsageItem, UsageNode } from '../../../../store/ui-designer/types';
 import { WindowIcon, ImageIcon, ActionIcon } from '../../../lib/icons';
 
 const useStyles = makeStyles((theme) => ({
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const WindowUsageBreadcrumbs: FunctionComponent<{ className?: string; item: WindowUsageItem }> = ({ className, item }) => {
+const UsageBreadcrumbs: FunctionComponent<{ className?: string; item: UsageItem }> = ({ className, item }) => {
   const classes = useStyles();
   return (
     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className={className}>
@@ -35,9 +35,9 @@ const WindowUsageBreadcrumbs: FunctionComponent<{ className?: string; item: Wind
   );
 };
 
-export default WindowUsageBreadcrumbs;
+export default UsageBreadcrumbs;
 
-function renderIcon(node: WindowUsageNode, className: string) {
+function renderIcon(node: UsageNode, className: string) {
   switch (node.type) {
     case 'defaultWindow':
       return (
