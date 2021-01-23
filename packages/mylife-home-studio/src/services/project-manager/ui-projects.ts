@@ -104,9 +104,9 @@ class UiOpenedProject extends OpenedProject {
         await this.clearResource(updateData as ClearResourceUiProjectUpdate);
         break;
 
-        case 'rename-resource':
-          await this.renameResource(updateData as RenameResourceUiProjectUpdate);
-          break;
+      case 'rename-resource':
+        await this.renameResource(updateData as RenameResourceUiProjectUpdate);
+        break;
   
       case 'set-window':
         await this.setWindow(updateData as SetWindowUiProjectUpdate);
