@@ -12,6 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import DeleteButton from '../../../lib/delete-button';
 import UploadButton from '../../../lib/upload-button';
@@ -23,15 +24,19 @@ import { useRenameDialog } from '../../../dialogs/rename';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
-import { getResourcesIds, getResource } from '../../../../store/ui-designer/selectors';
+import { getResourcesIds, getResource, makeGetResourceUsage } from '../../../../store/ui-designer/selectors';
 import { setResource, clearResource, renameResource } from '../../../../store/ui-designer/actions';
 import { UiResource } from '../../../../store/ui-designer/types';
+import { useRemoveUsageConfirmDialog } from '../common/remove-usage-confirm-dialog';
 import Display from './display';
 import { formatBinaryLength, download } from './utils';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
     color: theme.palette.success.main,
+  },
+  deleteButton: {
+    color: theme.palette.error.main,
   },
   wrapper: {
     position: 'absolute',
@@ -111,11 +116,14 @@ export default Resources;
 
 const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void; }> = ({ id, selected, onSelect }) => {
   const classes = useStyles();
+  const getResourceUsage = useMemo(() => makeGetResourceUsage(), []);
   const resources = useTabSelector(getResourcesIds);
   const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const usage = useTabSelector((state, tabId) => getResourceUsage(state, tabId, id));
   const { setResource, renameResource, clearResource } = useResourcesActions();
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(resources, resource.id, 'Entrer le nouveau nom de ressource');
+  const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
 
   const onRename = () =>
     fireAsync(async () => {
@@ -139,7 +147,21 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
       setResource(resource);
     });
 
-  const onDelete = () => {
+    
+  const onRemoveWithUsage = () =>
+    fireAsync(async () => {
+      const { status } = await showRemoveUsageConfirmDialog({ 
+        title: 'Supprimer la ressource',
+        message: 'La ressource est utilisée :',
+        usage
+      });
+      
+      if (status === 'ok') {
+        clearResource(resource.id);
+      }
+    });
+
+  const onRemove = () => {
     clearResource(resource.id);
   };
 
@@ -170,7 +192,16 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
           </UploadButton>
         </Tooltip>
 
-        <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+
+        {usage.length === 0 ? (
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+        ) : (
+          <Tooltip title="Supprimer">
+            <IconButton className={classes.deleteButton} onClick={onRemoveWithUsage}>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </ListItemSecondaryAction>
     </ListItem>
   );

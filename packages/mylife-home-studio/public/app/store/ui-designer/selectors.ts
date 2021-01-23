@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { Usage } from './types';
+import { UiControl, Usage } from './types';
 
 const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
@@ -74,6 +74,75 @@ export function makeGetComponentsAndPlugins() {
   );
 }
 
+
+export const getResourcesIds = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.resources.allIds;
+};
+
+export const getResource = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.resources.byId[id];
+};
+
+export function makeGetResourceUsage() {
+  return createSelector(
+    getOpenedProject,
+    (state: AppState, tabId: string, resourceId: string) => resourceId,
+    (project, resourceId) => {
+      const usage: Usage = [];
+
+      for (const wid of project.windows.allIds) {
+        const window = project.windows.byId[wid];
+
+        if (window.backgroundResource === resourceId) {
+          usage.push([{ type: 'window', id: wid }]);
+        }
+
+        for (const control of window.controls) {
+          if (isResourceUsedByControl(control, resourceId)) {
+            usage.push([
+              { type: 'window', id: wid },
+              { type: 'control', id: control.id },
+            ]);
+          }
+        }
+      }
+
+      return usage;
+    }
+  );
+};
+
+function isResourceUsedByControl(control: UiControl, resourceId: string) {
+  const { display } = control;
+  if (!display) {
+    return false;
+  }
+
+  if (display.defaultResource === resourceId) {
+    return true;
+  }
+
+  for(const item of display.map) {
+    if(item.resource === resourceId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export const getWindowsIds = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.windows.allIds;
+};
+
+export const getWindow = (state: AppState, tabId: string, id: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.windows.byId[id];
+};
+
 export function makeGetWindowUsage() {
   return createSelector(
     getOpenedProject,
@@ -105,26 +174,6 @@ export function makeGetWindowUsage() {
       return usage;
     }
   );
-};
-
-export const getResourcesIds = (state: AppState, tabId: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.resources.allIds;
-};
-
-export const getResource = (state: AppState, tabId: string, id: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.resources.byId[id];
-};
-
-export const getWindowsIds = (state: AppState, tabId: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.windows.allIds;
-};
-
-export const getWindow = (state: AppState, tabId: string, id: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.windows.byId[id];
 };
 
 export const getDefaultWindow = (state: AppState, tabId: string) => {
