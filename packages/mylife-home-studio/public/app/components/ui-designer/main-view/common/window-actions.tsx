@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import DeleteButton from '../../../lib/delete-button';
 import { useTabPanelId } from '../../../lib/tab-panel';
@@ -17,10 +18,14 @@ import { AppState } from '../../../../store/types';
 import { setWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
 import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
 import { createNewWindow } from './templates';
+import { useWindowRemoveConfirmDialog } from './window-remove-confirm-dialog';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
     color: theme.palette.success.main,
+  },
+  deleteButton: {
+    color: theme.palette.error.main,
   },
 }));
 
@@ -48,9 +53,11 @@ export const WindowsActions: FunctionComponent = () => {
 };
 
 export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
   const { duplicate, rename, remove, usage } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
+  const showRemoveUsageConfirmDialog = useWindowRemoveConfirmDialog();
 
   const onDuplicate = () =>
     fireAsync(async () => {
@@ -65,6 +72,14 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
       const { status, id: newId } = await showNewNameDialog(id);
       if (status === 'ok') {
         rename(newId);
+      }
+    });
+
+  const onRemoveWithUsage = () =>
+    fireAsync(async () => {
+      const { status } = await showRemoveUsageConfirmDialog(usage);
+      if (status === 'ok') {
+        remove();
       }
     });
 
@@ -84,7 +99,15 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
         </IconButton>
       </Tooltip>
 
-      <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+      {usage.length === 0 ? (
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+      ) : (
+        <Tooltip title="Supprimer">
+          <IconButton className={classes.deleteButton} onClick={onRemoveWithUsage}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      )}
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useMemo, useEffect, useCallback } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
 import { Transition } from 'react-transition-group'; // used by material-ui
 import { makeStyles } from '@material-ui/core/styles';
