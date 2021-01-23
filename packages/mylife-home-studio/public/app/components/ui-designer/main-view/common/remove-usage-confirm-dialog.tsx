@@ -22,7 +22,7 @@ interface DialogOptions {
   usage: Usage;
 }
 
-export function useWindowRemoveConfirmDialog() {
+export function useRemoveUsageConfirmDialog() {
 
   const [options, setOptions] = useState<DialogOptions>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
