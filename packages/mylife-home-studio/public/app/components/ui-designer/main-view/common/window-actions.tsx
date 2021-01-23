@@ -18,7 +18,7 @@ import { AppState } from '../../../../store/types';
 import { setWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
 import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
 import { createNewWindow } from './templates';
-import { useWindowRemoveConfirmDialog } from './window-remove-confirm-dialog';
+import { useRemoveUsageConfirmDialog } from './remove-usage-confirm-dialog';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -57,7 +57,7 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
   const { duplicate, rename, remove, usage } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
-  const showRemoveUsageConfirmDialog = useWindowRemoveConfirmDialog();
+  const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
 
   const onDuplicate = () =>
     fireAsync(async () => {
@@ -77,7 +77,12 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
 
   const onRemoveWithUsage = () =>
     fireAsync(async () => {
-      const { status } = await showRemoveUsageConfirmDialog(usage);
+      const { status } = await showRemoveUsageConfirmDialog({ 
+        title: 'Supprimer la fenêtre',
+        message: 'La fenêtre est utilisée :',
+        usage
+      });
+      
       if (status === 'ok') {
         remove();
       }

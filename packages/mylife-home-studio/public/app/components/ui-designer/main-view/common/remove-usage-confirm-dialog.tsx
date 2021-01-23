@@ -16,12 +16,20 @@ import UsageBreadcrumbs from './usage-breadcrumbs';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
+interface DialogOptions {
+  title: string;
+  message: string;
+  usage: Usage;
+}
+
 export function useWindowRemoveConfirmDialog() {
 
-  const [usage, setUsage] = useState<Usage>();
+  const [options, setOptions] = useState<DialogOptions>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
+    const { title, message, usage } = options;
+
     const cancel = () => {
       hideModal();
       onResult({ status: 'cancel' });
@@ -46,10 +54,10 @@ export function useWindowRemoveConfirmDialog() {
 
     return (
       <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
-        <DialogTitle id="dialog-title">Supprimer la fenêtre</DialogTitle>
+        <DialogTitle id="dialog-title">{title}</DialogTitle>
 
         <DialogContent dividers>
-          <DialogText value="La fenêtre est utilisée :" />
+          <DialogText value={message} />
           <List>
             {usage.map((item, index) => (
               <ListItem key={index}>
@@ -66,10 +74,10 @@ export function useWindowRemoveConfirmDialog() {
         </DialogActions>
       </Dialog>
     );
-  }, [usage, onResult]);
+  }, [options, onResult]);
 
-  return (usage: Usage) => new Promise<ConfirmResult>(resolve => {
-    setUsage(usage);
+  return ({ title, message, usage }: DialogOptions) => new Promise<ConfirmResult>(resolve => {
+    setOptions({ title, message, usage });
     setOnResult(() => resolve); // else useState think resolve is a state updater
 
     showModal();
