@@ -114,6 +114,14 @@ export interface ProjectUpdate {
 
 }
 
+export interface ProjectCall {
+
+}
+
+export interface ProjectCallResult {
+
+}
+
 export interface CoreProjectUpdate {
   
 }

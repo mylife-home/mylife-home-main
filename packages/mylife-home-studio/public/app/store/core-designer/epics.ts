@@ -13,7 +13,10 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   updateMappers: {
     // TODO: project updates
-  }
+  },
+  callMappers: [
+    // TODO
+  ]
 });
 
 export default combineEpics(openedProjectManagementEpic);
