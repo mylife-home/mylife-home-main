@@ -59,9 +59,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       return { operation: 'rename-window', id: windowId, newId } as RenameWindowUiProjectUpdate;
     },
   },
-  callMappers: [
+  callMappers: {
     // TODO
-  ]
+  }
 });
 
 export default combineEpics(openedProjectManagementEpic);

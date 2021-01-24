@@ -14,9 +14,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   updateMappers: {
     // TODO: project updates
   },
-  callMappers: [
+  callMappers: {
     // TODO
-  ]
+  }
 });
 
 export default combineEpics(openedProjectManagementEpic);
