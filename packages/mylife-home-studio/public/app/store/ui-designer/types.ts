@@ -10,8 +10,10 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'ui-designer/remove-opened-project',
   UPDATE_PROJECT = 'ui-designer/update-project',
 
-  SET_DEFAULT_WINDOW = 'ui-designer/set-default-window',
+  VALIDATE_PROJECT = 'ui-designer/validate-project',
+  // TODO: deployment
   // TODO: refresh components
+  SET_DEFAULT_WINDOW = 'ui-designer/set-default-window',
   SET_RESOURCE = 'ui-designer/set-resource',
   CLEAR_RESOURCE = 'ui-designer/clear-resource',
   RENAME_RESOURCE = 'ui-designer/rename-resource',
