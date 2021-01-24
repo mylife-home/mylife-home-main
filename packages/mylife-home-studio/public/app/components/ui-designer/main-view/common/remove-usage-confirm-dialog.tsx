@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { Transition } from 'react-transition-group'; // used by material-ui
+import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -22,8 +23,16 @@ interface DialogOptions {
   usage: Usage;
 }
 
-export function useRemoveUsageConfirmDialog() {
+const useStyles = makeStyles((theme) => ({
+  list: {
+    maxHeight: '50vh',
+    overflowY: 'auto',
+    border: `1px solid ${theme.palette.divider}`,
+  },
+}));
 
+export function useRemoveUsageConfirmDialog() {
+  const classes = useStyles();
   const [options, setOptions] = useState<DialogOptions>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
@@ -58,13 +67,15 @@ export function useRemoveUsageConfirmDialog() {
 
         <DialogContent dividers>
           <DialogText value={message} />
-          <List>
+
+          <List className={classes.list}>
             {usage.map((item, index) => (
               <ListItem key={index}>
                 <UsageBreadcrumbs item={item} />
               </ListItem>
             ))}
           </List>
+
           <DialogText value="Supprimer quand même ?" />
         </DialogContent>
 
