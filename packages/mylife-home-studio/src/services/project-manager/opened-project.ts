@@ -1,5 +1,5 @@
 import { logger } from 'mylife-home-common';
-import { ProjectType, ProjectUpdate, SetNameProjectNotification, UpdateProjectNotification } from '../../../shared/project-manager';
+import { ProjectCall, ProjectCallResult, ProjectType, SetNameProjectNotification, UpdateProjectNotification } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionFeature, SessionNotifier } from '../session-manager';
 import { UiProjects } from './ui-projects';
@@ -72,7 +72,7 @@ export abstract class OpenedProject {
     notifier.notify({ operation: 'set-name', name: this.name } as SetNameProjectNotification);
   }
 
-  abstract update(updateData: ProjectUpdate): Promise<void>;
+  abstract call(callData: ProjectCall): Promise<ProjectCallResult>;
 }
 
 export class OpenedProjects {
@@ -188,10 +188,10 @@ export class OpenedProjects {
     return feature.notifiers;
   }
 
-  async updateProject(session: Session, notifierId: string, updateData: ProjectUpdate) {
+  async callProject(session: Session, notifierId: string, callData: ProjectCall): Promise<ProjectCallResult> {
     const sessionNotifiers = this.getSessionNotifiers(session);
     const openedProject = sessionNotifiers.get(notifierId);
-    await openedProject.update(updateData);
+    return await openedProject.call(callData);
   }
 }
 

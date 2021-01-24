@@ -110,10 +110,6 @@ export interface RenameUiWindowNotification extends UpdateProjectNotification {
   newId: string;
 }
 
-export interface ProjectUpdate {
-
-}
-
 export interface ProjectCall {
 
 }
@@ -122,48 +118,57 @@ export interface ProjectCallResult {
 
 }
 
-export interface CoreProjectUpdate {
+export interface CoreProjectCall {
   
 }
 
-export interface UiProjectUpdate {
-  operation: 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
+export interface UiProjectCall {
+  operation: 'validate' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
 }
 
-export interface SetDefaultWindowUiProjectUpdate extends UiProjectUpdate {
+export interface UiValidationError {
+  pate: boolean; // TODO
+}
+
+export interface ValidateUiProjectCallResult extends ProjectCallResult {
+  errors: UiValidationError[]; // TODO
+}
+
+// TODO: component data
+// TODO: deployment
+
+export interface SetDefaultWindowUiProjectCall extends UiProjectCall {
   operation: 'set-default-window';
   defaultWindow: DefaultWindow;
 }
 
-// TODO: component data
-
-export interface SetResourceUiProjectUpdate extends UiProjectUpdate {
+export interface SetResourceUiProjectCall extends UiProjectCall {
   operation: 'set-resource';
   resource: DefinitionResource;
 }
 
-export interface ClearResourceUiProjectUpdate extends UiProjectUpdate {
+export interface ClearResourceUiProjectCall extends UiProjectCall {
   operation: 'clear-resource';
   id: string;
 }
 
-export interface RenameResourceUiProjectUpdate extends UiProjectUpdate {
+export interface RenameResourceUiProjectCall extends UiProjectCall {
   operation: 'rename-resource';
   id: string;
   newId: string;
 }
 
-export interface SetWindowUiProjectUpdate extends UiProjectUpdate {
+export interface SetWindowUiProjectCall extends UiProjectCall {
   operation: 'set-window';
   window: Window;
 }
 
-export interface ClearWindowUiProjectUpdate extends UiProjectUpdate {
+export interface ClearWindowUiProjectCall extends UiProjectCall {
   operation: 'clear-window';
   id: string;
 }
 
-export interface RenameWindowUiProjectUpdate extends UiProjectUpdate {
+export interface RenameWindowUiProjectCall extends UiProjectCall {
   operation: 'rename-window';
   id: string;
   newId: string;

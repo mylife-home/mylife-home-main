@@ -11,9 +11,6 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   tabType: TabType.CORE_DESIGNER,
   setNotifier, clearAllNotifiers, removeOpenedProject, updateProject, updateTab: updateCoreDesignerTab,
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
-  updateMappers: {
-    // TODO: project updates
-  },
   callMappers: {
     // TODO
   }

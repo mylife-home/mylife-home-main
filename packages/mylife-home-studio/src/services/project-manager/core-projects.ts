@@ -1,4 +1,4 @@
-import { CoreProject, CoreProjectInfo, CoreProjectUpdate } from '../../../shared/project-manager';
+import { CoreProject, CoreProjectInfo, CoreProjectCall, ProjectCallResult } from '../../../shared/project-manager';
 import { SessionNotifier } from '../session-manager';
 import { OpenedProject } from './opened-project';
 import { Store } from './store';
@@ -40,8 +40,8 @@ class CoreOpenedProject extends OpenedProject {
     // TODO
   }
 
-  async update(updateData: CoreProjectUpdate) {
-    
+  async call(callData: CoreProjectCall): Promise<ProjectCallResult> {
+    return null;
   }
 
   // TODO

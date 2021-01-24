@@ -1,22 +1,23 @@
 import {
   UiProject,
   UiProjectInfo,
-  UiProjectUpdate,
-  ClearResourceUiProjectUpdate,
-  ClearWindowUiProjectUpdate,
-  SetDefaultWindowUiProjectUpdate,
-  SetResourceUiProjectUpdate,
-  SetWindowUiProjectUpdate,
-  ClearUiResourceNotification,
-  ClearUiWindowNotification,
-  SetUiComponentDataNotification,
+  UiProjectCall,
+  SetDefaultWindowUiProjectCall,
   SetUiDefaultWindowNotification,
+  SetResourceUiProjectCall,
   SetUiResourceNotification,
-  SetUiWindowNotification,
-  RenameResourceUiProjectUpdate,
-  RenameWindowUiProjectUpdate,
+  ClearResourceUiProjectCall,
+  ClearUiResourceNotification,
+  RenameResourceUiProjectCall,
   RenameUiResourceNotification,
+  SetWindowUiProjectCall,
+  SetUiWindowNotification,
+  ClearWindowUiProjectCall,
+  ClearUiWindowNotification,
+  RenameWindowUiProjectCall,
   RenameUiWindowNotification,
+  SetUiComponentDataNotification,
+  ProjectCallResult,
 } from '../../../shared/project-manager';
 import { Definition, DefinitionResource } from '../../../shared/ui-model';
 import { SessionNotifier } from '../session-manager';
@@ -90,66 +91,69 @@ class UiOpenedProject extends OpenedProject {
     }
   }
 
-  async update(updateData: UiProjectUpdate) {
-    switch (updateData.operation) {
+  async call(callData: UiProjectCall): Promise<ProjectCallResult> {
+    switch (callData.operation) {
       case 'set-default-window':
-        await this.setDefaultWindow(updateData as SetDefaultWindowUiProjectUpdate);
+        await this.setDefaultWindow(callData as SetDefaultWindowUiProjectCall);
         break;
 
       case 'set-resource':
-        await this.setResource(updateData as SetResourceUiProjectUpdate);
+        await this.setResource(callData as SetResourceUiProjectCall);
         break;
 
       case 'clear-resource':
-        await this.clearResource(updateData as ClearResourceUiProjectUpdate);
+        await this.clearResource(callData as ClearResourceUiProjectCall);
         break;
 
       case 'rename-resource':
-        await this.renameResource(updateData as RenameResourceUiProjectUpdate);
+        await this.renameResource(callData as RenameResourceUiProjectCall);
         break;
   
       case 'set-window':
-        await this.setWindow(updateData as SetWindowUiProjectUpdate);
+        await this.setWindow(callData as SetWindowUiProjectCall);
         break;
 
       case 'clear-window':
-        await this.clearWindow(updateData as ClearWindowUiProjectUpdate);
+        await this.clearWindow(callData as ClearWindowUiProjectCall);
         break;
 
       case 'rename-window':
-        await this.renameWindow(updateData as RenameWindowUiProjectUpdate);
+        await this.renameWindow(callData as RenameWindowUiProjectCall);
         break;
 
       default:
-        throw new Error(`Unhandle update operation: ${updateData.operation}`);
+        throw new Error(`Unhandle call: ${callData.operation}`);
 
       // TODO renames propage
       // TODO: handle deletion of used objects
     }
+
+    // by default return nothing
+    return null;
   }
 
-  private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectUpdate) {
+  private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
     await this.updateDefinition((definition) => {
       definition.defaultWindow = defaultWindow;
       this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow });
     });
   }
 
-  private async setResource({ resource }: SetResourceUiProjectUpdate) {
+  private async setResource({ resource }: SetResourceUiProjectCall) {
     await this.updateDefinition((definition) => {
       arraySet(definition.resources, resource);
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
     });
   }
 
-  private async clearResource({ id }: ClearResourceUiProjectUpdate) {
+  private async clearResource({ id }: ClearResourceUiProjectCall) {
     await this.updateDefinition((definition) => {
       arrayClear(definition.resources, id);
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
     });
   }
 
-  private async renameResource({ id, newId }: RenameResourceUiProjectUpdate) {
+  private async renameResource({ id, newId }: RenameResourceUiProjectCall) {
     await this.updateDefinition((definition) => {
       throw new Error('TODO');
       //arrayClear(definition.resources, id);
@@ -157,21 +161,21 @@ class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private async setWindow({ window }: SetWindowUiProjectUpdate) {
+  private async setWindow({ window }: SetWindowUiProjectCall) {
     await this.updateDefinition((definition) => {
       arraySet(definition.windows, window);
       this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window });
     });
   }
 
-  private async clearWindow({ id }: ClearWindowUiProjectUpdate) {
+  private async clearWindow({ id }: ClearWindowUiProjectCall) {
     await this.updateDefinition((definition) => {
       arrayClear(definition.windows, id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
     });
   }
 
-  private async renameWindow({ id, newId }: RenameWindowUiProjectUpdate) {
+  private async renameWindow({ id, newId }: RenameWindowUiProjectCall) {
     await this.updateDefinition((definition) => {
       throw new Error('TODO');
       //arrayClear(definition.windows, id);

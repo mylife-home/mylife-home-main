@@ -1,4 +1,4 @@
-import { ProjectType, SetListNotification, ClearListNotification, RenameListNotification, ProjectUpdate } from '../../../shared/project-manager';
+import { ProjectType, SetListNotification, ClearListNotification, RenameListNotification, ProjectCall } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
@@ -44,7 +44,7 @@ export class ProjectManager implements Service {
 
     Services.instance.sessionManager.registerServiceHandler('project-manager/open', this.openProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/close', this.closeProject);
-    Services.instance.sessionManager.registerServiceHandler('project-manager/update-opened', this.updateOpenedProject);
+    Services.instance.sessionManager.registerServiceHandler('project-manager/call-opened', this.callOpenedProject);
   }
 
   async terminate() {
@@ -157,7 +157,7 @@ export class ProjectManager implements Service {
     this.openedProjects.closeProject(session, notifierId);
   };
 
-  private readonly updateOpenedProject = async (session: Session, { notifierId, updateData }: { notifierId: string; updateData: ProjectUpdate }) => {
-    await this.openedProjects.updateProject(session, notifierId, updateData);
+  private readonly callOpenedProject = async (session: Session, { notifierId, callData }: { notifierId: string; callData: ProjectCall }) => {
+    return await this.openedProjects.callProject(session, notifierId, callData);
   };
 }

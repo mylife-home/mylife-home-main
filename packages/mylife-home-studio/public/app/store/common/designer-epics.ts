@@ -12,7 +12,7 @@ import { ProjectType } from '../projects-list/types';
 import { ActionTypes as StatusActionTypes } from '../status/types';
 import { isOnline } from '../status/selectors';
 import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
-import { ProjectUpdate, ProjectCall, ProjectCallResult, SetNameProjectNotification, UpdateProjectNotification } from '../../../../shared/project-manager';
+import { ProjectCall, ProjectCallResult, SetNameProjectNotification, UpdateProjectNotification } from '../../../../shared/project-manager';
 import { DeferredPayload } from './async-action';
 
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
@@ -33,13 +33,10 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   updateProject: (updates: { id: string; update: UpdateProjectNotification }[]) => Action;
   updateTab: (id: string, data: DesignerTabActionData) => Action;
 
-  // project updates (client to server)
-  updateMappers: { [actionType: string]: (payload: any) => ProjectUpdate };
-
-  // calls
+  // project calls
   callMappers: { [actionType: string]: {
     mapper: (payload: any) => ProjectCall;
-    resultMapper: (payload: ProjectCallResult) => unknown;
+    resultMapper?: (payload: ProjectCallResult) => unknown;
   } }
 }
 
@@ -55,7 +52,6 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
   removeOpenedProject,
   updateProject,
   updateTab,
-  updateMappers,
   callMappers,
 }: Parameters<TOpenedProject>) {
   const openProjectEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -124,21 +120,13 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     );
   };
 
-  const others: Epic[] = [];
-
-  for (const [actionType, mapper] of Object.entries(updateMappers)) {
-    others.push(createProjectUpdateEpic(actionType, mapper));
-  }
-
-  for (const [actionType, mapper] of Object.entries(updateMappers)) {
-    others.push(createProjectUpdateEpic(actionType, mapper));
-  }
+  const calls: Epic[] = [];
 
   for (const [actionType, { mapper, resultMapper }] of Object.entries(callMappers)) {
-    others.push(createProjectCallEpic(actionType, mapper, resultMapper));
+    calls.push(createProjectCallEpic(actionType, mapper, resultMapper));
   }
 
-  return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...others);
+  return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...calls);
 
   function openProject(id: string, projectId: string) {
     return openProjectCall(projectType, projectId).pipe(
@@ -147,20 +135,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     );
   }
 
-  function createProjectUpdateEpic<TActionType, TActionPayload extends { id: string } = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectUpdate) {
-    return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
-      action$.pipe(
-        ofType(actionType),
-        withLatestFrom(state$),
-        mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
-          const { notifierId } = getOpenedProject(state, action.payload.id);
-          const updateData = mapper(action.payload);
-          return updateProjectCall(notifierId, updateData).pipe(ignoreElements(), handleError());
-        })
-      );
-  }
-
-  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectCall, resultMapper: (serviceResult: ProjectCallResult) => TActionResult) {
+  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectCall, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
@@ -194,10 +169,6 @@ function openProjectCall(type: ProjectType, id: string) {
 
 function closeProjectCall(notifierId: string) {
   return socket.call('project-manager/close', { notifierId }) as Observable<void>;
-}
-
-function updateProjectCall(notifierId: string, updateData: ProjectUpdate) {
-  return socket.call('project-manager/update-opened', { notifierId, updateData }) as Observable<void>;
 }
 
 function callProjectCall(notifierId: string, callData: ProjectCall) {
