@@ -2,7 +2,7 @@ import { Middleware } from 'redux';
 import { createAction } from '@reduxjs/toolkit';
 import { Deferred } from '../../components/lib/deferred'; // TODO: should not import here
 
-interface DeferredPayload<Result> { 
+export interface DeferredPayload<Result> { 
   promise: Promise<Result>;
   reject: (reason: Error) => void;
   resolve: (value: Result) => void;
