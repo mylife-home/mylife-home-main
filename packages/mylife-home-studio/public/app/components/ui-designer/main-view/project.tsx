@@ -12,9 +12,10 @@ import PublishIcon from '@material-ui/icons/Publish';
 import { Container, Title } from '../../lib/main-view-layout';
 import { ProjectIcon, ComponentIcon, InstanceIcon } from '../../lib/icons';
 import { useTabPanelId } from '../../lib/tab-panel';
+import { useFireAsync } from '../../lib/use-error-handling';
 import { AppState } from '../../../store/types';
 import { getDefaultWindow } from '../../../store/ui-designer/selectors';
-import { setDefaultWindow } from '../../../store/ui-designer/actions';
+import { setDefaultWindow, validateProject } from '../../../store/ui-designer/actions';
 import { DefaultWindow } from '../../../../../shared/ui-model';
 import WindowSelector from './common/window-selector';
 import { Group, Item } from './common/properties-layout';
@@ -39,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 const Project: FunctionComponent = () => {
   const classes = useStyles();
   const { defaultWindow, updateDefaultWindow } = useProjectConnect();
+  const validateProject = useProjectValidation();
 
   return (
     <Container title={<Title text="Projet" icon={ProjectIcon} />}>
@@ -76,7 +78,7 @@ const Project: FunctionComponent = () => {
           </Item>
 
           <Item>
-            <Button className={classes.button} onClick={() => console.log('TODO')} variant="contained" startIcon={<CheckIcon />}>
+            <Button className={classes.button} onClick={validateProject} variant="contained" startIcon={<CheckIcon />}>
               Valider
             </Button>
           </Item>
@@ -108,6 +110,19 @@ function useProjectConnect() {
   );
 
   return { defaultWindow, tabId, updateDefaultWindow };
+}
+
+function useProjectValidation() {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const fireAsync = useFireAsync();
+
+  return useCallback(() => {
+    fireAsync(async () => {
+      const validatorErrors = await dispatch(validateProject({ id: tabId }));
+      console.log('TODO', validatorErrors);
+    });
+  }, [tabId, dispatch, fireAsync]);
 }
 
 const ButtonMenu: FunctionComponent<ButtonProps & { text: string }> = ({ text, children, ...props }) => {
