@@ -1,8 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
-import { makeStyles, darken } from '@material-ui/core/styles';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
+import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -10,23 +7,12 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import { Container, Title } from '../../lib/main-view-layout';
-import { ProjectIcon, ComponentIcon, InstanceIcon, StateIcon, ActionIcon } from '../../lib/icons';
+import { ComponentIcon, StateIcon, ActionIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { getComponentsIds, getComponentAndPlugin } from '../../../store/ui-designer/selectors';
 import { Member, MemberType } from '../../../../../shared/component-model';
 
 const useStyles = makeStyles((theme) => ({
-  newButton: {
-    color: theme.palette.success.main,
-  },
-  badge: {
-    background: null,
-    color: darken(theme.palette.background.paper, 0.4),
-  },
-  badgeIcon: {
-    height: 12,
-    width: 12,
-  },
   list: {
     width: 500,
     overflowY: 'auto',
@@ -72,25 +58,7 @@ const Components: FunctionComponent = () => {
   return (
     <Container
       title={
-        <>
-          <Title text="Composants" icon={ComponentIcon} />
-  
-          <Tooltip title="Rafraîchir les composants depuis un projet core">
-            <IconButton onClick={() => console.log('TODO')}>
-              <Badge badgeContent={<ProjectIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
-                <ComponentIcon />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Rafraîchir les composants depuis les instances en ligne">
-            <IconButton onClick={() => console.log('TODO')}>
-              <Badge badgeContent={<InstanceIcon className={classes.badgeIcon} />} classes={{badge: classes.badge}}>
-                <ComponentIcon />
-              </Badge>
-            </IconButton>
-          </Tooltip>
-        </>
+        <Title text="Composants" icon={ComponentIcon} />
       }
     >
       <div className={classes.list}>

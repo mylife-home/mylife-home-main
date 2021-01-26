@@ -1,9 +1,16 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Typography from '@material-ui/core/Typography';
+import CheckIcon from '@material-ui/icons/Check';
+import PublishIcon from '@material-ui/icons/Publish';
 
 import { Container, Title } from '../../lib/main-view-layout';
-import { ProjectIcon } from '../../lib/icons';
+import { ProjectIcon, ComponentIcon, InstanceIcon } from '../../lib/icons';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { AppState } from '../../../store/types';
 import { getDefaultWindow } from '../../../store/ui-designer/selectors';
@@ -22,12 +29,26 @@ const useStyles = makeStyles((theme) => ({
 
     display: 'flex',
     flexDirection: 'column',
-  }
+  },
+  button: {
+    margin: theme.spacing(2),
+    padding: `${theme.spacing(2)}px ${theme.spacing(3)}px`,
+  },
 }));
 
 const Project: FunctionComponent = () => {
   const classes = useStyles();
   const { defaultWindow, updateDefaultWindow } = useProjectConnect();
+
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   
   return (
     <Container
@@ -44,6 +65,77 @@ const Project: FunctionComponent = () => {
           <Item title={"Mobile"}>
             <WindowSelector value={defaultWindow.mobile} onChange={id => updateDefaultWindow('mobile', id)} />
           </Item>
+        </Group>
+        <Group title={"Opérations"}>
+          <Item>
+            <Button
+              className={classes.button}
+              onClick={handleClick}
+              variant="contained"
+              startIcon={<ComponentIcon />}
+            >
+              Rafraîchir les composants
+            </Button>
+
+            <Menu
+              getContentAnchorEl={null}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              keepMounted
+              anchorEl={anchorEl}
+              open={!!anchorEl}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleClose}>
+                <ListItemIcon>
+                  <ProjectIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography variant="inherit" noWrap>
+                  Depuis un projet core
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={handleClose}>
+                <ListItemIcon>
+                  <InstanceIcon fontSize="small" />
+                </ListItemIcon>
+                <Typography variant="inherit" noWrap>
+                  Depuis les instances en ligne
+                </Typography>
+              </MenuItem>
+            </Menu>
+
+          </Item>
+
+          <Item>
+            <Button
+              className={classes.button}
+              onClick={() => console.log('TODO')}
+              variant="contained"
+              startIcon={<CheckIcon />}
+            >
+              Valider
+            </Button>
+
+          </Item>
+
+          <Item>
+            <Button
+              className={classes.button}
+              onClick={() => console.log('TODO')}
+              variant="contained"
+              startIcon={<PublishIcon />}
+            >
+              Déployer
+            </Button>
+
+          </Item>
+
         </Group>
       </div>
     </Container>
