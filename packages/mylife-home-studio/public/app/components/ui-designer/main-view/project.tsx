@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Button, { ButtonProps } from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -40,59 +40,23 @@ const Project: FunctionComponent = () => {
   const classes = useStyles();
   const { defaultWindow, updateDefaultWindow } = useProjectConnect();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  
   return (
-    <Container
-      title={
-        <Title text="Projet" icon={ProjectIcon} />
-      }
-    >
+    <Container title={<Title text="Projet" icon={ProjectIcon} />}>
       <div className={classes.wrapper}>
-
-        <Group title={"Fenêtre par défaut"}>
-          <Item title={"Desktop"}>
-            <WindowSelector value={defaultWindow.desktop} onChange={id => updateDefaultWindow('desktop', id)} />
+        
+        <Group title={'Fenêtre par défaut'}>
+          <Item title={'Desktop'}>
+            <WindowSelector value={defaultWindow.desktop} onChange={(id) => updateDefaultWindow('desktop', id)} />
           </Item>
-          <Item title={"Mobile"}>
-            <WindowSelector value={defaultWindow.mobile} onChange={id => updateDefaultWindow('mobile', id)} />
+          <Item title={'Mobile'}>
+            <WindowSelector value={defaultWindow.mobile} onChange={(id) => updateDefaultWindow('mobile', id)} />
           </Item>
         </Group>
-        <Group title={"Opérations"}>
-          <Item>
-            <Button
-              className={classes.button}
-              onClick={handleClick}
-              variant="contained"
-              startIcon={<ComponentIcon />}
-            >
-              Rafraîchir les composants
-            </Button>
 
-            <Menu
-              getContentAnchorEl={null}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              keepMounted
-              anchorEl={anchorEl}
-              open={!!anchorEl}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleClose}>
+        <Group title={'Opérations'}>
+          <Item>
+            <ButtonMenu className={classes.button} variant="contained" startIcon={<ComponentIcon />} text={'Rafraîchir les composants'}>
+              <MenuItem onClick={() => console.log('TODO')}>
                 <ListItemIcon>
                   <ProjectIcon fontSize="small" />
                 </ListItemIcon>
@@ -100,7 +64,7 @@ const Project: FunctionComponent = () => {
                   Depuis un projet core
                 </Typography>
               </MenuItem>
-              <MenuItem onClick={handleClose}>
+              <MenuItem onClick={() => console.log('TODO')}>
                 <ListItemIcon>
                   <InstanceIcon fontSize="small" />
                 </ListItemIcon>
@@ -108,34 +72,20 @@ const Project: FunctionComponent = () => {
                   Depuis les instances en ligne
                 </Typography>
               </MenuItem>
-            </Menu>
-
+            </ButtonMenu>
           </Item>
 
           <Item>
-            <Button
-              className={classes.button}
-              onClick={() => console.log('TODO')}
-              variant="contained"
-              startIcon={<CheckIcon />}
-            >
+            <Button className={classes.button} onClick={() => console.log('TODO')} variant="contained" startIcon={<CheckIcon />}>
               Valider
             </Button>
-
           </Item>
 
           <Item>
-            <Button
-              className={classes.button}
-              onClick={() => console.log('TODO')}
-              variant="contained"
-              startIcon={<PublishIcon />}
-            >
+            <Button className={classes.button} onClick={() => console.log('TODO')} variant="contained" startIcon={<PublishIcon />}>
               Déployer
             </Button>
-
           </Item>
-
         </Group>
       </div>
     </Container>
@@ -149,10 +99,52 @@ function useProjectConnect() {
   const defaultWindow = useSelector((state: AppState) => getDefaultWindow(state, tabId));
   const dispatch = useDispatch();
 
-  const updateDefaultWindow = useCallback((type: string, windowId: string) => {
-    const newDefaultWindow: DefaultWindow = { ...defaultWindow, [type]: windowId };
-    dispatch(setDefaultWindow({ id: tabId, defaultWindow: newDefaultWindow }));
-  }, [defaultWindow, dispatch]);
+  const updateDefaultWindow = useCallback(
+    (type: string, windowId: string) => {
+      const newDefaultWindow: DefaultWindow = { ...defaultWindow, [type]: windowId };
+      dispatch(setDefaultWindow({ id: tabId, defaultWindow: newDefaultWindow }));
+    },
+    [defaultWindow, dispatch]
+  );
 
   return { defaultWindow, tabId, updateDefaultWindow };
 }
+
+const ButtonMenu: FunctionComponent<ButtonProps & { text: string }> = ({ text, children, ...props }) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <Button {...props} onClick={handleClick}>
+        {text}
+      </Button>
+
+      <Menu
+        getContentAnchorEl={null}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        keepMounted
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={handleClose}
+        onClick={handleClose}
+      >
+        {children}
+      </Menu>
+    </>
+  );
+};
