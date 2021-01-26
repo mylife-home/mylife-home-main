@@ -45,7 +45,6 @@ const Project: FunctionComponent = () => {
   return (
     <Container title={<Title text="Projet" icon={ProjectIcon} />}>
       <div className={classes.wrapper}>
-        
         <Group title={'Fenêtre par défaut'}>
           <Item title={'Desktop'}>
             <WindowSelector value={defaultWindow.desktop} onChange={(id) => updateDefaultWindow('desktop', id)} />
@@ -144,14 +143,8 @@ const ButtonMenu: FunctionComponent<ButtonProps & { text: string }> = ({ text, c
 
       <Menu
         getContentAnchorEl={null}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         keepMounted
         anchorEl={anchorEl}
         open={!!anchorEl}
