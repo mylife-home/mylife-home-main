@@ -1,7 +1,9 @@
 import { DefinitionResource, Window, Control, ControlDisplay, ControlText, Action, ControlDisplayMapItem } from '../../../../shared/ui-model';
 import { UiProject, ComponentData, PluginData } from '../../../../shared/project-manager';
-import * as uiV1 from './ui-v1-types';
-import { convertPluginMembers } from './core-converter';
+import * as uiV1 from './v1-types';
+import { convertPluginMembers } from '../core/converter';
+
+export { uiV1 };
 
 type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
