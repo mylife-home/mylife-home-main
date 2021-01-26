@@ -33,7 +33,7 @@ export class UiProjects extends Store<UiProject> {
   }
 
   openProject(name: string) {
-    return new UiOpenedProject(this, name);
+    return new UiOpenedProject(this, name, this.getProject(name));
   }
 }
 
