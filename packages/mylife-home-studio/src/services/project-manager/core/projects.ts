@@ -1,7 +1,7 @@
-import { CoreProject, CoreProjectInfo, CoreProjectCall, ProjectCallResult } from '../../../shared/project-manager';
-import { SessionNotifier } from '../session-manager';
-import { OpenedProject } from './opened-project';
-import { Store } from './store';
+import { CoreProject, CoreProjectInfo, CoreProjectCall, ProjectCallResult } from '../../../../shared/project-manager';
+import { SessionNotifier } from '../../session-manager';
+import { OpenedProject } from '../opened-project';
+import { Store } from '../store';
 
 export class CoreProjects extends Store<CoreProject> {
 

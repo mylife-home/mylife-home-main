@@ -4,8 +4,8 @@ import { Session, SessionNotifier, SessionNotifierManager } from '../session-man
 import { Service, BuildParams } from '../types';
 import * as directories from './directories';
 import { ProjectBase, Store } from './store';
-import { CoreProjects } from './core-projects';
-import { UiProjects } from './ui-projects';
+import { CoreProjects } from './core/projects';
+import { UiProjects } from './ui/projects';
 import { OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {

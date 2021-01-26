@@ -18,12 +18,12 @@ import {
   RenameUiWindowNotification,
   SetUiComponentDataNotification,
   ProjectCallResult,
-} from '../../../shared/project-manager';
-import { Definition, DefinitionResource } from '../../../shared/ui-model';
-import { SessionNotifier } from '../session-manager';
-import { convertUiProject, uiV1 } from './format-converter/index'; // TODO: why do I need index ???
-import { OpenedProject } from './opened-project';
-import { Store } from './store';
+} from '../../../../shared/project-manager';
+import { Definition, DefinitionResource } from '../../../../shared/ui-model';
+import { SessionNotifier } from '../../session-manager';
+import { convertUiProject, uiV1 } from '../format-converter/index'; // TODO: why do I need index ???
+import { OpenedProject } from '../opened-project';
+import { Store } from '../store';
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 

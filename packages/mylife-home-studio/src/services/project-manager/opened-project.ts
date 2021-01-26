@@ -2,8 +2,8 @@ import { logger } from 'mylife-home-common';
 import { ProjectCall, ProjectCallResult, ProjectType, SetNameProjectNotification, UpdateProjectNotification } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionFeature, SessionNotifier } from '../session-manager';
-import { UiProjects } from './ui-projects';
-import { CoreProjects } from './core-projects';
+import { UiProjects } from './ui/projects';
+import { CoreProjects } from './core/projects';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:opened-projects');
 
