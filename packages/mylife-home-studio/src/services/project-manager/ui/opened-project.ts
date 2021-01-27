@@ -33,7 +33,7 @@ export class UiOpenedProject extends OpenedProject {
   private readonly defaultWindow: DefaultWindowModel;
   private readonly windows: CollectionModel<Mutable<Window>, WindowModel>;
   private readonly resources: CollectionModel<Mutable<DefinitionResource>, ResourceModel>;
-  private readonly components = new Map<string, ComponentModel>();
+  private readonly components: ComponentsModel;
 
   constructor(private owner: UiProjects, name: string, private readonly project: UiProject) {
     super('ui', name);
@@ -41,7 +41,7 @@ export class UiOpenedProject extends OpenedProject {
     this.defaultWindow = new DefaultWindowModel(project.definition.defaultWindow);
     this.windows = new CollectionModel(project.definition.windows, WindowModel);
     this.resources = new CollectionModel(project.definition.resources, ResourceModel);
-    ComponentModel.rebuild(this.components, project.componentData);
+    this.components = new ComponentsModel(project.componentData);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
@@ -204,9 +204,9 @@ export class UiOpenedProject extends OpenedProject {
     return { errors: context.errors };
   }
 
-  // TODO
   private async refreshComponents() {
-    ComponentModel.rebuild(this.components, this.project.componentData);
+    // TODO
+    this.components.rebuild();
   }
 }
 
@@ -435,13 +435,15 @@ class WindowModel {
     const { display } = control;
     const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }];
     context.checkResourceId(display.defaultResource, pathBuilder, { optional: true });
-    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE });
+
+    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
 
     for (const [index, item] of display.map.entries()) {
       context.checkResourceId(item.resource, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }]);
       if (!valueType) {
         continue;
       }
+
       // TODO: check with valueType
       // min/max/value
     }
@@ -508,22 +510,48 @@ class ResourceModel {
   }
 }
 
-class ComponentModel {
-  static rebuild(model: Map<string, ComponentModel>, componentData: ComponentData) {
-    model.clear();
+class ComponentsModel {
+  private readonly map = new Map<string, ComponentModel>();
 
-    for (const component of componentData.components) {
-      const plugin = componentData.plugins[component.plugin];
+  constructor(readonly componentData: ComponentData) {
+    this.rebuild();
+  }
+
+  rebuild() {
+    this.map.clear();
+
+    for (const component of this.componentData.components) {
+      const plugin = this.componentData.plugins[component.plugin];
       const item = new ComponentModel(component, plugin);
-      model.set(item.id, item);
+      this.map.set(item.id, item);
     }
   }
 
+  has(componentId: string) {
+    return this.map.has(componentId);
+  }
+
+  findComponentMemberValueType(componentId: string, memberName: string, memberType: MemberType) {
+    const component = this.map.get(componentId);
+    return component?.findMemberValueType(memberName, memberType);
+  }
+}
+
+class ComponentModel {
   constructor(private readonly component: Component, private readonly plugin: PluginData) {
   }
 
   get id() {
     return this.component.id;
+  }
+
+  findMemberValueType(memberName: string, memberType: MemberType) {
+    const member = this.plugin.members[memberName];
+    if (!member || member.memberType !== memberType) {
+      return;
+    }
+
+    return member.valueType;
   }
 }
 
@@ -540,7 +568,7 @@ type PathBuilder = () => UiElementPath;
 class ValidationContext {
   readonly errors: UiValidationError[] = [];
 
-  constructor(readonly windowsIds: IdContainer, readonly resourcesIds: IdContainer, readonly components: Map<string, ComponentModel>) {
+  constructor(readonly windowsIds: IdContainer, readonly resourcesIds: IdContainer, readonly components: ComponentsModel) {
   }
 
   addError(message: string, path: UiElementPath) {
@@ -571,8 +599,46 @@ class ValidationContext {
     }
   }
 
-  checkComponent(componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null }: { memberType: MemberType, valueType?: string | string[]; }) {
-    // TODO
-    return null as string;
+  checkComponent(componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null, optional = false }: { memberType: MemberType, valueType?: string | string[]; optional?: boolean; }) {
+    if (!componentId) {
+      if (!optional) {
+        this.addError(`Le composant n'est pas défini.`, pathBuilder());
+      }
+      return null;
+    }
+
+    if (!this.components.has(componentId)) {
+      this.addError(`Le composant '${componentId}' n'existe pas.`, pathBuilder());
+      return null;
+    }
+
+    const buildErrorPrefix = () => {
+      switch (memberType) {
+        case MemberType.STATE:
+          return `L'état '${memberName}' du composant '${componentId}'`;
+
+        case MemberType.ACTION:
+          return `L'action '${memberName}' du composant '${componentId}'`;
+      }
+    };
+
+    const actualValueType = this.components.findComponentMemberValueType(componentId, memberName, memberType);
+    if (!valueType) {
+      this.addError(`${buildErrorPrefix()} n'existe pas.`, pathBuilder());
+      return null;
+    }
+
+    let permittedValueTypes: Set<string>;
+    if (typeof valueType === 'string') {
+      permittedValueTypes = new Set([valueType]);
+    } else if (Array.isArray(valueType)) {
+      permittedValueTypes = new Set(valueType);
+    }
+
+    if (permittedValueTypes && !permittedValueTypes.has(actualValueType)) {
+      this.addError(`${buildErrorPrefix()} a un type incorrect : '${valueType}'.`, pathBuilder());
+    }
+
+    return actualValueType;
   }
 }
