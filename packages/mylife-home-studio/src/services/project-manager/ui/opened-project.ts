@@ -416,7 +416,7 @@ class WindowModel {
     context.checkResourceId(this.data.backgroundResource, () => [{ type: 'window', id: this.id }], { optional: true });
 
     for (const [index, control] of this.data.controls.entries()) {
-      context.checkId(control.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: index.toString() }])
+      context.checkId(control.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: index.toString() }]);
 
       if ((control.display && control.text) || (!control.display && !control.text)) {
         context.addError('Le contrôle doit être image ou texte', [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]);
@@ -437,7 +437,7 @@ class WindowModel {
     context.checkResourceId(display.defaultResource, pathBuilder, { optional: true });
     const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE });
 
-    for(const [index, item] of display.map.entries()) {
+    for (const [index, item] of display.map.entries()) {
       context.checkResourceId(item.resource, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }]);
       if (!valueType) {
         continue;
@@ -450,7 +450,7 @@ class WindowModel {
   private validateControlText(control: Control, context: ValidationContext) {
     const { text } = control;
     for (const [index, item] of text.context.entries()) {
-      context.checkId(item.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }])
+      context.checkId(item.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }]);
 
       context.checkComponent(
         item.componentId,
@@ -479,7 +479,7 @@ class WindowModel {
       context.addError(`L'action doit être composant ou fenêtre`, [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
       return;
     }
-    
+
     if (action.component) {
       context.checkComponent(
         action.component.id,
@@ -488,7 +488,7 @@ class WindowModel {
         { memberType: MemberType.ACTION, valueType: 'bool' }
       );
     }
-    
+
     if (action.window) {
       context.checkWindowId(action.window.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
     }
@@ -553,19 +553,19 @@ class ValidationContext {
     }
   }
 
-  checkResourceId(value: string, pathBuilder: PathBuilder, { optional = false } = {}) {
+  checkWindowId(value: string, pathBuilder: PathBuilder) {
     if (value === null) {
-      if (!optional) {
-        this.addError(`La fenêtre n'est pas définie.`, pathBuilder());
-      }
+      this.addError(`La fenêtre n'est pas définie.`, pathBuilder());
     } else if (!this.windowsIds.hasId(value)) {
       this.addError(`La fenêtre '${value}' n'existe pas.`, pathBuilder());
     }
   }
 
-  checkWindowId(value: string, pathBuilder: PathBuilder) {
+  checkResourceId(value: string, pathBuilder: PathBuilder, { optional = false } = {}) {
     if (value === null) {
-      this.addError(`La ressource n'est pas définie.`, pathBuilder());
+      if (!optional) {
+        this.addError(`La ressource n'est pas définie.`, pathBuilder());
+      }
     } else if (!this.resourcesIds.hasId(value)) {
       this.addError(`La ressource '${value}' n'existe pas.`, pathBuilder());
     }
