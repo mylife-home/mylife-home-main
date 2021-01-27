@@ -20,9 +20,11 @@ import {
   ValidateUiProjectCallResult,
   PluginData,
   ComponentData,
+  UiValidationError,
+  UiElementPath,
 } from '../../../../shared/project-manager';
-import { Window, DefinitionResource, DefaultWindow } from '../../../../shared/ui-model';
-import { Component } from '../../../../shared/component-model';
+import { Window, DefinitionResource, DefaultWindow, Control } from '../../../../shared/ui-model';
+import { Component, MemberType } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { UiProjects } from './projects';
@@ -92,9 +94,6 @@ export class UiOpenedProject extends OpenedProject {
 
       default:
         throw new Error(`Unhandle call: ${callData.operation}`);
-
-      // TODO renames propage
-      // TODO: handle deletion of used objects
     }
 
     // by default return nothing
@@ -133,7 +132,7 @@ export class UiOpenedProject extends OpenedProject {
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
 
       for (const window of this.windows) {
-        if(window.onClearResource(id)) {
+        if (window.onClearResource(id)) {
           this.notifyAllWindow(window);
         }
       }
@@ -146,7 +145,7 @@ export class UiOpenedProject extends OpenedProject {
       this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
 
       for (const window of this.windows) {
-        if(window.onRenameResource(id, newId)) {
+        if (window.onRenameResource(id, newId)) {
           this.notifyAllWindow(window);
         }
       }
@@ -165,12 +164,12 @@ export class UiOpenedProject extends OpenedProject {
       this.windows.clear(id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
 
-      if(this.defaultWindow.onClearWindow(id)) {
+      if (this.defaultWindow.onClearWindow(id)) {
         this.notifyAllDefaultWindow();
       }
 
       for (const window of this.windows) {
-        if(window.onClearWindow(id)) {
+        if (window.onClearWindow(id)) {
           this.notifyAllWindow(window);
         }
       }
@@ -182,12 +181,12 @@ export class UiOpenedProject extends OpenedProject {
       this.windows.rename(id, newId);
       this.notifyAll<RenameUiWindowNotification>({ operation: 'rename-ui-window', id, newId });
 
-      if(this.defaultWindow.onRenameWindow(id, newId)) {
+      if (this.defaultWindow.onRenameWindow(id, newId)) {
         this.notifyAllDefaultWindow();
       }
 
       for (const window of this.windows) {
-        if(window.onRenameWindow(id, newId)) {
+        if (window.onRenameWindow(id, newId)) {
           this.notifyAllWindow(window);
         }
       }
@@ -195,9 +194,14 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private async validate(): Promise<ValidateUiProjectCallResult> {
-    return {
-      errors: []
-    };
+    const context = new ValidationContext(this.windows, this.resources, this.components);
+
+    this.defaultWindow.validate(context);
+    for (const window of this.windows) {
+      window.validate(context);
+    }
+
+    return { errors: context.errors };
   }
 
   // TODO
@@ -212,7 +216,11 @@ interface WithId {
   id: string;
 }
 
-class CollectionModel<TData extends WithId, TModel extends WithId> {
+interface IdContainer {
+  hasId(id: string): boolean;
+}
+
+class CollectionModel<TData extends WithId, TModel extends WithId> implements IdContainer {
   private readonly map = new Map<string, { item: TModel, index: number; }>();
 
   constructor(public readonly data: TData[], private readonly ModelFactory: new (data: TData) => TModel) {
@@ -223,9 +231,13 @@ class CollectionModel<TData extends WithId, TModel extends WithId> {
   }
 
   *[Symbol.iterator]() {
-    for(const { item } of this.map.values()) {
+    for (const { item } of this.map.values()) {
       yield item;
     }
+  }
+
+  hasId(id: string) {
+    return this.map.has(id);
   }
 
   findById(id: string) {
@@ -296,7 +308,7 @@ class DefaultWindowModel {
         changed = true;
       }
     }
-  
+
     return changed;
   }
 
@@ -306,6 +318,12 @@ class DefaultWindowModel {
    */
   onClearWindow(windowId: string) {
     return this.onRenameWindow(windowId, null);
+  }
+
+  validate(context: ValidationContext) {
+    for (const [key, value] of Object.entries(this.data)) {
+      context.checkWindowId(value, () => [{ type: 'defaultWindow', id: key }]);
+    }
   }
 }
 
@@ -376,8 +394,8 @@ class WindowModel {
       for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
         const windowAction = control[aid]?.window;
 
-        if(windowAction?.id === windowId) {
-          asMutable(windowAction).id = newId
+        if (windowAction?.id === windowId) {
+          asMutable(windowAction).id = newId;
           changed = true;
         }
       }
@@ -392,6 +410,88 @@ class WindowModel {
    */
   onClearWindow(windowId: string) {
     return this.onRenameWindow(windowId, null);
+  }
+
+  validate(context: ValidationContext) {
+    context.checkResourceId(this.data.backgroundResource, () => [{ type: 'window', id: this.id }], { optional: true });
+
+    for (const [index, control] of this.data.controls.entries()) {
+      context.checkId(control.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: index.toString() }])
+
+      if ((control.display && control.text) || (!control.display && !control.text)) {
+        context.addError('Le contrôle doit être image ou texte', [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]);
+      } else if (control.display) {
+        this.validateControlDisplay(control, context);
+      } else if (control.text) {
+        this.validateControlText(control, context);
+      }
+
+      this.validateControlAction(control, 'primaryAction', context);
+      this.validateControlAction(control, 'secondaryAction', context);
+    }
+  }
+
+  private validateControlDisplay(control: Control, context: ValidationContext) {
+    const { display } = control;
+    const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }];
+    context.checkResourceId(display.defaultResource, pathBuilder, { optional: true });
+    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE });
+
+    for(const [index, item] of display.map.entries()) {
+      context.checkResourceId(item.resource, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }]);
+      if (!valueType) {
+        continue;
+      }
+      // TODO: check with valueType
+      // min/max/value
+    }
+  }
+
+  private validateControlText(control: Control, context: ValidationContext) {
+    const { text } = control;
+    for (const [index, item] of text.context.entries()) {
+      context.checkId(item.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }])
+
+      context.checkComponent(
+        item.componentId,
+        item.componentState,
+        () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: item.id }],
+        { memberType: MemberType.ACTION }
+      );
+    }
+
+    // try to build function
+    const argNames = text.context.map(item => item.id).join(',');
+    try {
+      new Function(argNames, text.format);
+    } catch (compileError) {
+      context.addError('Le format est invalide', [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]);
+    }
+  }
+
+  private validateControlAction(control: Control, type: 'primaryAction' | 'secondaryAction', context: ValidationContext) {
+    const action = control[type];
+    if (!action) {
+      return;
+    }
+
+    if ((action.component && action.window) || (!action.component && !action.window)) {
+      context.addError(`L'action doit être composant ou fenêtre`, [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
+      return;
+    }
+    
+    if (action.component) {
+      context.checkComponent(
+        action.component.id,
+        action.component.action,
+        () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }],
+        { memberType: MemberType.ACTION, valueType: 'bool' }
+      );
+    }
+    
+    if (action.window) {
+      context.checkWindowId(action.window.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
+    }
   }
 }
 
@@ -425,8 +525,6 @@ class ComponentModel {
   get id() {
     return this.component.id;
   }
-
-  // TODO: accessors
 }
 
 /**
@@ -435,4 +533,46 @@ class ComponentModel {
 function asMutable<T>(obj: T) {
   const mutableObj: Mutable<T> = obj;
   return mutableObj;
+}
+
+type PathBuilder = () => UiElementPath;
+
+class ValidationContext {
+  readonly errors: UiValidationError[] = [];
+
+  constructor(readonly windowsIds: IdContainer, readonly resourcesIds: IdContainer, readonly components: Map<string, ComponentModel>) {
+  }
+
+  addError(message: string, path: UiElementPath) {
+    this.errors.push({ path, message });
+  }
+
+  checkId(value: string, pathBuilder: PathBuilder) {
+    if (!value) {
+      this.addError(`L'identifiant n'est pas défini.`, pathBuilder());
+    }
+  }
+
+  checkResourceId(value: string, pathBuilder: PathBuilder, { optional = false } = {}) {
+    if (value === null) {
+      if (!optional) {
+        this.addError(`La fenêtre n'est pas définie.`, pathBuilder());
+      }
+    } else if (!this.windowsIds.hasId(value)) {
+      this.addError(`La fenêtre '${value}' n'existe pas.`, pathBuilder());
+    }
+  }
+
+  checkWindowId(value: string, pathBuilder: PathBuilder) {
+    if (value === null) {
+      this.addError(`La ressource n'est pas définie.`, pathBuilder());
+    } else if (!this.resourcesIds.hasId(value)) {
+      this.addError(`La ressource '${value}' n'existe pas.`, pathBuilder());
+    }
+  }
+
+  checkComponent(componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null }: { memberType: MemberType, valueType?: string | string[]; }) {
+    // TODO
+    return null as string;
+  }
 }
