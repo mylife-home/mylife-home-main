@@ -7,7 +7,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import HomeIcon from '@material-ui/icons/Home';
 
 import { UiElementPath, UiElementPathNode } from '../../../../store/ui-designer/types';
-import { WindowIcon, ImageIcon, ActionIcon } from '../../../lib/icons';
+import { WindowIcon, ImageIcon, TextIcon, ActionIcon } from '../../../lib/icons';
 
 const useStyles = makeStyles((theme) => ({
   node: {
@@ -64,6 +64,20 @@ function renderIcon(node: UiElementPathNode, className: string) {
       return (
         <Tooltip title="Action">
           <ActionIcon className={className} />
+        </Tooltip>
+      );
+
+    case 'context-item':
+      return (
+        <Tooltip title="Item de contexte de texte">
+          <TextIcon className={className} />
+        </Tooltip>
+      );
+
+    case 'map-item':
+      return (
+        <Tooltip title="Item de mapping d'image">
+          <ImageIcon className={className} />
         </Tooltip>
       );
 
