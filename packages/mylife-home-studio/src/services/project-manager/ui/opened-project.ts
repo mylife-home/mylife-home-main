@@ -623,7 +623,7 @@ class ValidationContext {
     };
 
     const actualValueType = this.components.findComponentMemberValueType(componentId, memberName, memberType);
-    if (!valueType) {
+    if (!actualValueType) {
       this.addError(`${buildErrorPrefix()} n'existe pas.`, pathBuilder());
       return null;
     }
