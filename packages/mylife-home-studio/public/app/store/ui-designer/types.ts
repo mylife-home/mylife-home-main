@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { PluginData } from '../../../../shared/project-manager';
+import { PluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -51,10 +51,5 @@ export interface UiOpenedProject extends OpenedProjectBase {
 
 export type UiDesignerState = DesignerState<UiOpenedProject>;
 
-export interface UsageNode {
-  type: string;
-  id: string;
-}
-
-export type UsageItem = UsageNode[];
-export type Usage = UsageItem[];
+export { UiElementPath, UiElementPathNode };
+export type Usage = UiElementPath[];

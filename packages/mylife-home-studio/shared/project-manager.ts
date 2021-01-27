@@ -127,7 +127,15 @@ export interface UiProjectCall {
 }
 
 export interface UiValidationError {
-  pate: boolean; // TODO
+  path: UiElementPath;
+  message: string;
+}
+
+export type UiElementPath = UiElementPathNode[];
+
+export interface UiElementPathNode {
+  type: string;
+  id: string;
 }
 
 export interface ValidateUiProjectCallResult extends ProjectCallResult {
