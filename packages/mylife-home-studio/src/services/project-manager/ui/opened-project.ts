@@ -21,24 +21,24 @@ import {
   PluginData,
   ComponentData,
 } from '../../../../shared/project-manager';
-import { Definition, Window, DefinitionResource, DefaultWindow } from '../../../../shared/ui-model';
+import { Window, DefinitionResource, DefaultWindow } from '../../../../shared/ui-model';
 import { Component } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { UiProjects } from './projects';
 
 export class UiOpenedProject extends OpenedProject {
-  private readonly defaultWindow: DefaultWindow;
-  private readonly windows: Collection<Mutable<Window>>;
-  private readonly resources: Collection<Mutable<DefinitionResource>>;
+  private readonly defaultWindow: DefaultWindowModel;
+  private readonly windows: CollectionModel<Mutable<Window>, WindowModel>;
+  private readonly resources: CollectionModel<Mutable<DefinitionResource>, ResourceModel>;
   private readonly components = new Map<string, ComponentModel>();
 
   constructor(private owner: UiProjects, name: string, private readonly project: UiProject) {
     super('ui', name);
 
-    this.defaultWindow = project.definition.defaultWindow;
-    this.windows = new Collection(project.definition.windows);
-    this.resources = new Collection(project.definition.resources);
+    this.defaultWindow = new DefaultWindowModel(project.definition.defaultWindow);
+    this.windows = new CollectionModel(project.definition.windows, WindowModel);
+    this.resources = new CollectionModel(project.definition.resources, ResourceModel);
     ComponentModel.rebuild(this.components, project.componentData);
   }
 
@@ -105,10 +105,18 @@ export class UiOpenedProject extends OpenedProject {
     await this.owner.update(this.name, updater);
   }
 
+  private notifyAllDefaultWindow() {
+    this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow: this.defaultWindow.data });
+  }
+
+  private notifyAllWindow(window: WindowModel) {
+    this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window: window.data });
+  }
+
   private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
     await this.executeUpdate(() => {
       Object.assign(this.defaultWindow, defaultWindow);
-      this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow });
+      this.notifyAllDefaultWindow();
     });
   }
 
@@ -121,40 +129,68 @@ export class UiOpenedProject extends OpenedProject {
 
   private async clearResource({ id }: ClearResourceUiProjectCall) {
     await this.executeUpdate(() => {
-      // TODO: check usage
       this.resources.clear(id);
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
+
+      for (const window of this.windows) {
+        if(window.onClearResource(id)) {
+          this.notifyAllWindow(window);
+        }
+      }
     });
   }
 
   private async renameResource({ id, newId }: RenameResourceUiProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
-      //arrayClear(definition.resources, id);
+      this.resources.rename(id, newId);
       this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
+
+      for (const window of this.windows) {
+        if(window.onRenameResource(id, newId)) {
+          this.notifyAllWindow(window);
+        }
+      }
     });
   }
 
   private async setWindow({ window }: SetWindowUiProjectCall) {
     await this.executeUpdate(() => {
-      this.windows.set(window);
-      this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window });
+      const model = this.windows.set(window);
+      this.notifyAllWindow(model);
     });
   }
 
   private async clearWindow({ id }: ClearWindowUiProjectCall) {
     await this.executeUpdate(() => {
-      // TODO: check usage
       this.windows.clear(id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
+
+      if(this.defaultWindow.onClearWindow(id)) {
+        this.notifyAllDefaultWindow();
+      }
+
+      for (const window of this.windows) {
+        if(window.onClearWindow(id)) {
+          this.notifyAllWindow(window);
+        }
+      }
     });
   }
 
   private async renameWindow({ id, newId }: RenameWindowUiProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
-      //arrayClear(definition.windows, id);
+      this.windows.rename(id, newId);
       this.notifyAll<RenameUiWindowNotification>({ operation: 'rename-ui-window', id, newId });
+
+      if(this.defaultWindow.onRenameWindow(id, newId)) {
+        this.notifyAllDefaultWindow();
+      }
+
+      for (const window of this.windows) {
+        if(window.onRenameWindow(id, newId)) {
+          this.notifyAllWindow(window);
+        }
+      }
     });
   }
 
@@ -176,12 +212,19 @@ interface WithId {
   id: string;
 }
 
-class Collection<T extends WithId> {
-  private readonly map = new Map<string, { item: T, index: number; }>();
+class CollectionModel<TData extends WithId, TModel extends WithId> {
+  private readonly map = new Map<string, { item: TModel, index: number; }>();
 
-  constructor(private readonly array: T[]) {
-    for (const [index, item] of array.entries()) {
+  constructor(public readonly data: TData[], private readonly ModelFactory: new (data: TData) => TModel) {
+    for (const [index, itemData] of data.entries()) {
+      const item = new this.ModelFactory(itemData);
       this.map.set(item.id, { item, index });
+    }
+  }
+
+  *[Symbol.iterator]() {
+    for(const { item } of this.map.values()) {
+      yield item;
     }
   }
 
@@ -190,22 +233,26 @@ class Collection<T extends WithId> {
   }
 
   findByIndex(index: number) {
-    return this.array[index];
+    return this.data[index];
   }
 
   // push at the end of array, or replace if id exists
-  set(item: T) {
+  set(itemData: TData) {
+    const item = new this.ModelFactory(itemData);
     const mapItem = this.map.get(item.id);
+
     if (mapItem) {
       // replace
       mapItem.item = item;
-      this.array[mapItem.index] = item;
+      this.data[mapItem.index] = itemData;
     } else {
       // push
-      const index = this.array.length;
-      this.array.push(item);
+      const index = this.data.length;
+      this.data.push(itemData);
       this.map.set(item.id, { item, index });
     }
+
+    return item;
   }
 
   clear(id: string) {
@@ -215,7 +262,7 @@ class Collection<T extends WithId> {
     }
 
     this.map.delete(id);
-    this.array.splice(mapItem.index, 1);
+    this.data.splice(mapItem.index, 1);
     return true;
   }
 
@@ -229,6 +276,135 @@ class Collection<T extends WithId> {
     mapItem.item.id = newId;
     this.map.set(id, mapItem);
     return true;
+  }
+}
+
+class DefaultWindowModel {
+  constructor(public readonly data: Mutable<DefaultWindow>) {
+  }
+
+  /**
+   * @param windowId 
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onRenameWindow(windowId: string, newId: string) {
+    let changed = false;
+
+    for (const [key, value] of Object.entries(this.data)) {
+      if (value === windowId) {
+        this.data[key] = newId;
+        changed = true;
+      }
+    }
+  
+    return changed;
+  }
+
+  /**
+   * @param windowId 
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onClearWindow(windowId: string) {
+    return this.onRenameWindow(windowId, null);
+  }
+}
+
+class WindowModel {
+  constructor(public readonly data: Mutable<Window>) {
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  set id(value: string) {
+    this.data.id = value;
+  }
+
+  /**
+   * @param resourceId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onRenameResource(resourceId: string, newId: string) {
+    let changed = false;
+
+    if (this.data.backgroundResource === resourceId) {
+      this.data.backgroundResource = newId;
+      changed = true;
+    }
+
+    for (const control of this.data.controls) {
+      const { display } = control;
+      if (!display) {
+        continue;
+      }
+
+      if (display.defaultResource === resourceId) {
+        asMutable(display).defaultResource = newId;
+        changed = true;
+      }
+
+      for (const item of display.map) {
+        if (item.resource === resourceId) {
+          asMutable(item).resource = newId;
+          changed = true;
+        }
+      }
+    }
+
+    return changed;
+  }
+
+  /**
+   * @param resourceId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onClearResource(resourceId: string) {
+    return this.onRenameResource(resourceId, null);
+  }
+
+  /**
+   * @param windowId 
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onRenameWindow(windowId: string, newId: string) {
+    let changed = false;
+
+    for (const control of this.data.controls) {
+      for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+        const windowAction = control[aid]?.window;
+
+        if(windowAction?.id === windowId) {
+          asMutable(windowAction).id = newId
+          changed = true;
+        }
+      }
+    }
+
+    return changed;
+  }
+
+  /**
+   * @param windowId 
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onClearWindow(windowId: string) {
+    return this.onRenameWindow(windowId, null);
+  }
+}
+
+class ResourceModel {
+  constructor(public readonly data: Mutable<DefinitionResource>) {
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  set id(value: string) {
+    this.data.id = value;
   }
 }
 
@@ -251,4 +427,12 @@ class ComponentModel {
   }
 
   // TODO: accessors
+}
+
+/**
+ * Workaround for readonly model
+ */
+function asMutable<T>(obj: T) {
+  const mutableObj: Mutable<T> = obj;
+  return mutableObj;
 }
