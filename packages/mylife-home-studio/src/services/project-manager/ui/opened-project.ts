@@ -552,7 +552,7 @@ class WindowModel {
         item.componentId,
         item.componentState,
         () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: item.id }],
-        { memberType: MemberType.ACTION }
+        { memberType: MemberType.STATE }
       );
     }
 
