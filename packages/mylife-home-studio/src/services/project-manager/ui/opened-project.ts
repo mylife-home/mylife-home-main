@@ -509,7 +509,7 @@ class WindowModel {
 
   private validateFloat(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
-      context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+      context.addError(`Le type 'float' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }
 
     if (typeof item.min !== 'number' && item.min !== null) {
@@ -527,7 +527,7 @@ class WindowModel {
 
   private validateRange(item: ControlDisplayMapItem, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
-      context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+      context.addError(`Le type 'range' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }
 
     if (typeof item.min !== 'number' || item.min % 1 !== 0 || item.min < min) {
