@@ -18,8 +18,12 @@ export namespace Primitives {
   export const JSON: Primitive = { id: 'json', encode: encoding.writeJson, decode: encoding.readJson };
 }
 
+export type TypeId = 'range' | 'text' | 'float' | 'bool' | 'enum' | 'complex';
+
 export interface Type {
+  readonly typeId: TypeId;
   readonly primitive: Primitive;
+
   toString(): string;
   validate(value: any): void;
 }
@@ -91,6 +95,7 @@ const UINT32_MAX = 4294967295;
 
 export class Range implements Type {
   public readonly primitive: Primitive;
+
   constructor(public readonly min: number, public readonly max: number) {
     if (!Number.isInteger(min)) {
       throw new Error(`Bad min value for range: ${min}`);
@@ -105,6 +110,10 @@ export class Range implements Type {
     }
 
     this.primitive = computePrimitive(min, max);
+  }
+
+  get typeId(): TypeId {
+    return 'range';
   }
 
   toString() {
@@ -139,12 +148,16 @@ function computePrimitive(min: number, max: number) {
 }
 
 export class Text implements Type {
-  toString() {
+  get typeId(): TypeId {
     return 'text';
   }
 
   get primitive() {
     return Primitives.STRING;
+  }
+
+  toString() {
+    return 'text';
   }
 
   validate(value: any) {
@@ -155,12 +168,16 @@ export class Text implements Type {
 }
 
 export class Float implements Type {
-  toString() {
+  get typeId(): TypeId {
     return 'float';
   }
 
   get primitive() {
     return Primitives.FLOAT;
+  }
+
+  toString() {
+    return 'float';
   }
 
   validate(value: any) {
@@ -171,12 +188,16 @@ export class Float implements Type {
 }
 
 export class Bool implements Type {
-  toString() {
+  get typeId(): TypeId {
     return 'bool';
   }
 
   get primitive() {
     return Primitives.BOOL;
+  }
+
+  toString() {
+    return 'bool';
   }
 
   validate(value: any) {
@@ -196,12 +217,16 @@ export class Enum implements Type {
     this.values = values.sort();
   }
 
-  toString() {
-    return `enum{${this.values.join(',')}}`;
+  get typeId(): TypeId {
+    return 'enum';
   }
 
   get primitive() {
     return Primitives.STRING;
+  }
+
+  toString() {
+    return `enum{${this.values.join(',')}}`;
   }
 
   validate(value: any) {
@@ -212,12 +237,16 @@ export class Enum implements Type {
 }
 
 export class Complex implements Type {
-  toString() {
+  get typeId(): TypeId {
     return 'complex';
   }
 
   get primitive() {
     return Primitives.JSON;
+  }
+
+  toString() {
+    return 'complex';
   }
 
   validate(value: any) {
