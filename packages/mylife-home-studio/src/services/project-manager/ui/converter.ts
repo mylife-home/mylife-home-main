@@ -133,8 +133,8 @@ function convertText(input: uiV1.Text): ControlText {
 
   for (const item of input.context) {
     text.context.push({
-      id: convertComponentId(item.id),
-      componentId: item.component_id,
+      id: item.id,
+      componentId: convertComponentId(item.component_id),
       componentState: item.component_attribute,
     });
   }
