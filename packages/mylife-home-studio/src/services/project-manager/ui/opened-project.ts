@@ -1,3 +1,4 @@
+import { components } from 'mylife-home-common';
 import {
   UiProject,
   UiProjectCall,
@@ -23,7 +24,7 @@ import {
   UiValidationError,
   UiElementPath,
 } from '../../../../shared/project-manager';
-import { Window, DefinitionResource, DefaultWindow, Control } from '../../../../shared/ui-model';
+import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem } from '../../../../shared/ui-model';
 import { Component, MemberType } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -436,18 +437,108 @@ class WindowModel {
     const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }];
     context.checkResourceId(display.defaultResource, pathBuilder, { optional: true });
 
-    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
-
     for (const [index, item] of display.map.entries()) {
       context.checkResourceId(item.resource, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }]);
-      if (!valueType) {
-        continue;
+    }
+
+    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
+    if (!valueType) {
+      return;
+    }
+
+    const type = components.metadata.parseType(valueType);
+    if (type.typeId === 'complex') {
+      context.addError('Un composant de type complexe ne peut pas être utilisé', pathBuilder());
+      return;
+    }
+
+    for (const [index, item] of display.map.entries()) {
+      const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }];
+
+      switch (type.typeId) {
+        case 'range': {
+          const rangeType = type as components.metadata.Range;
+          validateRange(item, rangeType.min, rangeType.max, pathBuilder);
+          break;
+        }
+
+        case 'text':
+          validateText(item, pathBuilder);
+          break;
+
+        case 'float':
+          validateFloat(item, pathBuilder);
+          break;
+
+        case 'bool':
+          validateEnum(item, [true, false], pathBuilder);
+          break;
+
+        case 'enum': {
+          const enumType = type as components.metadata.Enum;
+          validateEnum(item, enumType.values, pathBuilder);
+          break;
+        }
+      }
+    }
+
+    function validateText(item: ControlDisplayMapItem, pathBuilder: PathBuilder) {
+      if (item.min !== null || item.max !== null) {
+        context.addError(`Le type 'text' ne doit pas utiliser min/max`, pathBuilder());
       }
 
-      // TODO: check with valueType
-      // min/max/value
+      if (typeof item.value !== 'string') {
+        context.addError('Valeur incorrecte', pathBuilder());
+      }
+    }
+
+    function validateEnum(item: ControlDisplayMapItem, values: readonly any[], pathBuilder: PathBuilder) {
+      if (item.min !== null || item.max !== null) {
+        context.addError(`Le type 'enum' ne doit pas utiliser min/max`, pathBuilder());
+      }
+
+      if (!values.includes(item.value)) {
+        context.addError('Valeur incorrecte', pathBuilder());
+      }
+    }
+
+    function validateFloat(item: ControlDisplayMapItem, pathBuilder: PathBuilder) {
+      if (item.value !== null) {
+        context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+      }
+
+      if (typeof item.min !== 'number' && item.min !== null) {
+        context.addError(`'min' incorrect`, pathBuilder());
+      }
+
+      if (typeof item.max !== 'number' && item.max !== null) {
+        context.addError(`'max' incorrect`, pathBuilder());
+      }
+
+      if (typeof item.min === 'number' && typeof item.max === 'number' && item.min > item.max) {
+        context.addError(`'min' > 'max'`, pathBuilder());
+      }
+    }
+
+    function validateRange(item: ControlDisplayMapItem, min: number, max: number, pathBuilder: PathBuilder) {
+      if (item.value !== null) {
+        context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+      }
+
+      if (typeof item.min !== 'number' || item.min % 1 !== 0 || item.min < min) {
+        context.addError(`'min' incorrect`, pathBuilder());
+      }
+
+      if (typeof item.max !== 'number' || item.max % 1 !== 0 || item.max > max) {
+        context.addError(`'max' incorrect`, pathBuilder());
+      }
+
+      if (item.min > item.max) {
+        context.addError(`'min' > 'max'`, pathBuilder());
+      }
     }
   }
+
 
   private validateControlText(control: Control, context: ValidationContext) {
     const { text } = control;
