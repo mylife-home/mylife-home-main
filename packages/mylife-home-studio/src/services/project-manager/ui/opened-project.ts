@@ -458,87 +458,86 @@ class WindowModel {
       switch (type.typeId) {
         case 'range': {
           const rangeType = type as components.metadata.Range;
-          validateRange(item, rangeType.min, rangeType.max, pathBuilder);
+          this.validateRange(item, rangeType.min, rangeType.max, context, pathBuilder);
           break;
         }
 
         case 'text':
-          validateText(item, pathBuilder);
+          this.validateText(item, context, pathBuilder);
           break;
 
         case 'float':
-          validateFloat(item, pathBuilder);
+          this.validateFloat(item, context, pathBuilder);
           break;
 
         case 'bool':
-          validateEnum(item, [true, false], pathBuilder);
+          this.validateEnum(item, [true, false], context, pathBuilder);
           break;
 
         case 'enum': {
           const enumType = type as components.metadata.Enum;
-          validateEnum(item, enumType.values, pathBuilder);
+          this.validateEnum(item, enumType.values, context, pathBuilder);
           break;
         }
       }
     }
+  }
 
-    function validateText(item: ControlDisplayMapItem, pathBuilder: PathBuilder) {
-      if (item.min !== null || item.max !== null) {
-        context.addError(`Le type 'text' ne doit pas utiliser min/max`, pathBuilder());
-      }
-
-      if (typeof item.value !== 'string') {
-        context.addError('Valeur incorrecte', pathBuilder());
-      }
+  private validateText(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+    if (item.min !== null || item.max !== null) {
+      context.addError(`Le type 'text' ne doit pas utiliser min/max`, pathBuilder());
     }
 
-    function validateEnum(item: ControlDisplayMapItem, values: readonly any[], pathBuilder: PathBuilder) {
-      if (item.min !== null || item.max !== null) {
-        context.addError(`Le type 'enum' ne doit pas utiliser min/max`, pathBuilder());
-      }
-
-      if (!values.includes(item.value)) {
-        context.addError('Valeur incorrecte', pathBuilder());
-      }
-    }
-
-    function validateFloat(item: ControlDisplayMapItem, pathBuilder: PathBuilder) {
-      if (item.value !== null) {
-        context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
-      }
-
-      if (typeof item.min !== 'number' && item.min !== null) {
-        context.addError(`'min' incorrect`, pathBuilder());
-      }
-
-      if (typeof item.max !== 'number' && item.max !== null) {
-        context.addError(`'max' incorrect`, pathBuilder());
-      }
-
-      if (typeof item.min === 'number' && typeof item.max === 'number' && item.min > item.max) {
-        context.addError(`'min' > 'max'`, pathBuilder());
-      }
-    }
-
-    function validateRange(item: ControlDisplayMapItem, min: number, max: number, pathBuilder: PathBuilder) {
-      if (item.value !== null) {
-        context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
-      }
-
-      if (typeof item.min !== 'number' || item.min % 1 !== 0 || item.min < min) {
-        context.addError(`'min' incorrect`, pathBuilder());
-      }
-
-      if (typeof item.max !== 'number' || item.max % 1 !== 0 || item.max > max) {
-        context.addError(`'max' incorrect`, pathBuilder());
-      }
-
-      if (item.min > item.max) {
-        context.addError(`'min' > 'max'`, pathBuilder());
-      }
+    if (typeof item.value !== 'string') {
+      context.addError('Valeur incorrecte', pathBuilder());
     }
   }
 
+  private validateEnum(item: ControlDisplayMapItem, values: readonly any[], context: ValidationContext, pathBuilder: PathBuilder) {
+    if (item.min !== null || item.max !== null) {
+      context.addError(`Le type 'enum' ne doit pas utiliser min/max`, pathBuilder());
+    }
+
+    if (!values.includes(item.value)) {
+      context.addError('Valeur incorrecte', pathBuilder());
+    }
+  }
+
+  private validateFloat(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+    if (item.value !== null) {
+      context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+    }
+
+    if (typeof item.min !== 'number' && item.min !== null) {
+      context.addError(`'min' incorrect`, pathBuilder());
+    }
+
+    if (typeof item.max !== 'number' && item.max !== null) {
+      context.addError(`'max' incorrect`, pathBuilder());
+    }
+
+    if (typeof item.min === 'number' && typeof item.max === 'number' && item.min > item.max) {
+      context.addError(`'min' > 'max'`, pathBuilder());
+    }
+  }
+
+  private validateRange(item: ControlDisplayMapItem, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
+    if (item.value !== null) {
+      context.addError(`Le type 'enum' ne doit pas utiliser valeur mais min/max`, pathBuilder());
+    }
+
+    if (typeof item.min !== 'number' || item.min % 1 !== 0 || item.min < min) {
+      context.addError(`'min' incorrect`, pathBuilder());
+    }
+
+    if (typeof item.max !== 'number' || item.max % 1 !== 0 || item.max > max) {
+      context.addError(`'max' incorrect`, pathBuilder());
+    }
+
+    if (item.min > item.max) {
+      context.addError(`'min' > 'max'`, pathBuilder());
+    }
+  }
 
   private validateControlText(control: Control, context: ValidationContext) {
     const { text } = control;
