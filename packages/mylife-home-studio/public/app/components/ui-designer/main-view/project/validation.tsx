@@ -19,7 +19,7 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { validateProject } from '../../../../store/ui-designer/actions';
 import { ElementPathNode } from '../common/element-path-breadcrumbs';
-import { UiValidationError, UiElementPath, UiElementPathNode } from '../../../../../../shared/project-manager';
+import { UiValidationError, UiElementPathNode } from '../../../../../../shared/project-manager';
 import { useSnackbar } from '../../../dialogs/snackbar';
 
 type TransitionProps = Transition<HTMLElement>['props'];
@@ -157,44 +157,48 @@ interface PathNode extends Node {
 }
 
 function buildTreeData(errors: UiValidationError[]) {
-  // TODO: merge common paths
   const nodeIds: string[] = [];
-  const errorsCount = errors.length;
+  const fakeRoot: PathNode = {
+    id: '',
+    type: 'path',
+    node: null,
+    children: []
+  };
 
-  const roots = errors.map((error, index) => {
-    let root: Node;
-    let current: Node;
+  for (const [index, error] of errors.entries()) {
+    let current: Node = fakeRoot;
 
-    for (const [depth, node] of error.path.entries()) {
-      nodeIds.push(`${index}-${depth}`);
-      const newNode: PathNode = {
-        id: `${index}-${depth}`,
-        type: 'path',
-        children: [],
-        node,
-      };
-
-      if (current) {
-        current.children.push(newNode);
-        current = newNode;
-      } else {
-        root = newNode;
-        current = newNode;
-      }
+    for (const pathPart of error.path) {
+      current = getOrCreatePathNode(current, pathPart);
     }
 
-    nodeIds.push(`${index}`);
-    const message: MessageNode = {
-      id: `${index}`,
-      type: 'message',
-      children: [],
-      message: error.message,
-    };
+    createMessageNode(current, index, error.message);
+  }
 
-    current.children.push(message);
+  return { roots: fakeRoot.children, nodeIds, errorsCount: errors.length };
 
-    return root;
-  });
+  function getOrCreatePathNode(parent: Node, node: UiElementPathNode) {
+    const id = `${parent.id}/${node.type}.${node.id}`;
+    const existing = parent.children.find(child => child.id === id);
+    if(existing) {
+      return existing;
+    }
 
-  return { roots, nodeIds, errorsCount };
+    const newNode: PathNode = { id, type: 'path', children: [], node };
+    parent.children.push(newNode);
+    nodeIds.push(id);
+
+    return newNode;
+  }
+
+  function createMessageNode(parent: Node, index: number, message: string) {
+    const id = `${parent.id}/${index}`;
+    const newNode: MessageNode = { id, type: 'message', children: [], message };
+
+    parent.children.push(newNode);
+    nodeIds.push(id);
+
+    return newNode;
+  }
 }
+
