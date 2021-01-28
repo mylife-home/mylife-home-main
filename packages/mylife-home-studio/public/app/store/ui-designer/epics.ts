@@ -37,7 +37,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'validate' } as UiProjectCall;
       },
       resultMapper(serviceResult: ValidateUiProjectCallResult) {
-        return { errors: serviceResult.errors };
+        return serviceResult.errors;
       }
     },
 
