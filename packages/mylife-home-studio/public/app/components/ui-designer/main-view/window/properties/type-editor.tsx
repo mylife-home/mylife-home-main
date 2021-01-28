@@ -45,7 +45,7 @@ const TypeEditor: FunctionComponent<TypeEditorProps> = ({ valueType, ...itemProp
     return <Unhandled reason="Sélectionner un composant" />;
   }
 
-  switch (type.name) {
+  switch (type.typeId) {
     case 'range': {
       const rangeType = type as Range;
       return <RangeEditor min={rangeType.min} max={rangeType.max} {...itemProps} />;
@@ -67,7 +67,7 @@ const TypeEditor: FunctionComponent<TypeEditorProps> = ({ valueType, ...itemProp
 
     //case 'complex':
     default:
-      return <Unhandled reason={`Non supporté : ${type.name}`} />;
+      return <Unhandled reason={`Non supporté : ${type.typeId}`} />;
   }
 };
 

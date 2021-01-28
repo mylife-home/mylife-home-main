@@ -17,7 +17,7 @@ export interface TestValueEditorProps {
 const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ className, valueType, value, onChange }) => {
   const type = useType(valueType);
 
-  switch (type.name) {
+  switch (type.typeId) {
     case 'range': {
       const rangeType = type as Range;
       return (
@@ -86,7 +86,7 @@ const TestValueEditor: FunctionComponent<TestValueEditorProps> = ({ className, v
       );
 
     default:
-      throw new Error(`Unsupported type: ${type.name}`)
+      throw new Error(`Unsupported type: ${type.typeId}`)
   }
 };
 

@@ -1,15 +1,15 @@
 export interface Type {
-  name: 'range' | 'text' | 'float' | 'bool' | 'enum' | 'complex';
+  typeId: 'range' | 'text' | 'float' | 'bool' | 'enum' | 'complex';
 }
 
 export interface Range extends Type {
-  name: 'range';
+  typeId: 'range';
   min: number;
   max: number;
 }
 
 export interface Enum extends Type {
-  name: 'enum';
+  typeId: 'enum';
   values: string[];
 }
 
@@ -25,27 +25,27 @@ export function parseType(value: string): Type {
   switch (type) {
     case 'range': {
       const [min, max] = runRegex(rangeParser, args, value);
-      const rangeType: Range = { name: 'range', min: Number.parseInt(min), max: Number.parseInt(max) };
+      const rangeType: Range = { typeId: 'range', min: Number.parseInt(min), max: Number.parseInt(max) };
       return rangeType;
     }
 
     case 'text':
-      return { name: 'text' };
+      return { typeId: 'text' };
 
     case 'float':
-      return { name: 'float' };
+      return { typeId: 'float' };
 
     case 'bool':
-      return { name: 'bool' };
+      return { typeId: 'bool' };
 
     case 'enum': {
       const [values] = runRegex(enumParser, args, value);
-      const enumType: Enum = { name: 'enum', values: values.split(',') };
+      const enumType: Enum = { typeId: 'enum', values: values.split(',') };
       return enumType;
     }
 
     case 'complex':
-      return { name: 'complex' };
+      return { typeId: 'complex' };
 
     default:
       throw new Error(`Unknown type: '${type}'`);
