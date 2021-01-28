@@ -18,7 +18,9 @@ import { setDefaultWindow } from '../../../../store/ui-designer/actions';
 import { DefaultWindow } from '../../../../../../shared/ui-model';
 import WindowSelector from '../common/window-selector';
 import { Group, Item } from '../common/properties-layout';
+import { useRefreshComponentsFromOnline, useRefreshComponentsFromCoreProject } from './refresh-components';
 import { useProjectValidation } from './validation';
+import { useProjectDeploy } from './deploy';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -40,7 +42,10 @@ const useStyles = makeStyles((theme) => ({
 const Project: FunctionComponent = () => {
   const classes = useStyles();
   const { defaultWindow, updateDefaultWindow } = useProjectConnect();
+  const refreshComponentsFromCoreProject = useRefreshComponentsFromCoreProject();
+  const refreshComponentsFromOnline = useRefreshComponentsFromOnline();
   const validateProject = useProjectValidation();
+  const deployProject = useProjectDeploy();
 
   return (
     <Container title={<Title text="Projet" icon={ProjectIcon} />}>
@@ -57,7 +62,7 @@ const Project: FunctionComponent = () => {
         <Group title={'Opérations'}>
           <Item>
             <ButtonMenu className={classes.button} variant="contained" startIcon={<ComponentIcon />} text={'Rafraîchir les composants'}>
-              <MenuItem onClick={() => console.log('TODO')}>
+              <MenuItem onClick={refreshComponentsFromCoreProject}>
                 <ListItemIcon>
                   <ProjectIcon fontSize="small" />
                 </ListItemIcon>
@@ -65,7 +70,7 @@ const Project: FunctionComponent = () => {
                   Depuis un projet core
                 </Typography>
               </MenuItem>
-              <MenuItem onClick={() => console.log('TODO')}>
+              <MenuItem onClick={refreshComponentsFromOnline}>
                 <ListItemIcon>
                   <InstanceIcon fontSize="small" />
                 </ListItemIcon>
@@ -83,7 +88,7 @@ const Project: FunctionComponent = () => {
           </Item>
 
           <Item>
-            <Button className={classes.button} onClick={() => console.log('TODO')} variant="contained" startIcon={<PublishIcon />}>
+            <Button className={classes.button} onClick={deployProject} variant="contained" startIcon={<PublishIcon />}>
               Déployer
             </Button>
           </Item>
