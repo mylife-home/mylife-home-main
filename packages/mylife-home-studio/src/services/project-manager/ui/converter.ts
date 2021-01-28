@@ -93,6 +93,10 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
     map: [],
   };
 
+  // try to guess if we should use min/max or range
+  // there is no float in v1, so if min/max this is range
+  const isMinMax = !!input.map.find(item => (typeof item.min === 'number' || typeof item.max === 'number'));
+
   for (const inputItem of input.map) {
     const item: Mutable<ControlDisplayMapItem> = {
       resource: convertUiId(inputItem.resource_id),
@@ -101,7 +105,10 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
       value: null,
     };
 
-    if (inputItem.value != null) {
+    if (isMinMax) {
+      item.min = inputItem.min || 0; // could be null in v1
+      item.max = inputItem.max || 100; // could be null in v1, existing UI plugins are only range[0;100]
+    } else {
       // replace 'off' 'on' with true false
       switch (inputItem.value) {
         case 'on':
@@ -114,9 +121,6 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
           item.value = inputItem.value;
           break;
       }
-    } else {
-      item.min = inputItem.min;
-      item.max = inputItem.max;
     }
 
     display.map.push(item);
