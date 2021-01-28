@@ -1,7 +1,8 @@
 import React, { FunctionComponent } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Typography from '@material-ui/core/Typography';
+import Typography, { TypographyProps } from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import HomeIcon from '@material-ui/icons/Home';
@@ -22,20 +23,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ElementPathBreadcrumbs: FunctionComponent<{ className?: string; item: UiElementPath }> = ({ className, item }) => {
-  const classes = useStyles();
   return (
     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className={className}>
       {item.map((node, index) => (
-        <Typography key={index} color="textPrimary" className={classes.node}>
-          {renderIcon(node, classes.icon)}
-          {node.id}
-        </Typography>
+        <ElementPathNode key={index} color="textPrimary" node={node} />
       ))}
     </Breadcrumbs>
   );
 };
 
 export default ElementPathBreadcrumbs;
+
+export const ElementPathNode: FunctionComponent<TypographyProps & { node: UiElementPathNode }> = ({ node, className, ...props }) => {
+  const classes = useStyles();
+  return (
+    <Typography className={clsx(className, classes.node)}>
+      {renderIcon(node, classes.icon)}
+      {node.id}
+    </Typography>
+  );
+};
 
 function renderIcon(node: UiElementPathNode, className: string) {
   switch (node.type) {
