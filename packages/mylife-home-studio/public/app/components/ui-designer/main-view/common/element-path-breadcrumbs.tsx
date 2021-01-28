@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const UsageBreadcrumbs: FunctionComponent<{ className?: string; item: UiElementPath }> = ({ className, item }) => {
+const ElementPathBreadcrumbs: FunctionComponent<{ className?: string; item: UiElementPath }> = ({ className, item }) => {
   const classes = useStyles();
   return (
     <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className={className}>
@@ -35,7 +35,7 @@ const UsageBreadcrumbs: FunctionComponent<{ className?: string; item: UiElementP
   );
 };
 
-export default UsageBreadcrumbs;
+export default ElementPathBreadcrumbs;
 
 function renderIcon(node: UiElementPathNode, className: string) {
   switch (node.type) {

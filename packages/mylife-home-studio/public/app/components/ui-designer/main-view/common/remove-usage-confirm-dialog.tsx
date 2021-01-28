@@ -13,7 +13,7 @@ import ListItem from '@material-ui/core/ListItem';
 import { DialogText } from '../../../dialogs/common';
 import { ConfirmResult } from '../../../dialogs/confirm';
 import { Usage } from '../../../../store/ui-designer/types';
-import UsageBreadcrumbs from './usage-breadcrumbs';
+import ElementPathBreadcrumbs from './element-path-breadcrumbs';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
@@ -71,7 +71,7 @@ export function useRemoveUsageConfirmDialog() {
           <List className={classes.list}>
             {usage.map((item, index) => (
               <ListItem key={index}>
-                <UsageBreadcrumbs item={item} />
+                <ElementPathBreadcrumbs item={item} />
               </ListItem>
             ))}
           </List>

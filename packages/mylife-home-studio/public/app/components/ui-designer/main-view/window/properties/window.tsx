@@ -7,7 +7,7 @@ import { Group, Item } from '../../common/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ResourceSelector from '../../common/resource-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
-import UsageBreadcrumbs from '../../common/usage-breadcrumbs';
+import ElementPathBreadcrumbs from '../../common/element-path-breadcrumbs';
 import { useWindowState } from '../window-state';
 import { useSnapValue } from '../snap';
 
@@ -44,7 +44,7 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
       <Group title={'Utilisation'}>
         {usage.map((item, index) => (
           <Item key={index}>
-            <UsageBreadcrumbs className={classes.breadcrumbs} item={item} />
+            <ElementPathBreadcrumbs className={classes.breadcrumbs} item={item} />
           </Item>
         ))}
       </Group>
