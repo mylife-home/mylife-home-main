@@ -17,6 +17,7 @@ import { useFireAsync } from '../../../lib/use-error-handling';
 import { validateProject } from '../../../../store/ui-designer/actions';
 import ElementPathBreadcrumbs from '../common/element-path-breadcrumbs';
 import { UiValidationError } from '../../../../../../shared/project-manager';
+import { useSnackbar } from '../../../dialogs/snackbar';
 
 type TransitionProps = Transition<HTMLElement>['props'];
 
@@ -33,12 +34,13 @@ export function useProjectValidation() {
   const dispatch = useDispatch();
   const fireAsync = useFireAsync();
   const showDialog = useShowDialog();
+  const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
       const errors = await dispatch(validateProject({ id: tabId })) as unknown as UiValidationError[];
       if (errors.length === 0) {
-        console.log('TODO: snackbar');
+        enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
       } else {
         await showDialog(errors);
       }
