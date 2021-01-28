@@ -8,7 +8,7 @@ export class UiProjects extends Store<UiProject> {
   async createNew(name: string) {
     const project: UiProject = {
       name,
-      definition: { resources: [], windows: [], defaultWindow: {} },
+      definition: { resources: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
       componentData: { components: [], plugins: {} },
     };
 
