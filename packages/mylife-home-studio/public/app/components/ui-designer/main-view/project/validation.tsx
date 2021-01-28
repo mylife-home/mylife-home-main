@@ -10,6 +10,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import Typography from '@material-ui/core/Typography';
 
 import { DialogText } from '../../../dialogs/common';
 import { useTabPanelId } from '../../../lib/tab-panel';
@@ -70,7 +71,7 @@ function useShowDialog() {
     };
 
     return (
-      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
+      <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="lg" fullWidth onKeyDown={handleKeyDown}>
         <DialogTitle id="dialog-title">Erreurs de validation</DialogTitle>
 
         <DialogContent dividers>
@@ -78,11 +79,20 @@ function useShowDialog() {
 
           <List className={classes.list}>
             {errors.map((error, index) => (
-              <ListItem key={index}>
-                <ElementPathBreadcrumbs item={error.path} />
-              </ListItem>
+              <React.Fragment key={index}>
+                <ListItem>
+                  <ElementPathBreadcrumbs item={error.path} />
+                </ListItem>
+
+                <ListItem>
+                  <Typography>{error.message}</Typography>
+                </ListItem>
+
+              </React.Fragment>
             ))}
           </List>
+
+          <DialogText value={`${errors.length} erreurs`} />
 
         </DialogContent>
 
