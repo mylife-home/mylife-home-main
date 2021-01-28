@@ -115,7 +115,7 @@ export class UiOpenedProject extends OpenedProject {
 
   private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
     await this.executeUpdate(() => {
-      Object.assign(this.defaultWindow, defaultWindow);
+      this.defaultWindow.set(defaultWindow);
       this.notifyAllDefaultWindow();
     });
   }
@@ -294,6 +294,10 @@ class CollectionModel<TData extends WithId, TModel extends WithId> implements Id
 
 class DefaultWindowModel {
   constructor(public readonly data: Mutable<DefaultWindow>) {
+  }
+
+  set(newDefaultWindow: DefaultWindow) {
+    Object.assign(this.data, newDefaultWindow);
   }
 
   /**
