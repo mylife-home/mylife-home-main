@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useModal } from 'react-modal-hook';
-import { Transition } from 'react-transition-group'; // used by material-ui
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -14,15 +13,13 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-import { DialogText } from '../../../dialogs/common';
+import { TransitionProps, DialogText } from '../../../dialogs/common';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { validateProject } from '../../../../store/ui-designer/actions';
 import { ElementPathNode } from '../common/element-path-breadcrumbs';
 import { UiValidationError, UiElementPathNode } from '../../../../../../shared/project-manager';
 import { useSnackbar } from '../../../dialogs/snackbar';
-
-type TransitionProps = Transition<HTMLElement>['props'];
 
 const useStyles = makeStyles((theme) => ({
   tree: {

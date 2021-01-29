@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { Transition } from 'react-transition-group'; // used by material-ui
 import Typography from '@material-ui/core/Typography';
 
 export const DialogText: FunctionComponent<{ value?: string; }> = ({ value }) => {
@@ -13,3 +14,5 @@ export const DialogText: FunctionComponent<{ value?: string; }> = ({ value }) =>
     </>
   );
 };
+
+export type TransitionProps = Transition<HTMLElement>['props'];
