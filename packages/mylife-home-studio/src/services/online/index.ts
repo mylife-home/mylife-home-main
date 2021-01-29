@@ -45,4 +45,8 @@ export class Online implements Service {
 
     this.registry.close();
   }
+
+  getComponentsData() {
+    return this.registry.getComponentsData();
+  }
 }
