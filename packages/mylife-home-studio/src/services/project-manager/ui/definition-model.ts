@@ -4,6 +4,12 @@ import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapIt
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 
+export interface ComponentUsage {
+  componentId: string;
+  memberName: string;
+  path: UiElementPath;
+}
+
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 interface WithId {
@@ -423,12 +429,6 @@ export class WindowModel {
       }
     }
   }
-}
-
-interface ComponentUsage {
-  componentId: string;
-  memberName: string;
-  path: UiElementPath;
 }
 
 export class ResourceModel {

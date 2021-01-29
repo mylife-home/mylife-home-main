@@ -142,9 +142,19 @@ export interface ValidateUiProjectCallResult extends ProjectCallResult {
   errors: UiValidationError[];
 }
 
+export interface BreakingOperation {
+  operation: 'delete';
+  componentId: string;
+  usage: UiElementPath[];
+}
+
 export interface RefreshComponentsFromProjectUiProjectCall extends UiProjectCall {
   operation: 'refresh-components-from-project';
   projectId: string;
+}
+
+export interface RefreshComponentsFromProjectUiProjectCallResult extends ProjectCallResult {
+  breakingOperations: BreakingOperation[];
 }
 
 export interface SetDefaultWindowUiProjectCall extends UiProjectCall {

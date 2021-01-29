@@ -19,13 +19,14 @@ import {
   ProjectCallResult,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
+  RefreshComponentsFromProjectUiProjectCallResult,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
-import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext } from './definition-model';
+import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
 
 export class UiOpenedProject extends OpenedProject {
   private readonly defaultWindow: DefaultWindowModel;
@@ -61,7 +62,7 @@ export class UiOpenedProject extends OpenedProject {
     switch (callData.operation) {
       case 'validate':
         return await this.validate();
-      
+
       case 'refresh-components-from-online':
         return await this.refreshComponentsFromOnline();
 
@@ -70,7 +71,7 @@ export class UiOpenedProject extends OpenedProject {
 
       case 'deploy':
         return await this.deploy();
-      
+
       case 'set-default-window':
         await this.setDefaultWindow(callData as SetDefaultWindowUiProjectCall);
         break;
@@ -211,13 +212,11 @@ export class UiOpenedProject extends OpenedProject {
     return { errors: context.errors };
   }
 
-  private async refreshComponentsFromOnline(): Promise<ProjectCallResult> {
+  private async refreshComponentsFromOnline(): Promise<RefreshComponentsFromProjectUiProjectCallResult> {
     const componentData = loadOnlineComponentData();
-    const result = prepareMergeComponentData(this.components, componentData);
-
-    //throw new Error('TODO');
-    //this.components.rebuild();
-    return result as unknown as ProjectCallResult;
+    const usage = collectComponentsUsage(this.windows);
+    const breakingOperations = prepareMergeComponentData(this.components, usage, componentData);
+    return { breakingOperations };
   }
 
   private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<ProjectCallResult> {
@@ -228,4 +227,14 @@ export class UiOpenedProject extends OpenedProject {
   private async deploy(): Promise<ProjectCallResult> {
     throw new Error('TODO');
   }
+}
+
+function collectComponentsUsage(windows: CollectionModel<Mutable<Window>, WindowModel>) {
+  const usage: ComponentUsage[] = [];
+
+  for (const window of windows) {
+    window.collectComponentsUsage(usage);
+  }
+
+  return usage;
 }
