@@ -27,7 +27,7 @@ import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { UiProjects } from './projects';
-import { ComponentsModel, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
+import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
 
 export class UiOpenedProject extends OpenedProject {
@@ -223,9 +223,8 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<RefreshComponentsUiProjectCallResult> {
-    throw new Error('TODO');
-    // const componentData = loadOnlineComponentData();
-    // return this.prepareComponentRefresh(componentData);
+    const componentData = loadCoreProjectComponentData(projectId);
+    return this.prepareComponentRefresh(componentData);
   }
 
   private async applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {

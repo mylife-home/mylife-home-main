@@ -106,6 +106,10 @@ export function loadOnlineComponentData() {
   return componentData;
 }
 
+export function loadCoreProjectComponentData(projectId: string): ComponentData {
+  throw new Error('TODO');
+}
+
 export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: ComponentData) {
   const usageModel = new UsageModel(components, componentsUsage);
   const usageToClear: ComponentUsage[] = [];
