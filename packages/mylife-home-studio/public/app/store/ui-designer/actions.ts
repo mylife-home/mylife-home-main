@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { BreakingOperation, UiValidationError, UpdateProjectNotification } from '../../../../shared/project-manager';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow } from './types';
+import { UiValidationError, UpdateProjectNotification } from '../../../../shared/project-manager';
+import { ActionTypes, DefaultWindow, RefreshData, UiResource, UiWindow } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -9,8 +9,8 @@ export const removeOpenedProject = createAction<{ id: string; }>(ActionTypes.REM
 export const updateProject = createAction<{ id: string; update: UpdateProjectNotification; }[]>(ActionTypes.UPDATE_PROJECT);
 
 export const validateProject = createAsyncAction<{ id: string; }, { errors: UiValidationError[]; }>(ActionTypes.VALIDATE_PROJECT);
-export const refreshComponentsFromOnline = createAsyncAction<{ id: string; }, { breakingOperations: BreakingOperation[], serverData: unknown; }>(ActionTypes.REFRESH_COMPONENTS_FROM_ONLINE);
-export const refreshComponentsFromProject = createAsyncAction<{ id: string; projectId: string; }, { breakingOperations: BreakingOperation[], serverData: unknown; }>(ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT);
+export const refreshComponentsFromOnline = createAsyncAction<{ id: string; }, RefreshData>(ActionTypes.REFRESH_COMPONENTS_FROM_ONLINE);
+export const refreshComponentsFromProject = createAsyncAction<{ id: string; projectId: string; }, RefreshData>(ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT);
 export const applyRefreshComponents = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_REFRESH_COMPONENTS);
 export const deployProject = createAsyncAction<{ id: string; }, any>(ActionTypes.DEPLOY_PROJECT);
 

@@ -16,6 +16,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { TransitionProps, DialogText } from '../../../dialogs/common';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
+import { AsyncDispatch } from '../../../../store/types';
 import { validateProject } from '../../../../store/ui-designer/actions';
 import { ElementPathNode } from '../common/element-path-breadcrumbs';
 import { UiValidationError, UiElementPathNode } from '../../../../../../shared/project-manager';
@@ -31,14 +32,14 @@ const useStyles = makeStyles((theme) => ({
 
 export function useProjectValidation() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AsyncDispatch<UiValidationError[]>>();
   const fireAsync = useFireAsync();
   const showDialog = useShowDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const errors = ((await dispatch(validateProject({ id: tabId }))) as unknown) as UiValidationError[];
+      const errors = await dispatch(validateProject({ id: tabId }));
       if (errors.length === 0) {
         enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
       } else {
