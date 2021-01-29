@@ -217,6 +217,7 @@ export class UiOpenedProject extends OpenedProject {
     const usage = collectComponentsUsage(this.windows);
     const breakingOperations = prepareMergeComponentData(this.components, usage, componentData);
     return { breakingOperations };
+    // this.components.rebuild();
   }
 
   private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<ProjectCallResult> {
