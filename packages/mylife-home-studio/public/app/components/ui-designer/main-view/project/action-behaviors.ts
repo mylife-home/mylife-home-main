@@ -71,7 +71,7 @@ function useExecuteRefresh() {
 
   return useCallback(async (refreshData: RefreshData) => {
     if (refreshData.breakingOperations.length > 0) {
-      // TODO
+      console.log('TODO breakingOperations', refreshData.breakingOperations);
     }
 
     await dispatch(applyRefreshComponents({ id: tabId, serverData: refreshData.serverData }));
@@ -93,7 +93,7 @@ export function useProjectDeploy() {
       if (validationErrors && validationErrors.length > 0) {
         await showDialog(validationErrors);
       } else if (deployError) {
-        // TODO
+        console.log('TODO deployError', deployError);
       } else {
         enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
       }

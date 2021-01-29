@@ -1,3 +1,4 @@
+import { logger } from 'mylife-home-common';
 import {
   UiProject,
   UiProjectCall,
@@ -31,6 +32,8 @@ import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
+
+const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
 
 export class UiOpenedProject extends OpenedProject {
   private readonly defaultWindow: DefaultWindowModel;
@@ -289,7 +292,15 @@ export class UiOpenedProject extends OpenedProject {
 
     const [instanceName] = uiInstances;
     const { definition } = this.project;
-    await Services.instance.online.uiSetDefinition(instanceName, definition);
+
+    try {
+      await Services.instance.online.uiSetDefinition(instanceName, definition);
+    } catch(err) {
+      log.error(err, `Error deploying project on instance '${instanceName}'`);
+      return { deployError: err.message };
+    }
+
+    return {};
   }
 }
 
