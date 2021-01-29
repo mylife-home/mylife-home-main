@@ -1,7 +1,7 @@
 import { bus, components, instanceInfo } from 'mylife-home-common';
 import { WebServer } from '../web';
 import { SessionsManager } from '../sessions';
-import { ModelManager } from '../model';
+import { Definition, ModelManager } from '../model';
 import { staticDefinition } from './static-definition';
 
 export class Manager {
@@ -22,6 +22,8 @@ export class Manager {
   }
 
   async init() {
+    await this.transport.rpc.serve('definition.set', async (definition: Definition) => this.model.setDefinition(definition));
+
     instanceInfo.addCapability('ui-manager');
   }
 
