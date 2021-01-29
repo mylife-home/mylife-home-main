@@ -414,7 +414,7 @@ export class WindowModel {
         }
 
         for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-          const { component } = control[type];
+          const component = control[type]?.component;
 
           if (component) {
             if (component.id && component.action) {
