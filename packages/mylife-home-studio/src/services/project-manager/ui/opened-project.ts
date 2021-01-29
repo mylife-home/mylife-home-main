@@ -94,7 +94,7 @@ export class UiOpenedProject extends OpenedProject {
         break;
 
       default:
-        throw new Error(`Unhandle call: ${callData.operation}`);
+        throw new Error(`Unhandled call: ${callData.operation}`);
     }
 
     // by default return nothing

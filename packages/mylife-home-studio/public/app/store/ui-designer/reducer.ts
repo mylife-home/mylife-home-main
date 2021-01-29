@@ -151,7 +151,7 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     default:
-      throw new Error(`Unhandle update operation: ${update.operation}`);
+      throw new Error(`Unhandled update operation: ${update.operation}`);
   }
 }
 
