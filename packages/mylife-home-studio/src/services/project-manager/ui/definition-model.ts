@@ -382,6 +382,53 @@ export class WindowModel {
       context.checkWindowId(action.window.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
     }
   }
+
+  collectComponentsUsage(usage: ComponentUsage[]) {
+    for (const control of this.data.controls) {
+      const { display, text } = control;
+      if (display) {
+        if (display.componentId && display.componentState) {
+          usage.push({
+            componentId: display.componentId,
+            memberName: display.componentState,
+            path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]
+          });
+        }
+      }
+
+      if (text) {
+        for (const [index, item] of text.context.entries()) {
+          if (item.componentId && item.componentState) {
+            usage.push({
+              componentId: item.componentId,
+              memberName: item.componentState,
+              path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }]
+            });
+          }
+        }
+
+        for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+          const { component } = control[type];
+
+          if (component) {
+            if (component.id && component.action) {
+              usage.push({
+                componentId: component.id,
+                memberName: component.action,
+                path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+interface ComponentUsage {
+  componentId: string;
+  memberName: string;
+  path: UiElementPath;
 }
 
 export class ResourceModel {
