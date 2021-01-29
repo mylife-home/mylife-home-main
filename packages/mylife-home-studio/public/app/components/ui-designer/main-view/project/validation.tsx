@@ -99,13 +99,16 @@ function useShowDialog() {
     [treeData, onClose]
   );
 
-  return (errors: UiValidationError[]) =>
-    new Promise<void>((resolve) => {
-      setTreeData(buildTreeData(errors));
-      setOnClose(() => resolve); // else useState think resolve is a state updater
+  return useCallback(
+    (errors: UiValidationError[]) =>
+      new Promise<void>((resolve) => {
+        setTreeData(buildTreeData(errors));
+        setOnClose(() => resolve); // else useState think resolve is a state updater
 
-      showModal();
-    });
+        showModal();
+      }),
+    [setTreeData, setOnClose, setOnClose]
+  );
 }
 
 const TreeNode: FunctionComponent<{ node: Node }> = ({ node }) => {
@@ -162,7 +165,7 @@ function buildTreeData(errors: UiValidationError[]) {
     id: '',
     type: 'path',
     node: null,
-    children: []
+    children: [],
   };
 
   for (const [index, error] of errors.entries()) {
@@ -179,8 +182,8 @@ function buildTreeData(errors: UiValidationError[]) {
 
   function getOrCreatePathNode(parent: Node, node: UiElementPathNode) {
     const id = `${parent.id}/${node.type}.${node.id}`;
-    const existing = parent.children.find(child => child.id === id);
-    if(existing) {
+    const existing = parent.children.find((child) => child.id === id);
+    if (existing) {
       return existing;
     }
 
@@ -201,4 +204,3 @@ function buildTreeData(errors: UiValidationError[]) {
     return newNode;
   }
 }
-
