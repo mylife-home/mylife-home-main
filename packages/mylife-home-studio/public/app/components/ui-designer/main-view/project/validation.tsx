@@ -25,7 +25,7 @@ import { useSnackbar } from '../../../dialogs/snackbar';
 type TransitionProps = Transition<HTMLElement>['props'];
 
 const useStyles = makeStyles((theme) => ({
-  list: {
+  tree: {
     maxHeight: '50vh',
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
@@ -79,7 +79,7 @@ function useShowDialog() {
           <DialogContent dividers>
             <DialogText value={'Le projet a les erreurs de validation suivantes :'} />
 
-            <TreeView className={classes.list} defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} defaultExpanded={treeData.nodeIds}>
+            <TreeView className={classes.tree} defaultCollapseIcon={<ExpandMoreIcon />} defaultExpandIcon={<ChevronRightIcon />} defaultExpanded={treeData.nodeIds}>
               {treeData.roots.map((node) => (
                 <TreeNode node={node} key={node.id} />
               ))}
