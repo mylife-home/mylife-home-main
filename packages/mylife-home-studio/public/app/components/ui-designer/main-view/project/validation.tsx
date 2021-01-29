@@ -48,7 +48,7 @@ export function useProjectValidation() {
         await showDialog(errors);
       }
     });
-  }, [tabId, dispatch, fireAsync]);
+  }, [tabId, dispatch, fireAsync, showDialog, enqueueSnackbar]);
 }
 
 function useShowDialog() {
