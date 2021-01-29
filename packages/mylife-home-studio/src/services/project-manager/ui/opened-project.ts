@@ -26,8 +26,9 @@ import {
   RefreshComponentsFromProjectUiProjectCall,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem } from '../../../../shared/ui-model';
-import { Component, MemberType } from '../../../../shared/component-model';
+import { Component, MemberType, PluginUsage } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
+import { Services } from '../..';
 import { OpenedProject } from '../opened-project';
 import { UiProjects } from './projects';
 
@@ -216,8 +217,41 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private async refreshComponentsFromOnline(): Promise<ProjectCallResult> {
-    throw new Error('TODO');
-    this.components.rebuild();
+    const onlineData = Services.instance.online.getComponentsData();
+
+    const componentData: ComponentData = {
+      components: [],
+      plugins: {}
+    };
+
+    for (const { instanceName, component } of onlineData) {
+      const { plugin } = component;
+      if (plugin.usage !== PluginUsage.UI) {
+        continue;
+      }
+
+      const pluginId = `${instanceName}:${plugin.module}.${plugin.name}`;
+      if (!componentData.plugins[pluginId]) {
+        const netPlugin = components.metadata.encodePlugin(plugin);
+        componentData.plugins[pluginId] = {
+          instanceName,
+          name: netPlugin.name,
+          module: netPlugin.module,
+          version: netPlugin.version,
+          description: netPlugin.description,
+          members: netPlugin.members,
+        };
+      }
+
+      componentData.components.push({
+        id: component.id,
+        plugin: pluginId
+      });
+    }
+
+    //throw new Error('TODO');
+    //this.components.rebuild();
+    return componentData as unknown as ProjectCallResult;
   }
 
   private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<ProjectCallResult> {
