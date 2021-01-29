@@ -141,12 +141,20 @@ function isPluginCompatible(actualId: string, actualPlugin: PluginData, newPlugi
     return true;
   }
 
-  return false;
+  for (const [memberName, actualMember] of Object.entries(actualPlugin.members)) {
+    if (!usageModel.findPluginMemberUsage(actualId, memberName)) {
+      continue;
+    }
 
-  for (const [memberName, member] of Object.entries(actualPlugin.members)) {
-    // const memberUsage = usageModel.findPluginMemberUsage(actualPlugin.)
+    const newMember = newPlugin.members[memberName];
+    if (!newMember) {
+      return false;
+    }
+
+    if (!isTypeCompatible(actualMember.valueType, newMember.valueType)) {
+      return false;
+    }
   }
-
   return true;
 }
 
@@ -154,9 +162,48 @@ function isPluginSame(actualPlugin: PluginData, newPlugin: PluginData) {
   return actualPlugin.module === newPlugin.module && actualPlugin.name === newPlugin.name && actualPlugin.version === newPlugin.version;
 }
 
+function isTypeCompatible(actualValueType: string, newValueType: string) {
+  if (actualValueType === newValueType) {
+    return true;
+  }
+
+  const actualType = components.metadata.parseType(actualValueType);
+  const newType = components.metadata.parseType(newValueType);
+
+  // type promotion: enum -> text
+  if (actualType.typeId === 'enum' && newType.typeId === 'text') {
+    return true;
+  }
+
+  // type promotion: range -> float
+  if (actualType.typeId === 'range' && newType.typeId === 'float') {
+    return true;
+  }
+
+  // type promotion: range -> bigger range
+  if (actualType.typeId === 'range' && newType.typeId === 'range') {
+    const actualRange = actualType as components.metadata.Range;
+    const newRange = newType as components.metadata.Range;
+    if (actualRange.min >= newRange.min && actualRange.max <= newRange.max) {
+      return true;
+    }
+  }
+
+  // type promotion: enum -> bigger enum
+  if (actualType.typeId === 'enum' && newType.typeId === 'enum') {
+    const actualEnum = actualType as components.metadata.Enum;
+    const newEnum = newType as components.metadata.Enum;
+    const newValues = new Set(newEnum.values);
+    if (actualEnum.values.every(value => newValues.has(value))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 class UsageModel {
   private readonly componentUsage = new Map<string, UiElementPath[]>();
-  private readonly pluginUsage = new Map<string, UiElementPath[]>();
   private readonly pluginMemberUsage = new Map<string, UiElementPath[]>();
 
   constructor(components: ComponentsModel, usage: ComponentUsage[]) {
@@ -164,17 +211,12 @@ class UsageModel {
     for (const { componentId, memberName, path } of usage) {
       this.mapPush(this.componentUsage, componentId, path);
       const component = components.getComponent(componentId);
-      this.mapPush(this.pluginUsage, component.pluginId, path);
       this.mapPush(this.pluginMemberUsage, this.buildPluginMemberKey(component.pluginId, memberName), path);
     }
   }
 
   findComponentUsage(componentId: string) {
     return this.componentUsage.get(componentId);
-  }
-
-  findPluginUsage(pluginId: string) {
-    return this.pluginUsage.get(pluginId);
   }
 
   findPluginMemberUsage(pluginId: string, memberName: string) {
