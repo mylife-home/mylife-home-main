@@ -143,7 +143,7 @@ export interface ValidateUiProjectCallResult extends ProjectCallResult {
 }
 
 export interface BreakingOperation {
-  operation: 'delete';
+  operation: 'update' | 'remove';
   componentId: string;
   usage: UiElementPath[];
 }
