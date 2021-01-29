@@ -148,13 +148,13 @@ export interface BreakingOperation {
   usage: UiElementPath[];
 }
 
+export interface RefreshComponentsUiProjectCallResult extends ProjectCallResult {
+  breakingOperations: BreakingOperation[];
+}
+
 export interface RefreshComponentsFromProjectUiProjectCall extends UiProjectCall {
   operation: 'refresh-components-from-project';
   projectId: string;
-}
-
-export interface RefreshComponentsFromProjectUiProjectCallResult extends ProjectCallResult {
-  breakingOperations: BreakingOperation[];
 }
 
 export interface SetDefaultWindowUiProjectCall extends UiProjectCall {

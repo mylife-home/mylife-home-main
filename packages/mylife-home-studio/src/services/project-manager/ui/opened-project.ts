@@ -19,7 +19,7 @@ import {
   ProjectCallResult,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
-  RefreshComponentsFromProjectUiProjectCallResult,
+  RefreshComponentsUiProjectCallResult,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
@@ -212,7 +212,7 @@ export class UiOpenedProject extends OpenedProject {
     return { errors: context.errors };
   }
 
-  private async refreshComponentsFromOnline(): Promise<RefreshComponentsFromProjectUiProjectCallResult> {
+  private async refreshComponentsFromOnline(): Promise<RefreshComponentsUiProjectCallResult> {
     const componentData = loadOnlineComponentData();
     const usage = collectComponentsUsage(this.windows);
     const breakingOperations = prepareMergeComponentData(this.components, usage, componentData);
