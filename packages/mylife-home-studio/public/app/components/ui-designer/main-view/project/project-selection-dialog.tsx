@@ -77,7 +77,7 @@ export function useProjectSelectionDialog() {
   );
 }
 
-export const ProjectItem: FunctionComponent<{ id: string; onSelect: () => void }> = ({ id, onSelect }) => {
+const ProjectItem: FunctionComponent<{ id: string; onSelect: () => void }> = ({ id, onSelect }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
   return (
