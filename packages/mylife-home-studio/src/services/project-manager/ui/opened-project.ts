@@ -23,6 +23,7 @@ import {
   ComponentData,
   UiValidationError,
   UiElementPath,
+  RefreshComponentsFromProjectUiProjectCall,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem } from '../../../../shared/ui-model';
 import { Component, MemberType } from '../../../../shared/component-model';
@@ -64,7 +65,16 @@ export class UiOpenedProject extends OpenedProject {
     switch (callData.operation) {
       case 'validate':
         return await this.validate();
+      
+      case 'refresh-components-from-online':
+        return await this.refreshComponentsFromOnline();
 
+      case 'refresh-components-from-project':
+        return await this.refreshComponentsFromProject(callData as RefreshComponentsFromProjectUiProjectCall);
+
+      case 'deploy':
+        return await this.deploy();
+      
       case 'set-default-window':
         await this.setDefaultWindow(callData as SetDefaultWindowUiProjectCall);
         break;
@@ -205,9 +215,18 @@ export class UiOpenedProject extends OpenedProject {
     return { errors: context.errors };
   }
 
-  private async refreshComponents() {
-    // TODO
+  private async refreshComponentsFromOnline(): Promise<ProjectCallResult> {
+    throw new Error('TODO');
     this.components.rebuild();
+  }
+
+  private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<ProjectCallResult> {
+    throw new Error('TODO');
+    this.components.rebuild();
+  }
+
+  private async deploy(): Promise<ProjectCallResult> {
+    throw new Error('TODO');
   }
 }
 
