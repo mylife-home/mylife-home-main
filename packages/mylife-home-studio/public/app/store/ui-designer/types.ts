@@ -11,8 +11,9 @@ export const enum ActionTypes {
   UPDATE_PROJECT = 'ui-designer/update-project',
 
   VALIDATE_PROJECT = 'ui-designer/validate-project',
-  // TODO: deployment
-  // TODO: refresh components
+  REFRESH_COMPONENTS_FROM_ONLINE = 'ui-designer/refresh-components-from-online',
+  REFRESH_COMPONENTS_FROM_PROJECT = 'ui-designer/refresh-components-from-project',
+  DEPLOY_PROJECT = 'ui-designer/deploy-project',
   SET_DEFAULT_WINDOW = 'ui-designer/set-default-window',
   SET_RESOURCE = 'ui-designer/set-resource',
   CLEAR_RESOURCE = 'ui-designer/clear-resource',

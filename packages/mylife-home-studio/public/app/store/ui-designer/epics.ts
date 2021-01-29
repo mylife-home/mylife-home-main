@@ -17,6 +17,7 @@ import {
   SetResourceUiProjectCall,
   SetWindowUiProjectCall,
   ValidateUiProjectCallResult,
+  RefreshComponentsFromProjectUiProjectCall,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -41,13 +42,38 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       }
     },
 
+    [ActionTypes.REFRESH_COMPONENTS_FROM_ONLINE]: {
+      mapper() {
+        return { operation: 'refresh-components-from-online' } as UiProjectCall;
+      },
+      resultMapper(serviceResult: ProjectCallResult) {
+        return serviceResult; // TODO
+      }
+    },
+
+    [ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT]: {
+      mapper({ projectId }: { projectId: string }) {
+        return { operation: 'refresh-components-from-project', projectId } as RefreshComponentsFromProjectUiProjectCall;
+      },
+      resultMapper(serviceResult: ProjectCallResult) {
+        return serviceResult; // TODO
+      }
+    },
+
+    [ActionTypes.DEPLOY_PROJECT]: {
+      mapper() {
+        return { operation: 'deploy' } as UiProjectCall;
+      },
+      resultMapper(serviceResult: ProjectCallResult) {
+        return serviceResult; // TODO
+      }
+    },
+
     [ActionTypes.SET_DEFAULT_WINDOW]: {
       mapper({ defaultWindow }: { defaultWindow: DefaultWindow }) {
         return { operation: 'set-default-window', defaultWindow } as SetDefaultWindowUiProjectCall;
       },
     },
-
-    // TODO: component data
 
     [ActionTypes.SET_RESOURCE]: {
       mapper({ resource }: { resource: UiResource }) {

@@ -123,7 +123,7 @@ export interface CoreProjectCall {
 }
 
 export interface UiProjectCall {
-  operation: 'validate' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
+  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
 }
 
 export interface UiValidationError {
@@ -139,11 +139,13 @@ export interface UiElementPathNode {
 }
 
 export interface ValidateUiProjectCallResult extends ProjectCallResult {
-  errors: UiValidationError[]; // TODO
+  errors: UiValidationError[];
 }
 
-// TODO: component data
-// TODO: deployment
+export interface RefreshComponentsFromProjectUiProjectCall extends UiProjectCall {
+  operation: 'refresh-components-from-project';
+  projectId: string;
+}
 
 export interface SetDefaultWindowUiProjectCall extends UiProjectCall {
   operation: 'set-default-window';
