@@ -33,6 +33,18 @@ export class InstanceNotifier {
     this.instanceInfos.clear();
   }
 
+  getInstancesByCapability(capability: string) {
+    const names: string[] = [];
+
+    for (const [name, info] of this.instanceInfos.entries()) {
+      if (info.data.capabilities.includes(capability)) {
+        names.push(name);
+      }
+    }
+
+    return names;
+  }
+
   private readonly onInstanceChange = (instanceName: string, online: boolean) => {
     if (online) {
       this.onInstanceOnline(instanceName);
