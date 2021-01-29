@@ -30,7 +30,7 @@ const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className 
       onOpen={(id) => openTab({ projectId: id })}
     >
       {ids.map((id) => (
-        <CorePojectItem key={id} id={id} />
+        <CoreProjectItem key={id} id={id} />
       ))}
     </ProjectList>
   );
@@ -38,7 +38,7 @@ const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className 
 
 export default CoreProjectList;
 
-const CorePojectItem: FunctionComponent<{ id: string }> = ({ id }) => {
+const CoreProjectItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
   const formattedInfo = useMemo(() => ['TODO'], [info]);
