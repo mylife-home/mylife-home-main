@@ -20,6 +20,8 @@ import {
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
   RefreshComponentsUiProjectCallResult,
+  ApplyRefreshComponentsUiProjectCall,
+  ComponentData,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
@@ -69,6 +71,9 @@ export class UiOpenedProject extends OpenedProject {
       case 'refresh-components-from-project':
         return await this.refreshComponentsFromProject(callData as RefreshComponentsFromProjectUiProjectCall);
 
+      case 'apply-refresh-components':
+        await this.applyRefreshComponents(callData as ApplyRefreshComponentsUiProjectCall);
+  
       case 'deploy':
         return await this.deploy();
 
@@ -214,15 +219,53 @@ export class UiOpenedProject extends OpenedProject {
 
   private async refreshComponentsFromOnline(): Promise<RefreshComponentsUiProjectCallResult> {
     const componentData = loadOnlineComponentData();
-    const usage = collectComponentsUsage(this.windows);
-    const breakingOperations = prepareMergeComponentData(this.components, usage, componentData);
-    return { breakingOperations };
-    // this.components.rebuild();
+    return this.prepareComponentRefresh(componentData);
   }
 
-  private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<ProjectCallResult> {
+  private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<RefreshComponentsUiProjectCallResult> {
     throw new Error('TODO');
-    this.components.rebuild();
+    // const componentData = loadOnlineComponentData();
+    // return this.prepareComponentRefresh(componentData);
+  }
+
+  private async applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
+    await this.executeUpdate(() => {
+      const { componentData, usageToClear } = serverData as RefreshServerData;
+      this.components.apply(componentData);
+      this.clearComponentsUsage(usageToClear);
+    });
+  }
+
+  private prepareComponentRefresh(componentData: ComponentData) {
+    const usage = this.collectComponentsUsage();
+    const { breakingOperations, usageToClear } = prepareMergeComponentData(this.components, usage, componentData);
+    const serverData: RefreshServerData = { componentData, usageToClear };
+    return { breakingOperations, serverData };
+  }
+
+  private collectComponentsUsage() {
+    const usage: ComponentUsage[] = [];
+
+    for (const window of this.windows) {
+      window.collectComponentsUsage(usage);
+    }
+
+    return usage;
+  }
+
+  private clearComponentsUsage(usage: ComponentUsage[]) {
+    for (const item of usage) {
+      const node = item.path[0];
+      if (node.type !== 'window') {
+        continue; // paranoia
+      }
+
+      const window = this.windows.findById(node.id);
+      const changed = window.clearComponentUsage(item);
+      if (changed) {
+        this.notifyAllWindow(window);
+      }
+    }
   }
 
   private async deploy(): Promise<ProjectCallResult> {
@@ -230,12 +273,7 @@ export class UiOpenedProject extends OpenedProject {
   }
 }
 
-function collectComponentsUsage(windows: CollectionModel<Mutable<Window>, WindowModel>) {
-  const usage: ComponentUsage[] = [];
-
-  for (const window of windows) {
-    window.collectComponentsUsage(usage);
-  }
-
-  return usage;
+interface RefreshServerData {
+  componentData: ComponentData;
+  usageToClear: ComponentUsage[];
 }

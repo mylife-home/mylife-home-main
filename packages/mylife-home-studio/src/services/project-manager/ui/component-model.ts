@@ -11,7 +11,14 @@ export class ComponentsModel {
     this.rebuild();
   }
 
-  rebuild() {
+  apply(newComponentData: ComponentData) {
+    this.componentData.components = newComponentData.components;
+    this.componentData.plugins = newComponentData.plugins;
+
+    this.rebuild();
+  }
+
+  private rebuild() {
     this.map.clear();
 
     for (const component of this.componentData.components) {
@@ -101,6 +108,7 @@ export function loadOnlineComponentData() {
 
 export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: ComponentData) {
   const usageModel = new UsageModel(components, componentsUsage);
+  const usageToClear: ComponentUsage[] = [];
 
   const breakingOperations: BreakingOperation[] = [];
 
@@ -118,8 +126,12 @@ export function prepareMergeComponentData(components: ComponentsModel, component
       breakingOperations.push({
         operation: 'remove',
         componentId: actualComponent.id,
-        usage
+        usage: usage.map(item => item.path)
       });
+
+      for (const item of usage) {
+        usageToClear.push(item);
+      }
 
       continue;
     }
@@ -128,12 +140,16 @@ export function prepareMergeComponentData(components: ComponentsModel, component
       breakingOperations.push({
         operation: 'update',
         componentId: actualComponent.id,
-        usage
+        usage: usage.map(item => item.path)
       });
+
+      for (const item of usage) {
+        usageToClear.push(item);
+      }
     }
   }
 
-  return breakingOperations;
+  return { breakingOperations, usageToClear };
 }
 
 function isPluginCompatible(actualId: string, actualPlugin: PluginData, newPlugin: PluginData, usageModel: UsageModel) {
@@ -203,15 +219,15 @@ function isTypeCompatible(actualValueType: string, newValueType: string) {
 }
 
 class UsageModel {
-  private readonly componentUsage = new Map<string, UiElementPath[]>();
-  private readonly pluginMemberUsage = new Map<string, UiElementPath[]>();
+  private readonly componentUsage = new Map<string, ComponentUsage[]>();
+  private readonly pluginMemberUsage = new Map<string, ComponentUsage[]>();
 
   constructor(components: ComponentsModel, usage: ComponentUsage[]) {
-
-    for (const { componentId, memberName, path } of usage) {
-      this.mapPush(this.componentUsage, componentId, path);
+    for (const item of usage) {
+      const { componentId, memberName } = item;
+      this.mapPush(this.componentUsage, componentId, item);
       const component = components.getComponent(componentId);
-      this.mapPush(this.pluginMemberUsage, this.buildPluginMemberKey(component.pluginId, memberName), path);
+      this.mapPush(this.pluginMemberUsage, this.buildPluginMemberKey(component.pluginId, memberName), item);
     }
   }
 
@@ -223,14 +239,14 @@ class UsageModel {
     return this.pluginMemberUsage.get(this.buildPluginMemberKey(pluginId, memberName));
   }
 
-  private mapPush(map: Map<string, UiElementPath[]>, key: string, path: UiElementPath) {
+  private mapPush(map: Map<string, ComponentUsage[]>, key: string, usage: ComponentUsage) {
     let array = map.get(key);
     if (!array) {
       array = [];
       map.set(key, array);
     }
 
-    array.push(path);
+    array.push(usage);
   }
 
   private buildPluginMemberKey(pluginId: string, memberName: string) {

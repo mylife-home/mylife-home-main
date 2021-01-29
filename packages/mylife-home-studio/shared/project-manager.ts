@@ -123,7 +123,7 @@ export interface CoreProjectCall {
 }
 
 export interface UiProjectCall {
-  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
+  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
 }
 
 export interface UiValidationError {
@@ -150,6 +150,12 @@ export interface BreakingOperation {
 
 export interface RefreshComponentsUiProjectCallResult extends ProjectCallResult {
   breakingOperations: BreakingOperation[];
+  serverData: unknown;
+}
+
+export interface ApplyRefreshComponentsUiProjectCall extends UiProjectCall {
+  operation: 'apply-refresh-components';
+  serverData: unknown;
 }
 
 export interface RefreshComponentsFromProjectUiProjectCall extends UiProjectCall {

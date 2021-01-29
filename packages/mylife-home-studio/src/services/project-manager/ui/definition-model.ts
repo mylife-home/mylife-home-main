@@ -41,11 +41,8 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
   }
 
   findById(id: string) {
-    return this.map.get(id);
-  }
-
-  findByIndex(index: number) {
-    return this.data[index];
+    const mapItem = this.map.get(id);
+    return mapItem?.item;
   }
 
   // push at the end of array, or replace if id exists
@@ -412,22 +409,61 @@ export class WindowModel {
             });
           }
         }
+      }
 
-        for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-          const component = control[type]?.component;
+      for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+        const component = control[type]?.component;
 
-          if (component) {
-            if (component.id && component.action) {
-              usage.push({
-                componentId: component.id,
-                memberName: component.action,
-                path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]
-              });
-            }
+        if (component) {
+          if (component.id && component.action) {
+            usage.push({
+              componentId: component.id,
+              memberName: component.action,
+              path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]
+            });
           }
         }
       }
     }
+  }
+
+  clearComponentUsage(usage: ComponentUsage) {
+    const node = usage.path[1];
+    if (node.type !== 'control') {
+      return false; // paranoia
+    }
+
+    const control = this.data.controls.find(control => control.id === node.id);
+    const { display, text } = control;
+    let changed = false;
+
+    if (display && display.componentId === usage.componentId && display.componentState === usage.memberName) {
+      asMutable(display).componentId = null;
+      asMutable(display).componentState = null;
+      changed = true;
+    }
+
+    if (text) {
+      for (const item of text.context) {
+        if (item.componentId === usage.componentId && item.componentState === usage.memberName) {
+          asMutable(item).componentId = null;
+          asMutable(item).componentState = null;
+          changed = true;
+        }
+      }
+    }
+
+    for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+      const component = control[type]?.component;
+
+      if (component && component.id === usage.componentId && component.action === usage.memberName) {
+        asMutable(component).id = null;
+        asMutable(component).action = null;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 }
 
