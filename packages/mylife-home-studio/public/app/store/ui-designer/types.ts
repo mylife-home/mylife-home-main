@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { PluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
+import { BreakingOperation, PluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -26,7 +26,7 @@ export const enum ActionTypes {
 
 export { DesignerTabActionData, DefaultWindow };
 
-type Mutable<T> = { -readonly[P in keyof T]: T[P]};
+type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type UiComponent = Component;
 export type UiResource = Mutable<DefinitionResource>;
@@ -55,3 +55,8 @@ export type UiDesignerState = DesignerState<UiOpenedProject>;
 
 export { UiElementPath, UiElementPathNode };
 export type Usage = UiElementPath[];
+
+export interface RefreshData {
+  breakingOperations: BreakingOperation[];
+  serverData: unknown;
+}
