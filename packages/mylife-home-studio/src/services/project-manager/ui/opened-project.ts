@@ -73,6 +73,7 @@ export class UiOpenedProject extends OpenedProject {
 
       case 'apply-refresh-components':
         await this.applyRefreshComponents(callData as ApplyRefreshComponentsUiProjectCall);
+        break;
   
       case 'deploy':
         return await this.deploy();
