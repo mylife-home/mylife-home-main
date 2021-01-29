@@ -13,6 +13,7 @@ export const enum ActionTypes {
   VALIDATE_PROJECT = 'ui-designer/validate-project',
   REFRESH_COMPONENTS_FROM_ONLINE = 'ui-designer/refresh-components-from-online',
   REFRESH_COMPONENTS_FROM_PROJECT = 'ui-designer/refresh-components-from-project',
+  APPLY_REFRESH_COMPONENTS = 'ui-designer/apply-refresh-components',
   DEPLOY_PROJECT = 'ui-designer/deploy-project',
   SET_DEFAULT_WINDOW = 'ui-designer/set-default-window',
   SET_RESOURCE = 'ui-designer/set-resource',

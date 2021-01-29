@@ -18,6 +18,8 @@ import {
   SetWindowUiProjectCall,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
+  ApplyRefreshComponentsUiProjectCall,
+  RefreshComponentsUiProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -46,8 +48,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper() {
         return { operation: 'refresh-components-from-online' } as UiProjectCall;
       },
-      resultMapper(serviceResult: ProjectCallResult) {
-        return serviceResult; // TODO
+      resultMapper(serviceResult: RefreshComponentsUiProjectCallResult) {
+        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
       }
     },
 
@@ -55,8 +57,14 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ projectId }: { projectId: string }) {
         return { operation: 'refresh-components-from-project', projectId } as RefreshComponentsFromProjectUiProjectCall;
       },
-      resultMapper(serviceResult: ProjectCallResult) {
-        return serviceResult; // TODO
+      resultMapper(serviceResult: RefreshComponentsUiProjectCallResult) {
+        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
+      }
+    },
+
+    [ActionTypes.APPLY_REFRESH_COMPONENTS]: {
+      mapper({ serverData }: { serverData: unknown }) {
+        return { operation: 'apply-refresh-components', serverData } as ApplyRefreshComponentsUiProjectCall;
       }
     },
 
