@@ -10,7 +10,6 @@ import {
   UiProjectCall,
   ClearResourceUiProjectCall,
   ClearWindowUiProjectCall,
-  ProjectCallResult,
   RenameResourceUiProjectCall,
   RenameWindowUiProjectCall,
   SetDefaultWindowUiProjectCall,
@@ -20,6 +19,7 @@ import {
   RefreshComponentsFromProjectUiProjectCall,
   ApplyRefreshComponentsUiProjectCall,
   RefreshComponentsUiProjectCallResult,
+  DeployUiProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -72,8 +72,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper() {
         return { operation: 'deploy' } as UiProjectCall;
       },
-      resultMapper(serviceResult: ProjectCallResult) {
-        return serviceResult; // TODO
+      resultMapper(serviceResult: DeployUiProjectCallResult) {
+        return { validationErrors: serviceResult.validationErrors, deployError: serviceResult.deployError };
       }
     },
 

@@ -18,9 +18,7 @@ import { setDefaultWindow } from '../../../../store/ui-designer/actions';
 import { DefaultWindow } from '../../../../../../shared/ui-model';
 import WindowSelector from '../common/window-selector';
 import { Group, Item } from '../common/properties-layout';
-import { useRefreshComponentsFromOnline, useRefreshComponentsFromCoreProject } from './refresh-components';
-import { useProjectValidation } from './validation';
-import { useProjectDeploy } from './deploy';
+import { useProjectValidation, useRefreshComponentsFromOnline, useRefreshComponentsFromCoreProject, useProjectDeploy } from './action-behaviors';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {

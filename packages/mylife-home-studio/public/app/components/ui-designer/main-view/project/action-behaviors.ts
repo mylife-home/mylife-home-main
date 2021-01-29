@@ -1,13 +1,34 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { AsyncDispatch } from '../../../../store/types';
-import { refreshComponentsFromOnline, refreshComponentsFromProject, applyRefreshComponents } from '../../../../store/ui-designer/actions';
-import { RefreshData } from '../../../../store/ui-designer/types';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
+import { AsyncDispatch } from '../../../../store/types';
+import { validateProject, refreshComponentsFromOnline, refreshComponentsFromProject, applyRefreshComponents, deployProject } from '../../../../store/ui-designer/actions';
+import { RefreshData } from '../../../../store/ui-designer/types';
+import { UiValidationError } from '../../../../../../shared/project-manager';
 import { useSnackbar } from '../../../dialogs/snackbar';
+import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 import { useProjectSelectionDialog } from './project-selection-dialog';
+
+export function useProjectValidation() {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch<AsyncDispatch<UiValidationError[]>>();
+  const fireAsync = useFireAsync();
+  const showDialog = useShowValidationErrorsDialog();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(() => {
+    fireAsync(async () => {
+      const errors = await dispatch(validateProject({ id: tabId }));
+      if (errors.length === 0) {
+        enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
+      } else {
+        await showDialog(errors);
+      }
+    });
+  }, [tabId, dispatch, fireAsync, showDialog, enqueueSnackbar]);
+}
 
 export function useRefreshComponentsFromOnline() {
   const tabId = useTabPanelId();
@@ -57,4 +78,25 @@ function useExecuteRefresh() {
 
     enqueueSnackbar('Les composants ont été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
+}
+
+export function useProjectDeploy() {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch<AsyncDispatch<{ validationErrors?: UiValidationError[]; deployError?: string; }>>();
+  const fireAsync = useFireAsync();
+  const showDialog = useShowValidationErrorsDialog();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(() => {
+    fireAsync(async () => {
+      const { validationErrors, deployError } = await dispatch(deployProject({ id: tabId }));
+      if (validationErrors && validationErrors.length > 0) {
+        await showDialog(validationErrors);
+      } else if (deployError) {
+        // TODO
+      } else {
+        enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
+      }
+    });
+  }, [tabId, dispatch, fireAsync, showDialog, enqueueSnackbar]);
 }

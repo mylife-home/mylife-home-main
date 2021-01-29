@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -14,13 +13,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import { TransitionProps, DialogText } from '../../../dialogs/common';
-import { useTabPanelId } from '../../../lib/tab-panel';
-import { useFireAsync } from '../../../lib/use-error-handling';
-import { AsyncDispatch } from '../../../../store/types';
-import { validateProject } from '../../../../store/ui-designer/actions';
 import { ElementPathNode } from '../common/element-path-breadcrumbs';
 import { UiValidationError, UiElementPathNode } from '../../../../../../shared/project-manager';
-import { useSnackbar } from '../../../dialogs/snackbar';
 
 const useStyles = makeStyles((theme) => ({
   tree: {
@@ -30,26 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function useProjectValidation() {
-  const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<UiValidationError[]>>();
-  const fireAsync = useFireAsync();
-  const showDialog = useShowDialog();
-  const { enqueueSnackbar } = useSnackbar();
-
-  return useCallback(() => {
-    fireAsync(async () => {
-      const errors = await dispatch(validateProject({ id: tabId }));
-      if (errors.length === 0) {
-        enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
-      } else {
-        await showDialog(errors);
-      }
-    });
-  }, [tabId, dispatch, fireAsync, showDialog, enqueueSnackbar]);
-}
-
-function useShowDialog() {
+export function useShowValidationErrorsDialog() {
   const classes = useStyles();
   const [treeData, setTreeData] = useState<TreeData>();
   const [onClose, setOnClose] = useState<() => void>();
