@@ -163,6 +163,11 @@ export interface RefreshComponentsFromProjectUiProjectCall extends UiProjectCall
   projectId: string;
 }
 
+export interface DeployUiProjectCallResult extends ProjectCallResult {
+  validationErrors?: UiValidationError[];
+  deployError?: string;
+}
+
 export interface SetDefaultWindowUiProjectCall extends UiProjectCall {
   operation: 'set-default-window';
   defaultWindow: DefaultWindow;

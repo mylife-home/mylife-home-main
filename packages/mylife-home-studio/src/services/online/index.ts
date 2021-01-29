@@ -1,9 +1,10 @@
-import { components } from 'mylife-home-common';
+import { components, bus } from 'mylife-home-common';
 import { Service, BuildParams } from '../types';
 import { Services } from '..';
 import { InstanceNotifier } from './instance-notifier';
 import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
+import { Definition } from '../../../shared/ui-model';
 
 /* 
   online instances API should be published here, at least:
@@ -12,17 +13,18 @@ import { HistoryNotifier } from './history-notifier';
   Because this service should be the only entry point to update config, it can have a cache and notify on updates
 */
 export class Online implements Service {
+  private readonly transport: bus.Transport;
   private readonly registry: components.Registry;
   private readonly instanceNotifier: InstanceNotifier;
   private readonly componentNotifier: ComponentNotifier;
   private readonly historyNotifier: HistoryNotifier;
 
   constructor(params: BuildParams) {
-    const { transport } = params;
-    this.registry = new components.Registry({ transport, publishRemoteComponents: true });
-    this.instanceNotifier = new InstanceNotifier(transport);
+    this.transport = params.transport;
+    this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
+    this.instanceNotifier = new InstanceNotifier(this.transport);
     this.componentNotifier = new ComponentNotifier(this.registry);
-    this.historyNotifier = new HistoryNotifier(transport, this.registry);
+    this.historyNotifier = new HistoryNotifier(this.transport, this.registry);
   }
 
   async init() {
@@ -48,5 +50,13 @@ export class Online implements Service {
 
   getComponentsData() {
     return this.registry.getComponentsData();
+  }
+
+  getInstancesByCapability(capability: string) {
+    return this.instanceNotifier.getInstancesByCapability(capability);
+  }
+
+  async uiSetDefinition(instanceName: string, definition: Definition) {
+    await this.transport.rpc.call(instanceName, 'definition.set', definition);
   }
 }

@@ -22,10 +22,12 @@ import {
   RefreshComponentsUiProjectCallResult,
   ApplyRefreshComponentsUiProjectCall,
   ComponentData,
+  DeployUiProjectCallResult,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
+import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
@@ -74,7 +76,7 @@ export class UiOpenedProject extends OpenedProject {
       case 'apply-refresh-components':
         await this.applyRefreshComponents(callData as ApplyRefreshComponentsUiProjectCall);
         break;
-  
+
       case 'deploy':
         return await this.deploy();
 
@@ -268,8 +270,26 @@ export class UiOpenedProject extends OpenedProject {
     }
   }
 
-  private async deploy(): Promise<ProjectCallResult> {
-    throw new Error('TODO');
+  private async deploy(): Promise<DeployUiProjectCallResult> {
+    const validation = await this.validate();
+
+    // only deploy if no validation errors
+    if (validation.errors.length > 0) {
+      return { validationErrors: validation.errors };
+    }
+
+    const uiInstances = Services.instance.online.getInstancesByCapability('ui-manager');
+    if (uiInstances.length === 0) {
+      return { deployError: `Pas d'instance UI en ligne pour deployer` };
+    }
+
+    if (uiInstances.length > 1) {
+      return { deployError: 'Il y a plusieurs instances UI en ligne. Non supporté' };
+    }
+
+    const [instanceName] = uiInstances;
+    const { definition } = this.project;
+    await Services.instance.online.uiSetDefinition(instanceName, definition);
   }
 }
 
