@@ -35,6 +35,8 @@ L'important est pas le titre de l action, mais le fait d avoir l historique
 
 Si on veut faire des modifs nommées, c'est des branches, et on squash/merge a la fin, avec un commit message sur le merge
 
+web-ui pour gerer git: https://gitconvex.com/
+
 ## ui
 
 ### Client-side model
