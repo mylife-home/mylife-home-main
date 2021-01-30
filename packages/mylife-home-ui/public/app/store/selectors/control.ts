@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import { AppState } from '../types';
 import { getComponentState } from './registry';
-import { Window, Control, ControlDisplayMapItem, ControlText, ControlDisplay, Resource } from '../types/model';
-import { getWindowControl, getWindow } from './model';
+import { ControlDisplayMapItem, ControlText, ControlDisplay, Resource } from '../types/model';
+import { getWindowControl } from './model';
 
 export interface UIControl {
   readonly id: string;
@@ -31,17 +31,14 @@ interface StaticModel {
 
 export const makeGetUIControl = (windowId: string, controlId: string): (state: AppState) => UIControl => {
   const getStaticModel = createSelector(
-    [
-      (state: AppState) => getWindow(state, windowId),
-      (state: AppState) => getWindowControl(state, windowId, controlId)
-    ], (window, control): StaticModel => {
+    [(state: AppState) => getWindowControl(state, windowId, controlId)], (control): StaticModel => {
 
       const template: UIControl = {
         id: control.id,
         width: control.width,
         height: control.height,
-        left: window.width * control.x - control.width / 2,
-        top: window.height * control.y - control.height / 2,
+        left: control.x,
+        top: control.y,
         displayResource: null,
         text: null,
         active: !!control.primaryAction,
