@@ -10,6 +10,7 @@ import { UiValidationError } from '../../../../../../shared/project-manager';
 import { useSnackbar } from '../../../dialogs/snackbar';
 import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 import { useProjectSelectionDialog } from './project-selection-dialog';
+import { useShowBreakingOperationsDialog } from './breaking-operations-dialog';
 
 export function useProjectValidation() {
   const tabId = useTabPanelId();
@@ -67,11 +68,15 @@ export function useRefreshComponentsFromCoreProject() {
 function useExecuteRefresh() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch<AsyncDispatch<RefreshData>>();
+  const showBreakingOperations = useShowBreakingOperationsDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(async (refreshData: RefreshData) => {
     if (refreshData.breakingOperations.length > 0) {
-      console.log('TODO breakingOperations', refreshData.breakingOperations);
+      const { status } = await showBreakingOperations(refreshData.breakingOperations);
+      if(status !== 'ok') {
+        return;
+      }
     }
 
     await dispatch(applyRefreshComponents({ id: tabId, serverData: refreshData.serverData }));
