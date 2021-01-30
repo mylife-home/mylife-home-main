@@ -21,6 +21,16 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
+  operationItem: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  usageItem: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+
+    paddingLeft: theme.spacing(8)
+  }
 }));
 
 export function useShowBreakingOperationsDialog() {
@@ -63,14 +73,14 @@ export function useShowBreakingOperationsDialog() {
             <List className={classes.list}>
               {breakingOperations.map((breakingOperation, index) => (
                 <React.Fragment key={index}>
-                  <ListItem>
+                  <ListItem className={classes.operationItem}>
                     <ListItemText>
                       {getLabel(breakingOperation)}
                     </ListItemText>
                   </ListItem>
 
                   {breakingOperation.usage.map((usage, index) => (
-                    <ListItem key={index}>
+                    <ListItem className={classes.usageItem} key={index}>
                       <ListItemText>
                         <ElementPathBreadcrumbs item={usage} />
                       </ListItemText>
