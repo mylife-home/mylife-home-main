@@ -93,7 +93,7 @@ export function useProjectDeploy() {
       if (validationErrors && validationErrors.length > 0) {
         await showDialog(validationErrors);
       } else if (deployError) {
-        console.log('TODO deployError', deployError);
+        throw new Error('Erreur de déploiement : ' + deployError);
       } else {
         enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
       }
