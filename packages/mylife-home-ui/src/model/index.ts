@@ -56,6 +56,7 @@ export class ModelManager extends EventEmitter {
 
     this._requiredComponentStates = extractRequiredComponentStates(model);
 
+    log.info(`updated model : ${this._modelHash}`)
     this.emit('update');
   }
 

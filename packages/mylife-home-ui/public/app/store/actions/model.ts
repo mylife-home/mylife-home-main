@@ -13,6 +13,7 @@ export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getSt
     resource: modelHash, 
     onContent: (content: any) => {
       const model = content as Model;
+      console.log('using model', model);
 
       dispatch(modelSet(model.windows));
       dispatch(viewInit(model.defaultWindow));
