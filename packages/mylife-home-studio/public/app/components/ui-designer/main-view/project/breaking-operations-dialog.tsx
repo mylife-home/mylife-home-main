@@ -6,13 +6,17 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 
 import { ConfirmResult } from '../../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../../dialogs/common';
 import { BreakingOperation } from '../../../../../../shared/project-manager';
+import ElementPathBreadcrumbs from '../common/element-path-breadcrumbs';
 
 const useStyles = makeStyles((theme) => ({
-  tree: {
+  list: {
     maxHeight: '50vh',
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
@@ -56,7 +60,25 @@ export function useShowBreakingOperationsDialog() {
           <DialogContent dividers>
             <DialogText value={'Importer les composants modifierait le projet :'} />
 
-            {JSON.stringify(breakingOperations)}
+            <List className={classes.list}>
+              {breakingOperations.map((breakingOperation, index) => (
+                <React.Fragment key={index}>
+                  <ListItem>
+                    <ListItemText>
+                      {getLabel(breakingOperation)}
+                    </ListItemText>
+                  </ListItem>
+
+                  {breakingOperation.usage.map((usage, index) => (
+                    <ListItem key={index}>
+                      <ListItemText>
+                        <ElementPathBreadcrumbs item={usage} />
+                      </ListItemText>
+                    </ListItem>
+                  ))}
+                </React.Fragment>
+              ))}
+            </List>
 
             <DialogText value={'Continuer ?'} />
           </DialogContent>
@@ -81,4 +103,15 @@ export function useShowBreakingOperationsDialog() {
       }),
     [setBreakingOperations, setOnResult, showModal]
   );
+}
+
+function getLabel(breakingOperation: BreakingOperation) {
+  switch(breakingOperation.operation) {
+    case 'update': 
+      return `Composant modifié : ${breakingOperation.componentId}`;
+    case 'remove': 
+      return `Composant supprimé : ${breakingOperation.componentId}`;
+    default:
+      return `<Operation inconnue> : ${breakingOperation.componentId}`;
+  }
 }
