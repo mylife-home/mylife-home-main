@@ -29,13 +29,7 @@
    - pouvoir publier la sortie de packager vers la plateforme de Deploy
 
 ### Git
-Commit comme on auto-save, comme l historique de google sheets
-L'important est pas le titre de l action, mais le fait d avoir l historique
-=> commit a chaque modification avec un long throttle (eg: 1 mins, pour eviter 18 commits sur déplacement de composant) + push tous les X temps (eg: 5 mins)
-
-Si on veut faire des modifs nommées, c'est des branches, et on squash/merge a la fin, avec un commit message sur le merge
-
-web-ui pour gerer git: https://gitconvex.com/
+ - web-ui pour gerer git: https://gitconvex.com/
 
 ## ui
 
@@ -84,6 +78,7 @@ car que sensor vers ui
 - fix temp fixed numbers
 - fix failure on ipad
 - dynamic model + model store
+- bug: seems that range[0;100] display images are broken 
 
 ## core
  - store/mounted-fs
