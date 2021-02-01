@@ -88,12 +88,14 @@ car que sensor vers ui
   - main
     - toolbox
     - multi-select + duplicate
-  - storage (git?)
+  - storage -> support updates from fs (on git ops)
   - deploy
 - ui designer
-  - import components
-  - storage (git?)
-  - deploy
+  - import components from core project
+  - storage -> support updates from fs (on git ops)
+- deploy
+  - storage -> support updates from fs (on git ops)
+- setup gitconvex
 
 # Notes
 
