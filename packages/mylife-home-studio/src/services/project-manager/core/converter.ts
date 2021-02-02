@@ -225,13 +225,13 @@ function convertConfigValue(value: string, type: ConfigType) {
 
 function convertBinding(input: coreV1.ComponentBinding, componentId: string) {
   const binding: CoreBindingData = {
-    sourceId: input.remote_id,
+    sourceComponent: input.remote_id,
     sourceState: input.remote_attribute,
-    targetId: componentId,
+    targetComponent: componentId,
     targetAction: input.local_action
   };
 
-  const id = `${binding.sourceId}:${binding.sourceState}:${binding.targetId}:${binding.targetAction}`;
+  const id = `${binding.sourceComponent}:${binding.sourceState}:${binding.targetComponent}:${binding.targetAction}`;
 
   return { id, binding };
 }

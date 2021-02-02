@@ -1,13 +1,12 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification } from './types';
-import { createTable, tableAdd, tableRemove } from '../common/reducer-tools';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType } from './types';
+import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { ClearCoreBindingNotification, ClearCoreComponentNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
   openedProjects: createTable<CoreOpenedProject>()
 };
-
-import * as schema from '../../files/schema';
 
 export default createReducer(initialState, {
   [TabsActionTypes.NEW]: (state, action: PayloadAction<NewTabAction>) => {
@@ -16,17 +15,15 @@ export default createReducer(initialState, {
       return;
     }
 
-    // TODO: open project
     const { projectId } = data as DesignerTabActionData;
-    const { plugins, components, bindings } = schema.vpanelCore;
-    
+
     const openedProject: CoreOpenedProject = {
       id,
       projectId,
       notifierId: null,
-      plugins: createTable(plugins),
-      components: createTable(components),
-      bindings: createTable(bindings)
+      plugins: createTable<Plugin>(),
+      components: createTable<Component>(),
+      bindings: createTable<Binding>()
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -58,7 +55,9 @@ export default createReducer(initialState, {
     for(const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
 
-      // TODO: reset project state
+      openedProject.plugins = createTable<Plugin>();
+      openedProject.components = createTable<Component>();
+      openedProject.bindings = createTable<Binding>();
     }
   },
 
@@ -79,11 +78,80 @@ export default createReducer(initialState, {
 function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProjectNotification) {
   switch (update.operation) {
     case 'set-name': {
-      const typedUpdate = update as SetNameProjectNotification;
-      openedProject.projectId = typedUpdate.name;
+      const { name } = update as SetNameProjectNotification;
+      openedProject.projectId = name;
       break;
     }
 
-    // TODO
+    case 'set-core-plugins': {
+      const { plugins } = update as SetCorePluginsNotification;
+
+      for (const [id, pluginData] of Object.entries(plugins)) {
+        const plugin: Plugin = { 
+          id,
+          ...pluginData,
+          stateIds: [],
+          actionIds: [],
+          configIds: []
+        };
+
+        for(const [name, { memberType }] of Object.entries(plugin.members)) {
+          switch(memberType) {
+            case MemberType.STATE:
+              plugin.stateIds.push(name);
+            case MemberType.ACTION:
+              plugin.actionIds.push(name);
+          }
+        }
+
+        for(const name of Object.keys(plugin.config)) {
+          plugin.configIds.push(name);
+        }
+
+        plugin.stateIds.sort();
+        plugin.actionIds.sort();
+        plugin.configIds.sort();
+
+        tableSet(openedProject.plugins, plugin, true);
+      }
+
+      break;
+    }
+
+    case 'set-core-component': {
+      const { id, component } = update as SetCoreComponentNotification;
+      tableSet(openedProject.components, { id, ...component }, true);
+      break;
+    }
+
+    case 'clear-core-component': {
+      const { id } = update as ClearCoreComponentNotification;
+      tableRemove(openedProject.components, id);
+      break;
+    }
+
+    case 'rename-core-component': {
+      const { id, newId } = update as RenameCoreComponentNotification;
+      const resource = openedProject.components.byId[id];
+      tableRemove(openedProject.components, id);
+      resource.id = newId;
+      tableSet(openedProject.components, resource, true);
+      break;
+    }
+
+    case 'set-core-binding': {
+      const { id, binding } = update as SetCoreBindingNotification;
+      tableSet(openedProject.bindings, { id, ...binding }, true);
+      break;
+    }
+
+    case 'clear-core-binding': {
+      const { id } = update as ClearCoreBindingNotification;
+      tableRemove(openedProject.bindings, id);
+      break;
+    }
+
+    default:
+      throw new Error(`Unhandled update operation: ${update.operation}`);
   }
 }

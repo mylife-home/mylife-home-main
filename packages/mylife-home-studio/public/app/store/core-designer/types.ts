@@ -1,4 +1,4 @@
-import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
+import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
 import { CoreBindingData, CoreComponentData, CorePluginData } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';

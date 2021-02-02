@@ -45,9 +45,9 @@ export interface CorePluginData extends Plugin {
 
 // should we merge with core/store?
 export interface CoreBindingData {
-  sourceId: string;
+  sourceComponent: string;
   sourceState: string;
-  targetId: string;
+  targetComponent: string;
   targetAction: string;
 }
 
