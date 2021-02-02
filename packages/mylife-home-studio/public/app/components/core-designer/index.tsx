@@ -2,7 +2,6 @@ import React, { FunctionComponent, useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Divider from '@material-ui/core/Divider';
@@ -15,6 +14,7 @@ import ZoomSlider from './zoom-slider';
 import MiniView from './mini-view';
 import MainView from './main-view';
 import SelectionPanel from './selection-panel';
+import Toolbox from './toolbox';
 
 const useStyles = makeStyles((theme) => ({
   tab: {
@@ -61,7 +61,7 @@ const CoreDesigner: FunctionComponent = () => {
               </div>
 
               <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
-                <Typography>Toolbox</Typography>
+                <Toolbox />
               </div>
 
             </Box>
