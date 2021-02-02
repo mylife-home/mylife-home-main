@@ -37,6 +37,7 @@ export interface CoreComponentData extends Omit<Component, 'id'> {
   // plugin points to plugin instanceName:module.name
   position: { x: number; y: number; };
   config: { [name: string]: any; };
+  external: boolean;
 }
 
 export interface CorePluginData extends Plugin {

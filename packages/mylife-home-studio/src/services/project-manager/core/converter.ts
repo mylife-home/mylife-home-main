@@ -35,7 +35,29 @@ export function convertCoreProject(input: coreV1.Project): CoreProject {
     }
   }
 
+  // on vpanel project, mark all hw components as external
+  if (isVPanelProject(project)) {
+    for (const component of Object.values(project.components)) {
+      const plugin = project.plugins[component.plugin];
+      if (plugin.usage !== PluginUsage.LOGIC) {
+        component.external = true;
+        component.config = null;
+      }
+    }
+  }
+
   return project;
+}
+
+function isVPanelProject(project: CoreProject) {
+  for (const component of Object.values(project.components)) {
+    const plugin = project.plugins[component.plugin];
+    if (plugin.usage === PluginUsage.LOGIC) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function convertPlugin(input: coreV1.Plugin, instanceName: string): { id: string; plugin: CorePluginData; } {
@@ -179,6 +201,7 @@ function convertComponent(input: coreV1.ComponentContainer, pluginMap: { [id: st
     plugin: pluginId,
     position: convertPosition(inputComponent.designer),
     config: convertConfig(inputComponent.config, plugin),
+    external: false,
   };
 
   return { id, component };
