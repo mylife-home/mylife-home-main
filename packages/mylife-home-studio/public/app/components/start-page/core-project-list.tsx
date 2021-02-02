@@ -41,7 +41,12 @@ export default CoreProjectList;
 const CoreProjectItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
-  const formattedInfo = useMemo(() => ['TODO'], [info]);
+  const formattedInfo = useMemo(() => [
+    `${info.instancesCount} instances`,
+    `${info.pluginsCount} plugins`,
+    `${info.componentsCount} componsants`,
+    `${info.bindingsCount} bindings`,
+  ], [info]);
 
   return <ProjectItem id={id} info={formattedInfo} />;
 };
