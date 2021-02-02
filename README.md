@@ -18,6 +18,8 @@
    - control cannot go outside of window (create, move, resize)
    - on window resize, compute control position ratio + force then to be inside window if on borders
    - on window resize window cannot be smaller that larger of its control
+ - core-designer
+   - multi-select
 
 ### Archi
  - Keep:
@@ -85,9 +87,8 @@ car que sensor vers ui
 
 ## studio
 - core designer:
-  - main
-    - toolbox
-    - multi-select + duplicate
+  - toolbox
+  - update server
   - storage -> support updates from fs (on git ops)
   - deploy
 - ui designer
