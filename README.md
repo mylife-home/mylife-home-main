@@ -32,22 +32,21 @@
 
 #### core-designer toolbox
  - objectifs:
-   - pouvoir référencer d autres composants pour les bindings d un projet
-   - pouvoir avoir un projet 'hw' et un projet 'logic' sur une seul instance
- 
+   - pouvoir référencer d'autres composants pour les bindings d'un projet
+   - pouvoir avoir un projet 'hw' et un projet 'logic' sur une seule instance
+<br><br>
  - components can be external (they are visually marked - eg: other color)
  - import toolbox from online entities: (select by entity/plugin usage then checkbox for each plugin to select to exact list)
  - import external components from online instances (select by entity/plugin usage) => components are imported as external (toolbox is updated if needed)
  - import external components from other core project => components are imported as external (toolbox is updated if needed)
- 
+<br><br>
  - on peut supprimer des composants (external ou non)
  - on peut supprimer des plugins de la toolbox s'ils ne sont plus utilisés (ca simplifie le projet)
  - on peut cacher des plugins de la toolbox s'ils ne sont que utilisés par des composants externes (impossible de supprimer mais on ne veut pas qu'ils polluent)
-
+<br><br>
  - deploy: deploy only components not external
-
+<br><br>
  - must handle component overwrite on import from online instances/core projet if it already exist as non-external in the project
-
 
 ### Git
  - web-ui pour gerer git: https://gitconvex.com/
