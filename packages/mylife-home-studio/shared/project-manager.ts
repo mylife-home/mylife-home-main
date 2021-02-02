@@ -100,7 +100,8 @@ export interface CoreProjectInfo extends ProjectInfo {
 
 export interface UpdateProjectNotification {
   operation: 'set-name'
-  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window';
+  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
+  | 'set-core-plugins' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -158,7 +159,38 @@ export interface RenameUiWindowNotification extends UpdateProjectNotification {
  * Core Project update notifications
  */
 
-// TODO
+export interface SetCorePluginsNotification extends UpdateProjectNotification {
+  operation: 'set-core-plugins';
+  plugins: { [id: string]: CorePluginData; };
+}
+
+export interface SetCoreComponentNotification extends UpdateProjectNotification {
+  operation: 'set-core-component';
+  id: string;
+  component: CoreComponentData;
+}
+
+export interface ClearCoreComponentNotification extends UpdateProjectNotification {
+  operation: 'clear-core-component';
+  id: string;
+}
+
+export interface RenameCoreComponentNotification extends UpdateProjectNotification {
+  operation: 'rename-core-component';
+  id: string;
+  newId: string;
+}
+
+export interface SetCoreBindingNotification extends UpdateProjectNotification {
+  operation: 'set-core-binding';
+  id: string;
+  binding: CoreBindingData;
+}
+
+export interface ClearCoreBindingNotification extends UpdateProjectNotification {
+  operation: 'clear-core-binding';
+  id: string;
+}
 
 /**
  * Project calls
