@@ -8,6 +8,9 @@ export class CoreProjects extends Store<CoreProject> {
   async createNew(name: string) {
     const project: CoreProject = {
       name,
+      components: {},
+      plugins: {},
+      bindings: {},
     };
 
     await this.create(project);
@@ -15,11 +18,12 @@ export class CoreProjects extends Store<CoreProject> {
   }
 
   getProjectInfo(name: string): CoreProjectInfo {
+    const project = this.getProject(name);
     return {
-      instancesCount: 0,
-      componentsCount: 0,
-      pluginsCount: 0,
-      bindingsCount: 0,
+      instancesCount: new Set(Object.values(project.plugins).map(plugin => plugin.instanceName)).size,
+      componentsCount: Object.keys(project.components).length,
+      pluginsCount: Object.keys(project.plugins).length,
+      bindingsCount: Object.keys(project.bindings).length,
     };
   }
 
