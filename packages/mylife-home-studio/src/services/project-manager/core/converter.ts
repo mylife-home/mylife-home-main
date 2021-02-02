@@ -4,6 +4,8 @@ import { ConfigItem, ConfigType, Member, MemberType, PluginUsage } from '../../.
 import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject } from '../../../../shared/project-manager';
 import * as coreV1 from './v1-types';
 
+export { coreV1 };
+
 export function convertCoreProject(input: coreV1.Project): CoreProject {
   const project: CoreProject = {
     name: input.Name,

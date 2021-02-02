@@ -2,6 +2,7 @@ import { CoreProject, CoreProjectInfo, CoreProjectCall, ProjectCallResult } from
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Store } from '../store';
+import { convertCoreProject, coreV1 } from './converter';
 
 export class CoreProjects extends Store<CoreProject> {
 
@@ -13,6 +14,12 @@ export class CoreProjects extends Store<CoreProject> {
       bindings: {},
     };
 
+    await this.create(project);
+    return project.name;
+  }
+
+  async importV1(projectV1: coreV1.Project) {
+    const project = convertCoreProject(projectV1);
     await this.create(project);
     return project.name;
   }

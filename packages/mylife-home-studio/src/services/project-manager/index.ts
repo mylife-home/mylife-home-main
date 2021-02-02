@@ -52,7 +52,7 @@ export class ProjectManager implements Service {
   }
 
   private getStoreByType(type: ProjectType): Store<ProjectBase> {
-    switch(type) {
+    switch (type) {
       case 'core':
         return this.coreProjects;
       case 'ui':
@@ -61,13 +61,16 @@ export class ProjectManager implements Service {
   }
 
   private readonly importV1Project = async (session: Session, { type, content }: { type: ProjectType; content: string; }) => {
-    switch(type) {
-      case 'core':
-        throw new Error('TODO');
+    switch (type) {
+      case 'core': {
+        const createdId = await this.coreProjects.importV1(JSON.parse(content));
+        return { type, createdId };
+      }
 
-      case 'ui':
+      case 'ui': {
         const createdId = await this.uiProjects.importV1(JSON.parse(content));
         return { type, createdId };
+      }
     }
   };
 
@@ -157,7 +160,7 @@ export class ProjectManager implements Service {
     this.openedProjects.closeProject(session, notifierId);
   };
 
-  private readonly callOpenedProject = async (session: Session, { notifierId, callData }: { notifierId: string; callData: ProjectCall }) => {
+  private readonly callOpenedProject = async (session: Session, { notifierId, callData }: { notifierId: string; callData: ProjectCall; }) => {
     return await this.openedProjects.callProject(session, notifierId, callData);
   };
 }
