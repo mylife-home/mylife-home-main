@@ -26,7 +26,7 @@ export interface UiPluginData extends Omit<Plugin, 'usage' | 'config'> {
 
 export interface CoreProject {
   name: string;
-  components: { [id: string]: CoreComponentData };
+  components: { [id: string]: CoreComponentData; };
   plugins: { [id: string]: CorePluginData; }; // id: instanceName:module.name
   bindings: { [id: string]: BindingData; }; // id = sourceId:sourceState:targetId:targetAction
   // bindings instance ?
@@ -35,6 +35,7 @@ export interface CoreProject {
 // should we merge with core/store?
 export interface CoreComponentData extends Component {
   // plugin points to plugin instanceName:module.name
+  position: { x: number; y: number; };
   config: { [name: string]: any; };
 }
 
