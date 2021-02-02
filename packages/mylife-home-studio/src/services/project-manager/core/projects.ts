@@ -15,7 +15,12 @@ export class CoreProjects extends Store<CoreProject> {
   }
 
   getProjectInfo(name: string): CoreProjectInfo {
-    return {};
+    return {
+      instancesCount: 0,
+      componentsCount: 0,
+      pluginsCount: 0,
+      bindingsCount: 0,
+    };
   }
 
   openProject(name: string) {

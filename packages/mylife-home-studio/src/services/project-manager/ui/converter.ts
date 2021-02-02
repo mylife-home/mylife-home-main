@@ -1,5 +1,5 @@
 import { DefinitionResource, Window, Control, ControlDisplay, ControlText, Action, ControlDisplayMapItem } from '../../../../shared/ui-model';
-import { UiProject, ComponentData, PluginData } from '../../../../shared/project-manager';
+import { UiProject, UiComponentData, UiPluginData } from '../../../../shared/project-manager';
 import * as uiV1 from './v1-types';
 import { convertPluginMembers } from '../core/converter';
 
@@ -169,8 +169,8 @@ function convertAction(input: uiV1.Action): Action {
   return action;
 }
 
-function convertComponents(input: uiV1.Component[]): ComponentData {
-  const componentData: ComponentData = {
+function convertComponents(input: uiV1.Component[]): UiComponentData {
+  const componentData: UiComponentData = {
     components: [],
     plugins: {}
   };
@@ -187,7 +187,7 @@ function convertComponents(input: uiV1.Component[]): ComponentData {
   return componentData;
 }
 
-function convertPlugin(plugins: { [id: string]: PluginData; }, input: uiV1.Plugin) {
+function convertPlugin(plugins: { [id: string]: UiPluginData; }, input: uiV1.Plugin) {
   // v1 model has no instance-name data, but all UI components were on only one instance
   const instanceName = 'unknown';
   const module = input.library;

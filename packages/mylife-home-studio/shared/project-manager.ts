@@ -1,25 +1,37 @@
 import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
 import { Component, Plugin } from './component-model';
 
+/**
+ * Ui project model
+ */
+
 export interface UiProject {
   name: string;
   definition: Definition;
-  componentData: ComponentData;
+  componentData: UiComponentData;
 }
 
-export interface ComponentData {
+export interface UiComponentData {
   components: Component[]; // plugin points to plugin instanceName:module.name
-  plugins: { [id: string]: PluginData; }; // id: instanceName:module.name
+  plugins: { [id: string]: UiPluginData; }; // id: instanceName:module.name
 }
 
-export interface PluginData extends Omit<Plugin, 'usage' | 'config'> {
+export interface UiPluginData extends Omit<Plugin, 'usage' | 'config'> {
   instanceName: string;
 }
+
+/**
+ * Core project model
+ */
 
 export interface CoreProject {
   name: string;
   // TODO
 }
+
+/**
+ * Project list notifications
+ */
 
 export type ProjectType = 'ui' | 'core';
 
@@ -44,7 +56,6 @@ export interface RenameListNotification extends UpdateListNotification {
 }
 
 export interface ProjectInfo {
-
 }
 
 export interface UiProjectInfo extends ProjectInfo {
@@ -55,8 +66,15 @@ export interface UiProjectInfo extends ProjectInfo {
 }
 
 export interface CoreProjectInfo extends ProjectInfo {
-
+  instancesCount: number;
+  componentsCount: number;
+  pluginsCount: number;
+  bindingsCount: number;
 }
+
+/**
+ * Project update notifications
+ */
 
 export interface UpdateProjectNotification {
   operation: 'set-name'
@@ -68,6 +86,10 @@ export interface SetNameProjectNotification extends UpdateProjectNotification {
   name: string;
 }
 
+/**
+ * Ui Project update notifications
+ */
+
 export interface SetUiDefaultWindowNotification extends UpdateProjectNotification {
   operation: 'set-ui-default-window';
   defaultWindow: DefaultWindow;
@@ -75,7 +97,7 @@ export interface SetUiDefaultWindowNotification extends UpdateProjectNotificatio
 
 export interface SetUiComponentDataNotification extends UpdateProjectNotification {
   operation: 'set-ui-component-data';
-  componentData: ComponentData;
+  componentData: UiComponentData;
 }
 
 export interface SetUiResourceNotification extends UpdateProjectNotification {
@@ -110,20 +132,28 @@ export interface RenameUiWindowNotification extends UpdateProjectNotification {
   newId: string;
 }
 
-export interface ProjectCall {
+/**
+ * Core Project update notifications
+ */
 
+// TODO
+
+/**
+ * Project calls
+ */
+
+export interface ProjectCall {
 }
 
 export interface ProjectCallResult {
-
 }
 
-export interface CoreProjectCall {
-  
-}
+/**
+ * Ui Project calls
+ */
 
 export interface UiProjectCall {
-  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window'
+  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window';
 }
 
 export interface UiValidationError {
@@ -203,4 +233,12 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
   operation: 'rename-window';
   id: string;
   newId: string;
+}
+
+/**
+ * Core Project calls
+ */
+
+export interface CoreProjectCall {
+
 }

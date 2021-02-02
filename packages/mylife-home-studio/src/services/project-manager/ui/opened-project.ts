@@ -22,7 +22,7 @@ import {
   RefreshComponentsFromProjectUiProjectCall,
   RefreshComponentsUiProjectCallResult,
   ApplyRefreshComponentsUiProjectCall,
-  ComponentData,
+  UiComponentData,
   DeployUiProjectCallResult,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
@@ -241,7 +241,7 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private prepareComponentRefresh(componentData: ComponentData) {
+  private prepareComponentRefresh(componentData: UiComponentData) {
     const usage = this.collectComponentsUsage();
     const { breakingOperations, usageToClear } = prepareMergeComponentData(this.components, usage, componentData);
     const serverData: RefreshServerData = { componentData, usageToClear };
@@ -305,6 +305,6 @@ export class UiOpenedProject extends OpenedProject {
 }
 
 interface RefreshServerData {
-  componentData: ComponentData;
+  componentData: UiComponentData;
   usageToClear: ComponentUsage[];
 }

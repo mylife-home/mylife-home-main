@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { BreakingOperation, PluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
+import { BreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -32,7 +32,7 @@ export type UiComponent = Component;
 export type UiResource = Mutable<DefinitionResource>;
 export type UiControl = Mutable<Control>;
 
-export interface UiPlugin extends PluginData {
+export interface UiPlugin extends UiPluginData {
   id: string; // id: instanceName:module.name
 }
 

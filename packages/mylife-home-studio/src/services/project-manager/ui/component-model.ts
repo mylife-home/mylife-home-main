@@ -1,17 +1,17 @@
 import { components } from 'mylife-home-common';
 import { Component, MemberType, PluginUsage } from '../../../../shared/component-model';
-import { PluginData, ComponentData, BreakingOperation, UiElementPath } from '../../../../shared/project-manager';
+import { UiPluginData, UiComponentData, BreakingOperation } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { ComponentUsage } from './definition-model';
 
 export class ComponentsModel {
   private readonly map = new Map<string, ComponentModel>();
 
-  constructor(readonly componentData: ComponentData) {
+  constructor(readonly componentData: UiComponentData) {
     this.rebuild();
   }
 
-  apply(newComponentData: ComponentData) {
+  apply(newComponentData: UiComponentData) {
     this.componentData.components = newComponentData.components;
     this.componentData.plugins = newComponentData.plugins;
 
@@ -49,7 +49,7 @@ export class ComponentsModel {
 }
 
 class ComponentModel {
-  constructor(private readonly component: Component, public readonly plugin: PluginData) {
+  constructor(private readonly component: Component, public readonly plugin: UiPluginData) {
   }
 
   get id() {
@@ -73,7 +73,7 @@ class ComponentModel {
 export function loadOnlineComponentData() {
   const onlineData = Services.instance.online.getComponentsData();
 
-  const componentData: ComponentData = {
+  const componentData: UiComponentData = {
     components: [],
     plugins: {}
   };
@@ -106,11 +106,11 @@ export function loadOnlineComponentData() {
   return componentData;
 }
 
-export function loadCoreProjectComponentData(projectId: string): ComponentData {
+export function loadCoreProjectComponentData(projectId: string): UiComponentData {
   throw new Error('TODO');
 }
 
-export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: ComponentData) {
+export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: UiComponentData) {
   const usageModel = new UsageModel(components, componentsUsage);
   const usageToClear: ComponentUsage[] = [];
 
@@ -156,7 +156,7 @@ export function prepareMergeComponentData(components: ComponentsModel, component
   return { breakingOperations, usageToClear };
 }
 
-function isPluginCompatible(actualId: string, actualPlugin: PluginData, newPlugin: PluginData, usageModel: UsageModel) {
+function isPluginCompatible(actualId: string, actualPlugin: UiPluginData, newPlugin: UiPluginData, usageModel: UsageModel) {
   if (isPluginSame(actualPlugin, newPlugin)) {
     return true;
   }
@@ -178,7 +178,7 @@ function isPluginCompatible(actualId: string, actualPlugin: PluginData, newPlugi
   return true;
 }
 
-function isPluginSame(actualPlugin: PluginData, newPlugin: PluginData) {
+function isPluginSame(actualPlugin: UiPluginData, newPlugin: UiPluginData) {
   return actualPlugin.module === newPlugin.module && actualPlugin.name === newPlugin.name && actualPlugin.version === newPlugin.version;
 }
 

@@ -2,7 +2,7 @@ import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import {
   ClearUiResourceNotification,
   ClearUiWindowNotification,
-  ComponentData,
+  UiComponentData,
   RenameUiResourceNotification,
   RenameUiWindowNotification,
   SetNameProjectNotification,
@@ -12,9 +12,9 @@ import {
   SetUiWindowNotification,
   UpdateProjectNotification,
 } from '../../../../shared/project-manager';
-import { arrayAdd, arrayRemove, createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -155,7 +155,7 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
   }
 }
 
-function updateComponentData(openedProject: UiOpenedProject, componentData: ComponentData) {
+function updateComponentData(openedProject: UiOpenedProject, componentData: UiComponentData) {
   const components = createTable<UiComponent>();
   const plugins = createTable<UiPlugin>();
 
