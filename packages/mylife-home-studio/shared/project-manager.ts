@@ -32,7 +32,6 @@ export interface CoreProject {
   // bindings instance ?
 }
 
-// should we merge with core/store?
 export interface CoreComponentData extends Omit<Component, 'id'> {
   // plugin points to plugin instanceName:module.name
   position: { x: number; y: number; };
