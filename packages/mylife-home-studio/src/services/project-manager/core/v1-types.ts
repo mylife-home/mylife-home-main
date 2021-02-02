@@ -5,6 +5,7 @@ export interface Project {
   Components: ComponentContainer[];
   Toolbox: ToolboxItem[];
 }
+
 export interface ComponentContainer {
   readonly EntityName: string;
   readonly Component: Component;
