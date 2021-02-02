@@ -28,12 +28,12 @@ export interface CoreProject {
   name: string;
   components: { [id: string]: CoreComponentData; };
   plugins: { [id: string]: CorePluginData; }; // id: instanceName:module.name
-  bindings: { [id: string]: BindingData; }; // id = sourceId:sourceState:targetId:targetAction
+  bindings: { [id: string]: CoreBindingData; }; // id = sourceId:sourceState:targetId:targetAction
   // bindings instance ?
 }
 
 // should we merge with core/store?
-export interface CoreComponentData extends Component {
+export interface CoreComponentData extends Omit<Component, 'id'> {
   // plugin points to plugin instanceName:module.name
   position: { x: number; y: number; };
   config: { [name: string]: any; };
@@ -44,7 +44,7 @@ export interface CorePluginData extends Plugin {
 }
 
 // should we merge with core/store?
-export interface BindingData {
+export interface CoreBindingData {
   sourceId: string;
   sourceState: string;
   targetId: string;
