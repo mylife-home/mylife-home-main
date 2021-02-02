@@ -1,4 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType, Plugin as NetPlugin, Component as NetComponent } from '../../../../shared/component-model';
+import { CoreBindingData, CoreComponentData, CorePluginData } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 export { UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
@@ -9,35 +10,21 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
   UPDATE_PROJECT = 'core-designer/update-project',
 
-  MOVE_COMPONENT = 'core-designer/move-component',
+  MOVE_COMPONENT = 'core-designer/move-component', // TODO: remove
 }
 
-export { DesignerTabActionData };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType };
 
-export interface CoreOpenedProject extends OpenedProjectBase {
-  // TODO
-  plugins: PluginsState;
-  components: ComponentsState;
-  bindings: BindingsState;
-}
-
-export type CoreDesignerState = DesignerState<CoreOpenedProject>;
-
-export interface MoveComponentAction {
-  tabId: string;
-  componentId: string;
-  position: Position;
-}
-
-export { PluginUsage, Member, ConfigItem, MemberType, ConfigType };
-
-export interface Plugin extends NetPlugin {
+export interface Plugin extends CorePluginData {
   id: string;
-  instanceName: string;
 
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
+}
+
+export interface Binding extends CoreBindingData {
+  id: string;
 }
 
 export interface Position {
@@ -45,19 +32,21 @@ export interface Position {
   y: number;
 }
 
-export interface Component extends NetComponent {
-  config: { [name: string]: any; };
+export interface Component extends CoreComponentData {
+  id: string;
+}
+
+export interface CoreOpenedProject extends OpenedProjectBase {
+  plugins: Table<Plugin>;
+  components: Table<Component>;
+  bindings: Table<Binding>;
+}
+
+export type CoreDesignerState = DesignerState<CoreOpenedProject>;
+
+// TODO: remove that
+export interface MoveComponentAction {
+  tabId: string;
+  componentId: string;
   position: Position;
 }
-
-export interface Binding {
-  id: string;
-  sourceComponent: string;
-  sourceState: string;
-  targetComponent: string;
-  targetAction: string;
-}
-
-export type PluginsState = Table<Plugin>;
-export type ComponentsState = Table<Component>;
-export type BindingsState = Table<Binding>;
