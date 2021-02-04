@@ -27,6 +27,8 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   return map.get(notifierId);
 };
 
+export const getInstanceIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).instances.allIds;
+export const getInstance = (state: AppState, tabId: string, instanceId: string) => getOpenedProject(state, tabId).instances.byId[instanceId];
 export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.allIds;
 export const getPlugin = (state: AppState, tabId: string, pluginId: string) => getOpenedProject(state, tabId).plugins.byId[pluginId];
 export const getComponentIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components.allIds;

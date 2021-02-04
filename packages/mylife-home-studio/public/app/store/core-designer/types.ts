@@ -15,12 +15,21 @@ export const enum ActionTypes {
 
 export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType };
 
+export type PluginUse = 'unused' | 'external' | 'used';
+
+export interface InstanceWithPlugins {
+  id: string;
+  plugins: string[];
+}
+
 export interface Plugin extends CorePluginData {
   id: string;
 
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
+
+  use: PluginUse;
 }
 
 export interface Binding extends CoreBindingData {
@@ -37,6 +46,7 @@ export interface Component extends CoreComponentData {
 }
 
 export interface CoreOpenedProject extends OpenedProjectBase {
+  instances: Table<InstanceWithPlugins>;
   plugins: Table<Plugin>;
   components: Table<Component>;
   bindings: Table<Binding>;

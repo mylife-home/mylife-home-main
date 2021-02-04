@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, InstanceWithPlugins } from './types';
 import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification } from '../../../../shared/project-manager';
 
@@ -21,6 +21,7 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
+      instances: createTable<InstanceWithPlugins>(),
       plugins: createTable<Plugin>(),
       components: createTable<Component>(),
       bindings: createTable<Binding>()
@@ -44,24 +45,25 @@ export default createReducer(initialState, {
 
     tableRemove(state.openedProjects, id);
   },
-  
+
   [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string; }>) => {
     const { id, notifierId } = action.payload;
     const openedProject = state.openedProjects.byId[id];
     openedProject.notifierId = notifierId;
   },
-  
+
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
-    for(const openedProject of Object.values(state.openedProjects.byId)) {
+    for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
 
+      openedProject.instances = createTable<InstanceWithPlugins>();
       openedProject.plugins = createTable<Plugin>();
       openedProject.components = createTable<Component>();
       openedProject.bindings = createTable<Binding>();
     }
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification }[]>) => {
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification; }[]>) => {
     for (const { id, update } of action.payload) {
       const openedProject = state.openedProjects.byId[id];
       applyProjectUpdate(openedProject, update);
@@ -84,19 +86,23 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     }
 
     case 'set-core-plugins': {
+      openedProject.instances = createTable<InstanceWithPlugins>();
+      openedProject.plugins = createTable<Plugin>();
+
       const { plugins } = update as SetCorePluginsNotification;
 
       for (const [id, pluginData] of Object.entries(plugins)) {
-        const plugin: Plugin = { 
+        const plugin: Plugin = {
           id,
           ...pluginData,
           stateIds: [],
           actionIds: [],
-          configIds: []
+          configIds: [],
+          use: 'unused'
         };
 
-        for(const [name, { memberType }] of Object.entries(plugin.members)) {
-          switch(memberType) {
+        for (const [name, { memberType }] of Object.entries(plugin.members)) {
+          switch (memberType) {
             case MemberType.STATE:
               plugin.stateIds.push(name);
             case MemberType.ACTION:
@@ -104,7 +110,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
           }
         }
 
-        for(const name of Object.keys(plugin.config)) {
+        for (const name of Object.keys(plugin.config)) {
           plugin.configIds.push(name);
         }
 
@@ -112,7 +118,22 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
         plugin.actionIds.sort();
         plugin.configIds.sort();
 
+        updatePluginUse(openedProject, plugin);
+
         tableSet(openedProject.plugins, plugin, true);
+
+        let instance = openedProject.instances.byId[plugin.instanceName];
+        if (!instance) {
+          instance = { id: plugin.instanceName, plugins: [] };
+          tableSet(openedProject.instances, instance, true);
+        }
+
+        instance.plugins.push(plugin.id);
+      }
+
+      // sort filled instances
+      for (const instance of Object.values(openedProject.instances.byId)) {
+        instance.plugins.sort();
       }
 
       break;
@@ -121,12 +142,19 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     case 'set-core-component': {
       const { id, component } = update as SetCoreComponentNotification;
       tableSet(openedProject.components, { id, ...component }, true);
+
+      const plugin = openedProject.plugins.byId[component.plugin];
+      updatePluginUse(openedProject, plugin);
       break;
     }
 
     case 'clear-core-component': {
       const { id } = update as ClearCoreComponentNotification;
+      const component = openedProject.components.byId[id];
+      const plugin = openedProject.plugins.byId[component.plugin];
+
       tableRemove(openedProject.components, id);
+      updatePluginUse(openedProject, plugin);
       break;
     }
 
@@ -153,5 +181,23 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
 
     default:
       throw new Error(`Unhandled update operation: ${update.operation}`);
+  }
+}
+
+function updatePluginUse(openedProject: CoreOpenedProject, plugin: Plugin) {
+  plugin.use = 'unused';
+
+  for (const component of Object.values(openedProject.components.byId)) {
+    if (component.plugin !== plugin.id) {
+      continue;
+    }
+
+    if (component.external) {
+      plugin.use = 'external';
+      continue;
+    }
+    
+    plugin.use = 'used';
+    break;
   }
 }
