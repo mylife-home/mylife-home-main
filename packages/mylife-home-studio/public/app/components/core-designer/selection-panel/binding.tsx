@@ -15,7 +15,7 @@ import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
 
-const Binding: FunctionComponent = () => {
+const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const { selection, select } = useSelection();
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(selection.id);
   const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
@@ -24,7 +24,7 @@ const Binding: FunctionComponent = () => {
   const handleSelectTarget = () => select({ type: 'component', id: binding.targetComponent });
 
   return (
-    <div>
+    <div className={className}>
       <CenterButton position={componentBindingPosition} />
       <Button onClick={handleSelectSource}>{binding.sourceComponent}</Button>
       <Typography>{binding.sourceState}</Typography>

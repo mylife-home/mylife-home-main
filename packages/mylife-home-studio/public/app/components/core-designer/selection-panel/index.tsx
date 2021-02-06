@@ -5,19 +5,19 @@ import Binding from './binding';
 
 import { useSelection } from '../selection';
 
-const SelectionPanel: FunctionComponent = () => {
+const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const { selection } = useSelection();
 
   switch(selection?.type) {
 
     case 'component':
       return (
-        <Component />
+        <Component className={className} />
       );
 
     case 'binding':
       return (
-        <Binding />
+        <Binding className={className} />
       );
 
     default:

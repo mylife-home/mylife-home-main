@@ -14,12 +14,12 @@ import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
 
-const Component: FunctionComponent = () => {
+const Component: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const { selection, select } = useSelection();
   const { component, plugin } = useConnect(selection.id);
   const componentCenterPosition = useCenterComponent(component, plugin);
   return (
-    <div>
+    <div className={className}>
       <CenterButton position={componentCenterPosition} />
       <Typography>Selection {component.id}</Typography>
     </div>

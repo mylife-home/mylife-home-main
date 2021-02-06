@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Divider from '@material-ui/core/Divider';
@@ -17,20 +16,36 @@ import SelectionPanel from './selection-panel';
 import Toolbox from './toolbox';
 
 const useStyles = makeStyles((theme) => ({
-  tab: {
-    minWidth: 0,
+  sideBar: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   },
   miniViewContainer: {
     marginTop: theme.spacing(3),
     marginLeft: theme.spacing(3),
     marginRight: theme.spacing(3),
+  },
+  tab: {
+    minWidth: 0,
+  },
+  tabPanel: {
+    position: 'relative',
+    height: '100%',
+  },
+  tabContent: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   }
 }));
 
 const enum SideBarTabValues {
   SELECTION = 'selection',
   TOOLBOX = 'toolbox'
-}
+};
 
 const CoreDesigner: FunctionComponent = () => {
   const classes = useStyles();
@@ -42,7 +57,7 @@ const CoreDesigner: FunctionComponent = () => {
         <SelectionProvider>
           <SplitPane split="vertical" defaultSize={300} minSize={300}>
 
-            <Box display='flex' flexDirection='column'>
+            <div className={classes.sideBar}>
 
               <div className={classes.miniViewContainer}>
                 <MiniView />
@@ -56,15 +71,15 @@ const CoreDesigner: FunctionComponent = () => {
                 <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
               </Tabs>
 
-              <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
-                <SelectionPanel />
+              <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
+                <SelectionPanel className={classes.tabContent} />
               </div>
 
-              <div role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
-                <Toolbox />
+              <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
+                <Toolbox className={classes.tabContent} />
               </div>
 
-            </Box>
+            </div>
 
             <MainView />
 
