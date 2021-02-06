@@ -15,7 +15,7 @@ export function convertCoreProject(input: coreV1.Project): CoreProject {
   };
 
   for (const toolboxItem of input.Toolbox) {
-    const instanceName = toolboxItem.EntityName;
+    const instanceName = convertEntityName(toolboxItem.EntityName);
     for (const inputPlugin of toolboxItem.Plugins) {
       const { id, plugin } = convertPlugin(inputPlugin, instanceName);
       project.plugins[id] = plugin;
@@ -194,7 +194,7 @@ function convertPluginUsage(usage: number) {
 function convertComponent(input: coreV1.ComponentContainer, pluginMap: { [id: string]: CorePluginData; }) {
   const inputComponent = input.Component;
   const id = inputComponent.id;
-  const pluginId = `${input.EntityName}:${inputComponent.library}.${inputComponent.type}`;
+  const pluginId = `${convertEntityName(input.EntityName)}:${inputComponent.library}.${inputComponent.type}`;
   const plugin = pluginMap[pluginId];
 
   const component: CoreComponentData = {
@@ -257,4 +257,13 @@ function convertBinding(input: coreV1.ComponentBinding, componentId: string) {
   const id = `${binding.sourceComponent}:${binding.sourceState}:${binding.targetComponent}:${binding.targetAction}`;
 
   return { id, binding };
+}
+
+function convertEntityName(entityName: string) {
+  const PREFIX = 'mylife-home-core_';
+  if (entityName.startsWith(PREFIX)) {
+    return entityName.substr(PREFIX.length);
+  }
+
+  return entityName;
 }
