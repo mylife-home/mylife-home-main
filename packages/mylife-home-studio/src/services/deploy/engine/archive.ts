@@ -106,7 +106,7 @@ async function packArchive(pack: tar.Pack, directory: vfs.Directory, baseDirecto
 }
 
 function packFile(pack: tar.Pack, file: vfs.File, baseDirectory: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const header = nodeToHeader(file, baseDirectory);
     header.size = file.content.length;
     header.type = 'file';

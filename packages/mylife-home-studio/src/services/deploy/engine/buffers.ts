@@ -36,7 +36,7 @@ export class BufferWriter extends Writable {
 }
 
 export function apipe(first: Stream, ...piped: Writable[]) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const ended = once((err: Error) => {
       if (err) {
         reject(err);

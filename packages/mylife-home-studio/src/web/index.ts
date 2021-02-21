@@ -27,6 +27,6 @@ export class WebServer {
   }
 
   async terminate() {
-    await new Promise((resolve) => this.httpServer.destroy(resolve));
+    await new Promise<void>((resolve) => this.httpServer.destroy(resolve));
   }
 }

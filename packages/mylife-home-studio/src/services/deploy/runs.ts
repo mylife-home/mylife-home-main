@@ -53,7 +53,7 @@ export class Runs extends EventEmitter {
     // wait pending runs
     let pendingsCount = Array.from(this.runs.values()).filter((run) => run.status === 'running').length;
     if (pendingsCount) {
-      await new Promise((resolve) =>
+      await new Promise<void>((resolve) =>
         this.on('run-end', () => {
           if (--pendingsCount === 0) {
             resolve();
