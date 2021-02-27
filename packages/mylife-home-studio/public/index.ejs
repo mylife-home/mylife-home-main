@@ -4,16 +4,16 @@
     <meta charset="utf-8">
     <title>MyLife Home Studio</title>
 
-    <% for (var css in htmlWebpackPlugin.files.css) { %>
-    <link href="<%= htmlWebpackPlugin.files.css[css] %>" rel="stylesheet">
+    <% for (const file of htmlWebpackPlugin.files.css) { %>
+    <link href="<%= file %>" rel="stylesheet">
     <% } %>
 
   </head>
   <body>
     <div id="content" />
 
-    <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
-    <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>" type="text/javascript"></script>
+    <% for (const file of htmlWebpackPlugin.files.js) { %>
+    <script src="<%= file %>" type="text/javascript"></script>
     <% } %>
     
   </body>
