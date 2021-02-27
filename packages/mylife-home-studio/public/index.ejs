@@ -3,18 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>MyLife Home Studio</title>
-
-    <% for (const file of htmlWebpackPlugin.files.css) { %>
-    <link href="<%= file %>" rel="stylesheet">
-    <% } %>
-
   </head>
   <body>
     <div id="content" />
-
-    <% for (const file of htmlWebpackPlugin.files.js) { %>
-    <script src="<%= file %>" type="text/javascript"></script>
-    <% } %>
-    
   </body>
 </html>
