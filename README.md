@@ -8,6 +8,13 @@
 ## Bump
  - lerna version
 
+# Besoins
+
+## Studio
+
+ - Pouvoir déployer les images en SSH
+ - Garder un backup de chaque image déployée, pour pouvoir restaurer rapidement sur une SDCard à la main s'il y a un problème
+
 # Packages notes
 
 ## studio
