@@ -143,4 +143,4 @@ car que sensor vers ui
   - https://stackoverflow.com/a/25387972/12023515
 
 ## Utilisation
-- alpinelinux rpi: sous windows il faut formatter la SD Card avec Rufus
+- alpinelinux rpi: sous windows il faut formatter la SD Card avec Rufus (sinon ca boot, mais le layout de /dev/mmblck*** est faux)
