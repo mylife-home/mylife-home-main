@@ -1,4 +1,5 @@
-import React, { ReactNode, MouseEvent, FunctionComponent, forwardRef, useState, useMemo } from 'react';
+import React, { ReactNode, MouseEvent, FunctionComponent, forwardRef, useState, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,8 +13,10 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { getInstance, getPlugin, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
+import { updateToolbox } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   deleteIcon: {
@@ -25,14 +28,13 @@ export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) =>
   const classes = useStyles();
   const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
   const stats = useTabSelector((state, tabId) => getInstanceStats(state, tabId, id));
-
-  const handleClick = () => {};
+  const updateToolbox = useToolboxUpdateAction('instance', id);
 
   return (
     <ButtonMenu>
-      {instance.hasHidden && <ActionItem onClick={handleClick} icon={VisibilityIcon} title="Montrer tous les plugins" />}
-      {instance.hasShown && <ActionItem onClick={handleClick} icon={VisibilityOffIcon} title="Cacher tous les plugins" />}
-      <ActionItem onClick={handleClick} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer tous les plugins inutilisés" />
+      {instance.hasHidden && <ActionItem onClick={() => updateToolbox('show')} icon={VisibilityIcon} title="Montrer tous les plugins" />}
+      {instance.hasShown && <ActionItem onClick={() => updateToolbox('hide')} icon={VisibilityOffIcon} title="Cacher tous les plugins" />}
+      <ActionItem onClick={() => updateToolbox('delete')} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer tous les plugins inutilisés" />
       <Stats
         items={[
           { count: stats.plugins, singular: 'plugin', plural: 'plugins' },
@@ -48,14 +50,13 @@ export const PluginMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
   const stats = useTabSelector((state, tabId) => getPluginStats(state, tabId, id));
-
-  const handleClick = () => {};
+  const updateToolbox = useToolboxUpdateAction('plugin', id);
 
   return (
     <ButtonMenu>
-      {plugin.toolboxDisplay === 'show' && <ActionItem onClick={handleClick} icon={VisibilityOffIcon} title="Cacher" />}
-      {plugin.toolboxDisplay === 'hide' && <ActionItem onClick={handleClick} icon={VisibilityIcon} title="Montrer" />}
-      {plugin.use === 'unused' && <ActionItem onClick={handleClick} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer" />}
+      {plugin.toolboxDisplay === 'show' && <ActionItem onClick={() => updateToolbox('hide')} icon={VisibilityOffIcon} title="Cacher" />}
+      {plugin.toolboxDisplay === 'hide' && <ActionItem onClick={() => updateToolbox('show')} icon={VisibilityIcon} title="Montrer" />}
+      {plugin.use === 'unused' && <ActionItem onClick={() => updateToolbox('delete')} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer" />}
       <Stats
         items={[
           { count: stats.components, singular: 'composant', plural: 'composants' },
@@ -128,3 +129,13 @@ const Stats = forwardRef<HTMLLIElement, { items: StatItem[] }>(({ items }, ref) 
 
   return <ListItem>{content}</ListItem>;
 });
+
+function useToolboxUpdateAction(itemType: 'instance' | 'plugin', itemId: string) {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  return useCallback((operation: 'show' | 'hide' | 'delete') => {
+    dispatch(updateToolbox({ tabId, itemType, itemId, operation }));
+  },
+  [dispatch, tabId, itemType, itemId]
+  );
+}

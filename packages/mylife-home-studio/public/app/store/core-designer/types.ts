@@ -11,6 +11,7 @@ export const enum ActionTypes {
   UPDATE_PROJECT = 'core-designer/update-project',
 
   MOVE_COMPONENT = 'core-designer/move-component', // TODO: remove
+  UPDATE_TOOLBOX = 'core-designer/update-toolbox',
 }
 
 export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType };
@@ -58,10 +59,3 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 }
 
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
-
-// TODO: remove that
-export interface MoveComponentAction {
-  tabId: string;
-  componentId: string;
-  position: Position;
-}

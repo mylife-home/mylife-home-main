@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Position } from './types';
 import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification } from '../../../../shared/project-manager';
 
@@ -70,7 +70,7 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<MoveComponentAction>) => {
+  [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<{ tabId: string; componentId: string; position: Position; }>) => {
     const { tabId, componentId, position } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.components.byId[componentId].position = position;
