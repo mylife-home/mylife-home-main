@@ -17,9 +17,13 @@ export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, Con
 
 export type PluginUse = 'unused' | 'external' | 'used';
 
-export interface InstanceWithPlugins {
+export interface Instance {
   id: string;
   plugins: string[];
+
+  use: PluginUse;
+  hasShown: boolean;
+  hasHidden: boolean;
 }
 
 export interface Plugin extends CorePluginData {
@@ -46,7 +50,7 @@ export interface Component extends CoreComponentData {
 }
 
 export interface CoreOpenedProject extends OpenedProjectBase {
-  instances: Table<InstanceWithPlugins>;
+  instances: Table<Instance>;
   plugins: Table<Plugin>;
   components: Table<Component>;
   bindings: Table<Binding>;
