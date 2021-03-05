@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
+import { CoreOpenedProject } from './types';
 
 const getOpenedProjects = (state: AppState) => state.coreDesigner.openedProjects;
 
@@ -35,3 +36,48 @@ export const getComponentIds = (state: AppState, tabId: string) => getOpenedProj
 export const getComponent = (state: AppState, tabId: string, componentId: string) => getOpenedProject(state, tabId).components.byId[componentId];
 export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings.allIds;
 export const getBinding = (state: AppState, tabId: string, bindingId: string) => getOpenedProject(state, tabId).bindings.byId[bindingId];
+
+export const getInstanceStats = (state: AppState, tabId: string, instanceId: string) => {
+  const project = getOpenedProject(state, tabId);
+  const instance = getInstance(state, tabId, instanceId);
+
+  const stats = {
+    plugins: 0,
+    components: 0,
+    externalComponents: 0,
+  };
+
+  for (const pluginId of instance.plugins) {
+    ++stats.plugins;
+    computePluginStats(project, pluginId, stats);
+  }
+
+  return stats;
+};
+
+export const getPluginStats = (state: AppState, tabId: string, pluginId: string) => {
+  const project = getOpenedProject(state, tabId);
+
+  const stats = {
+    components: 0,
+    externalComponents: 0,
+  };
+
+  computePluginStats(project, pluginId, stats);
+
+  return stats;
+};
+
+function computePluginStats(project: CoreOpenedProject, pluginId: string, stats: { components: number; externalComponents: number }) {
+  const plugin = project.plugins.byId[pluginId];
+
+  for (const componentId of plugin.components) {
+    const component = project.components.byId[componentId];
+
+    if (component.external) {
+      ++stats.externalComponents;
+    } else {
+      ++stats.components;
+    }
+  }
+}

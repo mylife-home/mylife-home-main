@@ -13,7 +13,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { useTabSelector } from '../../lib/use-tab-selector';
-import { getInstance, getPlugin } from '../../../store/core-designer/selectors';
+import { getInstance, getPlugin, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   deleteIcon: {
@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
+  const stats = useTabSelector((state, tabId) => getInstanceStats(state, tabId, id));
 
   const handleClick = () => {};
 
@@ -34,9 +35,9 @@ export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) =>
       <ActionItem onClick={handleClick} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer tous les plugins inutilisés" />
       <Stats
         items={[
-          { count: 42, type: 'plugins' },
-          { count: 42, type: 'composants' },
-          { count: 42, type: 'composants externes' },
+          { count: stats.plugins, singular: 'plugin', plural: 'plugins' },
+          { count: stats.components, singular: 'composant', plural: 'composants' },
+          { count: stats.externalComponents, singular: 'composant externe', plural: 'composants externes' },
         ]}
       />
     </ButtonMenu>
@@ -46,6 +47,7 @@ export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) =>
 export const PluginMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
+  const stats = useTabSelector((state, tabId) => getPluginStats(state, tabId, id));
 
   const handleClick = () => {};
 
@@ -56,8 +58,8 @@ export const PluginMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
       {plugin.use === 'unused' && <ActionItem onClick={handleClick} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer" />}
       <Stats
         items={[
-          { count: 42, type: 'composants' },
-          { count: 42, type: 'composants externes' },
+          { count: stats.components, singular: 'composant', plural: 'composants' },
+          { count: stats.externalComponents, singular: 'composant externe', plural: 'composants externes' },
         ]}
       />
     </ButtonMenu>
@@ -104,15 +106,20 @@ const ActionItem = forwardRef<HTMLLIElement, { icon: typeof SvgIcon; iconClassNa
   }
 );
 
-type StatItem = { count: number; type: string };
+type StatItem = { count: number; singular: string; plural: string };
 
 const Stats = forwardRef<HTMLLIElement, { items: StatItem[] }>(({ items }, ref) => {
+  const displayableItems = items.filter((item) => item.count > 0);
+  if (!displayableItems.length) {
+    return null;
+  }
+
   const content: ReactNode[] = [];
-  
-  for (const [index, { count, type }] of items.filter((item) => item.count > 0).entries()) {
+
+  for (const [index, { count, singular, plural }] of displayableItems.entries()) {
     const last = index === items.length - 1;
 
-    content.push(`${count} ${type}`);
+    content.push(`${count} ${count > 1 ? plural : singular}`);
 
     if (!last) {
       content.push(<br key={index} />);
