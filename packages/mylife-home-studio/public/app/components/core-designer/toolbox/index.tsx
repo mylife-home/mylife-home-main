@@ -5,11 +5,16 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
-import { InstanceIcon, PluginIcon } from '../../lib/icons';
+import { ComponentIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { getInstanceIds, getInstance, getPlugin } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay } from '../../../store/core-designer/types';
@@ -18,8 +23,14 @@ const useStyles = makeStyles((theme) => ({
   list: {
     overflowY: 'auto',
   },
-  plugin: {
+  dragSource: {
+    color: theme.palette.success.main,
+  },
+  indent1: {
     paddingLeft: theme.spacing(8),
+  },
+  indent2: {
+    paddingLeft: theme.spacing(16),
   },
 }));
 
@@ -54,8 +65,8 @@ const Hidden: FunctionComponent = ({ children }) => {
   return (
     <>
       <ListItem button onClick={handleClick}>
+      <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
         <ListItemText primary="Cachés" />
-        {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -66,6 +77,7 @@ const Hidden: FunctionComponent = ({ children }) => {
 };
 
 const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
+  const classes = useStyles();
   const [open, setOpen] = useState(true);
   const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
 
@@ -89,12 +101,16 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
 
   return (
     <>
-      <ListItem button onClick={handleClick}>
-        <ListItemIcon>
-          <InstanceIcon />
-        </ListItemIcon>
+      <ListItem button onClick={handleClick} className={display === 'show' ? null : classes.indent1}>
+        <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+
         <ListItemText primary={instance.id} />
-        {open ? <ExpandLess /> : <ExpandMore />}
+
+        <ListItemSecondaryAction>
+          <IconButton>
+            <MoreHorizIcon />
+          </IconButton>
+        </ListItemSecondaryAction>
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -117,11 +133,18 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
   }
 
   return (
-    <ListItem button className={classes.plugin}>
-      <ListItemIcon>
-        <PluginIcon />
+    <ListItem button className={display === 'show' ? classes.indent1 : classes.indent2}>
+      <ListItemIcon className={classes.dragSource}>
+        <ComponentIcon />
       </ListItemIcon>
+
       <ListItemText primary={pluginDisplay(plugin)} />
+
+      <ListItemSecondaryAction>
+        <IconButton>
+          <MoreHorizIcon />
+        </IconButton>
+      </ListItemSecondaryAction>
     </ListItem>
   );
 };
