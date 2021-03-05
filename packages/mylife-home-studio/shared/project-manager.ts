@@ -39,9 +39,11 @@ export interface CoreComponentData extends Omit<Component, 'id'> {
   external: boolean;
 }
 
+export type CoreToolboxDisplay = 'show' | 'hide';
+
 export interface CorePluginData extends Plugin {
   instanceName: string;
-  toolboxDisplay: 'show' | 'hide';
+  toolboxDisplay: CoreToolboxDisplay;
 }
 
 // should we merge with core/store?
