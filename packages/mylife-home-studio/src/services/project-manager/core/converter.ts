@@ -82,7 +82,8 @@ function convertPlugin(input: coreV1.Plugin, instanceName: string): { id: string
     version: input.version,
     description: null, // v1 model has no description
     members,
-    config
+    config,
+    hidden: false,
   };
 
   return { id, plugin };
