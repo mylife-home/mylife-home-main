@@ -2,7 +2,7 @@ import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../.
 import { CoreBindingData, CoreComponentData, CorePluginData } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
-export { UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
+export { CoreToolboxDisplay, UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'core-designer/set-notifier',
