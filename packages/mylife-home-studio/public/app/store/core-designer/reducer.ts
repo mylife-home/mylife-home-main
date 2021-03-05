@@ -1,7 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
 import { ActionTypes, CoreDesignerState, DesignerTabActionData, MoveComponentAction, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance } from './types';
-import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
@@ -98,7 +98,8 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
           stateIds: [],
           actionIds: [],
           configIds: [],
-          use: 'unused'
+          use: 'unused',
+          components: []
         };
 
         for (const [name, { memberType }] of Object.entries(plugin.members)) {
@@ -118,7 +119,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
         plugin.actionIds.sort();
         plugin.configIds.sort();
 
-        updatePluginStats(openedProject, plugin);
+        updatePluginStats(openedProject, plugin, true);
 
         tableSet(openedProject.plugins, plugin, true);
 
@@ -147,6 +148,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       tableSet(openedProject.components, { id, ...component }, true);
 
       const plugin = openedProject.plugins.byId[component.plugin];
+      arrayAdd(plugin.components, id, true);
       updatePluginStats(openedProject, plugin);
       updateInstanceStats(openedProject, plugin.instanceName);
       break;
@@ -158,6 +160,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       const plugin = openedProject.plugins.byId[component.plugin];
 
       tableRemove(openedProject.components, id);
+      arrayRemove(plugin.components, component.id);
       updatePluginStats(openedProject, plugin);
       updateInstanceStats(openedProject, plugin.instanceName);
       break;
@@ -189,13 +192,25 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
   }
 }
 
-function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin) {
+function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
+  if(rebuildComponentList) {
+    const components: string[] = [];
+
+    for (const component of Object.values(openedProject.components.byId)) {
+      if (component.plugin === plugin.id) {
+        components.push(component.id);
+      }
+    }
+
+    components.sort()
+
+    plugin.components = components;
+  }
+
   plugin.use = 'unused';
 
-  for (const component of Object.values(openedProject.components.byId)) {
-    if (component.plugin !== plugin.id) {
-      continue;
-    }
+  for (const componentId of plugin.components) {
+    const component = openedProject.components.byId[componentId];
 
     if (component.external) {
       plugin.use = 'external';

@@ -34,6 +34,7 @@ export interface Plugin extends CorePluginData {
   configIds: string[]; // ordered alphabetically
 
   use: PluginUse;
+  components: string[];
 }
 
 export interface Binding extends CoreBindingData {
