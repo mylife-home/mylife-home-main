@@ -39,7 +39,7 @@ export function convertCoreProject(input: coreV1.Project): CoreProject {
   if (isVPanelProject(project)) {
     for (const component of Object.values(project.components)) {
       const plugin = project.plugins[component.plugin];
-      if (plugin.usage !== PluginUsage.LOGIC) {
+      if (plugin.usage !== PluginUsage.LOGIC && plugin.usage !== PluginUsage.UI) {
         component.external = true;
         component.config = null;
       }
