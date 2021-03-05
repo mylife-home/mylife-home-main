@@ -171,6 +171,7 @@ function pluginDisplay(plugin: Plugin) {
 
 const InstanceMenuButton: FunctionComponent<{ id: string; }> = ({ id }) => {
   const classes = useStyles();
+  const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
   const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -193,30 +194,34 @@ const InstanceMenuButton: FunctionComponent<{ id: string; }> = ({ id }) => {
         open={!!anchorEl}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-          Montrer tous les plugins
-          </Typography>
-        </MenuItem>
+        {instance.hasHidden && (
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <VisibilityIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit" noWrap>
+              Montrer tous les plugins
+            </Typography>
+          </MenuItem>
+        )}
 
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <VisibilityOffIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-            Cacher tous les plugins
-          </Typography>
-        </MenuItem>
+        {instance.hasShown && (
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <VisibilityOffIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit" noWrap>
+              Cacher tous les plugins
+            </Typography>
+          </MenuItem>
+        )}
 
         <MenuItem onClick={handleClose}>
          <ListItemIcon className={classes.deleteIcon}>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
           <Typography variant="inherit" noWrap>
-            Supprimer tous les plugins (que si inutilisés)
+            Supprimer tous les plugins inutilisés
           </Typography>
         </MenuItem>
 
@@ -230,6 +235,7 @@ const InstanceMenuButton: FunctionComponent<{ id: string; }> = ({ id }) => {
 
 const PluginMenuButton: FunctionComponent<{ id: string; }> = ({ id }) => {
   const classes = useStyles();
+  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
   const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -252,23 +258,38 @@ const PluginMenuButton: FunctionComponent<{ id: string; }> = ({ id }) => {
         open={!!anchorEl}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-            Montrer/cacher
-          </Typography>
-        </MenuItem>
+        {plugin.toolboxDisplay === 'show' && (
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <VisibilityOffIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit" noWrap>
+              cacher
+            </Typography>
+          </MenuItem>
+        )}
 
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon className={classes.deleteIcon}>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-            Supprimer (que si inutilisé)
-          </Typography>
-        </MenuItem>
+        {plugin.toolboxDisplay === 'hide' && (
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <VisibilityIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit" noWrap>
+              Montrer
+            </Typography>
+          </MenuItem>
+        )}
+
+        {plugin.use === 'unused' && (
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon className={classes.deleteIcon}>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <Typography variant="inherit" noWrap>
+              Supprimer
+            </Typography>
+          </MenuItem>
+        )}
 
         <MenuItem disabled>xx composants</MenuItem>
         <MenuItem disabled>xx composants externes</MenuItem>
