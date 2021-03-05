@@ -19,11 +19,12 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const { component, plugin } = useConnect(componentId);
   const { selected } = useComponentSelection(componentId);
   const rect = computeComponentRect(theme, component, plugin);
+  const componentColor = component.external ? theme.borderColorExternal : theme.borderColor;
 
   return (
     <Rect
       {...rect}
-      fill={selected ? theme.borderColorSelected : theme.borderColor}
+      fill={selected ? theme.borderColorSelected : componentColor}
     />
   );
 };

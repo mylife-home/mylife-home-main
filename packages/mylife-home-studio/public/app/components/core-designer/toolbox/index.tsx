@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, fade } from '@material-ui/core/styles';
+import orange from '@material-ui/core/colors/orange';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -11,7 +12,6 @@ import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
-
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
@@ -23,9 +23,6 @@ import { ComponentIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { getInstanceIds, getInstance, getPlugin } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay } from '../../../store/core-designer/types';
-
-// TODO: unused transparent
-// TODO: external another color
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -39,6 +36,12 @@ const useStyles = makeStyles((theme) => ({
   },
   indent2: {
     paddingLeft: theme.spacing(16),
+  },
+  unused: {
+    opacity: 0.6,
+  },
+  external: {
+    backgroundColor: fade(orange[300], 0.1),
   },
   deleteIcon: {
     color: theme.palette.error.main,
@@ -110,9 +113,12 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
     setOpen(!open);
   };
 
+  const displayClass = display === 'show' ? null : classes.indent1;
+  const useClass = instance.use === 'used' ? null : classes[instance.use];
+
   return (
     <>
-      <ListItem button onClick={handleClick} className={display === 'show' ? null : classes.indent1}>
+      <ListItem button onClick={handleClick} className={clsx(displayClass, useClass)}>
         <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
 
         <ListItemText primary={instance.id} />
@@ -141,8 +147,11 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
     return null;
   }
 
+  const displayClass = display === 'show' ? classes.indent1 : classes.indent2;
+  const useClass = plugin.use === 'used' ? null : classes[plugin.use];
+
   return (
-    <ListItem button className={display === 'show' ? classes.indent1 : classes.indent2}>
+    <ListItem button className={clsx(displayClass, useClass)}>
       <ListItemIcon className={classes.dragSource}>
         <ComponentIcon />
       </ListItemIcon>

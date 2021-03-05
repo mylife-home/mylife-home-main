@@ -44,7 +44,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       onDragMove={dragMoveHandler}
     >
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
-        <Rect x={0} y={0} width={rect.width} height={rect.height} fill={theme.backgroundColor} />
+        <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
         <Title text={component.id} />
         <PropertyList yIndex={1} icon='visibility' items={plugin.stateIds} />
         <PropertyList yIndex={1 + plugin.stateIds.length} icon='input' items={plugin.actionIds} />

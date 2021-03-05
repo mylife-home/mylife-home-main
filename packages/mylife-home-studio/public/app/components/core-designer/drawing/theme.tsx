@@ -1,5 +1,7 @@
 import React, { FunctionComponent, createContext, useContext, useMemo } from 'react';
 import { Theme as MuiTheme, useTheme as useMuiTheme, darken } from '@material-ui/core';
+import { fade } from '@material-ui/core/styles';
+import orange from '@material-ui/core/colors/orange';
 import { GRID_STEP_SIZE } from './defs';
 
 export interface CanvasTheme {
@@ -7,7 +9,9 @@ export interface CanvasTheme {
   fontSize: number;
   color: string;
   backgroundColor: string;
+  backgroundColorExternal: string;
   borderColor: string;
+  borderColorExternal: string;
   borderColorSelected: string;
   selectionWidth: number;
 
@@ -46,7 +50,9 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     fontSize: GRID_STEP_SIZE * 0.6,
     color: muiTheme.palette.text.primary,
     backgroundColor: darken(muiTheme.palette.background.paper, 0.03),
+    backgroundColorExternal: fade(orange[300], 0.1),
     borderColor: darken(muiTheme.palette.background.paper, 0.1),
+    borderColorExternal: fade(orange[300], 0.2),
     borderColorSelected: muiTheme.palette.primary.main,
     selectionWidth: 2,
 
