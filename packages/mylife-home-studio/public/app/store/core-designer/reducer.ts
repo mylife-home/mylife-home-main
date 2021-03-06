@@ -2,7 +2,7 @@ import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
 import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Position } from './types';
 import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove } from '../common/reducer-tools';
-import { ClearCoreBindingNotification, ClearCoreComponentNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification } from '../../../../shared/project-manager';
+import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
   openedProjects: createTable<CoreOpenedProject>()
@@ -141,7 +141,36 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       break;
     }
 
-    // TODO: set-core-plugin for toolboxDisplay
+    case 'set-core-plugin-toolbox-display': {
+      const { id, display } = update as SetCorePluginToolboxDisplayNotification;
+      const plugin = openedProject.plugins.byId[id];
+      plugin.toolboxDisplay = display;
+
+      updateInstanceStats(openedProject, plugin.instanceName);
+
+      break;
+    }
+
+    case 'clear-core-plugin': {
+      const { id } = update as ClearCorePluginNotification;
+      const plugin = openedProject.plugins.byId[id];
+      if (plugin.use !== 'unused') {
+        throw new Error(`Receive notification to delete plugin '${id}' which is used!`);
+      }
+
+      const instance = openedProject.instances.byId[plugin.instanceName];
+
+      tableRemove(openedProject.plugins, id);
+      arrayRemove(instance.plugins, id);
+
+      if (instance.plugins.length === 0) {
+        tableRemove(openedProject.instances, instance.id);
+      } else {
+        updateInstanceStats(openedProject, instance.id);
+      }
+      
+      break;
+    }
 
     case 'set-core-component': {
       const { id, component } = update as SetCoreComponentNotification;
