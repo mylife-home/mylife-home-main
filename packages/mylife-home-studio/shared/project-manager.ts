@@ -297,5 +297,12 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
+  operation: 'update-toolbox';
+}
 
+export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
+  operation: 'update-toolbox';
+  itemType: 'instance' | 'plugin';
+  itemId: string;
+  action: 'show' | 'hide' | 'delete'
 }
