@@ -66,7 +66,7 @@ function useConnect(componentId: string) {
     plugin, 
 
     moveComponent: useCallback(
-      (position: types.Position) => dispatch(moveComponent({ tabId, componentId, position })),
+      (position: types.Position) => dispatch(moveComponent({ id: tabId, componentId, position })),
       [dispatch, tabId, componentId]
     )
   };

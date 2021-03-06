@@ -133,8 +133,8 @@ const Stats = forwardRef<HTMLLIElement, { items: StatItem[] }>(({ items }, ref) 
 function useToolboxUpdateAction(itemType: 'instance' | 'plugin', itemId: string) {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  return useCallback((operation: 'show' | 'hide' | 'delete') => {
-    dispatch(updateToolbox({ tabId, itemType, itemId, operation }));
+  return useCallback((action: 'show' | 'hide' | 'delete') => {
+    dispatch(updateToolbox({ id: tabId, itemType, itemId, action }));
   },
   [dispatch, tabId, itemType, itemId]
   );

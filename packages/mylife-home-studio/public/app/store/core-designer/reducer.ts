@@ -70,9 +70,9 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<{ tabId: string; componentId: string; position: Position; }>) => {
-    const { tabId, componentId, position } = action.payload;
-    const openedProject = state.openedProjects.byId[tabId];
+  [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<{ id: string; componentId: string; position: Position; }>) => {
+    const { id, componentId, position } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
     openedProject.components.byId[componentId].position = position;
   },
 });
