@@ -1,4 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
+import { createAsyncAction } from '../common/async-action';
 import { ActionTypes, Position, UpdateProjectNotification } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
@@ -9,4 +10,4 @@ export const updateProject = createAction<{ id: string; update: UpdateProjectNot
 // TODO: connect to server update
 export const moveComponent = createAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);
 
-export const updateToolbox = createAction<{ id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);
+export const updateToolbox = createAsyncAction<{ id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);
