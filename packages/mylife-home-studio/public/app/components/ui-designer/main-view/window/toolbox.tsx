@@ -149,7 +149,7 @@ function getProperties(type: SelectionType, id: string, className: string) {
   }
 }
 
-const ControlSelector = () => {
+const ControlSelector: FunctionComponent = () => {
   const classes = useStyles();
   const { controlsIds, selectControl } = useSelectableControlList();
   const [inputValue, setInputValue] = useState('');
