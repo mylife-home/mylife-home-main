@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { makeGetWindowUsage } from '../../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
-import { Group, Item } from '../../common/properties-layout';
+import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ResourceSelector from '../../common/resource-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';

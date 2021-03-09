@@ -10,7 +10,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Slider from '@material-ui/core/Slider';
 
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
-import { useComponentStyles } from '../../common/properties-layout';
+import { useComponentStyles } from '../../../../lib/properties-layout';
 import StringEditor from '../../common/string-editor';
 import { parseType, Range, Enum } from './member-types';
 

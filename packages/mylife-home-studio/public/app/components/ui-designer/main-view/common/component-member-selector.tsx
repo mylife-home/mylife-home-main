@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { Member, MemberType } from '../../../../../../shared/component-model';
 import { makeGetComponentsAndPlugins } from '../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../lib/use-tab-selector';
-import { useComponentStyles } from './properties-layout';
+import { useComponentStyles } from '../../../lib/properties-layout';
 
 export interface ComponentAndMember {
   component: string;

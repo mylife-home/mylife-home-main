@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getWindowsIds } from '../../../../store/ui-designer/selectors';
-import { useComponentStyles } from './properties-layout';
+import { useComponentStyles } from '../../../lib/properties-layout';
 
 export interface WindowSelectorProps {
   nullable?: boolean;

@@ -8,7 +8,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 import DeleteButton from '../../../../lib/delete-button';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useInputDialog } from '../../../../dialogs/input';
-import { Group, Item } from '../../common/properties-layout';
+import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import { useControlState, useWindowState } from '../window-state';

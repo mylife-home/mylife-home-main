@@ -9,7 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { UiControl } from '../../../../../store/ui-designer/types';
 import { Action, ActionComponent, ActionWindow } from '../../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../../shared/component-model';
-import { Group, Item } from '../../common/properties-layout';
+import { Group, Item } from '../../../../lib/properties-layout';
 import { createNewControlActionComponent, createNewControlActionWindow } from '../../common/templates';
 import WindowSelector from '../../common/window-selector';
 import ComponentMemberSelector from '../../common/component-member-selector';

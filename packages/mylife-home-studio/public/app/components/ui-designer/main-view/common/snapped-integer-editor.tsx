@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import TextField from '@material-ui/core/TextField';
-import { useComponentStyles } from './properties-layout';
+import { useComponentStyles } from '../../../lib/properties-layout';
 
 export interface SnapedIntegerEditorProps {
   nullable?: boolean;

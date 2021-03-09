@@ -15,7 +15,7 @@ import { getComponentMemberValueType } from '../../../../../store/ui-designer/se
 import DeleteButton from '../../../../lib/delete-button';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import { useFireAsync } from '../../../../lib/use-error-handling';
-import { Group, Item } from '../../common/properties-layout';
+import { Group, Item } from '../../../../lib/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
 import ComponentMemberSelector, { ComponentAndMember } from '../../common/component-member-selector';
 import { createNewControlDisplay, createNewControlDisplayMapItem, createNewControlText, createNewControlTextContextItem } from '../../common/templates';

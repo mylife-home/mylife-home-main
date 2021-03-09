@@ -7,7 +7,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { getResourcesIds } from '../../../../store/ui-designer/selectors';
 import Image from './image';
-import { useComponentStyles } from './properties-layout';
+import { useComponentStyles } from '../../../lib/properties-layout';
 
 const useStyles = makeStyles((theme) => ({
   image: {
