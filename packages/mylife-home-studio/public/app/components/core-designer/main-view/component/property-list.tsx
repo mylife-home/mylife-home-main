@@ -7,7 +7,7 @@ import Property from './property';
 
 export interface PropertyListProps {
   yIndex: number;
-  items: string[];
+  items: { primary: string; secondary?: string; }[];
   icon: Image;
 }
 
@@ -21,7 +21,7 @@ const PropertyList: FunctionComponent<PropertyListProps> = ({ yIndex, items, ico
   return (
     <>
       {items.map((item, index) => (
-        <Property key={index} yIndex={yIndex + index} icon={icon} text={item} />
+        <Property key={index} yIndex={yIndex + index} icon={icon} primary={item.primary} secondary={item.secondary} />
       ))}
 
       <Border x={0} y={(theme.component.boxHeight * yIndex) - 1} width={theme.component.width} height={theme.component.boxHeight * items.length + 1} color={theme.borderColor} type='inner' />

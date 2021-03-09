@@ -19,6 +19,7 @@ export interface CanvasTheme {
     boxHeight: number;
     paddingLeft: number;
     width: number;
+    secondaryWidth: number;
   };
 
   binding: {
@@ -60,6 +61,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
       boxHeight: GRID_STEP_SIZE,
       paddingLeft: 8,
       width: GRID_STEP_SIZE * 10,
+      secondaryWidth: 40,
     },
 
     binding: {

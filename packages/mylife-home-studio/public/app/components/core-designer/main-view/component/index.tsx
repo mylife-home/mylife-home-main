@@ -1,7 +1,8 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../../lib/tab-panel';
+import { parseType } from '../../../lib/member-types';
 import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
@@ -35,6 +36,9 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => moveComponent({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [moveComponent, GRID_STEP_SIZE]);
 
+  const stateItems = useMemo(() => buildItems(plugin, plugin.stateIds), [plugin]);
+  const actionItems = useMemo(() => buildItems(plugin, plugin.actionIds), [plugin]);
+
   return (
     <Group
       {...rect}
@@ -46,8 +50,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
         <Title text={component.id} />
-        <PropertyList yIndex={1} icon='visibility' items={plugin.stateIds} />
-        <PropertyList yIndex={1 + plugin.stateIds.length} icon='input' items={plugin.actionIds} />
+        <PropertyList yIndex={1} icon='visibility' items={stateItems} />
+        <PropertyList yIndex={1 + stateItems.length} icon='input' items={actionItems} />
       </CachedGroup>
     </Group>
   );
@@ -86,4 +90,8 @@ function lockBetween(value: number, max: number) {
   }
   
   return value;
+}
+
+function buildItems(plugin: types.Plugin, ids: string[]) {
+  return ids.map(id => ({ primary: id, secondary: parseType(plugin.members[id].valueType).typeId}));
 }

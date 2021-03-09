@@ -8,15 +8,26 @@ interface TypographyProps {
   height: number;
   width: number;
   text: string;
+  italic?: boolean;
   bold?: boolean;
   color?: string;
 }
 
-const Typography: FunctionComponent<TypographyProps> = ({ bold, color, ...props }) => {
+const Typography: FunctionComponent<TypographyProps> = ({ bold, italic, color, ...props }) => {
   const theme = useCanvasTheme();
   return (
-    <Text {...props} fill={color || theme.color} fontFamily={theme.fontFamily} fontSize={theme.fontSize} fontStyle={bold && 'bold'} verticalAlign={'middle'} />
+    <Text {...props} fill={color || theme.color} fontFamily={theme.fontFamily} fontSize={theme.fontSize} fontStyle={getFontStyle({ bold, italic })} verticalAlign={'middle'} />
   );
 };
 
 export default Typography;
+
+function getFontStyle({ bold = false, italic = false }: { bold?: boolean; italic?: boolean }) {
+  if (bold) {
+    return 'bold';
+  } else if (italic) {
+    return 'italic';
+  } else {
+    return 'normal';
+  }
+}
