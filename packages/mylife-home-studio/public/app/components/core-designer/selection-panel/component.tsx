@@ -15,6 +15,7 @@ import { computeComponentRect } from '../drawing/shapes';
 import { useSelection } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
+import { parseType } from '../../lib/member-types';
 import { useRenameDialog } from '../../dialogs/rename';
 
 import { AppState } from '../../../store/types';
@@ -69,10 +70,39 @@ const Component: FunctionComponent<{ className?: string; }> = ({ className }) =>
 
           <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
         </div>
+      </Group>
 
-        <Item title="TODO">
-          TODO
-        </Item>
+      <Group title="Membres" collapse>
+        {plugin.stateIds.map((id => {
+          const member = plugin.members[id];
+          return (
+            <Item key={id} title={id}>
+              {member.description}
+              {member.valueType}
+            </Item>
+          );
+        }))}
+      </Group>
+
+      {!component.external && (
+        <Group title="Configuration" collapse>
+          {plugin.configIds.map((id => {
+            const configItem = plugin.config[id];
+            const configValue = component.config[id];
+
+            return (
+              <Item key={id} title={id}>
+                {configItem.description}
+                {configItem.valueType}
+                {JSON.stringify(configValue)}
+              </Item>
+            );
+          }))}
+        </Group>
+      )}
+
+      <Group title="Bindings" collapse>
+        TODO
       </Group>
     </div>
   );
