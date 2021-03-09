@@ -2,6 +2,7 @@ import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 
 import DeleteButton from '../../lib/delete-button';
 import { useTabPanelId } from '../../lib/tab-panel';
@@ -31,6 +32,7 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect(selection.id);
   const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
+  const type = sourcePlugin.members[binding.sourceState].valueType;
   const handleSelectSource = () => select({ type: 'component', id: binding.sourceComponent });
   const handleSelectTarget = () => select({ type: 'component', id: binding.targetComponent });
 
@@ -47,6 +49,9 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
         </Item>
         <Item title="Cible">
           <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${binding.targetComponent}.${binding.targetAction}`}</Link>
+        </Item>
+        <Item title="Type">
+          <Typography variant="body1" color="textPrimary">{type}</Typography>
         </Item>
       </Group>
     </div>
