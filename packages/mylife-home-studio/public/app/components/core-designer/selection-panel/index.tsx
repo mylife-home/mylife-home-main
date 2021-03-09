@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
   },
   display: {
     flex: 1,
+    overflow: 'auto',
   },
   componentSelector: {
     margin: theme.spacing(2),
@@ -30,7 +31,7 @@ const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className 
   return (
     <div className={clsx(classes.container, className)}>
       <QuickAccess className={classes.componentSelector} list={componentsIds} onSelect={id => select({ type: 'component', id })} />
-      <DisplayDispatcher />
+      <DisplayDispatcher className={classes.display} />
     </div>
   );
 };
