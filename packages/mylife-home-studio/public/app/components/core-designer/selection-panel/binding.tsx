@@ -1,35 +1,54 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
+import Link from '@material-ui/core/Link';
 
-import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
-
+import DeleteButton from '../../lib/delete-button';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
 import { useSelection } from '../selection';
 import CenterButton from './center-button';
+import { Group, Item } from '../../lib/properties-layout';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
 
+const useStyles = makeStyles((theme) => ({
+  actions: {
+    margin: theme.spacing(1),
+    display: 'flex',
+    flexDirection: 'row',
+  },
+}), { name: 'properties-binding' });
+
 const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
+  const classes = useStyles();
   const { selection, select } = useSelection();
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin } = useConnect(selection.id);
   const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
   const handleSelectSource = () => select({ type: 'component', id: binding.sourceComponent });
   const handleSelectTarget = () => select({ type: 'component', id: binding.targetComponent });
+  const remove = () => console.log('TODO: remove');
 
   return (
     <div className={className}>
-      <CenterButton position={componentBindingPosition} />
-      <Button onClick={handleSelectSource}>{binding.sourceComponent}</Button>
-      <Typography>{binding.sourceState}</Typography>
-      <Button onClick={handleSelectTarget}>{binding.targetComponent}</Button>
-      <Typography>{binding.targetAction}</Typography>
+      <Group title="Binding">
+        <div className={classes.actions}>
+          <CenterButton position={componentBindingPosition} />
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={remove} />
+        </div>
+
+        <Item title="Source">
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectSource}>{`${binding.sourceComponent}.${binding.sourceState}`}</Link>
+        </Item>
+        <Item title="Cible">
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${binding.targetComponent}.${binding.targetAction}`}</Link>
+        </Item>
+      </Group>
     </div>
   );
 };
