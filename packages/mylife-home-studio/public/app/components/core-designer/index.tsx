@@ -55,7 +55,7 @@ const CoreDesigner: FunctionComponent = () => {
     <CanvasThemeProvider>
       <ViewInfoProvider>
         <SelectionProvider>
-          <SplitPane split="vertical" defaultSize={300} minSize={300}>
+          <SplitPane split="vertical" defaultSize={450} minSize={300}>
 
             <div className={classes.sideBar}>
 
