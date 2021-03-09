@@ -1,6 +1,5 @@
-
 import React, { FunctionComponent, useCallback } from 'react';
-
+import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 
@@ -14,9 +13,11 @@ interface CenterButtonProps {
 const CenterButton: FunctionComponent<CenterButtonProps> = ({ position }) => {
   const setCenter = useSetCenter(position);
   return (
-    <IconButton onClick={setCenter}>
-      <CenterFocusStrongIcon />
-    </IconButton>
+    <Tooltip title="Centrer sur l'élément">
+      <IconButton onClick={setCenter}>
+        <CenterFocusStrongIcon />
+      </IconButton>
+    </Tooltip>
   );
 };
 
