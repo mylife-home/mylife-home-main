@@ -124,6 +124,7 @@ const Configuration: FunctionComponent = () => {
             {configItem.description}
             {configItem.valueType}
             {JSON.stringify(configValue)}
+            TODO
           </Item>
         );
       }))}
