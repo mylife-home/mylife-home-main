@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Collapse from '@material-ui/core/Collapse';
@@ -26,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  separator: {
+    height: theme.spacing(3),
   },
   itemTitle: {
     width: 150,
@@ -71,6 +75,14 @@ export const Item: FunctionComponent<{ title?: string }> = ({ title, children })
       )}
       {children}
     </div>
+  );
+};
+
+export const Separator: FunctionComponent = () => {
+  const classes = useStyles();
+
+  return (
+    <div className={clsx(classes.item, classes.separator)} />
   );
 }
 
