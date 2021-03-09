@@ -1,15 +1,13 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 
-import Component from './component';
-import Binding from './binding';
-
-import { useSelection } from '../selection';
 import { getComponentIds } from '../../../store/core-designer/selectors';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import QuickAccess from '../../lib/quick-access';
+import { useSelection } from '../selection';
+import Component from './component';
+import Binding from './binding';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -26,9 +24,12 @@ const useStyles = makeStyles((theme) => ({
 
 const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
+  const { select } = useSelection();
+  const componentsIds = useTabSelector(getComponentIds);
+
   return (
     <div className={clsx(classes.container, className)}>
-      <ComponentSelector className={classes.componentSelector} />
+      <QuickAccess className={classes.componentSelector} list={componentsIds} onSelect={id => select({ type: 'component', id })} />
       <DisplayDispatcher />
     </div>
   );
@@ -55,37 +56,3 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
       return null;
   }
 }
-
-const ComponentSelector: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const { select } = useSelection();
-  const componentsIds = useTabSelector(getComponentIds);
-
-  const [inputValue, setInputValue] = useState('');
-
-  return (
-    <Autocomplete
-      className={className}
-      value={null}
-      onChange={(event, componentId) => {
-        select({ type: 'component', id: componentId});
-        setInputValue('');
-      }}
-      inputValue={inputValue}
-      onInputChange={(event, newInputValue) => {
-        setInputValue(newInputValue);
-      }}
-      options={componentsIds}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          variant="outlined"
-          label="Accès rapide"
-          inputProps={{
-            ...params.inputProps,
-            autoComplete: 'new-password', // disable autocomplete and autofill
-          }}
-        />
-      )}
-    />
-  );
-};
