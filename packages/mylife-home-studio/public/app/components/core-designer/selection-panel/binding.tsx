@@ -30,7 +30,7 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
   const { selection, select } = useSelection();
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect(selection.id);
-  const componentBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
+  const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
   const type = sourcePlugin.members[binding.sourceState].valueType;
   const handleSelectSource = () => select({ type: 'component', id: binding.sourceComponent });
@@ -40,7 +40,7 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
     <div className={className}>
       <Group title="Binding">
         <div className={classes.actions}>
-          <CenterButton position={componentBindingPosition} />
+          <CenterButton position={centerBindingPosition} />
           <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
         </div>
 
