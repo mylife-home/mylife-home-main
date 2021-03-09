@@ -106,8 +106,10 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
           switch (memberType) {
             case MemberType.STATE:
               plugin.stateIds.push(name);
+              break;
             case MemberType.ACTION:
               plugin.actionIds.push(name);
+              break;
           }
         }
 
