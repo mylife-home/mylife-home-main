@@ -5,7 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import { parseType, Range, Enum } from './member-types';
+import { parseType, Range, Enum } from '../../../../lib/member-types';
 
 export interface TestValueEditorProps {
   className?: string;

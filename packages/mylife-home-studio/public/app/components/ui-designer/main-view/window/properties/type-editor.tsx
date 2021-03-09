@@ -12,7 +12,7 @@ import Slider from '@material-ui/core/Slider';
 import { ControlDisplayMapItem } from '../../../../../../../shared/ui-model';
 import { useComponentStyles } from '../../../../lib/properties-layout';
 import StringEditor from '../../common/string-editor';
-import { parseType, Range, Enum } from './member-types';
+import { parseType, Range, Enum } from '../../../../lib/member-types';
 
 const useStyles = makeStyles((theme) => ({
   floatEditorContainer: {
