@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -7,7 +7,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import DeleteButton from '../../../../lib/delete-button';
 import { useFireAsync } from '../../../../lib/use-error-handling';
-import { useInputDialog } from '../../../../dialogs/input';
+import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
@@ -27,15 +27,17 @@ const useStyles = makeStyles((theme) => ({
 const PropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
   const { control, update, duplicate, remove } = useControlState(id);
+  const { window } = useWindowState();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
-  const showNewNameDialog = useNewNameDialog();
+  const controlIds = useMemo(() => window.controls.map((control) => control.id), [window.controls]);
+  const showRenameDialog = useRenameDialog(controlIds, id, 'Entrer un nom de contrôle');
 
   const onRename = () =>
     fireAsync(async () => {
-      const { status, id: newId } = await showNewNameDialog(id);
+      const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
-        update({ id: newId });
+        update({ id: newName });
       }
     });
 
@@ -82,31 +84,3 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
 };
 
 export default PropertiesControl;
-
-function useNewNameDialog() {
-  const showDialog = useInputDialog();
-  const { window } = useWindowState();
-
-  return async (initialId: string = null) => {
-    const controlIds = new Set(window.controls.map((control) => control.id));
-    const options = {
-      title: 'Nouveau nom',
-      message: 'Entrer un nom de contrôle',
-      initialText: initialId,
-      validator(newId: string) {
-        if (!newId) {
-          return 'Nom vide';
-        }
-        if (newId === initialId) {
-          return;
-        }
-        if (controlIds.has(newId)) {
-          return 'Ce nom existe déjà';
-        }
-      },
-    };
-
-    const { status, text: id } = await showDialog(options);
-    return { status, id };
-  };
-}
