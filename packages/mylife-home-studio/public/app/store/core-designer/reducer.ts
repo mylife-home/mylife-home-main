@@ -170,13 +170,13 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       } else {
         updateInstanceStats(openedProject, instance.id);
       }
-      
+
       break;
     }
 
     case 'set-core-component': {
       const { id, component } = update as SetCoreComponentNotification;
-      tableSet(openedProject.components, { id, ...component }, true);
+      tableSet(openedProject.components, { id, bindings: {}, ...component }, true);
 
       const plugin = openedProject.plugins.byId[component.plugin];
       arrayAdd(plugin.components, id, true);
@@ -209,12 +209,17 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     case 'set-core-binding': {
       const { id, binding } = update as SetCoreBindingNotification;
       tableSet(openedProject.bindings, { id, ...binding }, true);
+      addBinding(openedProject, binding.sourceComponent, binding.sourceState, id);
+      addBinding(openedProject, binding.targetComponent, binding.targetAction, id);
       break;
     }
 
     case 'clear-core-binding': {
       const { id } = update as ClearCoreBindingNotification;
+      const binding = openedProject.bindings.byId[id];
       tableRemove(openedProject.bindings, id);
+      removeBinding(openedProject, binding.sourceComponent, binding.sourceState, id);
+      removeBinding(openedProject, binding.targetComponent, binding.targetAction, id);
       break;
     }
 
@@ -224,7 +229,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
 }
 
 function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
-  if(rebuildComponentList) {
+  if (rebuildComponentList) {
     const components: string[] = [];
 
     for (const component of Object.values(openedProject.components.byId)) {
@@ -233,7 +238,7 @@ function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, reb
       }
     }
 
-    components.sort()
+    components.sort();
 
     plugin.components = components;
   }
@@ -283,5 +288,22 @@ function updateInstanceStats(openedProject: CoreOpenedProject, instanceName: str
         }
         break;
     }
+  }
+}
+
+function addBinding(openedProject: CoreOpenedProject, componentId: string, member: string, binding: string) {
+  const component = openedProject.components.byId[componentId];
+  if (!component.bindings[member]) {
+    component.bindings[member] = [];
+  }
+
+  arrayAdd(component.bindings[member], binding, true);
+}
+
+function removeBinding(openedProject: CoreOpenedProject, componentId: string, member: string, binding: string) {
+  const component = openedProject.components.byId[componentId];
+  arrayRemove(component.bindings[member], binding);
+  if (component.bindings[member].length === 0) {
+    delete component.bindings[member];
   }
 }

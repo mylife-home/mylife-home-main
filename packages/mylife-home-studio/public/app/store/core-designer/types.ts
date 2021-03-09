@@ -51,6 +51,7 @@ export interface Position {
 
 export interface Component extends CoreComponentData {
   id: string;
+  bindings: { [memberName: string]: string[]; };
 }
 
 export interface CoreOpenedProject extends OpenedProjectBase {
