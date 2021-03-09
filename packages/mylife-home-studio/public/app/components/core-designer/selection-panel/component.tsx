@@ -70,6 +70,14 @@ const Component: FunctionComponent<{ className?: string; }> = ({ className }) =>
 
           <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
         </div>
+
+        <Item title="Instance">
+          {plugin.instanceName}
+        </Item>
+
+        <Item title="Plugin">
+          {`${plugin.module}.${plugin.name}`}
+        </Item>
       </Group>
 
       <Group title="Membres" collapse>
