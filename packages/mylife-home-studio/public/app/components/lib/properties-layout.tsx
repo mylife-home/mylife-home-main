@@ -1,4 +1,5 @@
 import React, { ReactNode, FunctionComponent, useState } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Collapse from '@material-ui/core/Collapse';
@@ -30,7 +31,10 @@ const useStyles = makeStyles((theme) => ({
   itemTitle: {
     display: 'flex',
     width: 150,
-  }
+  },
+  multilineTitle: {
+    alignSelf: 'flex-start'
+  },
 }), { name: 'properties-layout' });
 
 export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = ({ title, collapse, children }) => {
@@ -62,13 +66,13 @@ export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = 
   }
 };
 
-export const Item: FunctionComponent<{ title?: ReactNode }> = ({ title, children }) => {
+export const Item: FunctionComponent<{ title?: ReactNode; multiline?: boolean }> = ({ title, multiline = false, children }) => {
   const classes = useStyles();
 
   return (
     <div className={classes.item}>
       {title && (
-        <Typography className={classes.itemTitle}>{title}</Typography>
+        <Typography className={clsx(classes.itemTitle, multiline && classes.multilineTitle)}>{title}</Typography>
       )}
       {children}
     </div>

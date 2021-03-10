@@ -157,7 +157,7 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const MemberIcon = getMemberIcon(member.memberType);
   
   return (
-    <Item title={
+    <Item multiline title={
       <>
         <MemberIcon className={classes.memberIcon}/>
         {name}
