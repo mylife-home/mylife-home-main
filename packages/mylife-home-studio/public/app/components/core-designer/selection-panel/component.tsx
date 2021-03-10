@@ -6,7 +6,7 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
+import AddIcon from '@material-ui/icons/Add';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
@@ -14,12 +14,13 @@ import DeleteButton from '../../lib/delete-button';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { useFireAsync } from '../../lib/use-error-handling';
+import { StateIcon, ActionIcon } from '../../lib/icons';
 import { useCanvasTheme } from '../drawing/theme';
 import { Rectangle } from '../drawing/types';
 import { computeComponentRect } from '../drawing/shapes';
 import { useSelection } from '../selection';
 import CenterButton from './center-button';
-import { Group, Item, Separator } from '../../lib/properties-layout';
+import { Group, Item } from '../../lib/properties-layout';
 import { useRenameDialog } from '../../dialogs/rename';
 
 import { AppState } from '../../../store/types';
@@ -34,12 +35,19 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
   },
   multiLine: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
   },
   bindingLink: {
     display: 'flex',
-  }
+  },
+  newButton: {
+    color: theme.palette.success.main,
+  },
+  memberIcon: {
+    marginRight: theme.spacing(1),
+  },
 }), { name: 'properties-component' });
 
 const Component: FunctionComponent<{ className?: string; }> = ({ className }) => {
@@ -75,7 +83,6 @@ const Actions: FunctionComponent = () => {
   const showRenameDialog = useRenameDialog(componentIds, component.id, 'Entrer un nom de composant');
 
   const rename = (newId: string) => console.log('rename', component.id, newId);
-  const duplicate = () => console.log('duplicate', component.id);
   
   const onRename = () =>
     fireAsync(async () => {
@@ -88,12 +95,6 @@ const Actions: FunctionComponent = () => {
   return (
     <div className={classes.actions}>
       <CenterButton position={componentCenterPosition} />
-
-      <Tooltip title="Dupliquer">
-        <IconButton onClick={duplicate}>
-          <FileCopyIcon />
-        </IconButton>
-      </Tooltip>
 
       <Tooltip title="Renommer">
         <IconButton onClick={onRename}>
@@ -141,10 +142,6 @@ const Members: FunctionComponent = () => {
         <Member key={id} name={id} />
       )}
 
-      {plugin.actionIds.length > 0 && plugin.actionIds.length > 0 && (
-        <Separator />
-      )}
-
       {plugin.actionIds.map(id => 
         <Member key={id} name={id} />
       )}
@@ -157,19 +154,41 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const { component, plugin } = useComponentData();
   const member = plugin.members[name];
   const bindings = component.bindings[name];
+  const MemberIcon = getMemberIcon(member.memberType);
   
   return (
-    <Item title={name}>
+    <Item title={
+      <>
+        <MemberIcon className={classes.memberIcon}/>
+        {name}
+      </>
+    }>
       <div className={classes.multiLine}>
         <Typography>{member.description}</Typography>
         <Typography>{member.valueType}</Typography>
         {bindings && bindings.map(id => 
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
+        <div>
+        <Tooltip title="Nouveau binding">
+          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+        </div>
       </div>
     </Item>
   );
 };
+
+function getMemberIcon(memberType: types.MemberType) {
+  switch(memberType) {
+    case types.MemberType.STATE:
+      return StateIcon;
+    case types.MemberType.ACTION:
+      return ActionIcon;
+  }
+}
 
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
   const classes = useStyles();

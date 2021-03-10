@@ -1,5 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
-import clsx from 'clsx';
+import React, { ReactNode, FunctionComponent, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Collapse from '@material-ui/core/Collapse';
@@ -28,10 +27,8 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  separator: {
-    height: theme.spacing(3),
-  },
   itemTitle: {
+    display: 'flex',
     width: 150,
   }
 }), { name: 'properties-layout' });
@@ -65,7 +62,7 @@ export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = 
   }
 };
 
-export const Item: FunctionComponent<{ title?: string }> = ({ title, children }) => {
+export const Item: FunctionComponent<{ title?: ReactNode }> = ({ title, children }) => {
   const classes = useStyles();
 
   return (
@@ -77,14 +74,6 @@ export const Item: FunctionComponent<{ title?: string }> = ({ title, children })
     </div>
   );
 };
-
-export const Separator: FunctionComponent = () => {
-  const classes = useStyles();
-
-  return (
-    <div className={clsx(classes.item, classes.separator)} />
-  );
-}
 
 export const useComponentStyles = makeStyles((theme) => ({
   component: {
