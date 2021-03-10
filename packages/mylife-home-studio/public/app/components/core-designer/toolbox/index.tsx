@@ -146,7 +146,7 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
         <ComponentIcon />
       </ListItemIcon>
 
-      <ListItemText primary={pluginDisplay(plugin)} />
+      <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
 
       <ListItemSecondaryAction>
         <PluginMenuButton id={plugin.id} />
