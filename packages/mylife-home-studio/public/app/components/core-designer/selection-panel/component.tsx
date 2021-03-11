@@ -92,7 +92,7 @@ const Actions: FunctionComponent = () => {
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(componentIds, component.id, 'Entrer un nom de composant');
 
-  const rename = (newId: string) => console.log('rename', component.id, newId);
+  const rename = (newId: string) => console.log('TODO rename', component.id, newId);
   
   const onRename = () =>
     fireAsync(async () => {
