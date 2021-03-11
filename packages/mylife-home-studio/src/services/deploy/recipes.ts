@@ -49,7 +49,7 @@ export class Recipes extends EventEmitter {
 
     const fullname = path.join(directories.recipes(), id + '.json');
     const exists = fs.existsSync(fullname);
-    fs.writeFileSync(fullname, JSON.stringify(config));
+    fs.writeFileSync(fullname, JSON.stringify(config, null, 2));
 
     this.recipes.set(id, config);
     this.emit(exists ? 'recipe-updated' : 'recipe-created', id);
@@ -94,7 +94,7 @@ export class Recipes extends EventEmitter {
     }
 
     const fileName = directories.pins();
-    fs.writeFileSync(fileName, JSON.stringify(Array.from(this.pins)));
+    fs.writeFileSync(fileName, JSON.stringify(Array.from(this.pins), null, 2));
 
     this.emit('recipe-pinned', id, value);
   }

@@ -113,7 +113,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
   private async save(project: TProject) {
     const fullPath = this.projectFullPath(project.name);
-    const content = JSON.stringify(project);
+    const content = JSON.stringify(project, null, 2);
     await fs.writeFile(fullPath, content);
   }
 
