@@ -7,8 +7,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 import DeleteButton from '../../lib/delete-button';
 import { useTabPanelId } from '../../lib/tab-panel';
@@ -34,20 +34,30 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
   },
-  multiLine: {
-    flex: 1,
+  bindingLink: {
+    display: 'flex',
+  },
+  multilineTitle: {
     display: 'flex',
     flexDirection: 'column',
   },
-  bindingLink: {
+  multilineTitleItem: {
     display: 'flex',
   },
   newButton: {
     color: theme.palette.success.main,
+    // FIXME: disableRipple ? theme.spacing ? smaller ripple ?
+    marginLeft: -12,
+    marginTop: -12,
+    marginBottom: -12,
   },
   memberIcon: {
     marginRight: theme.spacing(1),
   },
+  memberSeparator: {
+    width: '100%',
+    height: theme.spacing(5),
+  }
 }), { name: 'properties-component' });
 
 const Component: FunctionComponent<{ className?: string; }> = ({ className }) => {
@@ -59,11 +69,12 @@ const Component: FunctionComponent<{ className?: string; }> = ({ className }) =>
         <Actions />
 
         <Item title="Instance">
-          {plugin.instanceName}
+          <Typography>{plugin.instanceName}</Typography>
         </Item>
 
-        <Item title="Plugin">
-          {`${plugin.module}.${plugin.name}`}
+        <Item title="Plugin" multiline>
+          <Typography>{`${plugin.module}.${plugin.name}`}</Typography>
+          <Typography color="textSecondary">{plugin.description}</Typography>
         </Item>
       </Group>
 
@@ -157,27 +168,31 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const MemberIcon = getMemberIcon(member.memberType);
   
   return (
-    <Item multiline title={
-      <>
-        <MemberIcon className={classes.memberIcon}/>
-        {name}
-      </>
-    }>
-      <div className={classes.multiLine}>
-        <Typography>{member.description}</Typography>
+    <>
+      <Item multiline noTitleTypography title={
+        <div className={classes.multilineTitle}>
+          <Typography className={classes.multilineTitleItem}>
+            <MemberIcon className={classes.memberIcon}/>
+            {name}
+          </Typography>
+          <Typography color="textSecondary">{member.description}</Typography>
+        </div>
+      }>
         <Typography>{member.valueType}</Typography>
         {bindings && bindings.map(id => 
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
         <div>
-        <Tooltip title="Nouveau binding">
-          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
+          <Tooltip title="Nouveau binding">
+            <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
         </div>
-      </div>
-    </Item>
+      </Item>
+
+      <div className={classes.memberSeparator} />
+    </>
   );
 };
 
@@ -208,9 +223,9 @@ const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberTyp
 function getBindingIcon(memberType: types.MemberType) {
   switch (memberType) {
     case types.MemberType.STATE:
-      return ChevronRightIcon;
+      return ArrowForwardIcon;
     case types.MemberType.ACTION:
-      return ChevronLeftIcon;
+      return ArrowBackIcon;
   }
 }
 

@@ -35,6 +35,11 @@ const useStyles = makeStyles((theme) => ({
   multilineTitle: {
     alignSelf: 'flex-start'
   },
+  multilineWrapper: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+  }
 }), { name: 'properties-layout' });
 
 export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = ({ title, collapse, children }) => {
@@ -66,18 +71,30 @@ export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = 
   }
 };
 
-export const Item: FunctionComponent<{ title?: ReactNode; multiline?: boolean }> = ({ title, multiline = false, children }) => {
+export const Item: FunctionComponent<{ title?: ReactNode; multiline?: boolean; noTitleTypography?: boolean }> = ({ title, multiline = false, noTitleTypography = false, children }) => {
   const classes = useStyles();
 
   return (
     <div className={classes.item}>
-      {title && (
-        <Typography className={clsx(classes.itemTitle, multiline && classes.multilineTitle)}>{title}</Typography>
-      )}
-      {children}
+      {getTitleElement(classes, title, multiline, noTitleTypography)}
+
+      {multiline ? (
+        <div className={classes.multilineWrapper}>
+          {children}
+        </div>
+      ) : children}
     </div>
   );
 };
+
+function getTitleElement(classes: ReturnType<typeof useStyles>, title: ReactNode, multiline: boolean, noTitleTypography: boolean) {
+  if (!title) {
+    return null;
+  }
+
+  const titleClass = clsx(classes.itemTitle, multiline && classes.multilineTitle);
+  return noTitleTypography ? <div className={titleClass}>{title}</div> : <Typography className={titleClass}>{title}</Typography>
+}
 
 export const useComponentStyles = makeStyles((theme) => ({
   component: {
