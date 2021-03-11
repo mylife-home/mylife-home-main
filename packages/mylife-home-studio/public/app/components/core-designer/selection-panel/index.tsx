@@ -2,12 +2,13 @@ import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { getComponentIds } from '../../../store/core-designer/selectors';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import QuickAccess from '../../lib/quick-access';
-import { useSelection } from '../selection';
+import { useResetSelectionIfNull, useSelection } from '../selection';
 import Component from './component';
 import Binding from './binding';
+import { AppState } from '../../../store/types';
+import { getComponentIds, getComponent, getBinding } from '../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -45,15 +46,35 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
 
     case 'component':
       return (
-        <Component className={className} />
+        <NullWrapper selector={getComponent}>
+          <Component className={className} />
+        </NullWrapper>
       );
 
     case 'binding':
       return (
-        <Binding className={className} />
+        <NullWrapper selector={getBinding}>
+          <Binding className={className} />
+        </NullWrapper>
       );
 
     default:
       return null;
   }
 }
+
+const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string, id: string) => any; }> = ({ selector, children }) => {
+  const { selection } = useSelection();
+  const item = useTabSelector((state, tabId) => selector(state, tabId, selection.id));
+  useResetSelectionIfNull(item);
+
+  if(!item) {
+    return null;
+  }
+
+  return (
+    <>
+      {children}
+    </>
+  );
+};

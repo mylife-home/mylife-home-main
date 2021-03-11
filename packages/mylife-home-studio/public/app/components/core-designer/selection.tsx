@@ -1,4 +1,4 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback } from 'react';
+import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 
 type SelectionType = 'component' | 'binding';
 
@@ -42,4 +42,14 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
       {children}
     </SelectionContext.Provider>
   );
+}
+
+export function useResetSelectionIfNull<T>(obj: T) {
+  const { select } = useSelection();
+
+  useEffect(() => {
+    if (!obj) {
+      select(null);
+    }
+  }, [obj]);
 }
