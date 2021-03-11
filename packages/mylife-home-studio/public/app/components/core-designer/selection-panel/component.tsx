@@ -45,11 +45,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   newButton: {
+    alignSelf: 'flex-start',
     color: theme.palette.success.main,
-    // FIXME: disableRipple ? theme.spacing ? smaller ripple ?
-    marginLeft: -12,
-    marginTop: -12,
-    marginBottom: -12,
+    padding: theme.spacing(0.5),
+    marginLeft: theme.spacing(-0.5),
   },
   memberIcon: {
     marginRight: theme.spacing(1),
@@ -182,13 +181,13 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
         {bindings && bindings.map(id => 
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
-        <div>
-          <Tooltip title="Nouveau binding">
-            <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
+
+        <Tooltip title="Nouveau binding">
+          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+
       </Item>
 
       <div className={classes.memberSeparator} />
