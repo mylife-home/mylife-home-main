@@ -16,6 +16,12 @@ export interface ComponentSelectionMarkProps {
 const ComponentSelectionMark: FunctionComponent<ComponentSelectionMarkProps> = ({ componentId }) => {
   const theme = useCanvasTheme();
   const { component, plugin } = useConnect(componentId);
+
+  // Appear after deletion/disconnection, select(null) already handled in toolbox management
+  if(!component) {
+    return null;
+  }
+
   const rect = computeComponentRect(theme, component, plugin);
 
   return (
