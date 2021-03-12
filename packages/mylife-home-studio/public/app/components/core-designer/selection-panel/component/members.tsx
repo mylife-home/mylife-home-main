@@ -22,10 +22,6 @@ const useStyles = makeStyles((theme) => ({
   newButton: {
     alignSelf: 'flex-start',
   },
-  separator: {
-    width: '100%',
-    height: theme.spacing(5),
-  }
 }), { name: 'properties-component-members' });
 
 const Members: FunctionComponent = () => {
@@ -67,7 +63,7 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
 
       </Item>
 
-      <div className={classes.separator} />
+      <Separator />
     </>
   );
 };
@@ -178,9 +174,35 @@ const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ classNam
         </IconButton>
       </Tooltip>
 
-      <Popover open={!!anchorEl} anchorEl={anchorEl} onClose={handleClose}>
+      <Popover
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'center',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'center',
+          horizontal: 'left',
+        }}
+      >
         TODO
       </Popover>
     </>
   );
-}
+};
+
+const useSeparatorStyles = makeStyles((theme) => ({
+  main: {
+    width: '100%',
+    height: theme.spacing(5),
+  }
+}), { name: 'properties-component-separator' });
+
+const Separator: FunctionComponent = () => {
+  const classes = useSeparatorStyles();
+  return (
+    <div className={classes.main} />
+  );
+};
