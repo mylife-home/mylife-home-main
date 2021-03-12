@@ -6,6 +6,8 @@ import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Popover from '@material-ui/core/Popover';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import AddIcon from '@material-ui/icons/Add';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -14,7 +16,6 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
-import QuickAccess from '../../../lib/quick-access';
 import * as types from '../../../../store/core-designer/types';
 import { getBinding } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
@@ -60,7 +61,7 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
 
-        <NewBindingButton className={classes.newButton} />
+        <NewBindingButton className={classes.newButton} memberName={name} />
 
       </Item>
 
@@ -154,10 +155,13 @@ const useNewBindingStyles = makeStyles((theme) => ({
   },
   container: {
     padding: theme.spacing(2),
+  },
+  selector: {
+    width: 300
   }
 }), { name: 'properties-component-new-binding' });
 
-const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ className }) => {
+const NewBindingButton: FunctionComponent<{ className?: string; memberName: string; }> = ({ className, memberName }) => {
   const classes = useNewBindingStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>(null);
 
@@ -191,23 +195,88 @@ const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ classNam
           horizontal: 'left',
         }}
       >
-        <NewBindingPopoverContent onClose={handleClose} />
+        <NewBindingPopoverContent memberName={memberName} onClose={handleClose} />
       </Popover>
     </>
   );
 };
 
-const LIST = ['a', 'b'];
-
-const NewBindingPopoverContent: FunctionComponent<{ onClose: () => void; }> = ({ onClose }) => {
+const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
+  const list = useBindingHalfList(memberName);
 
   return (
     <div className={classes.container}>
-      <QuickAccess list={LIST} onSelect={id => onClose()} />
+      <NewBindingSelector className={classes.selector} list={list} onSelect={id => onClose()} />
     </div>
   );
 };
+
+interface BindingHalf {
+  componentId: string;
+  memberName: string;
+}
+
+const LIST: BindingHalf[] = [
+  { componentId: 'componentA', memberName: 'memberA' },
+  { componentId: 'componentA', memberName: 'memberB' },
+  { componentId: 'componentB', memberName: 'memberA' },
+  { componentId: 'componentB', memberName: 'memberB' },
+];
+
+function useBindingHalfList(memberName: string) {
+  const { component, plugin } = useComponentData();
+
+  // select all action/state with same type, and for which no binding already exist
+
+  // TODO
+  return LIST;
+}
+
+const NewBindingSelector: FunctionComponent<{ className?: string; list: BindingHalf[]; onSelect: (value: BindingHalf) => void; }> = ({ className, list, onSelect }) => {
+  const [inputValue, setInputValue] = useState('');
+
+  return (
+    <Autocomplete
+      className={className}
+      value={null}
+      onChange={(event, newValue: BindingHalf) => {
+        onSelect(newValue);
+        setInputValue('');
+      }}
+      inputValue={inputValue}
+      onInputChange={(event, newInputValue) => {
+        setInputValue(newInputValue);
+      }}
+      options={list}
+      getOptionLabel={(option: BindingHalf) => `${option.componentId}.${option.memberName}`}
+      getOptionSelected={getOptionSelected}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="outlined"
+          label="Nouveau binding"
+          inputProps={{
+            ...params.inputProps,
+            autoComplete: 'new-password', // disable autocomplete and autofill
+          }}
+        />
+      )}
+    />
+  );
+};
+
+function getOptionSelected(option: BindingHalf, value: BindingHalf) {
+  if (!option && !value) {
+    return true;
+  }
+
+  if (!option || !value) {
+    return false;
+  }
+
+  return option.componentId === value.componentId && option.memberName === value.memberName;
+}
 
 const useSeparatorStyles = makeStyles((theme) => ({
   main: {
