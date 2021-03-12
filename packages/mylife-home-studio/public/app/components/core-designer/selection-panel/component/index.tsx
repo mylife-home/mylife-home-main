@@ -1,6 +1,5 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -9,17 +8,17 @@ import AddIcon from '@material-ui/icons/Add';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
-import { useTabPanelId } from '../../../lib/tab-panel';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 
-import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin, getBinding } from '../../../../store/core-designer/selectors';
+import { getBinding } from '../../../../store/core-designer/selectors';
 
 import Actions from './actions';
+import Configuration from './configuration';
+import { useComponentData } from './common';
 
 const useStyles = makeStyles((theme) => ({
   bindingLink: {
@@ -72,32 +71,6 @@ const Component: FunctionComponent<{ className?: string; }> = ({ className }) =>
 };
 
 export default Component;
-
-const Configuration: FunctionComponent = () => {
-  const { component, plugin } = useComponentData();
-
-  if(component.external) {
-    return null;
-  }
-
-  return (
-    <Group title="Configuration" collapse>
-      {plugin.configIds.map((id => {
-        const configItem = plugin.config[id];
-        const configValue = component.config[id];
-
-        return (
-          <Item key={id} title={id}>
-            {configItem.description}
-            {configItem.valueType}
-            {JSON.stringify(configValue)}
-            TODO
-          </Item>
-        );
-      }))}
-    </Group>
-  );
-};
 
 const Members: FunctionComponent = () => {
   const { plugin } = useComponentData();
@@ -191,12 +164,4 @@ function getBindingDisplay(binding: types.Binding, memberType: types.MemberType)
     case types.MemberType.ACTION:
       return `${binding.sourceComponent}.${binding.sourceState}`;
   }
-}
-
-function useComponentData() {
-  const tabId = useTabPanelId();
-  const { selection } = useSelection();
-  const component = useSelector((state: AppState) => getComponent(state, tabId, selection.id));
-  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
-  return { component, plugin };
 }
