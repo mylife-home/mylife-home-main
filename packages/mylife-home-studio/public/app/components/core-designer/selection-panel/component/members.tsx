@@ -1,9 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useState } from 'react';
+import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import Popover from '@material-ui/core/Popover';
 import AddIcon from '@material-ui/icons/Add';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
@@ -12,18 +14,13 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
-
 import * as types from '../../../../store/core-designer/types';
 import { getBinding } from '../../../../store/core-designer/selectors';
-
 import { useComponentData } from './common';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
     alignSelf: 'flex-start',
-    color: theme.palette.success.main,
-    padding: theme.spacing(0.5),
-    marginLeft: theme.spacing(-0.5),
   },
   separator: {
     width: '100%',
@@ -66,11 +63,7 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
 
-        <Tooltip title="Nouveau binding">
-          <IconButton className={classes.newButton} onClick={() => console.log('TODO new')}>
-            <AddIcon />
-          </IconButton>
-        </Tooltip>
+        <NewBindingButton className={classes.newButton} />
 
       </Item>
 
@@ -154,4 +147,40 @@ function getBindingDisplay(binding: types.Binding, memberType: types.MemberType)
     case types.MemberType.ACTION:
       return `${binding.sourceComponent}.${binding.sourceState}`;
   }
+}
+
+const useNewBindingButtonStyles = makeStyles((theme) => ({
+  button: {
+    color: theme.palette.success.main,
+    padding: theme.spacing(0.5),
+    margin: theme.spacing(-0.5),
+  },
+}), { name: 'properties-component-members' });
+
+const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ className }) => {
+  const classes = useNewBindingButtonStyles();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+
+      <Tooltip title="Nouveau binding">
+        <IconButton className={clsx(className, classes.button)} onClick={handleClick}>
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Popover open={!!anchorEl} anchorEl={anchorEl} onClose={handleClose}>
+        TODO
+      </Popover>
+    </>
+  );
 }
