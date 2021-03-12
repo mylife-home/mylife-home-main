@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo, useCallback } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
@@ -26,7 +26,7 @@ import { useRenameDialog } from '../../dialogs/rename';
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getComponentIds, getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
-import { clearComponent } from '../../../store/core-designer/actions';
+import { clearComponent, renameComponent } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -87,12 +87,10 @@ export default Component;
 
 const Actions: FunctionComponent = () => {
   const classes = useStyles();
-  const { componentIds, component, plugin, clear } = useActionsConnect();
+  const { componentIds, component, plugin, clear, rename } = useActionsConnect();
   const componentCenterPosition = useCenterComponent(component, plugin);
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(componentIds, component.id, 'Entrer un nom de composant');
-
-  const rename = (newId: string) => console.log('TODO rename', component.id, newId);
   
   const onRename = () =>
     fireAsync(async () => {
@@ -247,11 +245,16 @@ function useActionsConnect() {
   const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
   const componentIds = useSelector((state: AppState) => getComponentIds(state, tabId));
 
-  const clear = useCallback(() => {
-    dispatch(clearComponent({ id: tabId, componentId }));
-  }, [tabId, dispatch, componentId]);
+  const { clear, rename } = useMemo(() => ({
+    clear: () => {
+      dispatch(clearComponent({ id: tabId, componentId }));
+    },
+    rename: (newId: string) => {
+      dispatch(renameComponent({ id: tabId, componentId, newId }));
+    },
+  }), [tabId, dispatch, componentId]);
 
-  return { componentIds, component, plugin, clear };
+  return { componentIds, component, plugin, clear, rename };
 }
 
 function useComponentData() {
