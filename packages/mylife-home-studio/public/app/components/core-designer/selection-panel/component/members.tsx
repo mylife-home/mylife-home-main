@@ -19,26 +19,13 @@ import { getBinding } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
 
 const useStyles = makeStyles((theme) => ({
-  bindingLink: {
-    display: 'flex',
-  },
-  multilineTitle: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  multilineTitleItem: {
-    display: 'flex',
-  },
   newButton: {
     alignSelf: 'flex-start',
     color: theme.palette.success.main,
     padding: theme.spacing(0.5),
     marginLeft: theme.spacing(-0.5),
   },
-  memberIcon: {
-    marginRight: theme.spacing(1),
-  },
-  memberSeparator: {
+  separator: {
     width: '100%',
     height: theme.spacing(5),
   }
@@ -67,20 +54,14 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const { component, plugin } = useComponentData();
   const member = plugin.members[name];
   const bindings = component.bindings[name];
-  const MemberIcon = getMemberIcon(member.memberType);
   
   return (
     <>
       <Item multiline noTitleTypography title={
-        <div className={classes.multilineTitle}>
-          <Typography className={classes.multilineTitleItem}>
-            <MemberIcon className={classes.memberIcon}/>
-            {name}
-          </Typography>
-          <Typography color="textSecondary">{member.description}</Typography>
-        </div>
+        <MemberTitle memberType={member.memberType} name={name} description={member.description} />
       }>
         <Typography>{member.valueType}</Typography>
+
         {bindings && bindings.map(id => 
           <MemberBinding key={id} id={id} memberType={member.memberType} />
         )}
@@ -93,10 +74,39 @@ const Member: FunctionComponent<{ name: string }> = ({ name }) => {
 
       </Item>
 
-      <div className={classes.memberSeparator} />
+      <div className={classes.separator} />
     </>
   );
 };
+
+const useTitleStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  title: {
+    display: 'flex',
+  },
+  icon: {
+    marginRight: theme.spacing(1),
+  },
+}), { name: 'properties-component-member-title' });
+
+const MemberTitle: FunctionComponent<{ memberType: types.MemberType; name: string; description: string; }> = ({ memberType, name, description }) => {
+  const classes = useTitleStyles();
+  const MemberIcon = getMemberIcon(memberType);
+
+  return (
+    <div className={classes.container}>
+      <Typography className={classes.title}>
+        <MemberIcon className={classes.icon}/>
+        {name}
+      </Typography>
+
+      <Typography color="textSecondary">{description}</Typography>
+    </div>
+  );
+}
 
 function getMemberIcon(memberType: types.MemberType) {
   switch(memberType) {
@@ -107,8 +117,14 @@ function getMemberIcon(memberType: types.MemberType) {
   }
 }
 
+const useBindingStyles = makeStyles((theme) => ({
+  bindingLink: {
+    display: 'flex',
+  }
+}), { name: 'properties-component-binding' });
+
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
-  const classes = useStyles();
+  const classes = useBindingStyles();
   const { select } = useSelection();
   const BindingIcon = getBindingIcon(memberType);
   const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
