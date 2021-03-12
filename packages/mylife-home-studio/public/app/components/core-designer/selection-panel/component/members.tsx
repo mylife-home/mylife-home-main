@@ -14,6 +14,7 @@ import { useTabSelector } from '../../../lib/use-tab-selector';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
+import QuickAccess from '../../../lib/quick-access';
 import * as types from '../../../../store/core-designer/types';
 import { getBinding } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
@@ -145,16 +146,19 @@ function getBindingDisplay(binding: types.Binding, memberType: types.MemberType)
   }
 }
 
-const useNewBindingButtonStyles = makeStyles((theme) => ({
+const useNewBindingStyles = makeStyles((theme) => ({
   button: {
     color: theme.palette.success.main,
     padding: theme.spacing(0.5),
     margin: theme.spacing(-0.5),
   },
-}), { name: 'properties-component-members' });
+  container: {
+    padding: theme.spacing(2),
+  }
+}), { name: 'properties-component-new-binding' });
 
 const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const classes = useNewBindingButtonStyles();
+  const classes = useNewBindingStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -187,9 +191,21 @@ const NewBindingButton: FunctionComponent<{ className?: string; }> = ({ classNam
           horizontal: 'left',
         }}
       >
-        TODO
+        <NewBindingPopoverContent onClose={handleClose} />
       </Popover>
     </>
+  );
+};
+
+const LIST = ['a', 'b'];
+
+const NewBindingPopoverContent: FunctionComponent<{ onClose: () => void; }> = ({ onClose }) => {
+  const classes = useNewBindingStyles();
+
+  return (
+    <div className={classes.container}>
+      <QuickAccess list={LIST} onSelect={id => onClose()} />
+    </div>
   );
 };
 
