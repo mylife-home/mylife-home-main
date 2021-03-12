@@ -10,23 +10,23 @@ import AddIcon from '@material-ui/icons/Add';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
-import DeleteButton from '../../lib/delete-button';
-import { useTabPanelId } from '../../lib/tab-panel';
-import { useTabSelector } from '../../lib/use-tab-selector';
-import { useFireAsync } from '../../lib/use-error-handling';
-import { StateIcon, ActionIcon } from '../../lib/icons';
-import { useCanvasTheme } from '../drawing/theme';
-import { Rectangle } from '../drawing/types';
-import { computeComponentRect } from '../drawing/shapes';
-import { useSelection } from '../selection';
-import CenterButton from './center-button';
-import { Group, Item } from '../../lib/properties-layout';
-import { useRenameDialog } from '../../dialogs/rename';
+import DeleteButton from '../../../lib/delete-button';
+import { useTabPanelId } from '../../../lib/tab-panel';
+import { useTabSelector } from '../../../lib/use-tab-selector';
+import { useFireAsync } from '../../../lib/use-error-handling';
+import { StateIcon, ActionIcon } from '../../../lib/icons';
+import { useCanvasTheme } from '../../drawing/theme';
+import { Rectangle } from '../../drawing/types';
+import { computeComponentRect } from '../../drawing/shapes';
+import { useSelection } from '../../selection';
+import CenterButton from '../center-button';
+import { Group, Item } from '../../../lib/properties-layout';
+import { useRenameDialog } from '../../../dialogs/rename';
 
-import { AppState } from '../../../store/types';
-import * as types from '../../../store/core-designer/types';
-import { getComponentIds, getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
-import { clearComponent, renameComponent } from '../../../store/core-designer/actions';
+import { AppState } from '../../../../store/types';
+import * as types from '../../../../store/core-designer/types';
+import { getComponentIds, getComponent, getPlugin, getBinding } from '../../../../store/core-designer/selectors';
+import { clearComponent, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
