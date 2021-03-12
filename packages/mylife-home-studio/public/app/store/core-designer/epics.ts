@@ -6,7 +6,7 @@ import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
 import { ActionTypes } from './types';
-import { UpdateToolboxCoreProjectCall } from '../../../../shared/project-manager';
+import { UpdateToolboxCoreProjectCall, RenameComponentCoreProjectCall, ClearComponentCoreProjectCall, ClearBindingCoreProjectCall } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'core',
@@ -15,8 +15,23 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   callMappers: {
     [ActionTypes.UPDATE_TOOLBOX]: {
-      mapper({ itemType, itemId, action }: {  itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
+      mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
         return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
+      },
+    },
+    [ActionTypes.RENAME_COMPONENT]: {
+      mapper({ componentId, newId }: { componentId: string; newId: string }) {
+        return { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall;
+      },
+    },
+    [ActionTypes.CLEAR_COMPONENT]: {
+      mapper({ componentId }: { componentId: string }) {
+        return { operation: 'clear-component', componentId } as ClearComponentCoreProjectCall;
+      },
+    },
+    [ActionTypes.CLEAR_BINDING]: {
+      mapper({ bindingId }: { bindingId: string }) {
+        return { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall;
       },
     },
     // TODO

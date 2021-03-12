@@ -308,7 +308,7 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
-  operation: 'update-toolbox';
+  operation: 'update-toolbox' | 'rename-component' | 'clear-component' | 'clear-binding';
 }
 
 export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
@@ -316,4 +316,20 @@ export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
   itemType: 'instance' | 'plugin';
   itemId: string;
   action: 'show' | 'hide' | 'delete'
+}
+
+export interface RenameComponentCoreProjectCall extends CoreProjectCall {
+  operation: 'rename-component';
+  componentId: string;
+  newId: string;
+}
+
+export interface ClearComponentCoreProjectCall extends CoreProjectCall {
+  operation: 'clear-component';
+  componentId: string;
+}
+
+export interface ClearBindingCoreProjectCall extends CoreProjectCall {
+  operation: 'clear-binding';
+  bindingId: string;
 }
