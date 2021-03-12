@@ -17,7 +17,7 @@ import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 import * as types from '../../../../store/core-designer/types';
-import { getBinding } from '../../../../store/core-designer/selectors';
+import { getBinding, getNewBindingHalfList } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
 
 const useStyles = makeStyles((theme) => ({
@@ -203,7 +203,8 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
 
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
-  const list = useBindingHalfList(memberName);
+  const { selection } = useSelection();
+  const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, selection.id, memberName));
 
   return (
     <div className={classes.container}>
@@ -215,22 +216,6 @@ const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose:
 interface BindingHalf {
   componentId: string;
   memberName: string;
-}
-
-const LIST: BindingHalf[] = [
-  { componentId: 'componentA', memberName: 'memberA' },
-  { componentId: 'componentA', memberName: 'memberB' },
-  { componentId: 'componentB', memberName: 'memberA' },
-  { componentId: 'componentB', memberName: 'memberB' },
-];
-
-function useBindingHalfList(memberName: string) {
-  const { component, plugin } = useComponentData();
-
-  // select all action/state with same type, and for which no binding already exist
-
-  // TODO
-  return LIST;
 }
 
 const NewBindingSelector: FunctionComponent<{ className?: string; list: BindingHalf[]; onSelect: (value: BindingHalf) => void; }> = ({ className, list, onSelect }) => {

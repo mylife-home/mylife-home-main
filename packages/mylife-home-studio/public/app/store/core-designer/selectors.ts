@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { CoreOpenedProject } from './types';
+import { CoreOpenedProject, MemberType } from './types';
 
 const getOpenedProjects = (state: AppState) => state.coreDesigner.openedProjects;
 
@@ -68,7 +68,7 @@ export const getPluginStats = (state: AppState, tabId: string, pluginId: string)
   return stats;
 };
 
-function computePluginStats(project: CoreOpenedProject, pluginId: string, stats: { components: number; externalComponents: number }) {
+function computePluginStats(project: CoreOpenedProject, pluginId: string, stats: { components: number; externalComponents: number; }) {
   const plugin = project.plugins.byId[pluginId];
 
   for (const componentId of plugin.components) {
@@ -79,5 +79,85 @@ function computePluginStats(project: CoreOpenedProject, pluginId: string, stats:
     } else {
       ++stats.components;
     }
+  }
+}
+
+export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
+  const project = getOpenedProject(state, tabId);
+  const component = project.components.byId[componentId];
+  const plugin = project.plugins.byId[component.plugin];
+  const member = plugin.members[memberName];
+
+  const possiblePluginMembers = buildPossibleMembers(project, getBindingOtherHalfType(member.memberType), member.valueType);
+
+  const list: { componentId: string; memberName: string; }[] = [];
+
+  // select all action/state with same type, and for which no binding already exist
+  for (const possibleComponent of Object.values(project.components.byId)) {
+    // for now avoid binding on self
+    if (possibleComponent.id === component.id) {
+      continue;
+    }
+
+    const possiblePlugin = possiblePluginMembers.get(possibleComponent.plugin);
+    if (!possiblePlugin) {
+      continue;
+    }
+
+    for (const possibleMember of possiblePlugin) {
+      const bindingId = makeBindingId(member.memberType, component.id, memberName, possibleComponent.id, possibleMember);
+      if (component.bindings[memberName]?.includes(bindingId)) {
+        // binding already exists
+        continue;
+      }
+
+      list.push({ componentId: possibleComponent.id, memberName: possibleMember });
+    }
+  }
+
+  return list;
+};
+
+function buildPossibleMembers(project: CoreOpenedProject, memberType: MemberType, valueType: string) {
+  const possiblePluginMembers = new Map<string, Set<string>>();
+
+  for (const plugin of Object.values(project.plugins.byId)) {
+    for (const [memberName, member] of Object.entries(plugin.members)) {
+      if (member.memberType !== memberType || member.valueType !== valueType) {
+        continue;
+      }
+
+      let possiblePlugin = possiblePluginMembers.get(plugin.id);
+      if (!possiblePlugin) {
+        possiblePlugin = new Set<string>();
+        possiblePluginMembers.set(plugin.id, possiblePlugin);
+      }
+
+      possiblePlugin.add(memberName);
+    }
+  }
+
+  return possiblePluginMembers;
+}
+
+function getBindingOtherHalfType(memberType: MemberType) {
+  switch (memberType) {
+    case MemberType.ACTION:
+      return MemberType.STATE;
+    case MemberType.STATE:
+      return MemberType.ACTION;
+    default:
+      throw new Error(`Unhandled MemberType: '${memberType}'`);
+  }
+}
+
+function makeBindingId(memberType: MemberType, componentId: string, memberName: string, otherComponentId: string, otherMemberName: string) {
+  switch (memberType) {
+    case MemberType.ACTION:
+      return `${otherComponentId}:${otherMemberName}:${componentId}:${memberName}`;
+    case MemberType.STATE:
+      return `${componentId}:${memberName}:${otherComponentId}:${otherMemberName}`;
+    default:
+      throw new Error(`Unhandled MemberType: '${memberType}'`);
   }
 }
