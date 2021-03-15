@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -13,10 +14,12 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
+import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 import * as types from '../../../../store/core-designer/types';
+import { setBinding } from '../../../../store/core-designer/actions';
 import { getBinding, getNewBindingHalfList } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
 
@@ -210,9 +213,10 @@ const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose:
   const classes = useNewBindingStyles();
   const { selection } = useSelection();
   const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, selection.id, memberName));
+  const newBinding = useNewBinding(memberName);
 
   const onSelect = (value: BindingHalf) => {
-    console.log('TODO: create binding', value);
+    newBinding(value);
     onClose();
   };
 
@@ -266,6 +270,47 @@ function getOptionSelected(option: BindingHalf, value: BindingHalf) {
   }
 
   return option.componentId === value.componentId && option.memberName === value.memberName;
+}
+
+function useNewBinding(memberName: string) {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const { component, plugin } = useComponentData();
+  const member = plugin.members[memberName];
+
+  return useCallback((newValue: BindingHalf) => {
+    const binding = createBindingData(component.id, memberName, member.memberType, newValue);
+    dispatch(setBinding({ id: tabId, binding }));
+  }, [dispatch, tabId, component.id, memberName]);
+}
+
+function createBindingData(componentId: string, memberName: string, memberType: types.MemberType, newValue: BindingHalf) {
+  switch (memberType) {
+    case types.MemberType.STATE: {
+      const bindingData: types.CoreBindingData = {
+        sourceComponent: componentId,
+        sourceState: memberName,
+        targetComponent: newValue.componentId,
+        targetAction: newValue.memberName,
+      };
+
+      return bindingData;
+    }
+
+    case types.MemberType.STATE: {
+      const bindingData: types.CoreBindingData = {
+        sourceComponent: newValue.componentId,
+        sourceState: newValue.memberName,
+        targetComponent: componentId,
+        targetAction: memberName,
+      };
+
+      return bindingData;
+    }
+
+    default:
+      throw new Error(`Unsupported member type: '${memberType}'`);
+  }
 }
 
 const useSeparatorStyles = makeStyles((theme) => ({
