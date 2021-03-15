@@ -201,22 +201,27 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
   );
 };
 
+interface BindingHalf {
+  componentId: string;
+  memberName: string;
+}
+
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
   const { selection } = useSelection();
   const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, selection.id, memberName));
 
+  const onSelect = (value: BindingHalf) => {
+    console.log('TODO: create binding', value);
+    onClose();
+  };
+
   return (
     <div className={classes.container}>
-      <NewBindingSelector className={classes.selector} list={list} onSelect={id => onClose()} />
+      <NewBindingSelector className={classes.selector} list={list} onSelect={onSelect} />
     </div>
   );
 };
-
-interface BindingHalf {
-  componentId: string;
-  memberName: string;
-}
 
 const NewBindingSelector: FunctionComponent<{ className?: string; list: BindingHalf[]; onSelect: (value: BindingHalf) => void; }> = ({ className, list, onSelect }) => {
   const [inputValue, setInputValue] = useState('');
