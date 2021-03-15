@@ -13,11 +13,12 @@ export const enum ActionTypes {
   MOVE_COMPONENT = 'core-designer/move-component', // TODO: remove
   RENAME_COMPONENT = 'core-designer/rename-component',
   CLEAR_COMPONENT = 'core-designer/clear-component',
+  SET_BINDING = 'core-designer/set-binding',
   CLEAR_BINDING = 'core-designer/clear-binding',
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
 }
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData };
 
 export type PluginUse = 'unused' | 'external' | 'used';
 

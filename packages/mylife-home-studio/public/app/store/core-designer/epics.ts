@@ -6,7 +6,7 @@ import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
 import { ActionTypes } from './types';
-import { UpdateToolboxCoreProjectCall, RenameComponentCoreProjectCall, ClearComponentCoreProjectCall, ClearBindingCoreProjectCall } from '../../../../shared/project-manager';
+import { UpdateToolboxCoreProjectCall, RenameComponentCoreProjectCall, ClearComponentCoreProjectCall, SetBindingCoreProjectCall, ClearBindingCoreProjectCall, CoreBindingData } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'core',
@@ -27,6 +27,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.CLEAR_COMPONENT]: {
       mapper({ componentId }: { componentId: string }) {
         return { operation: 'clear-component', componentId } as ClearComponentCoreProjectCall;
+      },
+    },
+    [ActionTypes.SET_BINDING]: {
+      mapper({ binding }: { binding: CoreBindingData }) {
+        return { operation: 'set-binding', binding } as SetBindingCoreProjectCall;
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
