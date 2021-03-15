@@ -2,6 +2,7 @@ import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../.
 import { CoreBindingData, CoreComponentData, CorePluginData } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
+
 export { CoreToolboxDisplay, UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
 
 export const enum ActionTypes {
