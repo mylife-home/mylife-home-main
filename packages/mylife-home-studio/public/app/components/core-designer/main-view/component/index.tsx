@@ -52,10 +52,12 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
     >
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
+
         <Title text={component.id} />
 
         <Property yIndex={1} icon='instance' primary={plugin.instanceName} />
         <Property yIndex={2} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
+        <Border x={0} y={(theme.component.boxHeight * 1) - 1} width={theme.component.width} height={theme.component.boxHeight * 2 + 1} color={theme.borderColor} type='inner' />
 
         <PropertyList yIndex={3} icon='state' items={stateItems} />
         <PropertyList yIndex={3 + stateItems.length} icon='action' items={actionItems} />
