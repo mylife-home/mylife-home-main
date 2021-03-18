@@ -16,7 +16,7 @@ interface TypographyProps {
 const Typography: FunctionComponent<TypographyProps> = ({ bold, italic, color, ...props }) => {
   const theme = useCanvasTheme();
   return (
-    <Text {...props} fill={color || theme.color} fontFamily={theme.fontFamily} fontSize={theme.fontSize} fontStyle={getFontStyle({ bold, italic })} verticalAlign={'middle'} />
+    <Text ellipsis wrap='none' fill={color || theme.color} fontFamily={theme.fontFamily} fontSize={theme.fontSize} fontStyle={getFontStyle({ bold, italic })} verticalAlign={'middle'} {...props} />
   );
 };
 
