@@ -54,24 +54,28 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <Title text={component.id} />
 
-        <BorderGroup yIndex={yIndex.peek()} heightIndex={2} />
-        <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} />
-        <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
+        <BorderGroup yIndex={yIndex.peek()}>
+          <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} />
+          <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
+        </BorderGroup>
 
-        <BorderGroup yIndex={yIndex.peek()} heightIndex={stateItems.length} />
-        {stateItems.map((item, index) => (
-          <Property key={index} yIndex={yIndex.next()} icon='state' primary={item.primary} secondary={item.secondary} />
-        ))}
+        <BorderGroup yIndex={yIndex.peek()}>
+          {stateItems.map((item, index) => (
+            <Property key={index} yIndex={yIndex.next()} icon='state' primary={item.primary} secondary={item.secondary} />
+          ))}
+        </BorderGroup>
 
-        <BorderGroup yIndex={yIndex.peek()} heightIndex={actionItems.length} />
-        {actionItems.map((item, index) => (
-          <Property key={index} yIndex={yIndex.next()} icon='action' primary={item.primary} secondary={item.secondary} />
-        ))}
+        <BorderGroup yIndex={yIndex.peek()}>
+          {actionItems.map((item, index) => (
+            <Property key={index} yIndex={yIndex.next()} icon='action' primary={item.primary} secondary={item.secondary} />
+          ))}
+        </BorderGroup>
 
-        <BorderGroup yIndex={yIndex.peek()} heightIndex={configItems.length} />
-        {configItems.map((item, index) => (
-          <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} />
-        ))}
+        <BorderGroup yIndex={yIndex.peek()}>
+          {configItems.map((item, index) => (
+            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} />
+          ))}
+        </BorderGroup>
 
       </CachedGroup>
     </Group>

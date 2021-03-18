@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, Children } from 'react';
 
 import { useCanvasTheme } from '../../drawing/theme';
 import Typography from '../../drawing/typography';
@@ -45,10 +45,15 @@ export const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, prima
   );
 };
 
-export const BorderGroup: FunctionComponent<{ yIndex: number; heightIndex: number; }> = ({ yIndex, heightIndex }) =>  {
+export const BorderGroup: FunctionComponent<{ yIndex: number; }> = ({ yIndex, children }) =>  {
   const theme = useCanvasTheme();
 
+  const childrenCount = Children.count(children);
+
   return (
-    <Border x={0} y={(theme.component.boxHeight * yIndex) - 1} width={theme.component.width} height={theme.component.boxHeight * heightIndex + 1} color={theme.borderColor} type='inner' />
+    <>
+      <Border x={0} y={(theme.component.boxHeight * yIndex) - 1} width={theme.component.width} height={theme.component.boxHeight * childrenCount + 1} color={theme.borderColor} type='inner' />
+      {children}
+    </>
   );
 };
