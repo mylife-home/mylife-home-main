@@ -8,11 +8,13 @@ import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
+import Border from '../../drawing/border';
 import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect } from '../../drawing/shapes';
 import { useSafeSelector } from '../../drawing/use-safe-selector';
 import Title from './title';
 import PropertyList from './property-list';
+import Property from './property';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
@@ -36,8 +38,9 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => moveComponent({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [moveComponent, GRID_STEP_SIZE]);
 
-  const stateItems = useMemo(() => buildItems(plugin, plugin.stateIds), [plugin]);
-  const actionItems = useMemo(() => buildItems(plugin, plugin.actionIds), [plugin]);
+  const stateItems = useMemo(() => buildMembers(plugin, plugin.stateIds), [plugin]);
+  const actionItems = useMemo(() => buildMembers(plugin, plugin.actionIds), [plugin]);
+  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
 
   return (
     <Group
@@ -50,8 +53,13 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
         <Title text={component.id} />
-        <PropertyList yIndex={1} icon='visibility' items={stateItems} />
-        <PropertyList yIndex={1 + stateItems.length} icon='input' items={actionItems} />
+
+        <Property yIndex={1} icon='instance' primary={plugin.instanceName} />
+        <Property yIndex={2} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
+
+        <PropertyList yIndex={3} icon='state' items={stateItems} />
+        <PropertyList yIndex={3 + stateItems.length} icon='action' items={actionItems} />
+        <PropertyList yIndex={3 + stateItems.length + actionItems.length} icon='config' items={configItems} />
       </CachedGroup>
     </Group>
   );
@@ -92,6 +100,20 @@ function lockBetween(value: number, max: number) {
   return value;
 }
 
-function buildItems(plugin: types.Plugin, ids: string[]) {
+function buildMembers(plugin: types.Plugin, ids: string[]) {
   return ids.map(id => ({ primary: id, secondary: parseType(plugin.members[id].valueType).typeId}));
+}
+
+function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
+  return plugin.configIds.map(id => {
+    const type = plugin.config[id].valueType;
+    const value = config[id];
+    // TODO: improve layout
+    return { primary: id, secondary: renderConfigValue(type, value) };
+  });
+}
+
+// TODO: implement + move commons
+function renderConfigValue(type: types.ConfigType, value: any) {
+  return JSON.stringify(value);
 }
