@@ -8,13 +8,10 @@ import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
-import Border from '../../drawing/border';
 import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect } from '../../drawing/shapes';
 import { useSafeSelector } from '../../drawing/use-safe-selector';
-import Title from './title';
-import PropertyList from './property-list';
-import Property from './property';
+import { Title, Property, BorderGroup } from './layout';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
@@ -42,6 +39,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const actionItems = useMemo(() => buildMembers(plugin, plugin.actionIds), [plugin]);
   const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
 
+  const yIndex = createIndexManager();
+
   return (
     <Group
       {...rect}
@@ -55,19 +54,40 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <Title text={component.id} />
 
-        <Property yIndex={1} icon='instance' primary={plugin.instanceName} />
-        <Property yIndex={2} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
-        <Border x={0} y={(theme.component.boxHeight * 1) - 1} width={theme.component.width} height={theme.component.boxHeight * 2 + 1} color={theme.borderColor} type='inner' />
+        <BorderGroup yIndex={yIndex.peek()} heightIndex={2} />
+        <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} />
+        <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} />
 
-        <PropertyList yIndex={3} icon='state' items={stateItems} />
-        <PropertyList yIndex={3 + stateItems.length} icon='action' items={actionItems} />
-        <PropertyList yIndex={3 + stateItems.length + actionItems.length} icon='config' items={configItems} />
+        <BorderGroup yIndex={yIndex.peek()} heightIndex={stateItems.length} />
+        {stateItems.map((item, index) => (
+          <Property key={index} yIndex={yIndex.next()} icon='state' primary={item.primary} secondary={item.secondary} />
+        ))}
+
+        <BorderGroup yIndex={yIndex.peek()} heightIndex={actionItems.length} />
+        {actionItems.map((item, index) => (
+          <Property key={index} yIndex={yIndex.next()} icon='action' primary={item.primary} secondary={item.secondary} />
+        ))}
+
+        <BorderGroup yIndex={yIndex.peek()} heightIndex={configItems.length} />
+        {configItems.map((item, index) => (
+          <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} />
+        ))}
+
       </CachedGroup>
     </Group>
   );
 };
 
 export default Component;
+
+function createIndexManager() {
+  let index = 0; // start at 1 for Title
+
+  return { 
+    next: ()  => ++index, 
+    peek: () =>  index + 1
+  };
+}
 
 function useConnect(componentId: string) {
   const tabId = useTabPanelId();

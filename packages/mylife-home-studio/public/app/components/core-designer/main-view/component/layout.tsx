@@ -1,17 +1,32 @@
 import React, { FunctionComponent } from 'react';
 
 import { useCanvasTheme } from '../../drawing/theme';
-import Icon, { Image } from '../../drawing/icon';
 import Typography from '../../drawing/typography';
+import Border from '../../drawing/border';
+import Icon, { Image } from '../../drawing/icon';
 
-export interface PropertyProps {
+export const Title: FunctionComponent<{ text: string; }> = ({ text }) => {
+  const theme = useCanvasTheme();
+
+  const width = theme.component.width;
+  const height = theme.component.boxHeight;
+  
+  return (
+    <>
+      <Typography x={theme.component.paddingLeft } y={0} width={width} height={height} text={text} bold />
+      <Border x={0} y={0} width={width} height={height} color={theme.borderColor} type='inner' />
+    </>
+  );
+};
+
+interface PropertyProps {
   yIndex: number;
   icon: Image;
   primary: string;
   secondary?: string;
 }
 
-const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, primary, secondary }) => {
+export const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, primary, secondary }) => {
   const theme = useCanvasTheme();
 
   const xBase = theme.component.paddingLeft;
@@ -30,4 +45,10 @@ const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, primary, sec
   );
 };
 
-export default Property;
+export const BorderGroup: FunctionComponent<{ yIndex: number; heightIndex: number; }> = ({ yIndex, heightIndex }) =>  {
+  const theme = useCanvasTheme();
+
+  return (
+    <Border x={0} y={(theme.component.boxHeight * yIndex) - 1} width={theme.component.width} height={theme.component.boxHeight * heightIndex + 1} color={theme.borderColor} type='inner' />
+  );
+};
