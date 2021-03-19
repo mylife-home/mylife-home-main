@@ -23,23 +23,49 @@ interface PropertyProps {
   yIndex: number;
   icon: Image;
   primary: string;
+  primaryItalic?: boolean;
   secondary?: string;
+  secondaryItalic?: boolean;
+  split?: 'middle' | 'right';
 }
 
-export const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, primary, secondary }) => {
+export const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, primary, primaryItalic = false, secondary, secondaryItalic = false, split }) => {
   const theme = useCanvasTheme();
 
   const xBase = theme.component.paddingLeft;
   const yBase = theme.component.boxHeight * yIndex;
   const xPrimary = xBase + theme.component.boxHeight; // icons are square
-  const xSecondary = theme.component.width - theme.component.secondaryWidth - theme.component.paddingLeft;
+  const textsWidth = theme.component.width - xPrimary - theme.component.paddingLeft;
+
+  let xSecondary: number;
+  let primaryWidth: number;
+  let secondaryWidth: number;
+
+  switch (split) {
+    case 'middle':
+      primaryWidth = secondaryWidth = (textsWidth / 2) - theme.component.paddingLeft; // padding between
+      xSecondary = xPrimary + primaryWidth + theme.component.paddingLeft;
+      break;
+
+    case 'right':
+      secondaryWidth = theme.component.secondaryWidth;
+      xSecondary = theme.component.width - theme.component.secondaryWidth - theme.component.paddingLeft;
+      primaryWidth = xSecondary - xPrimary - theme.component.paddingLeft; // padding between
+      break;
+
+    default:
+      secondaryWidth = null;
+      xSecondary = null;
+      primaryWidth = textsWidth;
+      break;
+  }
 
   return (
     <>
       <Icon x={xBase} y={yBase + ((theme.component.boxHeight - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />
-      <Typography x={xPrimary} y={yBase} height={theme.component.boxHeight} width={xSecondary - xPrimary - theme.component.paddingLeft} text={primary} />
-      {secondary && (
-        <Typography x={xSecondary} y={yBase} height={theme.component.boxHeight} width={theme.component.secondaryWidth} text={secondary} italic />
+      <Typography x={xPrimary} y={yBase} height={theme.component.boxHeight} width={primaryWidth} text={primary} italic={primaryItalic} />
+      {split && (
+        <Typography x={xSecondary} y={yBase} height={theme.component.boxHeight} width={theme.component.secondaryWidth} text={secondary} italic={secondaryItalic} />
       )}
     </>
   );
