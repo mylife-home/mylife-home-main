@@ -55,6 +55,12 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
         <Title text={component.id} />
 
         <BorderGroup yIndex={yIndex.peek()}>
+          {configItems.map((item, index) => (
+            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} split='middle' />
+          ))}
+        </BorderGroup>
+
+        <BorderGroup yIndex={yIndex.peek()}>
           <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} primaryItalic />
           <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
         </BorderGroup>
@@ -68,12 +74,6 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
         <BorderGroup yIndex={yIndex.peek()}>
           {actionItems.map((item, index) => (
             <Property key={index} yIndex={yIndex.next()} icon='action' primary={item.primary} secondary={item.secondary} split='right' secondaryItalic />
-          ))}
-        </BorderGroup>
-
-        <BorderGroup yIndex={yIndex.peek()}>
-          {configItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} split='middle' />
           ))}
         </BorderGroup>
 
@@ -134,12 +134,10 @@ function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
   return plugin.configIds.map(id => {
     const type = plugin.config[id].valueType;
     const value = config[id];
-    // TODO: improve layout
     return { primary: id, secondary: renderConfigValue(type, value) };
   });
 }
 
-// TODO: implement + move commons
 function renderConfigValue(type: types.ConfigType, value: any) {
-  return JSON.stringify(value);
+  return value.toString();
 }

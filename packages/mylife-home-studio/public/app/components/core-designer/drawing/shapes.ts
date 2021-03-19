@@ -7,9 +7,9 @@ import { Component, Plugin, Binding } from '../../../store/core-designer/types';
 const TITLE_COUNT = 3; // component id + instance + plugin
 
 export function computeComponentRect(theme: CanvasTheme, component: Component, plugin: Plugin): Rectangle {
+  const configCount = component.external ? 0 :  plugin.configIds.length;
   const stateCount = plugin.stateIds.length;
   const actionCount = plugin.actionIds.length;
-  const configCount = component.external ? 0 :  plugin.configIds.length;
   const itemCount = TITLE_COUNT + stateCount + actionCount + configCount;
 
   return {
@@ -21,8 +21,10 @@ export function computeComponentRect(theme: CanvasTheme, component: Component, p
 }
 
 export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourcePlugin: Plugin, targetComponent: Component, targetPlugin: Plugin) {
-  const sourcePropIndex = TITLE_COUNT + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
-  const targetPropIndex = TITLE_COUNT + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
+  const sourceHeaderCount = TITLE_COUNT + (sourceComponent.external ? 0 :  sourcePlugin.configIds.length);
+  const targetHeaderCount = TITLE_COUNT + (targetComponent.external ? 0 :  targetPlugin.configIds.length);
+  const sourcePropIndex = sourceHeaderCount + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
+  const targetPropIndex = targetHeaderCount + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
 
   const sourceAnchors = makeAnchors(sourceComponent, sourcePropIndex, theme);
   const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);
