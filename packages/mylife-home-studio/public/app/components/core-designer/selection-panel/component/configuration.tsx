@@ -1,16 +1,17 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
+import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
 import { useComponentData } from './common';
 import { ConfigItem, ConfigType } from '../../../../store/core-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   editor: {
+    width: '100%',
   },
 }), { name: 'properties-component-configuration' });
 
@@ -64,11 +65,11 @@ const Editor: FunctionComponent<EditorProps> = (props) => {
 const StringEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <TextField
+    <DebouncedTextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={value}
-      onChange={e => onChange(e.target.value)}
+      onChange={onChange}
     />
   );
 
@@ -87,11 +88,11 @@ const BoolEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) =
 const IntegerEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <TextField
+    <DebouncedTextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={formatNumber(value)}
-      onChange={(e) => onChange(parseNumber(e.target.value, 'int'))}
+      onChange={(value) => onChange(parseNumber(value, 'int'))}
       type="number"
       inputProps={{ step: 1 }}
     />
@@ -101,11 +102,11 @@ const IntegerEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }
 const FloatEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <TextField
+    <DebouncedTextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={formatNumber(value)}
-      onChange={(e) => onChange(parseNumber(e.target.value, 'float'))}
+      onChange={(value) => onChange(parseNumber(value, 'float'))}
       type="number"
     />
   );
