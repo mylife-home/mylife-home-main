@@ -70,6 +70,7 @@ export default createReducer(initialState, {
     }
   },
 
+  // TODO: should not be here?
   [ActionTypes.MOVE_COMPONENT]: (state, action: PayloadAction<{ id: string; componentId: string; position: Position; }>) => {
     const { id, componentId, position } = action.payload;
     const openedProject = state.openedProjects.byId[id];

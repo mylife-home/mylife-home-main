@@ -11,7 +11,8 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
   UPDATE_PROJECT = 'core-designer/update-project',
 
-  MOVE_COMPONENT = 'core-designer/move-component', // TODO: remove
+  MOVE_COMPONENT = 'core-designer/move-component',
+  CONFIGURE_COMPONENT = 'core-designer/configure-component',
   RENAME_COMPONENT = 'core-designer/rename-component',
   CLEAR_COMPONENT = 'core-designer/clear-component',
   SET_BINDING = 'core-designer/set-binding',

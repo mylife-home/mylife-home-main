@@ -1,4 +1,5 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
@@ -6,8 +7,11 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 
 import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
+import { useTabPanelId } from '../../../lib/tab-panel';
+import { useSelection } from '../../selection';
 import { useComponentData } from './common';
 import { ConfigItem, ConfigType } from '../../../../store/core-designer/types';
+import { configureComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   editor: {
@@ -17,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Configuration: FunctionComponent = () => {
   const { component, plugin } = useComponentData();
+  const configure = useConfigure();
 
   if(component.external) {
     return null;
@@ -30,7 +35,7 @@ const Configuration: FunctionComponent = () => {
 
         return (
           <Item key={id} title={id}>
-            <Editor item={configItem} value={configValue} onChange={() => console.log('TODO')} />
+            <Editor item={configItem} value={configValue} onChange={(value) => configure(id, value)} />
           </Item>
         );
       }))}
@@ -39,6 +44,17 @@ const Configuration: FunctionComponent = () => {
 };
 
 export default Configuration;
+
+function useConfigure() {
+  const tabId = useTabPanelId();
+  const { selection } = useSelection();
+  const dispatch = useDispatch();
+  const componentId = selection.id;
+
+  return useCallback((configId: string, configValue: any) => {
+    dispatch(configureComponent({ id: tabId, componentId, configId, configValue }));
+  }, [dispatch, tabId, componentId]);
+}
 
 interface EditorProps {
   item: ConfigItem;

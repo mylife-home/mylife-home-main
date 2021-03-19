@@ -5,8 +5,17 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes } from './types';
-import { UpdateToolboxCoreProjectCall, RenameComponentCoreProjectCall, ClearComponentCoreProjectCall, SetBindingCoreProjectCall, ClearBindingCoreProjectCall, CoreBindingData } from '../../../../shared/project-manager';
+import { ActionTypes, Position } from './types';
+import {
+  UpdateToolboxCoreProjectCall,
+  MoveComponentCoreProjectCall,
+  ConfigureComponentCoreProjectCall,
+  RenameComponentCoreProjectCall,
+  ClearComponentCoreProjectCall,
+  SetBindingCoreProjectCall,
+  ClearBindingCoreProjectCall,
+  CoreBindingData
+} from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'core',
@@ -17,6 +26,16 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.UPDATE_TOOLBOX]: {
       mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
         return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
+      },
+    },
+    [ActionTypes.MOVE_COMPONENT]: {
+      mapper({ componentId, position }: { componentId: string; position: Position }) {
+        return { operation: 'move-component', componentId, x: position.x, y: position.y } as MoveComponentCoreProjectCall;
+      },
+    },
+    [ActionTypes.CONFIGURE_COMPONENT]: {
+      mapper({ componentId, configId, configValue }: { componentId: string; configId: string; configValue: any }) {
+        return { operation: 'configure-component', componentId, configId, configValue } as ConfigureComponentCoreProjectCall;
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
