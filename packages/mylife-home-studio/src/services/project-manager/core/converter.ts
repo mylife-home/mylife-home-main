@@ -225,7 +225,7 @@ function convertConfig(input: coreV1.ComponentConfig[], plugin: CorePluginData) 
   for (const item of input) {
     const type = plugin.config[item.Key].valueType;
     const value = convertConfigValue(item.Value, type);
-    config[item.Key] = item.Value;
+    config[item.Key] = value;
   }
 
   return config;
