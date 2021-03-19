@@ -64,8 +64,8 @@ export const Property: FunctionComponent<PropertyProps> = ({ yIndex, icon, prima
     <>
       <Icon x={xBase} y={yBase + ((theme.component.boxHeight - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />
       <Typography x={xPrimary} y={yBase} height={theme.component.boxHeight} width={primaryWidth} text={primary} italic={primaryItalic} />
-      {split && (
-        <Typography x={xSecondary} y={yBase} height={theme.component.boxHeight} width={theme.component.secondaryWidth} text={secondary} italic={secondaryItalic} />
+      {secondaryWidth && (
+        <Typography x={xSecondary} y={yBase} height={theme.component.boxHeight} width={secondaryWidth} text={secondary} italic={secondaryItalic} />
       )}
     </>
   );
