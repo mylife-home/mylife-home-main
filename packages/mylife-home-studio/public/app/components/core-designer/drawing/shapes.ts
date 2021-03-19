@@ -4,12 +4,13 @@ import { GRID_STEP_SIZE } from './defs';
 
 import { Component, Plugin, Binding } from '../../../store/core-designer/types';
 
+const TITLE_COUNT = 3; // component id + instance + plugin
+
 export function computeComponentRect(theme: CanvasTheme, component: Component, plugin: Plugin): Rectangle {
-  const titleCount = 3; // component id + instance + plugin
   const stateCount = plugin.stateIds.length;
   const actionCount = plugin.actionIds.length;
   const configCount = component.external ? 0 :  plugin.configIds.length;
-  const itemCount = titleCount + stateCount + actionCount + configCount;
+  const itemCount = TITLE_COUNT + stateCount + actionCount + configCount;
 
   return {
     x: component.position.x * GRID_STEP_SIZE,
@@ -20,8 +21,8 @@ export function computeComponentRect(theme: CanvasTheme, component: Component, p
 }
 
 export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourcePlugin: Plugin, targetComponent: Component, targetPlugin: Plugin) {
-  const sourcePropIndex = 1 + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
-  const targetPropIndex = 1 + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
+  const sourcePropIndex = TITLE_COUNT + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
+  const targetPropIndex = TITLE_COUNT + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
 
   const sourceAnchors = makeAnchors(sourceComponent, sourcePropIndex, theme);
   const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);
