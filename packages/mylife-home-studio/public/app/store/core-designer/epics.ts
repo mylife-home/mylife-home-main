@@ -14,7 +14,8 @@ import {
   ClearComponentCoreProjectCall,
   SetBindingCoreProjectCall,
   ClearBindingCoreProjectCall,
-  CoreBindingData
+  CoreBindingData,
+  SetComponentCoreProjectCall
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -26,6 +27,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.UPDATE_TOOLBOX]: {
       mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
         return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
+      },
+    },
+    [ActionTypes.SET_COMPONENT]: {
+      mapper({ componentId, pluginId, position }: { componentId: string; pluginId: string; position: Position }) {
+        return { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall;
       },
     },
     [ActionTypes.MOVE_COMPONENT]: {

@@ -17,6 +17,7 @@ import {
   RenameComponentCoreProjectCall,
   RenameCoreComponentNotification,
   SetBindingCoreProjectCall,
+  SetComponentCoreProjectCall,
   SetCoreBindingNotification,
   SetCoreComponentNotification,
   SetCorePluginsNotification,
@@ -56,6 +57,10 @@ export class CoreOpenedProject extends OpenedProject {
     switch (callData.operation) {
       case 'update-toolbox':
         await this.updateToolbox(callData as UpdateToolboxCoreProjectCall);
+        break;
+
+      case 'set-component':
+        await this.setComponent(callData as SetComponentCoreProjectCall);
         break;
 
       case 'move-component':
@@ -180,6 +185,12 @@ export class CoreOpenedProject extends OpenedProject {
     }
   }
 
+  private async setComponent({ componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
+    await this.executeUpdate(() => {
+      throw new Error('TODO');
+    });
+  }
+
   private async moveComponent({ componentId, x, y }: MoveComponentCoreProjectCall) {
     await this.executeUpdate(() => {
       const component = this.model.getComponent(componentId);
@@ -198,13 +209,15 @@ export class CoreOpenedProject extends OpenedProject {
 
   private async renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
+      this.model.renameComponent(componentId, newId);
+      this.notifyAllRenameComponent(componentId, newId);
     });
   }
 
   private async clearComponent({ componentId}: ClearComponentCoreProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
+      this.model.clearComponent(componentId);
+      this.notifyAllClearComponent(componentId);
     });
   }
 
@@ -216,7 +229,8 @@ export class CoreOpenedProject extends OpenedProject {
 
   private async clearBinding({ bindingId }: ClearBindingCoreProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
+      this.model.clearBinding(bindingId);
+      this.notifyAllClearBinding(bindingId);
     });
   }
 }
@@ -288,6 +302,49 @@ class Model {
   getComponent(id: string) {
     return this.components.get(id);
   }
+
+  setComponent() {
+    throw new Error('TODO');
+  }
+
+  renameComponent(id: string, newId: string) {
+    const component = this.components.get(id);
+    if (this.components.get(newId)) {
+      throw new Error(`Component id already exists: '${newId}'`);
+    }
+
+    const plugin = component.plugin;
+    const instance = component.instance;
+
+    this.components.delete(component.id);
+    plugin.unregisterComponent(component.id);
+    instance.unregisterComponent(component.id);
+
+    component.rename(newId);
+
+    this.components.set(component.id, component);
+    plugin.registerComponent(component);
+    instance.registerComponent(component);
+  }
+
+  clearComponent(id: string) {
+    const component = this.components.get(id);
+
+    const plugin = component.plugin;
+    const instance = component.instance;
+
+    this.components.delete(component.id);
+    plugin.unregisterComponent(component.id);
+    instance.unregisterComponent(component.id);
+  }
+
+  setBinding() {
+    throw new Error('TODO');
+  }
+
+  clearBinding(id: string) {
+    throw new Error('TODO');
+  }
 }
 
 class InstanceModel {
@@ -299,9 +356,17 @@ class InstanceModel {
   registerPlugin(plugin: PluginModel) {
     this.plugins.set(plugin.id, plugin);
   }
+  
+  unregisterPlugin(id: string) {
+    this.plugins.delete(id);
+  }
 
   registerComponent(component: ComponentModel) {
     this.components.set(component.id, component);
+  }
+
+  unregisterComponent(id: string) {
+    this.components.delete(id);
   }
 
   get used() {
@@ -334,6 +399,10 @@ class PluginModel {
     this.components.set(component.id, component);
   }
 
+  unregisterComponent(id: string) {
+    this.components.delete(id);
+  }
+
   get used() {
     return this.components.size > 0;
   }
@@ -353,6 +422,10 @@ class ComponentModel {
 
   get id() {
     return this._id;
+  }
+
+  rename(newId: string) {
+    this._id = newId;
   }
 
   move(x: number, y: number) {
