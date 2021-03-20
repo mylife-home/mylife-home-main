@@ -1,16 +1,22 @@
 import { logger } from 'mylife-home-common';
 import {
+  ClearBindingCoreProjectCall,
+  ClearComponentCoreProjectCall,
   ClearCoreBindingNotification,
   ClearCoreComponentNotification,
   ClearCorePluginNotification,
+  ConfigureComponentCoreProjectCall,
   CoreBindingData,
   CoreComponentData,
   CorePluginData,
   CoreProject,
   CoreProjectCall,
   CoreToolboxDisplay,
+  MoveComponentCoreProjectCall,
   ProjectCallResult,
+  RenameComponentCoreProjectCall,
   RenameCoreComponentNotification,
+  SetBindingCoreProjectCall,
   SetCoreBindingNotification,
   SetCoreComponentNotification,
   SetCorePluginsNotification,
@@ -50,6 +56,30 @@ export class CoreOpenedProject extends OpenedProject {
     switch (callData.operation) {
       case 'update-toolbox':
         await this.updateToolbox(callData as UpdateToolboxCoreProjectCall);
+        break;
+
+      case 'move-component':
+        await this.moveComponent(callData as MoveComponentCoreProjectCall);
+        break;
+
+      case 'configure-component':
+        await this.configureComponent(callData as ConfigureComponentCoreProjectCall);
+        break;
+
+      case 'rename-component':
+        await this.renameComponent(callData as RenameComponentCoreProjectCall);
+        break;
+
+      case 'clear-component':
+        await this.clearComponent(callData as ClearComponentCoreProjectCall);
+        break;
+
+      case 'set-binding':
+        await this.setBinding(callData as SetBindingCoreProjectCall);
+        break;
+
+      case 'clear-binding':
+        await this.clearBinding(callData as ClearBindingCoreProjectCall);
         break;
 
       default:
@@ -149,6 +179,46 @@ export class CoreOpenedProject extends OpenedProject {
         throw new Error(`Unknown action: '${action}'`);
     }
   }
+
+  private async moveComponent({ componentId, x, y }: MoveComponentCoreProjectCall) {
+    await this.executeUpdate(() => {
+      const component = this.model.getComponent(componentId);
+      component.move(x, y);
+      this.notifyAllSetComponent(component.id);
+    });
+  }
+
+  private async configureComponent({ componentId, configId, configValue }: ConfigureComponentCoreProjectCall) {
+    await this.executeUpdate(() => {
+      const component = this.model.getComponent(componentId);
+      component.configure(configId, configValue);
+      this.notifyAllSetComponent(component.id);
+    });
+  }
+
+  private async renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
+    await this.executeUpdate(() => {
+      throw new Error('TODO');
+    });
+  }
+
+  private async clearComponent({ componentId}: ClearComponentCoreProjectCall) {
+    await this.executeUpdate(() => {
+      throw new Error('TODO');
+    });
+  }
+
+  private async setBinding({ binding }: SetBindingCoreProjectCall) {
+    await this.executeUpdate(() => {
+      throw new Error('TODO');
+    });
+  }
+
+  private async clearBinding({ bindingId }: ClearBindingCoreProjectCall) {
+    await this.executeUpdate(() => {
+      throw new Error('TODO');
+    });
+  }
 }
 
 class Model {
@@ -213,6 +283,10 @@ class Model {
 
   getPlugin(id: string) {
     return this.plugins.get(id);
+  }
+
+  getComponent(id: string) {
+    return this.components.get(id);
   }
 }
 
@@ -279,6 +353,15 @@ class ComponentModel {
 
   get id() {
     return this._id;
+  }
+
+  move(x: number, y: number) {
+    this.data.position = { x, y};
+  }
+
+  configure(configId: string, configValue: any) {
+    // TODO: validate
+    this.data.config[configId] = configValue;
   }
 }
 
