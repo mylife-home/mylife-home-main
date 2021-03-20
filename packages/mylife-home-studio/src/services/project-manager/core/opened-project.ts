@@ -1,5 +1,7 @@
 import { logger } from 'mylife-home-common';
 import {
+  ClearCoreBindingNotification,
+  ClearCoreComponentNotification,
   ClearCorePluginNotification,
   CoreBindingData,
   CoreComponentData,
@@ -8,6 +10,7 @@ import {
   CoreProjectCall,
   CoreToolboxDisplay,
   ProjectCallResult,
+  RenameCoreComponentNotification,
   SetCoreBindingNotification,
   SetCoreComponentNotification,
   SetCorePluginsNotification,
@@ -61,12 +64,36 @@ export class CoreOpenedProject extends OpenedProject {
     await this.owner.update(this.name, updater);
   }
 
+  private notifyAllSetPlugins() {
+    this.notifyAll<SetCorePluginsNotification>({ operation: 'set-core-plugins', plugins: this.project.plugins });
+  }
+
   private notifyAllSetPluginDisplay(id: string, display: CoreToolboxDisplay) {
     this.notifyAll<SetCorePluginToolboxDisplayNotification>({ operation: 'set-core-plugin-toolbox-display', id, display });
   }
 
   private notifyAllClearPlugin(id: string) {
     this.notifyAll<ClearCorePluginNotification>({ operation: 'clear-core-plugin', id });
+  }
+  
+  private notifyAllSetComponent(id: string) {
+    this.notifyAll<SetCoreComponentNotification>({ operation: 'set-core-component', id, component: this.project.components[id] });
+  }
+
+  private notifyAllClearComponent(id: string) {
+    this.notifyAll<ClearCoreComponentNotification>({ operation: 'clear-core-component', id });
+  }
+
+  private notifyAllRenameComponent(id: string, newId: string) {
+    this.notifyAll<RenameCoreComponentNotification>({ operation: 'rename-core-component', id, newId });
+  }
+  
+  private notifyAllSetBinding(id: string) {
+    this.notifyAll<SetCoreBindingNotification>({ operation: 'set-core-binding', id, binding: this.project.bindings[id] });
+  }
+
+  private notifyAllClearBinding(id: string) {
+    this.notifyAll<ClearCoreBindingNotification>({ operation: 'clear-core-binding', id });
   }
 
   private async updateToolbox({ itemType, itemId, action }: UpdateToolboxCoreProjectCall) {
