@@ -112,7 +112,6 @@ car que sensor vers ui
 
 ## studio
 - core designer:
-  - toolbox
   - update server
   - storage -> support updates from fs (on git ops)
   - deploy
