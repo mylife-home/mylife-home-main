@@ -55,14 +55,14 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
         <Title text={component.id} />
 
         <BorderGroup yIndex={yIndex.peek()}>
-          {configItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} split='middle' />
-          ))}
+          <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} primaryItalic />
+          <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
         </BorderGroup>
 
         <BorderGroup yIndex={yIndex.peek()}>
-          <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} primaryItalic />
-          <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
+          {configItems.map((item, index) => (
+            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} split='middle' />
+          ))}
         </BorderGroup>
 
         <BorderGroup yIndex={yIndex.peek()}>
