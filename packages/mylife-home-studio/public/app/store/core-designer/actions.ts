@@ -9,7 +9,7 @@ export const updateProject = createAction<{ id: string; update: UpdateProjectNot
 
 export const setComponent = createAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
 // TODO: debounce
-export const moveComponent = createAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);
+export const moveComponent = createAsyncAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);
 export const configureComponent = createAsyncAction<{ id: string; componentId: string; configId: string; configValue: any }>(ActionTypes.CONFIGURE_COMPONENT);
 export const renameComponent = createAsyncAction<{ id: string; componentId: string; newId: string }>(ActionTypes.RENAME_COMPONENT);
 export const clearComponent = createAsyncAction<{ id: string; componentId: string; }>(ActionTypes.CLEAR_COMPONENT);

@@ -1,7 +1,5 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { useTabPanelId } from '../../../lib/tab-panel';
 import { parseType } from '../../../lib/member-types';
 import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
@@ -10,13 +8,10 @@ import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
 import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect } from '../../drawing/shapes';
-import { useSafeSelector } from '../../drawing/use-safe-selector';
+import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
 
-import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin } from '../../../../store/core-designer/selectors';
-import { moveComponent } from '../../../../store/core-designer/actions';
 
 export interface ComponentProps {
   componentId: string;
@@ -24,7 +19,7 @@ export interface ComponentProps {
 
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const theme = useCanvasTheme();
-  const { component, plugin, moveComponent } = useConnect(componentId);
+  const { component, plugin, move, moveEnd } = useMovableComponent(componentId);
   const rect = computeComponentRect(theme, component, plugin);
   const { select } = useComponentSelection(componentId);
 
@@ -33,7 +28,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
     y: lockBetween(snapToGrid(pos.y, GRID_STEP_SIZE), LAYER_SIZE - rect.height),
   }), [theme, rect.height, rect.width]);
 
-  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => moveComponent({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [moveComponent, GRID_STEP_SIZE]);
+  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => move({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [move, GRID_STEP_SIZE]);
 
   const stateItems = useMemo(() => buildMembers(plugin, plugin.stateIds), [plugin]);
   const actionItems = useMemo(() => buildMembers(plugin, plugin.actionIds), [plugin]);
@@ -48,6 +43,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       draggable
       dragBoundFunc={dragBoundHandler}
       onDragMove={dragMoveHandler}
+      onDragEnd={moveEnd}
     >
       <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
@@ -90,23 +86,6 @@ function createIndexManager() {
   return { 
     next: ()  => ++index, 
     peek: () =>  index + 1
-  };
-}
-
-function useConnect(componentId: string) {
-  const tabId = useTabPanelId();
-  const dispatch = useDispatch();
-  const component = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
-  const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
-
-  return {
-    component, 
-    plugin, 
-
-    moveComponent: useCallback(
-      (position: types.Position) => dispatch(moveComponent({ id: tabId, componentId, position })),
-      [dispatch, tabId, componentId]
-    )
   };
 }
 
