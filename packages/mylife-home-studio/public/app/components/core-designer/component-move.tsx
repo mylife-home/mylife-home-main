@@ -48,7 +48,7 @@ export function useMovableComponent(componentId: string) {
 
   const component = useMemo(() => {
     const { componentId, position } = context;
-    if (componentId !== storeComponent.id || !position) {
+    if (!storeComponent || componentId !== storeComponent.id || !position) {
       return storeComponent;
     }
 
@@ -58,7 +58,7 @@ export function useMovableComponent(componentId: string) {
   const move = useCallback(
     (position: types.Position) => {
       if (componentId !== context.componentId) {
-        console.error(`Trying to moveEnd unselected component '${componentId}', ignored`);
+        console.error(`Trying to move unselected component '${componentId}', ignored`);
         return;
       }
 
@@ -71,6 +71,11 @@ export function useMovableComponent(componentId: string) {
     () => {
       if (componentId !== context.componentId) {
         console.error(`Trying to moveEnd unselected component '${componentId}', ignored`);
+        return;
+      }
+
+      if (!context.position) {
+        console.error(`Trying to moveEnd component '${componentId}' with no position defined, ignored`);
         return;
       }
 
