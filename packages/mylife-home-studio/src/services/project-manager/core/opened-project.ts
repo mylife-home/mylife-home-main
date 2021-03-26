@@ -24,7 +24,7 @@ import {
   SetCorePluginToolboxDisplayNotification,
   UpdateToolboxCoreProjectCall,
 } from '../../../../shared/project-manager';
-import { ConfigType } from '../../../../shared/component-model';
+import { ConfigType, MemberType } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
@@ -259,9 +259,10 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private async setBinding({ binding }: SetBindingCoreProjectCall) {
+  private async setBinding({ binding: bindingData }: SetBindingCoreProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
+      const binding = this.model.setBinding(bindingData);
+      this.notifyAllSetBinding(binding.id);
     });
   }
 
@@ -447,11 +448,31 @@ class Model {
     instance.unregisterComponent(component.id);
   }
 
+  hasBinding(id: string) {
+    return !!this.bindings.get(id);
+  }
+
   setBinding(bindingData: CoreBindingData) {
+    const sourceComponent = this.getComponent(bindingData.sourceComponent);
+    const targetComponent = this.getComponent(bindingData.targetComponent);
+
+    if (sourceComponent === targetComponent) {
+      throw new Error('Cannot create binding on self');
+    }
+
+    const sourceType = sourceComponent.plugin.getMemberType(bindingData.sourceState, MemberType.STATE);
+    const targetType = targetComponent.plugin.getMemberType(bindingData.targetAction, MemberType.ACTION);
+    if (sourceType !== targetType) {
+      throw new Error(`Cannot create binding from '${sourceType}' to '${targetType}'`);
+    }
+
+    const candidateId = BindingModel.makeId(bindingData);
+    if (this.hasBinding(candidateId)) {
+      throw new Error(`Binding id already exists: '${candidateId}'`);
+    }
+
     const binding = this.registerBinding(bindingData);
-
     this.data.bindings[binding.id] = binding.data;
-
     return binding;
   }
 
@@ -540,6 +561,15 @@ class PluginModel {
 
   get used() {
     return this.components.size > 0;
+  }
+
+  getMemberType(name: string, type: MemberType) {
+    const member = this.data.members[name];
+    if (!member || member.memberType !== type) {
+      throw new Error(`Member '${name}' of type '${type}' does not exist on plugin '${this.id}'`);
+    }
+
+    return member.valueType;
   }
 
   updateDisplay(wantedDisplay: CoreToolboxDisplay) {
@@ -689,10 +719,14 @@ class BindingModel {
     this.rebuild();
   }
 
+  static makeId(data: CoreBindingData) {
+    return `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;;
+  }
+
   rebuild() {
     this.data.sourceComponent = this.sourceComponent.id;
     this.data.targetComponent = this.targetComponent.id;
-    this._id = `${this.data.sourceComponent}:${this.data.sourceState}:${this.data.targetComponent}:${this.data.targetAction}`;
+    this._id = BindingModel.makeId(this.data);
   }
 
   get id() {
@@ -706,4 +740,5 @@ class BindingModel {
   get targetAction() {
     return this.data.targetAction;
   }
+
 }
