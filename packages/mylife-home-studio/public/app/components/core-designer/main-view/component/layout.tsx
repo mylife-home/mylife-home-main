@@ -13,7 +13,7 @@ export const Title: FunctionComponent<{ text: string; }> = ({ text }) => {
   
   return (
     <>
-      <Typography x={theme.component.paddingLeft } y={0} width={width} height={height} text={text} bold />
+      <Typography x={theme.component.paddingLeft} y={0} width={width} height={height} text={text} bold />
       <Border x={0} y={0} width={width} height={height} color={theme.borderColor} type='inner' />
     </>
   );
