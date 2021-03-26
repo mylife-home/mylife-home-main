@@ -228,13 +228,32 @@ export class CoreOpenedProject extends OpenedProject {
 
   private async renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
     await this.executeUpdate(() => {
+      const component = this.model.getComponent(componentId);
+      // Ids will be updated while renaming, need to get them before
+      const bindingIds = Array.from(component.getAllBindingsIds());
+
       this.model.renameComponent(componentId, newId);
+
+      for (const bindingId of bindingIds) {
+        this.notifyAllClearBinding(bindingId);
+      }
+
       this.notifyAllRenameComponent(componentId, newId);
+
+      for (const binding of component.getAllBindings()) {
+        this.notifyAllSetBinding(binding.id);
+      }
     });
   }
 
   private async clearComponent({ componentId }: ClearComponentCoreProjectCall) {
     await this.executeUpdate(() => {
+      const component = this.model.getComponent(componentId);
+      for (const binding of component.getAllBindings()) {
+        this.model.clearBinding(binding.id);
+        this.notifyAllClearBinding(binding.id);
+      }
+
       this.model.clearComponent(componentId);
       this.notifyAllClearComponent(componentId);
     });
@@ -365,8 +384,12 @@ class Model {
     return component;
   }
 
+  hasComponent(id: string) {
+    return !!this.components.get(id);
+  }
+
   setComponent(componentId: string, pluginId: string, x: number, y: number) {
-    if (this.components.get(componentId)) {
+    if (this.hasComponent(componentId)) {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
@@ -386,11 +409,11 @@ class Model {
   }
 
   renameComponent(id: string, newId: string) {
-    const component = this.components.get(id);
-    if (this.components.get(newId)) {
+    if (this.hasComponent(newId)) {
       throw new Error(`Component id already exists: '${newId}'`);
     }
 
+    const component = this.components.get(id);
     const plugin = component.plugin;
     const instance = component.instance;
 
@@ -406,7 +429,11 @@ class Model {
     instance.registerComponent(component);
     this.data.components[component.id] = component.data;
 
-    // TODO: bindings
+    for (const binding of component.getAllBindings()) {
+      this.bindings.delete(binding.id);
+      binding.rebuild();
+      this.bindings.set(binding.id, binding);
+    }
   }
 
   clearComponent(id: string) {
@@ -549,6 +576,39 @@ class PluginModel {
 
     return template;
   }
+
+  validateConfigValue(configId: string, configValue: any) {
+    const item = this.data.config[configId];
+    if (!item) {
+      throw new Error(`Config '${configId}' does not exist on plugin '${this.id}'`);
+    }
+
+    switch (item.valueType) {
+      case ConfigType.STRING:
+        if (typeof configValue !== 'string') {
+          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a string but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.BOOL:
+        if (typeof configValue !== 'boolean') {
+          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a bool but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.INTEGER:
+        if (!Number.isInteger(configValue)) {
+          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be an integer but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.FLOAT:
+        if (typeof configValue !== 'number') {
+          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a float but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+    }
+  }
 }
 
 class ComponentModel {
@@ -570,7 +630,7 @@ class ComponentModel {
   }
 
   configure(configId: string, configValue: any) {
-    // TODO: validate
+    this.plugin.validateConfigValue(configId, configValue);
     this.data.config[configId] = configValue;
   }
 
@@ -592,21 +652,51 @@ class ComponentModel {
     }
   }
 
-  getBindingsFrom() {
-    return this.bindingsFrom;
+  *getBindingsFrom() {
+    for (const binding of this.bindingsFrom) {
+      yield binding;
+    }
   }
 
-  getBindingsTo() {
-    return this.bindingsTo;
+  *getBindingsTo() {
+    for (const binding of this.bindingsTo) {
+      yield binding;
+    }
+  }
+
+  *getAllBindings() {
+    for (const binding of this.bindingsFrom) {
+      yield binding;
+    }
+
+    for (const binding of this.bindingsTo) {
+      yield binding;
+    }
+  }
+
+  *getAllBindingsIds() {
+    for (const binding of this.getAllBindings()) {
+      yield binding.id;
+    }
   }
 }
 
 // Note: bindings have no update, then can only be created or deleted
 class BindingModel {
-  public readonly id: string;
+  private _id: string;
 
   constructor(public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
-    this.id = `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;
+    this.rebuild();
+  }
+
+  rebuild() {
+    this.data.sourceComponent = this.sourceComponent.id;
+    this.data.targetComponent = this.targetComponent.id;
+    this._id = `${this.data.sourceComponent}:${this.data.sourceState}:${this.data.targetComponent}:${this.data.targetAction}`;
+  }
+
+  get id() {
+    return this._id;
   }
 
   get sourceState() {
