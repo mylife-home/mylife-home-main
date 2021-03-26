@@ -110,7 +110,7 @@ export class CoreOpenedProject extends OpenedProject {
   private notifyAllClearPlugin(id: string) {
     this.notifyAll<ClearCorePluginNotification>({ operation: 'clear-core-plugin', id });
   }
-  
+
   private notifyAllSetComponent(id: string) {
     this.notifyAll<SetCoreComponentNotification>({ operation: 'set-core-component', id, component: this.project.components[id] });
   }
@@ -122,7 +122,7 @@ export class CoreOpenedProject extends OpenedProject {
   private notifyAllRenameComponent(id: string, newId: string) {
     this.notifyAll<RenameCoreComponentNotification>({ operation: 'rename-core-component', id, newId });
   }
-  
+
   private notifyAllSetBinding(id: string) {
     this.notifyAll<SetCoreBindingNotification>({ operation: 'set-core-binding', id, binding: this.project.bindings[id] });
   }
@@ -152,15 +152,24 @@ export class CoreOpenedProject extends OpenedProject {
     const instance = this.model.getInstance(id);
     switch (action) {
       case 'show':
-      case 'hide':
+      case 'hide': {
         const pluginIds = instance.updateAllPluginsDisplay(action);
         for (const pluginId of pluginIds) {
           this.notifyAllSetPluginDisplay(pluginId, action);
         }
-        break;
 
-      case 'delete':
-        throw new Error('TODO');
+        break;
+      }
+
+      case 'delete': {
+        const pluginIds = instance.getAllUnusedPluginIds();
+        for (const pluginId of pluginIds) {
+          this.model.deletePlugin(pluginId);
+          this.notifyAllClearPlugin(pluginId);
+        }
+
+        break;
+      }
 
       default:
         throw new Error(`Unknown action: '${action}'`);
@@ -175,10 +184,18 @@ export class CoreOpenedProject extends OpenedProject {
         if (plugin.updateDisplay(action)) {
           this.notifyAllSetPluginDisplay(plugin.id, action);
         }
+
         break;
 
       case 'delete':
-        throw new Error('TODO');
+        if (plugin.used) {
+          throw new Error(`Impossible de supprimer le plugin '${plugin.id}' car il est utilisé`);
+        }
+
+        this.model.deletePlugin(plugin.id);
+        this.notifyAllClearPlugin(plugin.id);
+
+        break;
 
       default:
         throw new Error(`Unknown action: '${action}'`);
@@ -214,7 +231,7 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private async clearComponent({ componentId}: ClearComponentCoreProjectCall) {
+  private async clearComponent({ componentId }: ClearComponentCoreProjectCall) {
     await this.executeUpdate(() => {
       this.model.clearComponent(componentId);
       this.notifyAllClearComponent(componentId);
@@ -275,6 +292,19 @@ class Model {
 
     this.plugins.set(plugin.id, plugin);
     instance.registerPlugin(plugin);
+  }
+
+  deletePlugin(id: string) {
+    const plugin = this.getPlugin(id);
+    this.plugins.delete(id);
+
+    delete this.data.plugins[id];
+
+    const { instance } = plugin;
+    instance.unregisterPlugin(id);
+    if (!instance.hasPlugins) {
+      this.instances.delete(instance.instanceName);
+    }
   }
 
   private registerComponent(id: string, componentData: CoreComponentData) {
@@ -351,12 +381,12 @@ class InstanceModel {
   public readonly components = new Map<string, ComponentModel>();
   public readonly plugins = new Map<string, PluginModel>();
 
-  constructor(public readonly instanceName: string) {}
+  constructor(public readonly instanceName: string) { }
 
   registerPlugin(plugin: PluginModel) {
     this.plugins.set(plugin.id, plugin);
   }
-  
+
   unregisterPlugin(id: string) {
     this.plugins.delete(id);
   }
@@ -369,8 +399,12 @@ class InstanceModel {
     this.components.delete(id);
   }
 
-  get used() {
+  get hasComponents() {
     return this.components.size > 0;
+  }
+
+  get hasPlugins() {
+    return this.plugins.size > 0;
   }
 
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
@@ -384,12 +418,24 @@ class InstanceModel {
 
     return pluginIds;
   }
+
+  getAllUnusedPluginIds() {
+    const pluginIds = [];
+
+    for (const plugin of this.plugins.values()) {
+      if (!plugin.used) {
+        pluginIds.push(plugin.id);
+      }
+    }
+
+    return pluginIds;
+  }
 }
 
 class PluginModel {
   public readonly components = new Map<string, ComponentModel>();
 
-  constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) {}
+  constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) { }
 
   get id() {
     return this._id;
@@ -418,7 +464,7 @@ class PluginModel {
 }
 
 class ComponentModel {
-  constructor(public readonly instance: InstanceModel, public readonly plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) {}
+  constructor(public readonly instance: InstanceModel, public readonly plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) { }
 
   get id() {
     return this._id;
@@ -429,7 +475,7 @@ class ComponentModel {
   }
 
   move(x: number, y: number) {
-    this.data.position = { x, y};
+    this.data.position = { x, y };
   }
 
   configure(configId: string, configValue: any) {
@@ -438,4 +484,4 @@ class ComponentModel {
   }
 }
 
-class BindingModel {}
+class BindingModel { }
