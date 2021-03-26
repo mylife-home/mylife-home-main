@@ -349,12 +349,14 @@ class Model {
     this.components.delete(component.id);
     plugin.unregisterComponent(component.id);
     instance.unregisterComponent(component.id);
+    delete this.data.components[component.id];
 
     component.rename(newId);
 
     this.components.set(component.id, component);
     plugin.registerComponent(component);
     instance.registerComponent(component);
+    this.data.components[component.id] = component.data;
   }
 
   clearComponent(id: string) {
@@ -484,4 +486,6 @@ class ComponentModel {
   }
 }
 
-class BindingModel { }
+class BindingModel {
+  constructor(private _id: string, public readonly data: CoreComponentData) { }
+}
