@@ -24,6 +24,7 @@ import {
   SetCorePluginToolboxDisplayNotification,
   UpdateToolboxCoreProjectCall,
 } from '../../../../shared/project-manager';
+import { ConfigType } from '../../../../shared/component-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
@@ -204,7 +205,8 @@ export class CoreOpenedProject extends OpenedProject {
 
   private async setComponent({ componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
     await this.executeUpdate(() => {
-      throw new Error('TODO');
+      const component = this.model.setComponent(componentId, pluginId, x, y);
+      this.notifyAllSetComponent(component.id);
     });
   }
 
@@ -256,6 +258,7 @@ class Model {
   private readonly instances = new Map<string, InstanceModel>();
   private readonly plugins = new Map<string, PluginModel>();
   private readonly components = new Map<string, ComponentModel>();
+  private readonly bindings = new Map<string, BindingModel>();
 
   constructor(public readonly data: CoreProject) {
     for (const [id, pluginData] of Object.entries(data.plugins)) {
@@ -271,7 +274,11 @@ class Model {
     }
 
     for (const [id, bindingData] of Object.entries(data.bindings)) {
-      this.registerBinding(id, bindingData);
+      const binding = this.registerBinding(bindingData);
+
+      if (binding.id !== id) {
+        log.error(`Binding id mismatch: '${binding.id}' != '${id}'`);
+      }
     }
   }
 
@@ -315,26 +322,67 @@ class Model {
     this.components.set(component.id, component);
     plugin.registerComponent(component);
     instance.registerComponent(component);
+
+    return component;
   }
 
-  private registerBinding(id: string, bindingData: CoreBindingData) {
-    // TODO
+  private registerBinding(bindingData: CoreBindingData) {
+    const sourceComponent = this.getComponent(bindingData.sourceComponent);
+    const targetComponent = this.getComponent(bindingData.targetComponent);
+    const binding = new BindingModel(bindingData, sourceComponent, targetComponent);
+
+    this.bindings.set(binding.id, binding);
+    sourceComponent.registerBinding(binding);
+    targetComponent.registerBinding(binding);
+
+    return binding;
   }
 
   getInstance(instanceName: string) {
-    return this.instances.get(instanceName);
+    const instance = this.instances.get(instanceName);
+    if (!instance) {
+      throw new Error(`Instance '${instanceName}' does not exist`);
+    }
+
+    return instance;
   }
 
   getPlugin(id: string) {
-    return this.plugins.get(id);
+    const plugin = this.plugins.get(id);
+    if (!plugin) {
+      throw new Error(`Instance '${id}' does not exist`);
+    }
+
+    return plugin;
   }
 
   getComponent(id: string) {
-    return this.components.get(id);
+    const component = this.components.get(id);
+    if (!component) {
+      throw new Error(`Instance '${id}' does not exist`);
+    }
+
+    return component;
   }
 
-  setComponent() {
-    throw new Error('TODO');
+  setComponent(componentId: string, pluginId: string, x: number, y: number) {
+    if (this.components.get(componentId)) {
+      throw new Error(`Component id already exists: '${componentId}'`);
+    }
+
+    const plugin = this.getPlugin(pluginId);
+
+    const componentData: CoreComponentData = {
+      plugin: pluginId,
+      position: { x, y },
+      config: plugin.createConfigTemplate(),
+      external: false,
+    };
+
+    const component = this.registerComponent(componentId, componentData);
+    this.data.components[component.id] = component.data;
+
+    return component;
   }
 
   renameComponent(id: string, newId: string) {
@@ -357,6 +405,8 @@ class Model {
     plugin.registerComponent(component);
     instance.registerComponent(component);
     this.data.components[component.id] = component.data;
+
+    // TODO: bindings
   }
 
   clearComponent(id: string) {
@@ -370,12 +420,22 @@ class Model {
     instance.unregisterComponent(component.id);
   }
 
-  setBinding() {
-    throw new Error('TODO');
+  setBinding(bindingData: CoreBindingData) {
+    const binding = this.registerBinding(bindingData);
+
+    this.data.bindings[binding.id] = binding.data;
+
+    return binding;
   }
 
   clearBinding(id: string) {
-    throw new Error('TODO');
+    const binding = this.bindings.get(id);
+
+    this.bindings.delete(binding.id);
+    binding.sourceComponent.unregisterBinding(binding);
+    binding.targetComponent.unregisterBinding(binding);
+
+    delete this.data.bindings[binding.id];
   }
 }
 
@@ -463,9 +523,38 @@ class PluginModel {
     this.data.toolboxDisplay = wantedDisplay;
     return true;
   }
+
+  createConfigTemplate() {
+    const template: { [name: string]: any; } = {};
+
+    for (const [name, { valueType }] of Object.entries(this.data.config)) {
+      switch (valueType) {
+        case ConfigType.STRING:
+          template[name] = '';
+          break;
+
+        case ConfigType.BOOL:
+          template[name] = false;
+          break;
+
+        case ConfigType.INTEGER:
+        case ConfigType.FLOAT:
+          template[name] = 0;
+          break;
+
+        default:
+          throw new Error(`Unsupported config type: '${valueType}'`);
+      }
+    }
+
+    return template;
+  }
 }
 
 class ComponentModel {
+  private bindingsFrom = new Set<BindingModel>();
+  private bindingsTo = new Set<BindingModel>();
+
   constructor(public readonly instance: InstanceModel, public readonly plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) { }
 
   get id() {
@@ -484,8 +573,47 @@ class ComponentModel {
     // TODO: validate
     this.data.config[configId] = configValue;
   }
+
+  registerBinding(binding: BindingModel) {
+    if (binding.sourceComponent === this) {
+      this.bindingsFrom.add(binding);
+    }
+    if (binding.targetComponent === this) {
+      this.bindingsTo.add(binding);
+    }
+  }
+
+  unregisterBinding(binding: BindingModel) {
+    if (binding.sourceComponent === this) {
+      this.bindingsFrom.delete(binding);
+    }
+    if (binding.targetComponent === this) {
+      this.bindingsTo.delete(binding);
+    }
+  }
+
+  getBindingsFrom() {
+    return this.bindingsFrom;
+  }
+
+  getBindingsTo() {
+    return this.bindingsTo;
+  }
 }
 
+// Note: bindings have no update, then can only be created or deleted
 class BindingModel {
-  constructor(private _id: string, public readonly data: CoreComponentData) { }
+  public readonly id: string;
+
+  constructor(public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
+    this.id = `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;
+  }
+
+  get sourceState() {
+    return this.data.sourceState;
+  }
+
+  get targetAction() {
+    return this.data.targetAction;
+  }
 }
