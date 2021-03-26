@@ -7,10 +7,11 @@ import { GRID_STEP_SIZE } from '../drawing/defs';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
 import { useSafeSelector } from '../drawing/use-safe-selector';
+import { useMovableComponent } from '../component-move';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
+import { getBinding } from '../../../store/core-designer/selectors';
 
 export interface BindingProps {
   bindingId: string;
@@ -62,9 +63,7 @@ function useAnchors(binding: types.Binding, sourceComponent: types.Component, so
 function useConnect(bindingId: string) {
   const tabId = useTabPanelId();
   const binding = useSafeSelector((state: AppState) => getBinding(state, tabId, bindingId));
-  const sourceComponent = useSafeSelector((state: AppState) => getComponent(state, tabId, binding.sourceComponent));
-  const targetComponent = useSafeSelector((state: AppState) => getComponent(state, tabId, binding.targetComponent));
-  const sourcePlugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin));
-  const targetPlugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, targetComponent.plugin));
+  const { component: sourceComponent, plugin: sourcePlugin } = useMovableComponent(binding.sourceComponent);
+  const { component: targetComponent, plugin: targetPlugin } = useMovableComponent(binding.targetComponent);
   return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin };
 }
