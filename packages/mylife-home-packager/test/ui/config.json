@@ -8,5 +8,8 @@
   "web": {
     "port": 8001,
     "staticDirectory": "./static"
+  },
+  "model": {
+    "storePath": "/tmp/store.json"
   }
 }

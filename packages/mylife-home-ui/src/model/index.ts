@@ -1,11 +1,12 @@
+import fs from 'fs';
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
-import { logger } from 'mylife-home-common';
+import { logger, tools } from 'mylife-home-common';
 import { Model, Control, Window } from '../../shared/model';
 import { Definition, DefinitionResource } from './definition';
 
 export * as model from '../../shared/model';
-export  { Definition, DefinitionResource };
+export { Definition, DefinitionResource };
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
 
@@ -19,6 +20,40 @@ export interface RequiredComponentState {
   readonly componentState: string;
 }
 
+interface ModelConfig {
+  storePath: string;
+}
+
+const DEFAULT_DEFINITION: Definition = {
+  resources: [],
+  windows: [{
+    id: 'default-window',
+    style: null,
+    width: 100,
+    height: 300,
+    backgroundResource: null,
+    controls: [{
+      id: 'default-control',
+      style: null,
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 300,
+      display: null,
+      text: {
+        format: 'No definition has been set',
+        context: []
+      },
+      primaryAction: null,
+      secondaryAction: null,
+    }]
+  }],
+  defaultWindow: {
+    desktop: 'default-window',
+    mobile: 'default-window',
+  }
+};
+
 export declare interface ModelManager extends EventEmitter {
   on(event: 'update', listener: () => void): this;
   off(event: 'update', listener: () => void): this;
@@ -29,9 +64,19 @@ export class ModelManager extends EventEmitter {
   private _modelHash: string;
   private readonly resources = new Map<string, Resource>();
   private _requiredComponentStates: RequiredComponentState[];
+  private readonly config = tools.getConfigItem<ModelConfig>('model');
 
   constructor() {
     super();
+
+    if (fs.existsSync(this.config.storePath)) {
+      log.info(`Load model from store: '${this.config.storePath}'`);
+      const definition: Definition = JSON.parse(fs.readFileSync(this.config.storePath, 'utf8'));
+      this.setDefinition(definition);
+    } else {
+      log.info('Using default empty model');
+      this.setDefinition(DEFAULT_DEFINITION);
+    }
   }
 
   setDefinition(definition: Definition) {
@@ -56,8 +101,11 @@ export class ModelManager extends EventEmitter {
 
     this._requiredComponentStates = extractRequiredComponentStates(model);
 
-    log.info(`updated model : ${this._modelHash}`)
+    log.info(`Updated model : ${this._modelHash}`);
     this.emit('update');
+
+    log.info(`Save model from store: '${this.config.storePath}'`);
+    fs.writeFileSync(this.config.storePath, JSON.stringify(definition));
   }
 
   private setResource(mime: string, data: Buffer) {
