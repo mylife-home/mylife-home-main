@@ -101,10 +101,6 @@ car que sensor vers ui
 
 # TODO
 
-## ui
-- fix temp fixed numbers
-- bug: seems that range[0;100] display images are broken 
-
 ## core
  - store/mounted-fs
 
