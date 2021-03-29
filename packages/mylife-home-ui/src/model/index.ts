@@ -29,19 +29,19 @@ const DEFAULT_DEFINITION: Definition = {
   windows: [{
     id: 'default-window',
     style: null,
-    width: 100,
-    height: 300,
+    width: 300,
+    height: 100,
     backgroundResource: null,
     controls: [{
       id: 'default-control',
       style: null,
       x: 0,
       y: 0,
-      width: 100,
-      height: 300,
+      width: 300,
+      height: 100,
       display: null,
       text: {
-        format: 'No definition has been set',
+        format: '"No definition has been set"',
         context: []
       },
       primaryAction: null,
