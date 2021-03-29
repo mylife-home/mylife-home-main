@@ -107,7 +107,7 @@ function convertDisplay(input: uiV1.Display): ControlDisplay {
 
     if (isMinMax) {
       item.min = inputItem.min || 0; // could be null in v1
-      item.max = inputItem.max || 100; // could be null in v1, existing UI plugins are only range[0;100]
+      item.max = inputItem.max || 0; // could be null in v1, existing UI plugins are only range[0;100]
     } else {
       // replace 'off' 'on' with true false
       switch (inputItem.value) {
