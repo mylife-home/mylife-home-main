@@ -103,8 +103,6 @@ car que sensor vers ui
 
 ## ui
 - fix temp fixed numbers
-- fix failure on ipad
-- model definition set api (logging) + model store
 - bug: seems that range[0;100] display images are broken 
 
 ## core
