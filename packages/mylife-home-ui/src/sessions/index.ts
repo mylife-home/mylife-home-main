@@ -23,6 +23,7 @@ export class SessionsManager {
     this.sessionsRegistry = new SessionsRegistryConnector(registry);
 
     this.model.on('update', this.onModelUpdate);
+    this.onModelUpdate();
   }
 
   private newSocket(socket: WebSocket, request: http.IncomingMessage) {

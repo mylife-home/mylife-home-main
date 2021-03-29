@@ -2,7 +2,6 @@ import { bus, components, instanceInfo } from 'mylife-home-common';
 import { WebServer } from '../web';
 import { SessionsManager } from '../sessions';
 import { Definition, ModelManager } from '../model';
-import { staticDefinition } from './static-definition';
 
 export class Manager {
   private readonly transport: bus.Transport;
@@ -17,8 +16,6 @@ export class Manager {
     this.model = new ModelManager();
     this.webServer = new WebServer(this.registry, this.model);
     this.sessionsManager = new SessionsManager(this.registry, this.model, this.webServer.httpServer);
-
-    this.model.setDefinition(staticDefinition);
   }
 
   async init() {
