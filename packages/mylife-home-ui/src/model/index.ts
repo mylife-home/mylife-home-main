@@ -41,7 +41,7 @@ const DEFAULT_DEFINITION: Definition = {
       height: 100,
       display: null,
       text: {
-        format: '\'No definition has been set\'',
+        format: `return 'No definition has been set';`,
         context: []
       },
       primaryAction: null,
