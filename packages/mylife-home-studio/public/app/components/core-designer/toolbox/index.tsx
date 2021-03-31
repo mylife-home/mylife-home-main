@@ -8,6 +8,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
@@ -23,6 +25,8 @@ const useStyles = makeStyles((theme) => ({
   },
   dragSource: {
     color: theme.palette.success.main,
+    cursor: 'copy',
+    margin: theme.spacing(-3), // balance ripple padding
   },
   indent1: {
     paddingLeft: theme.spacing(8),
@@ -141,9 +145,13 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
   const useClass = plugin.use === 'used' ? null : classes[plugin.use];
 
   return (
-    <ListItem button className={clsx(displayClass, useClass)}>
-      <ListItemIcon className={classes.dragSource}>
-        <ComponentIcon />
+    <ListItem className={clsx(displayClass, useClass)}>
+      <ListItemIcon>
+        <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
+          <IconButton disableRipple className={classes.dragSource}>
+            <ComponentIcon />
+          </IconButton>
+        </Tooltip>
       </ListItemIcon>
 
       <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
