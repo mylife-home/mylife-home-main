@@ -1,13 +1,24 @@
 import React, { FunctionComponent, useRef, useCallback, useLayoutEffect } from 'react';
 import useResizeObserver from '@react-hook/resize-observer';
+import { makeStyles } from '@material-ui/core/styles';
 
 import { Konva } from '../drawing/konva';
 import { useViewInfo } from '../drawing/view-info';
 import BaseCanvas from '../drawing/canvas';
 import { useZoom, usePosition } from '../drawing/viewport-manips';
+import { useDroppable } from '../component-creation-dnd';
+
+const useStyles = makeStyles((theme) => ({
+  container: {
+    height: '100%',
+    width: '100%',
+  }
+}), { name: 'main-view-canvas' });
 
 const Canvas: FunctionComponent = ({ children }) => {
+  const classes = useStyles();
   const stageRef = useRef<Konva.Stage>(null);
+  const ref = useDroppable(stageRef.current);
   const { viewInfo } = useViewInfo();
 
   useStageContainerSize(stageRef);
@@ -19,21 +30,23 @@ const Canvas: FunctionComponent = ({ children }) => {
   const { width, height } = viewInfo.container;
 
   return (
-    <BaseCanvas
-      ref={stageRef}
-      x={-x * scale}
-      y={-y * scale}
-      width={width}
-      height={height}
-      scaleX={scale}
-      scaleY={scale}
-      draggable
-      onWheel={wheelHandler}
-      onDragMove={dragMoveHander}
-    >
-      {children}
-    </BaseCanvas>
-    );
+    <div className={classes.container} ref={ref}>
+      <BaseCanvas
+        ref={stageRef}
+        x={-x * scale}
+        y={-y * scale}
+        width={width}
+        height={height}
+        scaleX={scale}
+        scaleY={scale}
+        draggable
+        onWheel={wheelHandler}
+        onDragMove={dragMoveHander}
+      >
+        {children}
+      </BaseCanvas>
+    </div>
+  );
 };
 
 export default Canvas;

@@ -15,8 +15,9 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { ComponentIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { useCreatable } from '../component-creation-dnd';
 import { getInstanceIds, getInstance, getPlugin } from '../../../store/core-designer/selectors';
-import { Plugin, CoreToolboxDisplay } from '../../../store/core-designer/types';
+import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
 
 const useStyles = makeStyles((theme) => ({
@@ -147,11 +148,7 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
   return (
     <ListItem className={clsx(displayClass, useClass)}>
       <ListItemIcon>
-        <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
-          <IconButton disableRipple className={classes.dragSource}>
-            <ComponentIcon />
-          </IconButton>
-        </Tooltip>
+        <DragButton id={id} />
       </ListItemIcon>
 
       <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
@@ -165,4 +162,19 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
 
 function pluginDisplay(plugin: Plugin) {
   return `${plugin.module}.${plugin.name}`;
+}
+
+const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
+  const onCreate = (position: Position) => console.log(position);
+  const { ref } = useCreatable(onCreate);
+
+  return (
+    <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
+      <IconButton disableRipple className={classes.dragSource} ref={ref}>
+        <ComponentIcon />
+      </IconButton>
+    </Tooltip>
+  );
 }

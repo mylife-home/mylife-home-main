@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     width: '100%',
   }
-}));
+}), { name: 'drawing-canvas' });
 
 const Canvas = forwardRef<Konva.Stage, StageProps>(({ children, className, ...props }, ref) => {
   const themeProps = useContext(CanvasThemeContext);
