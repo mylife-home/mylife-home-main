@@ -3,11 +3,11 @@ import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { parseType } from '../../../lib/member-types';
 import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
-import { GRID_STEP_SIZE, LAYER_SIZE } from '../../drawing/defs';
+import { GRID_STEP_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
 import CachedGroup from '../../drawing/cached-group';
-import { computeComponentRect } from '../../drawing/shapes';
+import { computeComponentRect, lockComponentPosition } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
 
@@ -23,11 +23,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const rect = computeComponentRect(theme, component, plugin);
   const { select } = useComponentSelection(componentId);
 
-  const dragBoundHandler = useCallback((pos: Point) => ({
-    x: lockBetween(snapToGrid(pos.x, GRID_STEP_SIZE), LAYER_SIZE - rect.width),
-    y: lockBetween(snapToGrid(pos.y, GRID_STEP_SIZE), LAYER_SIZE - rect.height),
-  }), [theme, rect.height, rect.width]);
-
+  const dragBoundHandler = useCallback((pos: Point) => lockComponentPosition(rect, pos), [rect]);
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => move({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [move, GRID_STEP_SIZE]);
 
   const stateItems = useMemo(() => buildMembers(plugin, plugin.stateIds), [plugin]);
@@ -87,22 +83,6 @@ function createIndexManager() {
     next: ()  => ++index, 
     peek: () =>  index + 1
   };
-}
-
-function snapToGrid(value: number, gridStep: number) {
-  return Math.round(value / gridStep) * gridStep;
-}
-
-function lockBetween(value: number, max: number) {
-  if (value < 0) {
-    return 0;
-  }
-
-  if (value > max) {
-    return max;
-  }
-  
-  return value;
 }
 
 function buildMembers(plugin: types.Plugin, ids: string[]) {

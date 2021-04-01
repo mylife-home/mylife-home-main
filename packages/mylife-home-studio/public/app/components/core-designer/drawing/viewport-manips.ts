@@ -82,3 +82,19 @@ function lockScale(value: number) {
 
   return value;
 }
+
+export function useCursorPositionConverter() {
+  const { viewInfo } = useViewInfo();
+  const { viewport } = viewInfo;
+
+  const convertCursorPosition = useCallback((pointer: Point) => {
+    const result: Point = {
+      x: pointer.x / viewport.scale + viewport.x,
+      y: pointer.y / viewport.scale + viewport.y,
+    };
+
+    return result;
+  }, [viewport.x, viewport.y, viewport.scale]);
+
+  return { convertCursorPosition };
+}

@@ -1,6 +1,6 @@
 import { CanvasTheme } from './theme';
 import { Rectangle, Point } from './types';
-import { GRID_STEP_SIZE } from './defs';
+import { GRID_STEP_SIZE, LAYER_SIZE } from './defs';
 
 import { Component, Plugin, Binding } from '../../../store/core-designer/types';
 
@@ -62,4 +62,29 @@ function computeDistance(a: Point, b: Point) {
   const y = a.y - b.y;
   
   return Math.sqrt(x * x + y * y);
+}
+
+export function lockComponentPosition(componentRect: Rectangle, position: Point) {
+  const result: Point = {
+    x: lockBetween(snapToGrid(position.x, GRID_STEP_SIZE), LAYER_SIZE - componentRect.width),
+    y: lockBetween(snapToGrid(position.y, GRID_STEP_SIZE), LAYER_SIZE - componentRect.height),
+  };
+
+  return result;
+}
+
+function snapToGrid(value: number, gridStep: number) {
+  return Math.round(value / gridStep) * gridStep;
+}
+
+function lockBetween(value: number, max: number) {
+  if (value < 0) {
+    return 0;
+  }
+
+  if (value > max) {
+    return max;
+  }
+  
+  return value;
 }

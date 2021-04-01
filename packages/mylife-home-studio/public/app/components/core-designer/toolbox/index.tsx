@@ -166,9 +166,8 @@ function pluginDisplay(plugin: Plugin) {
 
 const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
   const onCreate = (position: Position) => console.log(position);
-  const { ref } = useCreatable(onCreate);
+  const { ref } = useCreatable(id, onCreate);
 
   return (
     <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
