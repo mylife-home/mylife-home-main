@@ -1,5 +1,5 @@
 export class Deferred<T> {
-  public promise: Promise<T>;
+  public readonly promise: Promise<T>;
 
   private _resolve: (value: T) => void;
   private _reject: (reason: Error) => void;
