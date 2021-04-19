@@ -105,6 +105,7 @@ car que sensor vers ui
  - tablette devrait être sur desktop
  - BUG: tablette : problème de taille de viewport quand display mobile
  - BUG: quand on accède manuellement a mobile-rdc sur desktop ou desktop-rdc sur tablette et qu'on clique sur le lien d'un autre étage, on retourne dans le mode d'origine. Par contre au 2ieme clic c est OK.
+ - apres refresh du model ou autre, quand on accede a une vue inexistante ca bug. Ca devrait diriger vers la vue par défaut (mobile ou desktop)
 
 ## core
  - store/mounted-fs
@@ -116,17 +117,18 @@ car que sensor vers ui
   - Dnd pour créer composant -> https://konvajs.org/docs/sandbox/Drop_DOM_Element.html
   - Dnd pour créer binding -> https://github.com/konvajs/react-konva/issues/345 - https://codesandbox.io/s/vyw38lxw77
      -> while dragging, hilight possible drops
+  - suppression composant/renommage composant/duplication composant
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy
-     - online (one shot?)
+     - online (one shot comme ui mettre toute la conf a jour d un coup?)
      - as recipe files for direct config in image
-
 - ui designer
   - import components from core project
   - storage -> support updates from fs (on git ops)
 - deploy
   - storage -> support updates from fs (on git ops)
 - setup gitconvex
+- afficher branche git courante dans la status bar en bas
 
 # Notes
 
