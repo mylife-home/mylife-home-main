@@ -114,7 +114,6 @@ car que sensor vers ui
 - core designer:
   - storage -> support updates from fs (on git ops)
   - Server impl (tests)
-  - Dnd pour créer composant -> https://konvajs.org/docs/sandbox/Drop_DOM_Element.html
   - Dnd pour créer binding -> https://github.com/konvajs/react-konva/issues/345 - https://codesandbox.io/s/vyw38lxw77
      -> while dragging, hilight possible drops
   - suppression composant/renommage composant/duplication composant
