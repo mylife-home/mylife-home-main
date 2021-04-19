@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
@@ -15,10 +16,15 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { ComponentIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { useTabPanelId } from '../../lib/tab-panel';
+import { useFireAsync } from '../../lib/use-error-handling';
+import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
-import { getInstanceIds, getInstance, getPlugin } from '../../../store/core-designer/selectors';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
+import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
+import { useSelection } from '../selection';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -40,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
   external: {
     backgroundColor: fade(orange[300], 0.1),
-  }
+  },
 }));
 
 const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
@@ -74,7 +80,7 @@ const Hidden: FunctionComponent = ({ children }) => {
   return (
     <>
       <ListItem button onClick={handleClick}>
-      <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+        <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
         <ListItemText primary="Cachés" />
       </ListItem>
 
@@ -166,8 +172,8 @@ function pluginDisplay(plugin: Plugin) {
 
 const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const onCreate = (position: Position) => console.log(position);
-  const { ref } = useCreatable(id, onCreate);
+  const create = useCreate(id);
+  const { ref } = useCreatable(id, create);
 
   return (
     <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
@@ -175,5 +181,74 @@ const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
         <ComponentIcon />
       </IconButton>
     </Tooltip>
+  );
+};
+
+function useCreate(pluginId: string) {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const makeNewId = useMakeNewId();
+  const { select } = useSelection();
+  const fireAsync = useFireAsync();
+  const waitForComponentId = useWaitForComponentId();
+
+  return useCallback(
+    async (position: Position) =>
+      fireAsync(async () => {
+        const componentId = makeNewId();
+        await dispatch(setComponent({ id: tabId, componentId, pluginId, position }));
+        await waitForComponentId(componentId);
+        select({ type: 'component', id: componentId });
+      }),
+    [fireAsync, dispatch, tabId, pluginId, makeNewId]
+  );
+}
+
+function useMakeNewId() {
+  const componentIds = useTabSelector(getComponentIds);
+  const set = useMemo(() => new Set(componentIds), [componentIds]);
+
+  return useCallback(() => {
+    for (let i = 1; ; ++i) {
+      const candidate = `new_${i}`;
+      if (!set.has(candidate)) {
+        return candidate;
+      }
+    }
+  }, [set]);
+}
+
+/**
+ * Wait for a component id to be present in the store
+ */ 
+function useWaitForComponentId() {
+  const componentIds = useTabSelector(getComponentIds);
+  const set = useMemo(() => new Set(componentIds), [componentIds]);
+
+  const updateHandlerRef = useRef<(set: Set<string>) => void>(null);
+
+  useEffect(() => {
+    const updateHandler = updateHandlerRef.current;
+    if (updateHandler) {
+      updateHandler(set);
+    }
+  }, [set]);
+
+  return useCallback(
+    (componentId: string) => {
+      const deferred = new Deferred<void>();
+
+      const updateHandler = (set: Set<string>) => {
+        if (set.has(componentId)) {
+          updateHandlerRef.current = null;
+          deferred.resolve();
+        }
+      };
+
+      updateHandlerRef.current = updateHandler;
+
+      return deferred.promise;
+    },
+    [updateHandlerRef]
   );
 }
