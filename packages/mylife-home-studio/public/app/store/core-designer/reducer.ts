@@ -193,10 +193,19 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
 
     case 'rename-core-component': {
       const { id, newId } = update as RenameCoreComponentNotification;
-      const resource = openedProject.components.byId[id];
+      const component = openedProject.components.byId[id];
+      const plugin = openedProject.plugins.byId[component.plugin];
+
       tableRemove(openedProject.components, id);
-      resource.id = newId;
-      tableSet(openedProject.components, resource, true);
+      arrayRemove(plugin.components, component.id);
+
+      component.id = newId;
+
+      tableSet(openedProject.components, component, true);
+      arrayAdd(plugin.components, component.id, true);
+
+      updatePluginStats(openedProject, plugin);
+      updateInstanceStats(openedProject, plugin.instanceName);
       break;
     }
 
