@@ -116,7 +116,7 @@ car que sensor vers ui
   - Server impl (tests)
   - Dnd pour créer binding -> https://github.com/konvajs/react-konva/issues/345 - https://codesandbox.io/s/vyw38lxw77
      -> while dragging, hilight possible drops
-  - suppression composant/renommage composant/duplication composant
+  - renommage composant
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy
      - online (one shot comme ui mettre toute la conf a jour d un coup?)
