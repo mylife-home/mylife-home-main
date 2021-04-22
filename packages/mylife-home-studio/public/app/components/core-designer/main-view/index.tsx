@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
 import { Layer } from '../drawing/konva';
+import { BindingDndProvider } from './binding-dnd';
 import Canvas from './canvas';
 import Component from './component';
 import Binding from './binding';
@@ -18,21 +19,23 @@ const MainView: FunctionComponent = () => {
 
   return (
     <Canvas>
-      <Layer name='bindings'>
-        {bindingIds.map(id => (
-          <Binding key={id} bindingId={id} />
-        ))}
-      </Layer>
+      <BindingDndProvider onDrop={(source, mousePosition) => console.log(source, mousePosition)}>
+        <Layer name='bindings'>
+          {bindingIds.map(id => (
+            <Binding key={id} bindingId={id} />
+          ))}
+        </Layer>
 
-      <Layer name='components'>
-        {componentIds.map(id => (
-          <Component key={id} componentId={id} />  
-        ))}
+        <Layer name='components'>
+          {componentIds.map(id => (
+            <Component key={id} componentId={id} />  
+          ))}
 
-        {selection && selection.type === 'component' && (
-          <ComponentSelectionMark componentId={selection.id} />
-        )}
-      </Layer>
+          {selection && selection.type === 'component' && (
+            <ComponentSelectionMark componentId={selection.id} />
+          )}
+        </Layer>
+      </BindingDndProvider>
     </Canvas>
   );
 };

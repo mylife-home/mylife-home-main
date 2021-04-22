@@ -10,6 +10,7 @@ import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, lockComponentPosition } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
+import { DragEventType, useBindingDraggable } from '../binding-dnd';
 
 import * as types from '../../../../store/core-designer/types';
 
@@ -22,6 +23,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const { component, plugin, move, moveEnd } = useMovableComponent(componentId);
   const rect = computeComponentRect(theme, component, plugin);
   const { select } = useComponentSelection(componentId);
+  const onDrag = useBindingDraggable();
 
   const dragBoundHandler = useCallback((pos: Point) => lockComponentPosition(rect, pos), [rect]);
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => move({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [move, GRID_STEP_SIZE]);
@@ -31,6 +33,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
 
   const yIndex = createIndexManager();
+
+  const createDraggablePropertyHandler = (memberName: string) => (type: DragEventType, mousePosition: types.Position) => onDrag(type, mousePosition, { componentId, memberName });
 
   return (
     <Group
@@ -53,19 +57,19 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <BorderGroup yIndex={yIndex.peek()}>
           {configItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.primary} secondary={item.secondary} split='middle' />
+            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.id} secondary={item.secondary} split='middle' />
           ))}
         </BorderGroup>
 
         <BorderGroup yIndex={yIndex.peek()}>
           {stateItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='state' primary={item.primary} secondary={item.secondary} split='right' secondaryItalic />
+            <Property key={index} onDrag={createDraggablePropertyHandler(item.id)} yIndex={yIndex.next()} icon='state' primary={item.id} secondary={item.secondary} split='right' secondaryItalic />
           ))}
         </BorderGroup>
 
         <BorderGroup yIndex={yIndex.peek()}>
           {actionItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='action' primary={item.primary} secondary={item.secondary} split='right' secondaryItalic />
+            <Property key={index} onDrag={createDraggablePropertyHandler(item.id)} yIndex={yIndex.next()} icon='action' primary={item.id} secondary={item.secondary} split='right' secondaryItalic />
           ))}
         </BorderGroup>
 
@@ -86,14 +90,14 @@ function createIndexManager() {
 }
 
 function buildMembers(plugin: types.Plugin, ids: string[]) {
-  return ids.map(id => ({ primary: id, secondary: parseType(plugin.members[id].valueType).typeId}));
+  return ids.map(id => ({ id, secondary: parseType(plugin.members[id].valueType).typeId}));
 }
 
 function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
   return plugin.configIds.map(id => {
     const type = plugin.config[id].valueType;
     const value = config[id];
-    return { primary: id, secondary: renderConfigValue(type, value) };
+    return { id, secondary: renderConfigValue(type, value) };
   });
 }
 
