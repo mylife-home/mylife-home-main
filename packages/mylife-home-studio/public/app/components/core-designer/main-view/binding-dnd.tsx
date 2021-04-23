@@ -4,6 +4,10 @@ import * as types from '../../../store/core-designer/types';
 export interface BindingSource {
   componentId: string;
   memberName: string;
+
+  // Info below are not mandatory but this avoid multiple store accesses
+  memberType: types.MemberType;
+  valueType: string;
 };
 
 export interface BindingDnd {
