@@ -127,6 +127,7 @@ car que sensor vers ui
   - storage -> support updates from fs (on git ops)
 - setup gitconvex
 - afficher branche git courante dans la status bar en bas
+- BUG: pb avec renommage de fenetres sur projet UI, apres rechargement => projet non valide + apres renommage correctement, oblige de recharger la UI pour que le projet devienne valide ?!
 
 # Notes
 
