@@ -19,15 +19,6 @@
 
 ## studio
 
-### Ameliorations v3
-
- - ui-designer
-   - control cannot go outside of window (create, move, resize)
-   - on window resize, compute control position ratio + force then to be inside window if on borders
-   - on window resize window cannot be smaller that larger of its control
- - core-designer
-   - multi-select
-
 ### Archi
  - Keep:
    - Deploy (tâche pour faire image + livraison ssh)
@@ -70,6 +61,21 @@
 - action window only impact 'views' (so client only)
 - on server model change (update from studio), it resend static model hash
 
+# Ameliorations v3
+
+## studio
+
+ - ui-designer
+   - control cannot go outside of window (create, move, resize)
+   - on window resize, compute control position ratio + force then to be inside window if on borders
+   - on window resize window cannot be smaller that larger of its control
+ - core-designer
+   - multi-select
+
+## ui
+
+ - faire CSS à la main
+
 # Roadmap
 
 ## Livrer irc-bridge + ui:
@@ -106,6 +112,7 @@ car que sensor vers ui
  - BUG: tablette : problème de taille de viewport quand display mobile
  - BUG: quand on accède manuellement a mobile-rdc sur desktop ou desktop-rdc sur tablette et qu'on clique sur le lien d'un autre étage, on retourne dans le mode d'origine. Par contre au 2ieme clic c est OK.
  - apres refresh du model ou autre, quand on accede a une vue inexistante ca bug. Ca devrait diriger vers la vue par défaut (mobile ou desktop)
+
 
 ## core
  - store/mounted-fs
