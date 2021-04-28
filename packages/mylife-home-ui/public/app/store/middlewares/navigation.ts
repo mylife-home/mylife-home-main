@@ -8,12 +8,12 @@ export const navigationMiddleware: Middleware = (store) => (next) => {
     const { hash } = window.location;
     const viewId = hash && hash.substr(1);
     if (viewId) {
-      next(viewNavigationChange(viewId));
+      next(viewNavigationChange(viewId) as any); // TODO: proper cast: AppThunkAction => AnyAction
     }
   };
 
   window.onhashchange = onHashChanged;
-  onHashChanged();
+  setTimeout(onHashChanged, 0);
 
   return (action) => {
 

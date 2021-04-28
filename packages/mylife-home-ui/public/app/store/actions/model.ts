@@ -1,10 +1,10 @@
 import { createAction } from '@reduxjs/toolkit';
 import { AppThunkAction } from '../types';
-import { MODEL_SET, Window, Model } from '../types/model';
+import { MODEL_SET, NetModel } from '../types/model';
 import { resourceQuery } from './resources';
 import { viewInit } from './view';
 
-const modelSet = createAction<Window[]>(MODEL_SET);
+const modelSet = createAction<NetModel>(MODEL_SET);
 
 export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getState) => {
   console.log('modelInit with modelHash', modelHash); // eslint-disable-line no-console
@@ -12,11 +12,11 @@ export const modelInit = (modelHash: string): AppThunkAction => (dispatch, getSt
   dispatch(resourceQuery({
     resource: modelHash, 
     onContent: (content: any) => {
-      const model = content as Model;
+      const model = content as NetModel;
       console.log('using model', model);
 
-      dispatch(modelSet(model.windows));
-      dispatch(viewInit(model.defaultWindow));
+      dispatch(modelSet(model));
+      dispatch(viewInit());
     }
   }));
 };
