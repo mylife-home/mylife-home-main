@@ -110,8 +110,6 @@ car que sensor vers ui
 ## ui
  - tablette devrait être sur desktop
  - BUG: tablette : problème de taille de viewport quand display mobile
- - BUG: quand on accède manuellement a mobile-rdc sur desktop ou desktop-rdc sur tablette et qu'on clique sur le lien d'un autre étage, on retourne dans le mode d'origine. Par contre au 2ieme clic c est OK.
-
 
 ## core
  - store/mounted-fs

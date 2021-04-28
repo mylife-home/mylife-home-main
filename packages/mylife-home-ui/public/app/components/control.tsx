@@ -46,6 +46,6 @@ function useConnect(windowId: string, controlId: string) {
     ...useMemo(() => ({
       onActionPrimary: () => dispatch(actionPrimary(windowId, controlId)),
       onActionSecondary: () => dispatch(actionSecondary(windowId, controlId))
-    }), [dispatch])
+    }), [dispatch, windowId, controlId])
   };
 };
