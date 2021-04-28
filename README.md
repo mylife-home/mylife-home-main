@@ -111,7 +111,6 @@ car que sensor vers ui
  - tablette devrait être sur desktop
  - BUG: tablette : problème de taille de viewport quand display mobile
  - BUG: quand on accède manuellement a mobile-rdc sur desktop ou desktop-rdc sur tablette et qu'on clique sur le lien d'un autre étage, on retourne dans le mode d'origine. Par contre au 2ieme clic c est OK.
- - apres refresh du model ou autre, quand on accede a une vue inexistante ca bug. Ca devrait diriger vers la vue par défaut (mobile ou desktop)
 
 
 ## core
