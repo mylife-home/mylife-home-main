@@ -107,10 +107,6 @@ car que sensor vers ui
 
 # TODO
 
-## ui
- - tablette devrait être sur desktop
- - BUG: tablette : problème de taille de viewport quand display mobile
-
 ## core
  - store/mounted-fs
 
