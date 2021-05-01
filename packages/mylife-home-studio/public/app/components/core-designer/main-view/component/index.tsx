@@ -6,11 +6,11 @@ import { Konva, Rect, Group } from '../../drawing/konva';
 import { GRID_STEP_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
-import CachedGroup from '../../drawing/cached-group';
+// import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, lockComponentPosition } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
-import { BindingSource, DragEventType, useBindingDraggable } from '../binding-dnd';
+import { BindingDnd, BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
 import * as types from '../../../../store/core-designer/types';
 
@@ -24,6 +24,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const rect = computeComponentRect(theme, component, plugin);
   const { select } = useComponentSelection(componentId);
   const onDrag = useBindingDraggable();
+  const bindingDndInfo = useBindingDndInfo();
 
   const dragBoundHandler = useCallback((pos: Point) => lockComponentPosition(rect, pos), [rect]);
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => move({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [move, GRID_STEP_SIZE]);
@@ -45,7 +46,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       onDragMove={dragMoveHandler}
       onDragEnd={moveEnd}
     >
-      <CachedGroup x={0} y={0} width={rect.width} height={rect.height}>
+      {/* CachedGroup breaks property highlights */}
+      <Group x={0} y={0} width={rect.width} height={rect.height}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
 
         <Title text={component.id} />
@@ -63,17 +65,37 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <BorderGroup yIndex={yIndex.peek()}>
           {stateItems.map((item, index) => (
-            <Property key={index} onDrag={createDraggablePropertyHandler(item.bindingSource)} yIndex={yIndex.next()} icon='state' primary={item.id} secondary={item.secondary} split='right' secondaryItalic />
+            <Property
+              key={index}
+              onDrag={createDraggablePropertyHandler(item.bindingSource)}
+              highlight={isBindingTarget(bindingDndInfo, item.bindingSource)}
+              yIndex={yIndex.next()}
+              icon='state'
+              primary={item.id}
+              secondary={item.secondary}
+              split='right'
+              secondaryItalic
+            />
           ))}
         </BorderGroup>
 
         <BorderGroup yIndex={yIndex.peek()}>
           {actionItems.map((item, index) => (
-            <Property key={index} onDrag={createDraggablePropertyHandler(item.bindingSource)} yIndex={yIndex.next()} icon='action' primary={item.id} secondary={item.secondary} split='right' secondaryItalic />
+            <Property
+              key={index}
+              onDrag={createDraggablePropertyHandler(item.bindingSource)}
+              highlight={isBindingTarget(bindingDndInfo, item.bindingSource)}
+              yIndex={yIndex.next()}
+              icon='action'
+              primary={item.id}
+              secondary={item.secondary}
+              split='right'
+              secondaryItalic
+            />
           ))}
         </BorderGroup>
 
-      </CachedGroup>
+      </Group>
     </Group>
   );
 };
@@ -107,4 +129,19 @@ function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
 
 function renderConfigValue(type: types.ConfigType, value: any) {
   return value.toString();
+}
+
+function isBindingTarget(bindingDndInfo: BindingDnd, target: BindingSource) {
+  if (!bindingDndInfo) {
+    return false;
+  }
+
+  const { source } = bindingDndInfo;
+
+  // cannot bind on same component
+  if (source.componentId === target.componentId) {
+    return false;
+  }
+
+  return source.memberType !== target.memberType && source.valueType === target.valueType;
 }

@@ -20,6 +20,7 @@ export interface CanvasTheme {
     paddingLeft: number;
     width: number;
     secondaryWidth: number;
+    highlightColor: string;
   };
 
   binding: {
@@ -62,6 +63,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
       paddingLeft: 8,
       width: GRID_STEP_SIZE * 10,
       secondaryWidth: 40,
+      highlightColor: darken(muiTheme.palette.background.paper, 0.3),
     },
 
     binding: {

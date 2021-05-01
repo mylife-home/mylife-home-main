@@ -1,6 +1,6 @@
 import React, { FunctionComponent, Children } from 'react';
 
-import { Group, Konva } from '../../drawing/konva';
+import { Konva, Rect, Group } from '../../drawing/konva';
 import { useCanvasTheme } from '../../drawing/theme';
 import Typography from '../../drawing/typography';
 import Border from '../../drawing/border';
@@ -31,14 +31,15 @@ interface PropertyProps {
   secondary?: string;
   secondaryItalic?: boolean;
   split?: 'middle' | 'right';
+  highlight?: boolean;
 }
 
-export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, icon, primary, primaryItalic = false, secondary, secondaryItalic = false, split }) => {
+export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, icon, primary, primaryItalic = false, secondary, secondaryItalic = false, split, highlight }) => {
   const theme = useCanvasTheme();
 
   const xBase = theme.component.paddingLeft;
   const yBase = theme.component.boxHeight * yIndex;
-  const xPrimary = theme.component.boxHeight; // icons are square
+  const xPrimary = xBase + theme.component.boxHeight; // icons are square
   const textsWidth = theme.component.width - xPrimary - theme.component.paddingLeft;
 
   let xSecondary: number;
@@ -76,13 +77,18 @@ export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, ico
   };
 
   return (
-      <Group
-        x={xBase} y={yBase} width={theme.component.width} height={theme.component.boxHeight}
-        draggable={!!onDrag} onDragStart={createDragEventHandler('start')} onDragMove={createDragEventHandler('move')} onDragEnd={createDragEventHandler('end')}
-      >
-        <Icon x={0} y={((theme.component.boxHeight - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />
+    <Group
+      x={0} y={yBase} width={theme.component.width} height={theme.component.boxHeight}
+      draggable={!!onDrag} onDragStart={createDragEventHandler('start')} onDragMove={createDragEventHandler('move')} onDragEnd={createDragEventHandler('end')}
+    >
+      {highlight && (
+        <Rect x={0} y={0} width={theme.component.width} height={theme.component.boxHeight} fill={theme.component.highlightColor} />
+      )}
+
+      <Icon x={xBase} y={((theme.component.boxHeight - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />
 
       <Typography x={xPrimary} y={0} height={theme.component.boxHeight} width={primaryWidth} text={primary} italic={primaryItalic} />
+
       {secondaryWidth && (
         <Typography x={xSecondary} y={0} height={theme.component.boxHeight} width={secondaryWidth} text={secondary} italic={secondaryItalic} />
       )}
