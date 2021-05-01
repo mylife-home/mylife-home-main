@@ -18,14 +18,11 @@ interface DragItem {
 }
 
 export function useDroppable(stage: Konva.Stage) {
-  const convertCursorPosition = useCursorPositionConverter();
+  const convertCursorPosition = useCursorPositionConverter(stage);
   const [, ref] = useDrop({
     accept: ItemType,
     drop: (item, monitor) => {
-      const clientOffset = monitor.getClientOffset();
-      const rect = stage.container().getBoundingClientRect();
-      const cursorPosition = { x: clientOffset.x - rect.x, y: clientOffset.y - rect.y };
-      return convertCursorPosition(cursorPosition);
+      return convertCursorPosition(monitor.getClientOffset());
     },
   });
 

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useViewInfo, ViewInfo } from './view-info';
 import { Point } from './types';
+import { Konva } from './konva';
 
 const SCALE_BY = 1.1;
 
@@ -83,16 +84,18 @@ function lockScale(value: number) {
   return value;
 }
 
-export function useCursorPositionConverter() {
+export function useCursorPositionConverter(stage: Konva.Stage) {
   const { viewInfo } = useViewInfo();
   const { viewport } = viewInfo;
+  const rect = stage ? stage.container().getBoundingClientRect() : { x: 0, y: 0 };
 
   return useCallback((pointer: Point) => {
+
     const result: Point = {
-      x: pointer.x / viewport.scale + viewport.x,
-      y: pointer.y / viewport.scale + viewport.y,
+      x: (pointer.x - rect.x) / viewport.scale + viewport.x,
+      y: (pointer.y - rect.y) / viewport.scale + viewport.y,
     };
 
     return result;
-  }, [viewport.x, viewport.y, viewport.scale]);
+  }, [viewport.x, viewport.y, viewport.scale, rect.x, rect.y]);
 }
