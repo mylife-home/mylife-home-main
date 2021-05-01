@@ -12,7 +12,6 @@ import { computeBindingDndAnchor } from '../drawing/shapes';
 import { useBindingDndInfo } from './binding-dnd';
 
 const BindingDndMark: FunctionComponent = () => {
-  const theme = useCanvasTheme();
   const info = useBindingDndInfo();
   return info ? <Mark /> : null;
 };
