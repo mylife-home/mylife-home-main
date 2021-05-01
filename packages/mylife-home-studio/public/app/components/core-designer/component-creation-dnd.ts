@@ -18,7 +18,7 @@ interface DragItem {
 }
 
 export function useDroppable(stage: Konva.Stage) {
-  const { convertCursorPosition } = useCursorPositionConverter();
+  const convertCursorPosition = useCursorPositionConverter();
   const [, ref] = useDrop({
     accept: ItemType,
     drop: (item, monitor) => {
