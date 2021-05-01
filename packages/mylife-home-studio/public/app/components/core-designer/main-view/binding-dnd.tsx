@@ -1,5 +1,7 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback } from 'react';
+import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 import * as types from '../../../store/core-designer/types';
+import { Konva } from '../drawing/konva';
+import { useCursorPositionConverter } from '../drawing/viewport-manips';
 
 export interface BindingSource {
   componentId: string;
@@ -39,22 +41,23 @@ export function useBindingDndInfo() {
   return value;
 }
 
-export const BindingDndProvider: FunctionComponent<{ onDrop: (source: BindingSource, mousePosition: types.Position) => void }> = ({ children, onDrop }) => {
+export const BindingDndProvider: FunctionComponent<{ stage: Konva.Stage, onDrop: (source: BindingSource, mousePosition: types.Position) => void }> = ({ children, stage, onDrop }) => {
   const [value, setValue] = useState<BindingDnd>(null);
-
+  const convertCursorPosition = useCursorPositionConverter(stage);
+  
   const onDrag = useCallback((type: DragEventType, mousePosition: types.Position, source?: BindingSource) => setValue(actualValue => {
     switch(type) {
       case 'start':
         if(!source) {
           throw new Error('source mandatory on start');
         }
-
-        return { mousePosition, source };
+        
+        return { mousePosition: convertCursorPosition(mousePosition), source };
       case 'move':
-        return { ...actualValue, mousePosition };
+        return { ...actualValue, mousePosition: convertCursorPosition(mousePosition) };
 
       case 'end':
-        onDrop(actualValue.source, mousePosition);
+        onDrop(actualValue.source, convertCursorPosition(mousePosition));
         return null;
 
       default:

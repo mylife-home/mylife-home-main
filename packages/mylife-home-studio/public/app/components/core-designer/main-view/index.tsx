@@ -1,9 +1,9 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
-import { Layer } from '../drawing/konva';
+import { Konva, Layer } from '../drawing/konva';
 import { BindingDndProvider } from './binding-dnd';
 import Canvas from './canvas';
 import Component from './component';
@@ -17,10 +17,11 @@ import { getComponentIds, getBindingIds } from '../../../store/core-designer/sel
 const MainView: FunctionComponent = () => {
   const { componentIds, bindingIds } = useConnect();
   const { selection } = useSelection();
+  const stageRef = useRef<Konva.Stage>(null);
 
   return (
-    <Canvas>
-      <BindingDndProvider onDrop={(source, mousePosition) => console.log(source, mousePosition)}>
+    <Canvas stageRef={stageRef}>
+      <BindingDndProvider stage={stageRef.current} onDrop={(source, mousePosition) => console.log(source, mousePosition)}>
         <Layer name='bindings'>
           {bindingIds.map(id => (
             <Binding key={id} bindingId={id} />

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef, useCallback, useLayoutEffect } from 'react';
+import React, { FunctionComponent, useCallback, useLayoutEffect, MutableRefObject } from 'react';
 import useResizeObserver from '@react-hook/resize-observer';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -15,9 +15,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'main-view-canvas' });
 
-const Canvas: FunctionComponent = ({ children }) => {
+const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage> }> = ({ stageRef, children }) => {
   const classes = useStyles();
-  const stageRef = useRef<Konva.Stage>(null);
   const ref = useDroppable(stageRef.current);
   const { viewInfo } = useViewInfo();
 
