@@ -9,6 +9,7 @@ import Canvas from './canvas';
 import Component from './component';
 import Binding from './binding';
 import ComponentSelectionMark from './component-selection-mark';
+import BindingDndMark from './binding-dnd-mark';
 
 import { AppState } from '../../../store/types';
 import { getComponentIds, getBindingIds } from '../../../store/core-designer/selectors';
@@ -24,6 +25,8 @@ const MainView: FunctionComponent = () => {
           {bindingIds.map(id => (
             <Binding key={id} bindingId={id} />
           ))}
+
+          <BindingDndMark />
         </Layer>
 
         <Layer name='components'>
