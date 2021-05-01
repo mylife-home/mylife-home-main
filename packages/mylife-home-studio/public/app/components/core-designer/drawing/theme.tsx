@@ -14,6 +14,7 @@ export interface CanvasTheme {
   borderColorExternal: string;
   borderColorSelected: string;
   selectionWidth: number;
+  bindingDndMarkColor: string;
 
   component: {
     boxHeight: number;
@@ -57,6 +58,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     borderColorExternal: fade(orange[300], 0.2),
     borderColorSelected: muiTheme.palette.primary.main,
     selectionWidth: 2,
+    bindingDndMarkColor: darken(muiTheme.palette.background.paper, 0.5),
 
     component: {
       boxHeight: GRID_STEP_SIZE,
@@ -69,7 +71,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     binding: {
       pointerWidth: 5,
       pointerLength: 5,
-      strokeWidth: 2
+      strokeWidth: 2,
     }
   };
 }

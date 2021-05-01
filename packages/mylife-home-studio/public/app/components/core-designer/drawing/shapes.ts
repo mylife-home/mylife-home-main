@@ -36,17 +36,41 @@ export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sour
   for (const source of sourceAnchors) {
     for (const target of targetAnchors) {
       const distance = computeDistance(source, target);
-      if (distance >= minDistance) {
-        continue;
+      if (distance < minDistance) {
+        minDistance = distance;
+        sourceAnchor = source;
+        targetAnchor = target;
       }
-
-      minDistance = distance;
-      sourceAnchor = source;
-      targetAnchor = target;
     }
   }
   
   return { sourceAnchor, targetAnchor };
+}
+
+export function computeBindingDndAnchor(theme: CanvasTheme, component: Component, plugin: Plugin, memberName: string, mousePosition: Point) {
+  const headerCount = TITLE_COUNT + (component.external ? 0 :  plugin.configIds.length);
+
+  let propIndex = plugin.stateIds.findIndex(value => value === memberName);
+  if (propIndex === -1) {
+    propIndex = plugin.stateIds.length + plugin.actionIds.findIndex(value => value === memberName);
+  }
+
+  propIndex += headerCount;
+
+  const sourceAnchors = makeAnchors(component, propIndex, theme);
+
+  let minDistance = Infinity;
+  let anchor: Point;
+
+  for (const source of sourceAnchors) {
+    const distance = computeDistance(source, mousePosition);
+    if (distance < minDistance) {
+      minDistance = distance;
+      anchor = source;
+    }
+  }
+
+  return anchor;
 }
 
 function makeAnchors(component: Component, propIndex: number, theme: CanvasTheme): Point[] {
