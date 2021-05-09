@@ -113,9 +113,6 @@ car que sensor vers ui
 ## studio
 - core designer:
   - storage -> support updates from fs (on git ops)
-  - Server impl (tests)
-  - Dnd pour créer binding -> https://github.com/konvajs/react-konva/issues/345 - https://codesandbox.io/s/vyw38lxw77
-     -> while dragging, hilight possible drops
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy
      - online (one shot comme ui mettre toute la conf a jour d un coup?)
