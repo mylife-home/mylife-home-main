@@ -83,7 +83,7 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
 
     this.map.delete(id);
     mapItem.item.id = newId;
-    this.map.set(id, mapItem);
+    this.map.set(newId, mapItem);
     return true;
   }
 }
