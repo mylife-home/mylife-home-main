@@ -69,15 +69,18 @@ function useNewBinding() {
 
   return useCallback((source: BindingSource, mousePosition: types.Position) => {
 
-    const target = findBindingTarget(theme, mousePosition, componentsAndPlugins);
+    // else render problem ?!?
+    setTimeout(() => {
+      const target = findBindingTarget(theme, mousePosition, componentsAndPlugins);
 
 
-    if (!target || !isBindingTarget(source, target)) {
-      return;
-    }
-
-    const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
-    dispatch(setBinding({ id: tabId, binding }));
+      if (!target || !isBindingTarget(source, target)) {
+        return;
+      }
+  
+      const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
+      dispatch(setBinding({ id: tabId, binding }));
+    }, 0);
 
   }, [theme, componentsAndPlugins, dispatch, tabId]);
 }
