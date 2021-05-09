@@ -22,6 +22,7 @@ import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
 import { getBinding, getNewBindingHalfList } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
+import { BindingHalf, createBindingData } from '../../binding-tools';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -204,11 +205,6 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
   );
 };
 
-interface BindingHalf {
-  componentId: string;
-  memberName: string;
-}
-
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
   const { selection } = useSelection();
@@ -282,35 +278,6 @@ function useNewBinding(memberName: string) {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
     dispatch(setBinding({ id: tabId, binding }));
   }, [dispatch, tabId, component.id, memberName]);
-}
-
-function createBindingData(componentId: string, memberName: string, memberType: types.MemberType, newValue: BindingHalf) {
-  switch (memberType) {
-    case types.MemberType.STATE: {
-      const bindingData: types.CoreBindingData = {
-        sourceComponent: componentId,
-        sourceState: memberName,
-        targetComponent: newValue.componentId,
-        targetAction: newValue.memberName,
-      };
-
-      return bindingData;
-    }
-
-    case types.MemberType.STATE: {
-      const bindingData: types.CoreBindingData = {
-        sourceComponent: newValue.componentId,
-        sourceState: newValue.memberName,
-        targetComponent: componentId,
-        targetAction: memberName,
-      };
-
-      return bindingData;
-    }
-
-    default:
-      throw new Error(`Unsupported member type: '${memberType}'`);
-  }
 }
 
 const useSeparatorStyles = makeStyles((theme) => ({

@@ -20,9 +20,20 @@ export function computeComponentRect(theme: CanvasTheme, component: Component, p
   };
 }
 
+export function computeMemberRect(theme: CanvasTheme, component: Component, plugin: Plugin, memberName: string) {
+  const propIndex = getPropIndex(component, plugin, memberName);
+  
+  return {
+    x: component.position.x * GRID_STEP_SIZE,
+    y:  component.position.y * GRID_STEP_SIZE + propIndex * theme.component.boxHeight,
+    height: theme.component.boxHeight,
+    width: theme.component.width,
+  };
+}
+
 export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourcePlugin: Plugin, targetComponent: Component, targetPlugin: Plugin) {
-  const sourceHeaderCount = TITLE_COUNT + (sourceComponent.external ? 0 :  sourcePlugin.configIds.length);
-  const targetHeaderCount = TITLE_COUNT + (targetComponent.external ? 0 :  targetPlugin.configIds.length);
+  const sourceHeaderCount = TITLE_COUNT + (sourceComponent.external ? 0 : sourcePlugin.configIds.length);
+  const targetHeaderCount = TITLE_COUNT + (targetComponent.external ? 0 : targetPlugin.configIds.length);
   const sourcePropIndex = sourceHeaderCount + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
   const targetPropIndex = targetHeaderCount + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
 
@@ -48,15 +59,7 @@ export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sour
 }
 
 export function computeBindingDndAnchor(theme: CanvasTheme, component: Component, plugin: Plugin, memberName: string, mousePosition: Point) {
-  const headerCount = TITLE_COUNT + (component.external ? 0 :  plugin.configIds.length);
-
-  let propIndex = plugin.stateIds.findIndex(value => value === memberName);
-  if (propIndex === -1) {
-    propIndex = plugin.stateIds.length + plugin.actionIds.findIndex(value => value === memberName);
-  }
-
-  propIndex += headerCount;
-
+  const propIndex = getPropIndex(component, plugin, memberName);
   const sourceAnchors = makeAnchors(component, propIndex, theme);
 
   let minDistance = Infinity;
@@ -71,6 +74,19 @@ export function computeBindingDndAnchor(theme: CanvasTheme, component: Component
   }
 
   return anchor;
+}
+
+function getPropIndex(component: Component, plugin: Plugin, memberName: string) {
+  const headerCount = TITLE_COUNT + (component.external ? 0 :  plugin.configIds.length);
+
+  let propIndex = plugin.stateIds.findIndex(value => value === memberName);
+  if (propIndex === -1) {
+    propIndex = plugin.stateIds.length + plugin.actionIds.findIndex(value => value === memberName);
+  }
+
+  propIndex += headerCount;
+
+  return propIndex;
 }
 
 function makeAnchors(component: Component, propIndex: number, theme: CanvasTheme): Point[] {

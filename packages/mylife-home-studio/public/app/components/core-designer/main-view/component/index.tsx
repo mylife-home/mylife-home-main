@@ -13,6 +13,7 @@ import { Title, Property, BorderGroup } from './layout';
 import { BindingDnd, BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
 import * as types from '../../../../store/core-designer/types';
+import { isBindingTarget } from '../../binding-tools';
 
 export interface ComponentProps {
   componentId: string;
@@ -68,7 +69,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
             <Property
               key={index}
               onDrag={createDraggablePropertyHandler(item.bindingSource)}
-              highlight={isBindingTarget(bindingDndInfo, item.bindingSource)}
+              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='state'
               primary={item.id}
@@ -84,7 +85,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
             <Property
               key={index}
               onDrag={createDraggablePropertyHandler(item.bindingSource)}
-              highlight={isBindingTarget(bindingDndInfo, item.bindingSource)}
+              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='action'
               primary={item.id}
@@ -129,19 +130,4 @@ function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
 
 function renderConfigValue(type: types.ConfigType, value: any) {
   return value.toString();
-}
-
-function isBindingTarget(bindingDndInfo: BindingDnd, target: BindingSource) {
-  if (!bindingDndInfo) {
-    return false;
-  }
-
-  const { source } = bindingDndInfo;
-
-  // cannot bind on same component
-  if (source.componentId === target.componentId) {
-    return false;
-  }
-
-  return source.memberType !== target.memberType && source.valueType === target.valueType;
 }
