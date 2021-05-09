@@ -37,6 +37,12 @@ export const getComponent = (state: AppState, tabId: string, componentId: string
 export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings.allIds;
 export const getBinding = (state: AppState, tabId: string, bindingId: string) => getOpenedProject(state, tabId).bindings.byId[bindingId];
 
+// TODO: used for binding DnD creation, need model refactoring
+export const getAllComponentsAndPlugins = (state: AppState, tabId: string) => ({
+  components: getOpenedProject(state, tabId).components.byId,
+  plugins: getOpenedProject(state, tabId).plugins.byId,
+});
+
 export const getInstanceStats = (state: AppState, tabId: string, instanceId: string) => {
   const project = getOpenedProject(state, tabId);
   const instance = getInstance(state, tabId, instanceId);

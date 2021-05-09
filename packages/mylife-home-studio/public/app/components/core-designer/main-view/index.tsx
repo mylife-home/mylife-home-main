@@ -1,27 +1,34 @@
-import React, { FunctionComponent, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import React, { FunctionComponent, useCallback, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
 import { Konva, Layer } from '../drawing/konva';
-import { BindingDndProvider } from './binding-dnd';
+import { BindingDndProvider, BindingSource } from './binding-dnd';
 import Canvas from './canvas';
 import Component from './component';
 import Binding from './binding';
 import ComponentSelectionMark from './component-selection-mark';
 import BindingDndMark from './binding-dnd-mark';
+import { Rectangle } from '../drawing/types';
+import { CanvasTheme, useCanvasTheme } from '../drawing/theme';
+import { computeComponentRect, computeMemberRect } from '../drawing/shapes';
+import { createBindingData, isBindingTarget } from '../binding-tools';
 
 import { AppState } from '../../../store/types';
-import { getComponentIds, getBindingIds } from '../../../store/core-designer/selectors';
+import { getComponentIds, getBindingIds, getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
+import * as types from '../../../store/core-designer/types';
+import { setBinding } from '../../../store/core-designer/actions';
 
 const MainView: FunctionComponent = () => {
   const { componentIds, bindingIds } = useConnect();
   const { selection } = useSelection();
   const stageRef = useRef<Konva.Stage>(null);
+  const onDrop = useNewBinding();
 
   return (
     <Canvas stageRef={stageRef}>
-      <BindingDndProvider stage={stageRef.current} onDrop={(source, mousePosition) => console.log(source, mousePosition)}>
+      <BindingDndProvider stage={stageRef.current} onDrop={onDrop}>
         <Layer name='bindings'>
           {bindingIds.map(id => (
             <Binding key={id} bindingId={id} />
@@ -52,4 +59,51 @@ function useConnect() {
     componentIds: useSelector((state: AppState) => getComponentIds(state, tabId)),
     bindingIds: useSelector((state: AppState) => getBindingIds(state, tabId)),
   };
+}
+
+function useNewBinding() {
+  const tabId = useTabPanelId();
+  const theme = useCanvasTheme();
+  const componentsAndPlugins = useSelector((state: AppState) => getAllComponentsAndPlugins(state, tabId));
+  const dispatch = useDispatch();
+
+  return useCallback((source: BindingSource, mousePosition: types.Position) => {
+
+    const target = findBindingTarget(theme, mousePosition, componentsAndPlugins);
+
+
+    if (!target || !isBindingTarget(source, target)) {
+      return;
+    }
+
+    const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
+    dispatch(setBinding({ id: tabId, binding }));
+
+  }, [theme, componentsAndPlugins, dispatch, tabId]);
+}
+
+// TODO: need model cleanup
+function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }): BindingSource {
+  for (const component of Object.values(components)) {
+    const plugin = plugins[component.plugin];
+
+    const componentRect = computeComponentRect(theme, component, plugin);
+    if (!isInRect(mousePosition, componentRect)) {
+      continue;
+    }
+
+    for (const [memberName, member] of Object.entries(plugin.members)) {
+      const memberRect = computeMemberRect(theme, component, plugin, memberName);
+      if (isInRect(mousePosition, memberRect)) {
+        return { componentId: component.id, memberName, memberType: member.memberType, valueType: member.valueType };
+      }
+    }
+
+    // If we found a component, no need to continue
+    break;
+  }
+}
+
+function isInRect(position: types.Position, rect: Rectangle) {
+  return position.x >= rect.x && position.x < rect.x + rect.width && position.y >= rect.y && position.y < rect.y + rect.height;
 }
