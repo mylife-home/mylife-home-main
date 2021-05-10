@@ -1,11 +1,12 @@
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
-import { Recipes } from './recipes';
+import { Pins } from './pins';
 import { Runs } from './runs';
 import { Files } from './files';
 import { listMeta } from './tasks';
 import * as directories from './directories';
+import { FsCollection } from '../../utils/fs-collection';
 
 import {
   AddRunLogNotification,
@@ -22,16 +23,24 @@ import {
 } from '../../../shared/deploy';
 
 export class Deploy implements Service {
-  private readonly recipes = new Recipes();
+
+  private readonly recipes: FsCollection<RecipeConfig>;
+  private readonly pins: Pins;
   private readonly runs = new Runs();
   private readonly files = new Files();
   private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/updates');
 
   constructor(params: BuildParams) {
+    directories.configure();
+
+    this.recipes = new FsCollection<RecipeConfig>(directories.recipes());
+    
     this.recipes.on('create', this.handleRecipeSet);
     this.recipes.on('update', this.handleRecipeSet);
     this.recipes.on('delete', this.handleRecipeClear);
-    this.recipes.on('pin', this.handleRecipePinned);
+
+    this.pins = new Pins(directories.pins());
+    this.pins.on('pin', this.handleRecipePinned);
 
     this.runs.on('create', this.handleRunSet);
     this.runs.on('begin', this.handleRunSet);
@@ -45,8 +54,6 @@ export class Deploy implements Service {
   }
 
   async init() {
-    directories.configure();
-    await this.recipes.init();
     await this.runs.init();
     await this.files.init();
     this.notifiers.init();
@@ -71,15 +78,15 @@ export class Deploy implements Service {
   }
 
   private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig; }) => {
-    this.recipes.setRecipe(id, config);
+    this.recipes.set(id, config);
   };
 
   private readonly deleteRecipe = async (session: Session, { id }: { id: string; }) => {
-    this.recipes.deleteRecipe(id);
+    this.recipes.delete(id);
   };
 
   private readonly pinRecipe = async (session: Session, { id, value }: { id: string; value: boolean; }) => {
-    this.recipes.pinRecipe(id, value);
+    this.pins.pin(id, value);
   };
 
   private readonly startRecipe = async (session: Session, { id }: { id: string; }) => {
@@ -123,14 +130,14 @@ export class Deploy implements Service {
   }
 
   private emitRecipes(notifier: SessionNotifier) {
-    for (const id of this.recipes.listRecipes()) {
-      const config = this.recipes.getRecipe(id);
+    for (const id of this.recipes.ids()) {
+      const config = this.recipes.get(id);
       const notification: SetRecipeNotification = { operation: 'recipe-set', id, config };
       notifier.notify(notification);
     }
 
-    for (const id of this.recipes.listRecipes()) {
-      if (this.recipes.isPinned(id)) {
+    for (const id of this.recipes.ids()) {
+      if (this.pins.isPinned(id)) {
         const notification: PinRecipeNotification = { operation: 'recipe-pin', id, value: true };
         notifier.notify(notification);
       }
@@ -165,12 +172,15 @@ export class Deploy implements Service {
   };
 
   private readonly handleRecipeSet = (id: string) => {
-    const config = this.recipes.getRecipe(id);
+    const config = this.recipes.get(id);
     const notification: SetRecipeNotification = { operation: 'recipe-set', id, config };
     this.notifiers.notifyAll(notification);
   };
 
   private readonly handleRecipeClear = (id: string) => {
+    // on recipe delete, we must remove it from pins
+    this.pins.pin(id, false);
+
     const notification: ClearRecipeNotification = { operation: 'recipe-clear', id };
     this.notifiers.notifyAll(notification);
   };

@@ -21,6 +21,8 @@ export class FsCollection<TContent> extends EventEmitter {
   constructor(private readonly directory: string) {
     super();
 
+    log.info(`Starting fs collection in '${this.directory}'`);
+
     fs.ensureDirSync(directory);
 
     this.watcher = chokidar.watch(this.directory, { usePolling: true, ignoreInitial: false });
@@ -28,7 +30,10 @@ export class FsCollection<TContent> extends EventEmitter {
     this.watcher.on('all', this.handleEvent);
   }
 
-  terminate() {
+  async terminate() {
+    log.info(`Terminated fs collection in '${this.directory}'`);
+
+    await this.watcher.close();
   }
 
   private readonly handleError = (err: Error) => {
@@ -67,7 +72,7 @@ export class FsCollection<TContent> extends EventEmitter {
     // Check if there is actualy an update
     const existing = this.items.get(id);
     if (existing && existing.raw.equals(raw)) {
-      log.debug(`Set of already set`);
+      log.debug(`Ignored set '${id}'`);
       return;
     }
 
@@ -82,7 +87,7 @@ export class FsCollection<TContent> extends EventEmitter {
   private handleDelete(fullPath: string) {
     const id = path.parse(fullPath).name;
     if (!this.items.get(id)) {
-      log.debug(`Delete of already`);
+      log.debug(`Ignored delete '${id}'`);
     }
   }
 
