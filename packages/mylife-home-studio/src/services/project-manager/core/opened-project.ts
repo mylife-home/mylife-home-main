@@ -101,10 +101,6 @@ export class CoreOpenedProject extends OpenedProject {
     return null;
   }
 
-  reload() {
-    throw new Error('TODO');
-  }
-
   private executeUpdate(updater: () => void) {
     this.owner.update(this.name, updater);
   }
