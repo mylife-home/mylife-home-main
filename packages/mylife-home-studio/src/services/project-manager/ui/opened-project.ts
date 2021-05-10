@@ -68,47 +68,47 @@ export class UiOpenedProject extends OpenedProject {
   async call(callData: UiProjectCall): Promise<ProjectCallResult> {
     switch (callData.operation) {
       case 'validate':
-        return await this.validate();
+        return this.validate();
 
       case 'refresh-components-from-online':
-        return await this.refreshComponentsFromOnline();
+        return this.refreshComponentsFromOnline();
 
       case 'refresh-components-from-project':
-        return await this.refreshComponentsFromProject(callData as RefreshComponentsFromProjectUiProjectCall);
+        return this.refreshComponentsFromProject(callData as RefreshComponentsFromProjectUiProjectCall);
 
       case 'apply-refresh-components':
-        await this.applyRefreshComponents(callData as ApplyRefreshComponentsUiProjectCall);
+        this.applyRefreshComponents(callData as ApplyRefreshComponentsUiProjectCall);
         break;
 
       case 'deploy':
         return await this.deploy();
 
       case 'set-default-window':
-        await this.setDefaultWindow(callData as SetDefaultWindowUiProjectCall);
+        this.setDefaultWindow(callData as SetDefaultWindowUiProjectCall);
         break;
 
       case 'set-resource':
-        await this.setResource(callData as SetResourceUiProjectCall);
+        this.setResource(callData as SetResourceUiProjectCall);
         break;
 
       case 'clear-resource':
-        await this.clearResource(callData as ClearResourceUiProjectCall);
+        this.clearResource(callData as ClearResourceUiProjectCall);
         break;
 
       case 'rename-resource':
-        await this.renameResource(callData as RenameResourceUiProjectCall);
+        this.renameResource(callData as RenameResourceUiProjectCall);
         break;
 
       case 'set-window':
-        await this.setWindow(callData as SetWindowUiProjectCall);
+        this.setWindow(callData as SetWindowUiProjectCall);
         break;
 
       case 'clear-window':
-        await this.clearWindow(callData as ClearWindowUiProjectCall);
+        this.clearWindow(callData as ClearWindowUiProjectCall);
         break;
 
       case 'rename-window':
-        await this.renameWindow(callData as RenameWindowUiProjectCall);
+        this.renameWindow(callData as RenameWindowUiProjectCall);
         break;
 
       default:
@@ -119,8 +119,8 @@ export class UiOpenedProject extends OpenedProject {
     return null;
   }
 
-  private async executeUpdate(updater: () => void) {
-    await this.owner.update(this.name, updater);
+  private executeUpdate(updater: () => void) {
+    this.owner.update(this.name, updater);
   }
 
   private notifyAllDefaultWindow() {
@@ -131,22 +131,22 @@ export class UiOpenedProject extends OpenedProject {
     this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window: window.data });
   }
 
-  private async setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
-    await this.executeUpdate(() => {
+  private setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
+    this.executeUpdate(() => {
       this.defaultWindow.set(defaultWindow);
       this.notifyAllDefaultWindow();
     });
   }
 
-  private async setResource({ resource }: SetResourceUiProjectCall) {
-    await this.executeUpdate(() => {
+  private setResource({ resource }: SetResourceUiProjectCall) {
+    this.executeUpdate(() => {
       this.resources.set(resource);
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
     });
   }
 
-  private async clearResource({ id }: ClearResourceUiProjectCall) {
-    await this.executeUpdate(() => {
+  private clearResource({ id }: ClearResourceUiProjectCall) {
+    this.executeUpdate(() => {
       this.resources.clear(id);
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
 
@@ -158,8 +158,8 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private async renameResource({ id, newId }: RenameResourceUiProjectCall) {
-    await this.executeUpdate(() => {
+  private renameResource({ id, newId }: RenameResourceUiProjectCall) {
+    this.executeUpdate(() => {
       this.resources.rename(id, newId);
       this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
 
@@ -171,15 +171,15 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private async setWindow({ window }: SetWindowUiProjectCall) {
-    await this.executeUpdate(() => {
+  private setWindow({ window }: SetWindowUiProjectCall) {
+    this.executeUpdate(() => {
       const model = this.windows.set(window);
       this.notifyAllWindow(model);
     });
   }
 
-  private async clearWindow({ id }: ClearWindowUiProjectCall) {
-    await this.executeUpdate(() => {
+  private clearWindow({ id }: ClearWindowUiProjectCall) {
+    this.executeUpdate(() => {
       this.windows.clear(id);
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
 
@@ -195,8 +195,8 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private async renameWindow({ id, newId }: RenameWindowUiProjectCall) {
-    await this.executeUpdate(() => {
+  private renameWindow({ id, newId }: RenameWindowUiProjectCall) {
+    this.executeUpdate(() => {
       this.windows.rename(id, newId);
       this.notifyAll<RenameUiWindowNotification>({ operation: 'rename-ui-window', id, newId });
 
@@ -212,7 +212,7 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private async validate(): Promise<ValidateUiProjectCallResult> {
+  private validate(): ValidateUiProjectCallResult {
     const context = new ValidationContext(this.windows, this.resources, this.components);
 
     this.defaultWindow.validate(context);
@@ -223,18 +223,18 @@ export class UiOpenedProject extends OpenedProject {
     return { errors: context.errors };
   }
 
-  private async refreshComponentsFromOnline(): Promise<RefreshComponentsUiProjectCallResult> {
+  private refreshComponentsFromOnline(): RefreshComponentsUiProjectCallResult {
     const componentData = loadOnlineComponentData();
     return this.prepareComponentRefresh(componentData);
   }
 
-  private async refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): Promise<RefreshComponentsUiProjectCallResult> {
+  private refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): RefreshComponentsUiProjectCallResult {
     const componentData = loadCoreProjectComponentData(projectId);
     return this.prepareComponentRefresh(componentData);
   }
 
-  private async applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
-    await this.executeUpdate(() => {
+  private applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
+    this.executeUpdate(() => {
       const { componentData, usageToClear } = serverData as RefreshServerData;
       this.components.apply(componentData);
       this.clearComponentsUsage(usageToClear);

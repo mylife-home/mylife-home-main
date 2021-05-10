@@ -57,35 +57,35 @@ export class CoreOpenedProject extends OpenedProject {
   async call(callData: CoreProjectCall): Promise<ProjectCallResult> {
     switch (callData.operation) {
       case 'update-toolbox':
-        await this.updateToolbox(callData as UpdateToolboxCoreProjectCall);
+        this.updateToolbox(callData as UpdateToolboxCoreProjectCall);
         break;
 
       case 'set-component':
-        await this.setComponent(callData as SetComponentCoreProjectCall);
+        this.setComponent(callData as SetComponentCoreProjectCall);
         break;
 
       case 'move-component':
-        await this.moveComponent(callData as MoveComponentCoreProjectCall);
+        this.moveComponent(callData as MoveComponentCoreProjectCall);
         break;
 
       case 'configure-component':
-        await this.configureComponent(callData as ConfigureComponentCoreProjectCall);
+        this.configureComponent(callData as ConfigureComponentCoreProjectCall);
         break;
 
       case 'rename-component':
-        await this.renameComponent(callData as RenameComponentCoreProjectCall);
+        this.renameComponent(callData as RenameComponentCoreProjectCall);
         break;
 
       case 'clear-component':
-        await this.clearComponent(callData as ClearComponentCoreProjectCall);
+        this.clearComponent(callData as ClearComponentCoreProjectCall);
         break;
 
       case 'set-binding':
-        await this.setBinding(callData as SetBindingCoreProjectCall);
+        this.setBinding(callData as SetBindingCoreProjectCall);
         break;
 
       case 'clear-binding':
-        await this.clearBinding(callData as ClearBindingCoreProjectCall);
+        this.clearBinding(callData as ClearBindingCoreProjectCall);
         break;
 
       default:
@@ -96,8 +96,8 @@ export class CoreOpenedProject extends OpenedProject {
     return null;
   }
 
-  private async executeUpdate(updater: () => void) {
-    await this.owner.update(this.name, updater);
+  private executeUpdate(updater: () => void) {
+    this.owner.update(this.name, updater);
   }
 
   private notifyAllSetPlugins() {
@@ -132,8 +132,8 @@ export class CoreOpenedProject extends OpenedProject {
     this.notifyAll<ClearCoreBindingNotification>({ operation: 'clear-core-binding', id });
   }
 
-  private async updateToolbox({ itemType, itemId, action }: UpdateToolboxCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private updateToolbox({ itemType, itemId, action }: UpdateToolboxCoreProjectCall) {
+    this.executeUpdate(() => {
       switch (itemType) {
         case 'instance':
           this.updateToolboxInstance(itemId, action);
@@ -203,31 +203,31 @@ export class CoreOpenedProject extends OpenedProject {
     }
   }
 
-  private async setComponent({ componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private setComponent({ componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
+    this.executeUpdate(() => {
       const component = this.model.setComponent(componentId, pluginId, x, y);
       this.notifyAllSetComponent(component.id);
     });
   }
 
-  private async moveComponent({ componentId, x, y }: MoveComponentCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private moveComponent({ componentId, x, y }: MoveComponentCoreProjectCall) {
+    this.executeUpdate(() => {
       const component = this.model.getComponent(componentId);
       component.move(x, y);
       this.notifyAllSetComponent(component.id);
     });
   }
 
-  private async configureComponent({ componentId, configId, configValue }: ConfigureComponentCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private configureComponent({ componentId, configId, configValue }: ConfigureComponentCoreProjectCall) {
+    this.executeUpdate(() => {
       const component = this.model.getComponent(componentId);
       component.configure(configId, configValue);
       this.notifyAllSetComponent(component.id);
     });
   }
 
-  private async renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
+    this.executeUpdate(() => {
       const component = this.model.getComponent(componentId);
       // Ids will be updated while renaming, need to get them before
       const bindingIds = Array.from(component.getAllBindingsIds());
@@ -246,8 +246,8 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private async clearComponent({ componentId }: ClearComponentCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private clearComponent({ componentId }: ClearComponentCoreProjectCall) {
+    this.executeUpdate(() => {
       const component = this.model.getComponent(componentId);
       for (const binding of component.getAllBindings()) {
         this.model.clearBinding(binding.id);
@@ -259,15 +259,15 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private async setBinding({ binding: bindingData }: SetBindingCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private setBinding({ binding: bindingData }: SetBindingCoreProjectCall) {
+    this.executeUpdate(() => {
       const binding = this.model.setBinding(bindingData);
       this.notifyAllSetBinding(binding.id);
     });
   }
 
-  private async clearBinding({ bindingId }: ClearBindingCoreProjectCall) {
-    await this.executeUpdate(() => {
+  private clearBinding({ bindingId }: ClearBindingCoreProjectCall) {
+    this.executeUpdate(() => {
       this.model.clearBinding(bindingId);
       this.notifyAllClearBinding(bindingId);
     });

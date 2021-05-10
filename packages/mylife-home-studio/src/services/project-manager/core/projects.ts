@@ -5,7 +5,7 @@ import { CoreOpenedProject } from './opened-project';
 
 export class CoreProjects extends Store<CoreProject> {
 
-  async createNew(name: string) {
+  createNew(name: string) {
     const project: CoreProject = {
       name,
       components: {},
@@ -13,13 +13,13 @@ export class CoreProjects extends Store<CoreProject> {
       bindings: {},
     };
 
-    await this.create(project);
+    this.create(project);
     return project.name;
   }
 
-  async importV1(projectV1: coreV1.Project) {
+  importV1(projectV1: coreV1.Project) {
     const project = convertCoreProject(projectV1);
-    await this.create(project);
+    this.create(project);
     return project.name;
   }
 

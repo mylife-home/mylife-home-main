@@ -5,20 +5,20 @@ import { Store } from '../store';
 import { UiOpenedProject } from './opened-project';
 
 export class UiProjects extends Store<UiProject> {
-  async createNew(name: string) {
+  createNew(name: string) {
     const project: UiProject = {
       name,
       definition: { resources: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
       componentData: { components: [], plugins: {} },
     };
 
-    await this.create(project);
+    this.create(project);
     return project.name;
   }
 
-  async importV1(projectV1: uiV1.Project) {
+  importV1(projectV1: uiV1.Project) {
     const project = convertUiProject(projectV1);
-    await this.create(project);
+    this.create(project);
     return project.name;
   }
 

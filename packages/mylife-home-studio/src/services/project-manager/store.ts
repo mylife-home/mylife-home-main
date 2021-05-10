@@ -1,7 +1,6 @@
 import path from 'path';
 import { EventEmitter } from 'events';
 import fs from 'fs-extra';
-import { Mutex } from 'async-mutex';
 import { logger } from 'mylife-home-common';
 import { ProjectInfo } from '../../../shared/project-manager';
 
@@ -14,18 +13,17 @@ export interface ProjectBase {
 export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   private directory: string;
   private readonly projects = new Map<string, TProject>();
-  private readonly mutex = new Mutex();
 
-  async init(directory: string) {
+  init(directory: string) {
     this.directory = directory;
 
     log.debug(`init store from: ${this.directory}`);
 
-    await fs.ensureDir(this.directory);
+    fs.ensureDirSync(this.directory);
 
-    for (const file of await fs.readdir(this.directory)) {
+    for (const file of fs.readdirSync(this.directory)) {
       const fullPath = path.join(this.directory, file);
-      const content = await fs.readFile(fullPath, 'utf-8');
+      const content = fs.readFileSync(fullPath, 'utf-8');
       const project = JSON.parse(content) as TProject;
       this.projects.set(project.name, project);
     }
@@ -33,88 +31,78 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     log.info(`${this.projects.size} projects loaded in store`);
   }
 
-  protected async create(project: TProject) {
-    await this.mutex.runExclusive(async () => {
-      if (this.projects.has(project.name)) {
-        throw new Error(`A project named '${project.name}' already exists`);
-      }
+  protected create(project: TProject) {
+    if (this.projects.has(project.name)) {
+      throw new Error(`A project named '${project.name}' already exists`);
+    }
 
-      await this.save(project);
-      this.projects.set(project.name, project);
-      this.emit('created', project.name);
-    });
+    this.save(project);
+    this.projects.set(project.name, project);
+    this.emit('created', project.name);
   }
 
-  async update(name: string, updater: (project: TProject) => void) {
-    await this.mutex.runExclusive(async () => {
-      const project = this.projects.get(name);
-      if (!project) {
-        throw new Error(`Project named '${name}' does not exist`);
-      }
+  update(name: string, updater: (project: TProject) => void) {
+    const project = this.projects.get(name);
+    if (!project) {
+      throw new Error(`Project named '${name}' does not exist`);
+    }
 
-      updater(project);
-      await this.save(project);
-      this.emit('updated', name);
-    });
+    updater(project);
+    this.save(project);
+    this.emit('updated', name);
   }
 
-  async duplicate(name: string, newName: string) {
-    return await this.mutex.runExclusive(async () => {
-      const project = this.projects.get(name);
-      if (!project) {
-        throw new Error(`Project named '${name}' does not exist`);
-      }
-      if (this.projects.has(newName)) {
-        throw new Error(`A project named '${newName}' already exists`);
-      }
+  duplicate(name: string, newName: string) {
+    const project = this.projects.get(name);
+    if (!project) {
+      throw new Error(`Project named '${name}' does not exist`);
+    }
+    if (this.projects.has(newName)) {
+      throw new Error(`A project named '${newName}' already exists`);
+    }
 
-      const newProject = clone(project);
-      newProject.name = newName;
-      this.projects.set(newName, newProject);
+    const newProject = clone(project);
+    newProject.name = newName;
+    this.projects.set(newName, newProject);
 
-      await this.save(newProject);
-      this.emit('created', newName);
-      return newName;
-    });
+    this.save(newProject);
+    this.emit('created', newName);
+    return newName;
   }
 
-  async rename(oldName: string, newName: string) {
-    await this.mutex.runExclusive(async () => {
-      const project = this.projects.get(oldName);
-      if (!project) {
-        throw new Error(`Project named '${oldName}' does not exist`);
-      }
-      if (this.projects.has(newName)) {
-        throw new Error(`A project named '${newName}' already exists`);
-      }
+  rename(oldName: string, newName: string) {
+    const project = this.projects.get(oldName);
+    if (!project) {
+      throw new Error(`Project named '${oldName}' does not exist`);
+    }
+    if (this.projects.has(newName)) {
+      throw new Error(`A project named '${newName}' already exists`);
+    }
 
-      this.projects.delete(oldName);
-      this.projects.set(newName, project);
-      project.name = newName;
+    this.projects.delete(oldName);
+    this.projects.set(newName, project);
+    project.name = newName;
 
-      // we change the name inside, so we cannot move
-      await fs.unlink(this.projectFullPath(oldName));
-      await this.save(project);
-      this.emit('renamed', oldName, newName);
-    });
+    // we change the name inside, so we cannot move
+    fs.unlinkSync(this.projectFullPath(oldName));
+    this.save(project);
+    this.emit('renamed', oldName, newName);
   }
 
-  async delete(name: string) {
-    await this.mutex.runExclusive(async () => {
-      if (!this.projects.has(name)) {
-        throw new Error(`Project named '${name}' does not exist`);
-      }
+  delete(name: string) {
+    if (!this.projects.has(name)) {
+      throw new Error(`Project named '${name}' does not exist`);
+    }
 
-      await fs.unlink(this.projectFullPath(name));
-      this.projects.delete(name);
-      this.emit('deleted', name);
-    });
+    fs.unlinkSync(this.projectFullPath(name));
+    this.projects.delete(name);
+    this.emit('deleted', name);
   }
 
-  private async save(project: TProject) {
+  private save(project: TProject) {
     const fullPath = this.projectFullPath(project.name);
     const content = JSON.stringify(project, null, 2);
-    await fs.writeFile(fullPath, content);
+    fs.writeFileSync(fullPath, content);
   }
 
   private projectFullPath(name: string) {
@@ -139,7 +127,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
   }
 
   abstract getProjectInfo(name: string): ProjectInfo;
-  abstract createNew(name: string): Promise<string>;
+  abstract createNew(name: string): string;
 }
 
 function clone<T>(source: T): T {
