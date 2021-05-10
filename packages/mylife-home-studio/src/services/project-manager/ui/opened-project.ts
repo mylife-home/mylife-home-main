@@ -36,18 +36,24 @@ import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceMode
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
 
 export class UiOpenedProject extends OpenedProject {
-  private readonly defaultWindow: DefaultWindowModel;
-  private readonly windows: CollectionModel<Mutable<Window>, WindowModel>;
-  private readonly resources: CollectionModel<Mutable<DefinitionResource>, ResourceModel>;
-  private readonly components: ComponentsModel;
+  private project: UiProject;
+  private defaultWindow: DefaultWindowModel;
+  private windows: CollectionModel<Mutable<Window>, WindowModel>;
+  private resources: CollectionModel<Mutable<DefinitionResource>, ResourceModel>;
+  private components: ComponentsModel;
 
-  constructor(private owner: UiProjects, name: string, private readonly project: UiProject) {
+  constructor(private readonly owner: UiProjects, name: string) {
     super('ui', name);
+    this.reloadModel();
+  }
 
-    this.defaultWindow = new DefaultWindowModel(project.definition.defaultWindow);
-    this.windows = new CollectionModel(project.definition.windows, WindowModel);
-    this.resources = new CollectionModel(project.definition.resources, ResourceModel);
-    this.components = new ComponentsModel(project.componentData);
+  protected reloadModel() {
+    this.project = this.owner.getProject(this.name);
+
+    this.defaultWindow = new DefaultWindowModel(this.project.definition.defaultWindow);
+    this.windows = new CollectionModel(this.project.definition.windows, WindowModel);
+    this.resources = new CollectionModel(this.project.definition.resources, ResourceModel);
+    this.components = new ComponentsModel(this.project.componentData);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
@@ -117,10 +123,6 @@ export class UiOpenedProject extends OpenedProject {
 
     // by default return nothing
     return null;
-  }
-
-  reload() {
-    throw new Error('TODO');
   }
 
   private executeUpdate(updater: () => void) {

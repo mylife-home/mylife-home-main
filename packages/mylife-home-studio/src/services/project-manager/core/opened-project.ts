@@ -32,12 +32,17 @@ import { CoreProjects } from './projects';
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
 export class CoreOpenedProject extends OpenedProject {
-  private readonly model: Model;
+  private model: Model;
+  private project: CoreProject;
 
-  constructor(private readonly owner: CoreProjects, name: string, private readonly project: CoreProject) {
+  constructor(private readonly owner: CoreProjects, name: string) {
     super('core', name);
+    this.reloadModel();
+  }
 
-    this.model = new Model(project);
+  protected reloadModel() {
+    this.project = this.owner.getProject(this.name);
+    this.model = new Model(this.project);
   }
 
   protected emitAllState(notifier: SessionNotifier) {

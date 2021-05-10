@@ -1,5 +1,5 @@
 import { logger } from 'mylife-home-common';
-import { ProjectCall, ProjectCallResult, ProjectType, SetNameProjectNotification, UpdateProjectNotification } from '../../../shared/project-manager';
+import { ProjectCall, ProjectCallResult, ProjectType, ResetProjectNotification, SetNameProjectNotification, UpdateProjectNotification } from '../../../shared/project-manager';
 import { Services } from '..';
 import { Session, SessionFeature, SessionNotifier } from '../session-manager';
 import { UiProjects } from './ui/projects';
@@ -35,6 +35,16 @@ export abstract class OpenedProject {
     log.debug(`Renaming project '${oldId}' into '${this.id}'`);
 
     this.notifyAll<SetNameProjectNotification>({ operation: 'set-name', name: this.name });
+  }
+
+  reload() {
+    // Inherited classes must
+    this.reloadModel();
+
+    for (const notifier of this.notifiers.values()) {
+      notifier.notify({ operation: 'reset' } as ResetProjectNotification);
+      this.emitAllState(notifier);
+    }
   }
 
   sessionClose(session: Session) {
@@ -73,7 +83,8 @@ export abstract class OpenedProject {
   }
 
   abstract call(callData: ProjectCall): Promise<ProjectCallResult>;
-  abstract reload(): void;
+
+  protected abstract reloadModel(): void;
 }
 
 export class OpenedProjects {

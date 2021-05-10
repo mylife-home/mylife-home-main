@@ -102,7 +102,7 @@ export interface CoreProjectInfo extends ProjectInfo {
  */
 
 export interface UpdateProjectNotification {
-  operation: 'set-name'
+  operation: 'set-name' | 'reset'
   | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
   | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding';
 }
@@ -110,6 +110,10 @@ export interface UpdateProjectNotification {
 export interface SetNameProjectNotification extends UpdateProjectNotification {
   operation: 'set-name';
   name: string;
+}
+
+export interface ResetProjectNotification extends UpdateProjectNotification {
+  operation: 'reset';
 }
 
 /**

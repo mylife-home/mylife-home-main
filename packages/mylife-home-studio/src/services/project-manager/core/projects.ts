@@ -33,6 +33,6 @@ export class CoreProjects extends Store<CoreProject> {
   }
 
   openProject(name: string) {
-    return new CoreOpenedProject(this, name, this.getProject(name));
+    return new CoreOpenedProject(this, name);
   }
 }
