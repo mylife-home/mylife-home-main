@@ -112,16 +112,12 @@ car que sensor vers ui
 
 ## studio
 - core designer:
-  - storage -> support updates from fs (on git ops)
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy
      - online (one shot comme ui mettre toute la conf a jour d un coup?)
      - as recipe files for direct config in image
 - ui designer
   - import components from core project
-  - storage -> support updates from fs (on git ops)
-- deploy
-  - storage -> support updates from fs (on git ops)
 - setup gitconvex
 - afficher branche git courante dans la status bar en bas
 
