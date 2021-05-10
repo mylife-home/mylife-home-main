@@ -3,7 +3,7 @@ import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
 import * as directories from './directories';
-import { ProjectBase, Store } from './store';
+import { Store } from './store';
 import { CoreProjects } from './core/projects';
 import { UiProjects } from './ui/projects';
 import { OpenedProjects } from './opened-project';
@@ -51,7 +51,7 @@ export class ProjectManager implements Service {
     this.openedProjects.terminate();
   }
 
-  private getStoreByType(type: ProjectType): Store<ProjectBase> {
+  private getStoreByType(type: ProjectType): Store<unknown> {
     switch (type) {
       case 'core':
         return this.coreProjects;
@@ -107,7 +107,7 @@ export class ProjectManager implements Service {
     return { notifierId: notifier.id };
   };
 
-  private emitList(notifier: SessionNotifier, store: Store<ProjectBase>, type: ProjectType) {
+  private emitList(notifier: SessionNotifier, store: Store<unknown>, type: ProjectType) {
     for (const name of store.getProjectsNames()) {
       const info = store.getProjectInfo(name);
       const notification: SetListNotification = { operation: 'set', type, name, info };

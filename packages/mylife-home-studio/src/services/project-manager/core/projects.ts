@@ -7,20 +7,19 @@ export class CoreProjects extends Store<CoreProject> {
 
   createNew(name: string) {
     const project: CoreProject = {
-      name,
       components: {},
       plugins: {},
       bindings: {},
     };
 
-    this.create(project);
-    return project.name;
+    this.create(name, project);
+    return name;
   }
 
   importV1(projectV1: coreV1.Project) {
-    const project = convertCoreProject(projectV1);
-    this.create(project);
-    return project.name;
+    const { name, project } = convertCoreProject(projectV1);
+    this.create(name, project);
+    return name;
   }
 
   getProjectInfo(name: string): CoreProjectInfo {

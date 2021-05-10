@@ -6,9 +6,9 @@ import * as coreV1 from './v1-types';
 
 export { coreV1 };
 
-export function convertCoreProject(input: coreV1.Project): CoreProject {
+export function convertCoreProject(input: coreV1.Project): { name: string, project: CoreProject } {
+  const name = input.Name;
   const project: CoreProject = {
-    name: input.Name,
     plugins: {},
     components: {},
     bindings: {}
@@ -46,7 +46,7 @@ export function convertCoreProject(input: coreV1.Project): CoreProject {
     }
   }
 
-  return project;
+  return { name, project };
 }
 
 function isVPanelProject(project: CoreProject) {

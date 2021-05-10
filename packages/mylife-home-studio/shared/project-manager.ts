@@ -6,7 +6,7 @@ import { Component, Plugin } from './component-model';
  */
 
 export interface UiProject {
-  name: string;
+  //name: string;
   definition: Definition;
   componentData: UiComponentData;
 }
@@ -25,7 +25,7 @@ export interface UiPluginData extends Omit<Plugin, 'usage' | 'config'> {
  */
 
 export interface CoreProject {
-  name: string;
+  //name: string;
   components: { [id: string]: CoreComponentData; };
   plugins: { [id: string]: CorePluginData; }; // id: instanceName:module.name
   bindings: { [id: string]: CoreBindingData; }; // id = sourceId:sourceState:targetId:targetAction

@@ -9,7 +9,8 @@ type Mutable<T> = {
   -readonly [K in keyof T]: T[K];
 };
 
-export function convertUiProject(input: uiV1.Project): UiProject {
+export function convertUiProject(input: uiV1.Project): { name: string, project: UiProject } {
+  const name = input.Name;
   const resources = input.Images.map(convertResource);
   const windows = input.Windows.map(convertWindow);
   const componentData = convertComponents(input.Components);
@@ -19,11 +20,12 @@ export function convertUiProject(input: uiV1.Project): UiProject {
     mobile: convertUiId(input.MobileDefaultWindow),
   };
 
-  return {
-    name: input.Name,
+  const project = {
     definition: { resources, windows, defaultWindow },
     componentData,
   };
+
+  return { name, project };
 }
 
 function convertResource(input: uiV1.Image): DefinitionResource {

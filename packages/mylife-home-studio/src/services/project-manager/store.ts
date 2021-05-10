@@ -6,11 +6,7 @@ import { ProjectInfo } from '../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:store');
 
-export interface ProjectBase {
-  name: string;
-}
-
-export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
+export abstract class Store<TProject> extends EventEmitter {
   private directory: string;
   private readonly projects = new Map<string, TProject>();
 
@@ -23,22 +19,23 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
     for (const file of fs.readdirSync(this.directory)) {
       const fullPath = path.join(this.directory, file);
+      const name = path.parse(fullPath).name;
       const content = fs.readFileSync(fullPath, 'utf-8');
       const project = JSON.parse(content) as TProject;
-      this.projects.set(project.name, project);
+      this.projects.set(name, project);
     }
 
     log.info(`${this.projects.size} projects loaded in store`);
   }
 
-  protected create(project: TProject) {
-    if (this.projects.has(project.name)) {
-      throw new Error(`A project named '${project.name}' already exists`);
+  protected create(name: string, project: TProject) {
+    if (this.projects.has(name)) {
+      throw new Error(`A project named '${name}' already exists`);
     }
 
-    this.save(project);
-    this.projects.set(project.name, project);
-    this.emit('created', project.name);
+    this.save(name, project);
+    this.projects.set(name, project);
+    this.emit('created', name);
   }
 
   update(name: string, updater: (project: TProject) => void) {
@@ -48,7 +45,7 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     }
 
     updater(project);
-    this.save(project);
+    this.save(name, project);
     this.emit('updated', name);
   }
 
@@ -62,10 +59,9 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     }
 
     const newProject = clone(project);
-    newProject.name = newName;
     this.projects.set(newName, newProject);
 
-    this.save(newProject);
+    this.save(newName, newProject);
     this.emit('created', newName);
     return newName;
   }
@@ -81,11 +77,10 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
 
     this.projects.delete(oldName);
     this.projects.set(newName, project);
-    project.name = newName;
 
     // we change the name inside, so we cannot move
     fs.unlinkSync(this.projectFullPath(oldName));
-    this.save(project);
+    this.save(newName, project);
     this.emit('renamed', oldName, newName);
   }
 
@@ -99,8 +94,8 @@ export abstract class Store<TProject extends ProjectBase> extends EventEmitter {
     this.emit('deleted', name);
   }
 
-  private save(project: TProject) {
-    const fullPath = this.projectFullPath(project.name);
+  private save(name: string, project: TProject) {
+    const fullPath = this.projectFullPath(name);
     const content = JSON.stringify(project, null, 2);
     fs.writeFileSync(fullPath, content);
   }

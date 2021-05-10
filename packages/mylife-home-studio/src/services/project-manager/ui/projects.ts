@@ -7,19 +7,18 @@ import { UiOpenedProject } from './opened-project';
 export class UiProjects extends Store<UiProject> {
   createNew(name: string) {
     const project: UiProject = {
-      name,
       definition: { resources: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
       componentData: { components: [], plugins: {} },
     };
 
-    this.create(project);
-    return project.name;
+    this.create(name, project);
+    return name;
   }
 
   importV1(projectV1: uiV1.Project) {
-    const project = convertUiProject(projectV1);
-    this.create(project);
-    return project.name;
+    const { name, project } = convertUiProject(projectV1);
+    this.create(name, project);
+    return name;
   }
 
   getProjectInfo(name: string): UiProjectInfo {
