@@ -89,6 +89,11 @@ export class FsCollection<TContent> extends EventEmitter {
     if (!this.items.get(id)) {
       log.debug(`Ignored delete '${id}'`);
     }
+
+    this.items.delete(id);
+    log.info(`Item deleted: '${id}' (external)`);
+
+    this.emit('delete', id, 'external');
   }
 
   set(id: string, content: TContent) {
