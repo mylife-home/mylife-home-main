@@ -31,7 +31,7 @@ export class FsCollection<TContent> extends EventEmitter {
   }
 
   async terminate() {
-    log.info(`Terminated fs collection in '${this.directory}'`);
+    log.info(`Terminating fs collection in '${this.directory}'`);
 
     await this.watcher.close();
   }

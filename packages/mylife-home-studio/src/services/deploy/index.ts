@@ -72,6 +72,7 @@ export class Deploy implements Service {
   }
 
   async terminate() {
+    await this.pins.terminate();
     await this.recipes.terminate();
     await this.runs.terminate();
     await this.files.terminate();

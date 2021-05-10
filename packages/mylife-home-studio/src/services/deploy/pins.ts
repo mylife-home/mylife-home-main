@@ -13,7 +13,7 @@ export class Pins extends EventEmitter {
   constructor(private readonly filePath: string) {
     super();
 
-    log.debug(`Starting pins in '${this.filePath}'`);
+    log.info(`Starting pins in '${this.filePath}'`);
 
     fs.ensureDirSync(path.parse(this.filePath).dir);
 
@@ -23,6 +23,9 @@ export class Pins extends EventEmitter {
   }
 
   async terminate() {
+    log.info(`Terminating pins in '${this.filePath}'`);
+
+    await this.watcher.close();
   }
 
   private readonly handleError = (err: Error) => {
