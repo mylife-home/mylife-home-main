@@ -111,6 +111,22 @@ export class FsCollection<TContent> extends EventEmitter {
     this.emit(exists ? 'update' : 'create', id, 'internal');
   }
 
+  create(id: string, content: TContent) {
+    if (this.items.get(id)) {
+      throw new Error(`Item does already exist: '${id}'`);
+    }
+
+    this.set(id, content);
+  }
+
+  update(id: string, content: TContent) {
+    if (!this.items.get(id)) {
+      throw new Error(`Item does not exist: '${id}'`);
+    }
+    
+    this.set(id, content);
+  }
+
   delete(id: string) {
     if (!this.items.get(id)) {
       throw new Error(`Item does not exist: '${id}'`);
@@ -137,6 +153,8 @@ export class FsCollection<TContent> extends EventEmitter {
     this.items.delete(id);
     this.items.set(newId, item);
     log.info(`Item renamed: '${id}' => '${newId}'`);
+
+    this.emit('rename', id, newId, 'internal');
   }
 
   private buildPath(id: string) {
