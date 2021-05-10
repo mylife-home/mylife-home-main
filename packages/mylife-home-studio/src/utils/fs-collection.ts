@@ -21,6 +21,8 @@ export class FsCollection<TContent> extends EventEmitter {
   constructor(private readonly directory: string) {
     super();
 
+    fs.ensureDirSync(directory);
+
     this.watcher = chokidar.watch(this.directory, { usePolling: true, ignoreInitial: false });
     this.watcher.on('error', this.handleError);
     this.watcher.on('all', this.handleEvent);
@@ -48,6 +50,10 @@ export class FsCollection<TContent> extends EventEmitter {
           break;
 
         // Note: cannot detect renames
+
+        default:
+          log.debug(`Unhandled fs event: '${eventName}' on '${fullPath}'`);
+          break;
       }
     } catch (err) {
       log.error(err, `Error handling fs event: '${eventName}' on '${fullPath}'`);
