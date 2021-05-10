@@ -66,10 +66,10 @@ export class Files extends EventEmitter {
 
     if (isUpdate) {
       log.debug(`File updated: '${name}'`);
-      this.emit('file-updated', name);
+      this.emit('update', name);
     } else {
       log.debug(`File created: '${name}'`);
-      this.emit('file-created', name);
+      this.emit('create', name);
     }
   }
 
@@ -77,7 +77,7 @@ export class Files extends EventEmitter {
     const name = path.basename(fullPath);
     if (this.files.delete(name)) {
       log.debug(`File deleted: '${name}'`);
-      this.emit('file-deleted', name);
+      this.emit('delete', name);
     }
   }
 

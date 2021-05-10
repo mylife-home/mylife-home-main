@@ -52,7 +52,7 @@ export class Recipes extends EventEmitter {
     fs.writeFileSync(fullname, JSON.stringify(config, null, 2));
 
     this.recipes.set(id, config);
-    this.emit(exists ? 'recipe-updated' : 'recipe-created', id);
+    this.emit(exists ? 'update' : 'create', id);
     log.info(`recipe set: ${id}`);
   }
 
@@ -68,7 +68,7 @@ export class Recipes extends EventEmitter {
 
     this.recipes.delete(id);
     this.pins.delete(id);
-    this.emit('recipe-deleted', id);
+    this.emit('delete', id);
     log.info(`recipe deleted: ${id}`);
   }
 
@@ -96,7 +96,7 @@ export class Recipes extends EventEmitter {
     const fileName = directories.pins();
     fs.writeFileSync(fileName, JSON.stringify(Array.from(this.pins), null, 2));
 
-    this.emit('recipe-pinned', id, value);
+    this.emit('pin', id, value);
   }
 
   isPinned(id: string) {

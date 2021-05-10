@@ -28,20 +28,20 @@ export class Deploy implements Service {
   private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/updates');
 
   constructor(params: BuildParams) {
-    this.recipes.on('recipe-created', this.handleRecipeSet);
-    this.recipes.on('recipe-updated', this.handleRecipeSet);
-    this.recipes.on('recipe-deleted', this.handleRecipeClear);
-    this.recipes.on('recipe-pinned', this.handleRecipePinned);
+    this.recipes.on('create', this.handleRecipeSet);
+    this.recipes.on('update', this.handleRecipeSet);
+    this.recipes.on('delete', this.handleRecipeClear);
+    this.recipes.on('pin', this.handleRecipePinned);
 
-    this.runs.on('run-created', this.handleRunSet);
-    this.runs.on('run-begin', this.handleRunSet);
-    this.runs.on('run-end', this.handleRunSet);
-    this.runs.on('run-deleted', this.handleRunClear);
-    this.runs.on('run-log', this.handleRunLog);
+    this.runs.on('create', this.handleRunSet);
+    this.runs.on('begin', this.handleRunSet);
+    this.runs.on('end', this.handleRunSet);
+    this.runs.on('delete', this.handleRunClear);
+    this.runs.on('log', this.handleRunLog);
 
-    this.files.on('file-created', this.handleFileSet);
-    this.files.on('file-updated', this.handleFileSet);
-    this.files.on('file-deleted', this.handleFileClear);
+    this.files.on('create', this.handleFileSet);
+    this.files.on('update', this.handleFileSet);
+    this.files.on('delete', this.handleFileClear);
   }
 
   async init() {

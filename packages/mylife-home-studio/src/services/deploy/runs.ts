@@ -36,7 +36,7 @@ export class Runs extends EventEmitter {
     }
 
     let runId: string;
-    this.once('run-begin', (id) => {
+    this.once('begin', (id) => {
       runId = id;
     });
 
@@ -54,7 +54,7 @@ export class Runs extends EventEmitter {
     let pendingsCount = Array.from(this.runs.values()).filter((run) => run.status === 'running').length;
     if (pendingsCount) {
       await new Promise<void>((resolve) =>
-        this.on('run-end', () => {
+        this.on('end', () => {
           if (--pendingsCount === 0) {
             resolve();
           }
@@ -89,15 +89,15 @@ export class Runs extends EventEmitter {
     const logger = (category: string, severity: RunLogSeverity, message: string) => {
       const log: RunLog = { date: Date.now(), category, severity, message };
       run.logs.push(log);
-      this.emit('run-log', run.id, log);
+      this.emit('log', run.id, log);
     };
 
     this.runs.set(run.id, run);
-    this.emit('run-created', run.id, run.recipe);
+    this.emit('create', run.id, run.recipe);
     log.info(`run '${run.id}' started from recipe '${run.recipe}'`);
 
     run.status = 'running';
-    this.emit('run-begin', run.id);
+    this.emit('begin', run.id);
 
     try {
       const recipe = new Recipe(recipeId);
@@ -111,11 +111,11 @@ export class Runs extends EventEmitter {
 
     run.status = 'ended';
     run.end = Date.now();
-    run.err ? this.emit('run-end', run.id, run.err) : this.emit('run-end', run.id);
+    run.err ? this.emit('end', run.id, run.err) : this.emit('end', run.id);
     log.info(`run '${run.id}' ended`);
 
     const timeout = setTimeout(() => {
-      this.emit('run-deleted', run.id);
+      this.emit('delete', run.id);
       this.runs.delete(run.id);
       this.pendingTimeouts.delete(timeout);
     }, RUN_DELETE_TIMEOUT);
