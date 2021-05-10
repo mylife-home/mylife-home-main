@@ -14,6 +14,13 @@ interface Item<TContent> {
   content: TContent;
 }
 
+export declare interface FsCollection<TContent> {
+  on(event: 'create', listener: (id: string, type: ChangeType) => void): this;
+  on(event: 'update', listener: (id: string, type: ChangeType) => void): this;
+  on(event: 'delete', listener: (id: string, type: ChangeType) => void): this;
+  on(event: 'rename', listener: (id: string, newId: string, type: ChangeType) => void): this;
+}
+
 export class FsCollection<TContent> extends EventEmitter {
   private readonly items = new Map<string, Item<TContent>>();
   private watcher: FSWatcher;
@@ -163,6 +170,10 @@ export class FsCollection<TContent> extends EventEmitter {
 
   ids() {
     return Array.from(this.items.keys());
+  }
+
+  has(id: string) {
+    return this.items.has(id);
   }
 
   // No copy!

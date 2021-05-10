@@ -73,6 +73,7 @@ export abstract class OpenedProject {
   }
 
   abstract call(callData: ProjectCall): Promise<ProjectCallResult>;
+  abstract reload(): void;
 }
 
 export class OpenedProjects {
@@ -85,11 +86,15 @@ export class OpenedProjects {
 
     this.coreProjects.on('renamed', this.renameCoreProject);
     this.uiProjects.on('renamed', this.renameUiProject);
+    this.coreProjects.on('updated-external', this.reloadCoreProject);
+    this.uiProjects.on('updated-external', this.reloadUiProject);
   }
 
   terminate() {
     this.coreProjects.off('renamed', this.renameCoreProject);
     this.uiProjects.off('renamed', this.renameUiProject);
+    this.coreProjects.off('updated-external', this.reloadCoreProject);
+    this.uiProjects.off('updated-external', this.reloadUiProject);
 
     for (const openedProject of this.openedProjects.values()) {
       openedProject.terminate();
@@ -122,6 +127,14 @@ export class OpenedProjects {
     this.renameProject('ui', oldName, newName);
   };
 
+  private reloadCoreProject = (name: string) => {
+    this.reloadProject('core', name);
+  };
+
+  private reloadUiProject = (name: string) => {
+    this.reloadProject('ui', name);
+  };
+
   private renameProject(type: ProjectType, oldName: string, newName: string) {
     const oldId = makeId(type, oldName);
     const openedProject = this.openedProjects.get(oldId);
@@ -132,6 +145,16 @@ export class OpenedProjects {
     openedProject.rename(newName);
     this.openedProjects.delete(oldId);
     this.openedProjects.set(openedProject.id, openedProject);
+  }
+
+  private reloadProject(type: ProjectType, name: string) {
+    const id = makeId(type, name);
+    const openedProject = this.openedProjects.get(id);
+    if (!openedProject) {
+      return;
+    }
+
+    openedProject.reload();
   }
 
   openProject(session: Session, type: ProjectType, name: string) {

@@ -10,26 +10,29 @@ import { OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {
   private readonly listNotifiers = new SessionNotifierManager('project-manager/list-notifiers', 'project-manager/list');
-  private readonly coreProjects = new CoreProjects();
-  private readonly uiProjects = new UiProjects();
-  private readonly openedProjects = new OpenedProjects(this.coreProjects, this.uiProjects);
+  private readonly coreProjects: CoreProjects;
+  private readonly uiProjects: UiProjects;
+  private readonly openedProjects: OpenedProjects;
 
   constructor(params: BuildParams) {
+    directories.configure();
+
+    this.coreProjects = new CoreProjects(directories.core());
     this.coreProjects.on('created', this.handleCoreProjectSet);
     this.coreProjects.on('renamed', this.handleCoreProjectRename);
     this.coreProjects.on('deleted', this.handleCoreProjectDelete);
     this.coreProjects.on('updated', this.handleCoreProjectSet);
 
+    this.uiProjects = new UiProjects(directories.ui());
     this.uiProjects.on('created', this.handleUiProjectSet);
     this.uiProjects.on('renamed', this.handleUiProjectRename);
     this.uiProjects.on('deleted', this.handleUiProjectDelete);
     this.uiProjects.on('updated', this.handleUiProjectSet);
+
+    this.openedProjects = new OpenedProjects(this.coreProjects, this.uiProjects);
   }
 
   async init() {
-    directories.configure();
-    await this.uiProjects.init(directories.ui());
-    await this.coreProjects.init(directories.core());
     this.listNotifiers.init();
     this.openedProjects.init();
 
@@ -49,6 +52,8 @@ export class ProjectManager implements Service {
 
   async terminate() {
     this.openedProjects.terminate();
+    await this.uiProjects.terminate();
+    await this.coreProjects.terminate();
   }
 
   private getStoreByType(type: ProjectType): Store<unknown> {
