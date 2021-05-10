@@ -23,16 +23,7 @@ export class Files extends EventEmitter {
 
     await fs.ensureDir(directories.files());
 
-    for (const file of await fs.readdir(directories.files())) {
-      const fullPath = path.join(directories.files(), file);
-      const stats = await fs.stat(fullPath);
-
-      this.setFile(fullPath, stats);
-    }
-
-    log.info(`${this.files.size} files info loaded`);
-
-    this.watcher = chokidar.watch(directories.files(), { usePolling: true });
+    this.watcher = chokidar.watch(directories.files(), { usePolling: true, ignoreInitial: false });
     this.watcher.on('error', this.handleError);
     this.watcher.on('all', this.handleEvent);
   }
