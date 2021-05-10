@@ -21,10 +21,7 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
-      instances: createTable<Instance>(),
-      plugins: createTable<Plugin>(),
-      components: createTable<Component>(),
-      bindings: createTable<Binding>()
+      ...createInitialProjectState()
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -55,11 +52,7 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
-
-      openedProject.instances = createTable<Instance>();
-      openedProject.plugins = createTable<Plugin>();
-      openedProject.components = createTable<Component>();
-      openedProject.bindings = createTable<Binding>();
+      Object.assign(openedProject, createInitialProjectState());
     }
   },
 
@@ -76,6 +69,11 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     case 'set-name': {
       const { name } = update as SetNameProjectNotification;
       openedProject.projectId = name;
+      break;
+    }
+
+    case 'reset': {
+      Object.assign(openedProject, createInitialProjectState());
       break;
     }
 
@@ -309,4 +307,13 @@ function removeBinding(openedProject: CoreOpenedProject, componentId: string, me
   if (component.bindings[member].length === 0) {
     delete component.bindings[member];
   }
+}
+
+function createInitialProjectState() {
+  return {
+    instances: createTable<Instance>(),
+    plugins: createTable<Plugin>(),
+    components: createTable<Component>(),
+    bindings: createTable<Binding>()
+  };
 }

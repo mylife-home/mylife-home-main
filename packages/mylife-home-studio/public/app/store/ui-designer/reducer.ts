@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, DefaultWindow } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -33,12 +33,7 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
-
-      components: createTable<UiComponent>(),
-      plugins: createTable<UiPlugin>(),
-      resources: createTable<UiResource>(),
-      windows: createTable<UiWindow>(),
-      defaultWindow: { desktop: null, mobile: null },
+      ...createInitialProjectState()
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -54,13 +49,13 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string }>) => {
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
     const { id } = action.payload;
 
     tableRemove(state.openedProjects, id);
   },
 
-  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string }>) => {
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string; }>) => {
     const { id, notifierId } = action.payload;
     const openedProject = state.openedProjects.byId[id];
     openedProject.notifierId = notifierId;
@@ -69,16 +64,11 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
-
-      openedProject.components = createTable<UiComponent>();
-      openedProject.plugins = createTable<UiPlugin>();
-      openedProject.resources = createTable<UiResource>();
-      openedProject.windows = createTable<UiWindow>();
-      openedProject.defaultWindow = { desktop: null, mobile: null };
+      Object.assign(openedProject, createInitialProjectState());
     }
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification }[]>) => {
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification; }[]>) => {
     for (const { id, update } of action.payload) {
       const openedProject = state.openedProjects.byId[id];
       applyProjectUpdate(openedProject, update);
@@ -91,6 +81,11 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     case 'set-name': {
       const { name } = update as SetNameProjectNotification;
       openedProject.projectId = name;
+      break;
+    }
+
+    case 'reset': {
+      Object.assign(openedProject, createInitialProjectState());
       break;
     }
 
@@ -170,4 +165,17 @@ function updateComponentData(openedProject: UiOpenedProject, componentData: UiCo
 
   openedProject.plugins = plugins;
   openedProject.components = components;
+}
+
+
+
+function createInitialProjectState() {
+  const defaultWindow: DefaultWindow = { desktop: null, mobile: null };
+  return {
+    components: createTable<UiComponent>(),
+    plugins: createTable<UiPlugin>(),
+    resources: createTable<UiResource>(),
+    windows: createTable<UiWindow>(),
+    defaultWindow,
+  };
 }
