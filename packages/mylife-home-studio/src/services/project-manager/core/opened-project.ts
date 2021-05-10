@@ -451,6 +451,8 @@ class Model {
     this.components.delete(component.id);
     plugin.unregisterComponent(component.id);
     instance.unregisterComponent(component.id);
+    
+    delete this.data.components[component.id];
   }
 
   hasBinding(id: string) {
