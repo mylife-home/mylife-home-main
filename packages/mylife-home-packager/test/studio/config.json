@@ -10,15 +10,15 @@
     "staticDirectory": "./static"
   },
   "projectManager": {
-    "uiPath": "../../../studio-data/ui-projects",
-    "corePath": "../../../studio-data/core-projects",
+    "uiPath": "../../../mylife-home-studio-data-dev/ui-projects",
+    "corePath": "../../../mylife-home-studio-data-dev/core-projects",
     "__old__localPath": "/tmp/mylife-home-projects",
     "__old__githubUrl": "https://github.com/vincent-tr/mylife-home-projects-dev",
     "__old__githubToken": "%{GITHUB_TOKEN}"
   },
   "deploy": {
-    "filesPath": "../../../studio-data/files",
-    "recipesPath": "../../../studio-data/recipes",
-    "pinnedRecipesFile": "../../../studio-data/pinned-recipes.json"
+    "filesPath": "../../../mylife-home-studio-data-dev/files",
+    "recipesPath": "../../../mylife-home-studio-data-dev/recipes",
+    "pinnedRecipesFile": "../../../mylife-home-studio-data-dev/pinned-recipes.json"
   }
 }
