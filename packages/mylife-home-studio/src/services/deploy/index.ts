@@ -176,6 +176,8 @@ export class Deploy implements Service {
     const config = this.recipes.get(id);
     const notification: SetRecipeNotification = { operation: 'recipe-set', id, config };
     this.notifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleRecipeClear = (id: string) => {
@@ -184,11 +186,15 @@ export class Deploy implements Service {
 
     const notification: ClearRecipeNotification = { operation: 'recipe-clear', id };
     this.notifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleRecipePinned = (id: string, value: boolean) => {
     const notification: PinRecipeNotification = { operation: 'recipe-pin', id, value };
     this.notifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleRunSet = (id: string) => {
@@ -211,10 +217,14 @@ export class Deploy implements Service {
     const file = this.files.getFile(id);
     const notification: SetFileNotification = { operation: 'file-set', file };
     this.notifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleFileClear = (id: string) => {
     const notification: ClearFileNotification = { operation: 'file-clear', id };
     this.notifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 }

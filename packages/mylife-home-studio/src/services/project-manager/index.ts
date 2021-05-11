@@ -132,32 +132,44 @@ export class ProjectManager implements Service {
     const info = this.coreProjects.getProjectInfo(name);
     const notification: SetListNotification = { operation: 'set', type: 'core', name, info };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleCoreProjectDelete = (name: string) => {
     const notification: ClearListNotification = { operation: 'clear', type: 'core', name };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleCoreProjectRename = (name: string, newName: string) => {
     const notification: RenameListNotification = { operation: 'rename', type: 'core', name, newName };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleUiProjectSet = (name: string) => {
     const info = this.uiProjects.getProjectInfo(name);
     const notification: SetListNotification = { operation: 'set', type: 'ui', name, info };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleUiProjectDelete = (name: string) => {
     const notification: ClearListNotification = { operation: 'clear', type: 'ui', name };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly handleUiProjectRename = (name: string, newName: string) => {
     const notification: RenameListNotification = { operation: 'rename', type: 'ui', name, newName };
     this.listNotifiers.notifyAll(notification);
+
+    Services.instance.git.notifyFileUpdate();
   };
 
   private readonly openProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {

@@ -4,6 +4,7 @@ import { Logging } from './logging';
 import { Online } from './online';
 import { ProjectManager } from './project-manager';
 import { Deploy } from './deploy';
+import { Git } from './git';
 
 export class Services {
   private readonly services: { [name: string]: Service; } = {};
@@ -14,6 +15,7 @@ export class Services {
     this.services.online = new Online(params);
     this.services.projectManager = new ProjectManager(params);
     this.services.deploy = new Deploy(params);
+    this.services.git = new Git(params);
   }
 
   async init() {
@@ -46,6 +48,10 @@ export class Services {
 
   get deploy() {
     return this.services.deploy as Deploy;
+  }
+
+  get git() {
+    return this.services.git as Git;
   }
 
   private static _instance: Services = null;
