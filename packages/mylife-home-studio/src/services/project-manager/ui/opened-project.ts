@@ -32,7 +32,6 @@ import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
-import { CoreOpenedProject } from '../core/opened-project';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
 
@@ -138,6 +137,10 @@ export class UiOpenedProject extends OpenedProject {
     this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window: window.data });
   }
 
+  private notifyAllComponentData() {
+    this.notifyAll<SetUiComponentDataNotification>({ operation: 'set-ui-component-data', componentData: this.project.componentData });
+  }
+
   private setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
     this.executeUpdate(() => {
       this.defaultWindow.set(defaultWindow);
@@ -236,18 +239,8 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private refreshComponentsFromProject({ projectId }: RefreshComponentsFromProjectUiProjectCall): RefreshComponentsUiProjectCallResult {
-    return Services.instance.projectManager.executeOnProject('core', projectId, (project) => {
-      const componentData = loadCoreProjectComponentData(project as CoreOpenedProject);
-      return this.prepareComponentRefresh(componentData);
-    });
-  }
-
-  private applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
-    this.executeUpdate(() => {
-      const { componentData, usageToClear } = serverData as RefreshServerData;
-      this.components.apply(componentData);
-      this.clearComponentsUsage(usageToClear);
-    });
+    const componentData = Services.instance.projectManager.executeOnProject('core', projectId, loadCoreProjectComponentData);
+    return this.prepareComponentRefresh(componentData);
   }
 
   private prepareComponentRefresh(componentData: UiComponentData) {
@@ -265,6 +258,15 @@ export class UiOpenedProject extends OpenedProject {
     }
 
     return usage;
+  }
+
+  private applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
+    this.executeUpdate(() => {
+      const { componentData, usageToClear } = serverData as RefreshServerData;
+      this.components.apply(componentData);
+      this.clearComponentsUsage(usageToClear);
+      this.notifyAllComponentData();
+    });
   }
 
   private clearComponentsUsage(usage: ComponentUsage[]) {
