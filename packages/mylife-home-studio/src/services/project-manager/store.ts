@@ -32,7 +32,7 @@ export abstract class Store<TProject> extends EventEmitter {
   };
 
   private readonly handleDelete = (id: string, type: ChangeType) => {
-    this.emit('delete', id);
+    this.emit('deleted', id);
   };
 
   private readonly handleRename = (id: string, newId: string, type: ChangeType) => {
