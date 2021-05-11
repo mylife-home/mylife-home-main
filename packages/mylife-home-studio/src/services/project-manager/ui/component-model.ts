@@ -3,6 +3,7 @@ import { Component, MemberType, PluginUsage } from '../../../../shared/component
 import { UiPluginData, UiComponentData, BreakingOperation } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { ComponentUsage } from './definition-model';
+import { CoreOpenedProject } from '../core/opened-project';
 
 export class ComponentsModel {
   private readonly map = new Map<string, ComponentModel>();
@@ -106,7 +107,9 @@ export function loadOnlineComponentData() {
   return componentData;
 }
 
-export function loadCoreProjectComponentData(projectId: string): UiComponentData {
+export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComponentData {
+  //project.
+  // manager
   throw new Error('TODO');
 }
 

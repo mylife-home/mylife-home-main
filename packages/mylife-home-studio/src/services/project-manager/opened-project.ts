@@ -31,7 +31,7 @@ export abstract class OpenedProject {
 
   rename(newName: string) {
     const oldId = this.id;
-    this._name = newName
+    this._name = newName;
     log.debug(`Renaming project '${oldId}' into '${this.id}'`);
 
     this.notifyAll<SetNameProjectNotification>({ operation: 'set-name', name: this.name });
@@ -90,7 +90,7 @@ export abstract class OpenedProject {
 export class OpenedProjects {
   private readonly openedProjects = new Map<string, OpenedProject>();
 
-  constructor(private readonly coreProjects: CoreProjects, private readonly uiProjects: UiProjects) {}
+  constructor(private readonly coreProjects: CoreProjects, private readonly uiProjects: UiProjects) { }
 
   init() {
     Services.instance.sessionManager.registerSessionHandler(this.sessionHandler);
@@ -169,6 +169,30 @@ export class OpenedProjects {
   }
 
   openProject(session: Session, type: ProjectType, name: string) {
+    const openedProject = this.doOpenProject(type, name);
+    const notifierId = openedProject.addNotifier(session);
+    this.getSessionNotifiers(session).set(notifierId, openedProject);
+    return notifierId;
+  }
+
+  closeProject(session: Session, notifierId: string) {
+    const sessionNotifiers = this.getSessionNotifiers(session);
+    const openedProject = sessionNotifiers.get(notifierId);
+    sessionNotifiers.delete(notifierId);
+    openedProject.removeNotifier(notifierId);
+    this.checkCloseProject(openedProject);
+  }
+
+  executeOnProject<TReturn>(type: ProjectType, name: string, executor: (project: OpenedProject) => TReturn): TReturn {
+    const openedProject = this.doOpenProject(type, name);
+    try {
+      return executor(openedProject);
+    } finally {
+      this.checkCloseProject(openedProject);
+    }
+  }
+
+  private doOpenProject(type: ProjectType, name: string) {
     const id = makeId(type, name);
     let openedProject = this.openedProjects.get(id);
     if (!openedProject) {
@@ -176,9 +200,7 @@ export class OpenedProjects {
       this.openedProjects.set(openedProject.id, openedProject);
     }
 
-    const notifierId = openedProject.addNotifier(session);
-    this.getSessionNotifiers(session).set(notifierId, openedProject);
-    return notifierId;
+    return openedProject;
   }
 
   private createOpenedProject(type: ProjectType, name: string) {
@@ -190,14 +212,6 @@ export class OpenedProjects {
       default:
         throw new Error(`Unknown project type: '${type}'`);
     }
-  }
-
-  closeProject(session: Session, notifierId: string) {
-    const sessionNotifiers = this.getSessionNotifiers(session);
-    const openedProject = sessionNotifiers.get(notifierId);
-    sessionNotifiers.delete(notifierId);
-    openedProject.removeNotifier(notifierId);
-    this.checkCloseProject(openedProject);
   }
 
   private checkCloseProject(openedProject: OpenedProject) {

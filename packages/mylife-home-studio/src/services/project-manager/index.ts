@@ -6,7 +6,7 @@ import * as directories from './directories';
 import { Store } from './store';
 import { CoreProjects } from './core/projects';
 import { UiProjects } from './ui/projects';
-import { OpenedProjects } from './opened-project';
+import { OpenedProject, OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {
   private readonly listNotifiers = new SessionNotifierManager('project-manager/list-notifiers', 'project-manager/list');
@@ -54,6 +54,10 @@ export class ProjectManager implements Service {
     this.openedProjects.terminate();
     await this.uiProjects.terminate();
     await this.coreProjects.terminate();
+  }
+
+  executeOnProject<TReturn>(type: ProjectType, name: string, executor: (project: OpenedProject) => TReturn): TReturn {
+    return this.openedProjects.executeOnProject(type, name, executor);
   }
 
   private getStoreByType(type: ProjectType): Store<unknown> {
