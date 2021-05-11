@@ -116,8 +116,6 @@ car que sensor vers ui
   - deploy
      - online (one shot comme ui mettre toute la conf a jour d un coup?)
      - as recipe files for direct config in image
-- ui designer
-  - import components from core project
 - setup gitconvex
 - afficher branche git courante dans la status bar en bas
 
