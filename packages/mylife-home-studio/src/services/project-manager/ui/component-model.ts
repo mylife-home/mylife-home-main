@@ -108,9 +108,41 @@ export function loadOnlineComponentData() {
 }
 
 export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComponentData {
-  //project.
-  // manager
-  throw new Error('TODO');
+  const result: UiComponentData = {
+    components: [],
+    plugins: {},
+  };
+
+  for (const id of project.getComponentsIds()) {
+    const componentModel = project.getComponentModel(id);
+    const pluginModel = componentModel.plugin;
+
+    if (pluginModel.data.usage !== PluginUsage.UI) {
+      continue;
+    }
+
+    const component = { id: componentModel.id, plugin: pluginModel.id };
+    result.components.push(component);
+
+    if (!result.plugins[pluginModel.id]) {
+      const plugin: UiPluginData = {
+        instanceName: pluginModel.instance.instanceName,
+        module: pluginModel.data.module,
+        name: pluginModel.data.name,
+        version: pluginModel.data.version,
+        description: pluginModel.data.description,
+        members: {}
+      };
+
+      for (const [id, member] of Object.entries(pluginModel.data.members)) {
+        plugin.members[id] = { ...member };
+      }
+
+      result.plugins[pluginModel.id] = plugin;
+    }
+  }
+console.log(result);
+  return result;
 }
 
 export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: UiComponentData) {

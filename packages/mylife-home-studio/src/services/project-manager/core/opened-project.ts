@@ -45,6 +45,14 @@ export class CoreOpenedProject extends OpenedProject {
     this.model = new Model(this.project);
   }
 
+  getComponentsIds() {
+    return Object.keys(this.project.components);
+  }
+
+  getComponentModel(id: string) {
+    return this.model.getComponent(id);
+  }
+
   protected emitAllState(notifier: SessionNotifier) {
     super.emitAllState(notifier);
 
