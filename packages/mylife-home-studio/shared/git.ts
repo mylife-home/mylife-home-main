@@ -1,7 +1,7 @@
 
 export interface GitStatus {
   branch: string;
-  changedFeatures: string[];
+  changedFeatures: { [featureName: string]: string[] };
 }
 
 export interface GitStatusNotification {
