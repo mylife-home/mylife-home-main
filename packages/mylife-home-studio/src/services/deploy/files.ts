@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import fs from 'fs-extra';
 import chokidar, { FSWatcher } from 'chokidar';
 import { logger } from 'mylife-home-common';
-import * as directories from './directories';
 import { FileInfo } from '../../../shared/deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:deploy:files');
@@ -17,13 +16,15 @@ const OPEN_FLAGS = {
 export class Files extends EventEmitter {
   private readonly files = new Map<string, FileInfo>();
   private watcher: FSWatcher;
+  private directory: string;
 
-  async init() {
-    log.debug(`loading files info in: ${directories.files()}`);
+  async init(directory: string) {
+    this.directory = directory;
+    log.debug(`loading files info in: ${this.directory}`);
 
-    await fs.ensureDir(directories.files());
+    await fs.ensureDir(this.directory);
 
-    this.watcher = chokidar.watch(directories.files(), { usePolling: true, ignoreInitial: false });
+    this.watcher = chokidar.watch(this.directory, { usePolling: true, ignoreInitial: false });
     this.watcher.on('error', this.handleError);
     this.watcher.on('all', this.handleEvent);
   }
@@ -90,18 +91,18 @@ export class Files extends EventEmitter {
   }
 
   async delete(id: string) {
-    const fullPath = path.join(directories.files(), id);
+    const fullPath = path.join(this.directory, id);
     await fs.unlink(fullPath);
   }
 
   async rename(id: string, newId: string) {
-    const fullPath = path.join(directories.files(), id);
-    const newFullPath = path.join(directories.files(), newId);
+    const fullPath = path.join(this.directory, id);
+    const newFullPath = path.join(this.directory, newId);
     await fs.rename(fullPath, newFullPath);
   }
 
   async read(id: string, offset: number, size: number) {
-    const fullPath = path.join(directories.files(), id);
+    const fullPath = path.join(this.directory, id);
     const buffer = Buffer.allocUnsafe(size);
     let readSize;
 
@@ -117,7 +118,7 @@ export class Files extends EventEmitter {
   }
 
   async write(id: string, buffer: Buffer, type: 'init' | 'append') {
-    const fullPath = path.join(directories.files(), id);
+    const fullPath = path.join(this.directory, id);
     let writeSize;
 
     const fd = await fs.open(fullPath, OPEN_FLAGS[type]);

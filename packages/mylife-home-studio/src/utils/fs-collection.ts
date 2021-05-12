@@ -24,10 +24,11 @@ export declare interface FsCollection<TContent> {
 export class FsCollection<TContent> extends EventEmitter {
   private readonly items = new Map<string, Item<TContent>>();
   private watcher: FSWatcher;
+  private directory: string;
 
-  constructor(private readonly directory: string) {
-    super();
-
+  init(directory: string) {
+    this.directory = directory;
+    
     log.info(`Starting fs collection in '${this.directory}'`);
 
     fs.ensureDirSync(directory);

@@ -1,8 +1,8 @@
 import path from 'path';
 import * as vfs from './vfs';
-import * as directories from '../directories';
 import { ExecutionContext } from '../recipe';
 import { TaskParameters, TaskMetadata } from '../../../../shared/deploy';
+import { Services } from '../..';
 
 export { TaskMetadata };
 
@@ -63,7 +63,8 @@ export function createLogger(context: ExecutionContext, category: string): Logge
 }
 
 export function absolutePath(p: string) {
-  return path.join(directories.files(), p);
+  const paths = Services.instance.pathManager.deploy;
+  return path.join(paths.files, p);
 }
 
 // used by several tasks

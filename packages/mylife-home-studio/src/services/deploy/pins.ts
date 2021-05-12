@@ -9,10 +9,11 @@ const log = logger.createLogger('mylife:home:studio:services:deploy:pins');
 export class Pins extends EventEmitter {
   private readonly pins = new Set<string>();
   private watcher: FSWatcher;
+  private filePath: string;
 
-  constructor(private readonly filePath: string) {
-    super();
-
+  init(filePath: string) {
+    this.filePath = filePath;
+    
     log.info(`Starting pins in '${this.filePath}'`);
 
     fs.ensureDirSync(path.parse(this.filePath).dir);

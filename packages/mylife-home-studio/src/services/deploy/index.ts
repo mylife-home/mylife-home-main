@@ -5,7 +5,6 @@ import { Pins } from './pins';
 import { Runs } from './runs';
 import { Files } from './files';
 import { listMeta } from './tasks';
-import * as directories from './directories';
 import { FsCollection } from '../../utils/fs-collection';
 
 import {
@@ -24,22 +23,17 @@ import {
 
 export class Deploy implements Service {
 
-  private readonly recipes: FsCollection<RecipeConfig>;
-  private readonly pins: Pins;
+  private readonly recipes = new FsCollection<RecipeConfig>();
+  private readonly pins = new Pins();
   private readonly runs = new Runs();
   private readonly files = new Files();
   private readonly notifiers = new SessionNotifierManager('deploy/notifiers', 'deploy/updates');
 
   constructor(params: BuildParams) {
-    directories.configure();
-
-    this.recipes = new FsCollection<RecipeConfig>(directories.recipes());
-    
     this.recipes.on('create', this.handleRecipeSet);
     this.recipes.on('update', this.handleRecipeSet);
     this.recipes.on('delete', this.handleRecipeClear);
 
-    this.pins = new Pins(directories.pins());
     this.pins.on('pin', this.handleRecipePinned);
 
     this.runs.on('create', this.handleRunSet);
@@ -54,8 +48,12 @@ export class Deploy implements Service {
   }
 
   async init() {
+    const paths = Services.instance.pathManager.deploy;
+
+    this.recipes.init(paths.recipes);
+    this.pins.init(paths.pins);
     await this.runs.init();
-    await this.files.init();
+    await this.files.init(paths.files);
     this.notifiers.init();
 
     Services.instance.sessionManager.registerServiceHandler('deploy/set-recipe', this.setRecipe);

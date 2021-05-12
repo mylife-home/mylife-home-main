@@ -3,15 +3,19 @@ import { ProjectInfo } from '../../../shared/project-manager';
 import { ChangeType, FsCollection } from '../../utils/fs-collection';
 
 export abstract class Store<TProject> extends EventEmitter {
-  private projects: FsCollection<TProject>;
+  private readonly projects = new FsCollection<TProject>();
 
-  init(directory: string) {
-    this.projects = new FsCollection(directory);
+  constructor() {
+    super();
 
     this.projects.on('create', this.handleCreate);
     this.projects.on('update', this.handleUpdate);
     this.projects.on('delete', this.handleDelete);
     this.projects.on('rename', this.handleRename);
+  }
+
+  init(directory: string) {
+    this.projects.init(directory);
   }
 
   async terminate() {

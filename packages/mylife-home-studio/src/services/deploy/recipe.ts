@@ -3,8 +3,8 @@ import path from 'path';
 import tasks, { TaskDefinition } from './tasks';
 import * as vfs from './engine/vfs';
 import { createLogger } from './engine/tasks-utils';
-import * as directories from './directories';
 import { RecipeConfig, RecipeStepConfig, RunLogSeverity, TaskParameters, TaskStepConfig } from '../../../shared/deploy';
+import { Services } from '..';
 
 export interface ExecutionContext {
   logger: (category: string, severity: RunLogSeverity, message: string) => void;
@@ -17,7 +17,8 @@ export class Recipe {
   private readonly steps: Step[] = [];
 
   constructor(public readonly id: string) {
-    const fullname = path.join(directories.recipes(), id + '.json');
+    const paths = Services.instance.pathManager.deploy;
+    const fullname = path.join(paths.recipes, id + '.json');
     if (!fs.existsSync(fullname)) {
       throw new Error(`No such recipe : '${id}'`);
     }
