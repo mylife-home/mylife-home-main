@@ -11,10 +11,7 @@
   },
   "projectManager": {
     "uiPath": "../../../mylife-home-studio-data-dev/ui-projects",
-    "corePath": "../../../mylife-home-studio-data-dev/core-projects",
-    "__old__localPath": "/tmp/mylife-home-projects",
-    "__old__githubUrl": "https://github.com/vincent-tr/mylife-home-projects-dev",
-    "__old__githubToken": "%{GITHUB_TOKEN}"
+    "corePath": "../../../mylife-home-studio-data-dev/core-projects"
   },
   "deploy": {
     "filesPath": "../../../mylife-home-studio-data-dev/files",
