@@ -117,7 +117,6 @@ car que sensor vers ui
      - online (one shot comme ui mettre toute la conf a jour d un coup?)
      - as recipe files for direct config in image
 - setup gitconvex
-- afficher branche git courante dans la status bar en bas
 
 # Notes
 
