@@ -18,6 +18,5 @@ export default createReducer(initialState, {
 
   [ActionTypes.SET_STATUS]: (state, action: PayloadAction<GitStatus>) => {
     state.status = action.payload;
-    }
   },
 });
