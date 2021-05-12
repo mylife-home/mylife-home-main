@@ -29,24 +29,27 @@ interface Config {
 }
 
 export class PathManager implements Service {
+  public readonly root: string;
   public readonly projectManager: ProjectManagerPaths;
   public readonly deploy: DeployPaths;
 
   constructor(params: BuildParams) {
     const config = tools.getConfigItem<Config>('paths');
 
+    this.root = path.resolve(config.root);
+
     this.projectManager = {
-      core: path.resolve(config.root, config.projectManager.core),
-      ui: path.resolve(config.root, config.projectManager.ui),
+      core: path.resolve(this.root, config.projectManager.core),
+      ui: path.resolve(this.root, config.projectManager.ui),
     };
 
     this.deploy = {
-      files: path.resolve(config.root, config.deploy.files),
-      recipes: path.resolve(config.root, config.deploy.recipes),
-      pins: path.resolve(config.root, config.deploy.pinnedRecipesFile),
+      files: path.resolve(this.root, config.deploy.files),
+      recipes: path.resolve(this.root, config.deploy.recipes),
+      pins: path.resolve(this.root, config.deploy.pinnedRecipesFile),
     };
 
-    log.info(`root path: '${config.root}'`);
+    log.info(`root path: '${this.root}'`);
     log.info(`projectManager.core path: '${this.projectManager.core}'`);
     log.info(`projectManager.ui path: '${this.projectManager.ui}'`);
     log.info(`deploy.files path: '${this.deploy.files}'`);

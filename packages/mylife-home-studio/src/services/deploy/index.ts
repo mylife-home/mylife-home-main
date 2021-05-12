@@ -67,6 +67,9 @@ export class Deploy implements Service {
 
     Services.instance.sessionManager.registerServiceHandler('deploy/start-notify', this.startNotify);
     Services.instance.sessionManager.registerServiceHandler('deploy/stop-notify', this.stopNotify);
+
+    Services.instance.git.registerPathFeature('deploy/files', paths.files);
+    Services.instance.git.registerPathFeature('deploy/recipes', paths.recipes, paths.pins);
   }
 
   async terminate() {

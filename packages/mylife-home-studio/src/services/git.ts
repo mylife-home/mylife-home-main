@@ -22,7 +22,7 @@ export class Git implements Service {
     this.statusUpdater.init();
 
     // Initial setup
-    this.updateBranch();
+    this.statusUpdater.call();
     this.updateStatus();
   }
 
@@ -32,10 +32,13 @@ export class Git implements Service {
   }
 
   notifyFileUpdate() {
+    this.statusUpdater.call();
   }
 
-  registerDirectoryFeature(featureName: string, subDirectory: string) {
+  registerPathFeature(featureName: string, ...paths: string[]) {
+    log.debug(`Configure feature '${featureName}' from paths ${paths.map(path => `'${path}'`).join(', ')}`);
 
+    // TODO
   }
 
   private readonly updateBranch = () => {

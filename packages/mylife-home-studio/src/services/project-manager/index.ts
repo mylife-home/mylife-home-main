@@ -45,6 +45,9 @@ export class ProjectManager implements Service {
     Services.instance.sessionManager.registerServiceHandler('project-manager/open', this.openProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/close', this.closeProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/call-opened', this.callOpenedProject);
+
+    Services.instance.git.registerPathFeature('project/core', paths.core);
+    Services.instance.git.registerPathFeature('project/ui', paths.ui);
   }
 
   async terminate() {
