@@ -1,8 +1,9 @@
-import React, { FunctionComponent } from 'react';
+import React, { forwardRef, FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Toolbar from '@material-ui/core/Toolbar';
+import Popover from '@material-ui/core/Popover';
 
 const STATUS_HEIGHT = 24;
 
@@ -28,6 +29,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: '100%',
   },
+  popover: {
+    pointerEvents: 'none',
+  },
+  popoverPaper: {
+    padding: theme.spacing(1),
+  },
 }));
 
 const StatusBar: FunctionComponent<{ className?: string }> = ({ className, children }) => {
@@ -48,8 +55,40 @@ export const StatusSeparator: FunctionComponent = () => {
   return <div className={classes.separator} />;
 };
 
-export const StatusItem: FunctionComponent = ({ children }) => {
+export const StatusItem = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
   const classes = useStyles();
 
-  return <div className={classes.item}>{children}</div>;
+  return <div ref={ref} className={clsx(className, classes.item)} {...props} />;
+});
+
+export const StatusItemWithPopover: FunctionComponent<React.HTMLAttributes<HTMLDivElement> & { popover: React.ReactNode }> = ({ popover, ...props }) => {
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null);
+
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <StatusItem onMouseEnter={handlePopoverOpen} onMouseLeave={handlePopoverClose} {...props} />
+
+      <Popover
+        className={classes.popover}
+        classes={{ paper: classes.popoverPaper }}
+        open={!!anchorEl}
+        anchorEl={anchorEl}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        {popover}
+      </Popover>
+    </>
+  );
 };
