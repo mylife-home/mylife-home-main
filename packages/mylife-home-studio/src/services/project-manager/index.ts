@@ -2,7 +2,6 @@ import { ProjectType, SetListNotification, ClearListNotification, RenameListNoti
 import { Services } from '..';
 import { Session, SessionNotifier, SessionNotifierManager } from '../session-manager';
 import { Service, BuildParams } from '../types';
-import * as directories from './directories';
 import { Store } from './store';
 import { CoreProjects } from './core/projects';
 import { UiProjects } from './ui/projects';
@@ -10,29 +9,27 @@ import { OpenedProject, OpenedProjects } from './opened-project';
 
 export class ProjectManager implements Service {
   private readonly listNotifiers = new SessionNotifierManager('project-manager/list-notifiers', 'project-manager/list');
-  private readonly coreProjects: CoreProjects;
-  private readonly uiProjects: UiProjects;
-  private readonly openedProjects: OpenedProjects;
+  private readonly coreProjects = new CoreProjects();
+  private readonly uiProjects = new UiProjects();
+  private readonly openedProjects = new OpenedProjects(this.coreProjects, this.uiProjects);
 
   constructor(params: BuildParams) {
-    directories.configure();
-
-    this.coreProjects = new CoreProjects(directories.core());
     this.coreProjects.on('created', this.handleCoreProjectSet);
     this.coreProjects.on('renamed', this.handleCoreProjectRename);
     this.coreProjects.on('deleted', this.handleCoreProjectDelete);
     this.coreProjects.on('updated', this.handleCoreProjectSet);
 
-    this.uiProjects = new UiProjects(directories.ui());
     this.uiProjects.on('created', this.handleUiProjectSet);
     this.uiProjects.on('renamed', this.handleUiProjectRename);
     this.uiProjects.on('deleted', this.handleUiProjectDelete);
     this.uiProjects.on('updated', this.handleUiProjectSet);
-
-    this.openedProjects = new OpenedProjects(this.coreProjects, this.uiProjects);
   }
 
   async init() {
+    const paths = Services.instance.pathManager.projectManager;
+
+    this.coreProjects.init(paths.core);
+    this.uiProjects.init(paths.ui);
     this.listNotifiers.init();
     this.openedProjects.init();
 

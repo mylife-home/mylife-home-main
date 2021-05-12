@@ -3,10 +3,9 @@ import { ProjectInfo } from '../../../shared/project-manager';
 import { ChangeType, FsCollection } from '../../utils/fs-collection';
 
 export abstract class Store<TProject> extends EventEmitter {
-  private readonly projects: FsCollection<TProject>;
+  private projects: FsCollection<TProject>;
 
-  constructor(directory: string) {
-    super();
+  init(directory: string) {
     this.projects = new FsCollection(directory);
 
     this.projects.on('create', this.handleCreate);
