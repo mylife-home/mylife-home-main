@@ -4,14 +4,9 @@ import { logger } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { GitStatus, GitStatusNotification } from '../../shared/git';
+import { GitStatus, GitStatusNotification, DEFAULT_STATUS } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
-
-const DEFAULT_STATUS: GitStatus = {
-  branch: '<unknown>',
-  changedFeatures: {},
-};
 
 export class Git implements Service {
   private readonly branchUpdater: Interval;
@@ -97,6 +92,7 @@ export class Git implements Service {
       return;
     }
 
+    log.info(`Setting branch to '${branch}'`);
     this.updateModel({ branch });
   }
 
@@ -118,6 +114,7 @@ export class Git implements Service {
 
     const gitFiles = parseGitStatus(raw);
     const changedFeatures = buildChangedFeatures(gitFiles);
+    log.info(`Setting changed features to ${JSON.stringify(changedFeatures)}`);
     this.updateModel({ changedFeatures });
   }
 

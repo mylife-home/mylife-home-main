@@ -10,6 +10,7 @@ import onlineHistory from './online-history/reducer';
 import onlineInstancesView from './online-instances-view/reducer';
 import onlineComponentsView from './online-components-view/reducer';
 import deploy from './deploy/reducer';
+import git from './git/reducer';
 
 export default combineReducers({
   status,
@@ -22,4 +23,5 @@ export default combineReducers({
   onlineInstancesView,
   onlineComponentsView,
   deploy,
+  git,
 });
