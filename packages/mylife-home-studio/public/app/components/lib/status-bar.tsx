@@ -82,8 +82,8 @@ export const StatusItemWithPopover: FunctionComponent<React.HTMLAttributes<HTMLD
         classes={{ paper: classes.popoverPaper }}
         open={!!anchorEl}
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         onClose={handlePopoverClose}
         disableRestoreFocus
       >
