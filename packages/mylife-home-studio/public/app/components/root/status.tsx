@@ -9,6 +9,7 @@ import SvgIcon from '@material-ui/core/SvgIcon';
 
 import { name, version } from '../../../../package.json';
 import { isOnline, getRunningRequestsIds } from '../../store/status/selectors';
+import { getGitBranch, getGitChangedFeatures, getGitChangedFiles } from '../../store/git/selectors';
 import StatusBar, { StatusSeparator, StatusItem, StatusItemWithPopover } from '../lib/status-bar';
 
 const useStyles = makeStyles((theme) => ({
@@ -77,13 +78,20 @@ const RunningRequests: FunctionComponent = () => {
 
 const Git: FunctionComponent = () => {
   const classes = useStyles();
+  const branch = useSelector(getGitBranch);
+  const changedFeatures = useSelector(getGitChangedFeatures);
+
+  let text = branch;
+  if(changedFeatures.length > 0) {
+    text += ` (changes on ${changedFeatures.join(', ')})`
+  }
 
   return (
     <StatusItemWithPopover popover={
       <Typography>I use Popover.</Typography>
     }>
       <GitIcon className={classes.gitIcon} />
-      <Typography>{`GIT TODO`}</Typography>
+      <Typography>{text}</Typography>
     </StatusItemWithPopover>
   );
 };
