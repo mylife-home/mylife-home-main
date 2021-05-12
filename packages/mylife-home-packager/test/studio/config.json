@@ -9,13 +9,16 @@
     "port": 8002,
     "staticDirectory": "./static"
   },
-  "projectManager": {
-    "uiPath": "../../../mylife-home-studio-data-dev/ui-projects",
-    "corePath": "../../../mylife-home-studio-data-dev/core-projects"
-  },
-  "deploy": {
-    "filesPath": "../../../mylife-home-studio-data-dev/files",
-    "recipesPath": "../../../mylife-home-studio-data-dev/recipes",
-    "pinnedRecipesFile": "../../../mylife-home-studio-data-dev/pinned-recipes.json"
+  "paths": {
+    "root": "../../../mylife-home-studio-data-dev",
+    "projectManager": {
+      "ui": "ui-projects",
+      "core": "core-projects"
+    },
+    "deploy": {
+      "files": "files",
+      "recipes": "recipes",
+      "pinnedRecipesFile": "pinned-recipes.json"
+    }
   }
 }
