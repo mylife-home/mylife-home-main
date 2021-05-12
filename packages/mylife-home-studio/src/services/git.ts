@@ -2,13 +2,15 @@ import { logger } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { CircularBuffer } from '../utils/circular-buffer';
+import { GitStatus, GitStatusNotification } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
 
 export class Git implements Service {
   private readonly branchUpdater: Interval;
   private readonly statusUpdater: Debounce;
+  private readonly notifiers = new SessionNotifierManager('git/notifiers', 'git/status');
+  private status: GitStatus;
 
   constructor(params: BuildParams) {
     this.branchUpdater = new Interval(1000, this.updateBranch);
@@ -16,10 +18,12 @@ export class Git implements Service {
   }
 
   async init() {
-    // Config: base directory (all others should be derived from this one)
-
     this.branchUpdater.init();
     this.statusUpdater.init();
+    this.notifiers.init();
+
+    Services.instance.sessionManager.registerServiceHandler('git/start-notify', this.startNotify);
+    Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
 
     // Initial setup
     this.statusUpdater.call();
@@ -39,6 +43,26 @@ export class Git implements Service {
     log.debug(`Configure feature '${featureName}' from paths ${paths.map(path => `'${path}'`).join(', ')}`);
 
     // TODO
+  }
+
+  private readonly startNotify = async (session: Session) => {
+    const notifier = this.notifiers.createNotifier(session);
+
+    setImmediate(() => {
+      const notification: GitStatusNotification = { status: this.status };
+      notifier.notify(notification);
+    });
+
+    return { notifierId: notifier.id };
+  };
+
+  private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string; }) => {
+    this.notifiers.removeNotifier(session, notifierId);
+  };
+
+  private emitStatus() {
+    const notification: GitStatusNotification = { status: this.status };
+    this.notifiers.notifyAll(notification);
   }
 
   private readonly updateBranch = () => {
