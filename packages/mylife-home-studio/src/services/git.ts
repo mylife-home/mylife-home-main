@@ -74,6 +74,11 @@ export class Git implements Service {
     this.notifiers.notifyAll(notification);
   }
 
+  private runGit(...args: string[]) {
+    const rootPath = Services.instance.pathManager.root;
+    return cp.execFileSync('git', args, { encoding: 'utf8', cwd: rootPath, timeout: 5000 });
+  }
+
   private readonly updateBranch = () => {
     try {
       let branch = this.runGit('branch', '--show-current');
@@ -98,7 +103,7 @@ export class Git implements Service {
 
   private readonly updateStatus = () => {
     try {
-      const raw = this.runGit('status', '--porcelain', 'z');
+      const raw = this.runGit('status', '--porcelain', '-z');
       this.updateStatusModel(raw);
     } catch (err) {
       log.error(err, 'Error while updating status');
@@ -113,15 +118,35 @@ export class Git implements Service {
     }
 
     const gitFiles = parseGitStatus(raw);
-    const changedFeatures = buildChangedFeatures(gitFiles);
+    const changedFeatures = this.buildChangedFeatures(gitFiles);
     log.info(`Setting changed features to ${JSON.stringify(changedFeatures)}`);
     this.updateModel({ changedFeatures });
   }
 
-
-  private runGit(...args: string[]) {
+  private buildChangedFeatures(gitFiles: FileStatus[]) {
     const rootPath = Services.instance.pathManager.root;
-    return cp.execFileSync('git', args, { encoding: 'utf8', cwd: rootPath, timeout: 5000 });
+    const changedFeatures: GitStatus['changedFeatures'] = {};
+
+    // Build new changedFeatures
+    for (const gitFile of gitFiles) {
+      const filePath = path.join(rootPath, gitFile.to);
+
+      for (const { featureName, path: featurePath } of this.featuresPaths) {
+        if (!filePath.startsWith(featurePath)) {
+          continue;
+        }
+
+        changedFeatures[featureName] = changedFeatures[featureName] || [];
+        changedFeatures[featureName].push(path.relative(featurePath, filePath));
+      }
+    }
+
+    // Consistency
+    for (const list of Object.values(changedFeatures)) {
+      list.sort();
+    }
+
+    return changedFeatures;
   }
 }
 
@@ -202,30 +227,4 @@ function parseGitStatus(input: string) {
   }
 
   return files;
-}
-
-function buildChangedFeatures(gitFiles: FileStatus[]) {
-  const rootPath = Services.instance.pathManager.root;
-  const changedFeatures: GitStatus['changedFeatures'] = {};
-
-  // Build new changedFeatures
-  for (const gitFile of gitFiles) {
-    const filePath = path.join(rootPath, gitFile.to);
-
-    for (const { featureName, path: featurePath } of this.featuresPaths) {
-      if (!filePath.startsWith(featurePath)) {
-        continue;
-      }
-
-      changedFeatures[featureName] = changedFeatures[featureName] || [];
-      changedFeatures[featureName].push(path.relative(featurePath, filePath));
-    }
-  }
-
-  // Consistency
-  for (const list of Object.values(changedFeatures)) {
-    list.sort();
-  }
-
-  return changedFeatures;
 }
