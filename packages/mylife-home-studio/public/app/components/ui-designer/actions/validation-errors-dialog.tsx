@@ -12,9 +12,9 @@ import TreeItem from '@material-ui/lab/TreeItem';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
-import { TransitionProps, DialogText } from '../../../dialogs/common';
-import { ElementPathNode } from '../common/element-path-breadcrumbs';
-import { UiValidationError, UiElementPathNode } from '../../../../../../shared/project-manager';
+import { TransitionProps, DialogText } from '../../dialogs/common';
+import { ElementPathNode } from '../main-view/common/element-path-breadcrumbs';
+import { UiValidationError, UiElementPathNode } from '../../../../../shared/project-manager';
 
 const useStyles = makeStyles((theme) => ({
   tree: {

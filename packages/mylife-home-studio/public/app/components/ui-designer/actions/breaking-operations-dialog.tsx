@@ -10,10 +10,10 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
-import { ConfirmResult } from '../../../dialogs/confirm';
-import { TransitionProps, DialogText } from '../../../dialogs/common';
-import { BreakingOperation } from '../../../../../../shared/project-manager';
-import ElementPathBreadcrumbs from '../common/element-path-breadcrumbs';
+import { ConfirmResult } from '../../dialogs/confirm';
+import { TransitionProps, DialogText } from '../../dialogs/common';
+import { BreakingOperation } from '../../../../../shared/project-manager';
+import ElementPathBreadcrumbs from '../main-view/common/element-path-breadcrumbs';
 
 const useStyles = makeStyles((theme) => ({
   list: {

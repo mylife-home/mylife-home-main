@@ -1,22 +1,43 @@
 import React, { FunctionComponent } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 
+import Actions from './actions';
 import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
 import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { useSelection } from './selection';
 import { useTabSelector } from '../lib/use-tab-selector';
 import { getWindowsIds } from '../../store/ui-designer/selectors';
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%'
+  },
+  list: {
+    flex: 1
+  },
+  actions: {
+  }
+}));
+
 const SideBar: FunctionComponent = () => {
+  const classes = useStyles();
   return (
-    <SideBarList>
-      <Project />
-      <SideBarDivider />
-      <Windows />
-      <SideBarDivider />
-      <Resources />
-      <SideBarDivider />
-      <Components />
-    </SideBarList>
+    <div className={classes.container}>
+
+      <SideBarList className={classes.list}>
+        <Project />
+        <SideBarDivider />
+        <Windows />
+        <SideBarDivider />
+        <Resources />
+        <SideBarDivider />
+        <Components />
+      </SideBarList>
+
+      <Actions className={classes.actions} />
+    </div>
   );
 };
 

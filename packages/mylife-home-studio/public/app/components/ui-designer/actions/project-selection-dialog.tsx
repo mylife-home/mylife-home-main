@@ -9,9 +9,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
-import { TransitionProps, DialogText } from '../../../dialogs/common';
-import { AppState } from '../../../../store/types';
-import { getCoreProjectsIds, getCoreProjectInfo } from '../../../../store/projects-list/selectors';
+import { TransitionProps, DialogText } from '../../dialogs/common';
+import { AppState } from '../../../store/types';
+import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
 
 const useStyles = makeStyles((theme) => ({
   list: {

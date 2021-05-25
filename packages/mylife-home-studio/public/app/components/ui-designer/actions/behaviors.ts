@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { useTabPanelId } from '../../../lib/tab-panel';
-import { useFireAsync } from '../../../lib/use-error-handling';
-import { AsyncDispatch } from '../../../../store/types';
-import { validateProject, refreshComponentsFromOnline, refreshComponentsFromProject, applyRefreshComponents, deployProject } from '../../../../store/ui-designer/actions';
-import { RefreshData } from '../../../../store/ui-designer/types';
-import { UiValidationError } from '../../../../../../shared/project-manager';
-import { useSnackbar } from '../../../dialogs/snackbar';
+import { useTabPanelId } from '../../lib/tab-panel';
+import { useFireAsync } from '../../lib/use-error-handling';
+import { AsyncDispatch } from '../../../store/types';
+import { validateProject, refreshComponentsFromOnline, refreshComponentsFromProject, applyRefreshComponents, deployProject } from '../../../store/ui-designer/actions';
+import { RefreshData } from '../../../store/ui-designer/types';
+import { UiValidationError } from '../../../../../shared/project-manager';
+import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 import { useProjectSelectionDialog } from './project-selection-dialog';
 import { useShowBreakingOperationsDialog } from './breaking-operations-dialog';
