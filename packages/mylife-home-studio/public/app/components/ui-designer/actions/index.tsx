@@ -1,14 +1,22 @@
 import React, { FunctionComponent } from 'react';
+import { makeStyles, darken } from '@material-ui/core/styles';
+import Badge from '@material-ui/core/Badge';
 import Toolbar from '@material-ui/core/Toolbar';
-import MenuItem from '@material-ui/core/MenuItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import Typography from '@material-ui/core/Typography';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import CheckIcon from '@material-ui/icons/Check';
 import PublishIcon from '@material-ui/icons/Publish';
 
-import { ProjectIcon, ComponentIcon, InstanceIcon } from '../../lib/icons';
-import { ToolbarIconButton, ToolbarMenuIconButton } from '../../lib/toolbar';
+import { ToolbarIconButton } from '../../lib/toolbar';
 import { useProjectValidation, useRefreshComponentsFromOnline, useRefreshComponentsFromCoreProject, useProjectDeploy } from './behaviors';
+import { ProjectIcon, InstanceIcon } from '../../lib/icons';
+
+
+const useStyles = makeStyles((theme) => ({
+  badgeIcon: {
+    background: null,
+    color: darken(theme.palette.background.paper, 0.2),
+  },
+}));
 
 const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
   const refreshComponentsFromCoreProject = useRefreshComponentsFromCoreProject();
@@ -18,26 +26,8 @@ const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <Toolbar className={className}>
-
-      <ToolbarMenuIconButton title="Rafraîchir les composants"icon={ComponentIcon}>
-        <MenuItem onClick={refreshComponentsFromCoreProject}>
-          <ListItemIcon>
-            <ProjectIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-            Depuis un projet core
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={refreshComponentsFromOnline}>
-          <ListItemIcon>
-            <InstanceIcon fontSize="small" />
-          </ListItemIcon>
-          <Typography variant="inherit" noWrap>
-            Depuis les instances en ligne
-          </Typography>
-        </MenuItem>
-      </ToolbarMenuIconButton>
-
+      <ToolbarIconButton title="Rafraîchir les composants depuis un project core" icon={RefreshFromProjectIcon} onClick={refreshComponentsFromCoreProject} />
+      <ToolbarIconButton title="Rafraîchir les composants depuis les instances en ligne" icon={RefreshFromOnline} onClick={refreshComponentsFromOnline} />
       <ToolbarIconButton title="Valider" icon={CheckIcon} onClick={validateProject} />
       <ToolbarIconButton title="Déployer" icon={PublishIcon} onClick={deployProject} />
 
@@ -46,3 +36,21 @@ const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
 }
 
 export default Actions;
+
+const RefreshFromProjectIcon: FunctionComponent = () => {
+  const classes = useStyles();
+  return (
+    <Badge badgeContent={<ProjectIcon />} classes={{badge: classes.badgeIcon}}>
+      <RefreshIcon />
+    </Badge>
+  );
+};
+
+const RefreshFromOnline: FunctionComponent = () => {
+  const classes = useStyles();
+  return (
+    <Badge badgeContent={<InstanceIcon />} classes={{badge: classes.badgeIcon}}>
+      <RefreshIcon />
+    </Badge>
+  );
+};
