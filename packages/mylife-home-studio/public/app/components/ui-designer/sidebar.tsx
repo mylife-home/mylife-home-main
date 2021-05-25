@@ -17,8 +17,6 @@ const useStyles = makeStyles((theme) => ({
   list: {
     flex: 1
   },
-  actions: {
-  }
 }));
 
 const SideBar: FunctionComponent = () => {
@@ -36,7 +34,8 @@ const SideBar: FunctionComponent = () => {
         <Components />
       </SideBarList>
 
-      <Actions className={classes.actions} />
+      <SideBarDivider />
+      <Actions />
     </div>
   );
 };
