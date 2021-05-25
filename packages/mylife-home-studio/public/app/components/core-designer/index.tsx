@@ -15,6 +15,7 @@ import MiniView from './mini-view';
 import MainView from './main-view';
 import SelectionPanel from './selection-panel';
 import Toolbox from './toolbox';
+import Actions from './actions';
 
 const useStyles = makeStyles((theme) => ({
   sideBar: {
@@ -80,6 +81,10 @@ const CoreDesigner: FunctionComponent = () => {
                 <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
                   <Toolbox className={classes.tabContent} />
                 </div>
+
+                <Divider />
+
+                <Actions />
 
               </div>
 
