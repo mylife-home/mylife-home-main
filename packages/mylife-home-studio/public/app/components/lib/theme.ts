@@ -74,5 +74,11 @@ export const theme = responsiveFontSizes(createMuiTheme({
         padding: 12,
       },
     },
+
+    MuiTooltip: {
+      tooltip: {
+        fontSize: "0.6rem",
+      }
+    },
   },
 }));
