@@ -1,6 +1,7 @@
 import { logger } from 'mylife-home-common';
 import {
   ApplyDeployToOnlineCoreProjectCall,
+  ApplyRefreshToolboxCoreProject,
   ClearBindingCoreProjectCall,
   ClearComponentCoreProjectCall,
   ClearCoreBindingNotification,
@@ -10,11 +11,10 @@ import {
   CoreProject,
   CoreProjectCall,
   CoreToolboxDisplay,
-  DeployToFilesCoreProjectCall,
   DeployToFilesCoreProjectCallResult,
   MoveComponentCoreProjectCall,
-  PrepareDeployToOnlineCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCallResult,
+  PrepareRefreshToolboxCoreProjectCallResult,
   ProjectCallResult,
   RenameComponentCoreProjectCall,
   RenameCoreComponentNotification,
@@ -103,11 +103,20 @@ export class CoreOpenedProject extends OpenedProject {
         this.clearBinding(callData as ClearBindingCoreProjectCall);
         break;
 
+      case 'prepare-refresh-toolbox-from-files':
+        return this.prepareRefreshToolboxFromFiles();
+
+      case 'prepare-refresh-toolbox-from-online':
+        return this.prepareRefreshToolboxFromOnline();
+
+      case 'apply-refresh-toolbox':
+        this.applyRefreshToolbox(callData as ApplyRefreshToolboxCoreProject);
+
       case 'deploy-to-files':
-        return this.deployToFiles(callData as DeployToFilesCoreProjectCall);
+        return this.deployToFiles();
       
       case 'prepare-deploy-to-online':
-        return this.prepareDeployToOnline(callData as PrepareDeployToOnlineCoreProjectCall);
+        return this.prepareDeployToOnline();
 
       case 'apply-deploy-to-online':
         this.applyDeployToOnline(callData as ApplyDeployToOnlineCoreProjectCall);
@@ -297,11 +306,23 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private deployToFiles(callData: DeployToFilesCoreProjectCall): DeployToFilesCoreProjectCallResult {
+  private prepareRefreshToolboxFromOnline(): PrepareRefreshToolboxCoreProjectCallResult {
+    throw new Error('TODO');
+  }
+
+  private prepareRefreshToolboxFromFiles(): PrepareRefreshToolboxCoreProjectCallResult {
+    throw new Error('Pas implementé pour l\'instant.');
+  }
+
+  private applyRefreshToolbox(callData: ApplyRefreshToolboxCoreProject) {
+
+  }
+
+  private deployToFiles(): DeployToFilesCoreProjectCallResult {
     throw new Error('TODO');
   }
       
-  private prepareDeployToOnline(callData: PrepareDeployToOnlineCoreProjectCall): PrepareDeployToOnlineCoreProjectCallResult {
+  private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {
     throw new Error('TODO');
   }
 

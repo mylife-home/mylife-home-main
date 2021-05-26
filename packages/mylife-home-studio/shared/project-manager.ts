@@ -312,7 +312,8 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
-  operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding' | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
+  operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
+  | 'prepare-refresh-toolbox-from-files' | 'prepare-refresh-toolbox-from-online' | 'apply-refresh-toolbox' | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
 
 export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
@@ -365,8 +366,14 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
-export interface DeployToFilesCoreProjectCall extends CoreProjectCall {
-  operation: 'deploy-to-files';
+export interface PrepareRefreshToolboxCoreProjectCallResult extends ProjectCallResult {
+  // TODO
+  serverData: unknown;
+}
+
+export interface ApplyRefreshToolboxCoreProject extends CoreProjectCall {
+  operation: 'apply-refresh-toolbox';
+  serverData: unknown;
 }
 
 export interface DeployToFilesCoreProjectCallResult extends ProjectCallResult {
@@ -377,10 +384,6 @@ export interface DeployChange {
   type: 'create' | 'update' | 'remove';
   instanceName: string;
   componentId: string;
-}
-
-export interface PrepareDeployToOnlineCoreProjectCall extends CoreProjectCall {
-  operation: 'prepare-deploy-to-online';
 }
 
 export interface PrepareDeployToOnlineCoreProjectCallResult extends ProjectCallResult {

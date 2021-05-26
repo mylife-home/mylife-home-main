@@ -11,6 +11,9 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
   UPDATE_PROJECT = 'core-designer/update-project',
 
+  PREPARE_REFRESH_TOOLBOX_FROM_FILES = 'core-designer/prepare-refresh-toolbox-from-files',
+  PREPARE_REFRESH_TOOLBOX_FROM_ONLINE = 'core-designer/prepare-refresh-toolbox-from-online',
+  APPLY_REFRESH_TOOLBOX = 'core-designer/apply-refresh-toolbox',
   DEPLOY_TO_FILES = 'core-designer/deploy-to-files',
   PREPARE_DEPLOY_TO_ONLINE = 'core-designer/prepare-deploy-to-online',
   APPLY_DEPLOY_TO_ONLINE = 'core-designer/apply-deploy-to-online',
@@ -70,6 +73,11 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 }
 
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
+
+export interface RefreshToolboxData {
+  // TODO
+  serverData: unknown;
+}
 
 export interface DeployData {
   changes: DeployChange[];
