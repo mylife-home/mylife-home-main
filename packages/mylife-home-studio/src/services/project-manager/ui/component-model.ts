@@ -1,6 +1,6 @@
 import { components } from 'mylife-home-common';
 import { Component, MemberType, PluginUsage } from '../../../../shared/component-model';
-import { UiPluginData, UiComponentData, BreakingOperation } from '../../../../shared/project-manager';
+import { UiPluginData, UiComponentData, UiBreakingOperation } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { ComponentUsage } from './definition-model';
 import { CoreOpenedProject } from '../core/opened-project';
@@ -149,7 +149,7 @@ export function prepareMergeComponentData(components: ComponentsModel, component
   const usageModel = new UsageModel(components, componentsUsage);
   const usageToClear: ComponentUsage[] = [];
 
-  const breakingOperations: BreakingOperation[] = [];
+  const breakingOperations: UiBreakingOperation[] = [];
 
   // removed components
   const newModel = new ComponentsModel(newComponents);

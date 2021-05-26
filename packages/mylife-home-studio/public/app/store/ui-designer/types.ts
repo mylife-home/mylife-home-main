@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { BreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -57,6 +57,6 @@ export { UiElementPath, UiElementPathNode };
 export type Usage = UiElementPath[];
 
 export interface RefreshData {
-  breakingOperations: BreakingOperation[];
+  breakingOperations: UiBreakingOperation[];
   serverData: unknown;
 }

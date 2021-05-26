@@ -12,7 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
-import { BreakingOperation } from '../../../../../shared/project-manager';
+import { UiBreakingOperation } from '../../../../../shared/project-manager';
 import ElementPathBreadcrumbs from '../main-view/common/element-path-breadcrumbs';
 
 const useStyles = makeStyles((theme) => ({
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function useShowBreakingOperationsDialog() {
   const classes = useStyles();
-  const [breakingOperations, setBreakingOperations] = useState<BreakingOperation[]>();
+  const [breakingOperations, setBreakingOperations] = useState<UiBreakingOperation[]>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(
@@ -104,7 +104,7 @@ export function useShowBreakingOperationsDialog() {
   );
 
   return useCallback(
-    (breakingOperations: BreakingOperation[]) =>
+    (breakingOperations: UiBreakingOperation[]) =>
       new Promise<ConfirmResult>((resolve) => {
         setBreakingOperations(breakingOperations);
         setOnResult(() => resolve); // else useState think resolve is a state updater
@@ -115,7 +115,7 @@ export function useShowBreakingOperationsDialog() {
   );
 }
 
-function getLabel(breakingOperation: BreakingOperation) {
+function getLabel(breakingOperation: UiBreakingOperation) {
   switch(breakingOperation.operation) {
     case 'update': 
       return `Composant modifié : ${breakingOperation.componentId}`;

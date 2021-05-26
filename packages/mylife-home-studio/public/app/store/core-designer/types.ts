@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, CorePluginData, DeployChange } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreBreakingOperation, CoreComponentData, CorePluginData, DeployChange } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -75,7 +75,7 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
 export interface RefreshToolboxData {
-  // TODO
+  breakingOperations: CoreBreakingOperation[];
   serverData: unknown;
 }
 

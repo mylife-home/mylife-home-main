@@ -67,7 +67,7 @@ export function useRefreshComponentsFromCoreProject() {
 
 function useExecuteRefresh() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<RefreshData>>();
+  const dispatch = useDispatch();
   const showBreakingOperations = useShowBreakingOperationsDialog();
   const { enqueueSnackbar } = useSnackbar();
 

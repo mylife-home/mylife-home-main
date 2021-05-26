@@ -15,6 +15,7 @@ import {
   prepareRefreshToolboxFromFiles, prepareRefreshToolboxFromOnline, applyRefreshToolbox,
   deployToFiles, prepareDeployToOnline, applyDeployToOnline
 } from '../../store/core-designer/actions';
+import { RefreshToolboxData } from '../../store/core-designer/actions';
 
 const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
   const refreshToolboxFromFiles = useRefreshToolboxFromFiles();
@@ -64,18 +65,50 @@ const DeployToOnlineIcon: FunctionComponent = () => (
 
 function useRefreshToolboxFromFiles() {
   const tabId = useTabPanelId();
+  const fireAsync = useFireAsync();
+  const dispatch = useDispatch<AsyncDispatch<RefreshToolboxData>>();
+  const executeRefresh = useExecuteRefresh();
 
   return useCallback(() => {
-    console.log('TODO');
-  }, []);
+    fireAsync(async () => {
+      const refreshData = await dispatch(prepareRefreshToolboxFromFiles({ id: tabId }));
+      await executeRefresh(refreshData);
+    });
+  }, [fireAsync, dispatch]);
 }
 
 function useRefreshToolboxFromOnline() {
   const tabId = useTabPanelId();
+  const fireAsync = useFireAsync();
+  const dispatch = useDispatch<AsyncDispatch<RefreshToolboxData>>();
+  const executeRefresh = useExecuteRefresh();
 
   return useCallback(() => {
-    console.log('TODO');
-  }, []);
+    fireAsync(async () => {
+      const refreshData = await dispatch(prepareRefreshToolboxFromOnline({ id: tabId }));
+      await executeRefresh(refreshData);
+    });
+  }, [fireAsync, dispatch]);
+}
+
+function useExecuteRefresh() {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const showBreakingOperations = useShowBreakingOperationsDialog();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(async (refreshData: RefreshToolboxData) => {
+    if (refreshData.breakingOperations.length > 0) {
+      const { status } = await showBreakingOperations(refreshData.breakingOperations);
+      if(status !== 'ok') {
+        return;
+      }
+    }
+
+    await dispatch(applyRefreshToolbox({ id: tabId, serverData: refreshData.serverData }));
+
+    enqueueSnackbar('La boîte à outils a été mis à jour.', { variant: 'success' });
+  }, [dispatch, enqueueSnackbar]);
 }
 
 function useDeployToFiles() {

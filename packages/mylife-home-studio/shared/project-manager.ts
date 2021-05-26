@@ -244,14 +244,14 @@ export interface ValidateUiProjectCallResult extends ProjectCallResult {
   errors: UiValidationError[];
 }
 
-export interface BreakingOperation {
+export interface UiBreakingOperation {
   operation: 'update' | 'remove';
   componentId: string;
   usage: UiElementPath[];
 }
 
 export interface RefreshComponentsUiProjectCallResult extends ProjectCallResult {
-  breakingOperations: BreakingOperation[];
+  breakingOperations: UiBreakingOperation[];
   serverData: unknown;
 }
 
@@ -366,8 +366,13 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
-export interface PrepareRefreshToolboxCoreProjectCallResult extends ProjectCallResult {
+
+export interface CoreBreakingOperation {
   // TODO
+}
+
+export interface PrepareRefreshToolboxCoreProjectCallResult extends ProjectCallResult {
+  breakingOperations: CoreBreakingOperation[];
   serverData: unknown;
 }
 
