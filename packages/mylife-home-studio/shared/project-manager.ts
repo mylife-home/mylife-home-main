@@ -312,7 +312,7 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
-  operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding';
+  operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding' | 'deploy-to-file' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
 
 export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
@@ -363,4 +363,29 @@ export interface SetBindingCoreProjectCall extends CoreProjectCall {
 export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   operation: 'clear-binding';
   bindingId: string;
+}
+
+export interface DeployToFileCoreProjectCall extends CoreProjectCall {
+  operation: 'deploy-to-file';
+}
+
+export interface DeployToFileCoreProjectCallResult extends ProjectCallResult {
+  files: string[];
+}
+
+export interface DeployOnlineChange {
+  // TODO
+}
+
+export interface PrepareDeployToOnlineCoreProjectCall extends CoreProjectCall {
+  operation: 'prepare-deploy-to-online';
+}
+
+export interface PrepareDeployToOnlineCoreProjectCallResult extends ProjectCallResult {
+  changes: DeployOnlineChange[];
+}
+
+export interface ApplyDeployToOnlineCoreProjectCall extends CoreProjectCall {
+  operation: 'apply-deploy-to-online';
+  changes: DeployOnlineChange[];
 }
