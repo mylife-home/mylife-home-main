@@ -114,8 +114,11 @@ car que sensor vers ui
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy
-     - online (one shot comme ui mettre toute la conf a jour d un coup?)
-     - as recipe files for direct config in image
+    - online (one shot comme ui mettre toute la conf a jour d un coup?)
+    - as recipe files for direct config in image
+  - refresh toolbox
+    - from online entities
+    - from deploy config?
 - setup gitconvex
 
 # Notes
