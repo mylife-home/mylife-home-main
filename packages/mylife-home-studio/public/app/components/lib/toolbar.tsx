@@ -1,21 +1,37 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, ReactNode, useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import SvgIcon from '@material-ui/core/SvgIcon';
+import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 
-export const ToolbarIconButton: FunctionComponent<{ title: string, icon: typeof SvgIcon, onClick: (event: React.MouseEvent<HTMLElement>) => void }> = ({ title, icon, onClick }) => {
-  const Icon = icon;
+const useStyles = makeStyles((theme) => ({
+  badgeIcon: {
+    background: null,
+    color: theme.palette.primary.main,
+  },
+}));
+
+interface ToolbarIconButtonProps {
+  title: ReactNode;
+  icon: ReactNode;
+  onClick: (event: React.MouseEvent<HTMLElement>) => void;
+}
+
+export const ToolbarIconButton: FunctionComponent<ToolbarIconButtonProps> = ({ title, icon, onClick }) => {
   return (
     <Tooltip title={title}>
       <IconButton onClick={onClick}>
-        <Icon /> 
+        {icon}
       </IconButton>
     </Tooltip>
   );
 };
 
-export const ToolbarMenuIconButton: FunctionComponent<{ title: string, icon: typeof SvgIcon }> = ({ title, icon, children }) => {
+type ToolbarMenuIconButtonProps = Omit<ToolbarIconButtonProps, 'onClick'>;
+
+export const ToolbarMenuIconButton: FunctionComponent<ToolbarMenuIconButtonProps> = ({ children, ...props }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -28,7 +44,7 @@ export const ToolbarMenuIconButton: FunctionComponent<{ title: string, icon: typ
 
   return (
     <>
-      <ToolbarIconButton title={title} icon={icon} onClick={handleClick} />
+      <ToolbarIconButton {...props} onClick={handleClick} />
 
       <Menu
         getContentAnchorEl={null}
@@ -43,5 +59,15 @@ export const ToolbarMenuIconButton: FunctionComponent<{ title: string, icon: typ
         {children}
       </Menu>
     </>
+  );
+};
+
+export const IconWithBadge: FunctionComponent<{ main: ReactNode, badge: ReactNode }> = ({ main, badge }) => {
+  const classes = useStyles();
+
+  return (
+    <Badge badgeContent={badge} classes={{badge: classes.badgeIcon}}>
+      {main}
+    </Badge>
   );
 };
