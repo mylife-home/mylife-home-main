@@ -36,7 +36,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'prepare-refresh-toolbox-from-files' } as CoreProjectCall;
       },
       resultMapper(serviceResult: PrepareRefreshToolboxCoreProjectCallResult) {
-        return { breakingOperations: serverData.breakingOperations, serverData: serviceResult.serverData };
+        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
       }
     },
 
@@ -45,7 +45,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'prepare-refresh-toolbox-from-online' } as CoreProjectCall;
       },
       resultMapper(serviceResult: PrepareRefreshToolboxCoreProjectCallResult) {
-        return { breakingOperations: serverData.breakingOperations, serverData: serviceResult.serverData };
+        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
       }
     },
 
