@@ -1,4 +1,4 @@
-import { logger } from 'mylife-home-common';
+import { logger, components } from 'mylife-home-common';
 import {
   ApplyDeployToOnlineCoreProjectCall,
   ApplyRefreshToolboxCoreProject,
@@ -30,6 +30,7 @@ import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { Model } from './model';
+import { Services } from '../..';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
@@ -307,15 +308,21 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareRefreshToolboxFromOnline(): PrepareRefreshToolboxCoreProjectCallResult {
-    throw new Error('TODO');
+    const imports = loadOnlinePlugins();
+    return this.prepareRefreshToolbox(imports);
   }
 
   private prepareRefreshToolboxFromFiles(): PrepareRefreshToolboxCoreProjectCallResult {
     throw new Error('Pas implementé pour l\'instant.');
+    // return prepareRefreshToolbox(...);
+  }
+
+  private prepareRefreshToolbox(imports: PluginImport[]): PrepareRefreshToolboxCoreProjectCallResult {
+    throw new Error('TODO');
   }
 
   private applyRefreshToolbox(callData: ApplyRefreshToolboxCoreProject) {
-
+    throw new Error('TODO');
   }
 
   private deployToFiles(): DeployToFilesCoreProjectCallResult {
@@ -330,4 +337,25 @@ export class CoreOpenedProject extends OpenedProject {
     throw new Error('TODO');
   }
 
+}
+
+interface PluginImport {
+  instanceName: string;
+  plugin: components.metadata.NetPlugin;
+}
+
+function loadOnlinePlugins() {
+  const onlineService = Services.instance.online;
+  const instanceNames = onlineService.getInstanceNames();
+  const list: PluginImport[] = [];
+
+  for (const instanceName of instanceNames) {
+    const plugins = onlineService.getPlugins(instanceName);
+    for (const onlinePlugin of plugins) {
+      const plugin = components.metadata.encodePlugin(onlinePlugin);
+      list.push({ instanceName, plugin });
+    }
+  }
+
+  return list;
 }
