@@ -366,9 +366,18 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
+export interface CoreUsage {
+  type: 'binding' | 'component' | 'config';
+  id: string;
+  configName?: string; // only if type === 'config'
+}
 
 export interface CoreBreakingOperation {
-  // TODO
+  operation: 'update' | 'remove';
+  instanceName: string;
+  pluginId: string;
+
+  usage: CoreUsage[];
 }
 
 export interface PrepareRefreshToolboxCoreProjectCallResult extends ProjectCallResult {
