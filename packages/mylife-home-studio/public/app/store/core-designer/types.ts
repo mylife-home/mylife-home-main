@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, CorePluginData } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, CorePluginData, DeployChange } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -11,6 +11,9 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
   UPDATE_PROJECT = 'core-designer/update-project',
 
+  DEPLOY_TO_FILES = 'core-designer/deploy-to-files',
+  PREPARE_DEPLOY_TO_ONLINE = 'core-designer/prepare-deploy-to-online',
+  APPLY_DEPLOY_TO_ONLINE = 'core-designer/apply-deploy-to-online',
   SET_COMPONENT = 'core-designer/set-component',
   MOVE_COMPONENT = 'core-designer/move-component',
   CONFIGURE_COMPONENT = 'core-designer/configure-component',
@@ -67,3 +70,8 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 }
 
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
+
+export interface DeployData {
+  changes: DeployChange[];
+  serverData: unknown;
+}

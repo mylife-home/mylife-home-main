@@ -1,11 +1,15 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, DeployData } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
 export const removeOpenedProject = createAction<{ id: string; }>(ActionTypes.REMOVE_OPENED_PROJECT);
 export const updateProject = createAction<{ id: string; update: UpdateProjectNotification }[]>(ActionTypes.UPDATE_PROJECT);
+
+export const deployToFiles = createAsyncAction<{ id: string; }, { files: string[] }>(ActionTypes.DEPLOY_TO_FILES);
+export const prepareDeployToOnline = createAsyncAction<{ id: string; }, DeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
+export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
 
 export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
 export const moveComponent = createAsyncAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);

@@ -10,8 +10,8 @@ import {
   CoreProject,
   CoreProjectCall,
   CoreToolboxDisplay,
-  DeployToFileCoreProjectCall,
-  DeployToFileCoreProjectCallResult,
+  DeployToFilesCoreProjectCall,
+  DeployToFilesCoreProjectCallResult,
   MoveComponentCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCallResult,
@@ -103,8 +103,8 @@ export class CoreOpenedProject extends OpenedProject {
         this.clearBinding(callData as ClearBindingCoreProjectCall);
         break;
 
-      case 'deploy-to-file':
-        return this.deployToFile(callData as DeployToFileCoreProjectCall);
+      case 'deploy-to-files':
+        return this.deployToFiles(callData as DeployToFilesCoreProjectCall);
       
       case 'prepare-deploy-to-online':
         return this.prepareDeployToOnline(callData as PrepareDeployToOnlineCoreProjectCall);
@@ -297,7 +297,7 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private deployToFile(callData: DeployToFileCoreProjectCall): DeployToFileCoreProjectCallResult {
+  private deployToFiles(callData: DeployToFilesCoreProjectCall): DeployToFilesCoreProjectCallResult {
     throw new Error('TODO');
   }
       

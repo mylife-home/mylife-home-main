@@ -15,7 +15,12 @@ import {
   SetBindingCoreProjectCall,
   ClearBindingCoreProjectCall,
   CoreBindingData,
-  SetComponentCoreProjectCall
+  SetComponentCoreProjectCall,
+  DeployToFilesCoreProjectCall,
+  DeployToFilesCoreProjectCallResult,
+  PrepareDeployToOnlineCoreProjectCall,
+  PrepareDeployToOnlineCoreProjectCallResult,
+  ApplyDeployToOnlineCoreProjectCall
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -24,6 +29,31 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   setNotifier, clearAllNotifiers, removeOpenedProject, updateProject, updateTab: updateCoreDesignerTab,
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   callMappers: {
+
+    [ActionTypes.DEPLOY_TO_FILES]: {
+      mapper() {
+        return { operation: 'deploy-to-files' } as DeployToFilesCoreProjectCall;
+      },
+      resultMapper(serviceResult: DeployToFilesCoreProjectCallResult) {
+        return { files: serviceResult.files };
+      }
+    },
+
+    [ActionTypes.PREPARE_DEPLOY_TO_ONLINE]: {
+      mapper() {
+        return { operation: 'prepare-deploy-to-online' } as PrepareDeployToOnlineCoreProjectCall;
+      },
+      resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult) {
+        return { changes: serviceResult.changes, serverData: serviceResult.serverData };
+      }
+    },
+
+    [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
+      mapper({ serverData }: { serverData: unknown }) {
+        return { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall;
+      }
+    },
+
     [ActionTypes.UPDATE_TOOLBOX]: {
       mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
         return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
