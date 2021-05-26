@@ -133,7 +133,7 @@ const GitPopopver: FunctionComponent = () => {
             </Grid>
 
             {files.map(file => (
-              <Grid item xs={12}>
+              <Grid key={file} item xs={12}>
                 <Typography className={classes.file}>{file}</Typography>
               </Grid>
             ))}
