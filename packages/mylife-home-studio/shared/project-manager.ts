@@ -1,5 +1,5 @@
 import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
-import { Component, Plugin } from './component-model';
+import { Component, Plugin, PluginUsage } from './component-model';
 
 /**
  * Ui project model
@@ -92,7 +92,7 @@ export interface UiProjectInfo extends ProjectInfo {
 
 export interface CoreProjectInfo extends ProjectInfo {
   instancesCount: number;
-  componentsCount: number;
+  componentsCounts: { [usage in PluginUsage]: number };
   pluginsCount: number;
   bindingsCount: number;
 }

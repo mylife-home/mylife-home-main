@@ -1,3 +1,4 @@
+import { PluginUsage } from '../../../../shared/component-model';
 import { CoreProject, CoreProjectInfo } from '../../../../shared/project-manager';
 import { Store } from '../store';
 import { convertCoreProject, coreV1 } from './converter';
@@ -26,7 +27,7 @@ export class CoreProjects extends Store<CoreProject> {
     const project = this.getProject(name);
     return {
       instancesCount: new Set(Object.values(project.plugins).map(plugin => plugin.instanceName)).size,
-      componentsCount: Object.keys(project.components).length,
+      componentsCounts: getComponentsCounts(project),
       pluginsCount: Object.keys(project.plugins).length,
       bindingsCount: Object.keys(project.bindings).length,
     };
@@ -36,3 +37,26 @@ export class CoreProjects extends Store<CoreProject> {
     return new CoreOpenedProject(this, name);
   }
 }
+
+function getComponentsCounts(project: CoreProject) {
+  const counts: { [usage in PluginUsage]: number } = {
+    [PluginUsage.SENSOR]: 0,
+    [PluginUsage.ACTUATOR]: 0,
+    [PluginUsage.LOGIC]: 0,
+    [PluginUsage.UI]: 0,
+  };
+
+  for (const id of  Object.keys(project.components)) {
+    const usage = getComponentUsage(project, id);
+    ++counts[usage];
+  }
+
+  return counts;
+}
+
+function getComponentUsage(project: CoreProject, id: string) {
+  const component = project.components[id];
+  const plugin = project.plugins[component.plugin];
+  return plugin.usage;
+}
+

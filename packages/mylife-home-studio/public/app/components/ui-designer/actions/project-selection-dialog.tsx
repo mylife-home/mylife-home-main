@@ -12,6 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
+import { PluginUsage } from '../../../store/projects-list/types';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -82,7 +83,7 @@ const ProjectItem: FunctionComponent<{ id: string; onSelect: () => void }> = ({ 
 
   return (
     <ListItem button onClick={onSelect}>
-      <ListItemText primary={id} secondary={'TODO'} />
+      <ListItemText primary={id} secondary={`${info.componentsCounts[PluginUsage.UI]} composants UI`} />
     </ListItem>
   );
 };

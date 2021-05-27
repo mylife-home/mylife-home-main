@@ -5,6 +5,7 @@ import { useAction } from '../lib/use-actions';
 import { AppState } from '../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../store/projects-list/selectors';
 import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
+import * as types from '../../store/projects-list/types';
 import { newCoreDesignerTab } from '../../store/tabs/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
@@ -44,9 +45,13 @@ const CoreProjectItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const formattedInfo = useMemo(() => [
     `${info.instancesCount} instances`,
     `${info.pluginsCount} plugins`,
-    `${info.componentsCount} componsants`,
+    `${getComponentsCount(info)} componsants`,
     `${info.bindingsCount} bindings`,
   ], [info]);
 
   return <ProjectItem id={id} info={formattedInfo} />;
 };
+
+function getComponentsCount(info: types.CoreProjectItem) {
+  return Object.values(info.componentsCounts).reduce((acc, value) => acc + value, 0);
+}

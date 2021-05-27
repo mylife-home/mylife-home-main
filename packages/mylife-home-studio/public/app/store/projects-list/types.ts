@@ -1,4 +1,5 @@
 import { CoreProjectInfo, UiProjectInfo, ProjectType } from '../../../../shared/project-manager';
+import { PluginUsage } from '../../../../shared/component-model';
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
@@ -13,7 +14,7 @@ export const enum ActionTypes {
   DELETE = 'projects-list/delete',
 }
 
-export { ProjectType };
+export { ProjectType, PluginUsage };
 
 export interface BaseProjectItem {
   id: string; // = name
