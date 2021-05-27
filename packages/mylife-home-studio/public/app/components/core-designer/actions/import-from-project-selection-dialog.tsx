@@ -8,6 +8,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -23,6 +24,12 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
+  spacer: {
+    height: theme.spacing(8),
+  },
+  componentsOptions: {
+    paddingLeft: theme.spacing(4)
+  }
 }));
 
 export function useImportFromProjectSelectionDialog() {
@@ -64,13 +71,18 @@ export function useImportFromProjectSelectionDialog() {
               ))}
             </List>
 
+            <div className={classes.spacer} />
+
             <DialogText value={'Sélectionner les éléments à importer'} />
-            <FormControlLabel control={<Checkbox />} label="Importer les plugins" />
-            <FormControlLabel control={<Checkbox />} label="Importer les composants" />
-            <RadioGroup>
-              <FormControlLabel control={<Radio />} label="Comme externes (ex: depuis un projet de composants drivers)" />
-              <FormControlLabel control={<Radio />} label="Comme normaux (ex: pour fusionner 2 projets)" />
-            </RadioGroup>
+            <FormGroup>
+              <FormControlLabel control={<Checkbox color='primary' />} label="Importer les plugins" />
+              <FormControlLabel control={<Checkbox color='primary' />} label="Importer les composants" />
+
+              <RadioGroup className={classes.componentsOptions}>
+                <FormControlLabel disabled control={<Radio color='primary' />} label="Comme externes (ex: depuis un projet de composants drivers)" />
+                <FormControlLabel disabled control={<Radio color='primary' />} label="Comme normaux (ex: pour fusionner 2 projets)" />
+              </RadioGroup>
+            </FormGroup>
           </DialogContent>
         </Dialog>
       );
