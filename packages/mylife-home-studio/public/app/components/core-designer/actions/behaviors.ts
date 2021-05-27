@@ -12,6 +12,19 @@ import {
   deployToFiles, prepareDeployToOnline, applyDeployToOnline
 } from '../../../store/core-designer/actions';
 
+  // importer depuis un autre projet:
+  // - les plugins
+  // - les composants, en externe (sans config)
+  // - les composants, en interne (copie, pour fusion de projets)
+
+export function useImportFromProject() {
+  const tabId = useTabPanelId();
+
+  return useCallback(() => {
+    console.log('TODO');
+  }, []);
+}
+
 export function useRefreshToolboxFromFiles() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();

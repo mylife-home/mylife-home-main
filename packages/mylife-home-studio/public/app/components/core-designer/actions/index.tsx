@@ -2,13 +2,15 @@ import React, { FunctionComponent } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import PublishIcon from '@material-ui/icons/Publish';
 import RefreshIcon from '@material-ui/icons/Refresh';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
 import { ToolbarIconButton, IconWithBadge } from '../../lib/toolbar';
-import { InstanceIcon } from '../../lib/icons';
+import { InstanceIcon, ProjectIcon } from '../../lib/icons';
 import { FileIcon } from '../../deploy/icons';
-import { useRefreshToolboxFromFiles, useRefreshToolboxFromOnline, useDeployToFiles, useDeployToOnline } from './behaviors';
+import { useImportFromProject, useRefreshToolboxFromFiles, useRefreshToolboxFromOnline, useDeployToFiles, useDeployToOnline } from './behaviors';
 
 const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
+  const importFromProject = useImportFromProject();
   const refreshToolboxFromFiles = useRefreshToolboxFromFiles();
   const refreshToolboxFromOnline = useRefreshToolboxFromOnline();
   const deployToFiles = useDeployToFiles();
@@ -16,7 +18,13 @@ const Actions: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <Toolbar className={className}>
-      <ToolbarIconButton title="Rafraîchir la boîte à outils depuis les fichiers de deploiement" icon={<RefreshFromFilesIcon />} onClick={refreshToolboxFromFiles} />
+      <ToolbarIconButton title="Importer depuis un autre projet" icon={<ImportFromProject />} onClick={importFromProject} />
+
+      {/* Pas implémenté pour l'instant */}
+      <div style={{display: 'none'}}>
+        <ToolbarIconButton title="Rafraîchir la boîte à outils depuis les fichiers de deploiement" icon={<RefreshFromFilesIcon />} onClick={refreshToolboxFromFiles} />
+      </div>
+
       <ToolbarIconButton title="Rafraîchir la boîte à outils depuis les entités en ligne" icon={<RefreshFromOnlineIcon />} onClick={refreshToolboxFromOnline} />
       <ToolbarIconButton title="Déployer vers un fichier de configuration de déploiement" icon={<DeployToFilesIcon />} onClick={deployToFiles} />
       <ToolbarIconButton title="Déployer sur une instance en ligne" icon={<DeployToOnlineIcon />} onClick={deployToOnline} />
@@ -30,6 +38,12 @@ const RefreshFromFilesIcon: FunctionComponent = () => (
   <IconWithBadge
     main={<RefreshIcon />}
     badge={<FileIcon />}
+  />
+);
+const ImportFromProject: FunctionComponent = () => (
+  <IconWithBadge
+    main={<GetAppIcon />}
+    badge={<ProjectIcon />}
   />
 );
 
