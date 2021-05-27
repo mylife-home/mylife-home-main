@@ -11,6 +11,7 @@ import {
   prepareRefreshToolboxFromFiles, prepareRefreshToolboxFromOnline, applyRefreshToolbox,
   deployToFiles, prepareDeployToOnline, applyDeployToOnline
 } from '../../../store/core-designer/actions';
+import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
 
   // importer depuis un autre projet:
   // - les plugins
@@ -19,10 +20,15 @@ import {
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
+  const fireAsync = useFireAsync();
+  const showImportFromProjectSelectionDialog = useImportFromProjectSelectionDialog();
 
   return useCallback(() => {
-    console.log('TODO');
-  }, []);
+    fireAsync(async () => {
+      const result = await showImportFromProjectSelectionDialog();
+      console.log('TODO', result);
+    });
+  }, [fireAsync]);
 }
 
 export function useRefreshToolboxFromFiles() {
