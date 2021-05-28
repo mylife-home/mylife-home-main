@@ -50,7 +50,7 @@ export function useProjectSelectionDialog() {
 
       return (
         <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
-          <DialogTitle id="dialog-title">Selection de projet</DialogTitle>
+          <DialogTitle id="dialog-title">Sélection de projet</DialogTitle>
 
           <DialogContent dividers>
             <DialogText value={'Sélectionner un projet à partir duquel importer les composants'} />
