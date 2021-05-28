@@ -328,7 +328,7 @@ Gérer conflits plugins : confirmation changement + prendre toujours la version 
     return this.prepareBulkUpdates(imports);
   }
 
-  private prepareBulkUpdates(imports: PluginImport[]): PrepareBulkUpdateCoreProjectCallResult {
+  private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
     throw new Error('TODO');
   }
 
@@ -350,12 +350,25 @@ Gérer conflits plugins : confirmation changement + prendre toujours la version 
 
 }
 
+interface ImportData {
+  plugins: PluginImport[];
+  components: ComponentImport[];
+}
+
+interface ComponentImport {
+  id: string;
+  instanceName: string;
+  pluginId: string;
+  external: boolean;
+  config: { [name: string]: any; };
+}
+
 interface PluginImport {
   instanceName: string;
   plugin: components.metadata.NetPlugin;
 }
 
-function loadOnlinePlugins() {
+function loadOnlinePlugins(): ImportData {
   const onlineService = Services.instance.online;
   const instanceNames = onlineService.getInstanceNames();
   const list: PluginImport[] = [];
@@ -368,5 +381,5 @@ function loadOnlinePlugins() {
     }
   }
 
-  return list;
+  return { plugins: list, components: [] };
 }
