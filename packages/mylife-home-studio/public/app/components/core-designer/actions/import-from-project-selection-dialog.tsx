@@ -38,9 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 const DEFAULT_CONFIG: ImportFromProjectConfig = { projectId: null, importPlugins: false, importComponents: null };
 
+type DialogResult = ConfirmResult & { config?: ImportFromProjectConfig };
+
 export function useImportFromProjectSelectionDialog() {
   const classes = useStyles();
-  const [onResult, setOnResult] = useState<(result: ConfirmResult & { config?: ImportFromProjectConfig }) => void>();
+  const [onResult, setOnResult] = useState<(result: DialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
@@ -124,7 +126,7 @@ export function useImportFromProjectSelectionDialog() {
 
   return useCallback(
     () =>
-      new Promise<ImportFromProjectConfig>((resolve) => {
+      new Promise<DialogResult>((resolve) => {
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();

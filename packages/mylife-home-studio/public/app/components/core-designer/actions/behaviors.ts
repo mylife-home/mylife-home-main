@@ -37,7 +37,11 @@ export function useImportFromProject() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const config = await showImportFromProjectSelectionDialog();
+      const { status, config } = await showImportFromProjectSelectionDialog();
+      if (status !== 'ok') {
+        return;
+      }
+
       const bulkUpdatesData = await dispatch(prepareImportFromProject({ id: tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
@@ -67,7 +71,7 @@ function useExecuteRefresh() {
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
     if (bulkUpdatesData.breakingOperations.length > 0) {
       const { status } = await showBreakingOperations(bulkUpdatesData.breakingOperations);
-      if(status !== 'ok') {
+      if (status !== 'ok') {
         return;
       }
     }
