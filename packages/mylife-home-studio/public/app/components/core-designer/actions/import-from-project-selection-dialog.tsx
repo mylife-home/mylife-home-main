@@ -5,6 +5,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,6 +16,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 
+import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
@@ -33,28 +36,51 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const DEFAULT_CONFIG: ImportFromProjectConfig = { projectId: null, importPlugins: false, importComponents: null };
+
 export function useImportFromProjectSelectionDialog() {
   const classes = useStyles();
-  const [onResult, setOnResult] = useState<(projectId: string, ) => void>();
+  const [onResult, setOnResult] = useState<(result: ConfirmResult & { config?: ImportFromProjectConfig }) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
       const ids = useSelector(getCoreProjectsIds);
-      const [projectId, selectProjectId] = useState<string>(null);
+      const [config, updateConfig] = useState(DEFAULT_CONFIG);
 
       const close = () => {
         hideModal();
         onResult(null);
       };
 
-      const createSelect = (projectId: string) => () => {
-        selectProjectId(projectId);
+      const createSelectHandler = (projectId: string) => () => {
+        updateConfig(config => ({ ...config, projectId }));
       };
 
+      const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const importComponents = (event.target as HTMLInputElement).value as ImportFromProjectConfig['importComponents'];
+        updateConfig(config => ({ ...config, importComponents }));
+      }
+
+      const cancel = () => {
+        hideModal();
+        onResult({ status: 'cancel' });
+      };
+  
+      const validate = () => {
+        if (isConfigValid(config)) {
+          hideModal();
+          onResult({ status: 'ok', config });
+        }
+      };
+  
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
+          case 'Enter':
+            validate();
+            break;
+          
           case 'Escape':
-            close();
+            cancel();
             break;
         }
       };
@@ -68,7 +94,7 @@ export function useImportFromProjectSelectionDialog() {
 
             <List className={classes.list}>
               {ids.map((id) => (
-                <ProjectItem key={id} id={id} onSelect={createSelect(id)} selected={id === projectId} />
+                <ProjectItem key={id} id={id} onSelect={createSelectHandler(id)} selected={config.projectId === id} />
               ))}
             </List>
 
@@ -76,15 +102,20 @@ export function useImportFromProjectSelectionDialog() {
 
             <DialogText value={'Sélectionner les éléments à importer'} />
             <FormGroup>
-              <FormControlLabel control={<Checkbox color='primary' />} label="Importer les plugins" />
-              <FormControlLabel control={<Checkbox color='primary' />} label="Importer les composants" />
+              <CheckBoxWithLabel label="Importer les plugins" value={config.importPlugins} onChange={importPlugins => updateConfig(config => ({ ...config, importPlugins}))} />
+              <CheckBoxWithLabel label="Importer les composants" value={!!config.importComponents} onChange={value => updateConfig(config => ({ ...config, importComponents: (value ? 'external' : null)}))} />
 
-              <RadioGroup className={classes.componentsOptions}>
-                <FormControlLabel disabled control={<Radio color='primary' />} label="Comme externes (ex: depuis un projet de composants drivers)" />
-                <FormControlLabel disabled control={<Radio color='primary' />} label="Comme normaux (ex: pour fusionner 2 projets)" />
+              <RadioGroup className={classes.componentsOptions} value={config.importComponents} onChange={handleRadioChange}>
+                <FormControlLabel disabled={!config.importComponents} value={'external'} control={<Radio color='primary' />} label="Comme externes (ex: depuis un projet de composants drivers)" />
+                <FormControlLabel disabled={!config.importComponents} value={'standard'} control={<Radio color='primary' />} label="Comme normaux (ex: pour fusionner 2 projets)" />
               </RadioGroup>
             </FormGroup>
           </DialogContent>
+
+          <DialogActions>
+            <Button color="primary" onClick={validate} disabled={!isConfigValid(config)}>OK</Button>
+            <Button onClick={cancel}>Annuler</Button>
+          </DialogActions>
         </Dialog>
       );
     },
@@ -102,6 +133,10 @@ export function useImportFromProjectSelectionDialog() {
   );
 }
 
+const CheckBoxWithLabel: FunctionComponent<{ label: string; value: boolean; onChange: (newValue: boolean) => void }> = ({ label, value, onChange }) => (
+  <FormControlLabel label={label} control={<Checkbox color='primary' checked={value} onChange={e => onChange(e.target.checked)} />} />
+);
+
 const ProjectItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void }> = ({ id, selected, onSelect }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
@@ -111,3 +146,7 @@ const ProjectItem: FunctionComponent<{ id: string; selected: boolean; onSelect: 
     </ListItem>
   );
 };
+
+function isConfigValid(config: ImportFromProjectConfig) {
+  return config.projectId && (config.importComponents || config.importPlugins);
+}
