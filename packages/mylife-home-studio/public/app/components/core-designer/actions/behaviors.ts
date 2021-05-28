@@ -13,10 +13,20 @@ import {
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
 
-  // importer depuis un autre projet:
-  // - les plugins
-  // - les composants, en externe (sans config)
-  // - les composants, en interne (copie, pour fusion de projets)
+// importer depuis un autre projet:
+// - les plugins
+// - les composants, en externe (sans config)
+// - les composants, en interne (copie, pour fusion de projets)
+
+/*
+
+Pas d'import de binding
+Déploiement -> une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
+Import plugins = tous les plugins
+Import composants = composants + seulement plugins associés, sans x,y
+Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
+
+*/
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
