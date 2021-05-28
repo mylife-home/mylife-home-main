@@ -20,8 +20,8 @@ import {
   PrepareDeployToOnlineCoreProjectCallResult,
   ApplyDeployToOnlineCoreProjectCall,
   CoreProjectCall,
-  PrepareRefreshToolboxCoreProjectCallResult,
-  ApplyRefreshToolboxCoreProject
+  PrepareBulkUpdateCoreProjectCallResult,
+  ApplyBulkUpdatesCoreProject
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -31,27 +31,27 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   callMappers: {
 
-    [ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_FILES]: {
-      mapper() {
-        return { operation: 'prepare-refresh-toolbox-from-files' } as CoreProjectCall;
-      },
-      resultMapper(serviceResult: PrepareRefreshToolboxCoreProjectCallResult) {
-        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
-      }
-    },
-
     [ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_ONLINE]: {
       mapper() {
         return { operation: 'prepare-refresh-toolbox-from-online' } as CoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareRefreshToolboxCoreProjectCallResult) {
+      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult) {
         return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
       }
     },
 
-    [ActionTypes.APPLY_REFRESH_TOOLBOX]: {
+    [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
+      mapper() {
+        return { operation: 'prepare-import-from-project' } as CoreProjectCall;
+      },
+      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult) {
+        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
+      }
+    },
+
+    [ActionTypes.APPLY_BULK_UPDATES]: {
       mapper({ serverData }: { serverData: unknown }) {
-        return { operation: 'apply-refresh-toolbox', serverData } as ApplyRefreshToolboxCoreProject;
+        return { operation: 'apply-bulk-updates', serverData } as ApplyBulkUpdatesCoreProject;
       }
     },
 

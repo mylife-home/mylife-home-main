@@ -1,7 +1,7 @@
 import { logger, components } from 'mylife-home-common';
 import {
   ApplyDeployToOnlineCoreProjectCall,
-  ApplyRefreshToolboxCoreProject,
+  ApplyBulkUpdatesCoreProject,
   ClearBindingCoreProjectCall,
   ClearComponentCoreProjectCall,
   ClearCoreBindingNotification,
@@ -14,7 +14,6 @@ import {
   DeployToFilesCoreProjectCallResult,
   MoveComponentCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCallResult,
-  PrepareRefreshToolboxCoreProjectCallResult,
   ProjectCallResult,
   RenameComponentCoreProjectCall,
   RenameCoreComponentNotification,
@@ -25,6 +24,8 @@ import {
   SetCorePluginsNotification,
   SetCorePluginToolboxDisplayNotification,
   UpdateToolboxCoreProjectCall,
+  PrepareImportFromProjectCoreProjectCall,
+  PrepareBulkUpdateCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -104,14 +105,14 @@ export class CoreOpenedProject extends OpenedProject {
         this.clearBinding(callData as ClearBindingCoreProjectCall);
         break;
 
-      case 'prepare-refresh-toolbox-from-files':
-        return this.prepareRefreshToolboxFromFiles();
+      case 'prepare-import-from-project':
+        return this.prepareImportFromProject(callData as PrepareImportFromProjectCoreProjectCall);
 
       case 'prepare-refresh-toolbox-from-online':
         return this.prepareRefreshToolboxFromOnline();
 
-      case 'apply-refresh-toolbox':
-        this.applyRefreshToolbox(callData as ApplyRefreshToolboxCoreProject);
+      case 'apply-bulk-updates':
+        this.applyBulkUpdates(callData as ApplyBulkUpdatesCoreProject);
 
       case 'deploy-to-files':
         return this.deployToFiles();
@@ -307,21 +308,21 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private prepareRefreshToolboxFromOnline(): PrepareRefreshToolboxCoreProjectCallResult {
+  private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
+    throw new Error('TODO');
+    return this.prepareBulkUpdates(null);
+  }
+
+  private prepareRefreshToolboxFromOnline() {
     const imports = loadOnlinePlugins();
-    return this.prepareRefreshToolbox(imports);
+    return this.prepareBulkUpdates(imports);
   }
 
-  private prepareRefreshToolboxFromFiles(): PrepareRefreshToolboxCoreProjectCallResult {
-    throw new Error('Pas implementé pour l\'instant.');
-    // return prepareRefreshToolbox(...);
-  }
-
-  private prepareRefreshToolbox(imports: PluginImport[]): PrepareRefreshToolboxCoreProjectCallResult {
+  private prepareBulkUpdates(imports: PluginImport[]): PrepareBulkUpdateCoreProjectCallResult {
     throw new Error('TODO');
   }
 
-  private applyRefreshToolbox(callData: ApplyRefreshToolboxCoreProject) {
+  private applyBulkUpdates(callData: ApplyBulkUpdatesCoreProject) {
     throw new Error('TODO');
   }
 

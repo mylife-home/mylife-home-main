@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreBreakingOperation, CoreComponentData, CorePluginData, DeployChange } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreBreakingOperation, CoreComponentData, CorePluginData, DeployChange, ImportFromProjectConfig } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -11,9 +11,9 @@ export const enum ActionTypes {
   REMOVE_OPENED_PROJECT = 'core-designer/remove-opened-project',
   UPDATE_PROJECT = 'core-designer/update-project',
 
-  PREPARE_REFRESH_TOOLBOX_FROM_FILES = 'core-designer/prepare-refresh-toolbox-from-files',
   PREPARE_REFRESH_TOOLBOX_FROM_ONLINE = 'core-designer/prepare-refresh-toolbox-from-online',
-  APPLY_REFRESH_TOOLBOX = 'core-designer/apply-refresh-toolbox',
+  PREPARE_IMPORT_FROM_PROJECT = 'core-designer/prepare-import-from-project',
+  APPLY_BULK_UPDATES = 'core-designer/apply-bulk-updates',
   DEPLOY_TO_FILES = 'core-designer/deploy-to-files',
   PREPARE_DEPLOY_TO_ONLINE = 'core-designer/prepare-deploy-to-online',
   APPLY_DEPLOY_TO_ONLINE = 'core-designer/apply-deploy-to-online',
@@ -27,7 +27,7 @@ export const enum ActionTypes {
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
 }
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromProjectConfig };
 
 export type PluginUse = 'unused' | 'external' | 'used';
 
@@ -74,7 +74,7 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
-export interface RefreshToolboxData {
+export interface BulkUpdatesData {
   breakingOperations: CoreBreakingOperation[];
   serverData: unknown;
 }

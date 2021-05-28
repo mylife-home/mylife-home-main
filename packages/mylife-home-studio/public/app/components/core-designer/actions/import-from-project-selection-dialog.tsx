@@ -17,6 +17,7 @@ import Radio from '@material-ui/core/Radio';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
+import { ImportFromProjectConfig } from '../../../store/core-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -34,11 +35,12 @@ const useStyles = makeStyles((theme) => ({
 
 export function useImportFromProjectSelectionDialog() {
   const classes = useStyles();
-  const [onResult, setOnResult] = useState<(projectId: string) => void>();
+  const [onResult, setOnResult] = useState<(projectId: string, ) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
       const ids = useSelector(getCoreProjectsIds);
+      const [projectId, selectProjectId] = useState<string>(null);
 
       const close = () => {
         hideModal();
@@ -46,8 +48,7 @@ export function useImportFromProjectSelectionDialog() {
       };
 
       const createSelect = (projectId: string) => () => {
-        hideModal();
-        onResult(projectId);
+        selectProjectId(projectId);
       };
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -60,14 +61,14 @@ export function useImportFromProjectSelectionDialog() {
 
       return (
         <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="sm" fullWidth onKeyDown={handleKeyDown}>
-          <DialogTitle id="dialog-title">Selection de projet</DialogTitle>
+          <DialogTitle id="dialog-title">Sélection de projet</DialogTitle>
 
           <DialogContent dividers>
             <DialogText value={'Sélectionner un projet à partir duquel importer'} />
 
             <List className={classes.list}>
               {ids.map((id) => (
-                <ProjectItem key={id} id={id} onSelect={createSelect(id)} />
+                <ProjectItem key={id} id={id} onSelect={createSelect(id)} selected={id === projectId} />
               ))}
             </List>
 
@@ -92,7 +93,7 @@ export function useImportFromProjectSelectionDialog() {
 
   return useCallback(
     () =>
-      new Promise<string>((resolve) => {
+      new Promise<ImportFromProjectConfig>((resolve) => {
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
@@ -101,11 +102,11 @@ export function useImportFromProjectSelectionDialog() {
   );
 }
 
-const ProjectItem: FunctionComponent<{ id: string; onSelect: () => void }> = ({ id, onSelect }) => {
+const ProjectItem: FunctionComponent<{ id: string; selected: boolean; onSelect: () => void }> = ({ id, selected, onSelect }) => {
   const info = useSelector((state: AppState) => getCoreProjectInfo(state, id));
 
   return (
-    <ListItem button onClick={onSelect}>
+    <ListItem button onClick={onSelect} selected={selected}>
       <ListItemText primary={id} secondary={'TODO'} />
     </ListItem>
   );

@@ -6,9 +6,9 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowBreakingOperationsDialog } from './breaking-operations-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { RefreshToolboxData } from '../../../store/core-designer/types';
+import { BulkUpdatesData } from '../../../store/core-designer/types';
 import { 
-  prepareRefreshToolboxFromFiles, prepareRefreshToolboxFromOnline, applyRefreshToolbox,
+  prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates,
   deployToFiles, prepareDeployToOnline, applyDeployToOnline
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
@@ -31,40 +31,29 @@ Gérer conflits plugins : confirmation changement + prendre toujours la version 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();
+  const dispatch = useDispatch<AsyncDispatch<BulkUpdatesData>>();
   const showImportFromProjectSelectionDialog = useImportFromProjectSelectionDialog();
+  const executeBulkUpdate = useExecuteRefresh();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const result = await showImportFromProjectSelectionDialog();
-      console.log('TODO', result);
+      const config = await showImportFromProjectSelectionDialog();
+      const bulkUpdatesData = await dispatch(prepareImportFromProject({ id: tabId, config }));
+      await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync]);
-}
-
-export function useRefreshToolboxFromFiles() {
-  const tabId = useTabPanelId();
-  const fireAsync = useFireAsync();
-  const dispatch = useDispatch<AsyncDispatch<RefreshToolboxData>>();
-  const executeRefresh = useExecuteRefresh();
-
-  return useCallback(() => {
-    fireAsync(async () => {
-      const refreshData = await dispatch(prepareRefreshToolboxFromFiles({ id: tabId }));
-      await executeRefresh(refreshData);
-    });
-  }, [fireAsync, dispatch]);
 }
 
 export function useRefreshToolboxFromOnline() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();
-  const dispatch = useDispatch<AsyncDispatch<RefreshToolboxData>>();
-  const executeRefresh = useExecuteRefresh();
+  const dispatch = useDispatch<AsyncDispatch<BulkUpdatesData>>();
+  const executeBulkUpdate = useExecuteRefresh();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const refreshData = await dispatch(prepareRefreshToolboxFromOnline({ id: tabId }));
-      await executeRefresh(refreshData);
+      const bulkUpdatesData = await dispatch(prepareRefreshToolboxFromOnline({ id: tabId }));
+      await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch]);
 }
@@ -75,15 +64,15 @@ function useExecuteRefresh() {
   const showBreakingOperations = useShowBreakingOperationsDialog();
   const { enqueueSnackbar } = useSnackbar();
 
-  return useCallback(async (refreshData: RefreshToolboxData) => {
-    if (refreshData.breakingOperations.length > 0) {
-      const { status } = await showBreakingOperations(refreshData.breakingOperations);
+  return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
+    if (bulkUpdatesData.breakingOperations.length > 0) {
+      const { status } = await showBreakingOperations(bulkUpdatesData.breakingOperations);
       if(status !== 'ok') {
         return;
       }
     }
 
-    await dispatch(applyRefreshToolbox({ id: tabId, serverData: refreshData.serverData }));
+    await dispatch(applyBulkUpdates({ id: tabId, serverData: bulkUpdatesData.serverData }));
 
     enqueueSnackbar('La boîte à outils a été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);

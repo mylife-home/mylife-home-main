@@ -313,7 +313,8 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
 
 export interface CoreProjectCall {
   operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
-  | 'prepare-refresh-toolbox-from-files' | 'prepare-refresh-toolbox-from-online' | 'apply-refresh-toolbox' | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
+  | 'prepare-import-from-project' | 'prepare-refresh-toolbox-from-online' | 'apply-bulk-updates'
+  | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
 
 export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
@@ -380,13 +381,26 @@ export interface CoreBreakingOperation {
   usage: CoreUsage[];
 }
 
-export interface PrepareRefreshToolboxCoreProjectCallResult extends ProjectCallResult {
+type ComponentsImportType = null | 'standard' | 'external';
+
+export interface ImportFromProjectConfig {
+  projectId: string;
+  importPlugins: boolean;
+  importComponents: ComponentsImportType;
+}
+
+export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall {
+  operation: 'prepare-import-from-project';
+  config: ImportFromProjectConfig;
+}
+
+export interface PrepareBulkUpdateCoreProjectCallResult extends ProjectCallResult {
   breakingOperations: CoreBreakingOperation[];
   serverData: unknown;
 }
 
-export interface ApplyRefreshToolboxCoreProject extends CoreProjectCall {
-  operation: 'apply-refresh-toolbox';
+export interface ApplyBulkUpdatesCoreProject extends CoreProjectCall {
+  operation: 'apply-bulk-updates';
   serverData: unknown;
 }
 

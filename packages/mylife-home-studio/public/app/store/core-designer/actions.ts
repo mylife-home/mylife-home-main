@@ -1,15 +1,15 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, DeployData, RefreshToolboxData } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, DeployData, BulkUpdatesData, ImportFromProjectConfig } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
 export const removeOpenedProject = createAction<{ id: string; }>(ActionTypes.REMOVE_OPENED_PROJECT);
 export const updateProject = createAction<{ id: string; update: UpdateProjectNotification }[]>(ActionTypes.UPDATE_PROJECT);
 
-export const prepareRefreshToolboxFromFiles = createAsyncAction<{ id: string; }, RefreshToolboxData>(ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_FILES);
-export const prepareRefreshToolboxFromOnline = createAsyncAction<{ id: string; }, RefreshToolboxData>(ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_ONLINE);
-export const applyRefreshToolbox = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_REFRESH_TOOLBOX);
+export const prepareImportFromProject = createAsyncAction<{ id: string; config: ImportFromProjectConfig }, BulkUpdatesData>(ActionTypes.PREPARE_IMPORT_FROM_PROJECT);
+export const prepareRefreshToolboxFromOnline = createAsyncAction<{ id: string; }, BulkUpdatesData>(ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_ONLINE);
+export const applyBulkUpdates = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_BULK_UPDATES);
 export const deployToFiles = createAsyncAction<{ id: string; }, { files: string[] }>(ActionTypes.DEPLOY_TO_FILES);
 export const prepareDeployToOnline = createAsyncAction<{ id: string; }, DeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
 export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
