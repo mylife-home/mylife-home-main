@@ -71,6 +71,7 @@
    - on window resize window cannot be smaller that larger of its control
  - core-designer
    - multi-select
+   - importer des plugins depuis les fichiers de déploiement
 
 ## ui
 
