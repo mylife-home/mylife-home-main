@@ -309,6 +309,16 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
+/*
+
+Pas d'import de binding
+Déploiement -> une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
+Import plugins = tous les plugins
+Import composants = composants + seulement plugins associés, sans x,y
+Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
+
+*/
+
     throw new Error('TODO');
     return this.prepareBulkUpdates(null);
   }
