@@ -26,12 +26,14 @@ import {
   UpdateToolboxCoreProjectCall,
   PrepareImportFromProjectCoreProjectCall,
   PrepareBulkUpdateCoreProjectCallResult,
+  ImportFromProjectConfig,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
+import { pick, clone } from '../../../utils/object-utils';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
@@ -55,6 +57,14 @@ export class CoreOpenedProject extends OpenedProject {
 
   getComponentModel(id: string) {
     return this.model.getComponent(id);
+  }
+
+  getPluginsIds() {
+    return Object.keys(this.project.plugins);
+  }
+
+  getPluginModel(id: string) {
+    return this.model.getPlugin(id);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
@@ -308,19 +318,17 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
 /*
 
-Pas d'import de binding
 Déploiement -> une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-Import plugins = tous les plugins
 Import composants = composants + seulement plugins associés, sans x,y
 Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
 
 */
 
-    throw new Error('TODO');
-    return this.prepareBulkUpdates(null);
+  private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
+    const imports = Services.instance.projectManager.executeOnProject('core', config.projectId, project => loadProjectData(project as CoreOpenedProject, config));
+    return this.prepareBulkUpdates(imports);
   }
 
   private prepareRefreshToolboxFromOnline() {
@@ -357,7 +365,6 @@ interface ImportData {
 
 interface ComponentImport {
   id: string;
-  instanceName: string;
   pluginId: string;
   external: boolean;
   config: { [name: string]: any; };
@@ -382,4 +389,57 @@ function loadOnlinePlugins(): ImportData {
   }
 
   return { plugins: list, components: [] };
+}
+
+function loadProjectData(project: CoreOpenedProject, config: ImportFromProjectConfig): ImportData {
+  const plugins = new Map<string, PluginImport>();
+  const components: ComponentImport[] = [];
+
+  if (config.importPlugins) {
+    for (const id of project.getPluginsIds()) {
+      ensureProjectPlugin(plugins, project, id);
+    }
+  }
+
+  if(config.importComponents) {
+    const external = config.importComponents === 'external';
+
+    for (const id of project.getComponentsIds()) {
+      const componentModel = project.getComponentModel(id);
+      if (componentModel.data.external) {
+        continue;
+      }
+
+      ensureProjectPlugin(plugins, project, componentModel.data.plugin);
+
+      components.push({
+        id: componentModel.id,
+        pluginId: componentModel.plugin.id,
+        external,
+        config: external ? null : clone(componentModel.data.config)
+      });
+    }
+  }
+
+  return { plugins: Array.from(plugins.values()), components };
+}
+
+function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOpenedProject, id: string): PluginImport {
+  const existing = plugins.get(id);
+  if (existing) {
+    return existing;
+  }
+
+  const pluginModel = project.getPluginModel(id);
+  const pluginImport: PluginImport = {
+    instanceName: pluginModel.data.instanceName,
+    plugin: {
+      ...pick(pluginModel.data, 'name', 'module', 'usage', 'version', 'description'),
+      members: clone(pluginModel.data.members),
+      config: clone(pluginModel.data.config),
+    }
+  };
+
+  plugins.set(id, pluginImport);
+  return pluginImport;
 }
