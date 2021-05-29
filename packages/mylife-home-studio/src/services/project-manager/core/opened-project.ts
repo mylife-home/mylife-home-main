@@ -31,7 +31,7 @@ import {
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { Model } from './model';
+import { Model, PluginModel } from './model';
 import { Services } from '../..';
 import { pick, clone } from '../../../utils/object-utils';
 
@@ -318,14 +318,6 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-/*
-
-Déploiement -> une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-Import composants = composants + seulement plugins associés, sans x,y
-Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
-
-*/
-
   private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
     const imports = Services.instance.projectManager.executeOnProject('core', config.projectId, project => loadProjectData(project as CoreOpenedProject, config));
     return this.prepareBulkUpdates(imports);
@@ -337,6 +329,12 @@ Gérer conflits plugins : confirmation changement + prendre toujours la version 
   }
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
+    // Import composants = composants + seulement plugins associés, sans x,y
+    // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
+    // Noter les plugins qui n'existent plus mais ne jamais les supprimer
+
+
+    console.log(imports);
     throw new Error('TODO');
   }
 
@@ -349,6 +347,8 @@ Gérer conflits plugins : confirmation changement + prendre toujours la version 
   }
       
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {
+    // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
+    // vérifier les versions et dispo de plugins avant de déployer
     throw new Error('TODO');
   }
 
@@ -442,4 +442,11 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOp
 
   plugins.set(id, pluginImport);
   return pluginImport;
+}
+
+function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
+  return pluginModel.instance.instanceName === pluginImport.instanceName
+      && pluginModel.data.module === pluginImport.plugin.module
+      && pluginModel.data.name === pluginImport.plugin.name
+      && pluginModel.data.version === pluginImport.plugin.version;
 }
