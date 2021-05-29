@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { ProjectInfo } from '../../../shared/project-manager';
 import { ChangeType, FsCollection } from '../../utils/fs-collection';
+import { clone } from '../../utils/object-utils';
 
 export abstract class Store<TProject> extends EventEmitter {
   private readonly projects = new FsCollection<TProject>();
@@ -92,8 +93,4 @@ export abstract class Store<TProject> extends EventEmitter {
 
   abstract getProjectInfo(name: string): ProjectInfo;
   abstract createNew(name: string): string;
-}
-
-function clone<T>(source: T): T {
-  return JSON.parse(JSON.stringify(source));
 }
