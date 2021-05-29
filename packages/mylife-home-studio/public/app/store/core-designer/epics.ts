@@ -21,7 +21,9 @@ import {
   ApplyDeployToOnlineCoreProjectCall,
   CoreProjectCall,
   PrepareBulkUpdateCoreProjectCallResult,
-  ApplyBulkUpdatesCoreProject
+  ApplyBulkUpdatesCoreProject,
+  PrepareImportFromProjectCoreProjectCall,
+  ImportFromProjectConfig
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -41,8 +43,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
-      mapper() {
-        return { operation: 'prepare-import-from-project' } as CoreProjectCall;
+      mapper({ config }: { config: ImportFromProjectConfig}) {
+        return { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall;
       },
       resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult) {
         return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
