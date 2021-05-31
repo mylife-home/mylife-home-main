@@ -31,7 +31,7 @@ import {
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { Model, PluginModel } from './model';
+import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 import { pick, clone } from '../../../utils/object-utils';
 
@@ -331,10 +331,20 @@ export class CoreOpenedProject extends OpenedProject {
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
     // Import composants = composants + seulement plugins associés, sans x,y
     // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
-    // Noter les plugins qui n'existent plus mais ne jamais les supprimer
+
+    // A l'affichage des elements a update:
+    // plugins: on doit pouvoir selectionner facilement les nouveaux plugins, les plugins existant, les suppressions de plugins (decoche par defaut), marquer les plugins lies a des composants
+    // composants: pareil: separer ajout/MAJ
+
+    const changes = {
+      plugins: preparePluginUpdates(imports, this.model),
+      components: prepareComponentUpdates(imports, this.model)
+    };
+
+    // TODO: plugins updates/delete impact on components
 
 
-    console.log(imports);
+    console.log(changes);
     throw new Error('TODO');
   }
 
@@ -371,6 +381,7 @@ interface ComponentImport {
 }
 
 interface PluginImport {
+  id: string;
   instanceName: string;
   plugin: components.metadata.NetPlugin;
 }
@@ -384,7 +395,8 @@ function loadOnlinePlugins(): ImportData {
     const plugins = onlineService.getPlugins(instanceName);
     for (const onlinePlugin of plugins) {
       const plugin = components.metadata.encodePlugin(onlinePlugin);
-      list.push({ instanceName, plugin });
+      const id = `${instanceName}:${onlinePlugin.id}`;
+      list.push({ id, instanceName, plugin });
     }
   }
 
@@ -431,7 +443,9 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOp
   }
 
   const pluginModel = project.getPluginModel(id);
+  
   const pluginImport: PluginImport = {
+    id: pluginModel.id,
     instanceName: pluginModel.data.instanceName,
     plugin: {
       ...pick(pluginModel.data, 'name', 'module', 'usage', 'version', 'description'),
@@ -442,6 +456,176 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOp
 
   plugins.set(id, pluginImport);
   return pluginImport;
+}
+
+interface ItemChanges<T> {
+  adds: { [id: string]: T },
+  updates: { [id: string]: T },
+  deletes: { [id: string]: T }
+}
+
+type PluginChanges = ItemChanges<PluginChange>;
+
+interface PluginChange {
+  version: { before: string; after: string },
+  config: { [name: string]: 'add' | 'update' | 'delete' },
+  members: { [name: string]: 'add' | 'update' | 'delete' },
+  impacts: {
+    components: string[], // components will lose their configuration
+    bindings: string[], // bindings will be deleted
+  }
+}
+
+type ComponentChanges = ItemChanges<ComponentChange>;
+
+interface ComponentChange {
+  config: { [name: string]: { type: 'add' | 'update' | 'delete'; value: any } };
+  external: boolean; // or null if no change
+  pluginId: string; // or null if no change
+  impacts: {
+    bindings: string[], // bindings will be deleted
+  }
+}
+
+function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges {
+  const changes = newItemChanges<PluginChange>();
+
+  for (const pluginImport of imports.plugins) {
+    const id = pluginImport.id;
+
+    if (!model.hasPlugin(id)) {
+      add(pluginImport);
+    } else {
+      const pluginModel = model.getPlugin(id);
+      if (!arePluginsEqual(pluginModel, pluginImport)) {
+        update(pluginModel, pluginImport)
+      }
+    }
+  }
+
+  const pluginsImportsIds = new Set(imports.plugins.map(pluginImport => pluginImport.id));
+  for (const id of this.getPluginsIds()) {
+    if(!pluginsImportsIds.has(id)) {
+      const pluginModel = model.getPlugin(id);
+      remove(pluginModel);
+    }
+  }
+
+  return changes;
+
+  function add(pluginImport: PluginImport) {
+    const id = pluginImport.id;
+    changes.adds[id] = newPluginChange();
+    // TODO
+  }
+
+  function update(pluginModel: PluginModel, pluginImport: PluginImport) {
+    const id = pluginModel.id;
+    changes.updates[id] = newPluginChange();
+    // TODO
+  }
+
+  function remove(pluginModel: PluginModel) {
+    const id = pluginModel.id;
+    changes.deletes[id] = newPluginChange();
+    // TODO
+  }
+}
+
+function prepareComponentUpdates(imports: ImportData, model: Model): ComponentChanges {
+  const changes = newItemChanges<ComponentChange>();
+
+  for (const componentImport of imports.components) {
+    const id = componentImport.id;
+    if (!model.hasComponent(id)) {
+      add(componentImport);
+    } else {
+      const componentModel = model.getComponent(id);
+      update(componentModel, componentImport);
+    }
+  }
+
+  return changes;
+  
+  function add(componentImport: ComponentImport) {
+    const id = componentImport.id;
+
+    const change = newComponentChange(pick(componentImport, 'pluginId', 'external'));
+
+    for (const [name, value] of Object.entries(componentImport.config)) {
+      change.config[name] = { type: 'add', value };
+    }
+
+    changes.adds[id] = change;
+  }
+
+  function update(componentModel: ComponentModel, componentImport: ComponentImport) {
+    const id = componentModel.id;
+    const change = newComponentChange();
+
+    if (componentModel.plugin.id !== componentImport.pluginId) {
+      change.pluginId = componentImport.pluginId;
+    }
+
+    if (componentModel.data.external !== componentImport.external) {
+      change.external = componentImport.external;
+    }
+
+    const configModel = componentModel.data.config;
+    const configImport = componentImport.config;
+    for (const [name, value] of Object.entries(configImport)) {
+      if (!configModel.hasOwnProperty(name)) {
+        change.config[name] = { type: 'add', value };
+      } else {
+        const valueModel = configModel[name];
+        const valueImport = configImport[name];
+        if (!Object.is(valueModel, valueImport)) {
+          change.config[name] = { type: 'update', value: valueImport };
+        }
+      }
+    }
+
+    for (const name of Object.keys(configModel)) {
+      if (!configImport.hasOwnProperty(name)) {
+        change.config[name] = { type: 'delete', value: null };
+      }
+    }
+
+    changes.updates[id] = change;
+  }
+}
+
+function newItemChanges<T>() {
+  const changes: ItemChanges<T> = {
+    adds: {},
+    updates: {},
+    deletes: {}
+  };
+
+  return changes;
+}
+
+function newPluginChange(props: Partial<PluginChange> = {}) {
+  const change: PluginChange = {
+    version: { before: null, after: null },
+    config: {},
+    members: {},
+    impacts: null
+  };
+
+  return change;
+}
+
+function newComponentChange(props: Partial<ComponentChange> = {}) {
+  const change: ComponentChange = {
+    config: {},
+    external: null,
+    pluginId: null,
+    impacts: null,
+    ...props
+  };
+
+  return change;
 }
 
 function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
