@@ -97,6 +97,10 @@ export class Model {
     return instance;
   }
 
+  hasPlugin(id: string) {
+    return this.plugins.has(id);
+  }
+
   getPlugin(id: string) {
     const plugin = this.plugins.get(id);
     if (!plugin) {
@@ -116,7 +120,7 @@ export class Model {
   }
 
   hasComponent(id: string) {
-    return !!this.components.get(id);
+    return this.components.has(id);
   }
 
   setComponent(componentId: string, pluginId: string, x: number, y: number) {
