@@ -515,20 +515,29 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function add(pluginImport: PluginImport) {
     const id = pluginImport.id;
-    changes.adds[id] = newPluginChange();
+    const change = newPluginChange();
+
     // TODO
+
+    changes.adds[id] = change;
   }
 
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
-    changes.updates[id] = newPluginChange();
+    const change = newPluginChange();
+
     // TODO
+    
+    changes.updates[id] = change;
   }
 
   function remove(pluginModel: PluginModel) {
     const id = pluginModel.id;
-    changes.deletes[id] = newPluginChange();
+    const change = newPluginChange();
+
     // TODO
+    
+    changes.deletes[id] = change;
   }
 }
 
