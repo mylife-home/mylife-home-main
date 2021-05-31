@@ -515,7 +515,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function add(pluginImport: PluginImport) {
     const id = pluginImport.id;
-    const change = newPluginChange();
+    const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version }});
 
     // TODO
 
@@ -524,7 +524,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
-    const change = newPluginChange();
+    const change = newPluginChange({ version: { before: pluginModel.data.version, after: pluginImport.plugin.version }});
 
     // TODO
     
@@ -533,7 +533,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function remove(pluginModel: PluginModel) {
     const id = pluginModel.id;
-    const change = newPluginChange();
+    const change = newPluginChange({ version: { before: pluginModel.data.version, after: null } });
 
     // TODO
     
