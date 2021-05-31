@@ -534,9 +534,6 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
   function remove(pluginModel: PluginModel) {
     const id = pluginModel.id;
     const change = newPluginChange({ version: { before: pluginModel.data.version, after: null } });
-
-    // TODO
-    
     changes.deletes[id] = change;
   }
 }
