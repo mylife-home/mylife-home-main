@@ -523,13 +523,8 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
     const id = pluginImport.id;
     const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version } });
 
-    for (const name of Object.keys(pluginImport.plugin.members)) {
-      change.members[name] = 'add';
-    }
-
-    for (const name of Object.keys(pluginImport.plugin.config)) {
-      change.config[name] = 'add';
-    }
+    change.members = lookupObjectChanges(null, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
+    change.config = lookupObjectChanges(null, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
 
     changes.adds[id] = change;
   }
@@ -538,7 +533,8 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
     const id = pluginModel.id;
     const change = newPluginChange({ version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
 
-    // TODO
+    change.members = lookupObjectChanges(pluginModel.data.members, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
+    change.config = lookupObjectChanges(pluginModel.data.config, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
 
     changes.updates[id] = change;
   }
@@ -547,6 +543,21 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
     const id = pluginModel.id;
     const change = newPluginChange({ version: { before: pluginModel.data.version, after: null } });
     changes.deletes[id] = change;
+  }
+
+  function memberEqualityComparer(memberModel: components.metadata.NetMember, memberImport: components.metadata.NetMember) {
+    return memberModel.memberType === memberImport.memberType
+      && memberModel.valueType === memberImport.valueType
+      && memberModel.description === memberImport.description;
+  }
+
+  function configEqualityComparer(configModel: components.metadata.ConfigItem, configImport: components.metadata.ConfigItem) {
+    return configModel.valueType === configImport.valueType
+      && configModel.description === configImport.description;
+  }
+
+  function typeChangeFormatter(name: string, type: ChangeType) {
+    return type;
   }
 }
 
