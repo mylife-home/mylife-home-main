@@ -26,13 +26,11 @@ interface PluginImport {
 
 type ChangeType = 'add' | 'update' | 'delete';
 
-interface ItemChanges<T> {
-  adds: { [id: string]: T; },
-  updates: { [id: string]: T; },
-  deletes: { [id: string]: T; };
-}
-
-type PluginChanges = ItemChanges<PluginChange>;
+type PluginChanges = {
+  adds: { [id: string]: PluginChange; },
+  updates: { [id: string]: PluginChange; },
+  deletes: { [id: string]: PluginChange; };
+};
 
 interface PluginChange {
   version: { before: string; after: string; },
@@ -44,7 +42,10 @@ interface PluginChange {
   };
 }
 
-type ComponentChanges = ItemChanges<ComponentChange>;
+type ComponentChanges = {
+  adds: { [id: string]: ComponentChange; },
+  updates: { [id: string]: ComponentChange; };
+};
 
 interface ComponentChange {
   config: { [name: string]: { type: ChangeType; value: any; }; };
@@ -148,7 +149,11 @@ export function prepareChanges(imports: ImportData, model: Model) {
 }
 
 function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges {
-  const changes = newItemChanges<PluginChange>();
+  const changes: PluginChanges = {
+    adds: {},
+    updates: {},
+    deletes: {}
+  };
 
   for (const pluginImport of imports.plugins) {
     const id = pluginImport.id;
@@ -216,7 +221,10 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 }
 
 function prepareComponentUpdates(imports: ImportData, model: Model): ComponentChanges {
-  const changes = newItemChanges<ComponentChange>();
+  const changes: ComponentChanges = {
+    adds: {},
+    updates: {}
+  };
 
   for (const componentImport of imports.components) {
     const id = componentImport.id;
@@ -261,16 +269,6 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
   function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
     return { type, value: valueImport };
   }
-}
-
-function newItemChanges<T>() {
-  const changes: ItemChanges<T> = {
-    adds: {},
-    updates: {},
-    deletes: {}
-  };
-
-  return changes;
 }
 
 function newPluginChange(props: Partial<PluginChange> = {}) {
@@ -468,5 +466,14 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
 }
 
 function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: ComponentChanges) {
-  // TODO
+  for (const [id, change] of Object.entries(changes.updates)) {
+    // only impacts on plugin change
+    // TODO: could also only lookup for properties that actually changed
+    if (change.pluginId) {
+      const component = model.getComponent(id);
+      change.impacts = {
+        bindings: Array.from(component.getAllBindingsIds())
+      };
+    }
+  }
 }
