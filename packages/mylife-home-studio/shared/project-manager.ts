@@ -367,18 +367,47 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
-export interface CoreUsage {
-  type: 'binding' | 'component' | 'config';
-  id: string;
-  configName?: string; // only if type === 'config'
-}
+export namespace coreImportData {
 
-export interface CoreBreakingOperation {
-  operation: 'update' | 'remove';
-  instanceName: string;
-  pluginId: string;
-
-  usage: CoreUsage[];
+  export interface Changes {
+    plugins: PluginChanges;
+    components: ComponentChanges;
+  }
+  
+  export type ChangeType = 'add' | 'update' | 'delete';
+  
+  export interface ItemChange {
+    key: string; // for selection
+  }
+  
+  export interface ItemChanges<T> {
+    adds: { [id: string]: T; },
+    updates: { [id: string]: T; },
+    deletes: { [id: string]: T; };
+  }
+  
+  export type PluginChanges = ItemChanges<PluginChange>;
+  
+  export interface PluginChange extends ItemChange {
+    version: { before: string; after: string; },
+    config: { [name: string]: ChangeType; },
+    members: { [name: string]: ChangeType; },
+    impacts: {
+      components: string[], // components will lose their configuration or plugin update, or be deleted on plugin delete
+      bindings: string[], // bindings will be deleted
+    };
+  }
+  
+  export type ComponentChanges = ItemChanges<ComponentChange>;
+  
+  export interface ComponentChange extends ItemChange {
+    config: { [name: string]: { type: ChangeType; value: any; }; };
+    external: boolean; // or null if no change
+    pluginId: string; // or null if no change
+    impacts: {
+      bindings: string[], // bindings will be deleted
+    };
+  }
 }
 
 type ComponentsImportType = null | 'standard' | 'external';
@@ -395,7 +424,7 @@ export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall
 }
 
 export interface PrepareBulkUpdateCoreProjectCallResult extends ProjectCallResult {
-  breakingOperations: CoreBreakingOperation[];
+  changes: coreImportData.Changes;
   serverData: unknown;
 }
 

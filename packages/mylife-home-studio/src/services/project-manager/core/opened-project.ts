@@ -332,9 +332,8 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
-    prepareChanges(imports, this.model);
-
-    throw new Error('TODO');
+    const { changes, serverData } = prepareChanges(imports, this.model);
+    return { changes, serverData };
   }
 
   private applyBulkUpdates(callData: ApplyBulkUpdatesCoreProject) {

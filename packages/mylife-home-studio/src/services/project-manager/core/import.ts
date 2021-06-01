@@ -1,6 +1,6 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
-import { ImportFromProjectConfig } from '../../../../shared/project-manager';
+import { ImportFromProjectConfig, coreImportData } from '../../../../shared/project-manager';
 import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 
@@ -22,37 +22,6 @@ interface PluginImport {
   id: string;
   instanceName: string;
   plugin: components.metadata.NetPlugin;
-}
-
-type ChangeType = 'add' | 'update' | 'delete';
-
-interface ItemChanges<T> {
-  adds: { [id: string]: T; },
-  updates: { [id: string]: T; },
-  deletes: { [id: string]: T; };
-}
-
-type PluginChanges = ItemChanges<PluginChange>;
-
-interface PluginChange {
-  version: { before: string; after: string; },
-  config: { [name: string]: ChangeType; },
-  members: { [name: string]: ChangeType; },
-  impacts: {
-    components: string[], // components will lose their configuration or plugin update, or be deleted on plugin delete
-    bindings: string[], // bindings will be deleted
-  };
-}
-
-type ComponentChanges = ItemChanges<ComponentChange>;
-
-interface ComponentChange {
-  config: { [name: string]: { type: ChangeType; value: any; }; };
-  external: boolean; // or null if no change
-  pluginId: string; // or null if no change
-  impacts: {
-    bindings: string[], // bindings will be deleted
-  };
 }
 
 export function loadOnlinePlugins(): ImportData {
@@ -127,6 +96,49 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, i
   return pluginImport;
 }
 
+interface UpdateServerData {
+  updates: Update[];
+}
+
+interface Update {
+  type: 'plugin-set' | 'plugin-clear' | 'component-set' | 'component-clear';
+  id: string;
+  impacts: Impact[];
+
+  newObject: PluginImport | ComponentImport;
+}
+
+interface PluginSetUpdate extends Update {
+  type: 'plugin-set';
+  plugin: PluginImport;
+}
+  
+interface ComponentSetUpdate extends Update {
+  type: 'component-set';
+  component: ComponentImport;
+}
+
+interface Impact {
+  type: 'binding-delete' | 'component-delete' | 'config-update';
+}
+
+interface BindingDeleteImpact extends Impact {
+  type: 'binding-delete';
+  bindingId: string;
+}
+
+interface ComponentDeleteImpact extends Impact {
+  type: 'component-delete';
+  componentId: string;
+}
+
+interface ConfigUpdateImpact extends Impact {
+  type: 'config-update';
+  componentId: string;
+  configName: string;
+  operation: 'set-null' | 'delete';
+}
+
 export function prepareChanges(imports: ImportData, model: Model) {
   // Import composants = composants + seulement plugins associés, sans x,y
   // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
@@ -143,12 +155,15 @@ export function prepareChanges(imports: ImportData, model: Model) {
   lookupPluginsChangesImpacts(imports, model, changes.plugins);
   lookupComponentsChangesImpacts(imports, model, changes.components);
 
-  console.log(JSON.stringify(changes, null, 2));
-  throw new Error('TODO');
+  const serverData: UpdateServerData = { updates: [] };
+
+  // TODO: prepare updates
+
+  return { changes, serverData };
 }
 
-function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges {
-  const changes = newItemChanges<PluginChange>();
+function preparePluginUpdates(imports: ImportData, model: Model): coreImportData.PluginChanges {
+  const changes = newItemChanges<coreImportData.PluginChange>();
 
   for (const pluginImport of imports.plugins) {
     const id = pluginImport.id;
@@ -175,7 +190,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function add(pluginImport: PluginImport) {
     const id = pluginImport.id;
-    const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version } });
+    const change = newPluginChange(`plugin-set:${id}`, { version: { before: null, after: pluginImport.plugin.version } });
 
     change.members = lookupObjectChanges(null, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
     change.config = lookupObjectChanges(null, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
@@ -185,7 +200,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
-    const change = newPluginChange({ version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
+    const change = newPluginChange(`plugin-set:${id}`, { version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
 
     change.members = lookupObjectChanges(pluginModel.data.members, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
     change.config = lookupObjectChanges(pluginModel.data.config, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
@@ -195,7 +210,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function remove(pluginModel: PluginModel) {
     const id = pluginModel.id;
-    const change = newPluginChange({ version: { before: pluginModel.data.version, after: null } });
+    const change = newPluginChange(`plugin-clear:${id}`, { version: { before: pluginModel.data.version, after: null } });
     changes.deletes[id] = change;
   }
 
@@ -210,13 +225,13 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
       && configModel.description === configImport.description;
   }
 
-  function typeChangeFormatter(name: string, type: ChangeType) {
+  function typeChangeFormatter(name: string, type: coreImportData.ChangeType) {
     return type;
   }
 }
 
-function prepareComponentUpdates(imports: ImportData, model: Model): ComponentChanges {
-  const changes = newItemChanges<ComponentChange>();
+function prepareComponentUpdates(imports: ImportData, model: Model): coreImportData.ComponentChanges {
+  const changes = newItemChanges<coreImportData.ComponentChange>();
 
   for (const componentImport of imports.components) {
     const id = componentImport.id;
@@ -266,7 +281,7 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
 
   function add(componentImport: ComponentImport) {
     const id = componentImport.id;
-    const change = newComponentChange(pick(componentImport, 'pluginId', 'external'));
+    const change = newComponentChange(`component-set:${id}`, pick(componentImport, 'pluginId', 'external'));
 
     change.config = lookupObjectChanges(null, componentImport.config, Object.is, configChangeFormatter);
 
@@ -275,7 +290,7 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
 
   function update(componentModel: ComponentModel, componentImport: ComponentImport) {
     const id = componentModel.id;
-    const change = newComponentChange();
+    const change = newComponentChange(`component-set:${id}`);
 
     if (componentModel.plugin.id !== componentImport.pluginId) {
       change.pluginId = componentImport.pluginId;
@@ -292,17 +307,17 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
 
   function remove(componentModel: ComponentModel) {
     const id = componentModel.id;
-    const change = newComponentChange();
+    const change = newComponentChange(`component-clear:${id}`);
     changes.deletes[id] = change;
   }
 
-  function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
+  function configChangeFormatter(name: string, type: coreImportData.ChangeType, valueModel: any, valueImport: any) {
     return { type, value: valueImport };
   }
 }
 
 function newItemChanges<T>() {
-  const changes: ItemChanges<T> = {
+  const changes: coreImportData.ItemChanges<T> = {
     adds: {},
     updates: {},
     deletes: {}
@@ -311,8 +326,9 @@ function newItemChanges<T>() {
   return changes;
 }
 
-function newPluginChange(props: Partial<PluginChange> = {}) {
-  const change: PluginChange = {
+function newPluginChange(key: string, props: Partial<coreImportData.PluginChange> = {}) {
+  const change: coreImportData.PluginChange = {
+    key,
     version: { before: null, after: null },
     config: {},
     members: {},
@@ -323,8 +339,9 @@ function newPluginChange(props: Partial<PluginChange> = {}) {
   return change;
 }
 
-function newComponentChange(props: Partial<ComponentChange> = {}) {
-  const change: ComponentChange = {
+function newComponentChange(key: string, props: Partial<coreImportData.ComponentChange> = {}) {
+  const change: coreImportData.ComponentChange = {
+    key,
     config: {},
     external: null,
     pluginId: null,
@@ -382,7 +399,7 @@ function areComponentsEqual(componentModel: ComponentModel, componentImport: Com
   return true;
 }
 
-function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: ChangeType, valueModel: Value, valueImport: Value) => Change) {
+function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: coreImportData.ChangeType, valueModel: Value, valueImport: Value) => Change) {
   const changes: { [name: string]: Change; } = {};
 
   const safeObjectModel = objectModel || {};
@@ -408,7 +425,7 @@ function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value
   return changes;
 }
 
-function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: PluginChanges) {
+function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.PluginChanges) {
   for (const [id, change] of Object.entries(changes.deletes)) {
     const plugin = model.getPlugin(id);
     const bindingsIds = new Set<string>();
@@ -450,7 +467,7 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes:
   }
 }
 
-function getMembersChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: PluginChange) {
+function getMembersChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: coreImportData.PluginChange) {
   const membersNames: string[] = [];
 
   for (const [name, type] of Object.entries(change.members)) {
@@ -479,7 +496,7 @@ function getMembersChanges(modelPlugin: PluginModel, importPlugin: PluginImport,
   return membersNames;
 }
 
-function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: PluginChange) {
+function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: coreImportData.PluginChange) {
   for (const [name, type] of Object.entries(change.config)) {
     switch (type) {
       case 'add':
@@ -505,7 +522,7 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
   return false;
 }
 
-function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: ComponentChanges) {
+function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.ComponentChanges) {
   for (const [id, change] of Object.entries(changes.deletes)) {
     const component = model.getComponent(id);
     change.impacts = {
