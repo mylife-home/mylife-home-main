@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -41,6 +41,9 @@ export function useShowChangesDialog() {
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
+      const [selection, setSelection] = useState(initSelection(changes));
+      const stats = useMemo(() => computeStats(changes, selection), [changes, selection]);
+
       const cancel = () => {
         hideModal();
         onResult({ status: 'cancel' });
@@ -48,8 +51,10 @@ export function useShowChangesDialog() {
 
       const validate = () => {
         hideModal();
-        onResult({ status: 'ok' });
+        onResult({ status: 'ok', selection: formatSelection(selection) });
       };
+
+      const setSelected = (id: string, selected: boolean) => setSelection(selection => ({ ...selection, [id]: selected }));
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
@@ -146,6 +151,7 @@ export function useShowChangesDialog() {
   return useCallback(
     (changes: coreImportData.Changes) =>
       new Promise<ChangesDialogResult>((resolve) => {
+        console.log(changes);
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
@@ -169,6 +175,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; c
           <ListItemIcon>
             <Checkbox
               edge="start"
+              color="primary"
               indeterminate={checked === 'indeterminate'}
               checked={checked === 'checked'}
               onChange={onCheckChange}
@@ -190,3 +197,86 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; c
     </>
   );
 };
+
+type SelectionSet = { [key: string]: boolean };
+
+interface StateItem {
+  selected: number;
+  unselected: number;
+}
+
+interface ChangeSetStats {
+  total: StateItem;
+  adds: StateItem;
+  updates: StateItem;
+  deletes: StateItem
+}
+
+interface Stats {
+  plugins: ChangeSetStats;
+  components: ChangeSetStats;
+}
+
+function initSelection(changes: coreImportData.Changes): SelectionSet {
+  const selection: SelectionSet = {};
+
+  // By default select all add/update and unselect deletes
+
+  for (const change of [...Object.values(changes.plugins.adds), ...Object.values(changes.plugins.updates), ...Object.values(changes.components.adds), ...Object.values(changes.components.updates)]) {
+    selection[change.key] = true;
+  }
+
+  for (const change of [...Object.values(changes.plugins.deletes), ...Object.values(changes.components.deletes)]) {
+    selection[change.key] = false;
+  }
+
+  return selection;
+}
+
+function formatSelection(selection: SelectionSet) {
+  const values = [];
+
+  for (const [id, selected] of Object.entries(selection)) {
+    if (selected) {
+      values.push(id);
+    }
+  }
+
+  return values;
+}
+
+function computeStats(changes: coreImportData.Changes, selection: SelectionSet): Stats {
+  return {
+    plugins: computeChangeSetStats(changes.plugins, selection),
+    components: computeChangeSetStats(changes.components, selection)
+  };
+}
+
+function computeChangeSetStats<Item extends coreImportData.ItemChange>(changes: coreImportData.ItemChanges<Item>, selection: SelectionSet): ChangeSetStats {
+  const stats = {
+    adds: computeItemStats(changes.adds, selection),
+    updates: computeItemStats(changes.updates, selection),
+    deletes: computeItemStats(changes.deletes, selection),
+  };
+
+  const total = {
+    selected: Object.values(stats).reduce((acc, item) => acc + item.selected, 0),
+    unselected: Object.values(stats).reduce((acc, item) => acc + item.unselected, 0),
+  };
+
+  return { ...stats, total };
+}
+
+function computeItemStats(changes: { [id: string]: coreImportData.ItemChange }, selection: SelectionSet): StateItem {
+  const stats: StateItem = { selected: 0, unselected: 0 };
+
+  for (const change of Object.values(changes)) {
+    if(selection[change.key]) {
+      ++stats.selected;
+    } else {
+      ++stats.unselected;
+    }
+  }
+
+  return stats;
+}
