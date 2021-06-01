@@ -142,13 +142,6 @@ interface ConfigUpdateImpact extends Impact {
 }
 
 export function prepareChanges(imports: ImportData, model: Model) {
-  // Import composants = composants + seulement plugins associés, sans x,y
-  // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
-
-  // A l'affichage des elements a update:
-  // plugins: on doit pouvoir selectionner facilement les nouveaux plugins, les plugins existant, les suppressions de plugins (decoche par defaut), marquer les plugins lies a des composants
-  // composants: pareil: separer ajout/MAJ
-
   const changes = {
     plugins: preparePluginUpdates(imports, model),
     components: prepareComponentUpdates(imports, model)
