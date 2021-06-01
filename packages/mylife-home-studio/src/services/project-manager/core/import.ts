@@ -24,6 +24,37 @@ interface PluginImport {
   plugin: components.metadata.NetPlugin;
 }
 
+type ChangeType = 'add' | 'update' | 'delete';
+
+interface ItemChanges<T> {
+  adds: { [id: string]: T; },
+  updates: { [id: string]: T; },
+  deletes: { [id: string]: T; };
+}
+
+type PluginChanges = ItemChanges<PluginChange>;
+
+interface PluginChange {
+  version: { before: string; after: string; },
+  config: { [name: string]: ChangeType; },
+  members: { [name: string]: ChangeType; },
+  impacts: {
+    components: string[], // components will lose their configuration or plugin update, or be deleted on plugin delete
+    bindings: string[], // bindings will be deleted
+  };
+}
+
+type ComponentChanges = ItemChanges<ComponentChange>;
+
+interface ComponentChange {
+  config: { [name: string]: { type: ChangeType; value: any; }; };
+  external: boolean; // or null if no change
+  pluginId: string; // or null if no change
+  impacts: {
+    bindings: string[], // bindings will be deleted
+  };
+}
+
 export function loadOnlinePlugins(): ImportData {
   const onlineService = Services.instance.online;
   const instanceNames = onlineService.getInstanceNames();
@@ -96,62 +127,24 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, i
   return pluginImport;
 }
 
-export function prepareChanges(imports: ImportData) {
-    // Import composants = composants + seulement plugins associés, sans x,y
-    // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
+export function prepareChanges(imports: ImportData, model: Model) {
+  // Import composants = composants + seulement plugins associés, sans x,y
+  // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
 
-    // A l'affichage des elements a update:
-    // plugins: on doit pouvoir selectionner facilement les nouveaux plugins, les plugins existant, les suppressions de plugins (decoche par defaut), marquer les plugins lies a des composants
-    // composants: pareil: separer ajout/MAJ
+  // A l'affichage des elements a update:
+  // plugins: on doit pouvoir selectionner facilement les nouveaux plugins, les plugins existant, les suppressions de plugins (decoche par defaut), marquer les plugins lies a des composants
+  // composants: pareil: separer ajout/MAJ
 
-    const changes = {
-      plugins: preparePluginUpdates(imports, this.model),
-      components: prepareComponentUpdates(imports, this.model)
-    };
-
-
-
-    // TODO: impacts
-
-
-
-    const serverData = {
-
-    }
-
-    console.log(JSON.stringify(changes, null, 2));
-    throw new Error('TODO');
-}
-
-type ChangeType = 'add' | 'update' | 'delete';
-
-interface ItemChanges<T> {
-  adds: { [id: string]: T; },
-  updates: { [id: string]: T; },
-  deletes: { [id: string]: T; };
-}
-
-type PluginChanges = ItemChanges<PluginChange>;
-
-interface PluginChange {
-  version: { before: string; after: string; },
-  config: { [name: string]: ChangeType; },
-  members: { [name: string]: ChangeType; },
-  impacts: {
-    components: string[], // components will lose their configuration
-    bindings: string[], // bindings will be deleted
+  const changes = {
+    plugins: preparePluginUpdates(imports, model),
+    components: prepareComponentUpdates(imports, model)
   };
-}
 
-type ComponentChanges = ItemChanges<ComponentChange>;
+  lookupPluginsChangesImpacts(imports, model, changes.plugins);
+  lookupComponentsChangesImpacts(imports, model, changes.components);
 
-interface ComponentChange {
-  config: { [name: string]: { type: ChangeType; value: any; }; };
-  external: boolean; // or null if no change
-  pluginId: string; // or null if no change
-  impacts: {
-    bindings: string[], // bindings will be deleted
-  };
+  console.log(JSON.stringify(changes, null, 2));
+  throw new Error('TODO');
 }
 
 function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges {
@@ -375,4 +368,105 @@ function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value
   }
 
   return changes;
+}
+
+function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: PluginChanges) {
+  for (const [id, change] of Object.entries(changes.deletes)) {
+    const plugin = model.getPlugin(id);
+    const bindingsIds = new Set<string>();
+    for (const component of plugin.components.values()) {
+      for (const binding of component.getAllBindings()) {
+        bindingsIds.add(binding.id);
+      }
+    }
+
+    change.impacts = {
+      components: Array.from(plugin.components.keys()),
+      bindings: Array.from(bindingsIds)
+    };
+  }
+
+  for (const [id, change] of Object.entries(changes.updates)) {
+    const importPlugin = imports.plugins.find(importPlugin => importPlugin.id === id);
+    const modelPlugin = model.getPlugin(id);
+
+    let componentsImpact: string[] = [];
+    if (hasConfigChanges(modelPlugin, importPlugin, change)) {
+      componentsImpact = Array.from(modelPlugin.components.keys());
+    }
+
+    const membersNames = getMembersChanges(modelPlugin, importPlugin, change);
+    const bindingsIds = new Set<string>();
+    for (const component of modelPlugin.components.values()) {
+      for (const memberName of membersNames) {
+        for (const binding of component.getAllBindingsWithMember(memberName)) {
+          bindingsIds.add(binding.id);
+        }
+      }
+    }
+
+    change.impacts = {
+      components: componentsImpact,
+      bindings: Array.from(bindingsIds)
+    };
+  }
+}
+
+function getMembersChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: PluginChange) {
+  const membersNames: string[] = [];
+
+  for (const [name, type] of Object.entries(change.members)) {
+    switch (type) {
+      case 'add':
+        // no impact
+        break;
+
+      case 'update': {
+        const importMember = importPlugin.plugin.members[name];
+        const modelMember = modelPlugin.data.members[name];
+        // TODO: later we may compare that valueType are compatible (import is a superset or action or a subset for state)
+        if (importMember.memberType !== modelMember.memberType || importMember.valueType !== modelMember.valueType) {
+          membersNames.push(name);
+        }
+
+        break;
+      }
+
+      case 'delete':
+        membersNames.push(name);
+        break;
+    }
+  }
+
+  return membersNames;
+}
+
+function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: PluginChange) {
+  for (const [name, type] of Object.entries(change.config)) {
+    switch (type) {
+      case 'add':
+        // no impact
+        break;
+
+      case 'update': {
+        const importConfig = importPlugin.plugin.config[name];
+        const modelConfig = modelPlugin.data.config[name];
+
+        if (importConfig.valueType !== modelConfig.valueType) {
+          return true;
+        }
+
+        break;
+      }
+
+      case 'delete':
+        return true;
+    }
+  }
+
+  return false;
+}
+
+function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: ComponentChanges) {
+  // TODO
 }
