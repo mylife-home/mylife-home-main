@@ -126,7 +126,7 @@ export class CoreOpenedProject extends OpenedProject {
 
       case 'deploy-to-files':
         return this.deployToFiles();
-      
+
       case 'prepare-deploy-to-online':
         return this.prepareDeployToOnline();
 
@@ -355,7 +355,7 @@ export class CoreOpenedProject extends OpenedProject {
   private deployToFiles(): DeployToFilesCoreProjectCallResult {
     throw new Error('TODO');
   }
-      
+
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {
     // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
     // vérifier les versions et dispo de plugins avant de déployer
@@ -413,7 +413,7 @@ function loadProjectData(project: CoreOpenedProject, config: ImportFromProjectCo
     }
   }
 
-  if(config.importComponents) {
+  if (config.importComponents) {
     const external = config.importComponents === 'external';
 
     for (const id of project.getComponentsIds()) {
@@ -443,7 +443,7 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOp
   }
 
   const pluginModel = project.getPluginModel(id);
-  
+
   const pluginImport: PluginImport = {
     id: pluginModel.id,
     instanceName: pluginModel.data.instanceName,
@@ -459,32 +459,32 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOp
 }
 
 interface ItemChanges<T> {
-  adds: { [id: string]: T },
-  updates: { [id: string]: T },
-  deletes: { [id: string]: T }
+  adds: { [id: string]: T; },
+  updates: { [id: string]: T; },
+  deletes: { [id: string]: T; };
 }
 
 type PluginChanges = ItemChanges<PluginChange>;
 
 interface PluginChange {
-  version: { before: string; after: string },
-  config: { [name: string]: 'add' | 'update' | 'delete' },
-  members: { [name: string]: 'add' | 'update' | 'delete' },
+  version: { before: string; after: string; },
+  config: { [name: string]: 'add' | 'update' | 'delete'; },
+  members: { [name: string]: 'add' | 'update' | 'delete'; },
   impacts: {
     components: string[], // components will lose their configuration
     bindings: string[], // bindings will be deleted
-  }
+  };
 }
 
 type ComponentChanges = ItemChanges<ComponentChange>;
 
 interface ComponentChange {
-  config: { [name: string]: { type: 'add' | 'update' | 'delete'; value: any } };
+  config: { [name: string]: { type: 'add' | 'update' | 'delete'; value: any; }; };
   external: boolean; // or null if no change
   pluginId: string; // or null if no change
   impacts: {
     bindings: string[], // bindings will be deleted
-  }
+  };
 }
 
 function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges {
@@ -498,14 +498,14 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
     } else {
       const pluginModel = model.getPlugin(id);
       if (!arePluginsEqual(pluginModel, pluginImport)) {
-        update(pluginModel, pluginImport)
+        update(pluginModel, pluginImport);
       }
     }
   }
 
   const pluginsImportsIds = new Set(imports.plugins.map(pluginImport => pluginImport.id));
   for (const id of this.getPluginsIds()) {
-    if(!pluginsImportsIds.has(id)) {
+    if (!pluginsImportsIds.has(id)) {
       const pluginModel = model.getPlugin(id);
       remove(pluginModel);
     }
@@ -515,7 +515,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function add(pluginImport: PluginImport) {
     const id = pluginImport.id;
-    const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version }});
+    const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version } });
 
     // TODO
 
@@ -524,10 +524,10 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
 
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
-    const change = newPluginChange({ version: { before: pluginModel.data.version, after: pluginImport.plugin.version }});
+    const change = newPluginChange({ version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
 
     // TODO
-    
+
     changes.updates[id] = change;
   }
 
@@ -552,7 +552,7 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
   }
 
   return changes;
-  
+
   function add(componentImport: ComponentImport) {
     const id = componentImport.id;
 
@@ -616,7 +616,8 @@ function newPluginChange(props: Partial<PluginChange> = {}) {
     version: { before: null, after: null },
     config: {},
     members: {},
-    impacts: null
+    impacts: null,
+    ...props
   };
 
   return change;
@@ -636,7 +637,7 @@ function newComponentChange(props: Partial<ComponentChange> = {}) {
 
 function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
   return pluginModel.instance.instanceName === pluginImport.instanceName
-      && pluginModel.data.module === pluginImport.plugin.module
-      && pluginModel.data.name === pluginImport.plugin.name
-      && pluginModel.data.version === pluginImport.plugin.version;
+    && pluginModel.data.module === pluginImport.plugin.module
+    && pluginModel.data.name === pluginImport.plugin.name
+    && pluginModel.data.version === pluginImport.plugin.version;
 }
