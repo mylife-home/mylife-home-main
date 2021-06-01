@@ -149,7 +149,6 @@ export function useShowChangesDialog() {
   return useCallback(
     (changes: coreImportData.Changes) =>
       new Promise<ChangesDialogResult>((resolve) => {
-        console.log(changes);
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
