@@ -204,7 +204,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
         {checked && onCheckChange && (
           <ListItemIcon>
             <Checkbox
-              onClick={e => e.stopPropagation() /* prevent parent Click (expand/collapse) */}
+              onClick={e => e.stopPropagation() /* prevent parent click (expand/collapse) */}
               onMouseDown={e => e.stopPropagation()  /* prevent parent ripple effect */}
               edge="start"
               color="primary"
