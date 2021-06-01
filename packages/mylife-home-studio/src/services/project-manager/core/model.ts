@@ -189,7 +189,7 @@ export class Model {
     this.components.delete(component.id);
     plugin.unregisterComponent(component.id);
     instance.unregisterComponent(component.id);
-    
+
     delete this.data.components[component.id];
   }
 
@@ -452,6 +452,29 @@ export class ComponentModel {
   *getAllBindingsIds() {
     for (const binding of this.getAllBindings()) {
       yield binding.id;
+    }
+  }
+
+  *getAllBindingsWithMember(memberName: string) {
+    const memberType = this.plugin.data.members[memberName].memberType;
+
+    switch (memberType) {
+      case MemberType.STATE:
+        for (const binding of this.bindingsFrom) {
+          if (binding.sourceState === memberName) {
+            yield binding;
+          }
+        }
+        break;
+
+      case MemberType.ACTION:
+        for (const binding of this.bindingsTo) {
+          if (binding.targetAction === memberName) {
+            yield binding;
+          }
+        }
+        break;
+
     }
   }
 }
