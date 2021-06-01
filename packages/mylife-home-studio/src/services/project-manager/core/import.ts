@@ -110,7 +110,7 @@ interface PluginSetUpdate extends Update {
   type: 'plugin-set';
   plugin: PluginImport;
 }
-  
+
 interface ComponentSetUpdate extends Update {
   type: 'component-set';
   component: ComponentImport;
@@ -153,9 +153,7 @@ export function prepareChanges(imports: ImportData, model: Model) {
   lookupPluginsChangesImpacts(imports, model, changes.plugins);
   lookupComponentsChangesImpacts(imports, model, changes.components);
 
-  const serverData: UpdateServerData = { updates: [] };
-
-  // TODO: prepare updates
+  const serverData = prepareServerData(imports, changes);
 
   return { changes, serverData };
 }
@@ -263,13 +261,13 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
   }
 
   for (const [instanceName, set] of componentsImportsByInstanceName.entries()) {
-    if(!model.hasInstance(instanceName)) {
+    if (!model.hasInstance(instanceName)) {
       continue;
     }
 
     const instanceModel = model.getInstance(instanceName);
-    for(const componentModel of instanceModel.components.values()) {
-      if(!set.has(componentModel.id)) {
+    for (const componentModel of instanceModel.components.values()) {
+      if (!set.has(componentModel.id)) {
         remove(componentModel);
       }
     }
@@ -526,7 +524,7 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: Model, chang
     change.impacts = {
       bindings: Array.from(component.getAllBindingsIds())
     };
-}
+  }
 
   for (const [id, change] of Object.entries(changes.updates)) {
     // only impacts on plugin change
@@ -539,3 +537,94 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: Model, chang
     }
   }
 }
+
+function prepareServerData(imports: ImportData, changes: coreImportData.Changes): UpdateServerData {
+  const updates: Update[] = [];
+
+  const importPlugins = new Map<string, PluginImport>();
+  for(const plugin of imports.plugins) {
+    importPlugins.set(plugin.id, plugin);
+  }
+
+  const importComponents = new Map<string, ComponentImport>();
+  for(const component of imports.components) {
+    importComponents.set(component.id, component);
+  }
+
+  for (const [id, change] of Object.entries(changes.plugins.deletes)) {
+    clearPlugin(id, change);
+  }
+
+  for (const [id, change] of Object.entries(changes.plugins.updates)) {
+    setPlugin(id, change);
+  }
+
+  for (const [id, change] of Object.entries(changes.plugins.adds)) {
+    setPlugin(id, change);
+  }
+
+  for (const [id, change] of Object.entries(changes.components.deletes)) {
+    clearComponent(id, change);
+  }
+
+  for (const [id, change] of Object.entries(changes.components.updates)) {
+    setComponent(id, change);
+  }
+
+  for (const [id, change] of Object.entries(changes.components.adds)) {
+    setComponent(id, change);
+  }
+
+  return { updates };
+
+  function clearPlugin(id: string, change: coreImportData.PluginChange) {
+    const update: Update = { type: 'plugin-clear', id, impacts: [] };
+    buildBindingImpacts(update, change);
+    buildComponentImpacts(update, change);
+    updates.push(update);
+  }
+
+  function setPlugin(id: string, change: coreImportData.PluginChange) {
+    const plugin = importPlugins.get(id);
+    const update: PluginSetUpdate = { type: 'plugin-set', id, impacts: [], plugin };
+    buildBindingImpacts(update, change);
+    buildComponentImpacts(update, change);
+    updates.push(update);
+  }
+
+  function clearComponent(id: string, change: coreImportData.ComponentChange) {
+    const update: Update = { type: 'component-clear', id, impacts: [] };
+    buildBindingImpacts(update, change);
+    updates.push(update);
+  }
+
+  function setComponent(id: string, change: coreImportData.ComponentChange) {
+    const component = importComponents.get(id);
+    const update: ComponentSetUpdate = { type: 'component-set', id, impacts: [], component };
+    buildBindingImpacts(update, change);
+    updates.push(update);
+  }
+
+  function buildBindingImpacts(update: Update, change: { impacts: { bindings: string[]; }; }) {
+    if (!change.impacts) {
+      return;
+    }
+
+    for (const bindingId of change.impacts.bindings) {
+      const impact: BindingDeleteImpact = { type: 'binding-delete', bindingId };
+      update.impacts.push(impact);
+    }
+  }
+
+  function buildComponentImpacts(update: Update, change: { impacts: { components: string[]; }; }) {
+    if (!change.impacts) {
+      return;
+    }
+
+    for (const componentId of change.impacts.components) {
+      const impact: ComponentDeleteImpact = { type: 'component-delete', componentId };
+      update.impacts.push(impact);
+    }
+  }
+}
+
