@@ -52,8 +52,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
-      mapper({ serverData }: { serverData: unknown }) {
-        return { operation: 'apply-bulk-updates', serverData } as ApplyBulkUpdatesCoreProject;
+      mapper({ serverData, selection }: { serverData: unknown, selection: string[] }) {
+        return { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject;
       }
     },
 

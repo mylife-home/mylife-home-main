@@ -32,10 +32,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+type ChangesDialogResult = ConfirmResult & { selection?: string[] };
+
 export function useShowChangesDialog() {
   const classes = useStyles();
   const [changes, setChanges] = useState<coreImportData.Changes>();
-  const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
+  const [onResult, setOnResult] = useState<(value: ChangesDialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
@@ -87,7 +89,7 @@ export function useShowChangesDialog() {
 
   return useCallback(
     (changes: coreImportData.Changes) =>
-      new Promise<ConfirmResult>((resolve) => {
+      new Promise<ChangesDialogResult>((resolve) => {
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 

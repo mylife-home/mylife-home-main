@@ -54,18 +54,18 @@ function useExecuteRefresh() {
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
-    console.log(bulkUpdatesData.changes);
-    throw new Error('TODO');
-    /*
-    if (bulkUpdatesData.breakingOperations.length > 0) {
-      const { status } = await showChangesDialog(bulkUpdatesData.breakingOperations);
-      if (status !== 'ok') {
-        return;
-      }
+    const { changes, serverData } = bulkUpdatesData;
+    if (Object.keys(changes.components).length === 0 && Object.keys(changes.components).length === 0) {
+      enqueueSnackbar('Le projet est déjà à jour.', { variant: 'info' });
+      return;
     }
-    */
 
-    await dispatch(applyBulkUpdates({ id: tabId, serverData: bulkUpdatesData.serverData }));
+    const { status, selection } = await showChangesDialog(changes);
+    if (status !== 'ok') {
+      return;
+    }
+
+    await dispatch(applyBulkUpdates({ id: tabId, selection, serverData }));
 
     enqueueSnackbar('Le projet a été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);

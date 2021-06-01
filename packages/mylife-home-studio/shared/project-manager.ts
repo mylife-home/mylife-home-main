@@ -430,6 +430,7 @@ export interface PrepareBulkUpdateCoreProjectCallResult extends ProjectCallResul
 
 export interface ApplyBulkUpdatesCoreProject extends CoreProjectCall {
   operation: 'apply-bulk-updates';
+  selection: string[];
   serverData: unknown;
 }
 
