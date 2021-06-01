@@ -97,6 +97,10 @@ export class Model {
     return instance;
   }
 
+  getPluginsIds() {
+    return Array.from(this.plugins.keys());
+  }
+
   hasPlugin(id: string) {
     return this.plugins.has(id);
   }
@@ -110,6 +114,14 @@ export class Model {
     return plugin;
   }
 
+  getComponentsIds() {
+    return Array.from(this.components.keys());
+  }
+
+  hasComponent(id: string) {
+    return this.components.has(id);
+  }
+
   getComponent(id: string) {
     const component = this.components.get(id);
     if (!component) {
@@ -119,9 +131,6 @@ export class Model {
     return component;
   }
 
-  hasComponent(id: string) {
-    return this.components.has(id);
-  }
 
   setComponent(componentId: string, pluginId: string, x: number, y: number) {
     if (this.hasComponent(componentId)) {

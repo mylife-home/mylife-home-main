@@ -52,7 +52,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   getComponentsIds() {
-    return Object.keys(this.project.components);
+    return this.model.getComponentsIds();
   }
 
   getComponentModel(id: string) {
@@ -60,7 +60,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   getPluginsIds() {
-    return Object.keys(this.project.plugins);
+    return this.model.getPluginsIds();
   }
 
   getPluginModel(id: string) {
