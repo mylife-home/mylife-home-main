@@ -378,6 +378,7 @@ export namespace coreImportData {
   
   export interface ItemChange {
     key: string; // for selection
+    dependencies: string[]; // components changes may depends on plugins changes
   }
   
   export interface ItemChanges<T> {

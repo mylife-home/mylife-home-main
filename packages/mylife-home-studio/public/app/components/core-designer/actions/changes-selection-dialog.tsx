@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -9,6 +9,11 @@ import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Collapse from '@material-ui/core/Collapse';
+import Checkbox from '@material-ui/core/Checkbox';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
@@ -16,23 +21,18 @@ import { coreImportData } from '../../../../../shared/project-manager';
 
 const useStyles = makeStyles((theme) => ({
   list: {
-    maxHeight: '50vh',
+    height: '50vh',
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
-  operationItem: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  usageItem: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-
-    paddingLeft: theme.spacing(8)
-  }
+  changeSetItem: {},
+  changeTypeItem: {},
+  changeItem: {},
 }));
 
 type ChangesDialogResult = ConfirmResult & { selection?: string[] };
+
+type TriState = 'unchecked' | 'checked' | 'indeterminate';
 
 export function useShowChangesDialog() {
   const classes = useStyles();
@@ -41,29 +41,28 @@ export function useShowChangesDialog() {
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
-
       const cancel = () => {
         hideModal();
         onResult({ status: 'cancel' });
       };
-  
+
       const validate = () => {
         hideModal();
         onResult({ status: 'ok' });
       };
-  
+
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
           case 'Enter':
             validate();
             break;
-          
+
           case 'Escape':
             cancel();
             break;
         }
       };
-  
+
       return (
         <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} scroll="paper" maxWidth="lg" fullWidth onKeyDown={handleKeyDown}>
           <DialogTitle id="dialog-title">Changements engendrés</DialogTitle>
@@ -72,13 +71,70 @@ export function useShowChangesDialog() {
             <DialogText value={'Importer les composants modifierait le projet :'} />
 
             <List className={classes.list}>
+              <ItemWithChildren className={classes.changeSetItem} title="Plugins">
+
+                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" checked="checked" onCheckChange={() => {}}>
+
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
+
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+
+                </ItemWithChildren>
+
+                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" checked="checked" onCheckChange={() => {}}>
+
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
+
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+                  
+                </ItemWithChildren>
+
+                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" checked="unchecked" onCheckChange={() => {}}>
+
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
+
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+                  
+                </ItemWithChildren>
+
+              </ItemWithChildren>
+
+              <ListItem>
+                <ListItemText primary="Composants" />
+              </ListItem>
+
+              <ListItem>
+                <ListItemText primary="Ajouts" />
+              </ListItem>
+
+              <ListItem>
+                <ListItemText primary="Modifications" />
+              </ListItem>
+
+              <ListItem>
+                <ListItemText primary="Suppressions" />
+              </ListItem>
             </List>
 
             <DialogText value={'Continuer ?'} />
           </DialogContent>
 
           <DialogActions>
-            <Button color="primary" onClick={validate}>OK</Button>
+            <Button color="primary" onClick={validate}>
+              OK
+            </Button>
             <Button onClick={cancel}>Annuler</Button>
           </DialogActions>
         </Dialog>
@@ -98,3 +154,39 @@ export function useShowChangesDialog() {
     [setChanges, setOnResult, showModal]
   );
 }
+
+const ItemWithChildren: FunctionComponent<{ className?: string; title: string; checked?: TriState; onCheckChange?: () => void }> = ({ className, title, checked, onCheckChange, children }) => {
+  const [open, setOpen] = useState(true);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <>
+      <ListItem button onClick={handleClick} className={className}>
+        {checked && onCheckChange && (
+          <ListItemIcon>
+            <Checkbox
+              edge="start"
+              indeterminate={checked === 'indeterminate'}
+              checked={checked === 'checked'}
+              onChange={onCheckChange}
+              tabIndex={-1}
+              disableRipple
+            />
+          </ListItemIcon>
+        )}
+
+        <ListItemText primary={title} />
+        {open ? <ExpandLess /> : <ExpandMore />}
+      </ListItem>
+
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {children}
+        </List>
+      </Collapse>
+    </>
+  );
+};
