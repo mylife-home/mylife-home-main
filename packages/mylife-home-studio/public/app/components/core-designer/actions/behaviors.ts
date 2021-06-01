@@ -54,16 +54,19 @@ function useExecuteRefresh() {
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
+    throw new Error('TODO');
+    /*
     if (bulkUpdatesData.breakingOperations.length > 0) {
       const { status } = await showBreakingOperations(bulkUpdatesData.breakingOperations);
       if (status !== 'ok') {
         return;
       }
     }
+    */
 
     await dispatch(applyBulkUpdates({ id: tabId, serverData: bulkUpdatesData.serverData }));
 
-    enqueueSnackbar('La boîte à outils a été mis à jour.', { variant: 'success' });
+    enqueueSnackbar('Le projet a été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
 }
 

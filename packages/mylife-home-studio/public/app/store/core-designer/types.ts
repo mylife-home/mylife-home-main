@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreBreakingOperation, CoreComponentData, CorePluginData, DeployChange, ImportFromProjectConfig } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, DeployChange, ImportFromProjectConfig } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -75,7 +75,7 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
 export interface BulkUpdatesData {
-  breakingOperations: CoreBreakingOperation[];
+  changes: coreImportData.Changes;
   serverData: unknown;
 }
 

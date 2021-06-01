@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, Position } from './types';
+import { ActionTypes, BulkUpdatesData, Position } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -37,8 +37,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper() {
         return { operation: 'prepare-refresh-toolbox-from-online' } as CoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult) {
-        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
+      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult): BulkUpdatesData {
+        return { changes: serviceResult.changes, serverData: serviceResult.serverData };
       }
     },
 
@@ -46,8 +46,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ config }: { config: ImportFromProjectConfig}) {
         return { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult) {
-        return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
+      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult): BulkUpdatesData {
+        return { changes: serviceResult.changes, serverData: serviceResult.serverData };
       }
     },
 
