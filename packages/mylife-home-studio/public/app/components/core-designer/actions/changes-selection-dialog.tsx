@@ -137,9 +137,7 @@ export function useShowChangesDialog() {
           </DialogContent>
 
           <DialogActions>
-            <Button color="primary" onClick={validate}>
-              OK
-            </Button>
+            <Button color="primary" onClick={validate}>OK</Button>
             <Button onClick={cancel}>Annuler</Button>
           </DialogActions>
         </Dialog>
