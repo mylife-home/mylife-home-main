@@ -104,8 +104,6 @@ interface Update {
   type: 'plugin-set' | 'plugin-clear' | 'component-set' | 'component-clear';
   id: string;
   impacts: Impact[];
-
-  newObject: PluginImport | ComponentImport;
 }
 
 interface PluginSetUpdate extends Update {
