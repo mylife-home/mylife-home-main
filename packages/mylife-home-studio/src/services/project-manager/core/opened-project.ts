@@ -319,7 +319,11 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
-    const imports = Services.instance.projectManager.executeOnProject('core', config.projectId, project => loadProjectData(project as CoreOpenedProject, config));
+    const imports = Services.instance.projectManager.executeOnProject('core', config.projectId, project => {
+      const coreProject = project as CoreOpenedProject;
+      return loadProjectData(coreProject.model, config);
+    });
+    
     return this.prepareBulkUpdates(imports);
   }
 
@@ -403,26 +407,26 @@ function loadOnlinePlugins(): ImportData {
   return { plugins: list, components: [] };
 }
 
-function loadProjectData(project: CoreOpenedProject, config: ImportFromProjectConfig): ImportData {
+function loadProjectData(model: Model, config: ImportFromProjectConfig): ImportData {
   const plugins = new Map<string, PluginImport>();
   const components: ComponentImport[] = [];
 
   if (config.importPlugins) {
-    for (const id of project.getPluginsIds()) {
-      ensureProjectPlugin(plugins, project, id);
+    for (const id of model.getPluginsIds()) {
+      ensureProjectPlugin(plugins, model, id);
     }
   }
 
   if (config.importComponents) {
     const external = config.importComponents === 'external';
 
-    for (const id of project.getComponentsIds()) {
-      const componentModel = project.getComponentModel(id);
+    for (const id of model.getComponentsIds()) {
+      const componentModel = model.getComponent(id);
       if (componentModel.data.external) {
         continue;
       }
 
-      ensureProjectPlugin(plugins, project, componentModel.data.plugin);
+      ensureProjectPlugin(plugins, model, componentModel.data.plugin);
 
       components.push({
         id: componentModel.id,
@@ -436,13 +440,13 @@ function loadProjectData(project: CoreOpenedProject, config: ImportFromProjectCo
   return { plugins: Array.from(plugins.values()), components };
 }
 
-function ensureProjectPlugin(plugins: Map<string, PluginImport>, project: CoreOpenedProject, id: string): PluginImport {
+function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, id: string): PluginImport {
   const existing = plugins.get(id);
   if (existing) {
     return existing;
   }
 
-  const pluginModel = project.getPluginModel(id);
+  const pluginModel = model.getPlugin(id);
 
   const pluginImport: PluginImport = {
     id: pluginModel.id,
