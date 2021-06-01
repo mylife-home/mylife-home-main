@@ -83,13 +83,13 @@ export function useShowChangesDialog() {
             <List className={classes.list}>
               <ItemWithChildren className={classes.changeSetItem} title="Plugins" stats={stats.plugins.total}>
 
-                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.plugins.adds} checked="checked" onCheckChange={() => {}}>
+                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.plugins.adds} checked="checked" onCheckChange={() => console.log('check')}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
 
@@ -97,11 +97,11 @@ export function useShowChangesDialog() {
 
                 <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.plugins.updates} checked="checked" onCheckChange={() => {}}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
                   
@@ -109,11 +109,11 @@ export function useShowChangesDialog() {
 
                 <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.plugins.deletes} checked="unchecked" onCheckChange={() => {}}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
                   
@@ -125,11 +125,11 @@ export function useShowChangesDialog() {
 
                 <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.components.adds} checked="checked" onCheckChange={() => {}}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
 
@@ -137,11 +137,11 @@ export function useShowChangesDialog() {
 
                 <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.components.updates} checked="checked" onCheckChange={() => {}}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
                   
@@ -149,11 +149,11 @@ export function useShowChangesDialog() {
 
                 <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.components.deletes} checked="unchecked" onCheckChange={() => {}}>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Toto" />
                   </ListItem>
 
-                  <ListItem>
+                  <ListItem className={classes.changeItem}>
                     <ListItemText primary="Titi" />
                   </ListItem>
                   
@@ -204,13 +204,14 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
         {checked && onCheckChange && (
           <ListItemIcon>
             <Checkbox
+              onClick={e => e.stopPropagation() /* prevent parent Click (expand/collapse) */}
+              onMouseDown={e => e.stopPropagation()  /* prevent parent ripple effect */}
               edge="start"
               color="primary"
               indeterminate={checked === 'indeterminate'}
               checked={checked === 'checked'}
               onChange={onCheckChange}
               tabIndex={-1}
-              disableRipple
             />
           </ListItemIcon>
         )}
