@@ -332,7 +332,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
-    prepareChanges(imports);
+    prepareChanges(imports, this.model);
 
     throw new Error('TODO');
   }
