@@ -88,6 +88,10 @@ export class Model {
     return binding;
   }
 
+  hasInstance(instanceName: string) {
+    return this.instances.has(instanceName);
+  }
+
   getInstance(instanceName: string) {
     const instance = this.instances.get(instanceName);
     if (!instance) {

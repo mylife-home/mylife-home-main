@@ -230,6 +230,38 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
     }
   }
 
+  // A project is supposed to deploy full instances only.
+  // So we can consider each instance with components on imported project, and deduce a list of deleted components per instance
+  const pluginImportsInstances = new Map<string, string>();
+  for (const pluginImport of imports.plugins) {
+    pluginImportsInstances.set(pluginImport.id, pluginImport.instanceName);
+  }
+
+  const componentsImportsByInstanceName = new Map<string, Set<string>>();
+  for (const componentImport of imports.components) {
+    const instanceName = pluginImportsInstances.get(componentImport.pluginId);
+    let set = componentsImportsByInstanceName.get(instanceName);
+    if (!set) {
+      set = new Set();
+      componentsImportsByInstanceName.set(instanceName, set);
+    }
+
+    set.add(componentImport.id);
+  }
+
+  for (const [instanceName, set] of componentsImportsByInstanceName.entries()) {
+    if(!model.hasInstance(instanceName)) {
+      continue;
+    }
+
+    const instanceModel = model.getInstance(instanceName);
+    for(const componentModel of instanceModel.components.values()) {
+      if(!set.has(componentModel.id)) {
+        remove(componentModel);
+      }
+    }
+  }
+
   return changes;
 
   function add(componentImport: ComponentImport) {
@@ -256,6 +288,12 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
     change.config = lookupObjectChanges(componentModel.data.config, componentImport.config, Object.is, configChangeFormatter);
 
     changes.updates[id] = change;
+  }
+
+  function remove(componentModel: ComponentModel) {
+    const id = componentModel.id;
+    const change = newComponentChange();
+    changes.deletes[id] = change;
   }
 
   function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
@@ -468,5 +506,21 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
 }
 
 function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: ComponentChanges) {
-  // TODO
+  for (const [id, change] of Object.entries(changes.deletes)) {
+    const component = model.getComponent(id);
+    change.impacts = {
+      bindings: Array.from(component.getAllBindingsIds())
+    };
+}
+
+  for (const [id, change] of Object.entries(changes.updates)) {
+    // only impacts on plugin change
+    // TODO: could also only lookup for properties that actually changed
+    if (change.pluginId) {
+      const component = model.getComponent(id);
+      change.impacts = {
+        bindings: Array.from(component.getAllBindingsIds())
+      };
+    }
+  }
 }
