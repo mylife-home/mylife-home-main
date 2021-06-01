@@ -12,7 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
-import { CoreBreakingOperation } from '../../../../../shared/project-manager';
+import { coreImportData } from '../../../../../shared/project-manager';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -32,9 +32,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function useShowBreakingOperationsDialog() {
+export function useShowChangesDialog() {
   const classes = useStyles();
-  const [breakingOperations, setBreakingOperations] = useState<CoreBreakingOperation[]>();
+  const [changes, setChanges] = useState<coreImportData.Changes>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(
@@ -82,17 +82,17 @@ export function useShowBreakingOperationsDialog() {
         </Dialog>
       );
     },
-    [breakingOperations, onResult]
+    [changes, onResult]
   );
 
   return useCallback(
-    (breakingOperations: CoreBreakingOperation[]) =>
+    (changes: coreImportData.Changes) =>
       new Promise<ConfirmResult>((resolve) => {
-        setBreakingOperations(breakingOperations);
+        setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
       }),
-    [setBreakingOperations, setOnResult, showModal]
+    [setChanges, setOnResult, showModal]
   );
 }

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
-import { useShowBreakingOperationsDialog } from './breaking-operations-dialog';
+import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
 import { BulkUpdatesData } from '../../../store/core-designer/types';
 import { 
@@ -50,14 +50,15 @@ export function useRefreshToolboxFromOnline() {
 function useExecuteRefresh() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  const showBreakingOperations = useShowBreakingOperationsDialog();
+  const showChangesDialog = useShowChangesDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
+    console.log(bulkUpdatesData.changes);
     throw new Error('TODO');
     /*
     if (bulkUpdatesData.breakingOperations.length > 0) {
-      const { status } = await showBreakingOperations(bulkUpdatesData.breakingOperations);
+      const { status } = await showChangesDialog(bulkUpdatesData.breakingOperations);
       if (status !== 'ok') {
         return;
       }
