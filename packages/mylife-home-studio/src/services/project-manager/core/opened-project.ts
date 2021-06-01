@@ -504,7 +504,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
   }
 
   const pluginsImportsIds = new Set(imports.plugins.map(pluginImport => pluginImport.id));
-  for (const id of this.getPluginsIds()) {
+  for (const id of model.getPluginsIds()) {
     if (!pluginsImportsIds.has(id)) {
       const pluginModel = model.getPlugin(id);
       remove(pluginModel);
