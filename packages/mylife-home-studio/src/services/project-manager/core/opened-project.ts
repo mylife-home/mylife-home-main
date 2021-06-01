@@ -348,7 +348,7 @@ export class CoreOpenedProject extends OpenedProject {
     // TODO: plugins updates/delete impact on components
 
 
-    console.log(changes);
+    console.log(JSON.stringify(changes, null, 2));
     throw new Error('TODO');
   }
 
@@ -462,6 +462,8 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, i
   return pluginImport;
 }
 
+type ChangeType = 'add' | 'update' | 'delete';
+
 interface ItemChanges<T> {
   adds: { [id: string]: T; },
   updates: { [id: string]: T; },
@@ -472,8 +474,8 @@ type PluginChanges = ItemChanges<PluginChange>;
 
 interface PluginChange {
   version: { before: string; after: string; },
-  config: { [name: string]: 'add' | 'update' | 'delete'; },
-  members: { [name: string]: 'add' | 'update' | 'delete'; },
+  config: { [name: string]: ChangeType; },
+  members: { [name: string]: ChangeType; },
   impacts: {
     components: string[], // components will lose their configuration
     bindings: string[], // bindings will be deleted
@@ -483,7 +485,7 @@ interface PluginChange {
 type ComponentChanges = ItemChanges<ComponentChange>;
 
 interface ComponentChange {
-  config: { [name: string]: { type: 'add' | 'update' | 'delete'; value: any; }; };
+  config: { [name: string]: { type: ChangeType; value: any; }; };
   external: boolean; // or null if no change
   pluginId: string; // or null if no change
   impacts: {
@@ -521,7 +523,13 @@ function preparePluginUpdates(imports: ImportData, model: Model): PluginChanges 
     const id = pluginImport.id;
     const change = newPluginChange({ version: { before: null, after: pluginImport.plugin.version } });
 
-    // TODO
+    for (const name of Object.keys(pluginImport.plugin.members)) {
+      change.members[name] = 'add';
+    }
+
+    for (const name of Object.keys(pluginImport.plugin.config)) {
+      change.config[name] = 'add';
+    }
 
     changes.adds[id] = change;
   }
@@ -551,7 +559,9 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
       add(componentImport);
     } else {
       const componentModel = model.getComponent(id);
-      update(componentModel, componentImport);
+      if (!areComponentsEqual(componentModel, componentImport)) {
+        update(componentModel, componentImport);
+      }
     }
   }
 
@@ -559,13 +569,9 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
 
   function add(componentImport: ComponentImport) {
     const id = componentImport.id;
-
     const change = newComponentChange(pick(componentImport, 'pluginId', 'external'));
 
-    const configImport = componentImport.config || {};
-    for (const [name, value] of Object.entries(configImport)) {
-      change.config[name] = { type: 'add', value };
-    }
+    change.config = lookupObjectChanges(null, componentImport.config, Object.is, configChangeFormatter);
 
     changes.adds[id] = change;
   }
@@ -582,27 +588,13 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
       change.external = componentImport.external;
     }
 
-    const configModel = componentModel.data.config || {};
-    const configImport = componentImport.config || {};
-    for (const [name, value] of Object.entries(configImport)) {
-      if (!configModel.hasOwnProperty(name)) {
-        change.config[name] = { type: 'add', value };
-      } else {
-        const valueModel = configModel[name];
-        const valueImport = configImport[name];
-        if (!Object.is(valueModel, valueImport)) {
-          change.config[name] = { type: 'update', value: valueImport };
-        }
-      }
-    }
-
-    for (const name of Object.keys(configModel)) {
-      if (!configImport.hasOwnProperty(name)) {
-        change.config[name] = { type: 'delete', value: null };
-      }
-    }
+    change.config = lookupObjectChanges(componentModel.data.config, componentImport.config, Object.is, configChangeFormatter);
 
     changes.updates[id] = change;
+  }
+
+  function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
+    return { type, value: valueImport };
   }
 }
 
@@ -645,4 +637,71 @@ function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
     && pluginModel.data.module === pluginImport.plugin.module
     && pluginModel.data.name === pluginImport.plugin.name
     && pluginModel.data.version === pluginImport.plugin.version;
+}
+
+function areComponentsEqual(componentModel: ComponentModel, componentImport: ComponentImport) {
+  const baseEqual = componentModel.id === componentImport.id
+    && componentModel.plugin.id === componentImport.pluginId
+    && componentModel.data.external === componentImport.external
+    && !!componentModel.data.config === !!componentImport.config;
+
+  if (!baseEqual) {
+    return false;
+  }
+
+  // compare config
+  if (!componentModel.data.config) {
+    // no config
+    return true;
+  }
+
+  const configModel = componentModel.data.config;
+  const configImport = componentImport.config;
+
+  const modelKeys = Object.keys(configModel);
+  const configKeys = Object.keys(configImport);
+  if (modelKeys.length !== configKeys.length) {
+    return false;
+  }
+
+  for (const [key, valueModel] of Object.entries(configModel)) {
+    if (!configImport.hasOwnProperty(key)) {
+      return false;
+    }
+
+    const valueImport = configImport[key];
+
+    if (!Object.is(valueModel, valueImport)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: ChangeType, valueModel: Value, valueImport: Value) => Change) {
+  const changes: { [name: string]: Change; } = {};
+
+  const safeObjectModel = objectModel || {};
+  const safeObjectImport = objectImport || {};
+  for (const [name, valueImport] of Object.entries(safeObjectImport)) {
+    if (!safeObjectModel.hasOwnProperty(name)) {
+      changes[name] = changesFormatter(name, 'add', null, valueImport);
+    } else {
+      const valueModel = safeObjectModel[name];
+      const valueImport = safeObjectImport[name];
+      if (!equalityComparer(valueModel, valueImport)) {
+        changes[name] = changesFormatter(name, 'update', valueModel, valueImport);
+      }
+    }
+  }
+
+  for (const [name, valueModel] of Object.entries(safeObjectModel)) {
+    if (!safeObjectImport.hasOwnProperty(name)) {
+      changes[name] = changesFormatter(name, 'delete', valueModel, null);
+    }
+  }
+
+  return changes;
+
 }
