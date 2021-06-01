@@ -323,7 +323,7 @@ export class CoreOpenedProject extends OpenedProject {
       const coreProject = project as CoreOpenedProject;
       return loadProjectData(coreProject.model, config);
     });
-    
+
     return this.prepareBulkUpdates(imports);
   }
 
@@ -562,7 +562,8 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
 
     const change = newComponentChange(pick(componentImport, 'pluginId', 'external'));
 
-    for (const [name, value] of Object.entries(componentImport.config)) {
+    const configImport = componentImport.config || {};
+    for (const [name, value] of Object.entries(configImport)) {
       change.config[name] = { type: 'add', value };
     }
 
@@ -581,8 +582,8 @@ function prepareComponentUpdates(imports: ImportData, model: Model): ComponentCh
       change.external = componentImport.external;
     }
 
-    const configModel = componentModel.data.config;
-    const configImport = componentImport.config;
+    const configModel = componentModel.data.config || {};
+    const configImport = componentImport.config || {};
     for (const [name, value] of Object.entries(configImport)) {
       if (!configModel.hasOwnProperty(name)) {
         change.config[name] = { type: 'add', value };
