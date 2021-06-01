@@ -25,9 +25,14 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
-  changeSetItem: {},
-  changeTypeItem: {},
-  changeItem: {},
+  changeSetItem: {
+  },
+  changeTypeItem: {
+    paddingLeft: theme.spacing(4),
+  },
+  changeItem: {
+    paddingLeft: theme.spacing(8),
+  },
 }));
 
 type ChangesDialogResult = ConfirmResult & { selection?: string[] };
@@ -73,12 +78,12 @@ export function useShowChangesDialog() {
           <DialogTitle id="dialog-title">Changements engendrés</DialogTitle>
 
           <DialogContent dividers>
-            <DialogText value={'Importer les composants modifierait le projet :'} />
+            <DialogText value={'Sélectionnez les changements à apporter au projet :'} />
 
             <List className={classes.list}>
-              <ItemWithChildren className={classes.changeSetItem} title="Plugins">
+              <ItemWithChildren className={classes.changeSetItem} title="Plugins" stats={stats.plugins.total}>
 
-                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" checked="checked" onCheckChange={() => {}}>
+                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.plugins.adds} checked="checked" onCheckChange={() => {}}>
 
                   <ListItem>
                     <ListItemText primary="Toto" />
@@ -90,7 +95,7 @@ export function useShowChangesDialog() {
 
                 </ItemWithChildren>
 
-                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" checked="checked" onCheckChange={() => {}}>
+                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.plugins.updates} checked="checked" onCheckChange={() => {}}>
 
                   <ListItem>
                     <ListItemText primary="Toto" />
@@ -102,7 +107,7 @@ export function useShowChangesDialog() {
                   
                 </ItemWithChildren>
 
-                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" checked="unchecked" onCheckChange={() => {}}>
+                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.plugins.deletes} checked="unchecked" onCheckChange={() => {}}>
 
                   <ListItem>
                     <ListItemText primary="Toto" />
@@ -116,24 +121,48 @@ export function useShowChangesDialog() {
 
               </ItemWithChildren>
 
-              <ListItem>
-                <ListItemText primary="Composants" />
-              </ListItem>
+              <ItemWithChildren className={classes.changeSetItem} title="Composants" stats={stats.components.total}>
 
-              <ListItem>
-                <ListItemText primary="Ajouts" />
-              </ListItem>
+                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.components.adds} checked="checked" onCheckChange={() => {}}>
 
-              <ListItem>
-                <ListItemText primary="Modifications" />
-              </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
 
-              <ListItem>
-                <ListItemText primary="Suppressions" />
-              </ListItem>
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+
+                </ItemWithChildren>
+
+                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.components.updates} checked="checked" onCheckChange={() => {}}>
+
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
+
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+                  
+                </ItemWithChildren>
+
+                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.components.deletes} checked="unchecked" onCheckChange={() => {}}>
+
+                  <ListItem>
+                    <ListItemText primary="Toto" />
+                  </ListItem>
+
+                  <ListItem>
+                    <ListItemText primary="Titi" />
+                  </ListItem>
+                  
+                </ItemWithChildren>
+
+              </ItemWithChildren>
+
             </List>
 
-            <DialogText value={'Continuer ?'} />
           </DialogContent>
 
           <DialogActions>
@@ -158,12 +187,16 @@ export function useShowChangesDialog() {
   );
 }
 
-const ItemWithChildren: FunctionComponent<{ className?: string; title: string; checked?: TriState; onCheckChange?: () => void }> = ({ className, title, checked, onCheckChange, children }) => {
+const ItemWithChildren: FunctionComponent<{ className?: string; title: string; stats: StateItem; checked?: TriState; onCheckChange?: () => void }> = ({ className, title, stats, checked, onCheckChange, children }) => {
   const [open, setOpen] = useState(true);
 
   const handleClick = () => {
     setOpen(!open);
   };
+
+  if (areStatsEmpty(stats)) {
+    return null;
+  }
 
   return (
     <>
@@ -182,7 +215,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; c
           </ListItemIcon>
         )}
 
-        <ListItemText primary={title} />
+        <ListItemText primary={title} secondary={formatStats(stats)}/>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
 
@@ -276,4 +309,25 @@ function computeItemStats(changes: { [id: string]: coreImportData.ItemChange }, 
   }
 
   return stats;
+}
+
+function areStatsEmpty(stats: StateItem) {
+  return stats.selected === 0 && stats.unselected === 0;
+}
+
+function formatStats(stats: StateItem) {
+  if (areStatsEmpty(stats)) {
+    return '(Aucun)';
+  }
+
+  if (stats.selected === 0) {
+    return `${stats.unselected} item non sélectionnés`;
+  }
+
+  if (stats.unselected === 0) {
+    return `${stats.selected} item sélectionnés`;
+  }
+
+  const total = stats.selected + stats.unselected;
+  return `${stats.selected} item sélectionnés sur ${total}`;
 }
