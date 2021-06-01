@@ -149,6 +149,7 @@ export function prepareChanges(imports: ImportData, model: Model) {
 
   lookupPluginsChangesImpacts(imports, model, changes.plugins);
   lookupComponentsChangesImpacts(imports, model, changes.components);
+  lookupDependencies(imports, model, changes);
 
   const serverData = prepareServerData(imports, changes);
 
@@ -533,6 +534,27 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: Model, chang
       change.impacts = {
         bindings: Array.from(component.getAllBindingsIds())
       };
+    }
+  }
+}
+
+function lookupDependencies(imports: ImportData, model: Model, changes: coreImportData.Changes) {
+  const pluginsChangesKeyById = new Map<string, string>();
+
+  for (const [id, change] of [...Object.entries(changes.plugins.adds), ...Object.entries(changes.plugins.updates), ...Object.entries(changes.plugins.deletes)]) {
+    pluginsChangesKeyById.set(id, change.key);
+  }
+
+  const componentsImports = new Map<string, ComponentImport>();
+  for (const componentImport of imports.components) {
+    componentsImports.set(componentImport.id, componentImport);
+  }
+
+  for (const[id, change] of [...Object.entries(changes.components.adds), ...Object.entries(changes.components.updates), ...Object.entries(changes.components.deletes)]) {
+    const componentImport = componentsImports.get(id);
+    const pluginKey = pluginsChangesKeyById.get(componentImport.pluginId);
+    if (pluginKey) {
+      change.dependencies.push(pluginKey);
     }
   }
 }
