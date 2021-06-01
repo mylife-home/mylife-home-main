@@ -12,6 +12,7 @@ import {
   deployToFiles, prepareDeployToOnline, applyDeployToOnline
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
+import { coreImportData } from '../../../../../shared/project-manager';
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
@@ -55,7 +56,7 @@ function useExecuteRefresh() {
 
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
     const { changes, serverData } = bulkUpdatesData;
-    if (Object.keys(changes.components).length === 0 && Object.keys(changes.components).length === 0) {
+    if (areChangesEmpty(changes)) {
       enqueueSnackbar('Le projet est déjà à jour.', { variant: 'info' });
       return;
     }
@@ -69,6 +70,20 @@ function useExecuteRefresh() {
 
     enqueueSnackbar('Le projet a été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
+}
+
+function areChangesEmpty(changes: coreImportData.Changes) {
+  return isChangeSetEmpty(changes.plugins) && isChangeSetEmpty(changes.components);
+}
+
+function isChangeSetEmpty<T>(changeSet: coreImportData.ItemChanges<T>) {
+  return isObjectEmpty(changeSet.adds)
+  && isObjectEmpty(changeSet.updates)
+  && isObjectEmpty(changeSet.deletes)
+}
+
+function isObjectEmpty(object: {}) {
+  return Object.keys(object).length === 0;
 }
 
 export function useDeployToFiles() {
