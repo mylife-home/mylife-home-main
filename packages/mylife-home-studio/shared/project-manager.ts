@@ -319,6 +319,7 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
 export interface CoreProjectCall {
   operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
   | 'prepare-import-from-project' | 'prepare-refresh-toolbox-from-online' | 'apply-bulk-updates'
+  | 'validate'
   | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
 
@@ -450,6 +451,21 @@ export interface BulkUpdatesStats {
 export interface ApplyBulkUpdatesCoreProjectCallResult extends ProjectCallResult {
   stats: BulkUpdatesStats;
 };
+
+export interface CoreValidationError {
+  instanceName: string;
+  module: string;
+  name: string;
+
+  changeType: coreImportData.ChangeType; // update or delete only
+  config: { [name: string]: coreImportData.ChangeType; },
+  members: { [name: string]: coreImportData.ChangeType; },
+  impacts: string[]; // list of impacted components
+}
+
+export interface ValidateCoreProjectCallResult extends ProjectCallResult {
+  errors: CoreValidationError[];
+}
 
 export interface DeployToFilesCoreProjectCallResult extends ProjectCallResult {
   files: string[];

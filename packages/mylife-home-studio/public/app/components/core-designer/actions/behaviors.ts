@@ -6,10 +6,10 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { BulkUpdatesData } from '../../../store/core-designer/types';
-import { prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, deployToFiles, prepareDeployToOnline, applyDeployToOnline } from '../../../store/core-designer/actions';
+import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError } from '../../../store/core-designer/types';
+import { prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, deployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
-import { BulkUpdatesStats, coreImportData } from '../../../../../shared/project-manager';
+import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
@@ -109,6 +109,25 @@ function isChangeSetEmpty<T>(changeSet: coreImportData.ItemChanges<T>) {
 
 function isObjectEmpty(object: {}) {
   return Object.keys(object).length === 0;
+}
+
+export function useProjectValidation() {
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch<AsyncDispatch<CoreValidationError[]>>();
+  const fireAsync = useFireAsync();
+  const showDialog = useShowValidationErrorsDialog();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(() => {
+    fireAsync(async () => {
+      const errors = await dispatch(validateProject({ id: tabId }));
+      if (errors.length === 0) {
+        enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
+      } else {
+        await showDialog(errors);
+      }
+    });
+  }, [tabId, dispatch, fireAsync, showDialog, enqueueSnackbar]);
 }
 
 export function useDeployToFiles() {

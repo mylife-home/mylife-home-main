@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, DeployChange, ImportFromProjectConfig, BulkUpdatesStats } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, DeployChange, ImportFromProjectConfig, BulkUpdatesStats, CoreValidationError } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -14,6 +14,7 @@ export const enum ActionTypes {
   PREPARE_REFRESH_TOOLBOX_FROM_ONLINE = 'core-designer/prepare-refresh-toolbox-from-online',
   PREPARE_IMPORT_FROM_PROJECT = 'core-designer/prepare-import-from-project',
   APPLY_BULK_UPDATES = 'core-designer/apply-bulk-updates',
+  VALIDATE_PROJECT = 'core-designer/validate-project',
   DEPLOY_TO_FILES = 'core-designer/deploy-to-files',
   PREPARE_DEPLOY_TO_ONLINE = 'core-designer/prepare-deploy-to-online',
   APPLY_DEPLOY_TO_ONLINE = 'core-designer/apply-deploy-to-online',
@@ -27,7 +28,7 @@ export const enum ActionTypes {
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
 }
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromProjectConfig, BulkUpdatesStats };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromProjectConfig, BulkUpdatesStats, CoreValidationError, coreImportData };
 
 export type PluginUse = 'unused' | 'external' | 'used';
 

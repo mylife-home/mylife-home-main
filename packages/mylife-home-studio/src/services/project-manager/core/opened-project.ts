@@ -28,6 +28,7 @@ import {
   PrepareImportFromProjectCoreProjectCall,
   PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProjectCallResult,
+  ValidateCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -124,6 +125,9 @@ export class CoreOpenedProject extends OpenedProject {
 
       case 'apply-bulk-updates':
         return this.applyBulkUpdates(callData as ApplyBulkUpdatesCoreProject);
+
+      case 'validate':
+        return this.validate();
 
       case 'deploy-to-files':
         return this.deployToFiles();
@@ -370,6 +374,13 @@ export class CoreOpenedProject extends OpenedProject {
 
     return { stats };
   }
+
+  private validate(): ValidateCoreProjectCallResult {
+    throw new Error('TODO');
+  }
+
+  // TODO: valider que les composants -> plugins sont bien compatibles avec les plugins en ligne (+ bouton de validation explicit dans UI)
+  // -> pour chaque plugin utilisé, verifier qu'il existe online + que les config/members sont identiques (pas besoin de verifier les versions)
 
   private deployToFiles(): DeployToFilesCoreProjectCallResult {
     throw new Error('TODO');
