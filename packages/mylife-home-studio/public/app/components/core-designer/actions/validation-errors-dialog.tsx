@@ -21,6 +21,10 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
+  detailsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  }
 }));
 
 export function useShowValidationErrorsDialog() {
@@ -52,7 +56,7 @@ export function useShowValidationErrorsDialog() {
             <DialogText value={'Le projet a les erreurs de validation suivantes :'} />
 
             <List className={classes.list}>
-              TODO
+              {errors.map((error, index) => (<ErrorItem key={index} error={error} />))}
             </List>
 
           </DialogContent>
@@ -79,3 +83,80 @@ export function useShowValidationErrorsDialog() {
     [setErrors, setOnClose]
   );
 }
+
+const CHANGE_TYPES = {
+  add: 'Plugin ajouté', // Note: ne devrait pas apparaître
+  update: 'Plugin modifié',
+  delete: 'Plugin suprimé'
+};
+
+const ErrorItem: FunctionComponent<{ error: CoreValidationError }> = ({ error }) => {
+  const classes = useStyles();
+  const title = `${error.instanceName}:${error.module}.${error.name}`;
+
+  return (
+    <ListItem>
+      <ListItemText
+        disableTypography
+        primary={<Typography variant="body1">{title}</Typography>}
+        secondary={
+          <div className={classes.detailsContainer}>
+            <DetailLine>{CHANGE_TYPES[error.changeType]}</DetailLine>
+
+            {Object.entries(error.members || {}).map(([memberName, type]) => {
+              let changeType: string;
+
+              switch(type) {
+                case 'add':
+                  changeType = 'Ajout de membre';
+                  break;
+
+                case 'update':
+                  changeType = 'Modification de membre';
+                  break;
+
+                case 'delete':
+                  changeType = 'Suppression de membre';
+                  break;
+              }
+
+              return (
+                <DetailLine key={memberName}>{`${changeType} : ${memberName}`}</DetailLine>
+              );
+            })}
+
+            {Object.entries(error.config || {}).map(([configName, type]) => {
+              let changeType: string;
+
+              switch(type) {
+                case 'add':
+                  changeType = 'Ajout de configuration';
+                  break;
+
+                case 'update':
+                  changeType = 'Modification de configuration';
+                  break;
+
+                case 'delete':
+                  changeType = 'Suppression de configuration';
+                  break;
+              }
+
+              return (
+                <DetailLine key={configName}>{`${changeType} : ${configName}`}</DetailLine>
+              );
+            })}
+
+            {(error.impacts || []).map(componentId => {
+              <DetailLine key={componentId}>{`Impact sur le composant ${componentId}`}</DetailLine>
+            })}
+
+          </div>
+        } />
+    </ListItem>
+  );
+};
+
+const DetailLine: FunctionComponent = ({ children }) => (
+  <Typography variant="body2" color="textSecondary">{children}</Typography>
+);
