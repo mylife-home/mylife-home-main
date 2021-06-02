@@ -124,6 +124,7 @@ car que sensor vers ui
     - online (one shot comme ui mettre toute la conf a jour d un coup?)
     - as recipe files for direct config in image
 - setup gitconvex
+   - delete src/services/project-manager/old-git
 
 # Notes
 
