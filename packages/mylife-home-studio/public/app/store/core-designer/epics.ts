@@ -24,6 +24,7 @@ import {
   ApplyBulkUpdatesCoreProject,
   PrepareImportFromProjectCoreProjectCall,
   ApplyBulkUpdatesCoreProjectCallResult,
+  ValidateCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -57,6 +58,15 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
       resultMapper(serviceResult: ApplyBulkUpdatesCoreProjectCallResult): BulkUpdatesStats {
         return serviceResult.stats;
+      }
+    },
+
+    [ActionTypes.VALIDATE_PROJECT]: {
+      mapper() {
+        return { operation: 'validate' } as CoreProjectCall;
+      },
+      resultMapper(serviceResult: ValidateCoreProjectCallResult) {
+        return serviceResult.errors;
       }
     },
 
