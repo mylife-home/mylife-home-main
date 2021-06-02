@@ -177,7 +177,8 @@ interface ComponentChangeTypeProps extends BaseChangeTypeProps {
   changes: { [id: string]: coreImportData.ComponentChange };
 }
 
-const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeTypeProps> = ({ stats, selection, setSelected, type, changes, title }) => {
+const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeTypeProps> = ({ stats, selection, setSelected, title, ...typeAndChanges }) => {
+  // keep typeAndChanges together to keep their type links
   const classes = useStyles();
 
   const checkState = getTriState(stats);
@@ -186,25 +187,54 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
     switch (checkState) {
       case 'indeterminate':
       case 'unchecked':
-        setSelected(prepareSelectedAll(changes, true));
+        setSelected(prepareSelectedAll(typeAndChanges.changes, true));
         break;
 
       case 'checked':
-        setSelected(prepareSelectedAll(changes, false));
+        setSelected(prepareSelectedAll(typeAndChanges.changes, false));
         break;
     }
   };
 
-  return (
-    <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
-      <ListItem className={classes.changeItem}>
-        <ListItemText primary="Toto" />
-      </ListItem>
+  // we need that to keep typing
+  switch (typeAndChanges.type) {
+    case 'plugins':
+      return (
+        <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
+          {Object.entries(typeAndChanges.changes).map(([id, change]) => (
+            <PluginChangeItem key={id} id={id} change={change} selection={selection} setSelected={setSelected} />
+          ))}
+        </ItemWithChildren>
+      );
 
-      <ListItem className={classes.changeItem}>
-        <ListItemText primary="Titi" />
-      </ListItem>
-    </ItemWithChildren>
+    case 'components':
+      return (
+        <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
+          {Object.entries(typeAndChanges.changes).map(([id, change]) => (
+            <ComponentChangeItem key={id} id={id} change={change} selection={selection} setSelected={setSelected} />
+          ))}
+        </ItemWithChildren>
+      );
+  }
+};
+
+const PluginChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.PluginChange }> = () => {
+  const classes = useStyles();
+
+  return (
+    <ListItem className={classes.changeItem}>
+      <ListItemText primary="Plugin" />
+    </ListItem>
+  );
+};
+
+const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ComponentChange }> = () => {
+  const classes = useStyles();
+
+  return (
+    <ListItem className={classes.changeItem}>
+      <ListItemText primary="Component" />
+    </ListItem>
   );
 };
 
