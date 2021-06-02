@@ -406,13 +406,16 @@ function formatStats(stats: StatsItem) {
   }
 
   if (stats.selected === 0) {
-    return `${stats.unselected} item non sélectionnés`;
+    const count = stats.unselected;
+    return count < 2 ? `${count} item non sélectionné` : `${count} items non sélectionnés`;
   }
 
   if (stats.unselected === 0) {
-    return `${stats.selected} item sélectionnés`;
+    const count = stats.selected;
+    return count < 2 ? `${count} item sélectionné` : `${count} items sélectionnés`;
   }
 
   const total = stats.selected + stats.unselected;
-  return `${stats.selected} item sélectionnés sur ${total}`;
+  const count = stats.selected;
+  return count < 2 ? `${count} item sélectionné sur ${total}` : `${count} items sélectionnés sur ${total}`;
 }
