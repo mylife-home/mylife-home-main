@@ -12,6 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Collapse from '@material-ui/core/Collapse';
 import Checkbox from '@material-ui/core/Checkbox';
+import Typography from '@material-ui/core/Typography';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
@@ -34,6 +35,10 @@ const useStyles = makeStyles((theme) => ({
   changeItem: {
     paddingLeft: theme.spacing(8),
   },
+  changeDetailsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  }
 }));
 
 type ChangesDialogResult = ConfirmResult & { selection?: string[] };
@@ -218,23 +223,129 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
   }
 };
 
-const PluginChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.PluginChange }> = () => {
+const PluginChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.PluginChange }> = ({ id, change, selection, setSelected }) => {
+  return (
+    <ChangeItem id={id} change={change} selection={selection} setSelected={setSelected}>
+
+      <ChangeDetailLine>{`Version : ${formatVersion(change.version)}`}</ChangeDetailLine>
+
+      {change.usage && (
+        <ChangeDetailLine>{`Changement d'usage : ${change.usage}`}</ChangeDetailLine>
+      )}
+
+      {Object.entries(change.members || {}).map(([memberName, type]) => {
+        let changeType: string;
+
+        switch(type) {
+          case 'add':
+            changeType = 'Ajout de membre';
+            break;
+
+          case 'update':
+            changeType = 'Modification de membre';
+            break;
+
+          case 'delete':
+            changeType = 'Suppression de membre';
+            break;
+        }
+
+        return (
+          <ChangeDetailLine key={memberName}>{`${changeType} : ${memberName}`}</ChangeDetailLine>
+        );
+      })}
+
+      {Object.entries(change.config || {}).map(([configName, type]) => {
+        let changeType: string;
+
+        switch(type) {
+          case 'add':
+            changeType = 'Ajout de configuration';
+            break;
+
+          case 'update':
+            changeType = 'Modification de configuration';
+            break;
+
+          case 'delete':
+            changeType = 'Suppression de configuration';
+            break;
+        }
+
+        return (
+          <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>
+        );
+      })}
+
+      {(change.impacts?.components || []).map(componentId => {
+        <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>
+      })}
+
+      {(change.impacts?.bindings || []).map(bindingId => {
+        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>
+      })}
+    </ChangeItem>
+  );
+};
+
+function formatVersion({ before, after }: { before: string; after: string; }) {
+  if (before && after) {
+    if(before !== after) {
+      return `${before} -> ${after}`;
+    } else {
+      return before;
+    }
+  }
+
+  if (before) {
+    return before;
+  }
+
+  if (after) {
+    return after;
+  }
+
+  return null;
+}
+
+const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ComponentChange }> = ({ id, change, selection, setSelected }) => {
+  return (
+    <ChangeItem id={id} change={change} selection={selection} setSelected={setSelected}>
+    </ChangeItem>
+  );
+};
+
+const ChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ItemChange }> = ({ id, change, selection, setSelected, children }) => {
   const classes = useStyles();
+  const checked = selection[change.key];
+  const onCheck = () => setSelected({ [change.key]: !checked });
 
   return (
-    <ListItem className={classes.changeItem}>
-      <ListItemText primary="Plugin" />
+    <ListItem className={classes.changeItem} button onClick={onCheck}>
+      <ListItemIcon>
+        <Checkbox
+          edge="start"
+          color="primary"
+          checked={checked}
+          tabIndex={-1}
+        />
+      </ListItemIcon>
+
+      <ListItemText
+        disableTypography
+        primary={<Typography variant="body1">{id}</Typography>}
+        secondary={
+          <div className={classes.changeDetailsContainer}>
+            {children}
+          </div>
+        } />
     </ListItem>
   );
 };
 
-const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ComponentChange }> = () => {
-  const classes = useStyles();
-
+const ChangeDetailLine: FunctionComponent<{ highlight?: boolean }> = ({ children, highlight = false }) => {
   return (
-    <ListItem className={classes.changeItem}>
-      <ListItemText primary="Component" />
-    </ListItem>
+    <Typography variant="body2" color={highlight ? 'error' : 'textSecondary'}>{children}</Typography>
   );
 };
 
