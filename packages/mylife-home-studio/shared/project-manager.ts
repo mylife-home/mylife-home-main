@@ -104,7 +104,7 @@ export interface CoreProjectInfo extends ProjectInfo {
 export interface UpdateProjectNotification {
   operation: 'set-name' | 'reset'
   | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
-  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding';
+  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -177,6 +177,11 @@ export interface SetCorePluginToolboxDisplayNotification extends UpdateProjectNo
   display: CoreToolboxDisplay;
 }
 
+export interface SetCorePluginNotification extends UpdateProjectNotification {
+  operation: 'set-core-plugin';
+  id: string;
+  plugin: CorePluginData;
+}
 export interface ClearCorePluginNotification extends UpdateProjectNotification {
   operation: 'clear-core-plugin';
   id: string;

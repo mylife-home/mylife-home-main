@@ -1,8 +1,8 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Position } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance } from './types';
 import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove } from '../common/reducer-tools';
-import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
+import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, CorePluginData, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
   openedProjects: createTable<CoreOpenedProject>()
@@ -84,51 +84,12 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       const { plugins } = update as SetCorePluginsNotification;
 
       for (const [id, pluginData] of Object.entries(plugins)) {
-        const plugin: Plugin = {
-          id,
-          ...pluginData,
-          stateIds: [],
-          actionIds: [],
-          configIds: [],
-          use: 'unused',
-          components: []
-        };
-
-        for (const [name, { memberType }] of Object.entries(plugin.members)) {
-          switch (memberType) {
-            case MemberType.STATE:
-              plugin.stateIds.push(name);
-              break;
-            case MemberType.ACTION:
-              plugin.actionIds.push(name);
-              break;
-          }
-        }
-
-        for (const name of Object.keys(plugin.config)) {
-          plugin.configIds.push(name);
-        }
-
-        plugin.stateIds.sort();
-        plugin.actionIds.sort();
-        plugin.configIds.sort();
-
-        updatePluginStats(openedProject, plugin, true);
-
-        tableSet(openedProject.plugins, plugin, true);
-
-        let instance = openedProject.instances.byId[plugin.instanceName];
-        if (!instance) {
-          instance = { id: plugin.instanceName, plugins: [], use: 'unused', hasShown: false, hasHidden: false };
-          tableSet(openedProject.instances, instance, true);
-        }
-
-        instance.plugins.push(plugin.id);
-        updateInstanceStats(openedProject, instance.id);
+        setPlugin(openedProject, id, pluginData);
       }
 
       // sort filled instances
       for (const instance of Object.values(openedProject.instances.byId)) {
+        updateInstanceStats(openedProject, instance.id);
         instance.plugins.sort();
       }
 
@@ -142,6 +103,16 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
 
       updateInstanceStats(openedProject, plugin.instanceName);
 
+      break;
+    }
+
+    case 'set-core-plugin': {
+      const { id, plugin: pluginData } = update as SetCorePluginNotification;
+      const { instance } = setPlugin(openedProject, id, pluginData);
+
+      updateInstanceStats(openedProject, instance.id);
+      instance.plugins.sort();
+      
       break;
     }
 
@@ -227,6 +198,50 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     default:
       throw new Error(`Unhandled update operation: ${update.operation}`);
   }
+}
+
+function setPlugin(openedProject: CoreOpenedProject, id: string, pluginData: CorePluginData) {
+  const plugin: Plugin = {
+    id,
+    ...pluginData,
+    stateIds: [],
+    actionIds: [],
+    configIds: [],
+    use: 'unused',
+    components: []
+  };
+
+  for (const [name, { memberType }] of Object.entries(plugin.members)) {
+    switch (memberType) {
+      case MemberType.STATE:
+        plugin.stateIds.push(name);
+        break;
+      case MemberType.ACTION:
+        plugin.actionIds.push(name);
+        break;
+    }
+  }
+
+  for (const name of Object.keys(plugin.config)) {
+    plugin.configIds.push(name);
+  }
+
+  plugin.stateIds.sort();
+  plugin.actionIds.sort();
+  plugin.configIds.sort();
+
+  updatePluginStats(openedProject, plugin, true);
+  tableSet(openedProject.plugins, plugin, true);
+
+  let instance = openedProject.instances.byId[plugin.instanceName];
+  if (!instance) {
+    instance = { id: plugin.instanceName, plugins: [], use: 'unused', hasShown: false, hasHidden: false };
+    tableSet(openedProject.instances, instance, true);
+  }
+
+  instance.plugins.push(plugin.id);
+
+  return { plugin, instance };
 }
 
 function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
