@@ -430,7 +430,7 @@ export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall
   config: ImportFromProjectConfig;
 }
 
-export interface PrepareBulkUpdateCoreProjectCallResult extends ProjectCallResult {
+export interface PrepareBulkUpdatesCoreProjectCallResult extends ProjectCallResult {
   changes: coreImportData.Changes;
   serverData: unknown;
 }

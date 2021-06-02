@@ -26,7 +26,7 @@ import {
   SetCorePluginToolboxDisplayNotification,
   UpdateToolboxCoreProjectCall,
   PrepareImportFromProjectCoreProjectCall,
-  PrepareBulkUpdateCoreProjectCallResult,
+  PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
@@ -123,7 +123,7 @@ export class CoreOpenedProject extends OpenedProject {
         return this.prepareRefreshToolboxFromOnline();
 
       case 'apply-bulk-updates':
-        this.applyBulkUpdates(callData as ApplyBulkUpdatesCoreProject);
+        return this.applyBulkUpdates(callData as ApplyBulkUpdatesCoreProject);
 
       case 'deploy-to-files':
         return this.deployToFiles();
@@ -337,7 +337,7 @@ export class CoreOpenedProject extends OpenedProject {
     return this.prepareBulkUpdates(imports);
   }
 
-  private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdateCoreProjectCallResult {
+  private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdatesCoreProjectCallResult {
     const { changes, serverData } = prepareChanges(imports, this.model);
     return { changes, serverData };
   }

@@ -7,12 +7,9 @@ import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
 import { BulkUpdatesData } from '../../../store/core-designer/types';
-import { 
-  prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates,
-  deployToFiles, prepareDeployToOnline, applyDeployToOnline
-} from '../../../store/core-designer/actions';
+import { prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, deployToFiles, prepareDeployToOnline, applyDeployToOnline } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
-import { coreImportData } from '../../../../../shared/project-manager';
+import { BulkUpdatesStats, coreImportData } from '../../../../../shared/project-manager';
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
@@ -50,7 +47,7 @@ export function useRefreshToolboxFromOnline() {
 
 function useExecuteRefresh() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AsyncDispatch<BulkUpdatesStats>>();
   const showChangesDialog = useShowChangesDialog();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -66,10 +63,38 @@ function useExecuteRefresh() {
       return;
     }
 
-    await dispatch(applyBulkUpdates({ id: tabId, selection, serverData }));
+    const stats = await dispatch(applyBulkUpdates({ id: tabId, selection, serverData }));
 
-    enqueueSnackbar('Le projet a été mis à jour.', { variant: 'success' });
+    enqueueSnackbar(formatRefreshNotification(stats), { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
+}
+
+function formatRefreshNotification(stats: BulkUpdatesStats) {
+  let pluginsText = null;
+  let componentsText = null;
+  let bindingsText = null;
+
+  if (stats.plugins === 1) {
+    pluginsText = `${stats.plugins} plugin`;
+  } else if (stats.plugins > 1) {
+    pluginsText = `${stats.plugins} plugins`;
+  }
+
+  if (stats.components === 1) {
+    componentsText = `${stats.components} composant`;
+  } else if (stats.components > 1) {
+    componentsText = `${stats.components} composants`;
+  }
+
+  if (stats.bindings === 1) {
+    bindingsText = `${stats.bindings} binding`;
+  } else if (stats.bindings > 1) {
+    bindingsText = `${stats.bindings} bindings`;
+  }
+
+  const list = [pluginsText, componentsText, bindingsText].filter(item => item).join(', ');
+  const total = stats.plugins + stats.components + stats.bindings;
+  return total > 1 ? `${list} ont été mis à jour` : `${list} a été mis à jour`;
 }
 
 function areChangesEmpty(changes: coreImportData.Changes) {

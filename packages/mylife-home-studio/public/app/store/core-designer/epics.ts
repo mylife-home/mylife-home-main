@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position } from './types';
+import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -20,10 +20,10 @@ import {
   PrepareDeployToOnlineCoreProjectCallResult,
   ApplyDeployToOnlineCoreProjectCall,
   CoreProjectCall,
-  PrepareBulkUpdateCoreProjectCallResult,
+  PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProject,
   PrepareImportFromProjectCoreProjectCall,
-  ImportFromProjectConfig
+  ApplyBulkUpdatesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -37,7 +37,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper() {
         return { operation: 'prepare-refresh-toolbox-from-online' } as CoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult): BulkUpdatesData {
+      resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
       }
     },
@@ -46,7 +46,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ config }: { config: ImportFromProjectConfig}) {
         return { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareBulkUpdateCoreProjectCallResult): BulkUpdatesData {
+      resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
       }
     },
@@ -54,6 +54,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.APPLY_BULK_UPDATES]: {
       mapper({ serverData, selection }: { serverData: unknown, selection: string[] }) {
         return { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject;
+      },
+      resultMapper(serviceResult: ApplyBulkUpdatesCoreProjectCallResult): BulkUpdatesStats {
+        return serviceResult.stats;
       }
     },
 
