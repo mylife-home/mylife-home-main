@@ -47,14 +47,16 @@ export abstract class Store<TProject> extends EventEmitter {
     this.projects.create(name, project);
   }
 
-  update(name: string, updater: (project: TProject) => void) {
+  update<TResult>(name: string, updater: (project: TProject) => TResult) {
     const project = this.projects.get(name);
     if (!project) {
       throw new Error(`Project named '${name}' does not exist`);
     }
 
-    updater(project);
+    const result = updater(project);
     this.projects.update(name, project);
+
+    return result;
   }
 
   duplicate(name: string, newName: string) {

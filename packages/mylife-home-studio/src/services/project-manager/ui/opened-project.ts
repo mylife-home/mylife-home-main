@@ -125,8 +125,8 @@ export class UiOpenedProject extends OpenedProject {
     return null;
   }
 
-  private executeUpdate(updater: () => void) {
-    this.owner.update(this.name, updater);
+  private executeUpdate<TResult>(updater: () => TResult) {
+    return this.owner.update(this.name, updater);
   }
 
   private notifyAllDefaultWindow() {

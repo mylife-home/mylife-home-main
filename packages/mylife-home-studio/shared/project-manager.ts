@@ -441,6 +441,16 @@ export interface ApplyBulkUpdatesCoreProject extends CoreProjectCall {
   serverData: unknown;
 }
 
+export interface BulkUpdatesStats {
+  plugins: number;
+  components: number;
+  bindings: number;
+}
+
+export interface ApplyBulkUpdatesCoreProjectCallResult extends ProjectCallResult {
+  stats: BulkUpdatesStats;
+};
+
 export interface DeployToFilesCoreProjectCallResult extends ProjectCallResult {
   files: string[];
 }

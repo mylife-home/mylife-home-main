@@ -27,6 +27,7 @@ import {
   UpdateToolboxCoreProjectCall,
   PrepareImportFromProjectCoreProjectCall,
   PrepareBulkUpdateCoreProjectCallResult,
+  ApplyBulkUpdatesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -141,8 +142,8 @@ export class CoreOpenedProject extends OpenedProject {
     return null;
   }
 
-  private executeUpdate(updater: () => void) {
-    this.owner.update(this.name, updater);
+  private executeUpdate<TResult>(updater: () => TResult) {
+    return this.owner.update(this.name, updater);
   }
 
   private notifyAllSetPlugins() {
@@ -341,7 +342,7 @@ export class CoreOpenedProject extends OpenedProject {
     return { changes, serverData };
   }
 
-  private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject) {
+  private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject): ApplyBulkUpdatesCoreProjectCallResult {
     const api = {
       clearPlugin: (pluginId: string) => {
         this.model.deletePlugin(pluginId);
@@ -363,11 +364,11 @@ export class CoreOpenedProject extends OpenedProject {
         const componentModel = this.model.importComponent(id, pluginId, external, config);
         this.notifyAllSetComponent(componentModel.id);
       },
-    }
+    };
 
-    this.executeUpdate(() => {
-      return applyChanges(serverData as UpdateServerData, new Set(selection), api);
-    });
+    const stats = this.executeUpdate(() => applyChanges(serverData as UpdateServerData, new Set(selection), api));
+
+    return { stats };
   }
 
   private deployToFiles(): DeployToFilesCoreProjectCallResult {

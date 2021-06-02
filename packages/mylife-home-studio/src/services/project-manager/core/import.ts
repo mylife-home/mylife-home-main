@@ -1,6 +1,6 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
-import { ImportFromProjectConfig, coreImportData } from '../../../../shared/project-manager';
+import { ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
 import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 
@@ -653,18 +653,14 @@ export interface UpdateApi {
   setComponent: (component: ComponentImport) => void;
 }
 
-interface ApplyUpdateStats {
-  plugins: number;
-  components: number;
-  bindings: number;
-}
-
 export function applyChanges(serverData: UpdateServerData, selection: Set<string>, api: UpdateApi) {
-  const stats: ApplyUpdateStats = {
+  const stats: BulkUpdatesStats = {
     plugins: 0,
     components: 0,
     bindings: 0,
   };
+
+  log.info('Starting update');
 
   for (const update of serverData.updates) {
     if (!shouldApply(update, selection)) {
@@ -677,12 +673,17 @@ export function applyChanges(serverData: UpdateServerData, selection: Set<string
 
     applyUpdate(update, api, stats);
   }
+
+  log.info(`Updated (${stats.plugins} plugins, ${stats.components} components, ${stats.bindings} bindings)`);
+
+  return stats;
 }
 
-function applyImpact(impact: Impact, api: UpdateApi, stats: ApplyUpdateStats) {
+function applyImpact(impact: Impact, api: UpdateApi, stats: BulkUpdatesStats) {
   switch (impact.type) {
     case 'binding-delete': {
       const typedImpact = impact as BindingDeleteImpact;
+      log.debug(`Impact: delete plugin '${typedImpact.bindingId}'`);
       api.clearBinding(typedImpact.bindingId);
       ++stats.bindings;
       break;
@@ -690,6 +691,7 @@ function applyImpact(impact: Impact, api: UpdateApi, stats: ApplyUpdateStats) {
       
     case 'component-delete': {
       const typedImpact = impact as ComponentDeleteImpact;
+      log.debug(`Impact: delete component '${typedImpact.componentId}'`);
       api.clearComponent(typedImpact.componentId);
       ++stats.components;
       break;
@@ -700,15 +702,17 @@ function applyImpact(impact: Impact, api: UpdateApi, stats: ApplyUpdateStats) {
   }
 }
 
-function applyUpdate(update: Update, api: UpdateApi, stats: ApplyUpdateStats) {
+function applyUpdate(update: Update, api: UpdateApi, stats: BulkUpdatesStats) {
   switch (update.type) {
     case 'plugin-clear': {
+      log.debug(`Update: delete plugin '${update.id}'`);
       api.clearPlugin(update.id);
       ++stats.plugins;
       break;
     }
 
     case 'component-clear': {
+      log.debug(`Update: delete component '${update.id}'`);
       api.clearComponent(update.id);
       ++stats.components;
       break;
@@ -716,14 +720,18 @@ function applyUpdate(update: Update, api: UpdateApi, stats: ApplyUpdateStats) {
 
     case 'plugin-set': {
       const { plugin } = update as PluginSetUpdate;
+      log.debug(`Update: set plugin '${update.id}'`);
       api.setPlugin(plugin);
       ++stats.plugins;
+      break;
     }
 
     case 'component-set': {
       const { component } = update as ComponentSetUpdate;
+      log.debug(`Update: set component '${update.id}'`);
       api.setComponent(component);
       ++stats.components;
+      break;
     }
 
     default:
