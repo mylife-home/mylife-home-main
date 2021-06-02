@@ -76,6 +76,12 @@
 ## ui
 
  - faire CSS à la main
+ - button: feedback sur l'état du bouton
+   - color1 par défaut
+   - color2 = click court en cours
+   - si appui + long changement vers color3  : click long en cours, on peut relacher
+   - color4: en attente reste séquence (eg double click)
+   - rajouter un feedback pour dire que action primary ou secondary est executée
 
 # Roadmap
 
