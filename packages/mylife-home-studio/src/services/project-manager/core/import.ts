@@ -186,6 +186,7 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
     const id = pluginImport.id;
     const change = newPluginChange(`plugin-set:${id}`, { version: { before: null, after: pluginImport.plugin.version } });
 
+    change.usage = pluginImport.plugin.usage;
     change.members = lookupObjectChanges(null, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
     change.config = lookupObjectChanges(null, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
 
@@ -195,6 +196,10 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
     const change = newPluginChange(`plugin-set:${id}`, { version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
+
+    if (pluginModel.data.usage !== pluginImport.plugin.usage) {
+      change.usage = pluginImport.plugin.usage;
+    }
 
     change.members = lookupObjectChanges(pluginModel.data.members, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
     change.config = lookupObjectChanges(pluginModel.data.config, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
@@ -325,6 +330,7 @@ function newPluginChange(key: string, props: Partial<coreImportData.PluginChange
     key,
     dependencies: [],
     version: { before: null, after: null },
+    usage: null,
     config: {},
     members: {},
     impacts: null,

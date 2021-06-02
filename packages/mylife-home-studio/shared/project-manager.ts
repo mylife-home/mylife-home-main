@@ -391,6 +391,7 @@ export namespace coreImportData {
   
   export interface PluginChange extends ItemChange {
     version: { before: string; after: string; },
+    usage: PluginUsage; // or null if no change
     config: { [name: string]: ChangeType; },
     members: { [name: string]: ChangeType; },
     impacts: {
