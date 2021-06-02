@@ -20,8 +20,6 @@ import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { coreImportData } from '../../../../../shared/project-manager';
 
-// TODO: dependencies
-
 const useStyles = makeStyles((theme) => ({
   list: {
     height: '50vh',
@@ -161,7 +159,7 @@ const ChangeSetItem: FunctionComponent<PluginChangeSetProps | ComponentChangeSet
         <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
           <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.adds} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
           <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.updates} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.deletes} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.deletes} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} isDelete />
         </ItemWithChildren>
       );
   }
@@ -180,6 +178,9 @@ interface PluginChangeTypeProps extends BaseChangeTypeProps {
 interface ComponentChangeTypeProps extends BaseChangeTypeProps {
   type: 'components';
   changes: { [id: string]: coreImportData.ComponentChange };
+
+  // used to manage dependencies: on delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+  isDelete?: boolean;
 }
 
 const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeTypeProps> = ({ stats, selection, setSelected, title, ...typeAndChanges }) => {
@@ -216,7 +217,7 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
       return (
         <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
           {Object.entries(typeAndChanges.changes).map(([id, change]) => (
-            <ComponentChangeItem key={id} id={id} change={change} selection={selection} setSelected={setSelected} />
+            <ComponentChangeItem key={id} id={id} change={change} selection={selection} setSelected={setSelected} isDelete={typeAndChanges.isDelete} />
           ))}
         </ItemWithChildren>
       );
@@ -308,20 +309,73 @@ function formatVersion({ before, after }: { before: string; after: string; }) {
   return null;
 }
 
-const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ComponentChange }> = ({ id, change, selection, setSelected }) => {
+const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ComponentChange; isDelete: boolean; }> = ({ id, change, isDelete, selection, setSelected }) => {
+  // only one dependency for now
+  const dependency = change.dependencies[0];
+
+  let disabled = false;
+
+  if (dependency) {
+    const dependencySelected = selection[dependency];
+
+    if (isDelete) {
+      if (dependencySelected) {
+        // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+        return null;
+      }
+    } else {
+      disabled = !dependencySelected;
+    }
+  }
+
   return (
-    <ChangeItem id={id} change={change} selection={selection} setSelected={setSelected}>
+    <ChangeItem id={id} change={change} disabled={disabled} selection={selection} setSelected={setSelected}>
+      {Object.entries(change.config || {}).map(([configName, { type, value }]) => {
+        let changeType: string;
+
+        switch(type) {
+          case 'add':
+            changeType = 'Ajout de configuration';
+            break;
+
+          case 'update':
+            changeType = 'Modification de configuration';
+            break;
+
+          case 'delete':
+            changeType = 'Suppression de configuration';
+            break;
+        }
+
+        const formattedValue = value === undefined ? '' : ` -> ${value}`;
+
+        return (
+          <ChangeDetailLine key={configName}>{`${changeType} : ${configName}${formattedValue}`}</ChangeDetailLine>
+        );
+      })}
+
+      {change.external != null && (
+        <ChangeDetailLine>{`Changement flag 'externe' : ${change.external}`}</ChangeDetailLine>
+      )}
+
+      {change.pluginId != null && (
+        <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>
+      )}
+
+      {(change.impacts?.bindings || []).map(bindingId => {
+        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>
+      })}
     </ChangeItem>
   );
 };
 
-const ChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ItemChange }> = ({ id, change, selection, setSelected, children }) => {
+const ChangeItem: FunctionComponent<WithSelectionProps & { id: string; change: coreImportData.ItemChange; disabled?: boolean }> = ({ id, change, disabled, selection, setSelected, children }) => {
   const classes = useStyles();
   const checked = selection[change.key];
   const onCheck = () => setSelected({ [change.key]: !checked });
 
   return (
-    <ListItem className={classes.changeItem} button onClick={onCheck}>
+    <ListItem className={classes.changeItem} button onClick={onCheck} disabled={disabled}>
       <ListItemIcon>
         <Checkbox
           edge="start"
