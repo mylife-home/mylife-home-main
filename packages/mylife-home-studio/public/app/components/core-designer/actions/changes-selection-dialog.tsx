@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -314,6 +314,7 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; 
   const dependency = change.dependencies[0];
 
   let disabled = false;
+  let hidden = false;
 
   if (dependency) {
     const dependencySelected = selection[dependency];
@@ -321,11 +322,22 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; 
     if (isDelete) {
       if (dependencySelected) {
         // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
-        return null;
+        hidden = true;
       }
     } else {
       disabled = !dependencySelected;
     }
+  }
+
+  // Uncheck when we become disabled
+  useEffect(() => {
+    if (disabled && selection[change.key]) {
+      setSelected({ [change.key]: false });
+    }
+  }, [selection]);
+
+  if (hidden) {
+    return null;
   }
 
   return (
