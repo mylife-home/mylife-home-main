@@ -347,7 +347,7 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; 
             break;
         }
 
-        const formattedValue = value === undefined ? '' : ` -> ${value}`;
+        const formattedValue = value === undefined ? '' : ` -> '${value}'`;
 
         return (
           <ChangeDetailLine key={configName}>{`${changeType} : ${configName}${formattedValue}`}</ChangeDetailLine>
