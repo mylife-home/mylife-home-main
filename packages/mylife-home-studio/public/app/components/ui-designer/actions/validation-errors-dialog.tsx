@@ -80,7 +80,7 @@ export function useShowValidationErrorsDialog() {
 
         showModal();
       }),
-    [setTreeData, setOnClose, setOnClose]
+    [setTreeData, setOnClose]
   );
 }
 
