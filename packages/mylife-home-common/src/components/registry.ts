@@ -117,8 +117,12 @@ export class Registry extends EventEmitter implements Registry {
   }
 
   hasPlugin(instanceName: string, id: string) {
+    return !!this.findPlugin(instanceName, id);
+  }
+
+  findPlugin(instanceName: string, id: string) {
     const key = `${instanceName || 'local'}:${id}`;
-    return !!this.pluginsPerInstance.get(key);
+    return this.pluginsPerInstance.get(key);
   }
 
   getPlugin(instanceName: string, id: string) {

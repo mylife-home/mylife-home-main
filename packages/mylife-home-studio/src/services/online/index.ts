@@ -60,6 +60,14 @@ export class Online implements Service {
     return this.registry.getPlugins(instanceName);
   }
 
+  getPlugin(instanceName: string, id: string) {
+    return this.registry.getPlugin(instanceName, id);
+  }
+
+  findPlugin(instanceName: string, id: string) {
+    return this.registry.findPlugin(instanceName, id);
+  }
+
   getInstancesByCapability(capability: string) {
     return this.instanceNotifier.getInstancesByCapability(capability);
   }
