@@ -179,7 +179,7 @@ interface ComponentChangeTypeProps extends BaseChangeTypeProps {
   type: 'components';
   changes: { [id: string]: coreImportData.ComponentChange };
 
-  // used to manage dependencies: on delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+  // used to manage dependencies: On delete, the component is check-forced if plugin deletion is checked else on add/update it is uncheck-forced if plugin is not checked
   isDelete?: boolean;
 }
 
@@ -313,32 +313,29 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { id: string; 
   // only one dependency for now
   const dependency = change.dependencies[0];
 
-  let disabled = false;
-  let hidden = false;
+  let forcedValue: boolean = null;
 
   if (dependency) {
     const dependencySelected = selection[dependency];
 
-    if (isDelete) {
-      if (dependencySelected) {
-        // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
-        hidden = true;
-      }
-    } else {
-      disabled = !dependencySelected;
+      // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+    if (isDelete && dependencySelected) {
+      forcedValue = true;
+    }
+
+    if(!isDelete && !dependencySelected) {
+      forcedValue = false;
     }
   }
 
-  // Uncheck when we become disabled
+  const disabled = forcedValue !== null;
+
+  // Force value when we become disabled
   useEffect(() => {
-    if (disabled && selection[change.key]) {
-      setSelected({ [change.key]: false });
+    if (disabled && selection[change.key] !== forcedValue) {
+      setSelected({ [change.key]: forcedValue });
     }
-  }, [selection]);
-
-  if (hidden) {
-    return null;
-  }
+  }, [selection, forcedValue, disabled]);
 
   return (
     <ChangeItem id={id} change={change} disabled={disabled} selection={selection} setSelected={setSelected}>
