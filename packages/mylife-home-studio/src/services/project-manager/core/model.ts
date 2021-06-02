@@ -1,5 +1,5 @@
 import { logger } from 'mylife-home-common';
-import { ConfigType, MemberType } from '../../../../shared/component-model';
+import { ConfigItem, ConfigType, MemberType, Plugin } from '../../../../shared/component-model';
 import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay } from '../../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
@@ -49,6 +49,8 @@ export class Model {
 
     this.plugins.set(plugin.id, plugin);
     instance.registerPlugin(plugin);
+
+    return plugin;
   }
 
   deletePlugin(id: string) {
@@ -134,7 +136,6 @@ export class Model {
 
     return component;
   }
-
 
   setComponent(componentId: string, pluginId: string, x: number, y: number) {
     if (this.hasComponent(componentId)) {
@@ -233,6 +234,38 @@ export class Model {
     binding.targetComponent.unregisterBinding(binding);
 
     delete this.data.bindings[binding.id];
+  }
+
+  // Note: impacts checks are already done
+  importPlugin(instanceName: string, netPlugin: Plugin) {
+    const pluginData: CorePluginData = {
+      ...netPlugin,
+      instanceName,
+      toolboxDisplay: 'show'
+    };
+
+    const id = `${instanceName}:${netPlugin.module}.${netPlugin.name}`;
+    const plugin = this.registerPlugin(id, pluginData);
+    this.data.plugins[id] = pluginData;
+
+    return plugin;
+  }
+
+  // Note: impacts checks are already done
+  importComponent(id: string, pluginId: string, external: boolean, config: { [id: string]: ConfigItem }) {
+    const plugin = this.getPlugin(pluginId);
+
+    const componentData: CoreComponentData = {
+      plugin: pluginId,
+      position: { x: 1, y: 1 },
+      config,
+      external,
+    };
+
+    const component = this.registerComponent(id, componentData);
+    this.data.components[component.id] = component.data;
+
+    return component;
   }
 }
 

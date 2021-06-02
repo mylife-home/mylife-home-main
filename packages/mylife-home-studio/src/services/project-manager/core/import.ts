@@ -11,14 +11,14 @@ export interface ImportData {
   components: ComponentImport[];
 }
 
-interface ComponentImport {
+export interface ComponentImport {
   id: string;
   pluginId: string;
   external: boolean;
   config: { [name: string]: any; };
 }
 
-interface PluginImport {
+export interface PluginImport {
   id: string;
   instanceName: string;
   plugin: components.metadata.NetPlugin;
@@ -96,7 +96,7 @@ function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, i
   return pluginImport;
 }
 
-interface UpdateServerData {
+export interface UpdateServerData {
   updates: Update[];
 }
 
@@ -104,6 +104,7 @@ interface Update {
   type: 'plugin-set' | 'plugin-clear' | 'component-set' | 'component-clear';
   id: string;
   impacts: Impact[];
+  dependencies: string[];
 }
 
 interface PluginSetUpdate extends Update {
@@ -594,7 +595,7 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
   return { updates };
 
   function clearPlugin(id: string, change: coreImportData.PluginChange) {
-    const update: Update = { type: 'plugin-clear', id, impacts: [] };
+    const update: Update = { type: 'plugin-clear', id, dependencies: change.dependencies, impacts: [] };
     buildBindingImpacts(update, change);
     buildComponentImpacts(update, change);
     updates.push(update);
@@ -602,21 +603,21 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
 
   function setPlugin(id: string, change: coreImportData.PluginChange) {
     const plugin = importPlugins.get(id);
-    const update: PluginSetUpdate = { type: 'plugin-set', id, impacts: [], plugin };
+    const update: PluginSetUpdate = { type: 'plugin-set', id, dependencies: change.dependencies, impacts: [], plugin };
     buildBindingImpacts(update, change);
     buildComponentImpacts(update, change);
     updates.push(update);
   }
 
   function clearComponent(id: string, change: coreImportData.ComponentChange) {
-    const update: Update = { type: 'component-clear', id, impacts: [] };
+    const update: Update = { type: 'component-clear', id, dependencies: change.dependencies, impacts: [] };
     buildBindingImpacts(update, change);
     updates.push(update);
   }
 
   function setComponent(id: string, change: coreImportData.ComponentChange) {
     const component = importComponents.get(id);
-    const update: ComponentSetUpdate = { type: 'component-set', id, impacts: [], component };
+    const update: ComponentSetUpdate = { type: 'component-set', id, dependencies: change.dependencies, impacts: [], component };
     buildBindingImpacts(update, change);
     updates.push(update);
   }
@@ -642,4 +643,113 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
       update.impacts.push(impact);
     }
   }
+}
+
+export interface UpdateApi {
+  clearPlugin: (id: string) => void;
+  clearComponent: (id: string) => void;
+  clearBinding: (id: string) => void;
+  setPlugin: (plugin: PluginImport) => void;
+  setComponent: (component: ComponentImport) => void;
+}
+
+interface ApplyUpdateStats {
+  plugins: number;
+  components: number;
+  bindings: number;
+}
+
+export function applyChanges(serverData: UpdateServerData, selection: Set<string>, api: UpdateApi) {
+  const stats: ApplyUpdateStats = {
+    plugins: 0,
+    components: 0,
+    bindings: 0,
+  };
+
+  for (const update of serverData.updates) {
+    if (!shouldApply(update, selection)) {
+      continue;
+    }
+
+    for (const impact of update.impacts) {
+      applyImpact(impact, api, stats);
+    }
+
+    applyUpdate(update, api, stats);
+  }
+}
+
+function applyImpact(impact: Impact, api: UpdateApi, stats: ApplyUpdateStats) {
+  switch (impact.type) {
+    case 'binding-delete': {
+      const typedImpact = impact as BindingDeleteImpact;
+      api.clearBinding(typedImpact.bindingId);
+      ++stats.bindings;
+      break;
+    }
+      
+    case 'component-delete': {
+      const typedImpact = impact as ComponentDeleteImpact;
+      api.clearComponent(typedImpact.componentId);
+      ++stats.components;
+      break;
+    }
+
+    default:
+      throw new Error(`Unsupported impact type: '${impact.type}'`);
+  }
+}
+
+function applyUpdate(update: Update, api: UpdateApi, stats: ApplyUpdateStats) {
+  switch (update.type) {
+    case 'plugin-clear': {
+      api.clearPlugin(update.id);
+      ++stats.plugins;
+      break;
+    }
+
+    case 'component-clear': {
+      api.clearComponent(update.id);
+      ++stats.components;
+      break;
+    }
+
+    case 'plugin-set': {
+      const { plugin } = update as PluginSetUpdate;
+      api.setPlugin(plugin);
+      ++stats.plugins;
+    }
+
+    case 'component-set': {
+      const { component } = update as ComponentSetUpdate;
+      api.setComponent(component);
+      ++stats.components;
+    }
+
+    default:
+      throw new Error(`Unsupported update type: '${update.type}'`);
+  }
+}
+
+function shouldApply(update: Update, selection: Set<string>) {
+  const dependency = update.dependencies[0];
+
+  if (dependency) {
+    // dependency only for components
+    const isDelete = update.type === 'component-clear';
+    const dependencySelected = selection.has(dependency);
+
+    if (isDelete && dependencySelected) {
+      // will already be deleted as an impact of plugin delete
+      return false;
+    }
+
+    if(!isDelete && !dependencySelected) {
+      // cannot apply component without plugin
+      return false;
+    }
+  }
+
+  const key = `${update.type}:${update.id}`;
+  return selection.has(key);
 }

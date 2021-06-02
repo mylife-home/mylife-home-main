@@ -6,6 +6,7 @@ import {
   ClearComponentCoreProjectCall,
   ClearCoreBindingNotification,
   ClearCoreComponentNotification,
+  SetCorePluginNotification,
   ClearCorePluginNotification,
   ConfigureComponentCoreProjectCall,
   CoreProject,
@@ -32,7 +33,7 @@ import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
-import { ImportData, loadOnlinePlugins, loadProjectData, prepareChanges } from './import';
+import { applyChanges, ComponentImport, ImportData, loadOnlinePlugins, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
@@ -150,6 +151,10 @@ export class CoreOpenedProject extends OpenedProject {
 
   private notifyAllSetPluginDisplay(id: string, display: CoreToolboxDisplay) {
     this.notifyAll<SetCorePluginToolboxDisplayNotification>({ operation: 'set-core-plugin-toolbox-display', id, display });
+  }
+  
+  private notifyAllSetPlugin(id: string) {
+    this.notifyAll<SetCorePluginNotification>({ operation: 'set-core-plugin', id, plugin: this.project.plugins[id] });
   }
 
   private notifyAllClearPlugin(id: string) {
@@ -336,15 +341,33 @@ export class CoreOpenedProject extends OpenedProject {
     return { changes, serverData };
   }
 
-  private applyBulkUpdates(callData: ApplyBulkUpdatesCoreProject) {
-    // Import composants = composants + seulement plugins associés, sans x,y
-    // Gérer conflits plugins : confirmation changement + prendre toujours la version la plus haute
+  private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject) {
+    const api = {
+      clearPlugin: (pluginId: string) => {
+        this.model.deletePlugin(pluginId);
+        this.notifyAllClearPlugin(pluginId);
+      },
+      clearComponent: (componentId: string) => {
+        this.model.clearComponent(componentId);
+        this.notifyAllClearComponent(componentId);
+      },
+      clearBinding: (bindingId: string) => {
+        this.model.clearBinding(bindingId);
+        this.notifyAllClearBinding(bindingId);
+      },
+      setPlugin: ({ instanceName, plugin }: PluginImport) => {
+        const pluginModel = this.model.importPlugin(instanceName, plugin);
+        this.notifyAllSetPlugin(pluginModel.id);
+      },
+      setComponent: ({ id, pluginId, external, config }: ComponentImport) => {
+        const componentModel = this.model.importComponent(id, pluginId, external, config);
+        this.notifyAllSetComponent(componentModel.id);
+      },
+    }
 
-    // A l'affichage des elements a update:
-    // plugins: on doit pouvoir selectionner facilement les nouveaux plugins, les plugins existant, les suppressions de plugins (decoche par defaut), marquer les plugins lies a des composants
-    // composants: pareil: separer ajout/MAJ
-
-    throw new Error('TODO');
+    this.executeUpdate(() => {
+      return applyChanges(serverData as UpdateServerData, new Set(selection), api);
+    });
   }
 
   private deployToFiles(): DeployToFilesCoreProjectCallResult {
