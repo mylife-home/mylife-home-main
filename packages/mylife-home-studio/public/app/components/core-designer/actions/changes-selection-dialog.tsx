@@ -19,14 +19,15 @@ import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { coreImportData } from '../../../../../shared/project-manager';
 
+// TODO: dependencies
+
 const useStyles = makeStyles((theme) => ({
   list: {
     height: '50vh',
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
-  changeSetItem: {
-  },
+  changeSetItem: {},
   changeTypeItem: {
     paddingLeft: theme.spacing(4),
   },
@@ -59,7 +60,7 @@ export function useShowChangesDialog() {
         onResult({ status: 'ok', selection: formatSelection(selection) });
       };
 
-      const setSelected = (id: string, selected: boolean) => setSelection(selection => ({ ...selection, [id]: selected }));
+      const setSelected = useCallback((partial: SelectionSet) => setSelection((selection) => ({ ...selection, ...partial })), [setSelection]);
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
@@ -81,92 +82,15 @@ export function useShowChangesDialog() {
             <DialogText value={'Sélectionnez les changements à apporter au projet :'} />
 
             <List className={classes.list}>
-              <ItemWithChildren className={classes.changeSetItem} title="Plugins" stats={stats.plugins.total}>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.plugins.adds} checked="checked" onCheckChange={() => console.log('check')}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-
-                </ItemWithChildren>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.plugins.updates} checked="checked" onCheckChange={() => {}}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-                  
-                </ItemWithChildren>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.plugins.deletes} checked="unchecked" onCheckChange={() => {}}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-                  
-                </ItemWithChildren>
-
-              </ItemWithChildren>
-
-              <ItemWithChildren className={classes.changeSetItem} title="Composants" stats={stats.components.total}>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Ajouts" stats={stats.components.adds} checked="checked" onCheckChange={() => {}}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-
-                </ItemWithChildren>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Modifications" stats={stats.components.updates} checked="checked" onCheckChange={() => {}}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-                  
-                </ItemWithChildren>
-
-                <ItemWithChildren className={classes.changeTypeItem} title="Suppressions" stats={stats.components.deletes} checked="unchecked" onCheckChange={() => {}}>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Toto" />
-                  </ListItem>
-
-                  <ListItem className={classes.changeItem}>
-                    <ListItemText primary="Titi" />
-                  </ListItem>
-                  
-                </ItemWithChildren>
-
-              </ItemWithChildren>
-
+              <ChangeSetItem type="plugins" stats={stats.plugins} changes={changes.plugins} selection={selection} setSelected={setSelected} />
+              <ChangeSetItem type="components" stats={stats.components} changes={changes.components} selection={selection} setSelected={setSelected} />
             </List>
-
           </DialogContent>
 
           <DialogActions>
-            <Button color="primary" onClick={validate}>OK</Button>
+            <Button color="primary" onClick={validate}>
+              OK
+            </Button>
             <Button onClick={cancel}>Annuler</Button>
           </DialogActions>
         </Dialog>
@@ -187,7 +111,132 @@ export function useShowChangesDialog() {
   );
 }
 
-const ItemWithChildren: FunctionComponent<{ className?: string; title: string; stats: StateItem; checked?: TriState; onCheckChange?: () => void }> = ({ className, title, stats, checked, onCheckChange, children }) => {
+interface WithSelectionProps {
+  selection: SelectionSet;
+  setSelected: (partial: SelectionSet) => void;
+}
+
+interface BaseChangeSetProps extends WithSelectionProps {
+  stats: ChangeSetStats;
+}
+
+interface PluginChangeSetProps extends BaseChangeSetProps {
+  type: 'plugins';
+  changes: coreImportData.PluginChanges;
+}
+
+interface ComponentChangeSetProps extends BaseChangeSetProps {
+  type: 'components';
+  changes: coreImportData.ComponentChanges;
+}
+
+const TITLES = {
+  plugins: 'Plugins',
+  components: 'Composants',
+};
+
+const ChangeSetItem: FunctionComponent<PluginChangeSetProps | ComponentChangeSetProps> = ({ stats, selection, setSelected, ...typeAndChanges }) => {
+  // keep typeAndChanges together to keep their type links
+  const classes = useStyles();
+  const title = TITLES[typeAndChanges.type];
+
+  // we need that to keep typing
+  switch (typeAndChanges.type) {
+    case 'plugins':
+      return (
+        <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
+          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.adds} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.updates} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.deletes} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+        </ItemWithChildren>
+      );
+
+    case 'components':
+      return (
+        <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
+          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.adds} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.updates} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.deletes} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+        </ItemWithChildren>
+      );
+  }
+};
+
+interface BaseChangeTypeProps extends WithSelectionProps {
+  stats: StatsItem;
+  title: string;
+}
+
+interface PluginChangeTypeProps extends BaseChangeTypeProps {
+  type: 'plugins';
+  changes: { [id: string]: coreImportData.PluginChange };
+}
+
+interface ComponentChangeTypeProps extends BaseChangeTypeProps {
+  type: 'components';
+  changes: { [id: string]: coreImportData.ComponentChange };
+}
+
+const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeTypeProps> = ({ stats, selection, setSelected, type, changes, title }) => {
+  const classes = useStyles();
+
+  const checkState = getTriState(stats);
+
+  const onCheckChange = () => {
+    switch (checkState) {
+      case 'indeterminate':
+      case 'unchecked':
+        setSelected(prepareSelectedAll(changes, true));
+        break;
+
+      case 'checked':
+        setSelected(prepareSelectedAll(changes, false));
+        break;
+    }
+  };
+
+  return (
+    <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
+      <ListItem className={classes.changeItem}>
+        <ListItemText primary="Toto" />
+      </ListItem>
+
+      <ListItem className={classes.changeItem}>
+        <ListItemText primary="Titi" />
+      </ListItem>
+    </ItemWithChildren>
+  );
+};
+
+function prepareSelectedAll(changes: { [id: string]: coreImportData.ItemChange }, selected: boolean) {
+  const partial: SelectionSet = {};
+
+  for (const change of Object.values(changes)) {
+    partial[change.key] = selected;
+  }
+
+  return partial;
+}
+
+function getTriState(stats: StatsItem): TriState {
+  // both empty and (some selected and some unselected)
+  if (!!stats.selected === !!stats.unselected) {
+    return 'indeterminate';
+  } else if (stats.selected) {
+    return 'checked';
+  } else {
+    return 'unchecked';
+  }
+}
+
+const ItemWithChildren: FunctionComponent<{ className?: string; title: string; stats: StatsItem; checked?: TriState; onCheckChange?: () => void }> = ({
+  className,
+  title,
+  stats,
+  checked,
+  onCheckChange,
+  children,
+}) => {
   const [open, setOpen] = useState(true);
 
   const handleClick = () => {
@@ -204,8 +253,8 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
         {checked && onCheckChange && (
           <ListItemIcon>
             <Checkbox
-              onClick={e => e.stopPropagation() /* prevent parent click (expand/collapse) */}
-              onMouseDown={e => e.stopPropagation()  /* prevent parent ripple effect */}
+              onClick={(e) => e.stopPropagation() /* prevent parent click (expand/collapse) */}
+              onMouseDown={(e) => e.stopPropagation() /* prevent parent ripple effect */}
               edge="start"
               color="primary"
               indeterminate={checked === 'indeterminate'}
@@ -216,7 +265,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
           </ListItemIcon>
         )}
 
-        <ListItemText primary={title} secondary={formatStats(stats)}/>
+        <ListItemText primary={title} secondary={formatStats(stats)} />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
 
@@ -231,16 +280,16 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
 
 type SelectionSet = { [key: string]: boolean };
 
-interface StateItem {
+interface StatsItem {
   selected: number;
   unselected: number;
 }
 
 interface ChangeSetStats {
-  total: StateItem;
-  adds: StateItem;
-  updates: StateItem;
-  deletes: StateItem
+  total: StatsItem;
+  adds: StatsItem;
+  updates: StatsItem;
+  deletes: StatsItem;
 }
 
 interface Stats {
@@ -253,7 +302,12 @@ function initSelection(changes: coreImportData.Changes): SelectionSet {
 
   // By default select all add/update and unselect deletes
 
-  for (const change of [...Object.values(changes.plugins.adds), ...Object.values(changes.plugins.updates), ...Object.values(changes.components.adds), ...Object.values(changes.components.updates)]) {
+  for (const change of [
+    ...Object.values(changes.plugins.adds),
+    ...Object.values(changes.plugins.updates),
+    ...Object.values(changes.components.adds),
+    ...Object.values(changes.components.updates),
+  ]) {
     selection[change.key] = true;
   }
 
@@ -279,7 +333,7 @@ function formatSelection(selection: SelectionSet) {
 function computeStats(changes: coreImportData.Changes, selection: SelectionSet): Stats {
   return {
     plugins: computeChangeSetStats(changes.plugins, selection),
-    components: computeChangeSetStats(changes.components, selection)
+    components: computeChangeSetStats(changes.components, selection),
   };
 }
 
@@ -298,11 +352,11 @@ function computeChangeSetStats<Item extends coreImportData.ItemChange>(changes: 
   return { ...stats, total };
 }
 
-function computeItemStats(changes: { [id: string]: coreImportData.ItemChange }, selection: SelectionSet): StateItem {
-  const stats: StateItem = { selected: 0, unselected: 0 };
+function computeItemStats(changes: { [id: string]: coreImportData.ItemChange }, selection: SelectionSet): StatsItem {
+  const stats: StatsItem = { selected: 0, unselected: 0 };
 
   for (const change of Object.values(changes)) {
-    if(selection[change.key]) {
+    if (selection[change.key]) {
       ++stats.selected;
     } else {
       ++stats.unselected;
@@ -312,11 +366,11 @@ function computeItemStats(changes: { [id: string]: coreImportData.ItemChange }, 
   return stats;
 }
 
-function areStatsEmpty(stats: StateItem) {
+function areStatsEmpty(stats: StatsItem) {
   return stats.selected === 0 && stats.unselected === 0;
 }
 
-function formatStats(stats: StateItem) {
+function formatStats(stats: StatsItem) {
   if (areStatsEmpty(stats)) {
     return '(Aucun)';
   }
