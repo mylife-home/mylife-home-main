@@ -117,7 +117,7 @@ interface ComponentSetUpdate extends Update {
 }
 
 interface Impact {
-  type: 'binding-delete' | 'component-delete' | 'config-delete' | 'config-update';
+  type: 'binding-delete' | 'component-delete';
 }
 
 interface BindingDeleteImpact extends Impact {
@@ -128,17 +128,6 @@ interface BindingDeleteImpact extends Impact {
 interface ComponentDeleteImpact extends Impact {
   type: 'component-delete';
   componentId: string;
-}
-
-interface ConfigDeleteImpact extends Impact {
-  type: 'config-delete';
-  configName: string;
-}
-
-interface ConfigUpdateImpact extends Impact {
-  type: 'config-update';
-  configName: string;
-  newValue: any;
 }
 
 export function prepareChanges(imports: ImportData, model: Model) {
@@ -629,7 +618,6 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
     const component = importComponents.get(id);
     const update: ComponentSetUpdate = { type: 'component-set', id, impacts: [], component };
     buildBindingImpacts(update, change);
-    buildConfigImpacts(update, change);
     updates.push(update);
   }
 
@@ -652,28 +640,6 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
     for (const componentId of change.impacts.components) {
       const impact: ComponentDeleteImpact = { type: 'component-delete', componentId };
       update.impacts.push(impact);
-    }
-  }
-
-  function buildConfigImpacts(update: Update, change: coreImportData.ComponentChange) {
-    for (const [configName, configChange] of Object.entries(change.config)) {
-      switch(configChange.type) {
-        case 'add':
-          // no impact
-          break;
-
-        case 'update': {
-          const impact: ConfigUpdateImpact = { type: 'config-update', configName, newValue: configChange.value };
-          update.impacts.push(impact);
-          break;
-        }
-
-        case 'delete': {
-          const impact: ConfigDeleteImpact = { type: 'config-delete', configName };
-          update.impacts.push(impact);
-          break;
-        }
-      }
     }
   }
 }
