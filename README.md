@@ -117,9 +117,6 @@ car que sensor vers ui
   - deploy
     - online (one shot comme ui mettre toute la conf a jour d un coup?)
     - as recipe files for direct config in image
-  - refresh toolbox
-    - from online entities
-    - from deploy config?
 - setup gitconvex
 
 # Notes
