@@ -36,6 +36,7 @@ import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlinePlugins, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
+import { validate } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
@@ -376,11 +377,9 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private validate(): ValidateCoreProjectCallResult {
-    throw new Error('TODO');
+    const errors = validate(this.model);
+    return { errors };
   }
-
-  // TODO: valider que les composants -> plugins sont bien compatibles avec les plugins en ligne (+ bouton de validation explicit dans UI)
-  // -> pour chaque plugin utilisé, verifier qu'il existe online + que les config/members sont identiques (pas besoin de verifier les versions)
 
   private deployToFiles(): DeployToFilesCoreProjectCallResult {
     throw new Error('TODO');

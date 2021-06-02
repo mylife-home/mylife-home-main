@@ -177,8 +177,9 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
     const change = newPluginChange(`plugin-set:${id}`, { version: { before: null, after: pluginImport.plugin.version } });
 
     change.usage = pluginImport.plugin.usage;
-    change.members = lookupObjectChanges(null, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
-    change.config = lookupObjectChanges(null, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
+    const objectChanges = buildPluginMembersAndConfigChanges(null, pluginImport.plugin);
+    change.config = objectChanges.config;
+    change.members = objectChanges.members;
 
     changes.adds[id] = change;
   }
@@ -191,8 +192,9 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
       change.usage = pluginImport.plugin.usage;
     }
 
-    change.members = lookupObjectChanges(pluginModel.data.members, pluginImport.plugin.members, memberEqualityComparer, typeChangeFormatter);
-    change.config = lookupObjectChanges(pluginModel.data.config, pluginImport.plugin.config, configEqualityComparer, typeChangeFormatter);
+    const objectChanges = buildPluginMembersAndConfigChanges(pluginModel, pluginImport.plugin);
+    change.config = objectChanges.config;
+    change.members = objectChanges.members;
 
     changes.updates[id] = change;
   }
@@ -202,18 +204,25 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
     const change = newPluginChange(`plugin-clear:${id}`, { version: { before: pluginModel.data.version, after: null } });
     changes.deletes[id] = change;
   }
+}
+
+// used by deploy validation
+export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plugin: components.metadata.NetPlugin) {
+  const config = lookupObjectChanges(pluginModel?.data?.config, plugin?.config, configEqualityComparer, typeChangeFormatter);
+  const members = lookupObjectChanges(pluginModel?.data?.members, plugin?.members, memberEqualityComparer, typeChangeFormatter);
+  return { config, members };
 
   function memberEqualityComparer(memberModel: components.metadata.NetMember, memberImport: components.metadata.NetMember) {
     return memberModel.memberType === memberImport.memberType
       && memberModel.valueType === memberImport.valueType
       && memberModel.description === memberImport.description;
   }
-
+  
   function configEqualityComparer(configModel: components.metadata.ConfigItem, configImport: components.metadata.ConfigItem) {
     return configModel.valueType === configImport.valueType
       && configModel.description === configImport.description;
   }
-
+  
   function typeChangeFormatter(name: string, type: coreImportData.ChangeType) {
     return type;
   }
