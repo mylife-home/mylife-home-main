@@ -135,7 +135,7 @@ export class Model {
   getComponent(id: string) {
     const component = this.components.get(id);
     if (!component) {
-      throw new Error(`Instance '${id}' does not exist`);
+      throw new Error(`Component '${id}' does not exist`);
     }
 
     return component;
@@ -208,6 +208,15 @@ export class Model {
 
   hasBinding(id: string) {
     return !!this.bindings.get(id);
+  }
+
+  getBinding(id: string) {
+    const binding = this.bindings.get(id);
+    if (!binding) {
+      throw new Error(`Binding '${id}' does not exist`);
+    }
+
+    return binding;
   }
 
   getBindingsIds() {

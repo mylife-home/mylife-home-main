@@ -392,7 +392,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall) {
-    applyToFiles(bindingsInstanceName, serverData);
+    applyToFiles(this.model, bindingsInstanceName, serverData);
   }
 
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {

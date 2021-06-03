@@ -58,13 +58,17 @@ function newValidationError(pluginModel: PluginModel, impacts: string[], changeT
   };
 }
 
+interface DeployToFilesServerData {
+  guessedBindingsInstanceName: string;
+}
+
 export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
   const errors = validate(model);
   const bindingsInstanceName = findBindingInstance(model);
   const files = model.getInstancesNames().map(createFileName);
   const changes: DeployChanges = { bindings: [], components: [] };
   // unused for now
-  const serverData: unknown = null;
+  const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
   for (const bindingId of model.getBindingsIds()) {
     changes.bindings.push({ type: 'add', bindingId });
@@ -103,7 +107,22 @@ function createFileName(instanceName: string) {
   return `${instanceName}-store.json`;
 }
 
-export function applyToFiles(bindingsInstanceName: string, serverData: unknown) {
+export function applyToFiles(model: Model, bindingsInstanceName: string, serverData: unknown) {
+  const { guessedBindingsInstanceName } = serverData as DeployToFilesServerData;
+  if( guessedBindingsInstanceName) {
+    bindingsInstanceName = guessedBindingsInstanceName;
+  }
+
+  for (const bindingId of model.getBindingsIds()) {
+    const bindingModel = model.getBinding(bindingId);
+    // TODO
+  }
+
+  for (const componentId of model.getComponentsIds()) {
+    const componentModel = model.getComponent(componentId);
+    // TODO
+  }
+
   throw new Error('TODO');
 }
 
