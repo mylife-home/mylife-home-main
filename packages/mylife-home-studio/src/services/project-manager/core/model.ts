@@ -103,6 +103,10 @@ export class Model {
     return instance;
   }
 
+  getInstancesNames() {
+    return Array.from(this.instances.keys());
+  }
+
   getPluginsIds() {
     return Array.from(this.plugins.keys());
   }
@@ -204,6 +208,10 @@ export class Model {
 
   hasBinding(id: string) {
     return !!this.bindings.get(id);
+  }
+
+  getBindingsIds() {
+    return Array.from(this.bindings.keys());
   }
 
   setBinding(bindingData: CoreBindingData) {

@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { ChangeType, CoreValidationError, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
+import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
@@ -35,7 +35,7 @@ export function validate(model: Model): CoreValidationError[] {
 
     const plugin = components.metadata.encodePlugin(onlinePlugin);
     const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
-    if(!isObjectEmpty(changes.config) || !isObjectEmpty(changes.members)) {
+    if (!isObjectEmpty(changes.config) || !isObjectEmpty(changes.members)) {
       const error = newValidationError(pluginModel, impacts, 'update');
       error.config = changes.config;
       error.members = changes.members;
@@ -60,22 +60,47 @@ function newValidationError(pluginModel: PluginModel, impacts: string[], changeT
 
 export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
   const errors = validate(model);
+  const bindingsInstanceName = findBindingInstance(model);
+  const files = model.getInstancesNames().map(createFileName);
+  const changes: DeployChanges = { bindings: [], components: [] };
+  // unused for now
+  const serverData: unknown = null;
 
-  const hasbindings = model.hasBindings();
+  for (const bindingId of model.getBindingsIds()) {
+    changes.bindings.push({ type: 'add', bindingId });
+  }
+
+  for (const componentId of model.getComponentsIds()) {
+    const componentModel = model.getComponent(componentId);
+    changes.components.push({ type: 'add', componentId, instanceName: componentModel.instance.instanceName });
+  }
+
+  return { errors, bindingsInstanceName, files, changes, serverData };
+}
+
+function findBindingInstance(model: Model) {
   // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
   const bindingsInstanceName = {
-    actual: 'TODO',
+    actual: null as string,
     needed: false
   };
 
-  
+  if (!model.hasBindings()) {
+    return bindingsInstanceName;
+  }
 
-  // TODO
-  throw new Error('TODO');
+  const instancesNames = model.getInstancesNames();
+  if (instancesNames.length === 1) {
+    bindingsInstanceName.actual = instancesNames[0];
+    return bindingsInstanceName;
+  }
 
-  // const serverData = null;
+  bindingsInstanceName.needed = true;
+  return bindingsInstanceName;
+}
 
-  // return { errors, bindingsInstanceName, serverData };
+function createFileName(instanceName: string) {
+  return `${instanceName}-store.json`;
 }
 
 export function applyToFiles(bindingsInstanceName: string, serverData: unknown) {

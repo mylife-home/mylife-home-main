@@ -494,7 +494,7 @@ export interface PrepareDeployToFilesCoreProjectCallResult extends ProjectCallRe
   changes: DeployChanges; // only adds
   files: string[];
   bindingsInstanceName: {
-    actual: string;
+    actual: string; // null if could not deduce
     needed: boolean;
   };
   serverData: unknown;
