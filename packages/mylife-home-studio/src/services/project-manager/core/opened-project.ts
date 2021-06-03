@@ -135,7 +135,7 @@ export class CoreOpenedProject extends OpenedProject {
         return this.prepareDeployToFiles();
 
         case 'prepare-deploy-to-files':
-          this.applyDeployToFiles(callData as ApplyDeployToFilesCoreProjectCall);
+          await this.applyDeployToFiles(callData as ApplyDeployToFilesCoreProjectCall);
           break;
     
       case 'prepare-deploy-to-online':
@@ -391,8 +391,8 @@ export class CoreOpenedProject extends OpenedProject {
     return prepareToFiles(this.model);
   }
 
-  private applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall) {
-    applyToFiles(this.model, bindingsInstanceName, serverData);
+  private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall) {
+    await applyToFiles(this.model, bindingsInstanceName, serverData);
   }
 
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {

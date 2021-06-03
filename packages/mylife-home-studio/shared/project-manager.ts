@@ -1,8 +1,8 @@
 import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
-import { BindingConfig as CoreBindingData } from './core-model';
+import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
-export { CoreBindingData };
+type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 /**
  * Ui project model
@@ -34,6 +34,8 @@ export interface CoreProject {
   bindings: { [id: string]: CoreBindingData; }; // id = sourceId:sourceState:targetId:targetAction
   // bindings instance ?
 }
+
+export type CoreBindingData = Mutable<BindingConfig>;
 
 export interface CoreComponentData extends Omit<Component, 'id'> {
   // plugin points to plugin instanceName:module.name

@@ -1,5 +1,6 @@
 import { components } from 'mylife-home-common';
 import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
+import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
 import { Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
@@ -107,23 +108,55 @@ function createFileName(instanceName: string) {
   return `${instanceName}-store.json`;
 }
 
-export function applyToFiles(model: Model, bindingsInstanceName: string, serverData: unknown) {
+export async function applyToFiles(model: Model, bindingsInstanceName: string, serverData: unknown) {
   const { guessedBindingsInstanceName } = serverData as DeployToFilesServerData;
-  if( guessedBindingsInstanceName) {
+  if (guessedBindingsInstanceName) {
     bindingsInstanceName = guessedBindingsInstanceName;
   }
 
+  const storeItemsPerInstance = new Map<string, StoreItem[]>();
+
   for (const bindingId of model.getBindingsIds()) {
+    if (!bindingsInstanceName) {
+      throw new Error('Missing bindingsInstanceName');
+    }
+
     const bindingModel = model.getBinding(bindingId);
-    // TODO
+    const bindingConfig: BindingConfig = bindingModel.data; // CoreBindingData is mutable version of BindingConfig 
+    addStoreItem(bindingsInstanceName, StoreItemType.BINDING, bindingConfig);
   }
 
   for (const componentId of model.getComponentsIds()) {
     const componentModel = model.getComponent(componentId);
-    // TODO
+    const pluginData = componentModel.plugin.data;
+    const pluginId = `${pluginData.module}.${pluginData.name}`;
+
+    const componentConfig: ComponentConfig = {
+      id: componentModel.id,
+      plugin: pluginId,
+      config: componentModel.data.config
+    };
+
+    addStoreItem(componentModel.instance.instanceName, StoreItemType.COMPONENT, componentConfig);
   }
 
-  throw new Error('TODO');
+  function addStoreItem(instanceName: string, type: StoreItemType, config: ComponentConfig | BindingConfig) {
+    let items = storeItemsPerInstance.get(instanceName);
+    if (!items) {
+      items = [];
+      storeItemsPerInstance.set(instanceName, items);
+    }
+
+    items.push({ type, config });
+  }
+
+  const deployService = Services.instance.deploy;
+
+  for (const [instanceName, storeItems] of storeItemsPerInstance.entries()) {
+    const file = createFileName(instanceName);
+    const content = Buffer.from(JSON.stringify(storeItems, null, 2));
+    await deployService.setFile(file, content);
+  }
 }
 
 export function prepareToOnline(model: Model): PrepareDeployToOnlineCoreProjectCallResult {

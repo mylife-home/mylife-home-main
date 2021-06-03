@@ -79,6 +79,10 @@ export class Deploy implements Service {
     await this.files.terminate();
   }
 
+  async setFile(name: string, content: Buffer) {
+    await this.files.write(name, content, 'init');
+  }
+
   private readonly setRecipe = async (session: Session, { id, config }: { id: string; config: RecipeConfig; }) => {
     this.recipes.set(id, config);
   };
