@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { coreImportData, CoreValidationError } from '../../../../shared/project-manager';
+import { ChangeType, coreImportData, CoreValidationError } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
@@ -46,7 +46,7 @@ export function validate(model: Model): CoreValidationError[] {
   return errors;
 }
 
-function newValidationError(pluginModel: PluginModel, impacts: string[], changeType: coreImportData.ChangeType): CoreValidationError {
+function newValidationError(pluginModel: PluginModel, impacts: string[], changeType: ChangeType): CoreValidationError {
   return {
     instanceName: pluginModel.instance.instanceName,
     module: pluginModel.data.module,

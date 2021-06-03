@@ -1,6 +1,6 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
-import { ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
+import { ImportFromProjectConfig, coreImportData, BulkUpdatesStats, ChangeType } from '../../../../shared/project-manager';
 import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 
@@ -223,7 +223,7 @@ export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plu
       && configModel.description === configImport.description;
   }
   
-  function typeChangeFormatter(name: string, type: coreImportData.ChangeType) {
+  function typeChangeFormatter(name: string, type: ChangeType) {
     return type;
   }
 }
@@ -309,7 +309,7 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
     changes.deletes[id] = change;
   }
 
-  function configChangeFormatter(name: string, type: coreImportData.ChangeType, valueModel: any, valueImport: any) {
+  function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
     return { type, value: valueImport };
   }
 }
@@ -400,7 +400,7 @@ function areComponentsEqual(componentModel: ComponentModel, componentImport: Com
   return true;
 }
 
-function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: coreImportData.ChangeType, valueModel: Value, valueImport: Value) => Change) {
+function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: ChangeType, valueModel: Value, valueImport: Value) => Change) {
   const changes: { [name: string]: Change; } = {};
 
   const safeObjectModel = objectModel || {};

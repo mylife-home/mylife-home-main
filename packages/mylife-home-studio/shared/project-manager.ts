@@ -320,7 +320,7 @@ export interface CoreProjectCall {
   operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
   | 'prepare-import-from-project' | 'prepare-refresh-toolbox-from-online' | 'apply-bulk-updates'
   | 'validate'
-  | 'deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
+  | 'prepare-deploy-to-files' | 'apply-deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
 
 export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
@@ -373,14 +373,14 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
+export type ChangeType = 'add' | 'update' | 'delete';
+
 export namespace coreImportData {
 
   export interface Changes {
     plugins: PluginChanges;
     components: ComponentChanges;
   }
-  
-  export type ChangeType = 'add' | 'update' | 'delete';
   
   export interface ItemChange {
     key: string; // for selection
@@ -457,9 +457,9 @@ export interface CoreValidationError {
   module: string;
   name: string;
 
-  changeType: coreImportData.ChangeType; // update or delete only
-  config: { [name: string]: coreImportData.ChangeType; },
-  members: { [name: string]: coreImportData.ChangeType; },
+  changeType: ChangeType; // update or delete only
+  config: { [name: string]: ChangeType; },
+  members: { [name: string]: ChangeType; },
   impacts: string[]; // list of impacted components
 }
 
@@ -467,18 +467,47 @@ export interface ValidateCoreProjectCallResult extends ProjectCallResult {
   errors: CoreValidationError[];
 }
 
-export interface DeployToFilesCoreProjectCallResult extends ProjectCallResult {
-  files: string[];
+export interface ApplyDeployToFilesCoreProjectCall extends CoreProjectCall {
+  operation: 'apply-deploy-to-files';
+  bindingsInstanceName?: string;
+  serverData: unknown;
 }
 
-export interface DeployChange {
-  type: 'create' | 'update' | 'remove';
+export interface DeployChanges {
+  components: ComponentDeployChange[];
+  bindings: BindingDeployChange[];
+}
+
+export interface ComponentDeployChange {
+  type: ChangeType;
   instanceName: string;
   componentId: string;
 }
 
+export interface BindingDeployChange {
+  type: ChangeType; // no update
+  bindingId: string;
+}
+
+export interface PrepareDeployToFilesCoreProjectCallResult extends ProjectCallResult {
+  errors: CoreValidationError[];
+  changes: DeployChanges; // only adds
+  files: string[];
+  bindingsInstanceName: {
+    actual: string;
+    needed: boolean;
+  };
+  serverData: unknown;
+}
+
+export interface ApplyDeployToFilesCoreProjectCall extends CoreProjectCall {
+  operation: 'apply-deploy-to-files';
+  serverData: unknown;
+}
+
 export interface PrepareDeployToOnlineCoreProjectCallResult extends ProjectCallResult {
-  changes: DeployChange[];
+  errors: CoreValidationError[];
+  changes: DeployChanges;
   serverData: unknown;
 }
 

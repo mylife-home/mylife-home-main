@@ -198,6 +198,10 @@ export class Model {
     delete this.data.components[component.id];
   }
 
+  hasBindings() {
+    return this.bindings.size > 0;
+  }
+
   hasBinding(id: string) {
     return !!this.bindings.get(id);
   }

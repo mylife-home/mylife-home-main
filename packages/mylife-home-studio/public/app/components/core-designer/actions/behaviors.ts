@@ -138,6 +138,7 @@ export function useDeployToFiles() {
 
   return useCallback(() => {
     fireAsync(async () => {
+      // TODO: Valider et demander si on continue quand meme si des erreurs de validation sont presentes
       const { files } = await dispatch(deployToFiles({ id: tabId }));
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
       const list = files.map(file => `'${file}'`).join(', ');

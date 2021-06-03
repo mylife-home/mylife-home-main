@@ -12,7 +12,6 @@ import {
   CoreProject,
   CoreProjectCall,
   CoreToolboxDisplay,
-  DeployToFilesCoreProjectCallResult,
   MoveComponentCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCallResult,
   ProjectCallResult,
@@ -29,6 +28,8 @@ import {
   PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProjectCallResult,
   ValidateCoreProjectCallResult,
+  PrepareDeployToFilesCoreProjectCallResult,
+  ApplyDeployToFilesCoreProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -130,14 +131,19 @@ export class CoreOpenedProject extends OpenedProject {
       case 'validate':
         return this.validate();
 
-      case 'deploy-to-files':
-        return this.deployToFiles();
+      case 'prepare-deploy-to-files':
+        return this.prepareDeployToFiles();
 
+        case 'prepare-deploy-to-files':
+          this.applyDeployToFiles(callData as ApplyDeployToFilesCoreProjectCall);
+          break;
+    
       case 'prepare-deploy-to-online':
         return this.prepareDeployToOnline();
 
       case 'apply-deploy-to-online':
         this.applyDeployToOnline(callData as ApplyDeployToOnlineCoreProjectCall);
+        break;
 
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
@@ -381,12 +387,23 @@ export class CoreOpenedProject extends OpenedProject {
     return { errors };
   }
 
-  private deployToFiles(): DeployToFilesCoreProjectCallResult {
+  private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {
+    const errors = validate(this.model);
+
+    const hasbindings = this.model.hasBindings();
+    // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
+
+    // TODO
+    throw new Error('TODO');
+  }
+
+  private applyDeployToFiles(callData: ApplyDeployToFilesCoreProjectCall) {
     throw new Error('TODO');
   }
 
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {
     // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
+    // si le projet n'est pas valide => fail
     // vérifier les versions et dispo de plugins avant de déployer
     throw new Error('TODO');
   }
