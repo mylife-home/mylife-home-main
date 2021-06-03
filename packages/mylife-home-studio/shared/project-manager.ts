@@ -1,5 +1,8 @@
 import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
+import { BindingConfig as CoreBindingData } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
+
+export { CoreBindingData };
 
 /**
  * Ui project model
@@ -44,14 +47,6 @@ export type CoreToolboxDisplay = 'show' | 'hide';
 export interface CorePluginData extends Plugin {
   instanceName: string;
   toolboxDisplay: CoreToolboxDisplay;
-}
-
-// should we merge with core/store?
-export interface CoreBindingData {
-  sourceComponent: string;
-  sourceState: string;
-  targetComponent: string;
-  targetAction: string;
 }
 
 /**
