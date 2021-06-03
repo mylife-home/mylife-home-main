@@ -24,17 +24,16 @@ export class Manager {
     await this.transport.rpc.serve('components.add', async ({ id, plugin, config }: ComponentsAddRequest) => this.componentManager.addComponent(id, plugin, config));
     await this.transport.rpc.serve('components.remove', async ({ id }: { id: string; }) => this.componentManager.removeComponent(id));
     await this.transport.rpc.serve('components.list', async () => this.componentManager.getComponents());
+    instanceInfo.addCapability('components-api');
 
     if (this.componentManager.supportsBindings) {
       await this.transport.rpc.serve('bindings.add', async (config: BindingConfig) => this.componentManager.addBinding(config));
       await this.transport.rpc.serve('bindings.remove', async (config: BindingConfig) => this.componentManager.removeBinding(config));
       await this.transport.rpc.serve('bindings.list', async () => this.componentManager.getBindings());
+      instanceInfo.addCapability('bindings-api');
     }
 
     await this.transport.rpc.serve('store.save', async () => this.componentManager.save());
-
-    instanceInfo.addCapability('components-api');
-    instanceInfo.addCapability('bindings-api');
     instanceInfo.addCapability('store-api');
   }
 
