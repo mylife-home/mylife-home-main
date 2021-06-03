@@ -18,16 +18,18 @@ export class Manager {
     interface ComponentsAddRequest {
       readonly id: string;
       readonly plugin: string;
-      readonly config: { [name: string]: any };
+      readonly config: { [name: string]: any; };
     }
 
     await this.transport.rpc.serve('components.add', async ({ id, plugin, config }: ComponentsAddRequest) => this.componentManager.addComponent(id, plugin, config));
-    await this.transport.rpc.serve('components.remove', async ({ id }: { id: string }) => this.componentManager.removeComponent(id));
+    await this.transport.rpc.serve('components.remove', async ({ id }: { id: string; }) => this.componentManager.removeComponent(id));
     await this.transport.rpc.serve('components.list', async () => this.componentManager.getComponents());
 
-    await this.transport.rpc.serve('bindings.add', async (config: BindingConfig) => this.componentManager.addBinding(config));
-    await this.transport.rpc.serve('bindings.remove', async (config: BindingConfig) => this.componentManager.removeBinding(config));
-    await this.transport.rpc.serve('bindings.list', async () => this.componentManager.getBindings());
+    if (this.componentManager.supportsBindings) {
+      await this.transport.rpc.serve('bindings.add', async (config: BindingConfig) => this.componentManager.addBinding(config));
+      await this.transport.rpc.serve('bindings.remove', async (config: BindingConfig) => this.componentManager.removeBinding(config));
+      await this.transport.rpc.serve('bindings.list', async () => this.componentManager.getBindings());
+    }
 
     await this.transport.rpc.serve('store.save', async () => this.componentManager.save());
 
@@ -41,9 +43,11 @@ export class Manager {
     await this.transport.rpc.unserve('components.remove');
     await this.transport.rpc.unserve('components.list');
 
-    await this.transport.rpc.unserve('bindings.add');
-    await this.transport.rpc.unserve('bindings.remove');
-    await this.transport.rpc.unserve('bindings.list');
+    if (this.componentManager.supportsBindings) {
+      await this.transport.rpc.unserve('bindings.add');
+      await this.transport.rpc.unserve('bindings.remove');
+      await this.transport.rpc.unserve('bindings.list');
+    }
 
     await this.transport.rpc.unserve('store.save');
 

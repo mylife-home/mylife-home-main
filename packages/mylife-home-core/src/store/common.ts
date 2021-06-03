@@ -1,3 +1,4 @@
+import { StoreItem } from './model';
 
 export interface StoreOperations {
   load(): Promise<StoreItem[]>;

@@ -4,7 +4,7 @@ import { ComponentHost, metadata, Binding, BusPublisher } from '../components';
 import { loadPlugins } from './plugin-loader';
 
 export class ComponentManager {
-  private readonly supportsBindings: boolean;
+  public readonly supportsBindings: boolean;
   private readonly registry: components.Registry;
   private readonly publisher: BusPublisher;
   private readonly store = new Store();
@@ -19,7 +19,9 @@ export class ComponentManager {
 
   async init() {
     instanceInfo.addCapability('components-manager');
-    instanceInfo.addCapability('bindings-manager');
+    if (this.supportsBindings) {
+      instanceInfo.addCapability('bindings-manager');
+    }
 
     loadPlugins(this.registry);
 
