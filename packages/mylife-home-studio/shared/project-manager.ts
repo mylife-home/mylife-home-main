@@ -502,6 +502,7 @@ export interface PrepareDeployToFilesCoreProjectCallResult extends ProjectCallRe
 
 export interface ApplyDeployToFilesCoreProjectCall extends CoreProjectCall {
   operation: 'apply-deploy-to-files';
+  bindingsInstanceName?: string;
   serverData: unknown;
 }
 

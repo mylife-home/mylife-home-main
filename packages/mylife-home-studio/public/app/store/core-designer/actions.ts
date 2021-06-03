@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, DeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromProjectConfig, CoreValidationError } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromProjectConfig, CoreValidationError } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -11,9 +11,10 @@ export const prepareImportFromProject = createAsyncAction<{ id: string; config: 
 export const prepareRefreshToolboxFromOnline = createAsyncAction<{ id: string; }, BulkUpdatesData>(ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_ONLINE);
 export const applyBulkUpdates = createAsyncAction<{ id: string; selection: string[]; serverData: unknown; }, BulkUpdatesStats>(ActionTypes.APPLY_BULK_UPDATES);
 export const validateProject = createAsyncAction<{ id: string; }, { errors: CoreValidationError[]; }>(ActionTypes.VALIDATE_PROJECT);
-export const deployToFiles = createAsyncAction<{ id: string; }, { files: string[] }>(ActionTypes.DEPLOY_TO_FILES);
-export const prepareDeployToOnline = createAsyncAction<{ id: string; }, DeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
-export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
+export const prepareDeployToFiles = createAsyncAction<{ id: string; }, FilesDeployData>(ActionTypes.PREPARE_DEPLOY_TO_FILES);
+export const applyDeployToFiles = createAsyncAction<{ id: string; bindingsInstanceName?: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_FILES);
+export const prepareDeployToOnline = createAsyncAction<{ id: string; }, OnlineDeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
+export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
 
 export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
 export const moveComponent = createAsyncAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);

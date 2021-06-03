@@ -6,8 +6,11 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError } from '../../../store/core-designer/types';
-import { prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, deployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject } from '../../../store/core-designer/actions';
+import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData } from '../../../store/core-designer/types';
+import { 
+  prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, 
+  prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
+} from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
 import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 
@@ -132,17 +135,20 @@ export function useProjectValidation() {
 
 export function useDeployToFiles() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<{ files: string[] }>>();
+  const dispatch = useDispatch<AsyncDispatch<FilesDeployData>>();
   const fireAsync = useFireAsync();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
+      const deployData = await dispatch(prepareDeployToFiles({ id: tabId }));
       // TODO: Valider et demander si on continue quand meme si des erreurs de validation sont presentes
-      const { files } = await dispatch(deployToFiles({ id: tabId }));
+      /*
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
       const list = files.map(file => `'${file}'`).join(', ');
       enqueueSnackbar(`${text} : ${list}`, { variant: 'success' });
+      */
+      throw new Error('TODO');
     });
   }, [fireAsync, dispatch]);
 }
@@ -150,8 +156,18 @@ export function useDeployToFiles() {
 
 export function useDeployToOnline() {
   const tabId = useTabPanelId();
+  const dispatch = useDispatch<AsyncDispatch<OnlineDeployData>>();
+  const fireAsync = useFireAsync();
+  const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
-    console.log('TODO');
-  }, []);
-}
+    fireAsync(async () => {
+      const deployData = await dispatch(prepareDeployToOnline({ id: tabId }));
+      /*
+      const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
+      const list = files.map(file => `'${file}'`).join(', ');
+      enqueueSnackbar(`${text} : ${list}`, { variant: 'success' });
+      */
+      throw new Error('TODO');
+    });
+  }, [fireAsync, dispatch]);}

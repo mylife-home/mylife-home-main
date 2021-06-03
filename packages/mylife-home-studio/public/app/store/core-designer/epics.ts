@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig } from './types';
+import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig, OnlineDeployData, FilesDeployData } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -16,7 +16,6 @@ import {
   ClearBindingCoreProjectCall,
   CoreBindingData,
   SetComponentCoreProjectCall,
-  DeployToFilesCoreProjectCallResult,
   PrepareDeployToOnlineCoreProjectCallResult,
   ApplyDeployToOnlineCoreProjectCall,
   CoreProjectCall,
@@ -25,6 +24,7 @@ import {
   PrepareImportFromProjectCoreProjectCall,
   ApplyBulkUpdatesCoreProjectCallResult,
   ValidateCoreProjectCallResult,
+  PrepareDeployToFilesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -70,12 +70,19 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       }
     },
 
-    [ActionTypes.DEPLOY_TO_FILES]: {
+    [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
       mapper() {
-        return { operation: 'deploy-to-files' } as CoreProjectCall;
+        return { operation: 'prepare-deploy-to-files' } as CoreProjectCall;
       },
-      resultMapper(serviceResult: DeployToFilesCoreProjectCallResult) {
-        return { files: serviceResult.files };
+      resultMapper(serviceResult: PrepareDeployToFilesCoreProjectCallResult): FilesDeployData {
+        const { errors, changes, serverData, files, bindingsInstanceName } = serviceResult;
+        return { errors, changes, serverData, files, bindingsInstanceName };
+      }
+    },
+
+    [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
+      mapper({ serverData }: { serverData: unknown }) {
+        return { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall;
       }
     },
 
@@ -83,8 +90,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper() {
         return { operation: 'prepare-deploy-to-online' } as CoreProjectCall;
       },
-      resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult) {
-        return { changes: serviceResult.changes, serverData: serviceResult.serverData };
+      resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult): OnlineDeployData {
+        const { errors, changes, serverData } = serviceResult;
+        return { errors, changes, serverData };
       }
     },
 
