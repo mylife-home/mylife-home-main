@@ -1,4 +1,5 @@
-import { StoreOperations, StoreItem, StoreConfiguration } from '../common';
+import { StoreOperations, StoreConfiguration } from '../common';
+import { StoreItem } from '../model';
 
 interface MemoryStoreConfiguration extends StoreConfiguration {
   // keep it hackable for testing

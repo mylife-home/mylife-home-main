@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { tools } from 'mylife-home-common';
 import { Store } from '../src/store';
-import { StoreItem } from '../src/store/common'; // private interface but we need it for testing purpose
+import { StoreItem } from '../src/store/model';
 
 describe('store', () => {
   it('should execute various binding operations on store', () => {

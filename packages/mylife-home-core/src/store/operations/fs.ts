@@ -1,6 +1,7 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { StoreOperations, StoreItem, StoreConfiguration } from '../common';
+import { StoreOperations, StoreConfiguration } from '../common';
+import { StoreItem } from '../model';
 
 interface FsStoreConfiguration extends StoreConfiguration {
   readonly path: string;

@@ -82,7 +82,7 @@ export class MqttTestSession {
   async init() {
     this.aedesServer = aedes.Server();
     this.server = net.createServer(this.aedesServer.handle);
-    await new Promise((resolve) => this.server.listen(SERVER_PORT, resolve));
+    await new Promise<void>((resolve) => this.server.listen(SERVER_PORT, resolve));
   }
 
   async terminate() {
@@ -90,8 +90,8 @@ export class MqttTestSession {
       await this.closeTransport(transport);
     }
 
-    await new Promise((resolve) => this.aedesServer.close(resolve));
-    await new Promise((resolve) => this.server.close(resolve));
+    await new Promise<void>((resolve) => this.aedesServer.close(resolve));
+    await new Promise<void>((resolve) => this.server.close(() => resolve()));
     this.server = null;
     this.aedesServer = null;
   }

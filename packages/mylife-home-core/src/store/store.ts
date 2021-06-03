@@ -1,5 +1,6 @@
 import { logger, tools } from 'mylife-home-common';
-import { StoreOperations, StoreItemType, StoreItem, StoreConfiguration } from './common';
+import { StoreOperations, StoreConfiguration } from './common';
+import { StoreItemType, StoreItem, ComponentConfig, BindingConfig } from './model';
 
 import { MemoryStoreOperations } from './operations/memory';
 import { MountedFsStoreOperations } from './operations/mounted-fs';
@@ -16,19 +17,6 @@ const operationTypes: { [type: string]: StoreOperationsType } = {
   'mounted-fs': MountedFsStoreOperations,
   fs: FsStoreOperations,
 };
-
-export interface ComponentConfig {
-  readonly id: string;
-  readonly plugin: string;
-  readonly config: { [name: string]: any };
-}
-
-export interface BindingConfig {
-  readonly sourceComponent: string;
-  readonly sourceState: string;
-  readonly targetComponent: string;
-  readonly targetAction: string;
-}
 
 export class Store {
   private readonly operations: StoreOperations;
