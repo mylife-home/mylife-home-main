@@ -10,7 +10,7 @@ describe('store', () => {
     tools.injectConfig({ store: { type: 'memory', items } });
     const store = new Store();
 
-    const binding = { sourceId: 'sourceId', sourceState: 'sourceState', targetId: 'targetId', targetAction: 'targetAction' };
+    const binding = { sourceComponent: 'sourceComponent', sourceState: 'sourceState', targetComponent: 'targetComponent', targetAction: 'targetAction' };
     store.addBinding(binding);
 
     expect(Array.from(store.getBindings())).to.deep.equal([binding]);
@@ -18,8 +18,8 @@ describe('store', () => {
     store.removeBinding(binding);
     expect(Array.from(store.getBindings())).to.deep.equal([]);
 
-    const otherBinding1 = { sourceId: 'other1', sourceState: 'sourceState', targetId: 'targetId', targetAction: 'targetAction' };
-    const otherBinding2 = { sourceId: 'other2', sourceState: 'sourceState', targetId: 'targetId', targetAction: 'targetAction' };
+    const otherBinding1 = { sourceComponent: 'other1', sourceState: 'sourceState', targetComponent: 'targetComponent', targetAction: 'targetAction' };
+    const otherBinding2 = { sourceComponent: 'other2', sourceState: 'sourceState', targetComponent: 'targetComponent', targetAction: 'targetAction' };
     store.addBinding(binding);
     store.addBinding(binding);
     store.addBinding(otherBinding1);

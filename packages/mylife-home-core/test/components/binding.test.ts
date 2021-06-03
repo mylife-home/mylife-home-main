@@ -16,7 +16,7 @@ describe('components/binding', () => {
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
 
@@ -40,7 +40,7 @@ describe('components/binding', () => {
 
     registry.addComponent(null, targetHost);
     emitSource(42);
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.notCalled).to.be.true;
 
@@ -67,7 +67,7 @@ describe('components/binding', () => {
 
     registry.addComponent(null, sourceHost);
     emitSource(42);
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.notCalled).to.be.true;
 
@@ -94,7 +94,7 @@ describe('components/binding', () => {
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
     expect(actionHandler.notCalled).to.be.true;
     expect(binding.active).to.be.false;
     expect(binding.error).to.be.true;
@@ -114,7 +114,7 @@ describe('components/binding', () => {
     registry.addComponent(null, targetHost);
 
     emitSource(42);
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
     expect(binding.active).to.be.true;
@@ -144,7 +144,7 @@ describe('components/binding', () => {
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
     expect(actionHandler.notCalled).to.be.true;
     expect(binding.active).to.be.false;
     expect(binding.error).to.be.true;
@@ -164,7 +164,7 @@ describe('components/binding', () => {
     registry.addComponent(null, targetHost);
 
     emitSource(42);
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
     expect(binding.active).to.be.true;
@@ -194,7 +194,7 @@ describe('components/binding', () => {
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
     expect(actionHandler.notCalled).to.be.true;
     expect(binding.active).to.be.false;
     expect(binding.error).to.be.true;
@@ -214,7 +214,7 @@ describe('components/binding', () => {
     registry.addComponent(null, targetHost);
 
     emitSource(42);
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
     expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;
     expect(binding.active).to.be.true;
@@ -244,7 +244,7 @@ describe('components/binding', () => {
     emitSource(42);
     expect(actionHandler.notCalled).to.be.true;
 
-    const binding = new Binding(registry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+    const binding = new Binding(registry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
     expect(actionHandler.notCalled).to.be.true;
     expect(binding.active).to.be.false;
     expect(binding.error).to.be.true;
@@ -276,7 +276,7 @@ describe('components/binding', () => {
       emitSource(42);
       expect(actionHandler.notCalled).to.be.true;
 
-      const binding = new Binding(binderRegistry, { sourceId: 'source', sourceState: 'value', targetId: 'target', targetAction: 'setValue' });
+      const binding = new Binding(binderRegistry, { sourceComponent: 'source', sourceState: 'value', targetComponent: 'target', targetAction: 'setValue' });
 
       await tools.sleep(100);
       expect(actionHandler.calledOnceWithExactly('Target.setValue', 42)).to.be.true;

@@ -47,12 +47,12 @@ export class Binding {
 
   private readonly onComponentAdd = (instanceName: string, component: components.Component) => {
     switch (component.id) {
-      case this.config.sourceId:
+      case this.config.sourceComponent:
         this.source = { instanceName, component };
         this.initBinding();
         break;
 
-      case this.config.targetId:
+      case this.config.targetComponent:
         this.target = { instanceName, component };
         this.initBinding();
         break;

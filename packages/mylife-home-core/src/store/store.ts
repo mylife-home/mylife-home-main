@@ -24,9 +24,9 @@ export interface ComponentConfig {
 }
 
 export interface BindingConfig {
-  readonly sourceId: string;
+  readonly sourceComponent: string;
   readonly sourceState: string;
-  readonly targetId: string;
+  readonly targetComponent: string;
   readonly targetAction: string;
 }
 
@@ -106,7 +106,7 @@ export class Store {
   }
 
   private buildBindingKey(config: BindingConfig) {
-    return [config.sourceId, config.sourceState, config.targetId, config.targetAction].join('|');
+    return [config.sourceComponent, config.sourceState, config.targetComponent, config.targetAction].join('|');
   }
 
   getComponents() {

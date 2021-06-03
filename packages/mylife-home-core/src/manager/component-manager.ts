@@ -116,6 +116,6 @@ export class ComponentManager {
   }
 
   private buildBindingKey(config: BindingConfig) {
-    return [config.sourceId, config.sourceState, config.targetId, config.targetAction].join('|');
+    return [config.sourceComponent, config.sourceState, config.targetComponent, config.targetAction].join('|');
   }
 }
