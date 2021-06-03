@@ -21,7 +21,7 @@ export class FsStoreOperations implements StoreOperations {
   }
 
   async save(items: StoreItem[]) {
-    const content = JSON.stringify(items);
+    const content = JSON.stringify(items, null, 2);
     await fs.writeFile(this.storeFile, content);
   }
 }
