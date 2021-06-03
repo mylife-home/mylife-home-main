@@ -142,6 +142,7 @@ export function useDeployToFiles() {
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await dispatch(prepareDeployToFiles({ id: tabId }));
+      console.log(deployData);
       // TODO: Valider et demander si on continue quand meme si des erreurs de validation sont presentes
       /*
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
@@ -163,6 +164,7 @@ export function useDeployToOnline() {
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await dispatch(prepareDeployToOnline({ id: tabId }));
+      console.log(deployData);
       /*
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
       const list = files.map(file => `'${file}'`).join(', ');
