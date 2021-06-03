@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { ChangeType, coreImportData, CoreValidationError } from '../../../../shared/project-manager';
+import { ChangeType, CoreValidationError, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { Services } from '../..';
 import { Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
@@ -56,6 +56,45 @@ function newValidationError(pluginModel: PluginModel, impacts: string[], changeT
     members: null,
     impacts
   };
+}
+
+export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
+  const errors = validate(model);
+
+  const hasbindings = model.hasBindings();
+  // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
+  const bindingsInstanceName = {
+    actual: 'TODO',
+    needed: false
+  };
+
+  
+
+  // TODO
+  throw new Error('TODO');
+
+  // const serverData = null;
+
+  // return { errors, bindingsInstanceName, serverData };
+}
+
+export function applyToFiles(bindingsInstanceName: string, serverData: unknown) {
+  throw new Error('TODO');
+}
+
+export function prepareToOnline(model: Model): PrepareDeployToOnlineCoreProjectCallResult {
+  const errors = validate(this.model);
+  if (errors.length > 0) {
+    // Validation errors, cannot go further.
+    return { errors, changes: null, serverData: null };
+  }
+
+  // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
+  throw new Error('TODO');
+}
+
+export function applyToOnline(serverData: unknown) {
+  throw new Error('TODO');
 }
 
 function isObjectEmpty(obj: {}) {

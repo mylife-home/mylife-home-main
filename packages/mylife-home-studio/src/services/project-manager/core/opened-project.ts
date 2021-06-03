@@ -37,7 +37,7 @@ import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlinePlugins, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
-import { validate } from './deploy';
+import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline, validate } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
@@ -388,28 +388,19 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {
-    const errors = validate(this.model);
-
-    const hasbindings = this.model.hasBindings();
-    // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
-
-    // TODO
-    throw new Error('TODO');
+    return prepareToFiles(this.model);
   }
 
-  private applyDeployToFiles(callData: ApplyDeployToFilesCoreProjectCall) {
-    throw new Error('TODO');
+  private applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall) {
+    applyToFiles(bindingsInstanceName, serverData);
   }
 
   private prepareDeployToOnline(): PrepareDeployToOnlineCoreProjectCallResult {
-    // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-    // si le projet n'est pas valide => fail
-    // vérifier les versions et dispo de plugins avant de déployer
-    throw new Error('TODO');
+    return prepareToOnline(this.model);
   }
 
-  private applyDeployToOnline(callData: ApplyDeployToOnlineCoreProjectCall) {
-    throw new Error('TODO');
+  private applyDeployToOnline({ serverData }: ApplyDeployToOnlineCoreProjectCall) {
+    applyToOnline(serverData);
   }
 
 }
