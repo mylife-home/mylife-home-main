@@ -1,6 +1,6 @@
 import { bus, tools, instanceInfo } from 'mylife-home-common';
 import { ComponentManager } from './component-manager';
-import { BindingConfig } from '../store';
+import { BindingConfig, ComponentConfig } from '../store';
 
 export class Manager {
   private readonly transport: bus.Transport;
@@ -15,13 +15,7 @@ export class Manager {
   async init() {
     await this.componentManager.init();
 
-    interface ComponentsAddRequest {
-      readonly id: string;
-      readonly plugin: string;
-      readonly config: { [name: string]: any; };
-    }
-
-    await this.transport.rpc.serve('components.add', async ({ id, plugin, config }: ComponentsAddRequest) => this.componentManager.addComponent(id, plugin, config));
+    await this.transport.rpc.serve('components.add', async ({ id, plugin, config }: ComponentConfig) => this.componentManager.addComponent(id, plugin, config));
     await this.transport.rpc.serve('components.remove', async ({ id }: { id: string; }) => this.componentManager.removeComponent(id));
     await this.transport.rpc.serve('components.list', async () => this.componentManager.getComponents());
     instanceInfo.addCapability('components-api');
