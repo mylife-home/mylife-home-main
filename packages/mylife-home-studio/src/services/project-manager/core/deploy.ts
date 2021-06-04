@@ -91,7 +91,7 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
 }
 
 function findBindingInstance(model: Model, usedInstancesNames: string[]) {
-  // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
+  // If there are bindings and only one instance, then use instance as binder, else we need to ask to user for it.
   const bindingsInstanceName = {
     actual: null as string,
     needed: false
@@ -186,7 +186,7 @@ interface OnlineTask {
 }
 
 export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-  const errors = validate(this.model);
+  const errors = validate(model);
   if (errors.length > 0) {
     // Validation errors, cannot go further.
     return { errors, changes: null, serverData: null };
