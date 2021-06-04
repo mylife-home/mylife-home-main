@@ -320,6 +320,16 @@ export class InstanceModel {
     return this.plugins.size > 0;
   }
 
+  hasNonExternalComponents() {
+    for (const component of this.components.values()) {
+      if (!component.data.external) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
     const pluginIds = [];
 
