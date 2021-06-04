@@ -166,6 +166,17 @@ export function prepareToOnline(model: Model): PrepareDeployToOnlineCoreProjectC
     return { errors, changes: null, serverData: null };
   }
 
+  /*
+  const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
+  if (bindingsInstances.length === 0) {
+    return { deployError: `Pas d'instance de gestion de bindings en ligne pour deployer` };
+  }
+
+  if (bindingsInstances.length > 1) {
+    return { deployError: 'Il y a plusieurs instances de gestion de bindings en ligne. Non supporté' };
+  }
+  */
+ 
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
   throw new Error('TODO');
 }
