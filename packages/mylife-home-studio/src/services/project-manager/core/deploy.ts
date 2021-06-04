@@ -65,11 +65,8 @@ interface DeployToFilesServerData {
 
 export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
   const errors = validate(model);
-  const bindingsInstanceName = findBindingInstance(model);
-  const files = model.getInstancesNames().map(createFileName);
+  const usedInstancesNamesSet = new Set<string>();
   const changes: DeployChanges = { bindings: [], components: [] };
-  // unused for now
-  const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
   for (const bindingId of model.getBindingsIds()) {
     changes.bindings.push({ type: 'add', bindingId });
@@ -80,14 +77,20 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
     if (componentModel.data.external) {
       continue;
     }
-
-    changes.components.push({ type: 'add', componentId, instanceName: componentModel.instance.instanceName });
+    const { instanceName } = componentModel.instance;
+    changes.components.push({ type: 'add', componentId, instanceName });
+    usedInstancesNamesSet.add(instanceName);
   }
+
+  const usedInstancesNames = Array.from(usedInstancesNamesSet);
+  const files = usedInstancesNames.map(createFileName);
+  const bindingsInstanceName = findBindingInstance(model, usedInstancesNames);
+  const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
   return { errors, bindingsInstanceName, files, changes, serverData };
 }
 
-function findBindingInstance(model: Model) {
+function findBindingInstance(model: Model, usedInstancesNames: string[]) {
   // If there are bindings and only one instance, then use this instance as binder, else we need to ask to user for it.
   const bindingsInstanceName = {
     actual: null as string,
@@ -98,9 +101,8 @@ function findBindingInstance(model: Model) {
     return bindingsInstanceName;
   }
 
-  const instancesNames = model.getInstancesNames();
-  if (instancesNames.length === 1) {
-    bindingsInstanceName.actual = instancesNames[0];
+  if (usedInstancesNames.length === 1) {
+    bindingsInstanceName.actual = usedInstancesNames[0];
     return bindingsInstanceName;
   }
 
