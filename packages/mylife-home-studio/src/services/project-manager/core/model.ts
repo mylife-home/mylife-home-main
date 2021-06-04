@@ -340,6 +340,10 @@ export class InstanceModel {
     return false;
   }
 
+  hasComponent(id: string) {
+    return this.components.has(id);
+  }
+
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
     const pluginIds = [];
 

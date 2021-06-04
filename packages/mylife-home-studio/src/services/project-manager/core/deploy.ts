@@ -2,7 +2,7 @@ import { components } from 'mylife-home-common';
 import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { BindingModel, Model, PluginModel } from './model';
+import { BindingModel, ComponentModel, Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
 
 export function validate(model: Model): CoreValidationError[] {
@@ -234,20 +234,86 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
   for (const instanceName of model.getInstancesNames()) {
     const instance = model.getInstance(instanceName);
-    if(!instance.hasNonExternalComponents()) {
+    if (!instance.hasNonExternalComponents()) {
       continue;
     }
 
-    const onlineComponents = await onlineService.coreListComponents(instanceName);
-    //instance.components
+    const onlineComponents = new Map<string, ComponentConfig>();
+    for (const onlineComponent of await onlineService.coreListComponents(instanceName)) {
+      onlineComponents.set(onlineComponent.id, onlineComponent);
+    }
 
-    // TODO
+    for (const componentId of onlineComponents.keys()) {
+      if (!instance.hasComponent(componentId)) {
+        changes.components.push({ instanceName, type: 'delete', componentId });
+        componentsDelete.push({ instanceName, changeType: 'delete', objectType: 'component', objectId: componentId });
+      }
+    }
+
+    for (const componentModel of instance.components.values()) {
+      const componentId = componentModel.id;
+      const onlineComponent = onlineComponents.get(componentId);
+      if (!onlineComponent) {
+        // create only
+        changes.components.push({ instanceName, type: 'add', componentId });
+        componentsAdd.push({ instanceName, changeType: 'add', objectType: 'component', objectId: componentId });
+        continue;
+      }
+
+      if (areComponentsEqual(componentModel, onlineComponent)) {
+        continue;
+      }
+
+      // update: delete and create
+      changes.components.push({ instanceName, type: 'update', componentId });
+      componentsDelete.push({ instanceName, changeType: 'delete', objectType: 'component', objectId: componentId });
+      componentsAdd.push({ instanceName, changeType: 'add', objectType: 'component', objectId: componentId });
+    }
   }
-
 
   const tasks = [...bindingsDelete, ...componentsDelete, ...componentsAdd, ...bindingsAdd];
   const serverData: DeployToOnlineServerData = { tasks };
   return { errors, changes, serverData };
+}
+
+
+function areComponentsEqual(componentModel: ComponentModel, componentOnline: ComponentConfig) {
+  const baseEqual = componentModel.id === componentOnline.id
+    && componentModel.plugin.id === componentOnline.plugin
+    && !!componentModel.data.config === !!componentOnline.config;
+
+  if (!baseEqual) {
+    return false;
+  }
+
+  // compare config
+  if (!componentModel.data.config) {
+    // no config
+    return true;
+  }
+
+  const configModel = componentModel.data.config;
+  const configOnline = componentOnline.config;
+
+  const modelKeys = Object.keys(configModel);
+  const configKeys = Object.keys(configOnline);
+  if (modelKeys.length !== configKeys.length) {
+    return false;
+  }
+
+  for (const [key, valueModel] of Object.entries(configModel)) {
+    if (!configOnline.hasOwnProperty(key)) {
+      return false;
+    }
+
+    const valueOnline = configOnline[key];
+
+    if (!Object.is(valueModel, valueOnline)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export async function applyToOnline(serverData: unknown) {
