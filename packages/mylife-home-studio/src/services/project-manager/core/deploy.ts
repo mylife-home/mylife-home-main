@@ -232,24 +232,22 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   }
 
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-  const onlineComponentsCache = new Map<string, ComponentConfig[]>();
+  for (const instanceName of model.getInstancesNames()) {
+    const instance = model.getInstance(instanceName);
+    if(!instance.hasNonExternalComponents()) {
+      continue;
+    }
 
-  // TODO
+    const onlineComponents = await onlineService.coreListComponents(instanceName);
+    //instance.components
+
+    // TODO
+  }
+
 
   const tasks = [...bindingsDelete, ...componentsDelete, ...componentsAdd, ...bindingsAdd];
   const serverData: DeployToOnlineServerData = { tasks };
   return { errors, changes, serverData };
-
-  async function getOnlineComponents(instanceName: string) {
-    const cached = onlineComponentsCache.get(instanceName);
-    if (cached) {
-      return cached;
-    }
-
-    const list = await onlineService.coreListComponents(instanceName);
-    onlineComponentsCache.set(instanceName, list);
-    return list;
-  }
 }
 
 export async function applyToOnline(serverData: unknown) {
