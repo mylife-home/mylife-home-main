@@ -266,6 +266,11 @@ export class Model {
     };
 
     const id = `${instanceName}:${netPlugin.module}.${netPlugin.name}`;
+    // re-create it if already exists
+    if (this.hasPlugin(id)) {
+      this.deletePlugin(id);
+    }
+
     const plugin = this.registerPlugin(id, pluginData);
     this.data.plugins[id] = pluginData;
 
@@ -274,6 +279,11 @@ export class Model {
 
   // Note: impacts checks are already done
   importComponent(id: string, pluginId: string, external: boolean, config: { [id: string]: ConfigItem }) {
+    // plugin may have change so re-create
+    if (this.hasComponent(id)) {
+      this.clearComponent(id);
+    }
+
     const plugin = this.getPlugin(pluginId);
 
     const componentData: CoreComponentData = {
