@@ -174,6 +174,17 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
   return writtenFilesCount;
 }
 
+interface DeployToOnlineServerData {
+  tasks: OnlineTask[];
+}
+
+interface OnlineTask {
+  instanceName: string;
+  changeType: ChangeType; // cannot update
+  objectType: 'component' | 'binding';
+  objectId: string;
+}
+
 export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
   const errors = validate(this.model);
   if (errors.length > 0) {
@@ -181,19 +192,49 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
     return { errors, changes: null, serverData: null };
   }
 
-  /*
-  const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
-  if (bindingsInstances.length === 0) {
-    return { deployError: `Pas d'instance de gestion de bindings en ligne pour deployer` };
+  const bindingsDelete: OnlineTask[] = [];
+  const bindingsAdd: OnlineTask[] = [];
+  const componentsDelete: OnlineTask[] = [];
+  const componentsAdd: OnlineTask[] = [];
+
+  const onlineService = Services.instance.online;
+
+  if (model.hasBindings()) {
+    const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
+    if (bindingsInstances.length === 0) {
+      throw new Error(`Pas d'instance de gestion de bindings en ligne pour deployer`);
+    }
+  
+    if (bindingsInstances.length > 1) {
+      throw new Error('Il y a plusieurs instances de gestion de bindings en ligne. Non supporté');
+    }
+
+    const bindingInstance = bindingsInstances[0];
+
+    const onlineBindings = await onlineService.coreListBindings(bindingInstance);
+    // TODO
   }
 
-  if (bindingsInstances.length > 1) {
-    return { deployError: 'Il y a plusieurs instances de gestion de bindings en ligne. Non supporté' };
-  }
-  */
- 
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-  throw new Error('TODO');
+  const onlineComponentsCache = new Map<string, ComponentConfig[]>();
+  const changes: DeployChanges = { bindings: [], components: [] };
+
+  // TODO
+
+  const tasks = [...bindingsDelete, ...componentsDelete, ...componentsAdd, ...bindingsAdd];
+  const serverData: DeployToOnlineServerData = { tasks };
+  return { errors, changes, serverData };
+
+  async function getOnlineComponents(instanceName: string) {
+    const cached = onlineComponentsCache.get(instanceName);
+    if (cached) {
+      return cached;
+    }
+
+    const list = await onlineService.coreListComponents(instanceName);
+    onlineComponentsCache.set(instanceName, list);
+    return list;
+  }
 }
 
 export async function applyToOnline(serverData: unknown) {
