@@ -97,3 +97,7 @@ export interface FilesDeployData {
   };
   serverData: unknown;
 }
+
+export interface FilesDeployResult {
+  writtenFilesCount: number;
+}

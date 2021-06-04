@@ -162,11 +162,16 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
 
   const deployService = Services.instance.deploy;
 
+  let writtenFilesCount = 0;
+
   for (const [instanceName, storeItems] of storeItemsPerInstance.entries()) {
     const file = createFileName(instanceName);
     const content = Buffer.from(JSON.stringify(storeItems, null, 2));
     await deployService.setFile(file, content);
+    ++writtenFilesCount;
   }
+
+  return writtenFilesCount;
 }
 
 export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {

@@ -6,7 +6,7 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData } from '../../../store/core-designer/types';
+import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
 import { 
   prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, 
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
@@ -136,7 +136,7 @@ export function useProjectValidation() {
 
 export function useDeployToFiles() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<FilesDeployData>>();
+  const dispatch = useDispatch();
   const fireAsync = useFireAsync();
   const confirmValidationErrorsDialog = useConfirmValidationErrorsDialog();
   const showDhowDeployToFilesDialog = useShowDhowDeployToFilesDialog();
@@ -144,7 +144,7 @@ export function useDeployToFiles() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const deployData = await dispatch(prepareDeployToFiles({ id: tabId }));
+      const deployData = await (dispatch as AsyncDispatch<FilesDeployData>)(prepareDeployToFiles({ id: tabId }));
       if (deployData.errors.length > 0) {
         const { status } = await confirmValidationErrorsDialog(deployData.errors);
         if (status === 'cancel') {
@@ -158,10 +158,9 @@ export function useDeployToFiles() {
         return;
       }
 
-      await dispatch(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
+      const { writtenFilesCount } = await (dispatch as AsyncDispatch<FilesDeployResult>)(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
 
-      const filesCount = files.length;
-      const text = filesCount < 2 ? `${filesCount} fichier créé` : `${filesCount} Fichiers créés`;
+      const text = writtenFilesCount < 2 ? `${writtenFilesCount} fichier créé` : `${writtenFilesCount} Fichiers créés`;
       enqueueSnackbar(text, { variant: 'success' });
     });
   }, [fireAsync, dispatch]);

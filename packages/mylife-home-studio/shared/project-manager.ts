@@ -464,12 +464,6 @@ export interface ValidateCoreProjectCallResult extends ProjectCallResult {
   errors: CoreValidationError[];
 }
 
-export interface ApplyDeployToFilesCoreProjectCall extends CoreProjectCall {
-  operation: 'apply-deploy-to-files';
-  bindingsInstanceName?: string;
-  serverData: unknown;
-}
-
 export interface DeployChanges {
   components: ComponentDeployChange[];
   bindings: BindingDeployChange[];
@@ -501,6 +495,10 @@ export interface ApplyDeployToFilesCoreProjectCall extends CoreProjectCall {
   operation: 'apply-deploy-to-files';
   bindingsInstanceName?: string;
   serverData: unknown;
+}
+
+export interface ApplyDeployToFilesCoreProjectCallResult extends ProjectCallResult {
+  writtenFilesCount: number;
 }
 
 export interface PrepareDeployToOnlineCoreProjectCallResult extends ProjectCallResult {

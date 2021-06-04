@@ -30,6 +30,7 @@ import {
   ValidateCoreProjectCallResult,
   PrepareDeployToFilesCoreProjectCallResult,
   ApplyDeployToFilesCoreProjectCall,
+  ApplyDeployToFilesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -135,8 +136,7 @@ export class CoreOpenedProject extends OpenedProject {
         return this.prepareDeployToFiles();
 
       case 'apply-deploy-to-files':
-        await this.applyDeployToFiles(callData as ApplyDeployToFilesCoreProjectCall);
-        break;
+        return await this.applyDeployToFiles(callData as ApplyDeployToFilesCoreProjectCall);
     
       case 'prepare-deploy-to-online':
         return await this.prepareDeployToOnline();
@@ -391,8 +391,9 @@ export class CoreOpenedProject extends OpenedProject {
     return prepareToFiles(this.model);
   }
 
-  private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall) {
-    await applyToFiles(this.model, bindingsInstanceName, serverData);
+  private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall): Promise<ApplyDeployToFilesCoreProjectCallResult> {
+    const writtenFilesCount = await applyToFiles(this.model, bindingsInstanceName, serverData);
+    return { writtenFilesCount };
   }
 
   private async prepareDeployToOnline(): Promise<PrepareDeployToOnlineCoreProjectCallResult> {

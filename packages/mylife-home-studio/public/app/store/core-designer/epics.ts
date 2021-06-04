@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig, OnlineDeployData, FilesDeployData } from './types';
+import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -26,6 +26,7 @@ import {
   ValidateCoreProjectCallResult,
   PrepareDeployToFilesCoreProjectCallResult,
   ApplyDeployToFilesCoreProjectCall,
+  ApplyDeployToFilesCoreProjectCallResult,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -84,6 +85,10 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
       mapper({ bindingsInstanceName, serverData }: { bindingsInstanceName?: string; serverData: unknown }) {
         return { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall;
+      },
+      resultMapper(serviceResult: ApplyDeployToFilesCoreProjectCallResult): FilesDeployResult {
+        const { writtenFilesCount } = serviceResult;
+        return { writtenFilesCount };
       }
     },
 

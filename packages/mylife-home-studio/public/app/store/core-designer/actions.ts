@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromProjectConfig, CoreValidationError } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromProjectConfig, CoreValidationError, FilesDeployResult } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -12,7 +12,7 @@ export const prepareRefreshToolboxFromOnline = createAsyncAction<{ id: string; }
 export const applyBulkUpdates = createAsyncAction<{ id: string; selection: string[]; serverData: unknown; }, BulkUpdatesStats>(ActionTypes.APPLY_BULK_UPDATES);
 export const validateProject = createAsyncAction<{ id: string; }, { errors: CoreValidationError[]; }>(ActionTypes.VALIDATE_PROJECT);
 export const prepareDeployToFiles = createAsyncAction<{ id: string; }, FilesDeployData>(ActionTypes.PREPARE_DEPLOY_TO_FILES);
-export const applyDeployToFiles = createAsyncAction<{ id: string; bindingsInstanceName?: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_FILES);
+export const applyDeployToFiles = createAsyncAction<{ id: string; bindingsInstanceName?: string; serverData: unknown; }, FilesDeployResult>(ActionTypes.APPLY_DEPLOY_TO_FILES);
 export const prepareDeployToOnline = createAsyncAction<{ id: string; }, OnlineDeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
 export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
 
