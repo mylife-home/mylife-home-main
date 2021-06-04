@@ -98,7 +98,7 @@ export class Online implements Service {
     await this.transport.rpc.call(instanceName, 'bindings.remove', config);
   }
 
-  async coreListBindingss(instanceName: string): Promise<BindingConfig[]> {
+  async coreListBindings(instanceName: string): Promise<BindingConfig[]> {
     return await this.transport.rpc.call(instanceName, 'bindings.list', null);
   }
 }
