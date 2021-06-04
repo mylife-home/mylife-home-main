@@ -11,7 +11,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import { ConfirmResult } from '../../dialogs/confirm';
-import { TransitionProps, DialogText } from '../../dialogs/common';
+import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { UiBreakingOperation } from '../../../../../shared/project-manager';
 import ElementPathBreadcrumbs from '../main-view/common/element-path-breadcrumbs';
 
@@ -89,7 +89,8 @@ export function useShowBreakingOperationsDialog() {
                 </React.Fragment>
               ))}
             </List>
-
+            
+            <DialogSeparator />
             <DialogText value={'Continuer ?'} />
           </DialogContent>
 

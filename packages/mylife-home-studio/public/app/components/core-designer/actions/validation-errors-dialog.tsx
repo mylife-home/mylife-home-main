@@ -11,7 +11,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 
-import { TransitionProps, DialogText } from '../../dialogs/common';
+import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { ConfirmResult } from '../../dialogs/confirm';
 import { CoreValidationError } from '../../../store/core-designer/types';
 
@@ -101,7 +101,10 @@ export function useConfirmValidationErrorsDialog() {
       };
 
       const contentBottom=(
-        <DialogText value={'Continuer ?'} />
+        <>
+          <DialogSeparator />
+          <DialogText value={'Continuer ?'} />
+        </>
       );
 
       const actions = (

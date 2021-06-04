@@ -118,6 +118,9 @@ export function useShowDhowDeployToFilesDialog() {
                 </ListItem>
               )}
             </List>
+
+            <DialogSeparator />
+            <DialogText value={'Continuer ?'} />
           </DialogContent>
 
           <DialogActions>
