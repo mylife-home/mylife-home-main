@@ -87,6 +87,16 @@ export function useShowDhowDeployToFilesDialog() {
             <DialogText value={'Les fichiers suivants vont être créés :'} />
 
             <List className={classes.filesList}>
+              {files.map(file => (
+                <ListItem key={file}>
+                  <ListItemText primary={file} />
+                </ListItem>
+              ))}
+              {bindingsInstanceName.needed && (
+                <ListItem>
+                  <ListItemText primary="(Instance pour bindings à définir)" />
+                </ListItem>
+              )}
             </List>
           </DialogContent>
 

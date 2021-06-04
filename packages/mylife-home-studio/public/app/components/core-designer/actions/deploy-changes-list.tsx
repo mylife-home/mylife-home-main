@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.divider}`,
   },
   changeItem: {
-    paddingLeft: theme.spacing(4),
+    paddingLeft: theme.spacing(8),
   },
 }));
 
@@ -26,7 +26,7 @@ const DeployChangesList: FunctionComponent<{ className?: string; changes: Deploy
   const classes = useStyles();
   return (
     <List className={clsx(classes.list, className)}>
-      {data.map(instance => (
+      {data.map((instance) => (
         <InstanceItem key={instance.name} instance={instance} />
       ))}
     </List>
@@ -48,13 +48,13 @@ const InstanceItem: FunctionComponent<{ instance: Instance }> = ({ instance }) =
   return (
     <>
       <ListItem button onClick={handleClick}>
-        <ListItemText primary={instance.name} secondary={detail} />
+        <ListItemText primary={`Instance '${instance.name}'`} secondary={detail} />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          {instance.changes.map(change => (
+          {instance.changes.map((change) => (
             <ChangeItem key={change.objectId} change={change} />
           ))}
         </List>
@@ -66,7 +66,7 @@ const InstanceItem: FunctionComponent<{ instance: Instance }> = ({ instance }) =
 const CHANGE_TYPE_LABELS = {
   add: 'Ajout',
   update: 'Modification',
-  delete: 'Suppression'
+  delete: 'Suppression',
 };
 
 const OBJECT_TYPE_LABELS = {
@@ -79,7 +79,7 @@ const ChangeItem: FunctionComponent<{ change: Change }> = ({ change }) => {
 
   const operation = CHANGE_TYPE_LABELS[change.changeType];
   const objectType = OBJECT_TYPE_LABELS[change.objectType];
-  const label=`${operation} du ${objectType} '${change.objectId}'`;
+  const label = `${operation} du ${objectType} '${change.objectId}'`;
 
   return (
     <ListItem className={classes.changeItem}>
@@ -99,8 +99,12 @@ interface Instance {
   changes: Change[];
 }
 
-function buildChanges(changes: DeployChanges, bindingsInstanceName: string = '(A définir)') {
+function buildChanges(changes: DeployChanges, bindingsInstanceName: string) {
   const instancesMap = new Map<string, Change[]>();
+
+  if (!bindingsInstanceName) {
+    bindingsInstanceName = '(A définir)';
+  }
 
   for (const change of changes.components) {
     const list = getInstance(change.instanceName);
@@ -114,7 +118,7 @@ function buildChanges(changes: DeployChanges, bindingsInstanceName: string = '(A
 
   const instances: Instance[] = [];
 
-  for(const name of Array.from(instancesMap.keys()).sort()) {
+  for (const name of Array.from(instancesMap.keys()).sort()) {
     const changes = instancesMap.get(name);
     instances.push({ name, changes });
 
@@ -147,12 +151,12 @@ const CHANGE_TYPE_ORDER = {
 
 function changeComparer(a: Change, b: Change) {
   let comp = OBJECT_TYPE_ORDER[a.objectType] - OBJECT_TYPE_ORDER[b.objectType];
-  if(comp !== 0) {
+  if (comp !== 0) {
     return comp;
   }
 
   comp = CHANGE_TYPE_ORDER[a.changeType] - CHANGE_TYPE_ORDER[b.changeType];
-  if(comp !== 0) {
+  if (comp !== 0) {
     return comp;
   }
 
