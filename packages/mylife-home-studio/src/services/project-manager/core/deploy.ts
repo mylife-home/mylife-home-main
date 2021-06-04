@@ -2,7 +2,7 @@ import { components } from 'mylife-home-common';
 import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { Model, PluginModel } from './model';
+import { BindingModel, Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
 
 export function validate(model: Model): CoreValidationError[] {
@@ -196,7 +196,7 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   const bindingsAdd: OnlineTask[] = [];
   const componentsDelete: OnlineTask[] = [];
   const componentsAdd: OnlineTask[] = [];
-
+  const changes: DeployChanges = { bindings: [], components: [] };
   const onlineService = Services.instance.online;
 
   if (model.hasBindings()) {
@@ -204,20 +204,35 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
     if (bindingsInstances.length === 0) {
       throw new Error(`Pas d'instance de gestion de bindings en ligne pour deployer`);
     }
-  
+
     if (bindingsInstances.length > 1) {
       throw new Error('Il y a plusieurs instances de gestion de bindings en ligne. Non supporté');
     }
 
-    const bindingInstance = bindingsInstances[0];
+    const instanceName = bindingsInstances[0];
 
-    const onlineBindings = await onlineService.coreListBindings(bindingInstance);
-    // TODO
+    const onlineBindings = new Map<string, BindingConfig>();
+    for(const onlineBinding of await onlineService.coreListBindings(instanceName)) {
+      onlineBindings.set(BindingModel.makeId(onlineBinding), onlineBinding);
+    }
+
+    for (const bindingId of onlineBindings.keys()) {
+      if (!model.hasBinding(bindingId)) {
+        changes.bindings.push({ type: 'delete', bindingId });
+        bindingsDelete.push({ instanceName, changeType: 'delete', objectType: 'binding', objectId: bindingId });
+      }
+    }
+
+    for (const bindingId of model.getBindingsIds()) {
+      if(!onlineBindings.has(bindingId)) {
+        changes.bindings.push({ type: 'add', bindingId });
+        bindingsAdd.push({ instanceName, changeType: 'add', objectType: 'binding', objectId: bindingId });
+      }
+    }
   }
 
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
   const onlineComponentsCache = new Map<string, ComponentConfig[]>();
-  const changes: DeployChanges = { bindings: [], components: [] };
 
   // TODO
 
