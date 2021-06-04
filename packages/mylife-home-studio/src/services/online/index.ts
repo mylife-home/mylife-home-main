@@ -5,13 +5,8 @@ import { InstanceNotifier } from './instance-notifier';
 import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
 import { Definition } from '../../../shared/ui-model';
+import { ComponentConfig, BindingConfig } from '../../../shared/core-model';
 
-/* 
-  online instances API should be published here, at least:
-   - component config access
-   - bindings config access
-  Because this service should be the only entry point to update config, it can have a cache and notify on updates
-*/
 export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly registry: components.Registry;
@@ -38,6 +33,13 @@ export class Online implements Service {
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-component', (session, payload: any) => this.componentNotifier.stopNotify(session, payload));
     Services.instance.sessionManager.registerServiceHandler('online/start-notify-history', session => this.historyNotifier.startNotify(session));
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-history', (session, payload: any) => this.historyNotifier.stopNotify(session, payload));
+
+    /* 
+      online instances API should be published here, at least:
+      - component config access
+      - bindings config access
+      Because this service should be the only entry point to update config, it can have a cache and notify on updates
+    */
   }
 
   async terminate() {
@@ -74,5 +76,29 @@ export class Online implements Service {
 
   async uiSetDefinition(instanceName: string, definition: Definition) {
     await this.transport.rpc.call(instanceName, 'definition.set', definition);
+  }
+
+  async coreAddComponent(instanceName: string, config: ComponentConfig) {
+    await this.transport.rpc.call(instanceName, 'components.add', config);
+  }
+
+  async coreRemoveComponent(instanceName: string, id: string) {
+    await this.transport.rpc.call(instanceName, 'components.remove', { id });
+  }
+
+  async coreListComponents(instanceName: string): Promise<ComponentConfig[]> {
+    return await this.transport.rpc.call(instanceName, 'components.list', null);
+  }
+
+  async coreAddBinding(instanceName: string, config: BindingConfig) {
+    await this.transport.rpc.call(instanceName, 'bindings.add', config);
+  }
+
+  async coreRemoveBinding(instanceName: string, config: BindingConfig) {
+    await this.transport.rpc.call(instanceName, 'bindings.remove', config);
+  }
+
+  async coreListBindingss(instanceName: string): Promise<BindingConfig[]> {
+    return await this.transport.rpc.call(instanceName, 'bindings.list', null);
   }
 }
