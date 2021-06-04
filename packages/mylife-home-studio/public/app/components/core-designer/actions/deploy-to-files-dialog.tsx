@@ -71,7 +71,8 @@ export function useShowDhowDeployToFilesDialog() {
         }
 
         hideModal();
-        onResult({ status: 'ok', bindingsInstanceName: 'TODO' });
+        const bindingsInstanceName = needBindingsInstanceName ? selectedbindingsInstanceName : undefined;
+        onResult({ status: 'ok', bindingsInstanceName });
       };
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
