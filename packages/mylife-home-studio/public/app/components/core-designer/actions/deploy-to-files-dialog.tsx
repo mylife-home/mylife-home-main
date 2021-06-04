@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -45,11 +45,16 @@ interface DialogData {
 export function useShowDhowDeployToFilesDialog() {
   const classes = useStyles();
   const [data, setData] = useState<DialogData>();
-  const [selectedbindingsInstanceName, selectBindingsInstanceName] = useState<string>(null);
   const [onResult, setOnResult] = useState<(value: ChangesDialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
+      const [selectedbindingsInstanceName, selectBindingsInstanceName] = useState<string>(null);
+      
+      useEffect(() => {
+        selectBindingsInstanceName(null);
+      }, [data]);
+
       const { changes, bindingsInstanceName, files } = data;
       const currentBindingsInstanceName = bindingsInstanceName.needed ? selectedbindingsInstanceName : bindingsInstanceName.actual;
       const needBindingsInstanceName = bindingsInstanceName.needed;
@@ -130,7 +135,6 @@ export function useShowDhowDeployToFilesDialog() {
     (bindingsInstanceName: { actual: string; needed: boolean }, changes: DeployChanges, files: string[]) =>
       new Promise<ChangesDialogResult>((resolve) => {
         setData({ bindingsInstanceName, changes, files });
-        selectBindingsInstanceName(null);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
@@ -148,14 +152,16 @@ const Separator: FunctionComponent = () => {
 
 const BindingsInstanceNameSelector: FunctionComponent<{ className?: string; changes: DeployChanges; value: string; onChange: (newValue: string) => void; }> = ({ className, changes, value, onChange }) => {
   const instancesNamesList = useMemo(() => buildInstancesNamesList(changes), [changes]);
-
   return (
     <Autocomplete
       className={className}
       value={value}
-      onChange={(event: React.ChangeEvent, newValue: string) => onChange(newValue)}
+      onChange={(event: React.ChangeEvent, newValue: string) => { onChange(newValue); }}
+      inputValue={value || ''}
+      onInputChange={(event, newInputValue) => { onChange(newInputValue); }}
       options={instancesNamesList}
       disableClearable
+      freeSolo
       renderInput={(params) => <TextField {...params} />}
     />
   );
