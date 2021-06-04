@@ -13,7 +13,7 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import { ConfirmResult } from '../../dialogs/confirm';
-import { TransitionProps, DialogText } from '../../dialogs/common';
+import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { DeployChanges } from '../../../../../shared/project-manager';
 import DeployChangesList from './deploy-changes-list';
 
@@ -96,14 +96,14 @@ export function useShowDhowDeployToFilesDialog() {
               <>
                 <DialogText value={`L'instance de déploiement des bindings n'a pas pu être identifiée. Veuillez la sélectionner.`} />
                 <BindingsInstanceNameSelector className={classes.selector} changes={changes} value={selectedbindingsInstanceName} onChange={selectBindingsInstanceName} />
-                <Separator />
+                <DialogSeparator />
               </>
             )}
 
             <DialogText value={'Les changements suivants vont être effectués :'} />
             <DeployChangesList className={classes.changesList} changes={changes} bindingsInstanceName={currentBindingsInstanceName} />
 
-            <Separator />
+            <DialogSeparator />
 
             <DialogText value={'Les fichiers suivants vont être créés :'} />
             <List className={classes.filesList}>
@@ -144,13 +144,6 @@ export function useShowDhowDeployToFilesDialog() {
   );
 }
 
-const Separator: FunctionComponent = () => {
-  const classes = useStyles();
-  return (
-    <div className={classes.separator} />
-  )
-}
-
 const BindingsInstanceNameSelector: FunctionComponent<{ className?: string; changes: DeployChanges; value: string; onChange: (newValue: string) => void; }> = ({ className, changes, value, onChange }) => {
   const instancesNamesList = useMemo(() => buildInstancesNamesList(changes), [changes]);
   return (
@@ -176,4 +169,3 @@ function buildInstancesNamesList(changes: DeployChanges) {
 
   return Array.from(instances).sort();
 }
-
