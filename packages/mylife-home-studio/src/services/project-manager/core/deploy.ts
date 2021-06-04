@@ -159,7 +159,7 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
   }
 }
 
-export function prepareToOnline(model: Model): PrepareDeployToOnlineCoreProjectCallResult {
+export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
   const errors = validate(this.model);
   if (errors.length > 0) {
     // Validation errors, cannot go further.
@@ -181,7 +181,7 @@ export function prepareToOnline(model: Model): PrepareDeployToOnlineCoreProjectC
   throw new Error('TODO');
 }
 
-export function applyToOnline(serverData: unknown) {
+export async function applyToOnline(serverData: unknown) {
   throw new Error('TODO');
 }
 
