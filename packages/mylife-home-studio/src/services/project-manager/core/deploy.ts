@@ -77,6 +77,10 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
 
   for (const componentId of model.getComponentsIds()) {
     const componentModel = model.getComponent(componentId);
+    if (componentModel.data.external) {
+      continue;
+    }
+
     changes.components.push({ type: 'add', componentId, instanceName: componentModel.instance.instanceName });
   }
 
@@ -128,6 +132,10 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
 
   for (const componentId of model.getComponentsIds()) {
     const componentModel = model.getComponent(componentId);
+    if (componentModel.data.external) {
+      continue;
+    }
+
     const pluginData = componentModel.plugin.data;
     const pluginId = `${pluginData.module}.${pluginData.name}`;
 
