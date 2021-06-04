@@ -25,6 +25,7 @@ import {
   ApplyBulkUpdatesCoreProjectCallResult,
   ValidateCoreProjectCallResult,
   PrepareDeployToFilesCoreProjectCallResult,
+  ApplyDeployToFilesCoreProjectCall,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -81,8 +82,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
-      mapper({ serverData }: { serverData: unknown }) {
-        return { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall;
+      mapper({ bindingsInstanceName, serverData }: { bindingsInstanceName?: string; serverData: unknown }) {
+        return { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall;
       }
     },
 
