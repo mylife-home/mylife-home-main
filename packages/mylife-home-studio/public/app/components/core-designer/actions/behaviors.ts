@@ -12,7 +12,8 @@ import {
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
-import { useShowValidationErrorsDialog } from './validation-errors-dialog';
+import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-errors-dialog';
+import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
@@ -137,19 +138,31 @@ export function useDeployToFiles() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch<AsyncDispatch<FilesDeployData>>();
   const fireAsync = useFireAsync();
+  const confirmValidationErrorsDialog = useConfirmValidationErrorsDialog();
+  const showDhowDeployToFilesDialog = useShowDhowDeployToFilesDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await dispatch(prepareDeployToFiles({ id: tabId }));
-      console.log(deployData);
-      // TODO: Valider et demander si on continue quand meme si des erreurs de validation sont presentes
-      /*
-      const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
-      const list = files.map(file => `'${file}'`).join(', ');
-      enqueueSnackbar(`${text} : ${list}`, { variant: 'success' });
-      */
-      throw new Error('TODO');
+      if (deployData.errors.length > 0) {
+        const { status } = await confirmValidationErrorsDialog(deployData.errors);
+        if (status === 'cancel') {
+          return;
+        }
+      }
+
+      const { changes, files, serverData } = deployData;
+      const { status, bindingsInstanceName } = await showDhowDeployToFilesDialog(deployData.bindingsInstanceName, changes, files);
+      if (status === 'cancel') {
+        return;
+      }
+
+      await dispatch(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
+
+      const filesCount = files.length;
+      const text = filesCount < 2 ? `${filesCount} fichier créé` : `${filesCount} Fichiers créés`;
+      enqueueSnackbar(text, { variant: 'success' });
     });
   }, [fireAsync, dispatch]);
 }
@@ -159,11 +172,18 @@ export function useDeployToOnline() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch<AsyncDispatch<OnlineDeployData>>();
   const fireAsync = useFireAsync();
+  const showValidationErrorsDialog = useShowValidationErrorsDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await dispatch(prepareDeployToOnline({ id: tabId }));
+      if (deployData.errors.length > 0) {
+        await showValidationErrorsDialog(deployData.errors);
+        // cannot go further if online validation failed
+        return;
+      }
+
       console.log(deployData);
       /*
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
