@@ -19,12 +19,11 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { coreImportData, DeployChanges } from '../../../../../shared/project-manager';
+import DeployChangesList from './deploy-changes-list';
 
 const useStyles = makeStyles((theme) => ({
   changesList: {
     height: '40vh',
-    overflowY: 'auto',
-    border: `1px solid ${theme.palette.divider}`,
   },
   filesList: {
     height: '20vh',
@@ -44,10 +43,14 @@ interface DialogData {
 export function useShowDhowDeployToFilesDialog() {
   const classes = useStyles();
   const [data, setData] = useState<DialogData>();
+  const [selectedbindingsInstanceName, selectBindingsInstanceName] = useState<string>(null);
   const [onResult, setOnResult] = useState<(value: ChangesDialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
+      const { changes, bindingsInstanceName, files } = data;
+      const currentBindingsInstanceName = bindingsInstanceName.needed ? selectedbindingsInstanceName : bindingsInstanceName.actual;
+
       const cancel = () => {
         hideModal();
         onResult({ status: 'cancel' });
@@ -77,8 +80,7 @@ export function useShowDhowDeployToFilesDialog() {
           <DialogContent dividers>
             <DialogText value={'Les changements suivants vont être effectués :'} />
 
-            <List className={classes.changesList}>
-            </List>
+            <DeployChangesList className={classes.changesList} changes={changes} bindingsInstanceName={currentBindingsInstanceName}/>
 
             <DialogText value={'bindingsInstanceName'} />
 
@@ -104,6 +106,7 @@ export function useShowDhowDeployToFilesDialog() {
     (bindingsInstanceName: { actual: string, needed: boolean }, changes: DeployChanges, files: string[]) =>
       new Promise<ChangesDialogResult>((resolve) => {
         setData({ bindingsInstanceName, changes, files });
+        selectBindingsInstanceName(null);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
