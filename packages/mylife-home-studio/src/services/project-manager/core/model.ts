@@ -570,7 +570,7 @@ export class BindingModel {
   }
 
   static makeId(data: CoreBindingData) {
-    return `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;;
+    return `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;
   }
 
   rebuild() {
