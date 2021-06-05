@@ -101,4 +101,8 @@ export class Online implements Service {
   async coreListBindings(instanceName: string): Promise<BindingConfig[]> {
     return await this.transport.rpc.call(instanceName, 'bindings.list');
   }
+
+  async coreStoreSave(instanceName: string) {
+    await this.transport.rpc.call(instanceName, 'store.save');
+  }
 }

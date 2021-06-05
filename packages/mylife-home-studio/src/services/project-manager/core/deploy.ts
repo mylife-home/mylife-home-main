@@ -330,8 +330,17 @@ export async function applyToOnline(model: Model, serverData: unknown) {
   
   log.info('Deploying to online');
 
+  const instancesNames = new Set<string>();
+
   for (const task of tasks) {
+    instancesNames.add(task.instanceName);
     await executeOnlineTask(model, task);
+  }
+
+  const onlineService = Services.instance.online;
+  for (const instanceName of instancesNames) {
+    await onlineService.coreStoreSave(instanceName);
+    log.info(`Store save on instance '${instanceName}'`);
   }
 
   log.info('Deployed to online');
