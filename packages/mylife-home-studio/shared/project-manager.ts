@@ -477,6 +477,7 @@ export interface ComponentDeployChange {
 
 export interface BindingDeployChange {
   type: ChangeType; // no update
+  instanceName: string; // may be null for files deploy if binding instance could not be deduced
   bindingId: string;
 }
 

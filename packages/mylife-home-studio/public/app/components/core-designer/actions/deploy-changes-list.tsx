@@ -112,7 +112,7 @@ function buildChanges(changes: DeployChanges, bindingsInstanceName: string) {
   }
 
   for (const change of changes.bindings) {
-    const list = getInstance(bindingsInstanceName);
+    const list = getInstance(change.instanceName || bindingsInstanceName);
     list.push({ objectType: 'binding', changeType: change.type, objectId: change.bindingId });
   }
 

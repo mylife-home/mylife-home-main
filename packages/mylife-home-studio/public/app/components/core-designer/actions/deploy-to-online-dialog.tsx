@@ -11,8 +11,8 @@ import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/comm
 import { DeployChanges } from '../../../../../shared/project-manager';
 import DeployChangesList from './deploy-changes-list';
 
-export function useShowDhowDeployToFilesDialog() {
-  const [data, setData] = useState<{ changes: DeployChanges; bindingsInstanceName: string; }>();
+export function useShowDhowDeployToOnlineDialog() {
+  const [changes, setChanges] = useState<DeployChanges>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(
@@ -46,7 +46,7 @@ export function useShowDhowDeployToFilesDialog() {
 
           <DialogContent dividers>
             <DialogText value={'Les changements suivants vont être effectués :'} />
-            <DeployChangesList changes={data.changes} bindingsInstanceName={data.bindingsInstanceName} />
+            <DeployChangesList changes={changes} />
 
             <DialogSeparator />
             <DialogText value={'Continuer ?'} />
@@ -61,17 +61,17 @@ export function useShowDhowDeployToFilesDialog() {
         </Dialog>
       );
     },
-    [data, onResult]
+    [changes, onResult]
   );
 
   return useCallback(
-    (changes: DeployChanges, bindingsInstanceName: string) =>
+    (changes: DeployChanges) =>
       new Promise<ConfirmResult>((resolve) => {
-        setData({ changes, bindingsInstanceName });
+        setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
       }),
-    [setData, setOnResult, showModal]
+    [setChanges, setOnResult, showModal]
   );
 }

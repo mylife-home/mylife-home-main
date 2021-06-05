@@ -68,10 +68,6 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   const usedInstancesNamesSet = new Set<string>();
   const changes: DeployChanges = { bindings: [], components: [] };
 
-  for (const bindingId of model.getBindingsIds()) {
-    changes.bindings.push({ type: 'add', bindingId });
-  }
-
   for (const componentId of model.getComponentsIds()) {
     const componentModel = model.getComponent(componentId);
     if (componentModel.data.external) {
@@ -83,8 +79,13 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   }
 
   const usedInstancesNames = Array.from(usedInstancesNamesSet);
-  const files = usedInstancesNames.map(createFileName);
   const bindingsInstanceName = findBindingInstance(model, usedInstancesNames);
+  
+  for (const bindingId of model.getBindingsIds()) {
+    changes.bindings.push({ instanceName: bindingsInstanceName.actual, type: 'add', bindingId });
+  }
+
+  const files = usedInstancesNames.map(createFileName);
   const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
   return { errors, bindingsInstanceName, files, changes, serverData };
@@ -218,14 +219,14 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
 
     for (const bindingId of onlineBindings.keys()) {
       if (!model.hasBinding(bindingId)) {
-        changes.bindings.push({ type: 'delete', bindingId });
+        changes.bindings.push({ instanceName, type: 'delete', bindingId });
         bindingsDelete.push({ instanceName, changeType: 'delete', objectType: 'binding', objectId: bindingId });
       }
     }
 
     for (const bindingId of model.getBindingsIds()) {
       if(!onlineBindings.has(bindingId)) {
-        changes.bindings.push({ type: 'add', bindingId });
+        changes.bindings.push({ instanceName, type: 'add', bindingId });
         bindingsAdd.push({ instanceName, changeType: 'add', objectType: 'binding', objectId: bindingId });
       }
     }

@@ -14,6 +14,7 @@ import {
 import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
 import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-errors-dialog';
 import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
+import { useShowDhowDeployToOnlineDialog } from './deploy-to-online-dialog';
 
 export function useImportFromProject() {
   const tabId = useTabPanelId();
@@ -172,18 +173,24 @@ export function useDeployToOnline() {
   const dispatch = useDispatch<AsyncDispatch<OnlineDeployData>>();
   const fireAsync = useFireAsync();
   const showValidationErrorsDialog = useShowValidationErrorsDialog();
+  const showDhowDeployToOnlineDialog = useShowDhowDeployToOnlineDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const deployData = await dispatch(prepareDeployToOnline({ id: tabId }));
-      if (deployData.errors.length > 0) {
-        await showValidationErrorsDialog(deployData.errors);
+      const { errors, changes, serverData } = await dispatch(prepareDeployToOnline({ id: tabId }));
+      if (errors.length > 0) {
+        await showValidationErrorsDialog(errors);
         // cannot go further if online validation failed
         return;
       }
 
-      console.log(deployData);
+      const { status } = await showDhowDeployToOnlineDialog(changes);
+      if (status === 'cancel') {
+        return;
+      }
+
+      console.log({ errors, changes, serverData });
       /*
       const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
       const list = files.map(file => `'${file}'`).join(', ');
