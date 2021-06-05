@@ -170,7 +170,7 @@ export function useDeployToFiles() {
 
 export function useDeployToOnline() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<OnlineDeployData>>();
+  const dispatch = useDispatch();
   const fireAsync = useFireAsync();
   const showValidationErrorsDialog = useShowValidationErrorsDialog();
   const showDhowDeployToOnlineDialog = useShowDhowDeployToOnlineDialog();
@@ -178,7 +178,7 @@ export function useDeployToOnline() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const { errors, changes, serverData } = await dispatch(prepareDeployToOnline({ id: tabId }));
+      const { errors, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ id: tabId }));
       if (errors.length > 0) {
         await showValidationErrorsDialog(errors);
         // cannot go further if online validation failed
@@ -190,12 +190,8 @@ export function useDeployToOnline() {
         return;
       }
 
-      console.log({ errors, changes, serverData });
-      /*
-      const text = files.length < 2 ? 'Fichier créé' : 'Fichiers créés';
-      const list = files.map(file => `'${file}'`).join(', ');
-      enqueueSnackbar(`${text} : ${list}`, { variant: 'success' });
-      */
-      throw new Error('TODO');
+      await dispatch(applyDeployToOnline({ id: tabId, serverData }));
+
+      enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
     });
   }, [fireAsync, dispatch]);}
