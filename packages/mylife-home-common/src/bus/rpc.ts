@@ -97,7 +97,7 @@ export class Rpc {
     this.services.delete(address);
   }
 
-  async call(targetInstance: string, address: string, data: any, timeout: number = 2000): Promise<any> {
+  async call(targetInstance: string, address: string, data: any = null, timeout: number = 2000): Promise<any> {
     const id = randomTopicPart();
     const replyTopic = this.client.buildTopic(DOMAIN, REPLIES, id);
     const request: Request = { input: data, replyTopic };
