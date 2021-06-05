@@ -344,6 +344,11 @@ export class InstanceModel {
     return this.components.has(id);
   }
 
+  hasNonExternalComponent(id: string) {
+    const component = this.components.get(id);
+    return !!component && !component.data.external;
+  }
+
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
     const pluginIds = [];
 

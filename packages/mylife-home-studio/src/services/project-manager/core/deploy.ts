@@ -253,13 +253,17 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
     }
 
     for (const componentId of onlineComponents.keys()) {
-      if (!instance.hasComponent(componentId)) {
+      if (!instance.hasNonExternalComponent(componentId)) {
         changes.components.push({ instanceName, type: 'delete', componentId });
         componentsDelete.push({ instanceName, changeType: 'delete', objectType: 'component', objectId: componentId });
       }
     }
 
     for (const componentModel of instance.components.values()) {
+      if (componentModel.data.external) {
+        continue;
+      }
+
       const componentId = componentModel.id;
       const onlineComponent = onlineComponents.get(componentId);
       if (!onlineComponent) {
@@ -287,8 +291,10 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
 
 
 function areComponentsEqual(componentModel: ComponentModel, componentOnline: ComponentConfig) {
+  const modelPluginData = componentModel.plugin.data;
+  const modelPluginId = `${modelPluginData.module}.${modelPluginData.name}`;
   const baseEqual = componentModel.id === componentOnline.id
-    && componentModel.plugin.id === componentOnline.plugin
+    && modelPluginId === componentOnline.plugin
     && !!componentModel.data.config === !!componentOnline.config;
 
   if (!baseEqual) {
@@ -296,11 +302,6 @@ function areComponentsEqual(componentModel: ComponentModel, componentOnline: Com
   }
 
   // compare config
-  if (!componentModel.data.config) {
-    // no config
-    return true;
-  }
-
   const configModel = componentModel.data.config;
   const configOnline = componentOnline.config;
 
