@@ -1,9 +1,11 @@
-import { components } from 'mylife-home-common';
+import { components, logger } from 'mylife-home-common';
 import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
 import { BindingModel, ComponentModel, Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
+
+const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
 
 export function validate(model: Model): CoreValidationError[] {
   const usedPlugins = new Map<PluginModel, string[]>();
@@ -165,12 +167,18 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
 
   let writtenFilesCount = 0;
 
+  log.info('Deploying to files');
+
   for (const [instanceName, storeItems] of storeItemsPerInstance.entries()) {
     const file = createFileName(instanceName);
     const content = Buffer.from(JSON.stringify(storeItems, null, 2));
     await deployService.setFile(file, content);
     ++writtenFilesCount;
+
+    log.info(`File written: '${file}'`);
   }
+
+  log.info('Deployed to files');
 
   return writtenFilesCount;
 }
@@ -318,7 +326,17 @@ function areComponentsEqual(componentModel: ComponentModel, componentOnline: Com
 }
 
 export async function applyToOnline(serverData: unknown) {
-  throw new Error('TODO');
+  const { tasks } = serverData as DeployToOnlineServerData;
+  
+  log.info('Deploying to online');
+
+  for (const task of tasks) {
+    // TODO
+
+    log.info(`Executed task '${task.changeType}' '${task.objectType}' '${task.objectId}' on instance '${task?.instanceName}'`);
+  }
+
+  log.info('Deployed to online');
 }
 
 function isObjectEmpty(obj: {}) {
