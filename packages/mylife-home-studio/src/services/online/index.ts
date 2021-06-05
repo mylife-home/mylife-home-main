@@ -87,7 +87,7 @@ export class Online implements Service {
   }
 
   async coreListComponents(instanceName: string): Promise<ComponentConfig[]> {
-    return await this.transport.rpc.call(instanceName, 'components.list', null);
+    return await this.transport.rpc.call(instanceName, 'components.list');
   }
 
   async coreAddBinding(instanceName: string, config: BindingConfig) {
@@ -99,6 +99,6 @@ export class Online implements Service {
   }
 
   async coreListBindings(instanceName: string): Promise<BindingConfig[]> {
-    return await this.transport.rpc.call(instanceName, 'bindings.list', null);
+    return await this.transport.rpc.call(instanceName, 'bindings.list');
   }
 }
