@@ -372,11 +372,23 @@ async function executeOnlineTask(model: Model, task: OnlineTask) {
 }
 
 function createComponentConfig(model: Model, id: string): ComponentConfig {
-  // TODO
+  const componentModel = model.getComponent(id);
+  const pluginData = componentModel.plugin.data;
+  return {
+    id,
+    plugin: `${pluginData.module}.${pluginData.name}`,
+    config: componentModel.data.config
+  };
 }
 
 function createBindingConfig(id: string): BindingConfig {
-  // TODO
+  //return `${data.sourceComponent}:${data.sourceState}:${data.targetComponent}:${data.targetAction}`;
+  const [sourceComponent, sourceState, targetComponent, targetAction] = id.split(':');
+  if (!sourceComponent || !sourceState || !targetComponent || !targetAction) {
+    throw new Error(`Could not parse binding id '${id}'`);
+  }
+
+  return { sourceComponent, sourceState, targetComponent, targetAction };
 }
 
 function isObjectEmpty(obj: {}) {
