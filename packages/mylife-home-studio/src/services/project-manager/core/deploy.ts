@@ -325,18 +325,58 @@ function areComponentsEqual(componentModel: ComponentModel, componentOnline: Com
   return true;
 }
 
-export async function applyToOnline(serverData: unknown) {
+export async function applyToOnline(model: Model, serverData: unknown) {
   const { tasks } = serverData as DeployToOnlineServerData;
   
   log.info('Deploying to online');
 
   for (const task of tasks) {
-    // TODO
-
-    log.info(`Executed task '${task.changeType}' '${task.objectType}' '${task.objectId}' on instance '${task?.instanceName}'`);
+    await executeOnlineTask(model, task);
   }
 
   log.info('Deployed to online');
+}
+
+async function executeOnlineTask(model: Model, task: OnlineTask) {
+  const onlineService = Services.instance.online;
+
+  switch (task.objectType) {
+    case 'binding':
+      switch(task.changeType) {
+        case 'add':
+          await onlineService.coreAddBinding(task.instanceName, createBindingConfig(task.objectId));
+          log.info(`Binding '${task.objectId}' added on instance '${task.instanceName}'`);
+          break;
+        case 'delete':
+          await onlineService.coreRemoveBinding(task.instanceName, createBindingConfig(task.objectId));
+          log.info(`Binding '${task.objectId}' deleted on instance '${task.instanceName}'`);
+          break;
+      }
+      break;
+
+    case 'component':
+      switch(task.changeType) {
+        case 'add':
+          await onlineService.coreAddComponent(task.instanceName, createComponentConfig(model, task.objectId));
+          log.info(`Component '${task.objectId}' added on instance '${task.instanceName}'`);
+          break;
+        case 'delete':
+          await onlineService.coreRemoveComponent(task.instanceName, task.objectId);
+          log.info(`Component '${task.objectId}' deleted on instance '${task.instanceName}'`);
+          break;
+      }
+      break;
+  }
+
+  log.info(`Executed task '${task.changeType}' '${task.objectType}' '${task.objectId}' on instance '${task?.instanceName}'`);
+}
+
+function createComponentConfig(model: Model, id: string): ComponentConfig {
+  // TODO
+}
+
+function createBindingConfig(id: string): BindingConfig {
+  // TODO
 }
 
 function isObjectEmpty(obj: {}) {

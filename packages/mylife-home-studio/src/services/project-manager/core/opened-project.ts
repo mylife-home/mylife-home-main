@@ -401,7 +401,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private async applyDeployToOnline({ serverData }: ApplyDeployToOnlineCoreProjectCall) {
-    await applyToOnline(serverData);
+    await applyToOnline(this.model, serverData);
   }
 
 }
