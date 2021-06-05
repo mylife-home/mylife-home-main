@@ -185,6 +185,11 @@ export function useDeployToOnline() {
         return;
       }
 
+      if (changes.bindings.length === 0 && changes.components.length === 0) {
+        enqueueSnackbar('Le déploiement du projet est déjà à jour, rien à déployer.', { variant: 'info' });
+        return;  
+      }
+
       const { status } = await showDhowDeployToOnlineDialog(changes);
       if (status === 'cancel') {
         return;
