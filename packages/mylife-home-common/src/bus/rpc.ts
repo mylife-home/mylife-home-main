@@ -101,9 +101,17 @@ export class Rpc {
     const id = randomTopicPart();
     const replyTopic = this.client.buildTopic(DOMAIN, REPLIES, id);
     const request: Request = { input: data, replyTopic };
-    await this.client.publish(this.client.buildRemoteTopic(targetInstance, DOMAIN, SERVICES, address), encoding.writeJson(request));
+    let buffer: Buffer;
 
-    const buffer = await waitForMessage(this.client, replyTopic, timeout);
+    const messageWaiter = new MessageWaiter(this.client, replyTopic);
+    await messageWaiter.init();
+    try {
+      await this.client.publish(this.client.buildRemoteTopic(targetInstance, DOMAIN, SERVICES, address), encoding.writeJson(request));
+      buffer = await messageWaiter.waitForMessage(timeout);
+    } finally {
+      await messageWaiter.terminate();
+    }
+
     const response = encoding.readJson(buffer) as Response;
     const { error, output } = response;
     if (error) {
@@ -114,18 +122,24 @@ export class Rpc {
   }
 }
 
-async function waitForMessage(client: Client, topic: string, timeout: number): Promise<Buffer> {
-  client.subscribe(topic);
-  try {
-    return await new Promise((resolve, reject) => {
+class MessageWaiter {
+  constructor(private readonly client: Client, private readonly topic: string) {
+  }
+
+  async init() {
+    await this.client.subscribe(this.topic);
+  }
+
+  async waitForMessage(timeout: number) {
+    return await new Promise<Buffer>((resolve, reject) => {
 
       const onEnd = () => {
         clearTimeout(timer);
-        client.off('message', messageCb);
+        this.client.off('message', messageCb);
       };
 
       const messageCb = (mtopic: string, payload: Buffer) => {
-        if (topic !== mtopic) {
+        if (this.topic !== mtopic) {
           return;
         }
 
@@ -134,14 +148,17 @@ async function waitForMessage(client: Client, topic: string, timeout: number): P
       };
 
       const timer = setTimeout(() => {
+        console.log('timeout');
         onEnd();
-        reject(new Error(`Timeout occured while waiting for message on topic '${topic}'`));
+        reject(new Error(`Timeout occured while waiting for message on topic '${this.topic}'`));
       }, timeout);
 
-      client.on('message', messageCb);
+      this.client.on('message', messageCb);
     });
-  } finally {
-    client.unsubscribe(topic);
+  }
+
+  async terminate() {
+    await this.client.unsubscribe(this.topic);
   }
 }
 
