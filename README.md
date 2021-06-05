@@ -120,9 +120,7 @@ car que sensor vers ui
 ## studio
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
-  - deploy
-    - online (one shot comme ui mettre toute la conf a jour d un coup?)
-    - as recipe files for direct config in image
+  - bugs: apparemment les x,y des composants se sont pas toujours des valeurs entieres
 - setup gitconvex
    - delete src/services/project-manager/old-git
 
