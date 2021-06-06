@@ -147,8 +147,8 @@ const watchStudio = series(
 );
 
 const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui' });
-
 const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge' });
+const dockerBuildStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: 'mylife-home-studio' });
 
 export = {
   'clean': () => del(globs.dist.all),
@@ -169,7 +169,8 @@ export = {
   'watch:studio': watchStudio,
 
   'docker:build:ui': dockerBuildUi,
-  'docker:build:irc-bridge': dockerBuildUIrcBridge
+  'docker:build:irc-bridge': dockerBuildUIrcBridge,
+  'docker:build:studio': dockerBuildStudio
 };
 
 function corePluginsListNames() {

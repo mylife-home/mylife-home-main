@@ -1,0 +1,24 @@
+{
+  "logging": {
+    "console": true
+  },
+  "bus": {
+    "serverUrl": "tcp://localhost"
+  },
+  "web": {
+    "port": 8002,
+    "staticDirectory": "./static"
+  },
+  "paths": {
+    "root": "/data",
+    "projectManager": {
+      "ui": "ui-projects",
+      "core": "core-projects"
+    },
+    "deploy": {
+      "files": "files",
+      "recipes": "recipes",
+      "pinnedRecipesFile": "pinned-recipes.json"
+    }
+  }
+}
