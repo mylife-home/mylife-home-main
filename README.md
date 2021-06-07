@@ -124,6 +124,10 @@ car que sensor vers ui
 - setup gitconvex
    - delete src/services/project-manager/old-git
 
+## packager
+- lerna versioning
+- Docker build publish studio/ui avec tag version package.json
+
 # Notes
 
 ## git
