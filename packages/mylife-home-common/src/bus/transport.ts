@@ -22,8 +22,6 @@ export interface TransportOptions {
 export declare interface Transport {
   on(event: 'onlineChange', cb: (online: boolean) => void): this;
   once(event: 'onlineChange', cb: (online: boolean) => void): this;
-  on(event: 'error', cb: (error: Error) => void): this;
-  once(event: 'error', cb: (error: Error) => void): this;
 }
 
 export class Transport extends EventEmitter {
@@ -43,7 +41,6 @@ export class Transport extends EventEmitter {
     this.client = new Client(instanceName, config.serverUrl, options.residentStateDelay);
 
     this.client.on('onlineChange', (online) => this.emit('onlineChange', online));
-    this.client.on('error', (err) => this.emit('error', err));
 
     this.rpc = new Rpc(this.client, options);
     this.presence = new Presence(this.client, options);

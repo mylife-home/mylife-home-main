@@ -12,9 +12,6 @@ export declare interface Client {
 
   on(event: 'message', cb: (topic: string, payload: Buffer) => void): this;
   once(event: 'message', cb: (topic: string, payload: Buffer) => void): this;
-
-  on(event: 'error', cb: (error: Error) => void): this;
-  once(event: 'error', cb: (error: Error) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -49,7 +46,6 @@ export class Client extends EventEmitter {
 
     this.client.on('error', (err) => {
       log.error(err, 'mqtt error');
-      this.emit('error', err);
     });
 
     this.client.on('message', (topic, payload) => this.emit('message', topic, payload));
