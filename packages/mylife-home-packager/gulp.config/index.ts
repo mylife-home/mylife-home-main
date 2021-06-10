@@ -146,9 +146,28 @@ const watchStudio = series(
   }
 );
 
-const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui' });
-const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge' });
-const dockerBuildStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: 'mylife-home-studio' });
+const publishCore = series(
+  buildProdCore,
+  // TODO: npm publish
+
+);
+
+const publishUi = series(
+  buildProdUi,
+  // TODO: npm publish
+  createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `mylife-home-ui:${projects.ui.version}`, publish: true })
+);
+
+const publishStudio = series(
+  buildProdStudio,
+  // TODO: npm publish
+  createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `mylife-home-studio:${projects.studio.version}`, publish: true })
+);
+
+// Testing images
+const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui:testing' });
+const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge:testing' });
+const dockerBuildStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: 'mylife-home-studio:testing' });
 
 export = {
   'clean': () => del(globs.dist.all),
@@ -156,21 +175,27 @@ export = {
   'clean:dev': () => del(globs.dist.dev),
   // TODO: clean ts builds
 
-  'build:prod:ui': buildProdUi,
-  'build:dev:ui': buildDevUi,
-  'watch:ui': watchUi,
-
   'build:prod:core': buildProdCore,
   'build:dev:core': buildDevCore,
   'watch:core': watchCore,
+
+  'build:prod:ui': buildProdUi,
+  'build:dev:ui': buildDevUi,
+  'watch:ui': watchUi,
 
   'build:prod:studio': buildProdStudio,
   'build:dev:studio': buildDevStudio,
   'watch:studio': watchStudio,
 
-  'docker:build:ui': dockerBuildUi,
-  'docker:build:irc-bridge': dockerBuildUIrcBridge,
-  'docker:build:studio': dockerBuildStudio
+  'publish:core': publishCore,
+  'publish:ui': publishUi,
+  'publish:studio': publishStudio,
+
+  // Docker images for testing purposes
+  'docker:build:irc-bridge-testing': dockerBuildUIrcBridge,
+  'docker:build:ui-testing': dockerBuildUi,
+  'docker:build:studio-testing': dockerBuildStudio,
+
 };
 
 function corePluginsListNames() {

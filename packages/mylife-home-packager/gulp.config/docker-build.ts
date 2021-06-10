@@ -2,13 +2,14 @@ import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
 import { spawn } from 'child_process';
-import { src, dest, series, parallel } from 'gulp';
+import { src, dest, series, parallel, TaskFunction } from 'gulp';
 import rm from 'rimraf';
 
 export interface DockerTaskOptions {
   readonly config: string;
   readonly binaries: string;
   readonly imageTag: string;
+  readonly publish?: boolean;
 }
 
 export function createDockerTask(options: DockerTaskOptions) {
@@ -24,7 +25,8 @@ export function createDockerTask(options: DockerTaskOptions) {
       name('copy config', () => src([makeSourcePath(options.config), '!**/Dockerfile']).pipe(dest(contextPath))),
       name('copy binaries', () => src([makeSourcePath(options.binaries), '!**/*.report.html']).pipe(dest(contextPath)))
     ),
-    name('docker build', () => runDocker(contextPath, path.join(basePath, options.config, 'Dockerfile'), options.imageTag)),
+    name('docker build', () => runDockerBuild(contextPath, path.join(basePath, options.config, 'Dockerfile'), options.imageTag)),
+    options.publish ? name('docker push', () => runDockerPublish(options.imageTag)) : async () => {},
     name('summary', async () => { console.log(`create docker image: '${options.imageTag}'`) }),
     name('cleanup', (cb) => rm(contextPath, cb))
   );
@@ -39,6 +41,10 @@ function name<Task>(displayName: string, task: Task): Task {
   return task;
 }
 
-function runDocker(contextPath: string, dockerfilePath: string, imageTag: string) {
+function runDockerBuild(contextPath: string, dockerfilePath: string, imageTag: string) {
   return spawn('docker', ['build', '--no-cache', '-t', imageTag, '-f', dockerfilePath, contextPath], { stdio: [null, null, process.stderr] });
+}
+
+function runDockerPublish(imageTag: string) {
+  return spawn('docker', ['push', imageTag], { stdio: [null, null, process.stderr] });
 }

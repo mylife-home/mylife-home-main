@@ -1,12 +1,17 @@
-# General
+# Dev Ops
 
 ## Update packages
  - lerna clean
  - lerna exec -- npm update
  - lerna bootstrap
 
-## Bump
- - lerna version
+## Release
+ - bump: lerna version
+ - build & publish:
+   - cd packages/mylife-home-packager
+   - gulp publish:core
+   - gulp publish:ui
+   - gulp publish:studio
 
 # Besoins
 

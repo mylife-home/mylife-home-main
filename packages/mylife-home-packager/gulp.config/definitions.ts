@@ -1,10 +1,12 @@
+import fs from 'fs';
 import path from 'path';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 
 export const projects = {
   common: {
-    ts: new TsBuild('mylife-home-common')
+    ts: new TsBuild('mylife-home-common'),
+    version: getPackageVersion('mylife-home-common'),
   },
 
   ui: {
@@ -16,7 +18,8 @@ export const projects = {
     client: {
       dev: new WebpackBuild('ui', 'client', 'dev'),
       prod: new WebpackBuild('ui', 'client', 'prod'),
-    }
+    },
+    version: getPackageVersion('mylife-home-ui'),
   },
 
   core: {
@@ -29,11 +32,13 @@ export const projects = {
       dev: new WebpackBuild('core', 'bin', 'dev'),
       prod: new WebpackBuild('core', 'bin', 'prod'),
     },
+    version: getPackageVersion('mylife-home-core'),
     plugins: {
       irc: {
         ts: new TsBuild('mylife-home-core-plugins-irc'),
         dev: new WebpackBuild('core', 'plugins-irc', 'dev'),
         prod: new WebpackBuild('core', 'plugins-irc', 'prod'),
+        version: getPackageVersion('mylife-home-core-plugins-irc'),
       }
       // other plugins
     }
@@ -48,7 +53,8 @@ export const projects = {
     client: {
       dev: new WebpackBuild('studio', 'client', 'dev'),
       prod: new WebpackBuild('studio', 'client', 'prod'),
-    }
+    },
+    version: getPackageVersion('mylife-home-studio'),
   },
 };
 
@@ -84,4 +90,11 @@ function pathAsGlobs(part: string) {
 function packagePublicGlobs(packageName: string) {
   const packagePath = path.dirname(require.resolve(`${packageName}/package.json`));
   return ['public/**', 'shared/**'].map(item => path.join(packagePath, item));
+}
+
+function getPackageVersion(packageName: string): string {
+  const packagePath = path.dirname(require.resolve(`${packageName}/package.json`));
+  const fullPath = path.join(packagePath, 'package.json');
+  const { version } = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+  return version;
 }
