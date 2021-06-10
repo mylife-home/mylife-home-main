@@ -126,8 +126,8 @@ car que sensor vers ui
 
 ## packager
 - lerna versioning
-- Docker build publish studio/ui avec tag version package.json
-- github release (ou autre) des binaires de core + plugins par version (pour utiliser ensuite dfans rpi-alpine-build)
+- Docker build + publish studio/ui avec tag version package.json (+ publier les binaires sur npm aussi ?)
+- npm des binaires de core + plugins par version (pour utiliser ensuite dans rpi-alpine-build) => mettre dans un folder temporaire package.json + binaires, et npm publish de ce dossier
 
 # Notes
 
