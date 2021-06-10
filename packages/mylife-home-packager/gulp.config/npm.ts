@@ -1,7 +1,6 @@
 import path from 'path';
 import { src, dest, series, parallel } from 'gulp';
-import { withTempPath, name } from './utils';
-import fs from 'fs';
+import { withTempPath, name, run } from './utils';
 
 export interface NpmPublishTaskOptions {
   readonly binariesGlob: string;
@@ -9,15 +8,12 @@ export interface NpmPublishTaskOptions {
 }
 
 export function createNpmPublishTask(options: NpmPublishTaskOptions) {
-  // TODO: check existency + publish
-  // TODO: check plugins management
-  // TODO: put binaries in temp folder, then npm publish <folder> <tag>
   return withTempPath('npm-publish-', tempPathRef => series(
     parallel(
       name('copy package.json', () => src(makePackageJsonPath(options)).pipe(dest(tempPathRef.path))),
       name('copy binaries', () => src(makeBinariesPath(options)).pipe(dest(tempPathRef.path)))
     ),
-    async() => { console.log(options.repositoryName, fs.readdirSync(tempPathRef.path)); }
+    name('npm publish', () => run('npm', 'publish', tempPathRef.path)),
   ));
 }
 
