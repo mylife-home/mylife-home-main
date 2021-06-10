@@ -7,5 +7,6 @@ export interface NpmPublishTaskOptions {
 export function createNpmPublishTask(options: NpmPublishTaskOptions) {
   // TODO: check existency + publish
   // TODO: check plugins management
+  // TODO: put binaries in temp folder, then npm publish <folder> <tag>
   return async () => {};
 }
