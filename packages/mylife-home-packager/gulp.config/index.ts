@@ -5,6 +5,7 @@ import { projects, globs } from './definitions';
 import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 import { createDockerTask } from './docker-build';
+import { createNpmPublishTask } from './npm';
 
 const buildProdUi = parallel(
   projects.ui.client.prod.task,
@@ -148,19 +149,25 @@ const watchStudio = series(
 
 const publishCore = series(
   buildProdCore,
-  // TODO: npm publish
-
+  createNpmPublishTask({ binaries: 'dist/prod/core', repositoryName: 'mylife-home-core' }),
+  createPublishPluginsTask(),
 );
+
+function createPublishPluginsTask() {
+  // TODO
+  const list = Object.keys(projects.core.plugins).map(plugin => createNpmPublishTask({ binaries: `dist/prod/core/plugins/${plugin}`, repositoryName: `mylife-home-core-plugins-${plugin}` }));
+  return parallel(...list);
+}
 
 const publishUi = series(
   buildProdUi,
-  // TODO: npm publish
+  createNpmPublishTask({ binaries: 'dist/prod/ui', repositoryName: 'mylife-home-ui' }),
   createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `vincenttr/mylife-home-ui:${projects.ui.version}`, publish: true })
 );
 
 const publishStudio = series(
   buildProdStudio,
-  // TODO: npm publish
+  createNpmPublishTask({ binaries: 'dist/prod/studio', repositoryName: 'mylife-home-studio' }),
   createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `vincenttr/mylife-home-studio:${projects.studio.version}`, publish: true })
 );
 
