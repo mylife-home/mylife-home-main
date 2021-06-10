@@ -6,6 +6,7 @@ import { TsBuild } from './ts-build';
 import { WebpackBuild } from './webpack-build';
 import { createDockerTask } from './docker-build';
 import { createNpmPublishTask } from './npm';
+import { noop } from './utils';
 
 const buildProdUi = parallel(
   projects.ui.client.prod.task,
@@ -229,7 +230,4 @@ function corePluginsListNames() {
 
   // no plugin
   return [];
-}
-
-async function noop() {
 }
