@@ -154,7 +154,6 @@ const publishCore = series(
 );
 
 function createPublishPluginsTask() {
-  // TODO
   const list = Object.keys(projects.core.plugins).map(plugin => createNpmPublishTask({ binaries: `dist/prod/core/plugins/${plugin}`, repositoryName: `mylife-home-core-plugins-${plugin}` }));
   return parallel(...list);
 }
