@@ -129,9 +129,6 @@ car que sensor vers ui
 - setup gitconvex
    - delete src/services/project-manager/old-git
 
-## packager
-- npm publish
-
 # Notes
 
 ## git
