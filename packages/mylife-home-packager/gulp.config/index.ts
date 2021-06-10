@@ -155,13 +155,13 @@ const publishCore = series(
 const publishUi = series(
   buildProdUi,
   // TODO: npm publish
-  createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `mylife-home-ui:${projects.ui.version}`, publish: true })
+  createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `vincenttr/mylife-home-ui:${projects.ui.version}`, publish: true })
 );
 
 const publishStudio = series(
   buildProdStudio,
   // TODO: npm publish
-  createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `mylife-home-studio:${projects.studio.version}`, publish: true })
+  createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `vincenttr/mylife-home-studio:${projects.studio.version}`, publish: true })
 );
 
 // Testing images
