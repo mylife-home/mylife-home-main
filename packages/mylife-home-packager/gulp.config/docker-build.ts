@@ -13,12 +13,12 @@ export interface DockerTaskOptions {
 export function createDockerTask(options: DockerTaskOptions) {
   const basePath = path.resolve(path.join(__dirname, '..'));
 
-  return withTempPath('docker-build-', contextPath => series(
+  return withTempPath('docker-build-', tempPathRef => series(
     parallel(
-      name('copy config', () => src([makeSourcePath(options.config), '!**/Dockerfile']).pipe(dest(contextPath))),
-      name('copy binaries', () => src([makeSourcePath(options.binaries), '!**/*.report.html']).pipe(dest(contextPath)))
+      name('copy config', () => src([makeSourcePath(options.config), '!**/Dockerfile']).pipe(dest(tempPathRef.path))),
+      name('copy binaries', () => src([makeSourcePath(options.binaries), '!**/*.report.html']).pipe(dest(tempPathRef.path)))
     ),
-    name('docker build', () => runDockerBuild(contextPath, path.join(basePath, options.config, 'Dockerfile'), options.imageTag)),
+    name('docker build', () => runDockerBuild(tempPathRef.path, path.join(basePath, options.config, 'Dockerfile'), options.imageTag)),
     options.publish ? name('docker push', () => runDockerPublish(options.imageTag)) : noop,
     name('summary', async () => { console.log(`create docker image: '${options.imageTag}'`) }),
   ));

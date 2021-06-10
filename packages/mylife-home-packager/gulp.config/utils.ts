@@ -12,15 +12,19 @@ export function name(displayName: string, task: TaskFunction): TaskFunction {
   return task;
 }
 
-export function withTempPath(prefix: string, taskFactory: (tempPath: string) => TaskFunction) {
-  let tempPath: string;
+export interface TempPathReference {
+  path: string;
+}
+
+export function withTempPath(prefix: string, taskFactory: (tempPathRef: TempPathReference) => TaskFunction) {
+  const tempPathRef: TempPathReference = { path: null };
 
   return series(
-    name('create context path', async () => {
-      tempPath = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
-      console.log(`Use temp path: '${tempPath}'`);
+    name('create temp path', async () => {
+      tempPathRef.path = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+      console.log(`Use temp path: '${tempPathRef.path}'`);
     }),
-    taskFactory(tempPath),
-    name('cleanup', (cb) => rm(tempPath, cb))
+    taskFactory(tempPathRef),
+    name('cleanup', (cb) => rm(tempPathRef.path, cb))
   );
 }
