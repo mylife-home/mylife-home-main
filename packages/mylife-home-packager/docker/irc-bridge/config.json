@@ -3,7 +3,7 @@
     "console": true
   },
   "bus": {
-    "serverUrl": "tcp://localhost"
+    "serverUrl": "%{BUS_SERVER|tcp://localhost}"
   },
   "store": {
     "type": "fs",

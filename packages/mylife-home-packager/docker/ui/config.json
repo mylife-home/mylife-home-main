@@ -3,13 +3,13 @@
     "console": true
   },
   "bus": {
-    "serverUrl": "tcp://localhost"
+    "serverUrl": "%{BUS_SERVER|tcp://localhost}"
   },
   "web": {
     "port": 8001,
     "staticDirectory": "./static"
   },
   "model": {
-    "storePath": "../../../ui-store.json"
+    "storePath": "/data/store.json"
   }
 }
