@@ -127,6 +127,7 @@ car que sensor vers ui
 ## packager
 - lerna versioning
 - Docker build publish studio/ui avec tag version package.json
+- github release (ou autre) des binaires de core + plugins par version (pour utiliser ensuite dfans rpi-alpine-build)
 
 # Notes
 
