@@ -150,24 +150,24 @@ const watchStudio = series(
 
 const publishCore = series(
   buildProdCore,
-  createNpmPublishTask({ binaries: 'dist/prod/core', repositoryName: 'mylife-home-core' }),
+  createNpmPublishTask({ binariesGlob: 'dist/prod/core/*.*', repositoryName: 'mylife-home-core' }),
   createPublishPluginsTask(),
 );
 
 function createPublishPluginsTask() {
-  const list = Object.keys(projects.core.plugins).map(plugin => createNpmPublishTask({ binaries: `dist/prod/core/plugins/${plugin}`, repositoryName: `mylife-home-core-plugins-${plugin}` }));
+  const list = Object.keys(projects.core.plugins).map(plugin => createNpmPublishTask({ binariesGlob: `dist/prod/core/plugins/${plugin}.*`, repositoryName: `mylife-home-core-plugins-${plugin}` }));
   return parallel(...list);
 }
 
 const publishUi = series(
   buildProdUi,
-  createNpmPublishTask({ binaries: 'dist/prod/ui', repositoryName: 'mylife-home-ui' }),
+  createNpmPublishTask({ binariesGlob: 'dist/prod/ui/**/*', repositoryName: 'mylife-home-ui' }),
   createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `vincenttr/mylife-home-ui:${projects.ui.version}`, publish: true })
 );
 
 const publishStudio = series(
   buildProdStudio,
-  createNpmPublishTask({ binaries: 'dist/prod/studio', repositoryName: 'mylife-home-studio' }),
+  createNpmPublishTask({ binariesGlob: 'dist/prod/studio/**/*', repositoryName: 'mylife-home-studio' }),
   createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `vincenttr/mylife-home-studio:${projects.studio.version}`, publish: true })
 );
 
