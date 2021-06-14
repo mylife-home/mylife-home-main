@@ -21,7 +21,7 @@
     "start:irc-bridge": "node --trace-warnings dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node --trace-warnings dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:studio": "node --trace-warnings dist/dev/studio/bin.js --config=test/studio/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
-    "docker:start:ui": "docker run --rm -d --network host --name mylife-home-ui mylife-home-ui:testing",
+    "docker:start:ui": "docker run --rm -d --network host -e DATA_PATH=/tmp --name mylife-home-ui mylife-home-ui:testing",
     "docker:stop:ui": "docker rm -f mylife-home-ui",
     "docker:restart:ui": "npm run docker:stop:ui && npm run docker:start:ui",
     "docker:start:irc-bridge": "docker run --rm -d --network host --name mylife-home-core-irc-bridge mylife-home-core-irc-bridge:testing",

@@ -10,6 +10,6 @@
     "staticDirectory": "./static"
   },
   "model": {
-    "storePath": "/data/store.json"
+    "storePath": "%{DATA_PATH|/data}/store.json"
   }
 }

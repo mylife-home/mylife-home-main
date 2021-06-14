@@ -10,7 +10,7 @@
     "staticDirectory": "./static"
   },
   "paths": {
-    "root": "/data",
+    "root": "%{DATA_PATH|/data}",
     "projectManager": {
       "ui": "ui-projects",
       "core": "core-projects"
