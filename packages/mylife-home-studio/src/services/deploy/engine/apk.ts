@@ -151,7 +151,7 @@ export class Database {
         continue;
       }
 
-      if (dep.startsWith('!')) {
+      if (dep.startsWith('!') || dep.startsWith('cmd:')) {
         // FIXME
         // ignore it for now
         continue;
