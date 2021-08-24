@@ -5,15 +5,18 @@ import { ExecutionContext } from '../recipe';
 
 export const metadata: TaskMetadata = {
   description: 'setup package cache of the image, from /etc/apk/repositories and /etc/apk/world in config (equivalent of apk cache sync in some way)',
-  parameters: [],
+  parameters: [
+    { name: 'arch', description: 'Target architecture', type: 'string' },
+  ],
 };
 
 export const execute: TaskImplementation = async (context, parameters) => {
+  const { arch } = parameters;
   const log = createLogger(context, 'image:cache');
   let repositories = readConfigFileLines(context, ['etc', 'apk', 'repositories']);
   let packages = readConfigFileLines(context, ['etc', 'apk', 'world']);
 
-  log.info('setup image cache');
+  log.info(`setup image cache for arch '${arch}'`);
 
   // filter out comments and local path (might cause to add packages that already exists in the local apk repo :/ )
   repositories = repositories.filter((rep) => rep[0] !== '#');
@@ -26,7 +29,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
   }
   log.debug(`packages: ${packages.join(', ')}`);
 
-  const database = new apk.Database();
+  const database = new apk.Database(arch);
   for (const repo of repositories) {
     const localPrefix = '/media/mmcblk0p1';
     if (repo.startsWith(localPrefix)) {

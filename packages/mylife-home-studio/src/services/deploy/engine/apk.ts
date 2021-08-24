@@ -4,8 +4,6 @@ import * as vfs from './vfs';
 import * as archive from './archive';
 import { BufferWriter, apipe } from './buffers';
 
-const arch = 'armhf';
-
 type DictString = { [key: string]: string };
 
 const indexHeaders: DictString = {
@@ -46,7 +44,7 @@ export class Database {
   private readonly _names = new Map<string, Package[]>();
   private readonly _repositories = new Map<string, Buffer>();
 
-  constructor() {}
+  constructor(private readonly arch: string) {}
 
   getListByName(name: string) {
     return this._names.get(name);
@@ -76,7 +74,7 @@ export class Database {
     }
     const file = vfs.path(
       vfsRoot,
-      (indexPath + `/${arch}/APKINDEX.tar.gz`).split('/').filter((n) => n)
+      (indexPath + `/${this.arch}/APKINDEX.tar.gz`).split('/').filter((n) => n)
     ) as vfs.File;
 
     await this.loadRepository(file.content, indexPath, path);
@@ -88,7 +86,7 @@ export class Database {
       url = url.slice(0, -1);
     }
 
-    const buffer = await download(url + `/${arch}/APKINDEX.tar.gz`);
+    const buffer = await download(url + `/${this.arch}/APKINDEX.tar.gz`);
     await this.loadRepository(buffer, url, repo);
   }
 
