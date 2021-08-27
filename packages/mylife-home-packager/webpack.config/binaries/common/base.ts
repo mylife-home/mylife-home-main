@@ -22,7 +22,7 @@ export default (context: Context) => ({
     }),
   ],
   stats: {
-    warningsFilter: createWarningFilter('yargs', 'dtrace-provider', 'get-caller-file', 'ws', 'chokidar', 'express', 'engine.io', 'socket.io')
+    warningsFilter: createWarningFilter('yargs', 'dtrace-provider', 'get-caller-file', 'ws', 'chokidar', 'express', 'engine.io', 'socket.io', 'ssh2')
   }
 }) as Configuration;
 
