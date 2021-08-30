@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid';
 
 import { name, version } from '../../../../package.json';
 import { isOnline, getRunningRequestsIds } from '../../store/status/selectors';
+import { isTransportConnected } from '../../store/online-status/selectors';
 import { getGitBranch, getGitChangedFeatures, getGitChangedFiles } from '../../store/git/selectors';
 import StatusBar, { StatusSeparator, StatusItem, StatusItemWithPopover } from '../lib/status-bar';
 
@@ -39,6 +40,7 @@ const Status: FunctionComponent<{ className?: string }> = ({ className }) => {
 
       <RunningRequests />
       <Connection />
+      <TransportConnection />
     </StatusBar>
   );
 };
@@ -56,6 +58,18 @@ const Connection: FunctionComponent = () => {
   return (
     <StatusItem>
       <Typography>{`Connexion `}</Typography>
+      {online ? <CheckIcon /> : <CloseIcon className={classes.errorIcon} />}
+    </StatusItem>
+  );
+};
+
+const TransportConnection: FunctionComponent = () => {
+  const classes = useStyles();
+  const online = useSelector(isTransportConnected);
+
+  return (
+    <StatusItem>
+      <Typography>{`Connexion au bus `}</Typography>
       {online ? <CheckIcon /> : <CloseIcon className={classes.errorIcon} />}
     </StatusItem>
   );

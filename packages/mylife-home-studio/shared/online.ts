@@ -75,3 +75,7 @@ export interface StateHistoryRecord extends HistoryRecord {
   stateName: string;
   stateValue: any;
 }
+
+export interface Status {
+  transportConnected: boolean;
+}

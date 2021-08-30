@@ -5,6 +5,7 @@ import tabs from './tabs/reducer';
 import projectsList from './projects-list/reducer';
 import coreDesigner from './core-designer/reducer';
 import uiDesigner from './ui-designer/reducer';
+import onlineStatus from './online-status/reducer';
 import onlineLogs from './online-logs/reducer';
 import onlineHistory from './online-history/reducer';
 import onlineInstancesView from './online-instances-view/reducer';
@@ -18,6 +19,7 @@ export default combineReducers({
   projectsList,
   coreDesigner,
   uiDesigner,
+  onlineStatus,
   onlineLogs,
   onlineHistory,
   onlineInstancesView,

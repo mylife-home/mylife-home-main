@@ -1,6 +1,7 @@
 import { components, bus } from 'mylife-home-common';
 import { Service, BuildParams } from '../types';
 import { Services } from '..';
+import { StatusNotifier } from './status-notifier';
 import { InstanceNotifier } from './instance-notifier';
 import { ComponentNotifier } from './component-notifier';
 import { HistoryNotifier } from './history-notifier';
@@ -10,6 +11,7 @@ import { ComponentConfig, BindingConfig } from '../../../shared/core-model';
 export class Online implements Service {
   private readonly transport: bus.Transport;
   private readonly registry: components.Registry;
+  private readonly statusNotifier: StatusNotifier;
   private readonly instanceNotifier: InstanceNotifier;
   private readonly componentNotifier: ComponentNotifier;
   private readonly historyNotifier: HistoryNotifier;
@@ -17,16 +19,20 @@ export class Online implements Service {
   constructor(params: BuildParams) {
     this.transport = params.transport;
     this.registry = new components.Registry({ transport: this.transport, publishRemoteComponents: true });
+    this.statusNotifier = new StatusNotifier(this.transport);
     this.instanceNotifier = new InstanceNotifier(this.transport);
     this.componentNotifier = new ComponentNotifier(this.registry);
     this.historyNotifier = new HistoryNotifier(this.transport, this.registry);
   }
 
   async init() {
+    await this.statusNotifier.init();
     await this.instanceNotifier.init();
     await this.componentNotifier.init();
     await this.historyNotifier.init();
 
+    Services.instance.sessionManager.registerServiceHandler('online/start-notify-status', session => this.statusNotifier.startNotify(session));
+    Services.instance.sessionManager.registerServiceHandler('online/stop-notify-status', (session, payload: any) => this.statusNotifier.stopNotify(session, payload));
     Services.instance.sessionManager.registerServiceHandler('online/start-notify-instance-info', session => this.instanceNotifier.startNotify(session));
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-instance-info', (session, payload: any) => this.instanceNotifier.stopNotify(session, payload));
     Services.instance.sessionManager.registerServiceHandler('online/start-notify-component', session => this.componentNotifier.startNotify(session));
@@ -43,6 +49,7 @@ export class Online implements Service {
   }
 
   async terminate() {
+    await this.statusNotifier.terminate();
     await this.instanceNotifier.terminate();
     await this.componentNotifier.terminate();
     await this.historyNotifier.terminate();
