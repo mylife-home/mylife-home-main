@@ -1,8 +1,11 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 import child_process from 'child_process';
+import { logger } from 'mylife-home-common';
 import { StoreOperations, StoreConfiguration } from '../common';
 import { StoreItem } from '../model';
+
+const log = logger.createLogger('mylife:home:core:store:mounted-fs');
 
 interface MountedFsStoreConfiguration extends StoreConfiguration {
   readonly path: string;
@@ -36,7 +39,9 @@ export class MountedFsStoreOperations implements StoreOperations {
 }
 
 async function exec(command: string) {
+  log.debug(`Running command '${command}'`);
   await new Promise<void>((resolve, reject) => {
     child_process.exec(command, (error) => error ? reject(error) : resolve());
   });
+  log.debug(`Command '${command}': success`);
 }
