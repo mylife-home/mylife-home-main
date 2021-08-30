@@ -4,9 +4,9 @@ import { getNotifierId } from './selectors';
 import { Status } from './types';
 
 export default createNotifierEpic({
-  notificationType: 'git/status',
-  startNotifierService: 'git/start-notify',
-  stopNotifierService: 'git/stop-notify',
+  notificationType: 'online/status',
+  startNotifierService: 'online/start-notify-status',
+  stopNotifierService: 'online/stop-notify-status',
   getNotifierId,
   hasTypedTab: () => true, // on status bar, always present
   setNotification,
