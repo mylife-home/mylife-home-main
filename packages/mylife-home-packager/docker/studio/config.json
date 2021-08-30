@@ -6,7 +6,7 @@
     "serverUrl": "%{BUS_SERVER|tcp://localhost}"
   },
   "web": {
-    "port": 8002,
+    "port": 80,
     "staticDirectory": "./static"
   },
   "paths": {
