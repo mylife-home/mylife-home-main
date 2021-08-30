@@ -20,7 +20,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
   if (index === -1) {
     throw new Error(`Interface ${iface} not found in configuration`);
   }
-  lines.splice(index + 1, 0, `\thwaddress ether ${address}`);
+  lines.splice(index + 1, 0, `\thwaddress ${address}`);
 
   vfs.writeText(context.config, ['etc', 'network', 'interfaces'], lines.join('\n'));
 };
