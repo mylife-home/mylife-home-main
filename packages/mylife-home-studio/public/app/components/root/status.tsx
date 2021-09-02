@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import CheckIcon from '@material-ui/icons/Check';
@@ -11,7 +12,7 @@ import Grid from '@material-ui/core/Grid';
 import { name, version } from '../../../../package.json';
 import { isOnline, getRunningRequestsIds } from '../../store/status/selectors';
 import { isTransportConnected } from '../../store/online-status/selectors';
-import { getGitBranch, getGitChangedFeatures, getGitChangedFiles } from '../../store/git/selectors';
+import { getGitBranch, getGitAppUrl, getGitChangedFeatures, getGitChangedFiles } from '../../store/git/selectors';
 import StatusBar, { StatusSeparator, StatusItem, StatusItemWithPopover } from '../lib/status-bar';
 
 const useStyles = makeStyles((theme) => ({
@@ -102,10 +103,30 @@ const Git: FunctionComponent = () => {
   }
 
   return (
-    <StatusItemWithPopover popover={<GitPopopver />}>
-      <GitIcon className={classes.gitIcon} />
-      <Typography>{text}</Typography>
-    </StatusItemWithPopover>
+    <GitAppUrl>
+      <StatusItemWithPopover popover={<GitPopopver />}>
+        <GitIcon className={classes.gitIcon} />
+        <Typography>{text}</Typography>
+      </StatusItemWithPopover>
+    </GitAppUrl>
+  );
+};
+
+const GitAppUrl: FunctionComponent = ({ children }) => {
+  const appUrl = useSelector(getGitAppUrl);
+
+  if (!appUrl) {
+    return (
+      <>
+        {children}
+      </>
+    );
+  }
+
+  return (
+    <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">
+      {children}
+    </Link>
   );
 };
 
