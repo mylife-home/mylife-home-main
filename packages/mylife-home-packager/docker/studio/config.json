@@ -9,6 +9,9 @@
     "port": 80,
     "staticDirectory": "./static"
   },
+  "git": {
+    "appUrl": "%{GIT_APP_URL|https://www.google.com}"
+  },
   "paths": {
     "root": "%{DATA_PATH|/data}",
     "projectManager": {

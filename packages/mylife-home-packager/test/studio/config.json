@@ -9,6 +9,9 @@
     "port": 8002,
     "staticDirectory": "./static"
   },
+  "git": {
+    "appUrl": "https://www.google.com"
+  },
   "paths": {
     "root": "../../../mylife-home-studio-data-dev",
     "projectManager": {

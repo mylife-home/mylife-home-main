@@ -1,12 +1,16 @@
 import path from 'path';
 import cp from 'child_process';
-import { logger } from 'mylife-home-common';
+import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
 import { GitStatus, GitStatusNotification, DEFAULT_STATUS } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
+
+interface Config {
+  appUrl: string;
+}
 
 export class Git implements Service {
   private readonly branchUpdater: Interval;
@@ -17,6 +21,9 @@ export class Git implements Service {
   private rawStatus: string = null; // help to find changes before parsing
 
   constructor(params: BuildParams) {
+    const config = tools.getConfigItem<Config>('git');
+    this.status.appUrl = config.appUrl;
+
     this.branchUpdater = new Interval(1000, this.updateBranch);
     this.statusUpdater = new Debounce(100, this.updateStatus);
   }
