@@ -13,7 +13,7 @@ interface Config {
 }
 
 export class Git implements Service {
-  private readonly branchUpdater: Interval;
+  private readonly intervalUpdater: Interval;
   private readonly statusUpdater: Debounce;
   private readonly notifiers = new SessionNotifierManager('git/notifiers', 'git/status');
   private readonly featuresPaths: { featureName: string, path: string; }[] = [];
@@ -24,12 +24,12 @@ export class Git implements Service {
     const config = tools.getConfigItem<Config>('git');
     this.status.appUrl = config.appUrl;
 
-    this.branchUpdater = new Interval(1000, this.updateBranch);
+    this.intervalUpdater = new Interval(1000, this.intervalUpdate);
     this.statusUpdater = new Debounce(100, this.updateStatus);
   }
 
   async init() {
-    this.branchUpdater.init();
+    this.intervalUpdater.init();
     this.statusUpdater.init();
     this.notifiers.init();
 
@@ -42,7 +42,7 @@ export class Git implements Service {
   }
 
   async terminate() {
-    this.branchUpdater.terminate();
+    this.intervalUpdater.terminate();
     this.statusUpdater.terminate();
   }
 
@@ -86,7 +86,10 @@ export class Git implements Service {
     return cp.execFileSync('git', args, { encoding: 'utf8', cwd: rootPath, timeout: 5000 });
   }
 
-  private readonly updateBranch = () => {
+  private readonly intervalUpdate = () => {
+    // we need to do that too because in case of git commit we have no file change
+    this.notifyFileUpdate();
+
     try {
       let branch = this.runGit('branch', '--show-current');
       // remove last \n char at the end
