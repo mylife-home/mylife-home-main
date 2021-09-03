@@ -41,7 +41,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
     }
 
     log.debug(`Adding repository '${repo}'`);
-    await database.addRepository(repo);
+    await database.addRepository(repo, log);
   }
 
   database.index();

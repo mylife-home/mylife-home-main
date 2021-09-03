@@ -77,20 +77,20 @@ export class Database {
       (indexPath + `/${this.arch}/APKINDEX.tar.gz`).split('/').filter((n) => n)
     ) as vfs.File;
 
-    await this.loadRepository(file.content, indexPath, path);
+    await this.loadRepository(file.content, indexPath, path, null);
   }
 
-  async addRepository(repo: string) {
+  async addRepository(repo: string, log: any) {
     let url = repo;
     if (url.endsWith('/')) {
       url = url.slice(0, -1);
     }
 
     const buffer = await download(url + `/${this.arch}/APKINDEX.tar.gz`);
-    await this.loadRepository(buffer, url, repo);
+    await this.loadRepository(buffer, url, repo, log);
   }
 
-  async loadRepository(buffer: Buffer, url: string, name: string) {
+  async loadRepository(buffer: Buffer, url: string, name: string, log: any) {
     try {
       if (this._repositories.get(name)) {
         throw new Error(`repository '${name}' already exists`);
@@ -98,7 +98,10 @@ export class Database {
       this._repositories.set(name, buffer);
 
       const content = new vfs.Directory({ missing: true });
+
+      log.debug(`BEFORE EXTRACT ${url}`);
       await archive.extract(buffer, content);
+      log.debug(`AFTER EXTRACT`);
 
       const raw = vfs.readText(content, ['APKINDEX']);
       const parts = raw.split('\n\n');
@@ -112,6 +115,8 @@ export class Database {
         this._list.push(this.loadPackage(url, lines));
       }
     } catch (err) {
+      log.debug(`FAIL EXTRACT ${err.stack}`);
+
       err.message = `Error loading repository '${url}' (Buffer start: '${buffer.slice(0, 16).toString('hex')}'): ${err.message}`;
       throw err;
     }
