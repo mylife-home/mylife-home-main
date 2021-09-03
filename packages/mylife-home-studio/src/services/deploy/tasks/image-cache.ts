@@ -34,10 +34,13 @@ export const execute: TaskImplementation = async (context, parameters) => {
     const localPrefix = '/media/mmcblk0p1';
     if (repo.startsWith(localPrefix)) {
       // local repo
-      await database.addLocalRepository(context.root, repo.substring(localPrefix.length));
+      const localRepo = repo.substring(localPrefix.length);
+      log.debug(`Adding local repository '${localRepo}'`);
+      await database.addLocalRepository(context.root, localRepo);
       continue;
     }
 
+    log.debug(`Adding repository '${repo}'`);
     await database.addRepository(repo);
   }
 
