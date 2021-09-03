@@ -19,7 +19,7 @@ export function createDockerTask(options: DockerTaskOptions) {
     ),
     name('docker build', () => {
       const dockerFilePath =  path.join(basePath, options.config, 'Dockerfile');
-      return run('docker', 'build', '--no-cache', '-t', options.imageTag, '-f', dockerFilePath, tempPathRef.path);
+      return run('docker', 'build', '--pull', '--no-cache', '-t', options.imageTag, '-f', dockerFilePath, tempPathRef.path);
     }),
     options.publish ? name('docker push', () => run('docker', 'push', options.imageTag)) : noop,
     name('summary', async () => { console.log(`create docker image: '${options.imageTag}'`) }),
