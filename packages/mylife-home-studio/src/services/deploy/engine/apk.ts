@@ -4,7 +4,7 @@ import * as vfs from './vfs';
 import * as archive from './archive';
 import { BufferWriter, apipe } from './buffers';
 
-type DictString = { [key: string]: string };
+type DictString = { [key: string]: string; };
 
 const indexHeaders: DictString = {
   // https://wiki.alpinelinux.org/wiki/Apk_spec
@@ -44,7 +44,7 @@ export class Database {
   private readonly _names = new Map<string, Package[]>();
   private readonly _repositories = new Map<string, Buffer>();
 
-  constructor(private readonly arch: string) {}
+  constructor(private readonly arch: string) { }
 
   getListByName(name: string) {
     return this._names.get(name);
@@ -91,24 +91,29 @@ export class Database {
   }
 
   async loadRepository(buffer: Buffer, url: string, name: string) {
-    if (this._repositories.get(name)) {
-      throw new Error(`repository '${name}' already exists`);
-    }
-    this._repositories.set(name, buffer);
-
-    const content = new vfs.Directory({ missing: true });
-    await archive.extract(buffer, content);
-
-    const raw = vfs.readText(content, ['APKINDEX']);
-    const parts = raw.split('\n\n');
-
-    for (const raw of parts) {
-      const lines = raw.split('\n').filter((it) => it);
-      if (!lines.length) {
-        continue;
+    try {
+      if (this._repositories.get(name)) {
+        throw new Error(`repository '${name}' already exists`);
       }
+      this._repositories.set(name, buffer);
 
-      this._list.push(this.loadPackage(url, lines));
+      const content = new vfs.Directory({ missing: true });
+      await archive.extract(buffer, content);
+
+      const raw = vfs.readText(content, ['APKINDEX']);
+      const parts = raw.split('\n\n');
+
+      for (const raw of parts) {
+        const lines = raw.split('\n').filter((it) => it);
+        if (!lines.length) {
+          continue;
+        }
+
+        this._list.push(this.loadPackage(url, lines));
+      }
+    } catch (err) {
+      err.message = `Error loading repository '${url}' (Buffer start: '${buffer.slice(0, 16).toString('hex')}'): ${err.message}`;
+      throw err;
     }
   }
 
@@ -221,7 +226,7 @@ export class InstallList {
   private readonly map = new Map<string, string>();
   private readonly _list: Package[] = [];
 
-  constructor(private readonly database: Database) {}
+  constructor(private readonly database: Database) { }
 
   list() {
     return this._list;
