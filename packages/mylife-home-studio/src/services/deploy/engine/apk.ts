@@ -67,7 +67,7 @@ export class Database {
     return this._repositories;
   }
 
-  async addLocalRepository(vfsRoot: vfs.Directory, path: string) {
+  async addLocalRepository(vfsRoot: vfs.Directory, path: string, log: any) {
     let indexPath = path;
     if (indexPath.endsWith('/')) {
       indexPath = indexPath.slice(0, -1);
@@ -77,7 +77,7 @@ export class Database {
       (indexPath + `/${this.arch}/APKINDEX.tar.gz`).split('/').filter((n) => n)
     ) as vfs.File;
 
-    await this.loadRepository(file.content, indexPath, path, null);
+    await this.loadRepository(file.content, indexPath, path);
   }
 
   async addRepository(repo: string, log: any) {

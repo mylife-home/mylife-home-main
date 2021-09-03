@@ -36,7 +36,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
       // local repo
       const localRepo = repo.substring(localPrefix.length);
       log.debug(`Adding local repository '${localRepo}'`);
-      await database.addLocalRepository(context.root, localRepo);
+      await database.addLocalRepository(context.root, localRepo, log);
       continue;
     }
 
