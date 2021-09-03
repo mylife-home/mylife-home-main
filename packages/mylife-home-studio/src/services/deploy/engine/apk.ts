@@ -67,7 +67,7 @@ export class Database {
     return this._repositories;
   }
 
-  async addLocalRepository(vfsRoot: vfs.Directory, path: string, log: any) {
+  async addLocalRepository(vfsRoot: vfs.Directory, path: string) {
     let indexPath = path;
     if (indexPath.endsWith('/')) {
       indexPath = indexPath.slice(0, -1);
@@ -80,45 +80,36 @@ export class Database {
     await this.loadRepository(file.content, indexPath, path);
   }
 
-  async addRepository(repo: string, log: any) {
+  async addRepository(repo: string) {
     let url = repo;
     if (url.endsWith('/')) {
       url = url.slice(0, -1);
     }
 
     const buffer = await download(url + `/${this.arch}/APKINDEX.tar.gz`);
-    await this.loadRepository(buffer, url, repo, log);
+    await this.loadRepository(buffer, url, repo);
   }
 
-  async loadRepository(buffer: Buffer, url: string, name: string, log: any) {
-    try {
-      if (this._repositories.get(name)) {
-        throw new Error(`repository '${name}' already exists`);
+  async loadRepository(buffer: Buffer, url: string, name: string) {
+    if (this._repositories.get(name)) {
+      throw new Error(`repository '${name}' already exists`);
+    }
+    this._repositories.set(name, buffer);
+
+    const content = new vfs.Directory({ missing: true });
+
+    await archive.extract(buffer, content);
+
+    const raw = vfs.readText(content, ['APKINDEX']);
+    const parts = raw.split('\n\n');
+
+    for (const raw of parts) {
+      const lines = raw.split('\n').filter((it) => it);
+      if (!lines.length) {
+        continue;
       }
-      this._repositories.set(name, buffer);
 
-      const content = new vfs.Directory({ missing: true });
-
-      log.debug(`BEFORE EXTRACT ${url}`);
-      await archive.extract(buffer, content);
-      log.debug(`AFTER EXTRACT`);
-
-      const raw = vfs.readText(content, ['APKINDEX']);
-      const parts = raw.split('\n\n');
-
-      for (const raw of parts) {
-        const lines = raw.split('\n').filter((it) => it);
-        if (!lines.length) {
-          continue;
-        }
-
-        this._list.push(this.loadPackage(url, lines));
-      }
-    } catch (err) {
-      log.debug(`FAIL EXTRACT ${err.stack}`);
-
-      err.message = `Error loading repository '${url}' (Buffer start: '${buffer.slice(0, 16).toString('hex')}'): ${err.message}`;
-      throw err;
+      this._list.push(this.loadPackage(url, lines));
     }
   }
 
@@ -374,13 +365,17 @@ function isLocal(pack: Package) {
 }
 
 async function download(url: string) {
-  const stream = await new Promise<http.IncomingMessage>((resolve, reject) => {
+  const response = await new Promise<http.IncomingMessage>((resolve, reject) => {
     const req = http.get(url, resolve);
     req.once('error', reject);
   });
 
+  if (response.statusCode !== 200) {
+    throw new Error(`Got HTTP status code ${response.statusCode} (${response.statusMessage})`);
+  }
+
   const writer = new BufferWriter();
-  await apipe(stream, writer);
+  await apipe(response, writer);
   return writer.getBuffer();
 }
 
