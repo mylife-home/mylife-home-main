@@ -7,6 +7,7 @@ import * as ConfigHwaddress from './config-hwaddress';
 import * as ConfigWifi from './config-wifi';
 import * as ConfigPackage from './config-package';
 import * as ConfigDaemon from './config-daemon';
+import * as ConfigImportFile from './config-import-file';
 import * as ConfigLs from './config-ls';
 import * as ConfigPack from './config-pack';
 
@@ -39,6 +40,7 @@ const tasks: { [type: string]: TaskDefinition; } = {
   ConfigWifi,
   ConfigPackage,
   ConfigDaemon,
+  ConfigImportFile,
   ConfigLs,
   ConfigPack,
 
