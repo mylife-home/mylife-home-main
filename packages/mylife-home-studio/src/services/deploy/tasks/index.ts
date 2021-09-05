@@ -17,7 +17,7 @@ import * as ImageDeviceTreeOverlay from './image-device-tree-overlay';
 import * as ImageDeviceTreeParam from './image-device-tree-param';
 import * as ImageCmdlineAdd from './image-cmdline-add';
 import * as ImageCmdlineRemove from './image-cmdline-remove';
-import * as ImageCoreComponents from './image-core-components';
+import * as ImageImportFile from './image-import-file';
 import * as ImageLs from './image-ls';
 import * as ImageInstall from './image-install';
 import * as ImageExport from './image-export';
@@ -49,7 +49,7 @@ const tasks: { [type: string]: TaskDefinition; } = {
   ImageDeviceTreeParam,
   ImageCmdlineAdd,
   ImageCmdlineRemove,
-  ImageCoreComponents,
+  ImageImportFile,
   ImageLs,
   ImageInstall,
   ImageExport,
