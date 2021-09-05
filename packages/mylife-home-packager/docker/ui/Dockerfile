@@ -4,5 +4,5 @@ ENV NODE_ENV production
 COPY . /app/
 WORKDIR /app
 
-EXPOSE 8001
+EXPOSE 80
 CMD [ "node", "bin.js" ]
