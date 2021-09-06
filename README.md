@@ -119,9 +119,6 @@ car que sensor vers ui
 
 # TODO
 
-## core
- - store/mounted-fs
-
 ## studio
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
