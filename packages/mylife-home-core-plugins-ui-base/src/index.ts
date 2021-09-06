@@ -1,4 +1,4 @@
 import './ui-button';
-import './ui-state-binary';
+import './ui-state-bool';
+import './ui-state-float';
 import './ui-state-percent';
-import './ui-state-temperature';

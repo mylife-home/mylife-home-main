@@ -9,7 +9,7 @@ export class UiStatePercent {
   value: number = 0;
 
   @m.action({ type: new m.Range(0, 100) })
-  action(value: number) {
+  setValue(value: number) {
     this.value = value;
   }
 }

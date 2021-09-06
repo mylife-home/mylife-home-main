@@ -3,13 +3,13 @@ import { components } from 'mylife-home-core';
 import m = components.metadata;
 
 @m.plugin({ usage: m.PluginUsage.UI })
-export class UiStateBinary {
+export class UiStateBool {
 
   @m.state
   value: boolean = false;
 
   @m.action
-  action(value: boolean) {
+  setValue(value: boolean) {
     this.value = value;
   }
 }
