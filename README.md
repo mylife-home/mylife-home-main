@@ -77,6 +77,8 @@
  - core-designer
    - multi-select
    - importer des plugins depuis les fichiers de déploiement
+ - git
+   - use simple-git to have vscode-like basic git interface and drop gitconvex
 
 ## ui
 
