@@ -137,3 +137,15 @@ car que sensor vers ui
   - https://www.npmjs.com/package/diff
 - merge --squash
   - https://stackoverflow.com/a/25387972/12023515
+
+## home-resources content
+ - http://home-resources/static/ (/var/www/static) => inspircd config + lirc config
+ - http://home-resources/alpine-packages/ (var/www/alpine-packages) => alpine packages
+ - vhosts configs vers studio, deploy, ui
+ - /home/mylife-home : mylife-home-studio, mylife-home-resources, mylife-home-ui
+ - /home/alpine-build : abuild keys, ssh keys, mylife-home-deploy + data
+
+## v1 cleanup
+ - home-resources
+ - dns *-old.apps.mti-team2.dyndns.org and home.mti-team2.dyndns.org
+ - portal *old
