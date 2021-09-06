@@ -90,7 +90,7 @@
 
 # Roadmap
 
-## Livrer irc-bridge + ui:
+## Livrer irc-bridge + ui: => OK
 
 - nouveau core
   - rpi-home-core new (rpi3)
