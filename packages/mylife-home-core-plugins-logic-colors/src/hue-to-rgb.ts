@@ -33,7 +33,7 @@ export class HueToRgb {
     this.compute();
   }
 
-  @m.state({ type: HUE })
+  @m.action({ type: HUE })
   setHue(arg: number) {
     this.hue = arg;
     this.compute();
