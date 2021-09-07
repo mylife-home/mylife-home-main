@@ -83,6 +83,11 @@
     "mylife-home-common": "^1.0.0",
     "mylife-home-core": "^1.0.0",
     "mylife-home-core-plugins-irc": "^1.0.0",
+    "mylife-home-core-plugins-logic-base": "^1.0.0",
+    "mylife-home-core-plugins-logic-colors": "^1.0.0",
+    "mylife-home-core-plugins-logic-selectors": "^1.0.0",
+    "mylife-home-core-plugins-logic-timers": "^1.0.0",
+    "mylife-home-core-plugins-ui-base": "^1.0.0",
     "mylife-home-ui": "^1.0.0",
     "mylife-home-studio": "^1.0.0"
   }

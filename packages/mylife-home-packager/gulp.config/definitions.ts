@@ -34,12 +34,13 @@ export const projects = {
     },
     version: getPackageVersion('mylife-home-core'),
     plugins: {
-      irc: {
-        ts: new TsBuild('mylife-home-core-plugins-irc'),
-        dev: new WebpackBuild('core', 'plugins-irc', 'dev'),
-        prod: new WebpackBuild('core', 'plugins-irc', 'prod'),
-        version: getPackageVersion('mylife-home-core-plugins-irc'),
-      }
+      // note: should infer that from packager/package.json dependencies
+      irc: buildCorePluginProjectConfiguration('irc'),
+      'logic-base': buildCorePluginProjectConfiguration('logic-base'),
+      'logic-colors': buildCorePluginProjectConfiguration('logic-colors'),
+      'logic-selectors': buildCorePluginProjectConfiguration('logic-selectors'),
+      'logic-timers': buildCorePluginProjectConfiguration('logic-timers'),
+      'ui-base': buildCorePluginProjectConfiguration('ui-base'),
       // other plugins
     }
   },
@@ -58,6 +59,15 @@ export const projects = {
   },
 };
 
+function buildCorePluginProjectConfiguration(name: string) {
+  return {
+    ts: new TsBuild(`mylife-home-core-plugins-${name}`),
+    dev: new WebpackBuild('core', `plugins-${name}`, 'dev'),
+    prod: new WebpackBuild('core', `plugins-${name}`, 'prod'),
+    version: getPackageVersion(`mylife-home-core-plugins-${name}`),
+  };
+}
+
 export const globs = {
   dist: {
     all: pathAsGlobs('dist'),
@@ -71,16 +81,23 @@ export const globs = {
   },
   core: {
     main: projects.core.ts.globs,
-    plugins: {
-      irc: projects.core.plugins.irc.ts.globs
-      // other plugins
-    }
+    plugins: buildCorePluginGlobs()
   },
   studio: {
     bin: projects.studio.ts.globs,
     client: packagePublicGlobs('mylife-home-studio')
   },
 };
+
+function buildCorePluginGlobs() {
+  const globs: { [plugin: string]: string[] } = {};
+
+  for(const [plugin, config] of Object.entries(projects.core.plugins)) {
+    globs[plugin] = config.ts.globs;
+  }
+
+  return globs;
+}
 
 function pathAsGlobs(part: string) {
   const basePath = path.resolve(path.join(__dirname, '..'));
