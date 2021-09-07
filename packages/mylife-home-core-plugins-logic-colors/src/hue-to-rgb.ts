@@ -39,7 +39,7 @@ export class HueToRgb {
     this.compute();
   }
 
-  @m.state({ type: PERCENT })
+  @m.action({ type: PERCENT })
   setBrightness(arg: number) {
     this.brightness = arg;
     this.compute();
