@@ -18,7 +18,7 @@ export class HueToRgb {
   @m.state({ type: PERCENT })
   blue: number;
 
-  @m.state({ type: HUE })
+  @m.state
   white: boolean = false;
 
   @m.state({ type: HUE })
