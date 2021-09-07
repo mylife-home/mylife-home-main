@@ -115,6 +115,12 @@
  - déploiement kube ui définitif
  - déploiement complet (sauf modules noyau et apps externes comme lirc) de core sur rpi
 
+## Migrer vpanel
+ - projet vpanel
+ - projet irc-bridge
+ - creer un projet avec les 2 fusionnés et livrer ce projet
+ - desactiver ancien vpanel
+
 ## Migrer absoluta
 
 car que sensor vers ui
