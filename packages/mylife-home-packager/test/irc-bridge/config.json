@@ -1,4 +1,5 @@
 {
+  "supportsBindings": true,
   "logging": {
     "console": true
   },
