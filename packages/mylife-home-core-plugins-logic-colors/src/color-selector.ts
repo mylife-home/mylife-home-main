@@ -41,20 +41,20 @@ export class ColorSelector {
   @m.state({ type: COLOR })
   color: number;
 
+  @m.action set0(arg: boolean) { this.setColor(0, arg); }
+  @m.action set1(arg: boolean) { this.setColor(1, arg); }
+  @m.action set2(arg: boolean) { this.setColor(2, arg); }
+  @m.action set3(arg: boolean) { this.setColor(3, arg); }
+  @m.action set4(arg: boolean) { this.setColor(4, arg); }
+  @m.action set5(arg: boolean) { this.setColor(5, arg); }
+  @m.action set6(arg: boolean) { this.setColor(6, arg); }
+  @m.action set7(arg: boolean) { this.setColor(7, arg); }
+  @m.action set8(arg: boolean) { this.setColor(8, arg); }
+  @m.action set9(arg: boolean) { this.setColor(9, arg); }
+
   private setColor(index: number, arg: boolean) {
     if (arg) {
       this.color = this.colors[index];
     }
   }
-
-  set0(arg: boolean) { this.setColor(0, arg); }
-  set1(arg: boolean) { this.setColor(1, arg); }
-  set2(arg: boolean) { this.setColor(2, arg); }
-  set3(arg: boolean) { this.setColor(3, arg); }
-  set4(arg: boolean) { this.setColor(4, arg); }
-  set5(arg: boolean) { this.setColor(5, arg); }
-  set6(arg: boolean) { this.setColor(6, arg); }
-  set7(arg: boolean) { this.setColor(7, arg); }
-  set8(arg: boolean) { this.setColor(8, arg); }
-  set9(arg: boolean) { this.setColor(9, arg); }
 };

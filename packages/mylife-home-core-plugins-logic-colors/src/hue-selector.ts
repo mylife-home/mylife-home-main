@@ -44,27 +44,28 @@ export class HueSelector {
   @m.state
   white: boolean = false;
 
-  private setHue(index: number, arg: boolean) {
-    if (arg) {
-      this.white = false;
-      this.hue = this.hues[index];
-    }
-  }
-
+  @m.action
   setWhite(arg: boolean) {
     if (arg) {
       this.white = true;
     }
   }
 
-  set0(arg: boolean) { this.setHue(0, arg); }
-  set1(arg: boolean) { this.setHue(1, arg); }
-  set2(arg: boolean) { this.setHue(2, arg); }
-  set3(arg: boolean) { this.setHue(3, arg); }
-  set4(arg: boolean) { this.setHue(4, arg); }
-  set5(arg: boolean) { this.setHue(5, arg); }
-  set6(arg: boolean) { this.setHue(6, arg); }
-  set7(arg: boolean) { this.setHue(7, arg); }
-  set8(arg: boolean) { this.setHue(8, arg); }
-  set9(arg: boolean) { this.setHue(9, arg); }
+  @m.action set0(arg: boolean) { this.setHue(0, arg); }
+  @m.action set1(arg: boolean) { this.setHue(1, arg); }
+  @m.action set2(arg: boolean) { this.setHue(2, arg); }
+  @m.action set3(arg: boolean) { this.setHue(3, arg); }
+  @m.action set4(arg: boolean) { this.setHue(4, arg); }
+  @m.action set5(arg: boolean) { this.setHue(5, arg); }
+  @m.action set6(arg: boolean) { this.setHue(6, arg); }
+  @m.action set7(arg: boolean) { this.setHue(7, arg); }
+  @m.action set8(arg: boolean) { this.setHue(8, arg); }
+  @m.action set9(arg: boolean) { this.setHue(9, arg); }
+
+  private setHue(index: number, arg: boolean) {
+    if (arg) {
+      this.white = false;
+      this.hue = this.hues[index];
+    }
+  }
 };
