@@ -7,10 +7,6 @@ class InputManager {
   private endWait: number = null;
   private lastDown: number = null;
 
-  constructor() {
-    this.lastDown = null;
-  }
-
   executeEvents() {
     console.log(`InputManager: execute events : '${this.eventStack}'`); // eslint-disable-line no-console
 
