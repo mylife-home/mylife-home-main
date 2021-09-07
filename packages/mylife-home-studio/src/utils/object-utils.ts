@@ -15,7 +15,3 @@ export function pick<V, K extends string>(object: V, ...keys: K[]): _Pick<V, K> 
 
   return ret;
 }
-
-
-
-
