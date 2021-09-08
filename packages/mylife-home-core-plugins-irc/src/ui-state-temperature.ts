@@ -18,17 +18,8 @@ export class UiStateTemperature extends BasePlugin {
   protected onStateChanged(name: string, value: string) {
     switch (name) {
       case 'value':
-        this.value = readTemperature(value);
+        this.value = encoding.readTemperature(value);
         break;
     }
   }
-}
-
-function readTemperature(raw: string) {
-  if (raw === null) {
-    return 0;
-  }
-
-  const intValue = encoding.readRange(raw);
-  return intValue / 10;
 }

@@ -13,3 +13,12 @@ export function readRange(raw: string): number {
 export function writeRange(value: number): string {
   return value.toString();
 }
+
+export function readTemperature(raw: string) {
+  if (raw === null) {
+    return 0;
+  }
+
+  const intValue = readRange(raw);
+  return intValue / 10;
+}
