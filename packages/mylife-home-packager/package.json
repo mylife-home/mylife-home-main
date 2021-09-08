@@ -10,13 +10,8 @@
     "url": "git+https://github.com/mylife-home/mylife-home-main.git"
   },
   "scripts": {
-    "__clean": "rm -rf dist",
-    "__build:prod": "webpack --config=webpack.config/cli.ts --env mode=prod --env wait",
-    "__build:dev": "webpack --config=webpack.config/cli.ts --env mode=dev --env wait",
-    "__webpack:studio": "webpack --watch --config=webpack.config/cli.ts --env mode=dev --env binary=studio --env part=client",
     "build-all:prod": "gulp build:prod:ui && gulp build:prod:core && gulp build:prod:studio",
     "build-all:dev": "gulp build:dev:ui && gulp build:dev:core && gulp build:dev:studio",
-    "build-all:docker": "gulp docker:build:ui && gulp docker:build:irc-bridge",
     "start:serve-dist": "http-server -c-1 ./dist",
     "start:irc-bridge": "node --trace-warnings dist/dev/core/bin.js --config=test/irc-bridge/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node --trace-warnings dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
