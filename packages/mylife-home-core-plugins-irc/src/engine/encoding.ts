@@ -15,10 +15,6 @@ export function writeRange(value: number): string {
 }
 
 export function readTemperature(raw: string) {
-  if (raw === null) {
-    return 0;
-  }
-
   const intValue = readRange(raw);
   return intValue / 10;
 }
