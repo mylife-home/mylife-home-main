@@ -1,0 +1,5923 @@
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-tv-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-steprelay2",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-volup",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "portail-open",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-volume",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-a-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-open",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-off-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-d-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-fenetre-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-volume",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb2-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-ui-playing",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arros-tmr",
+      "plugin": "logic-timers.smart-timer-binary",
+      "config": {
+        "initProgram": "o*-off",
+        "triggerProgram": "o0-on o3-on o4-on w-5m o4-off w-20m o0-off o3-off o1-on w-40m o1-off o2-on w-40m o*-off",
+        "cancelProgram": "o*-off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-lit-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-voldown",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdb-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "portail-close",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight1",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "garden-uitemp",
+      "plugin": "ui-base.ui-state-float",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-open-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-voldown",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-steprelay1",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch2-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton2",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-a-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-open",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch1-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-uitemp",
+      "plugin": "ui-base.ui-state-float",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-guirlande1-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-blue",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-c-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-off",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vaisselier-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-d-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-smart-input",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-lit-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-fenetre-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-switch",
+      "plugin": "logic-base.binary-to-pulse",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-off",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol-select",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 5,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-degmt-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-orange",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-fenetre-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "all-off",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb2-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-tv-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage5-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-main-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvsud-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-guirlande-lit-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch3-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-ui-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-next",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-switch",
+      "plugin": "logic-base.binary-to-pulse",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-tv-uiactive",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-cuisine-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-b-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvouest-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-cyan",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-switch",
+      "plugin": "logic-base.binary-to-pulse",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-off-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-switch",
+      "plugin": "logic-base.binary-to-pulse",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-white",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-next",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-purple",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-close-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-prev",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-smart-input",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-dressing-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-close-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb1-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol-select",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 5,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-garf-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb1-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-poele-uiactive",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-b-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-ui-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-button1",
+      "plugin": "logic-base.switch-to-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-yellow",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-b-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-poele-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-guirlande1-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage2-switch",
+      "plugin": "logic-base.binary-to-pulse",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-smart-input",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-running",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb1-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage3-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-entree-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-poele-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-selector",
+      "plugin": "logic-colors.color-selector",
+      "config": {
+        "color0": 16777215,
+        "color1": 255,
+        "color2": 65535,
+        "color3": 65280,
+        "color4": 16776960,
+        "color5": 16717056,
+        "color6": 16711680,
+        "color7": 16761035,
+        "color8": 16711935,
+        "color9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-pink",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-set40",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-state",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-smart-button",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore-ui-playing",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vaisselier-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-vr-close",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-prev",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-toggle",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-guirlande1-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1-selector",
+      "plugin": "logic-selectors.percent",
+      "config": {
+        "step": 0,
+        "value0": 0,
+        "value1": 20,
+        "value2": 40,
+        "value3": 60,
+        "value4": 80,
+        "value5": 100,
+        "value6": 0,
+        "value7": 0,
+        "value8": 0,
+        "value9": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-a-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-close",
+      "plugin": "logic-base.value-binary",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-vr-open-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage-timer-progress",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-c-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-button2",
+      "plugin": "logic-base.switch-to-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage1-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-uidisplay",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-vol0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vapeur-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arrosage4-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vapeur-uiactive",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vapeur-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uibutton1",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-chp-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-rgb-vaisselier-uiactive",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-c-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-uilight2",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-d-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine-set20",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-uilight",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-uilight",
+      "plugin": "ui-base.ui-state-percent",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb-volup",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-smart-input",
+      "plugin": "logic-selectors.smart-input",
+      "config": {
+        "triggers0": "s",
+        "triggers1": "ss l",
+        "triggers2": "",
+        "triggers3": ""
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-btop",
+      "plugin": "logic-base.binary-to-percent",
+      "config": {
+        "low": 0,
+        "high": 100
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-green",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt-set100",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3-set60",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdbp-ui",
+      "plugin": "ui-base.ui-state-bool",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-rgb2-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-uibutton",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp-set80",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-steprelay",
+      "plugin": "logic-base.step-relay",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "color-main-red",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleo-vol0",
+      "plugin": "ui-base.ui-button",
+      "config": {}
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-button2",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay2",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-uibutton2",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay2",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay2",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-button",
+      "sourceState": "value",
+      "targetComponent": "ch1-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "ard-rgb-vapeur",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vapeur-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ard-rgb-vapeur",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-a-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-a-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-a-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-a-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-a-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-smart-input",
+      "sourceState": "output1",
+      "targetComponent": "rdc-remote-a-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-main-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch3-main-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-button",
+      "sourceState": "value",
+      "targetComponent": "ch3-main-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch3-main-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-dressing-uibutton",
+      "sourceState": "value",
+      "targetComponent": "chp-dressing-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-open-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-vr-open",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "ard-rgb-tv",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-tv-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ard-rgb-tv",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-ui-toggle",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "pause"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-next",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "next"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-prev",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "prev"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol-select",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "setVolume"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "mpd-sdb",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-btop",
+      "sourceState": "value",
+      "targetComponent": "hall-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-uibutton",
+      "sourceState": "value",
+      "targetComponent": "hall-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "hall-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "hall-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-button",
+      "sourceState": "value",
+      "targetComponent": "sdb-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-btop",
+      "sourceState": "value",
+      "targetComponent": "ch2-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-steprelay",
+      "sourceState": "value",
+      "targetComponent": "repas-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-fenetre-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-fenetre-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-fenetre-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-steprelay",
+      "sourceState": "value",
+      "targetComponent": "couloir-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage-timer-toggle",
+      "sourceState": "value",
+      "targetComponent": "arros-tmr",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-btop",
+      "sourceState": "value",
+      "targetComponent": "salon-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage3-switch",
+      "sourceState": "on",
+      "targetComponent": "arrosage3-steprelay",
+      "targetAction": "on"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage3-switch",
+      "sourceState": "off",
+      "targetComponent": "arrosage3-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage3-uibutton",
+      "sourceState": "value",
+      "targetComponent": "arrosage3-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-lit-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "ch1-guirlande-lit-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-lit-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-lit-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "degmt-btop",
+      "sourceState": "value",
+      "targetComponent": "degmt-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage5-switch",
+      "sourceState": "off",
+      "targetComponent": "arrosage5-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage5-uibutton",
+      "sourceState": "value",
+      "targetComponent": "arrosage5-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage5-switch",
+      "sourceState": "on",
+      "targetComponent": "arrosage5-steprelay",
+      "targetAction": "on"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-poele-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ard-rgb-poele",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "ard-rgb-poele",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "wc-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "wc-button",
+      "sourceState": "value",
+      "targetComponent": "wc-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "wc-uibutton",
+      "sourceState": "value",
+      "targetComponent": "wc-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-garden4-temp",
+      "sourceState": "value",
+      "targetComponent": "garden-uitemp",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-uibutton1",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay1",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay1",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-button1",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-steprelay1",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdbp-uibutton",
+      "sourceState": "value",
+      "targetComponent": "sdbp-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdbp-button",
+      "sourceState": "value",
+      "targetComponent": "sdbp-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage3-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-arrosage3",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "portail-close",
+      "sourceState": "value",
+      "targetComponent": "portail",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "portail-open",
+      "sourceState": "value",
+      "targetComponent": "portail",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-button",
+      "sourceState": "value",
+      "targetComponent": "couloir-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "degmt-steprelay",
+      "sourceState": "value",
+      "targetComponent": "degmt-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open-uibutton",
+      "sourceState": "value",
+      "targetComponent": "r1-vr-open",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-dressing-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "chp-dressing-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "degmt-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "degmt-button",
+      "sourceState": "value",
+      "targetComponent": "degmt-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "degmt-uibutton",
+      "sourceState": "value",
+      "targetComponent": "degmt-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "escaliers-steprelay",
+      "sourceState": "value",
+      "targetComponent": "escaliers-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-hallbox-temp",
+      "sourceState": "value",
+      "targetComponent": "hall-uitemp",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-guirlande1-uibutton",
+      "sourceState": "value",
+      "targetComponent": "out-guirlande1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-smart-input",
+      "sourceState": "output1",
+      "targetComponent": "out-guirlande1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage4-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-arrosage5",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-c-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-c-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-c-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-c-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-c-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "r1-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off-uibutton",
+      "sourceState": "value",
+      "targetComponent": "r1-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "all-off",
+      "sourceState": "value",
+      "targetComponent": "r1-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vaisselier-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vaisselier-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vaisselier-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage1-switch",
+      "sourceState": "off",
+      "targetComponent": "arrosage1-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage1-switch",
+      "sourceState": "on",
+      "targetComponent": "arrosage1-steprelay",
+      "targetAction": "on"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage1-uibutton",
+      "sourceState": "value",
+      "targetComponent": "arrosage1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-uibutton",
+      "sourceState": "value",
+      "targetComponent": "terrasse-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-button",
+      "sourceState": "value",
+      "targetComponent": "terrasse-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-steprelay2",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-light2",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-a-steprelay",
+      "sourceState": "value",
+      "targetComponent": "smart-plug2",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vaisselier-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ard-rgb-vaisselier",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "ard-rgb-vaisselier",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "ch1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch1-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "output4",
+      "targetComponent": "arrosage5-switch",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-btop",
+      "sourceState": "value",
+      "targetComponent": "repas-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "all-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "rdc-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol40",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol60",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol80",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol100",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore",
+      "sourceState": "volume",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-voldown",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "down"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-volup",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "up"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol0",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol20",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleo-vol-select",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "porche-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-uibutton",
+      "sourceState": "value",
+      "targetComponent": "porche-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "all-off",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-uibutton",
+      "sourceState": "value",
+      "targetComponent": "repas-uibutton",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-tv-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-tv-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-tv-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-smart-input",
+      "sourceState": "output0",
+      "targetComponent": "terrasse-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-arrosage1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "output0",
+      "targetComponent": "arrosage1-switch",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-chp",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-chp",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-chp",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-chp",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdbp-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "sdbp-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-steprelay",
+      "sourceState": "value",
+      "targetComponent": "hall-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-steprelay",
+      "sourceState": "value",
+      "targetComponent": "salon-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "output2",
+      "targetComponent": "arrosage3-switch",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-smart-input",
+      "sourceState": "output0",
+      "targetComponent": "cuisine-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-a-on",
+      "sourceState": "value",
+      "targetComponent": "cuisine-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "cuisine-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-uibutton",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "output3",
+      "targetComponent": "arrosage4-switch",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-button",
+      "sourceState": "value",
+      "targetComponent": "ch2-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-smart-input",
+      "sourceState": "output0",
+      "targetComponent": "repas-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "repas-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-c-on",
+      "sourceState": "value",
+      "targetComponent": "repas-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-uibutton",
+      "sourceState": "value",
+      "targetComponent": "repas-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-uibutton",
+      "sourceState": "value",
+      "targetComponent": "salon-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "salon-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-smart-input",
+      "sourceState": "output0",
+      "targetComponent": "salon-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-b-on",
+      "sourceState": "value",
+      "targetComponent": "salon-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-smart-button",
+      "sourceState": "output1",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore-ui-toggle",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore-next",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "next"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore-prev",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "prev"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleo-vol-select",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "setVolume"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "mpd-eleonore",
+      "targetAction": "pause"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdbp-steprelay",
+      "sourceState": "value",
+      "targetComponent": "sdbp-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-garden1-light1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-btop",
+      "sourceState": "value",
+      "targetComponent": "cuisine-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-steprelay",
+      "sourceState": "value",
+      "targetComponent": "porche-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "escaliers-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "escaliers-button",
+      "sourceState": "value",
+      "targetComponent": "escaliers-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "escaliers-uibutton",
+      "sourceState": "value",
+      "targetComponent": "escaliers-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-button",
+      "sourceState": "value",
+      "targetComponent": "repas-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-dressing-steprelay",
+      "sourceState": "value",
+      "targetComponent": "chp-dressing-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-b-steprelay",
+      "sourceState": "value",
+      "targetComponent": "smart-plug3",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol20",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol40",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol0",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol60",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol80",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-vol100",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb",
+      "sourceState": "volume",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-volup",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "up"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb-voldown",
+      "sourceState": "value",
+      "targetComponent": "mpd-sdb-vol-select",
+      "targetAction": "down"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage2-switch",
+      "sourceState": "on",
+      "targetComponent": "arrosage2-steprelay",
+      "targetAction": "on"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage2-switch",
+      "sourceState": "off",
+      "targetComponent": "arrosage2-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage2-uibutton",
+      "sourceState": "value",
+      "targetComponent": "arrosage2-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage2-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-arrosage2",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-uibutton",
+      "sourceState": "value",
+      "targetComponent": "sdb-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "sdb-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "sdb-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-dressing-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-dressing-button",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb1-uibutton",
+      "sourceState": "value",
+      "targetComponent": "out-rgb1-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage5-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-arrosage4",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-switch1",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-button1",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-steprelay",
+      "sourceState": "value",
+      "targetComponent": "cuisine-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-smart-input",
+      "sourceState": "output1",
+      "targetComponent": "rdc-remote-b-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-b-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-b-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-b-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-b-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-b-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-poele-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-poele-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-poele-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-button",
+      "sourceState": "value",
+      "targetComponent": "porche-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "output1",
+      "targetComponent": "arrosage2-switch",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-steprelay1",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-light1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-button",
+      "sourceState": "value",
+      "targetComponent": "salon-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-btop",
+      "sourceState": "value",
+      "targetComponent": "terrasse-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-dressing-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "out-garden4-rgb2",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb2-steprelay",
+      "sourceState": "value",
+      "targetComponent": "out-garden4-rgb2",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage4-switch",
+      "sourceState": "on",
+      "targetComponent": "arrosage4-steprelay",
+      "targetAction": "on"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage4-uibutton",
+      "sourceState": "value",
+      "targetComponent": "arrosage4-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage4-switch",
+      "sourceState": "off",
+      "targetComponent": "arrosage4-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch2-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-orange",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-red",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set6"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-pink",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set7"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-white",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-purple",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set8"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-blue",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-cyan",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-green",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-yellow",
+      "sourceState": "value",
+      "targetComponent": "color-main-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "color-main-selector",
+      "sourceState": "color",
+      "targetComponent": "out-garden4-rgb1",
+      "targetAction": "setColor"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "out-garden4-rgb1",
+      "targetAction": "setActive"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch1-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-button",
+      "sourceState": "value",
+      "targetComponent": "hall-smart-button",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-dressing-btop",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "couloir-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "couloir-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-uibutton",
+      "sourceState": "value",
+      "targetComponent": "couloir-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-close-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-vr-close",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "all-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-vr-close",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "ch2-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-off",
+      "sourceState": "value",
+      "targetComponent": "ch2-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-uibutton",
+      "sourceState": "value",
+      "targetComponent": "ch2-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set40",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set20",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set0",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set100",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set5"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set80",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set4"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1-set60",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-selector",
+      "targetAction": "set3"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "all-off",
+      "sourceState": "value",
+      "targetComponent": "r1-vr-close",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "r1-vr-close-uibutton",
+      "sourceState": "value",
+      "targetComponent": "r1-vr-close",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-switch2",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-button2",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-btop",
+      "sourceState": "value",
+      "targetComponent": "ch1-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "wc-steprelay",
+      "sourceState": "value",
+      "targetComponent": "wc-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-guirlande1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "relay-jardin-guirlande1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vapeur-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vapeur-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vapeur-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-btop",
+      "sourceState": "value",
+      "targetComponent": "porche-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-button-d-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-d-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-d-uibutton",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-d-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-off",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-d-steprelay",
+      "targetAction": "off"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-uibutton",
+      "sourceState": "value",
+      "targetComponent": "cuisine-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-button",
+      "sourceState": "value",
+      "targetComponent": "cuisine-smart-input",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-steprelay",
+      "sourceState": "value",
+      "targetComponent": "terrasse-btop",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-open",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud",
+      "targetAction": "doOpen"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-vr-close",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud",
+      "targetAction": "doClose"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-toggle",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud",
+      "targetAction": "toggle"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud-selector",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-main-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch3-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-steprelay",
+      "sourceState": "value",
+      "targetComponent": "sdb-light",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb2-uibutton",
+      "sourceState": "value",
+      "targetComponent": "out-rgb2-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-smart-button",
+      "sourceState": "output0",
+      "targetComponent": "chp-bed-steprelay",
+      "targetAction": "action"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-lit-steprelay",
+      "sourceState": "value",
+      "targetComponent": "smart-plug1",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-fenetre-steprelay",
+      "sourceState": "value",
+      "targetComponent": "smart-plug1",
+      "targetAction": "set2"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "escaliers-steprelay",
+      "sourceState": "value",
+      "targetComponent": "escaliers-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-steprelay",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-d-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-d-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb",
+      "sourceState": "playing",
+      "targetComponent": "mpd-sdb-ui-playing",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage3-steprelay",
+      "sourceState": "value",
+      "targetComponent": "arrosage3-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-sdb",
+      "sourceState": "active",
+      "targetComponent": "ap-sdb-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "couloir-steprelay",
+      "sourceState": "value",
+      "targetComponent": "couloir-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage2-steprelay",
+      "sourceState": "value",
+      "targetComponent": "arrosage2-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage5-steprelay",
+      "sourceState": "value",
+      "targetComponent": "arrosage5-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-steprelay1",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-uilight1",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-ch2",
+      "sourceState": "active",
+      "targetComponent": "ap-ch2-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-a-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-a-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-ch1",
+      "sourceState": "active",
+      "targetComponent": "ap-ch1-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-degmt",
+      "sourceState": "active",
+      "targetComponent": "ap-degmt-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-fenetre-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-fenetre-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdbp-steprelay",
+      "sourceState": "value",
+      "targetComponent": "sdbp-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb2-steprelay",
+      "sourceState": "value",
+      "targetComponent": "out-rgb2-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-main-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch3-main-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-bvsud",
+      "sourceState": "active",
+      "targetComponent": "ap-bvsud-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-guirlande-lit-steprelay",
+      "sourceState": "value",
+      "targetComponent": "ch1-guirlande-lit-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-ch3",
+      "sourceState": "active",
+      "targetComponent": "ap-ch3-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-tv-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-tv-uiactive",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-cuisine",
+      "sourceState": "active",
+      "targetComponent": "ap-cuisine-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-b-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-b-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-bvouest",
+      "sourceState": "active",
+      "targetComponent": "ap-bvouest-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "wc-steprelay",
+      "sourceState": "value",
+      "targetComponent": "wc-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-rgb1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "out-rgb1-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-garf",
+      "sourceState": "active",
+      "targetComponent": "ap-garf-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-poele-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-poele-uiactive",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "running",
+      "targetComponent": "arrosage-timer-running",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-entree",
+      "sourceState": "active",
+      "targetComponent": "ap-entree-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore",
+      "sourceState": "playing",
+      "targetComponent": "mpd-eleonore-ui-playing",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "out-guirlande1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "out-guirlande1-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage1-steprelay",
+      "sourceState": "value",
+      "targetComponent": "arrosage1-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arrosage4-steprelay",
+      "sourceState": "value",
+      "targetComponent": "arrosage4-uidisplay",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vapeur-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vapeur-uiactive",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-chp",
+      "sourceState": "active",
+      "targetComponent": "ap-chp-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-rgb-vaisselier-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-rgb-vaisselier-uiactive",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "rdc-remote-c-steprelay",
+      "sourceState": "value",
+      "targetComponent": "rdc-remote-c-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-bed-steprelay2",
+      "sourceState": "value",
+      "targetComponent": "chp-bed-uilight2",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "sdb-steprelay",
+      "sourceState": "value",
+      "targetComponent": "sdb-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ap-sdbp",
+      "sourceState": "active",
+      "targetComponent": "ap-sdbp-ui",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-eleonore",
+      "sourceState": "volume",
+      "targetComponent": "mpd-eleonore-volume",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvsud",
+      "sourceState": "value",
+      "targetComponent": "vr-bvsud-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "cuisine-btop",
+      "sourceState": "value",
+      "targetComponent": "cuisine-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "hall-btop",
+      "sourceState": "value",
+      "targetComponent": "hall-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mpd-sdb",
+      "sourceState": "volume",
+      "targetComponent": "mpd-sdb-volume",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-degmt",
+      "sourceState": "value",
+      "targetComponent": "vr-degmt-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-chp",
+      "sourceState": "value",
+      "targetComponent": "vr-chp-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch1-btop",
+      "sourceState": "value",
+      "targetComponent": "ch1-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch2-btop",
+      "sourceState": "value",
+      "targetComponent": "ch2-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "chp-dressing-btop",
+      "sourceState": "value",
+      "targetComponent": "chp-dressing-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch3",
+      "sourceState": "value",
+      "targetComponent": "vr-ch3-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "repas-btop",
+      "sourceState": "value",
+      "targetComponent": "repas-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "ch3-dressing-btop",
+      "sourceState": "value",
+      "targetComponent": "ch3-dressing-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-cuisine",
+      "sourceState": "value",
+      "targetComponent": "vr-cuisine-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch2",
+      "sourceState": "value",
+      "targetComponent": "vr-ch2-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-ch1",
+      "sourceState": "value",
+      "targetComponent": "vr-ch1-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "vr-bvouest",
+      "sourceState": "value",
+      "targetComponent": "vr-bvouest-state",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "arros-tmr",
+      "sourceState": "progress",
+      "targetComponent": "arrosage-timer-progress",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "degmt-btop",
+      "sourceState": "value",
+      "targetComponent": "degmt-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "terrasse-btop",
+      "sourceState": "value",
+      "targetComponent": "terrasse-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "porche-btop",
+      "sourceState": "value",
+      "targetComponent": "porche-uilight",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "salon-btop",
+      "sourceState": "value",
+      "targetComponent": "salon-uilight",
+      "targetAction": "setValue"
+    }
+  }
+]

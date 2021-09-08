@@ -8,6 +8,6 @@
   },
   "store": {
     "type": "fs",
-    "path": "test/irc-bridge/store.json"
+    "path": "test/core/store.json"
   }
 }
