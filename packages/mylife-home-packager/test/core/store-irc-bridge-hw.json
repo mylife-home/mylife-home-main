@@ -1,0 +1,1290 @@
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-a-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_a_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ard-rgb-vapeur",
+      "plugin": "irc.hw-arduino-home-irc-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ard_rgb_vapeur"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch1",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_ch1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "terrasse_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ard-rgb-tv",
+      "plugin": "irc.hw-arduino-home-irc-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ard_rgb_tv"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-sdb",
+      "plugin": "irc.hw-mpd-mpd",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "mpd_sdb"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "hall_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "sdbp_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-degmt",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_degmt"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "av-gar",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "av_gar"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-cuisine",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_cuisine"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-switch1",
+      "plugin": "irc.hw-sysfs-gpio-in",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "chp_bed_switch1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch2_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "couloir_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-c-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_c_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "couloir-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "couloir_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "salon_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-d-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_d_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-b-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_b_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "escaliers_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "degmt_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "sdb_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch2-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch2_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-b-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_b_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ard-rgb-poele",
+      "plugin": "irc.hw-arduino-home-irc-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ard_rgb_poele"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-cuisine",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_cuisine"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "salon-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "salon_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-d-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_d_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch1",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_ch1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-a-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_a_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-arrosage3",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_arrosage3"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "portail",
+      "plugin": "irc.hw-tahoma-sliding-gate",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "portail"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-d-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_d_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-garf",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_garf"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "escaliers-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "escaliers_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-d-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_d_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvouest",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_bvouest"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "av-salon",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "av_salon"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-arrosage5",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_arrosage5"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-a-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_a_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-d-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_d_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-switch2",
+      "plugin": "irc.hw-sysfs-gpio-in",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "chp_bed_switch2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-light2",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "chp_bed_light2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-degmt",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_degmt"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "smart-plug2",
+      "plugin": "irc.hw-broadlink-sp3",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "smart_plug2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-chp",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_chp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "degmt-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "degmt_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ard-rgb-vaisselier",
+      "plugin": "irc.hw-arduino-home-irc-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ard_rgb_vaisselier"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-b-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_b_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-b-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_b_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "repas_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-b-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_b_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-d-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_d_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "absoluta",
+      "plugin": "irc.hw-absoluta-imap-box",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "absoluta"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "repas-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "repas_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdbp",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_sdbp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-arrosage1",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_arrosage1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch2",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_ch2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-hallbox-temp",
+      "plugin": "irc.hw-sensors-temperature",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_hallbox_temp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-entree",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_entree"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-chp",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_chp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-c-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_c_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "tahoma",
+      "plugin": "irc.hw-tahoma-box",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "tahoma"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-c-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_c_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_dressing_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "wc_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mpd-eleonore",
+      "plugin": "irc.hw-mpd-mpd",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "mpd_eleonore"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdbp-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "sdbp_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-garden1-light1",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_garden1_light1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "porche_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "cuisine_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "smart-plug3",
+      "plugin": "irc.hw-broadlink-sp3",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "smart_plug3"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-a-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_a_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-a-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_a_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-a-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_a_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-d-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_d_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-arrosage2",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_arrosage2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvouest",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_bvouest"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "cuisine-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "cuisine_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-d-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_d_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "hall-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "hall_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-arrosage4",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_arrosage4"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-c-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_c_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch3",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_ch3"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "av-escalier",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "av_escalier"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-c-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_c_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-sdb",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_sdb"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "chp-bed-light1",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "chp_bed_light1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-socket-a-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_socket_a_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "terrasse-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "terrasse_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-ch3",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_ch3"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-b-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_b_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-garden4-rgb2",
+      "plugin": "irc.hw-sysfs-pwm-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "out_garden4_rgb2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-garden4-rgb1",
+      "plugin": "irc.hw-sysfs-pwm-rgb",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "out_garden4_rgb1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-dressing-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_dressing_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-ch2",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_ch2"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-bvsud",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_bvsud"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-b-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_b_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch1_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "wc-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "wc_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "relay-jardin-guirlande1",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "relay_jardin_guirlande1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-c-on",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_c_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "out-garden4-temp",
+      "plugin": "irc.hw-sensors-temperature",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "out_garden4_temp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ap-garp",
+      "plugin": "irc.hw-absoluta-zone",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ap_garp"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "r1-remote-button-a-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "r1_remote_button_a_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "porche-light",
+      "plugin": "irc.hw-sysfs-ac-dimmer",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "porche_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch1-button",
+      "plugin": "irc.hw-sysfs-ac-button",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch1_button"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-c-on",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_c_on"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "arduino",
+      "plugin": "irc.hw-arduino-home-irc-agent",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "arduino"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-socket-c-off",
+      "plugin": "irc.hw-lirc-send",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_socket_c_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "vr-bvsud",
+      "plugin": "irc.hw-tahoma-roller-shutter",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "vr_bvsud"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "ch3-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "ch3_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "sdb-light",
+      "plugin": "irc.hw-sysfs-gpio-out",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "sdb_light"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "rdc-remote-button-b-off",
+      "plugin": "irc.hw-lirc-receive",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "rdc_remote_button_b_off"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "smart-plug1",
+      "plugin": "irc.hw-broadlink-mp1",
+      "config": {
+        "networkKey": "home",
+        "ircComponent": "smart_plug1"
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "irc-home",
+      "plugin": "irc.network",
+      "config": {
+        "networkKey": "home",
+        "server": "rpi2-home-core",
+        "channel": "mylife-core"
+      }
+    }
+  }
+]
