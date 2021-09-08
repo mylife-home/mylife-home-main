@@ -173,7 +173,7 @@ const publishStudio = series(
 
 // Testing images
 const dockerBuildUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui:testing' });
-const dockerBuildUIrcBridge = createDockerTask({ config: 'docker/irc-bridge', binaries: 'dist/prod/core', imageTag: 'mylife-home-core-irc-bridge:testing' });
+const dockerBuildCore = createDockerTask({ config: 'docker/core', binaries: 'dist/prod/core', imageTag: 'mylife-home-core:testing' });
 const dockerBuildStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: 'mylife-home-studio:testing' });
 
 export = {
@@ -199,7 +199,7 @@ export = {
   'publish:studio': publishStudio,
 
   // Docker images for testing purposes
-  'docker:build:irc-bridge-testing': dockerBuildUIrcBridge,
+  'docker:build:core-testing': dockerBuildCore,
   'docker:build:ui-testing': dockerBuildUi,
   'docker:build:studio-testing': dockerBuildStudio,
 
