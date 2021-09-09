@@ -118,8 +118,8 @@
 ## Migrer vpanel
 
 - Preparation
-  - Préparer livrable et nouvelle image main
   - Tester timers arrosage sur arch-desktop
+  - Préparer livrable et nouvelle image main
   - Renommer ancien projet
   - Préparer nouveau projet avec Logic + hw bridge
 
