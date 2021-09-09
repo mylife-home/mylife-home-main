@@ -20,7 +20,7 @@ export default abstract class Program<Value> {
   private totalWait: number;
 
   private currentStepIndex: number = -1;
-  private startTime: number = null;
+  private startTime: bigint = null;
   private currentProgressTimer: NodeJS.Timeout;
 
   constructor(private readonly source: string, private readonly canWait: boolean) {
@@ -77,7 +77,7 @@ export default abstract class Program<Value> {
 
   run() {
     this.currentStepIndex = -1;
-    this.startTime = clock();
+    this.startTime = process.hrtime.bigint();
 
     this.executeStep();
     this.executeProgress();
@@ -92,7 +92,7 @@ export default abstract class Program<Value> {
       return;
     }
 
-    const progressTime = clock() - this.startTime;
+    const progressTime = Number(process.hrtime.bigint() - this.startTime) / 1e6;
     const progress = Math.round((progressTime / this.totalWait) * 100);
     this.setProgress(progress);
 
@@ -217,9 +217,4 @@ class SetAllOutputsStep<Value> extends Step {
   interrupt() {
     throw new Error('Cannot interrupt sync step');
   }
-}
-
-function clock() {
-  const hrtime = process.hrtime();
-  return hrtime[0] * 1e6 + hrtime[1] / 1e3;
 }
