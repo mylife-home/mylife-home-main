@@ -27,7 +27,7 @@ export class ComponentManager {
 
     await this.store.load();
 
-    if (this.supportsBindings && this.store.hasBindings()) {
+    if (!this.supportsBindings && this.store.hasBindings()) {
       throw new Error('Store has binding but configuration does not activate its support');
     }
 
