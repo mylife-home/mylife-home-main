@@ -95,7 +95,7 @@
 ## Livrer irc-bridge + ui: => OK
 
 - nouveau core
-  - rpi-home-core new (rpi3)
+  - rpi-home-main (rpi4)
   - creation du projet core avec juste les composants irc-bridge
   - livraison avec nouveau deploy  
   - nouvelle image alpine
