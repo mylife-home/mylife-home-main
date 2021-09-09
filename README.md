@@ -135,6 +135,8 @@
   - Pm2 start
   - Lbu commit
 
+- mettre rpi-home-main + mosquitto dans nagios
+
 ## Migrer absoluta
 
 car que sensor vers ui
