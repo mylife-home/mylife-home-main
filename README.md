@@ -116,10 +116,24 @@
  - déploiement complet (sauf modules noyau et apps externes comme lirc) de core sur rpi
 
 ## Migrer vpanel
- - projet vpanel
- - projet irc-bridge
- - creer un projet avec les 2 fusionnés et livrer ce projet
- - desactiver ancien vpanel
+
+- Preparation
+  - Préparer livrable et nouvelle image main
+  - Tester timers arrosage sur arch-desktop
+  - Renommer ancien projet
+  - Préparer nouveau projet avec Logic + hw bridge
+
+- Livrer:
+  - Pm2 stop sur core
+  - Lbu commit
+  - Déployer nouveau projet en direct + reboot pour tester persistance
+  - Préparer nouvelle image avec nouveau projet si ok
+  - MAJ progress dans projet UI (mobile+desktop ext): "running" au lieu de "running === 'on'"
+
+- Si retour arrière:
+  - Relivrer ancien projet
+  - Pm2 start
+  - Lbu commit
 
 ## Migrer absoluta
 
