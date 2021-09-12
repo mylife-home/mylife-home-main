@@ -147,8 +147,16 @@ car que sensor vers ui
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - bugs: apparemment les x,y des composants se sont pas toujours des valeurs entieres
+  - validation
+    - Vérifier que les composants externes existent bien (avec bon plugin etc)
+    - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
+    - Vérifier qu'on peut déployer les bindings, et faire une erreur de validation plutot qu'à l'execution
 - setup gitconvex
    - delete src/services/project-manager/old-git
+
+## nagios
+- mettre rpi-home-main + mosquitto dans nagios
+- pouvoir monitorer les instances connectees ?
 
 # Notes
 
