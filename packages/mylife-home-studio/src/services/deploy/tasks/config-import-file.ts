@@ -21,6 +21,6 @@ export const execute: TaskImplementation = async (context, parameters) => {
   dir.pop();
 
   const content = await fs.readFile(fullName, 'utf8');
-  vfs.mkdirp(context.root, dir);
-  vfs.writeText(context.root, parts, content);
+  vfs.mkdirp(context.config, dir);
+  vfs.writeText(context.config, parts, content);
 };
