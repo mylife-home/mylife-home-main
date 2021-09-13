@@ -143,6 +143,11 @@ car que sensor vers ui
 
 # TODO
 
+## common
+- monitoring nagios: 2 choix
+  - mettre un RPC et faire du ping-pong (test vraiment la reactivite du service)
+  - voir comment check_mqtt pourrait lire des valeurs de xxx/online (modifier protocol pour les int/bool?)
+
 ## studio
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
@@ -154,10 +159,6 @@ car que sensor vers ui
 - setup gitconvex
    - delete src/services/project-manager/old-git
 
-## nagios
-- mettre rpi-home-main + mosquitto dans nagios
-- pouvoir monitorer les instances connectees ?
-
 # Notes
 
 ## git
@@ -166,6 +167,10 @@ car que sensor vers ui
   - https://www.npmjs.com/package/diff
 - merge --squash
   - https://stackoverflow.com/a/25387972/12023515
+- shell with ssh key:
+```
+GIT_SSH_COMMAND='ssh -i /ssh_key' git *
+```
 
 ## home-resources content
  - http://home-resources/static/ (/var/www/static) => inspircd config + lirc config
