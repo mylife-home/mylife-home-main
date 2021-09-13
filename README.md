@@ -143,11 +143,6 @@ car que sensor vers ui
 
 # TODO
 
-## common
-- monitoring nagios: 2 choix
-  - mettre un RPC et faire du ping-pong (test vraiment la reactivite du service)
-  - voir comment check_mqtt pourrait lire des valeurs de xxx/online (modifier protocol pour les int/bool?)
-
 ## studio
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
