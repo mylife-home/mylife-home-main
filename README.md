@@ -115,7 +115,7 @@
  - déploiement kube ui définitif
  - déploiement complet (sauf modules noyau et apps externes comme lirc) de core sur rpi
 
-## Migrer vpanel
+## Migrer vpanel => OK
 
 - Preparation
   - Tester timers arrosage sur arch-desktop
