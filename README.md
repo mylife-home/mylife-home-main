@@ -151,6 +151,11 @@ car que sensor vers ui
     - Vérifier que les composants externes existent bien (avec bon plugin etc)
     - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
     - Vérifier qu'on peut déployer les bindings, et faire une erreur de validation plutot qu'à l'execution
+  - deploy en ligne
+    - augmenter le timeout de call
+    - ajouter un popup bloquant de livraison en cours
+    - si possible ajouter un progress
+
 - setup gitconvex
    - delete src/services/project-manager/old-git
 
