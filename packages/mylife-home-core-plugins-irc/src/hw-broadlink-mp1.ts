@@ -52,16 +52,16 @@ export class HwBroadlinkMp1 extends BasePlugin {
       case 'online':
         this.online = value === null ? false : encoding.readBool(value);
         break;
-      case 'output1':
+      case 'o1':
         this.output1 = value === null ? false : encoding.readBool(value);
         break;
-      case 'output2':
+      case 'o2':
         this.output2 = value === null ? false : encoding.readBool(value);
         break;
-      case 'output3':
+      case 'o3':
         this.output3 = value === null ? false : encoding.readBool(value);
         break;
-      case 'output4':
+      case 'o4':
         this.output4 = value === null ? false : encoding.readBool(value);
         break;
     }
