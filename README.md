@@ -146,7 +146,9 @@ car que sensor vers ui
 ## studio
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
-  - bugs: apparemment les x,y des composants se sont pas toujours des valeurs entieres
+  - bugs:
+    - apparemment les x,y des composants se sont pas toujours des valeurs entieres
+    - quand on accede depuis "quick access" et on modifie une config, les bindings sautent, puis ce n'est pas sauvegarde
   - validation
     - Vérifier que les composants externes existent bien (avec bon plugin etc)
     - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
