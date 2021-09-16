@@ -36,7 +36,7 @@ export class Connection extends EventEmitter {
   private readonly options: ImapFlowOptions;
   private client: ImapFlow;
 
-  private pendingOpen: Promise<boolean>;
+  private pendingOpen: boolean;
   private pendingClose: boolean;
 
   constructor(settings: ConnectionSettings) {
@@ -55,15 +55,10 @@ export class Connection extends EventEmitter {
     this.beginOpen();
   }
 
-  async close() {
+  close() {
     this.pendingClose = true;
     (this.client as unknown as Closable).close();
     this.client = null;
-
-    // wait that pending connect terminate
-    if (this.pendingOpen) {
-      await this.pendingOpen;
-    }
   }
 
   private async beginOpen() {
@@ -74,13 +69,11 @@ export class Connection extends EventEmitter {
 
     // try to connect until close or until success
     while (true) {
-      const promise = this.safeOpen();
+      this.pendingOpen = true;
+      const result = await this.safeOpen();
+      this.pendingOpen = false;
 
-      this.pendingOpen = promise;
-      await promise;
-      this.pendingOpen = null;
-
-      if (promise || this.pendingClose) {
+      if (result || this.pendingClose) {
         return;
       }
     }
