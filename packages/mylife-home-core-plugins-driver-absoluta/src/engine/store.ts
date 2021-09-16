@@ -7,15 +7,42 @@ export declare interface Store extends EventEmitter {
   on(event: 'changed', listener: (label: string, active: boolean) => void): this;
   off(event: 'changed', listener: (label: string, active: boolean) => void): this;
   once(event: 'changed', listener: (label: string, active: boolean) => void): this;
+
+  on(event: 'onlineChanged', listener: (online: boolean) => void): this;
+  off(event: 'onlineChanged', listener: (online: boolean) => void): this;
+  once(event: 'onlineChanged', listener: (online: boolean) => void): this;
 }
 
 export class Store extends EventEmitter {
+  private _online = false;
   private readonly values = new Map<string, boolean>();
 
   constructor() {
     super();
 
     this.setMaxListeners(100); // each zone adds listener
+  }
+
+  setOnline(value: boolean) {
+    if (this._online === value) {
+      return;
+    }
+
+    this._online = value;
+    this.emit('onlineChanged', value);
+
+    if (!value) {
+      // Going offline: set all active to false
+      for (const [label, value] of this.values.entries()) {
+        if (value) {
+          this.setActive(label, false);
+        }
+      }
+    }
+  }
+
+  get online() {
+    return this._online;
   }
 
   setActive(label: string, active: boolean) {
