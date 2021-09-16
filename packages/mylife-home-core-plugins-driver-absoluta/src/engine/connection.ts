@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { ImapFlowOptions, ImapFlow } from 'imapflow';
 import { logger } from 'mylife-home-common';
 
@@ -17,7 +18,21 @@ interface Closable {
   close(): void;
 }
 
-export default class Connection {
+export declare interface Connection extends EventEmitter {
+  on(event: 'connected', listener: () => void): this;
+  off(event: 'connected', listener: () => void): this;
+  once(event: 'connected', listener: () => void): this;
+
+  on(event: 'disconnected', listener: () => void): this;
+  off(event: 'disconnected', listener: () => void): this;
+  once(event: 'disconnected', listener: () => void): this;
+
+  on(event: 'updated', listener: () => void): this;
+  off(event: 'updated', listener: () => void): this;
+  once(event: 'updated', listener: () => void): this;
+}
+
+export class Connection extends EventEmitter {
   private readonly options: ImapFlowOptions;
   private client: ImapFlow;
 
@@ -25,6 +40,8 @@ export default class Connection {
   private pendingClose: boolean;
 
   constructor(settings: ConnectionSettings) {
+    super();
+
     this.options = {
       host: settings.host,
       port: settings.port,
@@ -85,6 +102,8 @@ export default class Connection {
     this.client.off('exists', this.onUpdate);
     this.client = null;
 
+    this.emit('disconnected');
+
     this.beginOpen();
   }
 
@@ -98,11 +117,11 @@ export default class Connection {
     this.client.on('exists', this.onUpdate);
 
     // No need for lock, we only open one mailbox
-    const mailbox = await this.client.mailboxOpen('INBOX', { readOnly: true });
+    await this.client.mailboxOpen('INBOX', { readOnly: true });
 
     log.info('Connected');
 
-    // TODO: emit: connected
+    this.emit('connected');
   }
 
   private readonly onClose = () => {
@@ -117,8 +136,8 @@ export default class Connection {
 
   private readonly onUpdate = (data: { path: string, count: number, prevCount: number; }) => {
     log.debug(`Message count in '${data.path}' is ${data.count} (was ${data.prevCount})`);
-    
-    // TODO: emit: update
+
+    this.emit('updated');
   };
 
 }
