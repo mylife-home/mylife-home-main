@@ -145,6 +145,7 @@
 ## Migrer absoluta
 
 car que sensor vers ui
+=> config imap-box:key => boxKey
 
 # TODO
 
