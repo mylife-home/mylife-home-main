@@ -79,6 +79,11 @@
    - importer des plugins depuis les fichiers de déploiement
  - git
    - use simple-git to have vscode-like basic git interface and drop gitconvex
+   - besoins:
+     - gestion de remotes => fetch, pull, push
+     - changement de branche
+     - selection staging + commit (vision diff)
+     - gestion des conflits ?
 
 ## ui
 
@@ -157,9 +162,6 @@ car que sensor vers ui
     - augmenter le timeout de call
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
-
-- setup gitconvex
-   - delete src/services/project-manager/old-git
 
 # Notes
 
