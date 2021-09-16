@@ -1,5 +1,6 @@
 import { components } from 'mylife-home-core';
 import { ConnectionSettings } from './engine/connection';
+import { getStore, releaseStore, Store } from './engine/store';
 
 import m = components.metadata;
 
@@ -15,10 +16,21 @@ export interface Configuration extends ConnectionSettings {
 @m.config({ name: 'port', type: m.ConfigType.INTEGER })
 @m.config({ name: 'secure', type: m.ConfigType.BOOL })
 export class ImapBox {
-  constructor(config: Configuration) {
+  private readonly boxKey: string;
+  private store: Store;
 
+  constructor(config: Configuration) {
+    this.boxKey = config.boxKey;
+
+    this.store = getStore(this.boxKey);
+
+    // TODO: connection + update store + update online
   }
 
+  destroy() {
+    releaseStore(this.boxKey);
+  }
+  
   @m.state
   online: boolean = false;
 }
