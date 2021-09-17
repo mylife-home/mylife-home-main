@@ -16,7 +16,7 @@ export function parse(msg: Message): ZoneUpdate[] {
   const rows = msg.body.content.match(MESSAGE_EXTRACTOR);
   if (!rows) {
     log.error(`(${msg.debugId}) : discarding message as it does not match the extractor rule`);
-    return;
+    return [];
   }
 
   return rows

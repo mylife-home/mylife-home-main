@@ -1,11 +1,13 @@
 import { tools, logger } from 'mylife-home-common';
-import { Connection } from '../src/engine/connection';
-import { parse } from '../src/engine/parser';
+import { Engine } from '../src/engine/engine';
+import { Store } from '../src/engine/store';
 
 tools.injectConfig({ logging: { console: true } });
 logger.readConfig();
 
-const con = new Connection({
+const store = new Store();
+
+const engine = new Engine(store, {
   user: process.argv[2],
   password: process.argv[3],
   host: 'imap.gmail.com',
@@ -13,22 +15,5 @@ const con = new Connection({
   secure: true
 });
 
-con.on('connected', () => console.log('connected'));
-con.on('disconnected', () => console.log('disconnected'));
-con.on('updated', () => console.log('updated'));
-
-con.on('connected', async () => {
-  try {
-    const since = new Date();
-    since.setDate(since.getDate() - 3);
-
-    for await (const msg of con.fetch({ since })) {
-      //console.log(msg.seq);
-      //last = msg;
-      const updates = parse(msg);
-    }
-
-  } catch (err) {
-    console.error(err);
-  }
-});
+store.on('changed', (label: string, active: boolean) => console.log('change', label, active));
+store.on('onlineChanged', (online: boolean) => console.log('onlineChanged', online));
