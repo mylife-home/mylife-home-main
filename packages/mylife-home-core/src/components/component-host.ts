@@ -191,7 +191,7 @@ function validateConfigurationItem(value: any, expectedType: ConfigType) {
 
     case ConfigType.INTEGER:
       if (type !== 'number') {
-        throw new Error(`expected type 'boolean' but got '${type}'`);
+        throw new Error(`expected type 'integer' but got '${type}'`);
       }
       if (value % 1 !== 0) {
         throw new Error(`expected type 'integer' but the provided value '${value}' has decimal part`);
