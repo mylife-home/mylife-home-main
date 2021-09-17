@@ -10,7 +10,8 @@
   "scripts": {
     "build:ts": "rm -rf dist/ && tsc",
     "start": "node dist/main.js",
-    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
+    "test-exec": "node -r ./test/init.js test/exec"
   },
   "repository": {
     "type": "git",

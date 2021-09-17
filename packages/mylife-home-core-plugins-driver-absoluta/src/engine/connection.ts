@@ -3,6 +3,7 @@ import { ImapFlowOptions, ImapFlow } from 'imapflow';
 import { logger } from 'mylife-home-common';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:connection');
+const imapFlowLogger = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:imap-flow');
 
 export interface ConnectionSettings {
   readonly user: string;
@@ -49,7 +50,8 @@ export class Connection extends EventEmitter {
       auth: {
         user: settings.user,
         pass: settings.password
-      }
+      },
+      logger: new ImapFlowLogWrapper()
     };
 
     this.beginOpen();
@@ -133,4 +135,45 @@ export class Connection extends EventEmitter {
     this.emit('updated');
   };
 
+  async fetch(pattern: string) {
+    for await (const msg of this.client.fetch(pattern, { headers: ['FROM', 'SUBJECT'] })) {
+      console.log(msg);
+    }
+  }
+}
+
+interface LogItem {
+  msg: string;
+  err: Error;
+  // Note: other fields exist
+}
+
+class ImapFlowLogWrapper {
+  debug({ err, msg }: LogItem) {
+    // Do not report debug logs
+  }
+
+  info({ err, msg }: LogItem) {
+    if (err) {
+      imapFlowLogger.info(err, msg);
+    } else {
+      imapFlowLogger.info(msg);
+    }
+  }
+
+  warn({ err, msg }: LogItem) {
+    if (err) {
+      imapFlowLogger.warn(err, msg);
+    } else {
+      imapFlowLogger.warn(msg);
+    }
+  }
+
+  error({ err, msg }: LogItem) {
+    if (err) {
+      imapFlowLogger.error(err, msg);
+    } else {
+      imapFlowLogger.error(msg);
+    }
+  }
 }
