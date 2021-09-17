@@ -11,4 +11,5 @@ export interface ZoneUpdate {
   zone: string;
   active: boolean;
   date: Date;
+  msgseq: number;
 }

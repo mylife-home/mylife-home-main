@@ -43,7 +43,7 @@ function parseRow(msg: Message, row: string): ZoneUpdate {
       return;
     }
 
-    return { zone, active, date };
+    return { zone, active, date, msgseq: msg.seq };
   } catch (err) {
     log.error(err, `(${msg.debugId}, row: '${row}') : Error processing`);
   }
