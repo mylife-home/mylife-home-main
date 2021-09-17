@@ -1,4 +1,3 @@
-import { Writable } from 'stream';
 import Logger from 'bunyan';
 import RotatingFileStream from 'bunyan-rotating-file-stream';
 import { getConfigItem } from './tools';
