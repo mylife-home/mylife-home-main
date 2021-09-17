@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ImapFlowOptions, ImapFlow, MessageEnvelopeObject } from 'imapflow';
+import { ImapFlowOptions, ImapFlow, MessageEnvelopeObject, SequenceString, SearchObject } from 'imapflow';
 import { logger } from 'mylife-home-common';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:connection');
@@ -135,21 +135,18 @@ export class Connection extends EventEmitter {
     this.emit('updated');
   };
 
-  async fetch(pattern: string) {
-    const messages: Message[] = [];
+  async *fetch(pattern: SequenceString | number[] | SearchObject): AsyncGenerator<Message, void, void> {
     for await (const imapMsg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
       const bodyContent = decodeBodyContent(imapMsg.bodyParts.get('text'));
-      messages.push({
+      yield {
         seq: imapMsg.seq,
         envelope: imapMsg.envelope,
         body: {
           type: imapMsg.bodyStructure.type,
           content: bodyContent
         }
-      });
+      };
     }
-
-    return messages;
   }
 }
 

@@ -19,9 +19,12 @@ con.on('updated', () => console.log('updated'));
 
 con.on('connected', async () => {
   try {
-    const [msg] = await con.fetch(('10'));
-    console.log(msg);
-    console.log(msg.body.content)
+    const since = new Date();
+    since.setDate(since.getDate() - 3);
+
+    for await (const msg of con.fetch({ since })) {
+      console.log(msg.seq);
+    }
   } catch (err) {
     console.error(err);
   }
