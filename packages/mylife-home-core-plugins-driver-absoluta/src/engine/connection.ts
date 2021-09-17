@@ -138,7 +138,7 @@ export class Connection extends EventEmitter {
   async fetch(pattern: string) {
     const messages: Message[] = [];
     for await (const imapMsg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
-      const bodyContent = imapMsg.bodyParts.get('text').toString();
+      const bodyContent = decodeBodyContent(imapMsg.bodyParts.get('text'));
       messages.push({
         seq: imapMsg.seq,
         envelope: imapMsg.envelope,
@@ -151,6 +151,27 @@ export class Connection extends EventEmitter {
 
     return messages;
   }
+}
+
+function decodeBodyContent(content: Buffer) {
+  const [first, ...parts] = content.toString().split('=');
+  const formattedParts = parts.map(part => {
+    const special = part.substr(0, 2);
+    const rest = part.substr(2);
+    
+    // Only new line to respect 78 char rows
+    if (special === '\r\n') {
+      return rest;
+    }
+
+    // Else hex of char
+    const code = parseInt(special, 16);
+    const char = String.fromCharCode(code);
+
+    return char + rest;
+  });
+
+  return [first, ...formattedParts].join('');
 }
 
 export interface Message {

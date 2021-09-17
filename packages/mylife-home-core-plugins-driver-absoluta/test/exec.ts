@@ -19,7 +19,9 @@ con.on('updated', () => console.log('updated'));
 
 con.on('connected', async () => {
   try {
-    await con.fetch(('10'));
+    const [msg] = await con.fetch(('10'));
+    console.log(msg);
+    console.log(msg.body.content)
   } catch (err) {
     console.error(err);
   }
