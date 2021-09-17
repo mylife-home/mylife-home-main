@@ -41,6 +41,7 @@ export const projects = {
       'logic-selectors': buildCorePluginProjectConfiguration('logic-selectors'),
       'logic-timers': buildCorePluginProjectConfiguration('logic-timers'),
       'ui-base': buildCorePluginProjectConfiguration('ui-base'),
+      'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
       // other plugins
     }
   },
