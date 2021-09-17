@@ -1,6 +1,6 @@
-import { Connection } from '../src/engine/connection';
 import { tools, logger } from 'mylife-home-common';
-
+import { Connection } from '../src/engine/connection';
+import { parse } from '../src/engine/parser';
 
 tools.injectConfig({ logging: { console: true } });
 logger.readConfig();
@@ -23,8 +23,11 @@ con.on('connected', async () => {
     since.setDate(since.getDate() - 3);
 
     for await (const msg of con.fetch({ since })) {
-      console.log(msg.seq);
+      //console.log(msg.seq);
+      //last = msg;
+      const updates = parse(msg);
     }
+
   } catch (err) {
     console.error(err);
   }

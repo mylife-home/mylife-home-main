@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
-import { ImapFlowOptions, ImapFlow, MessageEnvelopeObject, SequenceString, SearchObject } from 'imapflow';
+import { ImapFlowOptions, ImapFlow, FetchMessageObject, SequenceString, SearchObject } from 'imapflow';
 import { logger } from 'mylife-home-common';
+import { Message } from './types';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:connection');
 const imapFlowLogger = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:imap-flow');
@@ -135,14 +136,14 @@ export class Connection extends EventEmitter {
     this.emit('updated');
   };
 
-  async *fetch(pattern: SequenceString | number[] | SearchObject): AsyncGenerator<Message, void, void> {
-    for await (const imapMsg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
-      const bodyContent = decodeBodyContent(imapMsg.bodyParts.get('text'));
+  async *fetch(pattern: SequenceString | number[] | SearchObject): AsyncGenerator<Message, void, unknown> {
+    for await (const msg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
+      const bodyContent = decodeBodyContent(msg.bodyParts.get('text'));
       yield {
-        seq: imapMsg.seq,
-        envelope: imapMsg.envelope,
+        seq: msg.seq,
+        debugId: formatDebugId(msg),
         body: {
-          type: imapMsg.bodyStructure.type,
+          type: msg.bodyStructure.type,
           content: bodyContent
         }
       };
@@ -171,14 +172,11 @@ function decodeBodyContent(content: Buffer) {
   return [first, ...formattedParts].join('');
 }
 
-export interface Message {
-  seq: number;
-  envelope: MessageEnvelopeObject;
-  body: {
-    type: string;
-    content: string;
-  };
+function formatDebugId(msg: FetchMessageObject) {
+  const { from, date, subject } = msg.envelope;
+  return `seq: ${msg.seq}, from: ${from[0].address}, date: ${date.toISOString()}, subject: '${subject}'`;
 }
+
 
 interface LogItem {
   msg: string;
