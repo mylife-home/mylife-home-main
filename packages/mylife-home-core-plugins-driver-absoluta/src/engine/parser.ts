@@ -3,10 +3,11 @@ import { Message, ZoneUpdate } from './types';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:parser');
 
+// Note: Regex are statefull on exec
 const MESSAGE_EXTRACTOR = />(.*)Maison(.*)</g;
-const MESSAGE_PARSER = />(.*)\(Maison\)(\s*)\((.*)\)</g; // eg: "RESTAURATION    AV Salon         (Maison) (10:52:06 17/Sep/21)"
+const messageParser = () => />(.*)\(Maison\)(\s*)\((.*)\)</g; // eg: "RESTAURATION    AV Salon         (Maison) (10:52:06 17/Sep/21)"
 const INACTIVE_PREFIX = 'RESTAURATION';
-const DATE_PARSER = /(\d{2}):(\d{2}):(\d{2}) (\d{2})\/(\w{3})\/(\d{2})/g; // HH:mm:ss DD/MMM/YY
+const dateParser = () => /(\d{2}):(\d{2}):(\d{2}) (\d{2})\/(\w{3})\/(\d{2})/g; // HH:mm:ss DD/MMM/YY
 const DATE_INDEXES = { hour: 0, minute: 1, second: 2, day: 3, month: 4, year: 5 };
 const MONTHS = buildMonths();
 
@@ -26,7 +27,7 @@ export function parse(msg: Message): ZoneUpdate[] {
 function parseRow(msg: Message, row: string): ZoneUpdate {
   try {
 
-    const result = MESSAGE_PARSER.exec(row);
+    const result = messageParser().exec(row);
     if (!result) {
       log.error(`(${msg.debugId}, row: '${row}') : discarding row as it does not match the parser rule`);
       return;
@@ -73,7 +74,7 @@ function parseZone(value: string) {
 }
 
 function parseDate(value: string) {
-  const result = DATE_PARSER.exec(value);
+  const result = dateParser().exec(value);
   if (!result) {
     return;
   }
