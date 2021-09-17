@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ImapFlowOptions, ImapFlow } from 'imapflow';
+import { ImapFlowOptions, ImapFlow, MessageEnvelopeObject } from 'imapflow';
 import { logger } from 'mylife-home-common';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-absoluta:engine:connection');
@@ -136,10 +136,30 @@ export class Connection extends EventEmitter {
   };
 
   async fetch(pattern: string) {
-    for await (const msg of this.client.fetch(pattern, { headers: ['FROM', 'SUBJECT'] })) {
-      console.log(msg);
+    const messages: Message[] = [];
+    for await (const imapMsg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
+      const bodyContent = imapMsg.bodyParts.get('text').toString();
+      messages.push({
+        seq: imapMsg.seq,
+        envelope: imapMsg.envelope,
+        body: {
+          type: imapMsg.bodyStructure.type,
+          content: bodyContent
+        }
+      });
     }
+
+    return messages;
   }
+}
+
+export interface Message {
+  seq: number;
+  envelope: MessageEnvelopeObject;
+  body: {
+    type: string;
+    content: string;
+  };
 }
 
 interface LogItem {
@@ -149,31 +169,29 @@ interface LogItem {
 }
 
 class ImapFlowLogWrapper {
-  debug({ err, msg }: LogItem) {
+  debug(item: LogItem) {
     // Do not report debug logs
   }
 
-  info({ err, msg }: LogItem) {
-    if (err) {
-      imapFlowLogger.info(err, msg);
-    } else {
-      imapFlowLogger.info(msg);
-    }
+  info(item: LogItem) {
+    this.log('info', item);
   }
 
-  warn({ err, msg }: LogItem) {
-    if (err) {
-      imapFlowLogger.warn(err, msg);
-    } else {
-      imapFlowLogger.warn(msg);
-    }
+  warn(item: LogItem) {
+    this.log('warn', item);
   }
 
-  error({ err, msg }: LogItem) {
-    if (err) {
-      imapFlowLogger.error(err, msg);
+  error(item: LogItem) {
+    this.log('error', item);
+  }
+
+  private log(severity: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal', { err, msg }: LogItem) {
+    if (err && msg) {
+      imapFlowLogger[severity](err, msg);
+    } else if (err) {
+      imapFlowLogger[severity](err);
     } else {
-      imapFlowLogger.error(msg);
+      imapFlowLogger[severity](msg);
     }
   }
 }
