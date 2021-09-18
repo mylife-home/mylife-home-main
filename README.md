@@ -142,11 +142,16 @@
 
 - mettre rpi-home-main + mosquitto dans nagios
 
-## Migrer absoluta
+## Migrer core drivers
 
-car que sensor vers ui
-=> config imap-box:key => boxKey
-=> config imap-box:tls => secure
+- absoluta
+  => config imap-box:key => boxKey
+  => config imap-box:tls => secure
+- arduino agent
+  => a la fin, en R&D de ESPHome
+- broadlink
+- mpd
+- tahoma
 
 # TODO
 
