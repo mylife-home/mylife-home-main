@@ -3,7 +3,9 @@ inspired from :
  - https://github.com/smka/broadlinkjs-sm/blob/master/index.js
  - https://blog.ipsumdomus.com/broadlink-smart-home-devices-complete-protocol-hack-bc0b4b397af1
 
-WARNING : node-arp crashes node process (unhandled on('error') on cp.spawn('arp', ...) result) if it cannot run arp. Be sure it exists and is accessible.
+WARNING :
+node-arp crashes node process (unhandled on('error') on cp.spawn('arp', ...) result) if it cannot run arp.
+Be sure `arp` command exists and is accessible (linux package net-tools)
 */
 
 import EventEmitter from 'events';
