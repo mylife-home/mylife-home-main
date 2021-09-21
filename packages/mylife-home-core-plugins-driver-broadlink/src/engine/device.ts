@@ -17,7 +17,7 @@ const DEFAULT_KEY = Buffer.from([0x09, 0x76, 0x28, 0x34, 0x3f, 0xe9, 0x9e, 0x23,
 const IV = Buffer.from([0x56, 0x2e, 0x17, 0x99, 0x6d, 0x09, 0x3d, 0x28, 0xdd, 0xb3, 0xba, 0x69, 0x5a, 0x2e, 0x6f, 0x58]);
 const CID = Buffer.from([0xa5, 0xaa, 0x55, 0x5a, 0xa5, 0xaa, 0x55, 0x0]);
 
-interface Message {
+export interface Message {
   command?: number;
   payload: Buffer;
 }
@@ -59,7 +59,7 @@ export class Device extends EventEmitter {
     this.setOnline(false);
   }
 
-  private async connect() {
+  async connect() {
     try {
       const addresses = await new Promise<string[]>((resolve, reject) => dns.resolve4(this.host, (err, addresses) => err ? reject(err) : resolve(addresses)));
       this.address = addresses[0];

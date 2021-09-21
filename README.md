@@ -150,6 +150,9 @@
 - arduino agent
   => a la fin, en R&D de ESPHome
 - broadlink
+  => sp3.value => output
+  => sp3.setValue => setOutput
+  => mp1.setX => setOutputX
 - mpd
 - tahoma
 
