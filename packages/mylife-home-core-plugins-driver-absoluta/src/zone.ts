@@ -8,8 +8,8 @@ interface Configuration {
   readonly label: string;
 }
 
-@m.plugin({ usage: m.PluginUsage.SENSOR })
-@m.config({ name: 'boxKey', type: m.ConfigType.STRING })
+@m.plugin({ usage: m.PluginUsage.SENSOR, description: 'Représentation d\'une zone Absoluta' })
+@m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant de l\'imap-box à partir de laquelle se mettre à jour' })
 @m.config({ name: 'label', type: m.ConfigType.STRING })
 export class Zone {
   private readonly boxKey: string;
