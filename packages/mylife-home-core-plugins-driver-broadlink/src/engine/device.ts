@@ -227,7 +227,7 @@ export class Device extends EventEmitter {
 }
 
 function checksum(buffer: Buffer) {
-  return ((0xbeaf + Array.prototype.slice.call(buffer, 0).reduce((p, c) => (p + c))) & 0xffff);
+  return ((0xbeaf + buffer.reduce((p, c) => (p + c))) & 0xffff);
 }
 
 async function getMac(ipaddress: string) {
@@ -244,5 +244,5 @@ async function getMac(ipaddress: string) {
         resolve(output as string);
       }
     });
-  }
+  });
 }
