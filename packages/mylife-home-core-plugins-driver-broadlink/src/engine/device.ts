@@ -8,7 +8,7 @@ import EventEmitter from 'events';
 import crypto from 'crypto';
 import arp from 'node-arp';
 import dns from 'dns';
-import { logger, tools } from 'mylife-home-common';
+import { logger } from 'mylife-home-common';
 import { Connection } from './connection';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-broadlink:engine:device');
@@ -65,7 +65,7 @@ export class Device extends EventEmitter {
       this.address = addresses[0];
       this.mac = await getMac(this.address);
 
-      log.debug(`Connecting to (host='${this.host}', address=${this.address}, mac=${this.mac})`);
+      log.debug(`Connecting (host='${this.host}', address=${this.address}, mac=${this.mac})`);
 
       this.socket = new Connection();
       this.socket.on('error', this.onError);
