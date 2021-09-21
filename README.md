@@ -164,6 +164,7 @@
   - bugs:
     - apparemment les x,y des composants se sont pas toujours des valeurs entieres
     - quand on accede depuis "quick access" et on modifie une config, les bindings sautent, puis ce n'est pas sauvegarde
+    - apres refresh des entites en lignes, le projet n'est pas valide avec des erreurs qui refletent un modele pas a jour
   - validation
     - Vérifier que les composants externes existent bien (avec bon plugin etc)
     - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
