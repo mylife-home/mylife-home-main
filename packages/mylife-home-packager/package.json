@@ -84,6 +84,7 @@
     "mylife-home-core-plugins-logic-timers": "^1.0.0",
     "mylife-home-core-plugins-ui-base": "^1.0.0",
     "mylife-home-core-plugins-driver-absoluta": "^1.0.0",
+    "mylife-home-core-plugins-driver-broadlink": "^1.0.0",
     "mylife-home-ui": "^1.0.0",
     "mylife-home-studio": "^1.0.0"
   }

@@ -42,6 +42,7 @@ export const projects = {
       'logic-timers': buildCorePluginProjectConfiguration('logic-timers'),
       'ui-base': buildCorePluginProjectConfiguration('ui-base'),
       'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
+      'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
       // other plugins
     }
   },
