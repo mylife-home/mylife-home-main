@@ -1,6 +1,5 @@
 import { components } from 'mylife-home-core';
 import { logger, tools } from 'mylife-home-common';
-import * as devices from './engine/devices';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-mpd:mpd');
 
@@ -86,7 +85,7 @@ module.exports = class Mpd {
 
     this._client.on('connect', (   ) => { logger.info('MPD (%s:%s) connect', this._host, this._port); });
     this._client.on('ready',   (   ) => { logger.info('MPD (%s:%s) ready', this._host, this._port); this._refresh(); });
-    this._client.on('end',     (   ) => { logger.info('MPD (%s:%s) disconnected', this._host, this._port); });
+    this._client.on('close',   (   ) => { logger.info('MPD (%s:%s) disconnected', this._host, this._port); });
     this._client.on('error',   (err) => { logger.error('MPD (%s:%s) error :', this._host, this._port, err); this._delayedSetup(); });
 
     const boundRefresh = this._refresh.bind(this);
