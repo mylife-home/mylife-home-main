@@ -1,0 +1,30 @@
+{
+  "name": "mylife-home-core-plugins-driver-mpd",
+  "version": "1.0.0",
+  "description": "MyLife Home Core Plugins Driver MPD",
+  "author": "Vincent Trumpff",
+  "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
+  "license": "GPL-3.0-or-later",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "scripts": {
+    "build:ts": "rm -rf dist/ && tsc",
+    "start": "node dist/main.js",
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
+    "test-exec": "node -r ./test/init.js test/exec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mylife-home/mylife-home-main.git"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5"
+  },
+  "dependencies": {
+    "mylife-home-common": "^1.0.0",
+    "mylife-home-core": "^1.0.0",
+    "reflect-metadata": "^0.1.13"
+  }
+}
