@@ -153,6 +153,7 @@
   => sp3.value => output
   => sp3.setValue => setOutput
   => mp1.setX => setOutputX
+  => comment livrer sans avoir des problemes avec rpi2-home-core et l'enforcing des valeurs???
 - mpd
 - tahoma
 
