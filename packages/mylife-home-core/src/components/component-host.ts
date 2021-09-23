@@ -25,6 +25,9 @@ export class ComponentHost extends EventEmitter implements components.Component 
   constructor(public readonly id: string, public readonly plugin: LocalPlugin, config: { [name: string]: any; }) {
     super();
 
+    // Many consumer can register to this, so remove the limit
+    this.setMaxListeners(Infinity);
+
     this.validateConfiguration(config);
 
     const ComponentType = this.plugin.implementation;
