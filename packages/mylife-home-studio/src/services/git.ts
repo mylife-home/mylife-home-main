@@ -131,6 +131,7 @@ export class Git implements Service {
     const changedFeatures = this.buildChangedFeatures(gitFiles);
     log.info(`Setting changed features to ${JSON.stringify(changedFeatures)}`);
     this.updateModel({ changedFeatures });
+    this.rawStatus = raw;
   }
 
   private buildChangedFeatures(gitFiles: FileStatus[]) {
