@@ -60,9 +60,7 @@ export class Registry extends EventEmitter implements Registry {
 
   constructor(options: RegistryOptions = {}) {
     super();
-
-    // Many consumer can register to this, so remove the limit
-    this.setMaxListeners(Infinity);
+    this.setMaxListeners(Infinity); // Many consumers can register to registry changes
 
     if (options.publishRemoteComponents) {
       this.publisher = new BusPublisher(options.transport, this);

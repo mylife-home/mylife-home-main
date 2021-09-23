@@ -19,8 +19,7 @@ export class Store extends EventEmitter {
 
   constructor() {
     super();
-
-    this.setMaxListeners(100); // each zone adds listener
+    this.setMaxListeners(Infinity); // Each zone adds listener
   }
 
   setOnline(value: boolean) {
