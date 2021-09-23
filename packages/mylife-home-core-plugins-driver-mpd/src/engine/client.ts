@@ -3,9 +3,6 @@
 import { EventEmitter } from 'events';
 import assert from 'assert';
 import net from 'net';
-import { logger, tools } from 'mylife-home-common';
-
-const log = logger.createLogger('mylife:home:core:plugins:driver-mpd:engine:client');
 
 const MPD_SENTINEL = /^(OK|ACK|list_OK)(.*)$/m;
 const OK_MPD = /^OK MPD /;
@@ -27,11 +24,21 @@ export declare interface MpdClient extends EventEmitter {
   on(event: 'error', listener: (err: Error) => void): this;
   off(event: 'error', listener: (err: Error) => void): this;
   once(event: 'error', listener: (err: Error) => void): this;
+
+  on(event: 'ready', listener: () => void): this;
+  off(event: 'ready', listener: () => void): this;
+  once(event: 'ready', listener: () => void): this;
+
+  on(event: 'system', listener: (name: string) => void): this;
+  off(event: 'system', listener: (name: string) => void): this;
+  once(event: 'system', listener: (name: string) => void): this;
 }
+
+type MessageCallback = (err: Error, msg?: string) => void;
 
 export class MpdClient extends EventEmitter {
   private buffer = '';
-  private msgHandlerQueue = [];
+  private msgHandlerQueue: MessageCallback[] = [];
   private idling = false;
   private readonly socket: net.Socket;
 
@@ -55,163 +62,131 @@ export class MpdClient extends EventEmitter {
     });
   }
 
-  private readonly receive = (data: Buffer) => {
+  close() {
+    this.socket.destroy();
+  }
 
+  private readonly receive = (data: string) => {
+    this.buffer += data;
+
+    let match: RegExpMatchArray;
+    while (match = this.buffer.match(MPD_SENTINEL)) {
+      const msg = this.buffer.substring(0, match.index);
+      const [line, code, str] = match;
+      if (code === 'ACK') {
+        const err = new Error(str);
+        this.handleMessage(err);
+      } else if (OK_MPD.test(line)) {
+        this.setupIdling();
+      } else {
+        this.handleMessage(null, msg);
+      }
+
+      this.buffer = this.buffer.substring(msg.length + line.length + 1);
+    }
   };
-}
 
-MpdClient.Command = Command;
-MpdClient.cmd = cmd;
-MpdClient.parseKeyValueMessage = parseKeyValueMessage;
-MpdClient.parseArrayMessage = parseArrayMessage;
-
-MpdClient.prototype.receive = function (data) {
-  var m;
-  this.buffer += data;
-  while (m = this.buffer.match(MPD_SENTINEL)) {
-    var msg = this.buffer.substring(0, m.index)
-      , line = m[0]
-      , code = m[1]
-      , str = m[2];
-    if (code === "ACK") {
-      var err = new Error(str);
-      this.handleMessage(err);
-    } else if (OK_MPD.test(line)) {
-      this.setupIdling();
-    } else {
-      this.handleMessage(null, msg);
-    }
-
-    this.buffer = this.buffer.substring(msg.length + line.length + 1);
-  }
-};
-
-MpdClient.prototype.handleMessage = function (err, msg) {
-  var handler = this.msgHandlerQueue.shift();
-  handler(err, msg);
-};
-
-MpdClient.prototype.setupIdling = function () {
-  var self = this;
-  self.sendWithCallback("idle", function (err, msg) {
-    self.handleIdleResultsLoop(err, msg);
-  });
-  self.idling = true;
-  self.emit('ready');
-};
-
-MpdClient.prototype.sendCommand = function (command, callback) {
-  var self = this;
-  callback = callback || noop.bind(this);
-  assert.ok(self.idling);
-  self.send("noidle\n");
-  self.sendWithCallback(command, callback);
-  self.sendWithCallback("idle", function (err, msg) {
-    self.handleIdleResultsLoop(err, msg);
-  });
-};
-
-MpdClient.prototype.sendCommands = function (commandList, callback) {
-  var fullCmd = "command_list_begin\n" + commandList.join("\n") + "\ncommand_list_end";
-  this.sendCommand(fullCmd, callback || noop.bind(this));
-};
-
-MpdClient.prototype.handleIdleResultsLoop = function (err, msg) {
-  var self = this;
-  if (err) {
-    self.emit('error', err);
-    return;
-  }
-  self.handleIdleResults(msg);
-  if (self.msgHandlerQueue.length === 0) {
-    self.sendWithCallback("idle", function (err, msg) {
-      self.handleIdleResultsLoop(err, msg);
+  private setupIdling() {
+    this.sendWithCallback('idle', (err, msg) => {
+      this.handleIdleResultsLoop(err, msg);
     });
+    this.idling = true;
+    this.emit('ready');
+  };
+
+  private handleMessage(err: Error, msg?: string) {
+    const handler = this.msgHandlerQueue.shift();
+    handler(err, msg);
+  };
+
+  sendCommand(cmd: string, args: string[], callback: MessageCallback) {
+    assert.ok(this.idling);
+    const command = cmd + ' ' + args.map(argEscape).join(' ');
+
+    this.send('noidle\n');
+    this.sendWithCallback(command, callback);
+    this.sendWithCallback('idle', this.handleIdleResultsLoop);
   }
-};
 
-MpdClient.prototype.handleIdleResults = function (msg) {
-  var self = this;
-  msg.split("\n").forEach(function (system) {
-    if (system.length > 0) {
-      var name = system.substring(9);
-      self.emit('system-' + name);
-      self.emit('system', name);
+  private sendWithCallback(command: string, callback: MessageCallback) {
+    this.msgHandlerQueue.push(callback);
+    this.send(command + '\n');
+  }
+
+  private send(data: string) {
+    this.socket.write(data);
+  }
+
+  private readonly handleIdleResultsLoop = (err: Error, msg: string) => {
+    if (err) {
+      this.emit('error', err);
+      return;
     }
-  });
-};
 
-MpdClient.prototype.sendWithCallback = function (cmd, cb) {
-  cb = cb || noop.bind(this);
-  this.msgHandlerQueue.push(cb);
-  this.send(cmd + "\n");
-};
+    this.handleIdleResults(msg);
+    if (this.msgHandlerQueue.length === 0) {
+      this.sendWithCallback('idle', this.handleIdleResultsLoop);
+    }
+  };
 
-MpdClient.prototype.send = function (data) {
-  this.socket.write(data);
-};
-
-function Command(name, args) {
-  this.name = name;
-  this.args = args;
+  private handleIdleResults(msg: string) {
+    for (const system of msg.split('\n')) {
+      if (system) {
+        const name = system.substring(9);
+        this.emit('system', name);
+      }
+    }
+  }
 }
 
-Command.prototype.toString = function () {
-  return this.name + " " + this.args.map(argEscape).join(" ");
-};
-
-function argEscape(arg) {
+function argEscape(arg: string) {
   // replace all " with \"
   return '"' + arg.toString().replace(/"/g, '\\"') + '"';
 }
 
-function noop(err) {
-  if (err) this.emit('error', err);
-}
-
 // convenience
-function cmd(name, args) {
-  return new Command(name, args);
-}
+export function parseKeyValueMessage(msg: string) {
+  const result: { [key: string]: string; } = {};
 
-function parseKeyValueMessage(msg) {
-  var result = {};
-
-  msg.split('\n').forEach(function (p) {
-    if (p.length === 0) {
-      return;
+  for (const part of msg.split('\n')) {
+    if (!part) {
+      continue;
     }
-    var keyValue = p.match(/([^ ]+): (.*)/);
+
+    const keyValue = part.match(/([^ ]+): (.*)/);
     if (keyValue == null) {
-      throw new Error('Could not parse entry "' + p + '"');
+      throw new Error(`Could not parse entry '${part}'`);
     }
+
     result[keyValue[1]] = keyValue[2];
-  });
+  }
+
   return result;
 }
 
-function parseArrayMessage(msg) {
-  var results = [];
-  var obj = {};
+export function parseArrayMessage(msg: string) {
+  const results = [];
+  let obj: { [key: string]: string; } = {};
 
-  msg.split('\n').forEach(function (p) {
-    if (p.length === 0) {
-      return;
+  for (const part of msg.split('\n')) {
+    if (!part) {
+      continue;
     }
-    var keyValue = p.match(/([^ ]+): (.*)/);
+
+    const keyValue = part.match(/([^ ]+): (.*)/);
     if (keyValue == null) {
-      throw new Error('Could not parse entry "' + p + '"');
+      throw new Error(`Could not parse entry '${part}'`);
     }
 
     if (obj[keyValue[1]] !== undefined) {
       results.push(obj);
       obj = {};
       obj[keyValue[1]] = keyValue[2];
-    }
-    else {
+    } else {
       obj[keyValue[1]] = keyValue[2];
     }
-  });
+  }
+
   results.push(obj);
   return results;
 }

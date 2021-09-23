@@ -1,5 +1,6 @@
 import { components } from 'mylife-home-core';
 import { logger, tools } from 'mylife-home-common';
+import { ConnectOptions, MpdClient, parseKeyValueMessage } from './engine/client';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-mpd:mpd');
 
@@ -13,12 +14,22 @@ interface Configuration {
 @m.plugin({ usage: m.PluginUsage.ACTUATOR })
 @m.config({ name: 'host', type: m.ConfigType.STRING })
 @m.config({ name: 'port', type: m.ConfigType.INTEGER })
-export class MPD {
+export class {
+  private readonly options: ConnectOptions;
+  private readonly logInfo: string;
+  private client: MpdClient;
+  private setupDelay: NodeJS.Timeout;
 
   constructor(config: Configuration) {
+    this.options = config;
+    this.logInfo = `${this.options.host}:${this.options.port}`;
+
+    this.setup();
   }
 
   destroy() {
+    this.destroyClient();
+    this.destroySetupDelay();
   }
 
   @m.state
@@ -27,169 +38,144 @@ export class MPD {
   @m.state
   playing: boolean = false;
 
-  @m.state({ type: new m.Range(0, 100)})
+  @m.state({ type: new m.Range(0, 100) })
   volume: number = 0;
 
   @m.action
-  toggle(value: boolean) {
+  toggle(arg: boolean) {
+    if (!this.online || !arg) {
+      return;
+    }
+
+    if (this.playing) {
+      this.pause(true);
+    } else {
+      this.play(true);
+    }
   }
 
   @m.action
-  play(value: boolean) {
+  play(arg: boolean) {
+    if (!this.online || !arg) {
+      return;
+    }
+
+    this.sendAndRefresh('play', []);
   }
 
   @m.action
-  pause(value: boolean) {
+  pause(arg: boolean) {
+    if (!this.online || !arg) {
+      return;
+    }
+
+    this.sendAndRefresh('pause', [1]);
   }
 
   @m.action
-  next(value: boolean) {
+  next(arg: boolean) {
+    if (!this.online || !arg) {
+      return;
+    }
+
+    this.sendAndRefresh('next', []);
   }
 
   @m.action
-  prev(value: boolean) {
+  prev(arg: boolean) {
+    if (!this.online || !arg) {
+      return;
+    }
+    
+    this.sendAndRefresh('previous', []);
   }
 
-  @m.action({ type: new m.Range(-1, 100)})
-  setVolume(value: number) {
-  }
-}
+  @m.action({ type: new m.Range(-1, 100) })
+  setVolume(arg: number) {
+    if (!this.online || arg === -1) {
+      return;
+    }
 
-
-
-/*
-'use strict';
-
-const log4js = require('log4js');
-const logger = log4js.getLogger('core-plugins-hw-mpd.Mpd');
-const mpd    = require('mpd');
-
-module.exports = class Mpd {
-  constructor(config) {
-
-    this._host = config.host;
-    this._port = parseInt(config.port);
-
-    this._setup();
+    this.sendAndRefresh('setvol', [`${arg}`]);
   }
 
-  _setup() {
-    this.online  = 'off';
-    this.playing = 'off';
-    this.volume  = 0;
+  private destroyClient() {
+    if (this.client) {
+      this.client.close();
+      this.client.removeAllListeners();
+      this.client = null;
+    }
+  }
 
-    this._client = mpd.connect({
-      host: this._host,
-      port: this._port
+  private destroySetupDelay() {
+    if (this.setupDelay) {
+      clearTimeout(this.setupDelay);
+      this.setupDelay = null;
+    }
+  }
+
+  private setup() {
+    this.online = false;
+    this.playing = false;
+    this.volume = 0;
+
+    this.client = new MpdClient(this.options);
+
+    this.client.on('connect', () => { log.info(`(${this.logInfo}) connect`); });
+    this.client.on('close', () => { log.info(`(${this.logInfo}) disconnected`); });
+
+    this.client.on('ready', () => {
+      log.info(`(${this.logInfo}) ready`);
+      this.refresh();
     });
 
-    this._client.on('connect', (   ) => { logger.info('MPD (%s:%s) connect', this._host, this._port); });
-    this._client.on('ready',   (   ) => { logger.info('MPD (%s:%s) ready', this._host, this._port); this._refresh(); });
-    this._client.on('close',   (   ) => { logger.info('MPD (%s:%s) disconnected', this._host, this._port); });
-    this._client.on('error',   (err) => { logger.error('MPD (%s:%s) error :', this._host, this._port, err); this._delayedSetup(); });
+    this.client.on('error', (err) => {
+      log.error(err, `(${this.logInfo}) error`);
+      this.destroyClient();
+      this.delayedSetup();
+    });
 
-    const boundRefresh = this._refresh.bind(this);
-    this._client.on('system-player', boundRefresh);
-    this._client.on('system-mixer', boundRefresh);
+    this.client.on('system', (name: string) => {
+      switch (name) {
+        case 'player':
+        case 'mixer':
+          this.refresh();
+          break;
+      }
+    });
   }
 
-  _delayedSetup() {
-    if(this._setupTimer) {
-      clearTimeout(this._setupTimer);
-      this._setupTimer = null;
-    }
-    this._setupTimer = setTimeout(() => this._setup(), 5000);
+  private delayedSetup() {
+    this.destroySetupDelay();
+
+    this.setupDelay = setTimeout(() => {
+      this.destroySetupDelay();
+      this.setup();
+    }, 5000);
   }
 
-  _refresh() {
-    this._client.sendCommand(mpd.cmd('status', []), (err, msg) => {
-      if(err) {
-        logger.error('MPD (%s:%s) error : %s', this._host, this._port, err);
-        this._client.socket.destroy();
-        this._setup();
+  private refresh() {
+    this.client.sendCommand('status', [], (err, msg) => {
+      if (err) {
+        log.error(err, `(${this.logInfo}) error`);
+        this.destroyClient();
+        this.setup();
         return;
       }
-      const data = mpd.parseKeyValueMessage(msg);
 
-      this.online  = 'on';
-      this.playing = (data.state === 'play') ? 'on' : 'off';
-      this.volume  = parseInt(data.volume);
+      const data = parseKeyValueMessage(msg);
+
+      this.online = true;
+      this.playing = data.state === 'play';
+      this.volume = parseInt(data.volume);
+    });
+  };
+
+  private sendAndRefresh(cmd: string, args: string[]) {
+    log.info(`(${this.logInfo}) sending command '${JSON.stringify({ cmd, args })}'`);
+    this.client.sendCommand(cmd, args, (err) => {
+      log.error(err, `(${this.logInfo}) error while sending command '${JSON.stringify({ cmd, args })}'`);
+      this.refresh();
     });
   }
-
-  _sendAndRefresh(cmd, args) {
-    logger.info('MPD (%s:%s) send command: %s(%j)', this._host, this._port, cmd, args);
-    this._client.sendCommand(mpd.cmd(cmd, args), () => {
-      this._refresh();
-    });
-  }
-
-  toggle(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-    if(this.playing === 'on') {
-      this.pause(arg);
-    } else {
-      this.play(arg);
-    }
-  }
-
-  play(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-    this._sendAndRefresh('play', []);
-  }
-
-  pause(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-    this._sendAndRefresh('pause', [1]);
-  }
-
-  next(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-    this._sendAndRefresh('next', []);
-  }
-
-  prev(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-    this._sendAndRefresh('previous', []);
-  }
-
-  setVolume(arg) {
-    if(arg === -1) { return; }
-    if(this.online === 'off') { return; }
-    this._sendAndRefresh('setvol', [arg]);
-  }
-
-  close(done) {
-    this._client.socket.destroy();
-    this._setupTimer && clearTimeout(this._setupTimer);
-    setImmediate(done);
-  }
-
-  static metadata(builder) {
-    const binary          = builder.enum('off', 'on');
-    const percent         = builder.range(0, 100);
-    const nullablePercent = builder.range(-1, 100);
-
-    builder.usage.driver();
-
-    builder.attribute('online', binary);
-    builder.attribute('playing', binary);
-    builder.attribute('volume', percent);
-
-    builder.action('toggle', binary);
-    builder.action('play', binary);
-    builder.action('pause', binary);
-    builder.action('next', binary);
-    builder.action('prev', binary);
-    builder.action('setVolume', nullablePercent);
-
-    builder.config('host', 'string');
-    builder.config('port', 'integer');
-  }
-};
-*/
+}
