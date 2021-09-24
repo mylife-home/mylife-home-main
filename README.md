@@ -175,6 +175,9 @@
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
 
+## core
+- BUG: quand studio se connecte a MQTT, core freeze et son binaire node semble utiliser 100% d'un CPU core
+
 # Notes
 
 ## git
