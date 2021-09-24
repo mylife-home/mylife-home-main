@@ -2,7 +2,9 @@ import React, { FunctionComponent, useCallback, useEffect, useState, useMemo } f
 import { useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
-import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import FlashOnIcon from '@material-ui/icons/FlashOn';
+import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
@@ -13,8 +15,13 @@ import { useReportError } from '../../lib/use-error-handling';
 import { parseType, Type, Range, Enum } from '../../lib/member-types';
 
 const useStyles = makeStyles( (theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flext-start',
+  },
   editor: {
-    width: '100%',
+    width: '200px',
   },
 }), { name: 'execute-component-action' });
 
@@ -61,7 +68,13 @@ interface EditorProps {
   onExecute: (value: any) => void;
 }
 
-const ExecuteButton: FunctionComponent<{ onClick: () => void }> = ({ onClick }) => <Button onClick={onClick}>TODO</Button>;
+const ExecuteButton: FunctionComponent<{ onClick: () => void }> = ({ onClick }) => (
+  <Tooltip title="Executer l'action sur le composant">
+    <IconButton onClick={onClick}>
+      <FlashOnIcon />
+    </IconButton>
+  </Tooltip>
+);
 
 const BoolEditor: FunctionComponent<EditorProps> = ({ uniqueId, onExecute }) => {
   const [value, setValue] = useState(false);
@@ -69,10 +82,12 @@ const BoolEditor: FunctionComponent<EditorProps> = ({ uniqueId, onExecute }) => 
 
   const classes = useStyles();
   return (
-    <FormControl className={classes.editor}>
-      <Checkbox color="primary" checked={value} onChange={() => setValue(!value)} />
+    <div className={classes.container}>
+      <FormControl className={classes.editor}>
+        <Checkbox color="primary" checked={value} onChange={() => setValue(!value)} />
+      </FormControl>
       <ExecuteButton onClick={() => onExecute(value)} />
-    </FormControl>
+    </div>
   );
 };
 
@@ -98,10 +113,10 @@ const RangeEditor: FunctionComponent<EditorProps> = ({ uniqueId, type, onExecute
 
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.container}>
       <TextField className={classes.editor} value={value} onChange={(e) => setValue(e.target.value)} type="number" inputProps={{ step: 1, min: range.min, max: range.max }} />
       <ExecuteButton onClick={execute} />
-    </>
+    </div>
   );
 };
 
@@ -126,10 +141,10 @@ const FloatEditor: FunctionComponent<EditorProps> = ({ uniqueId, onExecute }) =>
 
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.container}>
       <TextField className={classes.editor} value={value} onChange={(e) => setValue(e.target.value)} type="number" />
       <ExecuteButton onClick={execute} />
-    </>
+    </div>
   );
 };
 
@@ -139,10 +154,10 @@ const TextEditor: FunctionComponent<EditorProps> = ({ uniqueId, onExecute }) => 
 
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.container}>
       <TextField className={classes.editor} value={value} onChange={(e) => setValue(e.target.value)} type="text" />
       <ExecuteButton onClick={() => onExecute(value)} />
-    </>
+    </div>
   );
 };
 
@@ -166,10 +181,10 @@ const ComplexEditor: FunctionComponent<EditorProps> = ({ uniqueId, onExecute }) 
 
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.container}>
       <TextField className={classes.editor} value={value} onChange={(e) => setValue(e.target.value)} type="text" />
       <ExecuteButton onClick={execute} />
-    </>
+    </div>
   );
 };
 
@@ -195,13 +210,13 @@ const EnumEditor: FunctionComponent<EditorProps> = ({ uniqueId, type, onExecute 
 
   const classes = useStyles();
   return (
-    <>
+    <div className={classes.container}>
       <Select className={classes.editor} value={value} onChange={(e: React.ChangeEvent<{ value: unknown }>) => setValue(e.target.value as string)}>
         {enumType.values.map((value) => (
           <MenuItem key={value} value={value}>{value}</MenuItem>
         ))}
       </Select>
       <ExecuteButton onClick={execute} />
-    </>
+    </div>
   );
 };
