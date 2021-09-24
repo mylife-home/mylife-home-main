@@ -5,6 +5,7 @@ export const enum ActionTypes {
   SET_NOTIFICATION = 'online-components-view/set-notification',
   CLEAR_NOTIFICATION = 'online-components-view/clear-notification',
   PUSH_UPDATES = 'online-components-view/push-updates',
+  EXECUTE_COMPONENT_ACTION = 'online-components-view/execute-component-action',
 }
 
 export { Member, PluginUsage, MemberType, ConfigItem, NetPlugin, NetComponent };

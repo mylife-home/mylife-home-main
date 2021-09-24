@@ -8,6 +8,7 @@ import { ConfigItem, Plugin, Component } from '../../../store/online-components-
 import { getPlugin, getComponent, getState } from '../../../store/online-components-view/selectors';
 import { StateIcon, ActionIcon, ConfigIcon } from '../../lib/icons';
 import { Title, SectionDivider, SectionTitle, Item, Count, NameValue } from './layout';
+import ExecuteComponentAction from './execute-component-action';
 
 const Component: FunctionComponent<{ id: string }> = ({ id }) => {
   const component = useSelector((state: AppState) => getComponent(state, id));
@@ -69,5 +70,11 @@ const StateItem: FunctionComponent<{ component: Component; plugin: Plugin; id: s
 
 const ActionItem: FunctionComponent<{ component: Component; plugin: Plugin; id: string }> = ({ component, plugin, id }) => {
   const item = plugin.members[id];
-  return <NameValue name={id} value={` (${item.valueType})`} />;
+
+  return (
+    <>
+      <NameValue name={id} value={` (${item.valueType})`} />
+      <ExecuteComponentAction componentId={component.display} action={id} valueType={item.valueType} />
+    </>
+  );
 };

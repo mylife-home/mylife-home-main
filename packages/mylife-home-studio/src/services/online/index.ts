@@ -39,7 +39,7 @@ export class Online implements Service {
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-component', (session, payload: any) => this.componentNotifier.stopNotify(session, payload));
     Services.instance.sessionManager.registerServiceHandler('online/start-notify-history', session => this.historyNotifier.startNotify(session));
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-history', (session, payload: any) => this.historyNotifier.stopNotify(session, payload));
-
+    Services.instance.sessionManager.registerServiceHandler('online/execute-component-action', (session, payload: any) => this.executeComponentAction(payload));
     /* 
       online instances API should be published here, at least:
       - component config access
@@ -112,4 +112,9 @@ export class Online implements Service {
   async coreStoreSave(instanceName: string) {
     await this.transport.rpc.call(instanceName, 'store.save');
   }
+
+  async executeComponentAction({ componentId, action, value }: { componentId: string, action: string, value: any; }) {
+    const component = this.registry.getComponent(componentId);
+    component.executeAction(action, value);
+  };
 }

@@ -1,10 +1,13 @@
+import { combineEpics } from 'redux-observable';
+
 import * as shared from '../../../../shared/online';
-import { Update, SetPluginUpdate, ClearPluginUpdate, SetComponentUpdate, ClearComponentUpdate, SetStateUpdate } from './types';
+import { Update, SetPluginUpdate, ClearPluginUpdate, SetComponentUpdate, ClearComponentUpdate, SetStateUpdate, ActionTypes } from './types';
 import { setNotification, clearNotification, pushUpdates } from './actions';
 import { hasOnlineComponentsViewTab, getNotifierId } from './selectors';
 import { createNotifierEpic } from '../common/notifier-epic';
+import { createSocketCallEpic } from '../common/call-epic';
 
-export default createNotifierEpic({
+const notifierEpic = createNotifierEpic({
   notificationType: 'online/component',
   startNotifierService: 'online/start-notify-component',
   stopNotifierService: 'online/stop-notify-component',
@@ -15,6 +18,10 @@ export default createNotifierEpic({
   applyUpdates: pushUpdates,
   parseUpdate,
 });
+
+const executeComponentAction = createSocketCallEpic(ActionTypes.EXECUTE_COMPONENT_ACTION, 'online/execute-component-action');
+
+export default combineEpics(notifierEpic, executeComponentAction);
 
 function parseUpdate(updateData: shared.UpdateComponentData): Update {
   switch (`${updateData.type}-${updateData.operation}`) {
