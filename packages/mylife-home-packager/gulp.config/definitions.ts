@@ -43,6 +43,7 @@ export const projects = {
       'ui-base': buildCorePluginProjectConfiguration('ui-base'),
       'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
       'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
+      'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
       // other plugins
     }
   },
