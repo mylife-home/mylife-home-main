@@ -53,11 +53,11 @@ export class MpdClient extends EventEmitter {
 
     this.socket.on('data', this.receive);
 
-    this.socket.on('close', function () {
+    this.socket.on('close', () => {
       this.emit('close');
     });
 
-    this.socket.on('error', function (err) {
+    this.socket.on('error', (err) => {
       this.emit('error', err);
     });
   }
