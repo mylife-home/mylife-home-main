@@ -174,7 +174,9 @@ export class MPD {
   private sendAndRefresh(cmd: string, args: string[]) {
     log.info(`(${this.logInfo}) sending command '${JSON.stringify({ cmd, args })}'`);
     this.client.sendCommand(cmd, args, (err) => {
-      log.error(err, `(${this.logInfo}) error while sending command '${JSON.stringify({ cmd, args })}'`);
+      if (err) {
+        log.error(err, `(${this.logInfo}) error while sending command '${JSON.stringify({ cmd, args })}'`);
+      }
       this.refresh();
     });
   }
