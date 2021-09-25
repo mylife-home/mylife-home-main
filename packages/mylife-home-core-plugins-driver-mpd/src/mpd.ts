@@ -14,7 +14,7 @@ interface Configuration {
 @m.plugin({ usage: m.PluginUsage.ACTUATOR })
 @m.config({ name: 'host', type: m.ConfigType.STRING })
 @m.config({ name: 'port', type: m.ConfigType.INTEGER })
-export class {
+export class MPD {
   private readonly options: ConnectOptions;
   private readonly logInfo: string;
   private client: MpdClient;
@@ -69,7 +69,7 @@ export class {
       return;
     }
 
-    this.sendAndRefresh('pause', [1]);
+    this.sendAndRefresh('pause', ['1']);
   }
 
   @m.action
