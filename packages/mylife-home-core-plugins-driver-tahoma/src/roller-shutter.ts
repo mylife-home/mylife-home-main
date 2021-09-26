@@ -16,98 +16,8 @@ interface Configuration {
 @m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant de la box Somfy à partir de laquelle se connecter' })
 @m.config({ name: 'label', type: m.ConfigType.STRING })
 @m.config({ name: 'url', type: m.ConfigType.STRING })
-export class MP1 {
-  private readonly device: devices.MP1;
-  private readonly enforcer: NodeJS.Timeout;
-  private busy = false;
-
+export class RollerShutter {
   constructor(config: Configuration) {
-    this.device = new devices.MP1(config.host);
-    this.device.on('onlineChanged', this.onOnline);
-    tools.fireAsync(() => this.device.connect());
-
-    this.enforcer = setInterval(this.enforceState, 10000);
-  }
-
-  destroy() {
-    this.device.off('onlineChanged', this.onOnline);
-    this.device.close();
-
-    clearInterval(this.enforcer);
-  }
-
-  @m.state
-  online: boolean = false;
-
-  @m.state
-  exec: boolean = false;
-
-  @m.state({ type: new m.Range(0, 100) })
-  value: number = 0;
-
-  @m.action
-  setOutput1(value: boolean) {
-    this.output1 = value;
-  }
-
-  @m.action
-  setOutput2(value: boolean) {
-    this.output2 = value;
-  }
-
-  @m.action
-  setOutput3(value: boolean) {
-    this.output3 = value;
-  }
-
-  @m.action
-  setOutput4(value: boolean) {
-    this.output4 = value;
-  }
-
-  private readonly onOnline = (online: boolean) => {
-    this.online = online;
-    this.enforceState();
-  };
-
-  private readonly enforceState = () => {
-    tools.fireAsync(() => this.doEnforceState());
-  };
-
-  private async doEnforceState() {
-    if (!this.device.online || this.busy) {
-      return;
-    }
-
-    this.busy = true;
-    try {
-
-      const state = await this.device.checkState();
-
-      for (let i = 0; i < 4; ++i) {
-        const propState = this[`output${i + 1}` as OutputType];
-
-        if (state[i] !== propState) {
-          log.debug(`Updating state for output ${i} to ${propState}`);
-          await this.device.setState(i + 1, propState);
-        }
-      }
-
-    } catch (err) {
-      log.error(err, 'Error while enforcing state');
-    }
-    finally {
-      this.busy = false;
-    }
-  }
-}
-
-'use strict';
-
-const { Device, States, repository } = require('./service');
-
-module.exports = class RollerShutter {
-  constructor(config) {
     this._config = { url: config.url, label: config.label };
     this._key    = config.boxKey;
     this._device = null;
@@ -134,6 +44,44 @@ module.exports = class RollerShutter {
     setImmediate(done);
   }
 
+  @m.state
+  online: boolean = false;
+
+  @m.state
+  exec: boolean = false;
+
+  @m.state({ type: new m.Range(0, 100) })
+  value: number = 0;
+
+  doOpen(arg) {
+    if(this.online === 'off') { return; }
+    if(arg === 'off') { return; }
+
+    this._device.execute('open', [], (err) => err && log.error(err));
+  }
+
+  doClose(arg) {
+    if(this.online === 'off') { return; }
+    if(arg === 'off') { return; }
+
+    this._device.execute('close', [], (err) => err && log.error(err));
+  }
+
+  toggle(arg) {
+    if(this.online === 'off') { return; }
+    if(arg === 'off') { return; }
+
+    const cmd = this.value < 50 ? 'open' : 'close';
+    this._device.execute(cmd, [], (err) => err && log.error(err));
+  }
+
+  setValue(arg) {
+    if(arg === -1) { return; }
+    if(this.online === 'off') { return; }
+
+    this._device.execute('setClosure', [100 - arg], (err) => err && log.error(err));
+  }
+  
   _deleteDevice(closing = false) {
 
     if(!closing) {
@@ -177,35 +125,7 @@ module.exports = class RollerShutter {
     }
   }
 
-  doOpen(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-
-    this._device.execute('open', [], (err) => err && log.error(err));
-  }
-
-  doClose(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-
-    this._device.execute('close', [], (err) => err && log.error(err));
-  }
-
-  toggle(arg) {
-    if(this.online === 'off') { return; }
-    if(arg === 'off') { return; }
-
-    const cmd = this.value < 50 ? 'open' : 'close';
-    this._device.execute(cmd, [], (err) => err && log.error(err));
-  }
-
-  setValue(arg) {
-    if(arg === -1) { return; }
-    if(this.online === 'off') { return; }
-
-    this._device.execute('setClosure', [100 - arg], (err) => err && log.error(err));
-  }
-
+  
   static metadata(builder) {
     const binary          = builder.enum('off', 'on');
     const percent         = builder.range(0, 100);
@@ -226,4 +146,4 @@ module.exports = class RollerShutter {
     builder.config('label', 'string');
     builder.config('url', 'string');
   }
-};
+}
