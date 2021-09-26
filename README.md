@@ -156,6 +156,7 @@
   => comment livrer sans avoir des problemes avec rpi2-home-core et l'enforcing des valeurs???
 - mpd
 - tahoma
+  => config box:key => boxKey
 
 # TODO
 
