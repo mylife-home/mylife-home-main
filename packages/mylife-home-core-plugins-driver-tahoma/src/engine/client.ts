@@ -69,6 +69,14 @@ export declare interface Client extends EventEmitter {
   on(event: 'onlineChanged', listener: (online: boolean) => void): this;
   off(event: 'onlineChanged', listener: (online: boolean) => void): this;
   once(event: 'onlineChanged', listener: (online: boolean) => void): this;
+
+  on(event: 'deviceAdd', listener: (device: Device) => void): this;
+  off(event: 'deviceAdd', listener: (device: Device) => void): this;
+  once(event: 'deviceAdd', listener: (device: Device) => void): this;
+
+  on(event: 'deviceRemove', listener: (device: Device) => void): this;
+  off(event: 'deviceRemove', listener: (device: Device) => void): this;
+  once(event: 'deviceRemove', listener: (device: Device) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -86,15 +94,19 @@ export class Client extends EventEmitter {
     const restClient = (this.impl as any).restClient as EventEmitter;
 
     restClient.on('connect', () => {
-      this.setOnline(true);
       tools.fireAsync(async () => {
         // refresh immediately
         // Note: refreshTask is private
         await (this.impl as any).refreshTask();
       });
+
+      // Mark online after refresh
+      this.setOnline(true);
+      this.publishDevices();
     });
 
     restClient.on('disconnect', () => {
+      this.unpublishDevices();
       this.setOnline(false);
     });
   }
@@ -102,7 +114,19 @@ export class Client extends EventEmitter {
   get devices() {
     // Devices is declared as array but is used as object by deviceURL
     const devices: { [deviceUrl: string]: Device; } = (this.impl as any).devices;
-    return devices;
+    return Object.values(devices);
+  }
+
+  private publishDevices() {
+    for (const device of this.devices) {
+      this.emit('deviceAdd', device);
+    }
+  }
+
+  private unpublishDevices() {
+    for (const device of this.devices) {
+      this.emit('deviceRemove', device);
+    }
   }
 
   get online() {
