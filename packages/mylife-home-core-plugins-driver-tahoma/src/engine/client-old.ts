@@ -44,22 +44,22 @@ export interface Config {
   /**
    * Poll for execution events every 5 seconds by default (in seconds)
    */
-  readonly execPollingPeriod: number;
+  readonly execPollingPeriod?: number;
 
   /**
    * Poll for events every 60 seconds by default (in seconds)
    */
-  readonly pollingPeriod: number;
+  readonly pollingPeriod?: number;
 
   /**
    * Refresh device states every 30 minutes by default (in minutes)
    */
-  readonly refreshPeriod: number;
+  readonly refreshPeriod?: number;
 
   /**
    * default: tahoma
    */
-  readonly service: string;
+  readonly service?: string;
 
   readonly user: string;
   readonly password: string;
@@ -69,14 +69,6 @@ export declare interface Client extends EventEmitter {
   on(event: 'onlineChanged', listener: (online: boolean) => void): this;
   off(event: 'onlineChanged', listener: (online: boolean) => void): this;
   once(event: 'onlineChanged', listener: (online: boolean) => void): this;
-
-  on(event: 'deviceAdd', listener: (device: Device) => void): this;
-  off(event: 'deviceAdd', listener: (device: Device) => void): this;
-  once(event: 'deviceAdd', listener: (device: Device) => void): this;
-
-  on(event: 'deviceRemove', listener: (device: Device) => void): this;
-  off(event: 'deviceRemove', listener: (device: Device) => void): this;
-  once(event: 'deviceRemove', listener: (device: Device) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -102,31 +94,24 @@ export class Client extends EventEmitter {
 
       // Mark online after refresh
       this.setOnline(true);
-      this.publishDevices();
     });
 
     restClient.on('disconnect', () => {
-      this.unpublishDevices();
       this.setOnline(false);
     });
   }
 
+  destroy() {
+    (this.impl as any).listenerId = null;
+    (this.impl as any).setRefreshPollingPeriod(0);
+    (this.impl as any).setEventPollingPeriod(0);
+  }
+
+  // Note: this list is not supposed to move during the lifetime of the client
   get devices() {
     // Devices is declared as array but is used as object by deviceURL
     const devices: { [deviceUrl: string]: Device; } = (this.impl as any).devices;
     return Object.values(devices);
-  }
-
-  private publishDevices() {
-    for (const device of this.devices) {
-      this.emit('deviceAdd', device);
-    }
-  }
-
-  private unpublishDevices() {
-    for (const device of this.devices) {
-      this.emit('deviceRemove', device);
-    }
   }
 
   get online() {

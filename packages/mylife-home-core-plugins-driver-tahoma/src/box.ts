@@ -1,5 +1,6 @@
 import { components } from 'mylife-home-core';
-import { Connection, repository } from './engine';
+import { Client } from './engine/client';
+import { Store, getStore, releaseStore } from './engine/repository';
 
 import m = components.metadata;
 
@@ -7,8 +8,6 @@ interface Configuration {
   readonly boxKey: string;
   readonly user: string;
   readonly password: string;
-  readonly eventPeriod: number;
-  readonly refreshPeriod: number;
 }
 
 @m.plugin({ usage: m.PluginUsage.ACTUATOR })
@@ -18,22 +17,29 @@ interface Configuration {
 @m.config({ name: 'eventPeriod', type: m.ConfigType.INTEGER })
 @m.config({ name: 'refreshPeriod', type: m.ConfigType.INTEGER })
 export class Box {
-  private readonly key: string;
-  private readonly connection: Connection;
+  private readonly store: Store;
+  private readonly client: Client;
+
   constructor(config: Configuration) {
+    this.store = getStore(config.boxKey);
 
-    this.key = config.boxKey;
-    this.connection = new Connection(config);
-    this.connection.on('loggedChanged', (value: boolean) => { this.online = value; });
-
-    repository.add(this.key, this.connection);
+    this.client = new Client(config);
+    this.store.setClient(new Client(config));
+    this.client.on('onlineChanged', this.onOnlineChanged);
   }
 
   destroy() {
-    repository.remove(this.key);
-    this.connection.close();
+    this.store.unsetClient();
+    this.client.off('onlineChanged', this.onOnlineChanged);
+    this.client.destroy();
+
+    releaseStore(this.store.boxKey);
   }
 
   @m.state
   online: boolean = false;
+
+  private readonly onOnlineChanged = (value: boolean) => {
+    this.online = value;
+  };
 };
