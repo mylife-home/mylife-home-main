@@ -11,7 +11,8 @@
     "build:ts": "rm -rf dist/ && tsc",
     "start": "node dist/main.js",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
-    "device-list": "node -r ./test/init.js bin/device-list"
+    "test-listen": "node -r ./test/init.js test/listen.ts",
+    "device-list": "node -r ./bin/init.js bin/device-list"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,6 @@
     "mylife-home-common": "^1.0.0",
     "mylife-home-core": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "overkiz-client": "^0.1.67"
+    "async-mutex": "^0.3.2"
   }
 }

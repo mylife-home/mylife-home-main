@@ -3,9 +3,14 @@
 // - overkiz-client (using by homebridge-tahoma): https://github.com/dubocr/overkiz-client
 // - overkiz-api (found on npm): https://github.com/bbriatte/overkiz-api
 
-import { ClientRequest, IncomingMessage } from 'http';
 import https from 'https';
+import { ClientRequest, IncomingMessage } from 'http';
+import { EventEmitter } from 'events';
+import { Mutex } from 'async-mutex';
+import { logger } from 'mylife-home-common';
 import { Device } from './api-types/device';
+
+const log = logger.createLogger('mylife:home:core:plugins:driver-tahoma:engine:api');
 
 // => refresh devices toutes les 30 mins
 // => refresh events toutes les 2 secs
@@ -16,24 +21,83 @@ export class HttpError extends Error {
   httpStatusCode: number;
 }
 
-export class API {
+export interface API extends EventEmitter {
+  on(event: 'loggedChanged', listener: (logger: boolean) => void): this;
+  off(event: 'loggedChanged', listener: (logger: boolean) => void): this;
+  once(event: 'loggedChanged', listener: (logger: boolean) => void): this;
+}
+
+export class API extends EventEmitter {
   private readonly cookies = new Cookies();
+  private _logged = false;
+  private readonly loginMutex = new Mutex();
 
   constructor(private readonly user: string, private readonly password: string) {
+    super();
   }
 
-  async login(): Promise<void> {
-    const response = await this.request('POST', '/login', { userId: this.user, userPassword: this.password }, 'form') as LoginResponse;
+  get logged() {
+    return this._logged;
+  }
+
+  setLogged(newValue: boolean) {
+    if (newValue !== this._logged) {
+      log.debug(`setLogged ${newValue}`);
+      this._logged = newValue;
+      this.emit('loggedChanged', this._logged);
+    }
+  }
+
+  async getDevices() {
+    log.debug('getDevices');
+
+    return await this.request('GET', '/setup/devices') as Device[];
+  }
+
+  async registerEvents() {
+    log.debug('registerEvents');
+
+    const response = await this.request('POST', '/events/register') as RegisterEventsResponse;
+    return response.id;
+  }
+
+  // Note: login create a new session each time (JSESSIONID is different)
+  private async login(): Promise<void> {
+    log.debug('login');
+
+    const response = await this.rawRequest('POST', '/login', { userId: this.user, userPassword: this.password }, 'form') as LoginResponse;
     if (!response.success) {
       throw new Error('Login unsuccessful');
     }
   }
 
-  async getDevices() {
-    return await this.request('GET', '/setup/devices') as Device[];
+  private async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json') {
+    while (true) {
+      if (!this.logged) {
+        await this.loginMutex.runExclusive(async () => {
+          if (!this.logged) {
+            await this.login();
+          }
+        });
+      }
+
+      this.setLogged(true);
+
+      try {
+        return await this.rawRequest(method, query, data, dataType);
+      } catch (err) {
+        if (err instanceof HttpError && (err as HttpError).httpStatusCode === 401) {
+          // auth and retry
+          this.setLogged(false);
+          continue;
+        }
+
+        throw err;
+      }
+    }
   }
 
-  private async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<any> {
+  private async rawRequest(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<any> {
 
     const responseData = await new Promise<Buffer>((resolve, reject) => {
       try {
@@ -110,6 +174,10 @@ export class API {
 interface LoginResponse {
   success: boolean;
   roles: { name: string; }[];
+}
+
+interface RegisterEventsResponse {
+  id: string;
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies

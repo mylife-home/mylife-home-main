@@ -11,11 +11,16 @@ async function main() {
     const api = new API(username, password);
 
     for (const device of await api.getDevices()) {
-      console.log(`'${device.label}' => deviceURL=${device.deviceURL}, definition.qualifiedName=${device.definition.qualifiedName}`);
+      for (const state of device.states || []) {
+        console.log(`${new Date().toISOString()} - label=${device.label}, deviceURL=${device.deviceURL}, name=${state.name}, value=${state.value} (initial)`);
+      }
     }
+
+    console.log(await api.registerEvents());
   } catch (err) {
     console.error(err);
   }
 }
 
 main();
+
