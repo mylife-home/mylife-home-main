@@ -18,15 +18,15 @@ async function main() {
 
     const listenerId = await api.registerEvents();
     await api.refreshStates();
-    console.log(await api.execute({ actions: [{ deviceURL: 'io://0220-6975-2311/4185789', commands: [{ name: 'open' }] }]}));
+    console.log(await api.execute({ actions: [{ deviceURL: 'io://0220-6975-2311/4185789', commands: [{ name: 'open' }] }] }));
 
     while (true) {
       console.dir(await api.fetchEvents(listenerId), { depth: null });
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-} catch (err) {
-  console.error(err);
-}
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 main();
