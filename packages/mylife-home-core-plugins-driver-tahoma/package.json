@@ -11,8 +11,9 @@
     "build:ts": "rm -rf dist/ && tsc",
     "start": "node dist/main.js",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts'",
-    "test-listen": "node -r ./test/init.js test/listen.ts",
-    "device-list": "node -r ./bin/init.js bin/device-list"
+    "device-list": "node -r ./bin/init.js bin/device-list",
+    "listen": "node -r ./bin/init.js bin/listen.ts",
+    "execute": "node -r ./bin/init.js bin/execute.ts"
   },
   "repository": {
     "type": "git",
