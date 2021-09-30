@@ -9,6 +9,7 @@ import { EventEmitter } from 'events';
 import { Mutex } from 'async-mutex';
 import { logger } from 'mylife-home-common';
 import { Device } from './api-types/device';
+import { Execution } from './api-types/execution';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-tahoma:engine:api');
 
@@ -59,6 +60,31 @@ export class API extends EventEmitter {
 
     const response = await this.request('POST', '/events/register') as RegisterEventsResponse;
     return response.id;
+  }
+
+  async refreshStates() {
+    log.debug('refreshStates');
+
+    await this.request('PUT', '/setup/devices/states/refresh');
+  }
+
+  async fetchEvents(listenerId: string) {
+    log.debug('fetchEvents');
+
+    return await this.request('POST', `/events/${listenerId}/fetch`) as Event[];
+  }
+
+  async execute(execution: Execution) {
+    log.debug('execute');
+
+    const response = await this.request('POST', '/exec/apply', execution) as ExecuteResponse;
+    return response.execId;
+  }
+
+  async cancel(execId: string) {
+    log.debug('cancel');
+
+    await this.request('DELETE', `/exec/current/setup/${execId}`);
   }
 
   // Note: login create a new session each time (JSESSIONID is different)
@@ -178,6 +204,10 @@ interface LoginResponse {
 
 interface RegisterEventsResponse {
   id: string;
+}
+
+interface ExecuteResponse {
+  execId: string;
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
