@@ -1,5 +1,5 @@
 import { tools, logger } from 'mylife-home-common';
-import { Connection } from '../src/engine/connection';
+import { API } from '../src/engine/api';
 
 tools.injectConfig({ logging: { console: true } });
 logger.readConfig();
@@ -8,8 +8,9 @@ const [, , username, password] = process.argv;
 
 async function main() {
   try {
-    const con = new Connection(username, password);
-    await con.login();
+    const api = new API(username, password);
+    await api.login();
+    console.log(await api.getDevices());
   } catch (err) {
     console.error(err);
   }

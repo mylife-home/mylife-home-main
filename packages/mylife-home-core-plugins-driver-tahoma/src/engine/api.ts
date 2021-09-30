@@ -15,11 +15,7 @@ export class HttpError extends Error {
   httpStatusCode: number;
 }
 
-export interface Response {
-
-}
-
-export class Connection {
+export class API {
   private readonly cookies = new Cookies();
 
   constructor(private readonly user: string, private readonly password: string) {
@@ -32,7 +28,11 @@ export class Connection {
     }
   }
 
-  /*private*/ async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<Response> {
+  async getDevices() {
+    return await this.request('GET', '/setup/devices');
+  }
+
+  private async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<any> {
 
     const responseData = await new Promise<Buffer>((resolve, reject) => {
       try {
@@ -106,7 +106,7 @@ export class Connection {
   }
 }
 
-interface LoginResponse extends Response {
+interface LoginResponse {
   success: boolean;
   roles: { name: string; }[];
 }
@@ -117,6 +117,10 @@ class Cookies {
 
   readResponse(response: IncomingMessage) {
     const newCookies = response.headers['set-cookie'];
+    if (!newCookies) {
+      return;
+    }
+
     for (const line of newCookies) {
       // ignore Path, Expire, ...
       const regex = /^([^=]+)=([^;]+)/g;
