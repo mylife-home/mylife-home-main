@@ -5,6 +5,7 @@
 
 import { ClientRequest, IncomingMessage } from 'http';
 import https from 'https';
+import { Device } from './api-types/device';
 
 // => refresh devices toutes les 30 mins
 // => refresh events toutes les 2 secs
@@ -29,7 +30,7 @@ export class API {
   }
 
   async getDevices() {
-    return await this.request('GET', '/setup/devices');
+    return await this.request('GET', '/setup/devices') as Device[];
   }
 
   private async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<any> {

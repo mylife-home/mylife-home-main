@@ -10,7 +10,10 @@ async function main() {
   try {
     const api = new API(username, password);
     await api.login();
-    console.log(await api.getDevices());
+
+    for (const device of await api.getDevices()) {
+      console.log(`'${device.label}' => deviceURL=${device.deviceURL}, definition.qualifiedName=${device.definition.qualifiedName}`);
+    }
   } catch (err) {
     console.error(err);
   }
