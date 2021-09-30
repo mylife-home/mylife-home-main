@@ -9,8 +9,7 @@ const [, , username, password] = process.argv;
 async function main() {
   try {
     const con = new Connection(username, password);
-    const response = await con.request('POST', '/login', { userId: username, userPassword: password });
-    console.log(response);
+    await con.login();
   } catch (err) {
     console.error(err);
   }
