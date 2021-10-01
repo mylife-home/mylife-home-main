@@ -26,6 +26,7 @@ export class SlidingGate {
     this.store.on('onlineChanged', this.refreshOnline);
     this.store.on('deviceAdded', this.refreshOnline);
     this.store.on('deviceRemoved', this.refreshOnline);
+    this.store.on('execChanged', this.refreshExec);
 
     this.refreshOnline();
   }
@@ -34,6 +35,7 @@ export class SlidingGate {
     this.store.off('onlineChanged', this.refreshOnline);
     this.store.off('deviceAdded', this.refreshOnline);
     this.store.off('deviceRemoved', this.refreshOnline);
+    this.store.off('execChanged', this.refreshExec);
 
     releaseStore(this.store.boxKey);
   }
@@ -61,4 +63,12 @@ export class SlidingGate {
   private readonly refreshOnline = () => {
     this.online = this.store.online && !!this.store.getDevice(this.deviceURL);
   }
+
+  private readonly refreshExec = (deviceURL: string, executing: boolean) => {
+    if (deviceURL !== this.deviceURL) {
+      return;
+    }
+
+    this.exec = executing;
+  };
 }

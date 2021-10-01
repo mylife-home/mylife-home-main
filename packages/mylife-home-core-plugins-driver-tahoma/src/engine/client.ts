@@ -18,6 +18,10 @@ export interface Client extends EventEmitter {
   on(event: 'stateRefresh', listener: (deviceURL: string, states: Entry[]) => void): this;
   off(event: 'stateRefresh', listener: (deviceURL: string, states: Entry[]) => void): this;
   once(event: 'stateRefresh', listener: (deviceURL: string, states: Entry[]) => void): this;
+
+  on(event: 'execRefresh', listener: (deviceURL: string, executing: boolean) => void): this;
+  off(event: 'execRefresh', listener: (deviceURL: string, executing: boolean) => void): this;
+  once(event: 'execRefresh', listener: (deviceURL: string, executing: boolean) => void): this;
 }
 
 const SECOND = 1000;
@@ -49,6 +53,7 @@ export class Client extends EventEmitter {
     this.deviceRefresh = new Poller('deviceRefresh', deviceRefreshInterval, this.onDeviceRefresh);
     this.eventPoll = new Poller('eventPoll', eventPollInterval, this.onEventPoll);
     this.stateRefresh = new Poller('stateRefresh', stateRefreshInterval, this.onStateRefresh);
+    this.executions.on('change', (deviceURL: string, executing: boolean) => this.emit('execRefresh', deviceURL, executing));
 
     this.onDeviceRefresh();
     this.onStateRefresh();
@@ -91,6 +96,10 @@ export class Client extends EventEmitter {
   private setOnline(value: boolean) {
     this._online = value;
     this.emit('onlineChanged', this._online);
+  }
+
+  isExecuting(deviceURL: string) {
+    return !!this.executions.getByDevice(deviceURL);
   }
 
   private readonly onApiLoggedChanged = (logged: boolean) => {
@@ -157,7 +166,7 @@ export class Client extends EventEmitter {
 
   private processExecuteStateChanged(event: ExecutionStateChangedEvent) {
     if (event.timeToNextState === -1) {
-      this.executions.removeByExec(event.execId);
+      const deviceURL = this.executions.removeByExec(event.execId);
       log.debug(`Execution ended '${event.execId}' ${event.newState}`);
     }
   }
@@ -167,11 +176,15 @@ export class Client extends EventEmitter {
   }
 }
 
-class RunningExecutions {
+class RunningExecutions extends EventEmitter {
   private readonly byDevice = new Map<string, string>();
   private readonly byExec = new Map<string, string>();
 
   clear() {
+    for (const deviceURL of this.byDevice.keys()) {
+      this.emit('change', deviceURL, false);
+    }
+
     this.byDevice.clear();
     this.byExec.clear();
   }
@@ -183,6 +196,7 @@ class RunningExecutions {
   set(deviceURL: string, execId: string) {
     this.byDevice.set(deviceURL, execId);
     this.byExec.set(execId, deviceURL);
+    this.emit('change', deviceURL, true);
   }
 
   removeByDevice(deviceURL: string) {
@@ -190,6 +204,7 @@ class RunningExecutions {
     if (execId) {
       this.byDevice.delete(deviceURL);
       this.byExec.delete(execId);
+      this.emit('change', deviceURL, false);
     }
   }
 
@@ -198,6 +213,7 @@ class RunningExecutions {
     if (deviceURL) {
       this.byDevice.delete(deviceURL);
       this.byExec.delete(execId);
+      this.emit('change', deviceURL, false);
     }
   }
 }

@@ -27,6 +27,7 @@ export class RollerShutter {
     this.store.on('deviceAdded', this.refreshOnline);
     this.store.on('deviceRemoved', this.refreshOnline);
     this.store.on('stateChanged', this.refreshState);
+    this.store.on('execChanged', this.refreshExec);
 
     this.refreshOnline();
   }
@@ -36,6 +37,7 @@ export class RollerShutter {
     this.store.off('deviceAdded', this.refreshOnline);
     this.store.off('deviceRemoved', this.refreshOnline);
     this.store.off('stateChanged', this.refreshState);
+    this.store.off('execChanged', this.refreshExec);
 
     releaseStore(this.store.boxKey);
   }
@@ -88,6 +90,7 @@ export class RollerShutter {
 
     if (!online) {
       this.value = 0;
+      this.exec = false;
     }
   };
 
@@ -97,8 +100,14 @@ export class RollerShutter {
     }
 
     const value = isNaN(state.value) ? 0 : (100 - state.value);
-    if (value !== this.value) {
-      this.value = value;
+    this.value = value;
+  };
+
+  private readonly refreshExec = (deviceURL: string, executing: boolean) => {
+    if (deviceURL !== this.deviceURL) {
+      return;
     }
+
+    this.exec = executing;
   };
 }

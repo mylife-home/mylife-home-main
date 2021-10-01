@@ -34,6 +34,10 @@ export declare interface Store extends EventEmitter {
   on(event: 'stateChanged', listener: (state: DeviceState) => void): this;
   off(event: 'stateChanged', listener: (state: DeviceState) => void): this;
   once(event: 'stateChanged', listener: (state: DeviceState) => void): this;
+
+  on(event: 'execChanged', listener: (deviceURL: string, executing: boolean) => void): this;
+  off(event: 'execChanged', listener: (deviceURL: string, executing: boolean) => void): this;
+  once(event: 'execChanged', listener: (deviceURL: string, executing: boolean) => void): this;
 }
 
 export class Store extends EventEmitter {
@@ -53,6 +57,7 @@ export class Store extends EventEmitter {
     this.client.on('onlineChanged', this.onOnlineChanged);
     this.client.on('deviceList', this.onDeviceList);
     this.client.on('stateRefresh', this.onStateRefresh);
+    this.client.on('execRefresh', this.onExecRefresh);
 
     if (client.online) {
       this.onOnlineChanged(true);
@@ -74,6 +79,7 @@ export class Store extends EventEmitter {
     this.client.off('onlineChanged', this.onOnlineChanged);
     this.client.off('deviceList', this.onDeviceList);
     this.client.off('stateRefresh', this.onStateRefresh);
+    this.client.off('execRefresh', this.onExecRefresh);
     this.client = null;
   }
 
@@ -139,6 +145,14 @@ export class Store extends EventEmitter {
       }
     }
   };
+
+  private readonly onExecRefresh = (deviceURL: string, executing: boolean) => {
+    this.emit('execChanged', deviceURL, executing);
+  };
+
+  isExecuting(deviceURL: string) {
+    return !!this.client && this.client.isExecuting(deviceURL);
+  }
 }
 
 function makeStateKey(deviceURL: string, stateName: string) {
