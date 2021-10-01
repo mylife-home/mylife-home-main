@@ -95,7 +95,7 @@ export class RollerShutter {
   };
 
   private readonly refreshState = (state: DeviceState) => {
-    if (state.deviceURL !== this.deviceURL) {
+    if (state.deviceURL !== this.deviceURL || state.name !== 'core:ClosureState') {
       return;
     }
 
