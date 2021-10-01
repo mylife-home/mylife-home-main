@@ -176,9 +176,6 @@
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
 
-## core
-- BUG: quand studio se connecte a MQTT, core freeze et son process node semble utiliser 100% d'un CPU core
-
 # Notes
 
 ## git
@@ -203,3 +200,24 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - home-resources
  - dns *-old.apps.mti-team2.dyndns.org and home.mti-team2.dyndns.org
  - portal *old
+
+## Live debug Node.JS sur alpine
+
+```bash
+ssh -L 9229:127.0.0.1:9229 root@<host>
+
+# ensure that port forwarding is allowed
+vi /etc/ssh/sshd_config
+AllowTcpForwarding yes
+service sshd reload
+
+
+ps -a | grep node
+
+# see if debug port is opened
+netstat -tulpn | grep LISTEN
+
+kill -usr1 <pid>
+```
+
+In Chrome: [chrome://inspect](chrome://inspect)
