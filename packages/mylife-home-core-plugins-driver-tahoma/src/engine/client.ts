@@ -62,14 +62,13 @@ export class Client extends EventEmitter {
     this.stateRefresh.destroy();
   }
 
-  execute(device: Device, command: string, ...args: any[]) {
+  execute(deviceURL: string, command: string, ...args: any[]) {
     if (!this.online) {
-      log.warn(`Client is offline, cannot run command '${command}' on device '${device}'.`);
+      log.warn(`Client is offline, cannot run command '${command}' on device '${deviceURL}'.`);
       return;
     }
 
     tools.fireAsync(async () => {
-      const { deviceURL } = device;
       const oldExecId = this.executions.getByDevice(deviceURL);
       if (oldExecId) {
         log.debug(`Canceling execution '${oldExecId}'`);
