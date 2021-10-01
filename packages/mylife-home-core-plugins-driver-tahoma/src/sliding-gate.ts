@@ -14,7 +14,7 @@ interface Configuration {
 @m.plugin({ usage: m.PluginUsage.ACTUATOR, description: 'Portail coulissant Somfy' })
 @m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant de la box Somfy à partir de laquelle se connecter' })
 @m.config({ name: 'deviceURL', type: m.ConfigType.STRING, description: 'URL du périphérique Somfy' })
-export class RollerShutter {
+export class SlidingGate {
   private readonly store: Store;
   private readonly deviceURL: string;
 
