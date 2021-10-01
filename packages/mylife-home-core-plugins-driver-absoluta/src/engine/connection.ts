@@ -93,6 +93,7 @@ export class Connection extends EventEmitter {
   }
 
   private reset() {
+    log.debug('Disconnected');
     this.client.off('close', this.onClose);
     this.client.off('error', this.onError);
     this.client.off('exists', this.onUpdate);
@@ -104,6 +105,7 @@ export class Connection extends EventEmitter {
   }
 
   private async open() {
+    log.debug('Connecting');
     this.client = new ImapFlow(this.options);
 
     await this.client.connect();
@@ -137,7 +139,11 @@ export class Connection extends EventEmitter {
   };
 
   async *fetch(pattern: SequenceString | number[] | SearchObject): AsyncGenerator<Message, void, unknown> {
+    log.debug('Begin fetch');
+    let msgCount = 0;
+
     for await (const msg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
+      ++msgCount;
       const bodyContent = decodeBodyContent(msg.bodyParts.get('text'));
       yield {
         seq: msg.seq,
@@ -148,6 +154,8 @@ export class Connection extends EventEmitter {
         }
       };
     }
+
+    log.debug(`End fetch (${msgCount} messages)`);
   }
 }
 
@@ -156,7 +164,7 @@ function decodeBodyContent(content: Buffer) {
   const formattedParts = parts.map(part => {
     const special = part.substr(0, 2);
     const rest = part.substr(2);
-    
+
     // Only new line to respect 78 char rows
     if (special === '\r\n') {
       return rest;
@@ -176,7 +184,6 @@ function formatDebugId(msg: FetchMessageObject) {
   const { from, date, subject } = msg.envelope;
   return `seq: ${msg.seq}, from: ${from[0].address}, date: ${date.toISOString()}, subject: '${subject}'`;
 }
-
 
 interface LogItem {
   msg: string;
