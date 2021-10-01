@@ -157,6 +157,8 @@
 - mpd
 - tahoma
   => config box:key => boxKey
+  => url => deviceURL
+  => label removed
 
 # TODO
 
