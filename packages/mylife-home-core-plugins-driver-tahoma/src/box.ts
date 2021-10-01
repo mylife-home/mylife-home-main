@@ -14,8 +14,6 @@ interface Configuration {
 @m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant pour que les composants soient mises à jour à partir de cette box Somfy' })
 @m.config({ name: 'user', type: m.ConfigType.STRING })
 @m.config({ name: 'password', type: m.ConfigType.STRING })
-@m.config({ name: 'eventPeriod', type: m.ConfigType.INTEGER })
-@m.config({ name: 'refreshPeriod', type: m.ConfigType.INTEGER })
 export class Box {
   private readonly store: Store;
   private readonly client: Client;
