@@ -19,7 +19,7 @@ export interface Device {
 
 export interface Entry {
   readonly name: string;
-  readonly type: number; // 1 = null? (always 0), 2 = integer, 3 = string, 6 = boolean
+  readonly type: number; // 1 = null? (always 0), 2 = integer or number (if decimal it's in a string), 3 = string, 6 = boolean
   readonly value: any;
 }
 
