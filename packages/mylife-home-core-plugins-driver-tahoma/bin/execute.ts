@@ -5,11 +5,11 @@ import { Event, ExecutionStateChangedEvent } from '../src/engine/api-types/event
 tools.injectConfig({ logging: { console: true } });
 logger.readConfig();
 
-const [, , username, password, deviceURL, command, ...args] = process.argv;
+const [, , user, password, deviceURL, command, ...args] = process.argv;
 
 async function main() {
   try {
-    const api = new API(username, password);
+    const api = new API(user, password);
     const listenerId = await api.registerEvents();
     const execId = await api.execute({ actions: [{ deviceURL, commands: [{ name: command, parameters: args }] }] });
 

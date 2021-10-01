@@ -4,11 +4,11 @@ import { API } from '../src/engine/api';
 tools.injectConfig({ logging: { console: true } });
 logger.readConfig();
 
-const [, , username, password] = process.argv;
+const [, , user, password] = process.argv;
 
 async function main() {
   try {
-    const api = new API(username, password);
+    const api = new API(user, password);
 
     for (const device of await api.getDevices()) {
       console.log(`'${device.label}' => deviceURL=${device.deviceURL}, definition.qualifiedName=${device.definition.qualifiedName}`);
