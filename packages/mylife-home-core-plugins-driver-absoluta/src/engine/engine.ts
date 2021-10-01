@@ -60,7 +60,7 @@ export class Engine {
   
       return this.connection.fetch({ since });
     } else  {
-      return this.connection.fetch(`${this.lastSeq}:*`);
+      return this.connection.fetch(`${this.lastSeq + 1}:*`);
     }
   }
 
