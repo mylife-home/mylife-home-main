@@ -25,12 +25,12 @@ export class Box {
 
     this.client = new Client(config);
     this.store.setClient(new Client(config));
-    this.client.on('onlineChanged', this.onOnlineChanged);
+    this.store.on('onlineChanged', this.onOnlineChanged);
   }
 
   destroy() {
     this.store.unsetClient();
-    this.client.off('onlineChanged', this.onOnlineChanged);
+    this.store.off('onlineChanged', this.onOnlineChanged);
     this.client.destroy();
 
     releaseStore(this.store.boxKey);

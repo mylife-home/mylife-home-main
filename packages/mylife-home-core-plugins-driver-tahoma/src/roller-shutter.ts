@@ -1,6 +1,6 @@
 import { components } from 'mylife-home-core';
 import { logger } from 'mylife-home-common';
-import { Device, States, repository } from './engine';
+import { Store, getStore, releaseStore, DeviceState } from './engine/repository';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-tahoma:roller-shutter');
 
@@ -8,32 +8,36 @@ import m = components.metadata;
 
 interface Configuration {
   readonly boxKey: string;
-  readonly label: string;
-  readonly url: string;
+  readonly deviceURL: string;
 }
 
 @m.plugin({ usage: m.PluginUsage.ACTUATOR, description: 'Volet roulant Somfy' })
 @m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant de la box Somfy à partir de laquelle se connecter' })
-@m.config({ name: 'label', type: m.ConfigType.STRING })
-@m.config({ name: 'url', type: m.ConfigType.STRING })
+@m.config({ name: 'deviceURL', type: m.ConfigType.STRING, description: 'URL du périphérique Somfy' })
 export class RollerShutter {
-  private config: { url: string; label: string; };
-  private readonly key: string;
-  private device: Device;
+  private readonly store: Store;
+  private readonly deviceURL: string;
 
   constructor(config: Configuration) {
-    this.config = { url: config.url, label: config.label };
-    this.key = config.boxKey;
-    this.device = null;
+    this.store = getStore(config.boxKey);
 
-    repository.on('changed', this.onRepositoryChanged);
+    this.deviceURL = config.deviceURL;
 
-    this.refreshDevice();
+    this.store.on('onlineChanged', this.refreshOnline);
+    this.store.on('deviceAdded', this.refreshOnline);
+    this.store.on('deviceRemoved', this.refreshOnline);
+    this.store.on('stateChanged', this.refreshState);
+
+    this.refreshOnline();
   }
 
   destroy() {
-    this.deleteDevice(true);
-    repository.off('changed', this.onRepositoryChanged);
+    this.store.off('onlineChanged', this.refreshOnline);
+    this.store.off('deviceAdded', this.refreshOnline);
+    this.store.off('deviceRemoved', this.refreshOnline);
+    this.store.off('stateChanged', this.refreshState);
+
+    releaseStore(this.store.boxKey);
   }
 
   @m.state
@@ -48,14 +52,14 @@ export class RollerShutter {
   @m.action
   doOpen(arg: boolean) {
     if (this.online && arg) {
-      this.device.execute('open', [], (err) => err && log.error(err));
+      this.store.execute(this.deviceURL, 'open');
     }
   }
 
   @m.action
   doClose(arg: boolean) {
     if (this.online && arg) {
-      this.device.execute('close', [], (err) => err && log.error(err));
+      this.store.execute(this.deviceURL, 'close');
     }
   }
 
@@ -63,73 +67,38 @@ export class RollerShutter {
   toggle(arg: boolean) {
     if (this.online && arg) {
       const cmd = this.value < 50 ? 'open' : 'close';
-      this.device.execute(cmd, [], (err) => err && log.error(err));
+      this.store.execute(this.deviceURL, cmd);
     }
   }
 
   @m.action({ type: new m.Range(-1, 100) })
   setValue(arg: number) {
     if (this.online && arg !== -1) {
-      this.device.execute('setClosure', [100 - arg], (err) => err && log.error(err));
+      this.store.execute(this.deviceURL, 'setClosure', 100 - arg);
     }
   }
 
-  private readonly onDeviceOnlineChanged = (value: boolean) => {
-    this.online = value;
-  };
-
-  private readonly onDeviceExecutingChanged = (value: boolean) => {
-    this.exec = value;
-  };
-
-  private readonly onRepositoryChanged = (evt) => {
-    if (evt.key === this.key) {
-      this.refreshDevice();
+  private readonly refreshOnline = () => {
+    const online = this.store.online && !!this.store.getDevice(this.deviceURL);
+    if (this.online === online) {
+      return;
     }
-  };
 
-  private deleteDevice(closing = false) {
-    if (!closing) {
-      this.online = false;
+    this.online = online;
+
+    if (!online) {
       this.value = 0;
     }
+  };
 
-    if (!this.device) {
+  private readonly refreshState = (state: DeviceState) => {
+    if (state.deviceURL !== this.deviceURL) {
       return;
     }
 
-    this.device.removeListener('onlineChanged', this.onDeviceOnlineChanged);
-    this.device.removeListener('executingChanged', this.onDeviceExecutingChanged);
-    this.device.removeListener('stateChanged', this.onDeviceStateChanged);
-    this.device = null;
-  }
-
-  private refreshDevice() {
-    const connection = repository.get(this.key);
-    if (!connection) {
-      this.deleteDevice();
-      return;
-    }
-
-    if (this.device) {
-      return;
-    }
-
-    this.device = new Device(this.config, connection);
-    this.device.on('onlineChanged', this.onDeviceOnlineChanged);
-    this.device.on('executingChanged', this.onDeviceExecutingChanged);
-    this.device.on('stateChanged', this.onDeviceStateChanged);
-
-    this.onDeviceOnlineChanged(this.device.online);
-    this.onDeviceExecutingChanged(this.device.executing);
-    this.onDeviceStateChanged();
-  }
-
-  private readonly onDeviceStateChanged = () => {
-    const state = parseInt(this.device.getState(States.STATE_CLOSURE));
-    const value = isNaN(state) ? 0 : 100 - state;
+    const value = isNaN(state.value) ? 0 : (100 - state.value);
     if (value !== this.value) {
       this.value = value;
     }
-  }
+  };
 }
