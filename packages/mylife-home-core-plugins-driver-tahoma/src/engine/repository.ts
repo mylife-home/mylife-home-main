@@ -84,7 +84,7 @@ export class Store extends EventEmitter {
   }
 
   get online() {
-    return this.client.online;
+    return !!this.client && this.client.online;
   }
 
   getDevice(deviceURL: string) {
