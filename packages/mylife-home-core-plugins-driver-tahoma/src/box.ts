@@ -22,7 +22,7 @@ export class Box {
     this.store = getStore(config.boxKey);
 
     this.client = new Client(config);
-    this.store.setClient(new Client(config));
+    this.store.setClient(this.client);
     this.store.on('onlineChanged', this.onOnlineChanged);
   }
 

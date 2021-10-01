@@ -99,29 +99,27 @@ export class API extends EventEmitter {
   }
 
   private async request(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json') {
-    while (true) {
-      if (!this.logged) {
-        await this.loginMutex.runExclusive(async () => {
-          if (!this.logged) {
-            await this.login();
-          }
-        });
-      }
-
-      this.setLogged(true);
-
-      try {
-        return await this.rawRequest(method, query, data, dataType);
-      } catch (err) {
-        if (err instanceof HttpError && (err as HttpError).httpStatusCode === 401) {
-          // auth and retry
-          this.setLogged(false);
-          continue;
+    return await this.loginMutex.runExclusive(async () => {
+      while (true) {
+        if (!this.logged) {
+          await this.login();
         }
 
-        throw err;
+        this.setLogged(true);
+
+        try {
+          return await this.rawRequest(method, query, data, dataType);
+        } catch (err) {
+          if (err instanceof HttpError && (err as HttpError).httpStatusCode === 401) {
+            // auth and retry
+            this.setLogged(false);
+            continue;
+          }
+
+          throw err;
+        }
       }
-    }
+    });
   }
 
   private async rawRequest(method: string, query: string, data?: any, dataType: 'form' | 'json' = 'json'): Promise<any> {

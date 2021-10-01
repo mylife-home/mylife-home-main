@@ -128,7 +128,7 @@ export class Store extends EventEmitter {
   };
 
   private readonly onStateRefresh = (deviceURL: string, states: ApiEntry[]) => {
-    for (const state of states) {
+    for (const state of states || []) {
       const key = makeStateKey(deviceURL, state.name);
       const oldState = this.states.get(key);
 
