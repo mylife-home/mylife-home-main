@@ -10,6 +10,7 @@ import { Mutex } from 'async-mutex';
 import { logger } from 'mylife-home-common';
 import { Device } from './api-types/device';
 import { Execution } from './api-types/execution';
+import { Event } from './api-types/event';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-tahoma:engine:api');
 
@@ -23,9 +24,9 @@ export class HttpError extends Error {
 }
 
 export interface API extends EventEmitter {
-  on(event: 'loggedChanged', listener: (logger: boolean) => void): this;
-  off(event: 'loggedChanged', listener: (logger: boolean) => void): this;
-  once(event: 'loggedChanged', listener: (logger: boolean) => void): this;
+  on(event: 'loggedChanged', listener: (logged: boolean) => void): this;
+  off(event: 'loggedChanged', listener: (logged: boolean) => void): this;
+  once(event: 'loggedChanged', listener: (logged: boolean) => void): this;
 }
 
 export class API extends EventEmitter {
@@ -41,7 +42,7 @@ export class API extends EventEmitter {
     return this._logged;
   }
 
-  setLogged(newValue: boolean) {
+  private setLogged(newValue: boolean) {
     if (newValue !== this._logged) {
       log.debug(`setLogged ${newValue}`);
       this._logged = newValue;

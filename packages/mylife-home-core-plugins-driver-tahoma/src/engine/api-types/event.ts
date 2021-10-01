@@ -1,8 +1,9 @@
 import { Entry } from './device';
+import { Action } from './execution';
 
 export interface Event {
   readonly timestamp: number;
-  readonly name: 'DeviceStateChangedEvent' | 'GatewaySynchronizationEndedEvent' | 'GatewaySynchronizationStartedEvent' | 'RefreshAllDevicesStatesCompletedEvent' | 'DeviceUnavailableEvent' | 'ExecutionStateChangedEvent';
+  readonly name: 'DeviceStateChangedEvent' | 'GatewaySynchronizationEndedEvent' | 'GatewaySynchronizationStartedEvent' | 'RefreshAllDevicesStatesCompletedEvent' | 'DeviceUnavailableEvent' | 'ExecutionRegisteredEvent' | 'ExecutionStateChangedEvent';
 }
 
 export interface DeviceStateChangedEvent extends Event {
@@ -24,6 +25,19 @@ export interface RefreshAllDevicesStatesCompletedEvent extends Event {
 }
 
 // DeviceUnavailableEvent ??
+
+export interface ExecutionRegisteredEvent extends Event {
+  readonly name: 'ExecutionRegisteredEvent';
+  readonly setupOID: string;
+  readonly execId: string;
+  readonly type: number;
+  readonly subType: number;
+  readonly source: string;
+  readonly owner: string;
+  readonly label?: string;
+  readonly metadata?: string;
+  readonly actions: Action[];
+}
 
 export interface ExecutionStateChangedEvent extends Event {
   readonly name: 'ExecutionStateChangedEvent';
