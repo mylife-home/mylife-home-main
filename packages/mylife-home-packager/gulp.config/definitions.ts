@@ -44,6 +44,7 @@ export const projects = {
       'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
       'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
       'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
+      'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
       // other plugins
     }
   },
