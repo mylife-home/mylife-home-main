@@ -1,0 +1,37 @@
+{
+  "name": "mylife-home-core-plugins-driver-arduino-irc",
+  "version": "1.0.5",
+  "description": "MyLife Home Core Plugins Driver Arduino irc",
+  "author": "Vincent Trumpff",
+  "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
+  "license": "GPL-3.0-or-later",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
+  "scripts": {
+    "build:ts": "rm -rf dist/ && tsc",
+    "start": "node dist/main.js",
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mylife-home/mylife-home-main.git"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/irc": "^0.3.33",
+    "@types/mocha": "^8.0.3",
+    "@types/node": "^14.11.2",
+    "@types/sinon": "^9.0.5",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.3",
+    "sinon": "^9.0.3",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5"
+  },
+  "dependencies": {
+    "irc": "^0.5.2",
+    "mylife-home-common": "^1.0.0",
+    "mylife-home-core": "^1.0.0",
+    "reflect-metadata": "^0.1.13"
+  }
+}

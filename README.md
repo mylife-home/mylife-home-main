@@ -147,8 +147,6 @@
 - absoluta
   => config imap-box:key => boxKey
   => config imap-box:tls => secure
-- arduino agent
-  => a la fin, en R&D de ESPHome
 - broadlink
   => sp3.value => output
   => sp3.setValue => setOutput
@@ -159,6 +157,9 @@
   => config box:key => boxKey
   => url => deviceURL
   => label removed
+- arduino agent
+  => agent:key  => agentKey
+  => agent:port removed
 
 # TODO
 
