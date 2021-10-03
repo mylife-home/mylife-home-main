@@ -12,7 +12,7 @@ interface Configuration {
   channel: string;
 }
 
-@m.plugin({ usage: m.PluginUsage.LOGIC })
+@m.plugin({ usage: m.PluginUsage.ACTUATOR })
 @m.config({ name: 'agentKey', type: m.ConfigType.STRING })
 @m.config({ name: 'host', type: m.ConfigType.STRING })
 @m.config({ name: 'channel', type: m.ConfigType.STRING })
