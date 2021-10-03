@@ -161,6 +161,10 @@
   => agent:key  => agentKey
   => agent:port removed
 
+## Migrer hallbox
+
+## Migrer epanel1 et epanel2
+
 # TODO
 
 ## studio
