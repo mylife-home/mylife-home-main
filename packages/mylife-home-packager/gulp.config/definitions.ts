@@ -45,6 +45,7 @@ export const projects = {
       'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
       'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
       'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
+      'driver-arduino-irc': buildCorePluginProjectConfiguration('driver-arduino-irc'),
       // other plugins
     }
   },
