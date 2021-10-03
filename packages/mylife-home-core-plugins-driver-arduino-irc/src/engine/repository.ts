@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter } from 'events';
 import { logger } from 'mylife-home-common';
 import { Client } from './client';

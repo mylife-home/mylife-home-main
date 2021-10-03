@@ -1,5 +1,3 @@
-'use strict';
-
 import os from 'os';
 import { EventEmitter } from 'events';
 import { Client as IrcClient } from 'irc';
@@ -32,7 +30,7 @@ export declare interface Client extends EventEmitter {
 export class Client extends EventEmitter {
   private readonly channel: string;
   private readonly irc: IrcClient;
-  private readonly nicks = new Set<string>();
+  readonly nicks = new Set<string>();
 
   constructor(host: string, channel: string) {
     super();

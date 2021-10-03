@@ -30,7 +30,7 @@ export class Agent {
 
   destroy() {
     this.client.off('online', this.onOnline);
-    Repository.remove(this.key);
+    repository.remove(this.key);
     this.client.destroy();
   }
 
