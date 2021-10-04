@@ -95,6 +95,10 @@
    - color4: en attente reste séquence (eg double click)
    - rajouter un feedback pour dire que action primary ou secondary est executée
 
+## core
+ 
+ - les versions des plugins devraient etre dans les plugins, et pas dans core (dans son common) => on serait pas oblige de rebuild core a chaque changement de plugin
+
 # Roadmap
 
 ## Livrer irc-bridge + ui: => OK
