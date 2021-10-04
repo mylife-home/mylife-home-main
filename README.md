@@ -177,6 +177,8 @@
     - Vérifier que les composants externes existent bien (avec bon plugin etc)
     - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
     - Vérifier qu'on peut déployer les bindings, et faire une erreur de validation plutot qu'à l'execution
+    - Vérifier que les configs des composants sont corrects (correspondent bien aux plugins)
+    - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
   - deploy en ligne
     - augmenter le timeout de call
     - ajouter un popup bloquant de livraison en cours
