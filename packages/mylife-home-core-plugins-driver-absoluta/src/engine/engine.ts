@@ -26,20 +26,20 @@ export class Engine {
 
     this.connection.close();
 
-    clearInterval(this.interval);
+    clearTimeout(this.interval);
     this.interval = null;    
 
     this.store.setOnline(false);
   }
 
   private readonly onConnected = async () => {
-    this.refresh();
-
     this.store.setOnline(true);
+
+    this.refresh();
   }
 
   private readonly onDisconnected = () => {
-    clearInterval(this.interval);
+    clearTimeout(this.interval);
     this.interval = null;
 
     this.store.setOnline(false);
@@ -65,7 +65,7 @@ export class Engine {
   }
 
   private async refresh() {
-    clearInterval(this.interval);
+    clearTimeout(this.interval);
     this.interval = null;
 
     try {
@@ -84,7 +84,14 @@ export class Engine {
       log.error(err, 'Error on refresh');
     }
 
-    this.interval = setInterval(this.onInterval, 60000);
+    // Only resume if online
+    if (this.store.online) {
+      // Re-delay
+      clearTimeout(this.interval);
+      this.interval = null;
+      
+      this.interval = setTimeout(this.onInterval, 60000);
+    }
   }
 }
 

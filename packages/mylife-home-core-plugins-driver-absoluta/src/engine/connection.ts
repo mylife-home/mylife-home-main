@@ -139,15 +139,18 @@ export class Connection extends EventEmitter {
   };
 
   async *fetch(pattern: SequenceString | number[] | SearchObject): AsyncGenerator<Message, void, unknown> {
-    log.debug('Begin fetch');
+    log.debug(`Begin fetch '${JSON.stringify(pattern)}'`);
     let msgCount = 0;
 
     for await (const msg of this.client.fetch(pattern, { envelope: true, bodyStructure: true, bodyParts: ['text'] })) {
       ++msgCount;
+      const debugId = formatDebugId(msg);
+      log.debug(`Fetching ${debugId}`);
+
       const bodyContent = decodeBodyContent(msg.bodyParts.get('text'));
       yield {
         seq: msg.seq,
-        debugId: formatDebugId(msg),
+        debugId,
         body: {
           type: msg.bodyStructure.type,
           content: bodyContent
