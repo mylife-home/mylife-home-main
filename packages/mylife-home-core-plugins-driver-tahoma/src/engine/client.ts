@@ -40,6 +40,7 @@ export class Client extends EventEmitter {
   private readonly deviceRefresh: Poller;
   private readonly eventPoll: Poller;
   private readonly stateRefresh: Poller;
+  private stateRefreshEnd: () => void;
 
   private eventListenerId: string = null;
   private readonly executions = new RunningExecutions();
@@ -55,9 +56,9 @@ export class Client extends EventEmitter {
     this.stateRefresh = new Poller('stateRefresh', stateRefreshInterval, this.onStateRefresh);
     this.executions.on('change', (deviceURL: string, executing: boolean) => this.emit('execRefresh', deviceURL, executing));
 
-    this.onDeviceRefresh();
-    this.onStateRefresh();
-    this.onEventPoll();
+    tools.fireAsync(() => this.onDeviceRefresh());
+    tools.fireAsync(() => this.onStateRefresh());
+    tools.fireAsync(() => this.onEventPoll());
   }
 
   destroy() {
@@ -136,6 +137,23 @@ export class Client extends EventEmitter {
 
   private readonly onStateRefresh = async () => {
     await this.api.refreshStates();
+
+    await new Promise<void>((resolve, reject) => {
+      // wait 3 mins or until disconnection or until RefreshAllDevicesStatesCompletedEvent is triggered
+      let timeout: NodeJS.Timeout;
+
+      const onEnd = () => {
+        this.api.off('loggedChanged', onEnd);
+        this.stateRefreshEnd = null;
+        clearTimeout(timeout);
+
+        resolve();
+      };
+
+      this.api.on('loggedChanged', onEnd);
+      this.stateRefreshEnd = onEnd;
+      timeout = setTimeout(onEnd, 3 * MINUTE);
+    });
   };
 
   private processEvent(event: Event) {
@@ -148,12 +166,16 @@ export class Client extends EventEmitter {
         this.processDeviceStateChanged(event as DeviceStateChangedEvent);
         break;
 
+      case 'RefreshAllDevicesStatesCompletedEvent':
+        if (this.stateRefreshEnd) {
+          this.stateRefreshEnd();
+        }
+        break;
+
       // Event below does not need special action
       case 'GatewaySynchronizationStartedEvent':
       // sent to mark a group of refresh device events
       case 'GatewaySynchronizationEndedEvent':
-      case 'RefreshAllDevicesStatesCompletedEvent':
-      // sent after all states changes related to refresh state request is over
       case 'ExecutionRegisteredEvent':
         // sent right after execute (before execution states changes)
         break;
@@ -166,7 +188,7 @@ export class Client extends EventEmitter {
 
   private processExecuteStateChanged(event: ExecutionStateChangedEvent) {
     if (event.timeToNextState === -1) {
-      const deviceURL = this.executions.removeByExec(event.execId);
+      this.executions.removeByExec(event.execId);
       log.debug(`Execution ended '${event.execId}' ${event.newState}`);
     }
   }

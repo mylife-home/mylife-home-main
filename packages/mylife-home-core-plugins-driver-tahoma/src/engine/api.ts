@@ -70,8 +70,7 @@ export class API extends EventEmitter {
   }
 
   async fetchEvents(listenerId: string) {
-    // Do not log this one as it appears very often
-    //log.debug('fetchEvents');
+    log.debug('fetchEvents');
 
     return await this.request('POST', `/events/${listenerId}/fetch`) as Event[];
   }
