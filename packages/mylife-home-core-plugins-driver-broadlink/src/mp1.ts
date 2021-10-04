@@ -52,21 +52,25 @@ export class MP1 {
   @m.action
   setOutput1(value: boolean) {
     this.output1 = value;
+    this.enforceState();
   }
 
   @m.action
   setOutput2(value: boolean) {
     this.output2 = value;
+    this.enforceState();
   }
 
   @m.action
   setOutput3(value: boolean) {
     this.output3 = value;
+    this.enforceState();
   }
 
   @m.action
   setOutput4(value: boolean) {
     this.output4 = value;
+    this.enforceState();
   }
 
   private readonly onOnline = (online: boolean) => {

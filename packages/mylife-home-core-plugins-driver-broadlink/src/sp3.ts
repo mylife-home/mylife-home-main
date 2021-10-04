@@ -40,6 +40,7 @@ export class SP3 {
   @m.action
   setOutput(value: boolean) {
     this.output = value;
+    this.enforceState();
   }
 
   private readonly onOnline = (online: boolean) => {
