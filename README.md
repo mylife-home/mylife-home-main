@@ -84,6 +84,8 @@
      - changement de branche
      - selection staging + commit (vision diff)
      - gestion des conflits ?
+ - deploy
+   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 
 ## ui
 
