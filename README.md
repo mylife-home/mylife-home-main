@@ -146,7 +146,7 @@
 
 - mettre rpi-home-main + mosquitto dans nagios
 
-## Migrer core drivers
+## Migrer core drivers => OK
 
 - absoluta
   => config imap-box:key => boxKey
