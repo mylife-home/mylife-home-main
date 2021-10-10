@@ -167,6 +167,9 @@
   => agent:port removed
 
 ## Migrer hallbox
+- sensors
+- lirc
+  => repeats: integer => boolean (1=true, 0=false)
 
 ## Migrer epanel1 et epanel2
 
