@@ -1,17 +1,50 @@
 # Dev Ops
 
 ## Update packages
- - lerna clean
- - lerna exec -- npm update
- - lerna bootstrap
+- lerna clean
+- lerna exec -- npm update
+- lerna bootstrap
 
-## Release
- - bump: lerna version
- - build & publish:
-   - cd packages/mylife-home-packager
-   - gulp publish:core
-   - gulp publish:ui
-   - gulp publish:studio
+## Dev build/watch/docker testing images
+- cd packages/mylife-home-packager
+- gulp build:dev:core --all-plugins
+- gulp build:dev:ui
+- gulp build:dev:studio
+
+_cf package.json npm scripts for docker action_
+
+_cf gulp.conf/index.ts for gulp script: dev build, watch, docker testing images_
+
+## Release build
+- bump: lerna version (or manually)
+- build & publish (npm):
+  - cd packages/mylife-home-packager
+  - gulp publish:core
+  - gulp publish:ui
+  - gulp publish:studio
+
+_alpine build/deployment: `rpi-alpine-build` repository_
+
+## Live debug Node.JS sur alpine
+
+```bash
+ssh -L 9229:127.0.0.1:9229 root@<host>
+
+# ensure that port forwarding is allowed
+vi /etc/ssh/sshd_config
+AllowTcpForwarding yes
+service sshd reload
+
+
+ps -a | grep node
+
+# see if debug port is opened
+netstat -tulpn | grep LISTEN
+
+kill -usr1 <pid>
+```
+
+In Chrome: [chrome://inspect](chrome://inspect)
 
 # Besoins
 
@@ -219,24 +252,3 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - home-resources
  - dns *-old.apps.mti-team2.dyndns.org and home.mti-team2.dyndns.org
  - portal *old
-
-## Live debug Node.JS sur alpine
-
-```bash
-ssh -L 9229:127.0.0.1:9229 root@<host>
-
-# ensure that port forwarding is allowed
-vi /etc/ssh/sshd_config
-AllowTcpForwarding yes
-service sshd reload
-
-
-ps -a | grep node
-
-# see if debug port is opened
-netstat -tulpn | grep LISTEN
-
-kill -usr1 <pid>
-```
-
-In Chrome: [chrome://inspect](chrome://inspect)
