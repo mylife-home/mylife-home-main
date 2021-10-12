@@ -58,7 +58,7 @@ class ControllerImpl extends EventEmitter implements Controller {
   send(remote: string, button: string) {
     log.info(`Sending: remote='${remote}', button='${button}'`);
     this.sendQueue.push({ remote, button });
-    this._processSendQueue();
+    this.processSendQueue();
   }
 
   private readonly onReceive = (remote: string, button: string, srepeat: string) => {
@@ -70,7 +70,7 @@ class ControllerImpl extends EventEmitter implements Controller {
     this.receiveTimeout && clearTimeout(this.receiveTimeout);
     this.receiveTimeout = setTimeout(() => {
       this.receiving = false;
-      this._processSendQueue();
+      this.processSendQueue();
     }, 300); // block send for 300 ms when receiving (prevent to send while repeating)
   };
 
@@ -79,7 +79,7 @@ class ControllerImpl extends EventEmitter implements Controller {
     this.emit('online', value);
 
     if (value) {
-      this._processSendQueue();
+      this.processSendQueue();
       return;
     }
 
@@ -109,23 +109,22 @@ class ControllerImpl extends EventEmitter implements Controller {
     }
   }
 
-  _processSendQueue() {
-    if (!this.connected || this.closing || this.sending || this.receiving || !this.sendQueue.length) {
-      return;
-    }
-
-    const data = this.sendQueue.shift();
-
-    this.controller.cmd('SEND_ONCE', data.remote, data.button, (err) => {
-      this.sending = false;
-
-      if (err) {
-        log.error(err, `Error sending to lirc`);
+  private async processSendQueue() {
+    while (this.sendQueue.length) {
+      if (!this.connected || this.closing || this.sending || this.receiving) {
+        return;
       }
 
-      this._processSendQueue();
-    });
-    this.sending = true;
+      this.sending = true;
+      try {
+        const data = this.sendQueue.shift();
+        await this.controller.sendOnce(data.remote, data.button);
+      } catch (err) {
+        log.error(err, `Error sending to lirc`);
+      } finally {
+        this.sending = false;
+      }
+    }
   }
 }
 
