@@ -256,6 +256,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-selector' executing action 'set2' with 'false'
 08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-set40' executing action 'action' with 'false'
 ```
+- Tahoma composants offline, pas de log
 
 # Notes
 
