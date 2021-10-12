@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
 import { logger } from 'mylife-home-common';
+import Lirc from 'lirc-client';
 
 const log = logger.createLogger('mylife:home:core:plugins:driver-lirc:engine:controller');
 
 const SOCKET_PATH = '/var/run/lirc/lircd';
 
-export interface Controller {
+export interface Controller extends EventEmitter {
   on(event: 'online', listener: (online: boolean) => void): this;
   off(event: 'online', listener: (online: boolean) => void): this;
   once(event: 'online', listener: (online: boolean) => void): this;
@@ -17,51 +18,52 @@ export interface Controller {
   send(remote: string, button: string): void;
 }
 
+interface SendCommand {
+  remote: string;
+  button: string;
+}
+
 class ControllerImpl extends EventEmitter implements Controller {
+  private readonly controller: Lirc;
+  private connected = false;
+  private readonly sendQueue: SendCommand[] = [];
+  private sending = false;
+  private receiving = false;
+  private receiveTimeout: NodeJS.Timeout = null;
+  private closing = false;
+
   constructor() {
     super();
     this.setMaxListeners(Infinity); // each device adds listener
 
-    log.info(`LIRC connecting to : '${SOCKET_PATH}'`);
-    this.controller = new Lirc(this.config);
+    log.info(`LIRC connecting to '${SOCKET_PATH}'`);
+    this.controller = new Lirc({ path: SOCKET_PATH });
 
-    this.controller.on('connect',    this._connect.bind(this));
-    this.controller.on('disconnect', this._disconnect.bind(this));
-    this.controller.on('error',      this._error.bind(this));
-    this.controller.on('receive',    this._receive.bind(this));
-
-    this.connected      = false;
-    this.sendQueue      = [];
-    this.sending        = false;
-    this.receiving      = false;
-    this.receiveTimeout = null;
-    this.closing        = false;
-  }
-
-  ref() {
-    ++this.usage;
-  }
-
-  unref() {
-    return !!(--this.usage);
+    this.controller.on('connect', this.onConnect);
+    this.controller.on('disconnect', this.onDisconnect);
+    this.controller.on('error', this.onError);
+    this.controller.on('receive', this.onReceive);
   }
 
   close() {
-    this.controller.close();
+    this.controller.disconnect();
     this.closing = true;
-    this.receiveTimeout && clearTimeout(this.receiveTimeout);
-    this.receiveTimeout = null;
+
+    if (this.receiveTimeout) {
+      clearTimeout(this.receiveTimeout);
+      this.receiveTimeout = null;
+    }
   }
 
-  send(remote, button) {
-    logger.info(`${this.key}: sending: SEND_ONCE remote='${remote}', button='${button}'`);
+  send(remote: string, button: string) {
+    log.info(`Sending: remote='${remote}', button='${button}'`);
     this.sendQueue.push({ remote, button });
     this._processSendQueue();
   }
 
-  _receive(remote, button, repeat) {
-    logger.info(`${this.key}: received: remote='${remote}', button='${button}', repeat='${repeat}'`);
-    repeat = parseInt(repeat, 16);
+  private readonly onReceive = (remote: string, button: string, srepeat: string) => {
+    log.info(`Received: remote='${remote}', button='${button}', repeat='${srepeat}'`);
+    const repeat = parseInt(srepeat, 16);
     this.emit('receive', remote, button, repeat);
 
     this.receiving = true;
@@ -70,13 +72,13 @@ class ControllerImpl extends EventEmitter implements Controller {
       this.receiving = false;
       this._processSendQueue();
     }, 300); // block send for 300 ms when receiving (prevent to send while repeating)
-  }
+  };
 
-  _changeOnline(value) {
+  private changeOnline(value: boolean) {
     this.connected = value;
     this.emit('online', value);
 
-    if(value) {
+    if (value) {
       this._processSendQueue();
       return;
     }
@@ -87,29 +89,28 @@ class ControllerImpl extends EventEmitter implements Controller {
     this.receiveTimeout = null;
   }
 
-  _connect() {
-    logger.info(`${this.key}: lirc connected`);
-    this._changeOnline(true);
-  }
+  private readonly onConnect = () => {
+    log.info('Lirc connected');
+    this.changeOnline(true);
+  };
 
-  _disconnect() {
-    logger.info(`${this.key}: lirc disconnected`);
-    this._changeOnline(false);
-  }
+  private readonly onDisconnect = () => {
+    log.info('Lirc disconnected');
+    this.changeOnline(false);
+  };
 
-  _error(reason) {
-    logger.info(`${this.key}: lirc error: ${reason}`);
-    switch(reason) {
+  private onError(reason: string) {
+    log.info(`Lirc error: ${reason}`);
+    switch (reason) {
       case 'end':
       case 'timeout':
-        this._changeOnline(false);
+        this.changeOnline(false);
         break;
     }
   }
 
   _processSendQueue() {
-
-    if(!this.connected || this.closing || this.sending || this.receiving || !this.sendQueue.length) {
+    if (!this.connected || this.closing || this.sending || this.receiving || !this.sendQueue.length) {
       return;
     }
 
@@ -118,8 +119,8 @@ class ControllerImpl extends EventEmitter implements Controller {
     this.controller.cmd('SEND_ONCE', data.remote, data.button, (err) => {
       this.sending = false;
 
-      if(err) {
-        logger.error(`${this.key}: error sending to lirc: ${err}`);
+      if (err) {
+        log.error(err, `Error sending to lirc`);
       }
 
       this._processSendQueue();
@@ -128,21 +129,21 @@ class ControllerImpl extends EventEmitter implements Controller {
   }
 }
 
-let controller: ControllerImpl;
+let controllerInstance: ControllerImpl;
 let refCount: number = 0;
 
 export function open(): Controller {
-  if(!controller) {
-    controller = new ControllerImpl();
+  if (!controllerInstance) {
+    controllerInstance = new ControllerImpl();
   }
 
   ++refCount;
-  return controller;
+  return controllerInstance;
 }
 
 export function close(controller: Controller) {
   --refCount;
-  if(refCount === 0) {
-    controller.close();
+  if (refCount === 0) {
+    controllerInstance.close();
   }
 }
