@@ -35,17 +35,19 @@ export const projects = {
     version: getPackageVersion('mylife-home-core'),
     plugins: {
       // note: should infer that from packager/package.json dependencies
-      irc: buildCorePluginProjectConfiguration('irc'),
+      'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
+      'driver-arduino-irc': buildCorePluginProjectConfiguration('driver-arduino-irc'),
+      'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
+      'driver-lirc': buildCorePluginProjectConfiguration('driver-lirc'),
+      'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
+      'driver-sensors': buildCorePluginProjectConfiguration('driver-sensors'),
+      'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
+      'irc': buildCorePluginProjectConfiguration('irc'),
       'logic-base': buildCorePluginProjectConfiguration('logic-base'),
       'logic-colors': buildCorePluginProjectConfiguration('logic-colors'),
       'logic-selectors': buildCorePluginProjectConfiguration('logic-selectors'),
       'logic-timers': buildCorePluginProjectConfiguration('logic-timers'),
       'ui-base': buildCorePluginProjectConfiguration('ui-base'),
-      'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
-      'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
-      'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
-      'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
-      'driver-arduino-irc': buildCorePluginProjectConfiguration('driver-arduino-irc'),
       // other plugins
     }
   },
@@ -95,9 +97,9 @@ export const globs = {
 };
 
 function buildCorePluginGlobs() {
-  const globs: { [plugin: string]: string[] } = {};
+  const globs: { [plugin: string]: string[]; } = {};
 
-  for(const [plugin, config] of Object.entries(projects.core.plugins)) {
+  for (const [plugin, config] of Object.entries(projects.core.plugins)) {
     globs[plugin] = config.ts.globs;
   }
 
