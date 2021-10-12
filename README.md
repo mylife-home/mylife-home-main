@@ -192,6 +192,8 @@
     - augmenter le timeout de call
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
+- deploy
+  - bug modifications non prises en compte avec duplication et navigation entre recettes
 
 # Notes
 
