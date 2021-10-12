@@ -52,6 +52,12 @@ declare module 'lirc-client' {
     off(event: 'error', listener: (error: string) => void): this;
     once(event: 'error', listener: (error: string) => void): this;
 
+    on(event: 'receive', listener: (remote: string, button: string, repeat: string) => void): this;
+    off(event: 'receive', listener: (remote: string, button: string, repeat: string) => void): this;
+    once(event: 'receive', listener: (remote: string, button: string, repeat: string) => void): this;
+
+    // 'message' looks internal
+
     /**
      * @constructor
      * @param {object} [config]  Configuration object.
