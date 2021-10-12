@@ -67,7 +67,11 @@ class ControllerImpl extends EventEmitter implements Controller {
     this.emit('receive', remote, button, repeat);
 
     this.receiving = true;
-    this.receiveTimeout && clearTimeout(this.receiveTimeout);
+
+    if (this.receiveTimeout) {
+      clearTimeout(this.receiveTimeout);
+    }
+
     this.receiveTimeout = setTimeout(() => {
       this.receiving = false;
       this.processSendQueue();
