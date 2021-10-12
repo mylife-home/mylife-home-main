@@ -112,6 +112,7 @@ export class API extends EventEmitter {
         } catch (err) {
           if (err instanceof HttpError && (err as HttpError).httpStatusCode === 401) {
             // auth and retry
+            log.error(err, 'Authentication failed');
             this.setLogged(false);
             continue;
           }
