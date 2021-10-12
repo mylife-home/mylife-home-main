@@ -133,6 +133,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## core
  
  - les versions des plugins devraient etre dans les plugins, et pas dans core (dans son common) => on serait pas oblige de rebuild core a chaque changement de plugin
+   - pour `__WEBPACK_BUILD_INFO__` ne mettre que les packages qui ne commencent pas par `mylife-home-core-plugins-`
+   - faire un plugin Webpack pour que au build de plugins on ajoute un code avec side-effect pour aller ajouter du contenu dans un element temporaire du plugin loader.
+   - a la fin du load, le loader va e nsuite enregistrer la version dans buildInfo
 
 # Roadmap
 
