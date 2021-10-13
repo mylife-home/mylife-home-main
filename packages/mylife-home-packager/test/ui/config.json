@@ -3,7 +3,7 @@
     "console": true
   },
   "bus": {
-    "serverUrl": "tcp://localhost"
+    "serverUrl": "tcp://rpi-dev-home-main"
   },
   "web": {
     "port": 8001,
