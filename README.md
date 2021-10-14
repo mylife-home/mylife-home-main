@@ -231,6 +231,11 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
 
+## core
+- bugs:
+  - after 'chronyc makestep' (resync time), uptime in 'instance info' is wrong
+  - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only
+
 ## core/driver-tahoma
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
 - Unhandled event type: CommandExecutionStateChangedEvent
