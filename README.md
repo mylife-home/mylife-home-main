@@ -234,7 +234,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## core
 - bugs:
   - after 'chronyc makestep' (resync time), uptime in 'instance info' is wrong
-  - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only
+  - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
 
 ## core/driver-tahoma
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
