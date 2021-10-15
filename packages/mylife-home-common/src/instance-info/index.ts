@@ -11,8 +11,13 @@ export type ListenerCallback = (newData: InstanceInfo) => void;
 let instanceInfo: InstanceInfo;
 const listeners = new Map<object, ListenerCallback>();
 
+let refreshTimer: NodeJS.Timeout;
+
 export function init() {
   instanceInfo = create();
+
+  refreshTimer = setInterval(() => update(instanceInfo), 60000);
+  refreshTimer.unref();
 }
 
 export function get() {
@@ -30,11 +35,18 @@ export function listenUpdates(onUpdate: ListenerCallback): () => void {
 }
 
 function update(newData: InstanceInfo) {
-  instanceInfo = newData;
+  instanceInfo = {
+    ...newData, 
+    // use this opportunity to make uptimes up-to-date
+    systemUptime: os.uptime(),
+    instanceUptime: process.uptime(),
+  };
 
   for (const listener of listeners.values()) {
     listener(newData);
   }
+
+  refreshTimer.refresh();
 }
 
 export function addComponent(componentName: string, version: string) {
@@ -61,8 +73,8 @@ function create() {
     type: mainComponent,
     hardware: getHardwareInfo(),
     versions: {},
-    systemBootTime: uptimeToBoottime(os.uptime()),
-    instanceBootTime: uptimeToBoottime(process.uptime()),
+    systemUptime: os.uptime(),
+    instanceUptime: process.uptime(),
     hostname: os.hostname(),
     capabilities: [],
   };
@@ -76,10 +88,6 @@ function create() {
   addComponentVersion(versions, mainComponent);
 
   return data;
-}
-
-function uptimeToBoottime(uptime: number) {
-  return Date.now() - Math.round(uptime * 1000);
 }
 
 function getHardwareInfo() {

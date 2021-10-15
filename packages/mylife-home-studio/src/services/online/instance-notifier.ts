@@ -14,6 +14,7 @@ export class InstanceNotifier {
 
     const localInstanceInfo = new LocalInstanceInfo();
     this.instanceInfos.set(localInstanceInfo.name, localInstanceInfo);
+    localInstanceInfo.on('change', this.onInstanceInfoChange);
 
     for (const instanceName of this.transport.presence.getOnlines()) {
       this.onInstanceOnline(instanceName);

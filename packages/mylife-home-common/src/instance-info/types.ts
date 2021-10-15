@@ -22,8 +22,8 @@ export interface InstanceInfo {
     [component: string]: string;
   };
 
-  systemBootTime: number;
-  instanceBootTime: number;
+  systemUptime: number;
+  instanceUptime: number;
   hostname: string;
   capabilities: string[];
 }

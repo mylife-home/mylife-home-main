@@ -41,8 +41,8 @@ const OnlineInstancesView: FunctionComponent = () => {
             <TableHeader sort={sort} setSort={setSort} column='type' title='Type' />
             <TableHeader sort={sort} setSort={setSort} column='hostname' title={'Nom d\'hôte'} />
             <TableHeader sort={sort} setSort={setSort} column='hardware' title='Matériel' />
-            <TableHeader sort={sort} setSort={setSort} column='systemBootTime' title='Uptime système' />
-            <TableHeader sort={sort} setSort={setSort} column='instanceBootTime' title='Uptime instance' />
+            <TableHeader sort={sort} setSort={setSort} column='systemUptime' title='Uptime système' />
+            <TableHeader sort={sort} setSort={setSort} column='instanceUptime' title='Uptime instance' />
             <TableCell>{'Fonctionalités'}</TableCell>
             <TableCell>{'Versions'}</TableCell>
           </TableRow>
@@ -55,8 +55,8 @@ const OnlineInstancesView: FunctionComponent = () => {
               <TableCell>{instanceInfo.type}</TableCell>
               <TableCell>{instanceInfo.hostname}</TableCell>
               <TableCell>{instanceInfo.hardware}</TableCell>
-              <TableCell><Uptime value={instanceInfo.systemBootTime} /></TableCell>
-              <TableCell><Uptime value={instanceInfo.instanceBootTime} /></TableCell>
+              <TableCell><Uptime value={instanceInfo.systemUptime} /></TableCell>
+              <TableCell><Uptime value={instanceInfo.instanceUptime} /></TableCell>
               <TableCell><ChipArray values={instanceInfo.capabilities} /></TableCell>
               <TableCell><ChipArray values={Object.entries(instanceInfo.versions).map(([name, version]) => `${name}: ${version}`)} /></TableCell>
             </TableRow>

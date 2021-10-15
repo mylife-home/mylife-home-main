@@ -20,8 +20,7 @@ export default createNotifierEpic({
 function parseUpdate(updateData: shared.UpdateInstanceInfoData): Update {
   switch (updateData.operation) {
     case 'set': {
-      const data = parseInstanceInfo(updateData.data);
-      return { type: 'set', instanceName: updateData.instanceName, data } as SetUpdate;
+      return { type: 'set', instanceName: updateData.instanceName, data: updateData.data } as SetUpdate;
     }
     
     case 'clear':
@@ -30,12 +29,4 @@ function parseUpdate(updateData: shared.UpdateInstanceInfoData): Update {
     default:
       throw new Error(`Unsupported server operation: ${updateData.operation}`);
   }
-}
-
-function parseInstanceInfo(raw: shared.InstanceInfo) : InstanceInfo {
-  return {
-    ...raw,
-    systemBootTime: new Date(raw.systemBootTime),
-    instanceBootTime: new Date(raw.instanceBootTime),
-  };
 }
