@@ -1,3 +1,5 @@
+import { registerPluginVersion } from 'mylife-home-core';
+
 import './network';
 import './ui-button';
 import './ui-state-binary';
@@ -22,3 +24,6 @@ import './hw-sysfs-pwm-rgb';
 import './hw-tahoma-box';
 import './hw-tahoma-roller-shutter';
 import './hw-tahoma-sliding-gate';
+
+declare var __WEBPACK_PLUGIN_VERSION__: string;
+registerPluginVersion(__WEBPACK_PLUGIN_VERSION__);

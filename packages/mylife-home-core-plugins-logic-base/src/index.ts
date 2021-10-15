@@ -1,3 +1,5 @@
+import { registerPluginVersion } from 'mylife-home-core';
+
 import './step-relay';
 import './timer';
 
@@ -15,3 +17,6 @@ import './constant-byte';
 // value
 import './value-binary';
 import './value-nullable-percent';
+
+declare var __WEBPACK_PLUGIN_VERSION__: string;
+registerPluginVersion(__WEBPACK_PLUGIN_VERSION__);

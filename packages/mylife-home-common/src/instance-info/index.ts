@@ -37,11 +37,11 @@ function update(newData: InstanceInfo) {
   }
 }
 
-export function addComponent(componentName: string) {
+export function addComponent(componentName: string, version: string) {
   const newData = { ...instanceInfo };
   newData.versions = { ...instanceInfo.versions };
 
-  addComponentVersion(newData.versions, componentName);
+  addComponentVersion(newData.versions, componentName, version);
 
   update(newData);
 }
@@ -92,9 +92,12 @@ function getHardwareInfo() {
   }
 }
 
-function addComponentVersion(versions: { [component: string]: string }, componentName: string) {
+function addComponentVersion(versions: { [component: string]: string; }, componentName: string, version?: string) {
   const name = `mylife-home-${componentName}`;
-  const info = buildInfo.getInfo().modules[name];
-  const version = info?.version || '<unknown>';
+  if (!version) {
+    const info = buildInfo.getInfo().modules[name];
+    version || info?.version || '<unknown>';
+  }
+
   versions[name] = version;
 }

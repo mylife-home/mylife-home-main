@@ -1,5 +1,5 @@
 import path from 'path';
-import { DllPlugin, DllReferencePlugin } from 'webpack';
+import { DefinePlugin, DllPlugin, DllReferencePlugin } from 'webpack';
 import WaitPlugin from '../plugins/wait-plugin';
 import NoopPlugin from '../plugins/noop-plugin';
 import { Context } from '../context';
@@ -53,6 +53,9 @@ export const plugin = (context: Context, pluginName: string) =>  prepareServerCo
     new DllPlugin({ 
       name: `Plugins${kebabCaseToUpperCamelCase(pluginName)}`,
       path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
+    }),
+    new DefinePlugin({
+      __WEBPACK_PLUGIN_VERSION__: JSON.stringify(require(`mylife-home-core-plugins-${pluginName}/package.json`).version),
     })
   ],
 });

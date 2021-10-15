@@ -41,6 +41,10 @@ function createBuildInfo() {
       continue;
     }
 
+    if (dependency.startsWith('mylife-home-core-plugins-')) {
+      continue;
+    }
+
     const { version } = require(`${dependency}/package.json`);
     modules[dependency] = { version };
   }

@@ -144,7 +144,6 @@ class DescriptorBuilder {
 
 interface Context {
   readonly module: string;
-  readonly version: string;
   readonly registry: Registry;
   readonly builders: Map<PluginImplementation, DescriptorBuilder>;
 }
@@ -182,22 +181,22 @@ export function addState(type: PluginImplementation, name: string, options: Stat
   getBuilder(type).addState(name, options);
 }
 
-export function init(module: string, version: string, registry: Registry) {
+export function init(module: string, registry: Registry) {
   if (context) {
     throw new Error('Cannot init context while another one in use');
   }
 
   const builders = new Map<PluginImplementation, DescriptorBuilder>();
-  context = { module, version, registry, builders };
+  context = { module, registry, builders };
 }
 
-export function build() {
+export function build(version: string) {
   if (!context) {
     throw new Error('Cannot build context with no context');
   }
 
   for (const builder of context.builders.values()) {
-    const plugin = builder.build(context.module, context.version);
+    const plugin = builder.build(context.module, version);
     log.info(`Plugin loaded: ${plugin.id}`);
     context.registry.addPlugin(null, plugin);
   }

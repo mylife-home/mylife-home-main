@@ -9,6 +9,25 @@ declare function __non_webpack_require__(path: string): any;
 declare const __webpack_modules__: any;
 declare function __webpack_require__(id: any): any;
 
+let loadingPlugin = false;
+let loadingPluginVersion: string = null;
+
+/**
+ * Used by plugins at load time
+ * @param version 
+ */
+export function registerPluginVersion(version: string) {
+  if(!loadingPlugin) {
+    throw new Error('registerPluginVersion: can only call this API while loading a plugin');
+  }
+
+  if(loadingPluginVersion) {
+    throw new Error('registerPluginVersion: cannot call this API twice');
+  }
+
+  loadingPluginVersion = version;
+}
+
 export function loadPlugins(registry: components.Registry) {
   const pluginDirectory = path.join(__dirname, 'plugins');
   for(const fileName of fs.readdirSync(pluginDirectory)) {
@@ -20,21 +39,33 @@ export function loadPlugins(registry: components.Registry) {
 }
 
 function loadPlugin(registry: components.Registry, filePath: string) {
-  const bi = buildInfo.getInfo();
   const moduleName = path.parse(filePath).name;
-  const pluginVersion = bi.modules[`mylife-home-core-plugins-${moduleName}`].version;
+  let pluginVersion: string;
 
   log.info(`loading module ${moduleName} v${pluginVersion}`);
 
-  metadata.builder.init(moduleName, pluginVersion, registry);
+  metadata.builder.init(moduleName, registry);
+  loadingPlugin = true;
   try {
     webPackLoadDll(filePath);
-    metadata.builder.build();
+
+    if(!loadingPluginVersion) {
+      throw new Error('registerPluginVersion: must be called while loading a plugin');
+    }
+
+    pluginVersion = loadingPluginVersion;
+
+    metadata.builder.build(pluginVersion);
   } finally {
     metadata.builder.terminate();
+    loadingPlugin = false;
+    loadingPluginVersion = null;
   }
 
-  instanceInfo.addComponent(`core-plugins-${moduleName}`);
+  instanceInfo.addComponent(`core-plugins-${moduleName}`, pluginVersion);
+
+  log.info(`loaded module ${moduleName} v${pluginVersion}`);
+
 }
 
 function webPackLoadDll(dllPath: string) {
