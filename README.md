@@ -130,13 +130,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
    - color4: en attente reste séquence (eg double click)
    - rajouter un feedback pour dire que action primary ou secondary est executée
 
-## core
- 
- - les versions des plugins devraient etre dans les plugins, et pas dans core (dans son common) => on serait pas oblige de rebuild core a chaque changement de plugin
-   - pour `__WEBPACK_BUILD_INFO__` ne mettre que les packages qui ne commencent pas par `mylife-home-core-plugins-`
-   - faire un plugin Webpack pour que au build de plugins on ajoute un code avec side-effect pour aller ajouter du contenu dans un element temporaire du plugin loader.
-   - a la fin du load, le loader va e nsuite enregistrer la version dans buildInfo
-
 # Roadmap
 
 ## Livrer irc-bridge + ui: => OK
