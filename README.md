@@ -224,6 +224,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
 
+## ui
+- bug: when server offline, ui does not show it (but in its log we see "connection failed")
+
 ## core
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
