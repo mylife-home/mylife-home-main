@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import * as apk from '../../../../src/services/deploy/engine/apk';
 
-const repo1 = 'http://dl-4.alpinelinux.org/alpine/v3.7/main/';
-const repo2 = 'http://dl-4.alpinelinux.org/alpine/v3.6/main/';
+const repo1 = 'http://dl-4.alpinelinux.org/alpine/v3.14/main/';
+const repo2 = 'http://dl-4.alpinelinux.org/alpine/v3.14/community/';
 
 let cachedDatabase: apk.Database;
 
@@ -11,7 +11,7 @@ async function getDatabase() {
     return cachedDatabase;
   }
 
-  const database = new apk.Database();
+  const database = new apk.Database('armhf');
   await database.addRepository(repo1);
   database.index();
   cachedDatabase = database;
@@ -19,53 +19,57 @@ async function getDatabase() {
 }
 
 const nodejsPackage = {
-  repo: 'http://dl-4.alpinelinux.org/alpine/v3.7/main',
-  raw: 'C:Q1taWtWhX/QRZfpLRjJlvtMbnPCEI=\n' +
+  repo: 'http://dl-4.alpinelinux.org/alpine/v3.14/main',
+  raw: 'C:Q1xvQh9xGQvObR8qaI3rXwKEEmYyQ=\n' +
     'P:nodejs\n' +
-    'V:8.9.3-r1\n' +
+    'V:14.18.1-r0\n' +
     'A:armhf\n' +
-    'S:7133998\n' +
-    'I:19424256\n' +
+    'S:12631604\n' +
+    'I:32923648\n' +
     'T:JavaScript runtime built on V8 engine - LTS version\n' +
     'U:https://nodejs.org/\n' +
     'L:MIT\n' +
     'o:nodejs\n' +
     'm:Jakub Jirutka <jakub@jirutka.cz>\n' +
-    't:1522619874\n' +
-    'c:d4baade662f4bfd0b0ab2a4706520298e35e8683\n' +
-    'D:ca-certificates nodejs-npm=8.9.3-r1 so:libc.musl-armhf.so.1 so:libcares.so.2 so:libcrypto.so.1.0.0 so:libgcc_s.so.1 so:libhttp_parser.so.2.7.1 so:libssl.so.1.0.0 so:libstdc++.so.6 so:libuv.so.1 so:libz.so.1\n' +
-    'p:nodejs-lts=8.9.3 cmd:node\n' +
+    't:1634120665\n' +
+    'c:d14dc410d94f444fb2a5efd2c831659c0c2ae579\n' +
+    'k:100\n' +
+    'D:ca-certificates nghttp2-libs>=1.41 /bin/sh so:libbrotlidec.so.1 so:libbrotlienc.so.1 so:libc.musl-armhf.so.1 so:libcares.so.2 so:libcrypto.so.1.1 so:libgcc_s.so.1 so:libnghttp2.so.14 so:libssl.so.1.1 so:libstdc++.so.6 so:libz.so.1\n' +
+    'p:nodejs-lts=14.18.1 cmd:node\n' +
     '\n',
   name: 'nodejs',
-  version: '8.9.3-r1',
+  version: '14.18.1-r0',
   architecture: 'armhf',
-  csum: Buffer.from([0xb5, 0xa5, 0xad, 0x5a, 0x15, 0xff, 0x41, 0x16, 0x5f, 0xa4, 0xb4, 0x63, 0x26, 0x5b, 0xed, 0x31, 0xb9, 0xcf, 0x08, 0x42]),
+  csum: Buffer.from([0xc6, 0xf4, 0x21, 0xf7, 0x11, 0x90, 0xbc, 0xe6, 0xd1, 0xf2, 0xa6, 0x88, 0xde, 0xb5, 0xf0, 0x28, 0x41, 0x26, 0x63, 0x24]),
   dependencies: {
     'ca-certificates': '*',
-    'nodejs-npm': '8.9.3-r1',
+    'nghttp2-libs': '*',
+    '/bin/sh': '*',
+    'so:libbrotlidec.so.1': '*',
+    'so:libbrotlienc.so.1': '*',
     'so:libc.musl-armhf.so.1': '*',
     'so:libcares.so.2': '*',
-    'so:libcrypto.so.1.0.0': '*',
+    'so:libcrypto.so.1.1': '*',
     'so:libgcc_s.so.1': '*',
-    'so:libhttp_parser.so.2.7.1': '*',
-    'so:libssl.so.1.0.0': '*',
+    'so:libnghttp2.so.14': '*',
+    'so:libssl.so.1.1': '*',
     'so:libstdc++.so.6': '*',
-    'so:libuv.so.1': '*',
     'so:libz.so.1': '*'
   },
-  provides: { nodejs: '8.9.3-r1', 'nodejs-lts': '8.9.3' },
-  size: 7133998
+  provides: { nodejs: '14.18.1-r0', 'nodejs-lts': '14.18.1' },
+  size: 12631604
 };
 
 describe('APK', () => {
   it('should get database', async () => {
     const database = await getDatabase();
-    expect(database.list().length).to.equal(5655);
+    expect(database.list().length).to.equal(4747);
+    console.log(database.getByName('nodejs'));
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
   });
 
   it('should download multiple repositories', async () => {
-    const database = new apk.Database();
+    const database = new apk.Database('armhf');
     await database.addRepository(repo2);
     await database.addRepository(repo1);
     database.index();
@@ -86,20 +90,18 @@ describe('APK', () => {
 
     const packages = installList.list().map((it) => it.name + '-' + it.version);
     expect(packages).to.deep.equal([
-      'nodejs-8.9.3-r1',
-      'ca-certificates-20190108-r0',
-      'busybox-1.27.2-r11',
-      'musl-1.1.18-r4',
-      'libressl2.6-libcrypto-2.6.5-r0',
-      'nodejs-npm-8.9.3-r1',
-      'c-ares-1.13.0-r0',
-      'libcrypto1.0-1.0.2t-r0',
-      'zlib-1.2.11-r1',
-      'libgcc-6.4.0-r5',
-      'http-parser-2.7.1-r1',
-      'libssl1.0-1.0.2t-r0',
-      'libstdc++-6.4.0-r5',
-      'libuv-1.17.0-r0'
+      'nodejs-14.18.1-r0',
+      'ca-certificates-20191127-r5',
+      'busybox-1.33.1-r3',
+      'musl-1.2.2-r3',
+      'libcrypto1.1-1.1.1l-r0',
+      'nghttp2-libs-1.43.0-r0',
+      'brotli-libs-1.0.9-r5',
+      'c-ares-1.17.2-r0',
+      'libgcc-10.3.1_git20210424-r2',
+      'libssl1.1-1.1.1l-r0',
+      'libstdc++-10.3.1_git20210424-r2',
+      'zlib-1.2.11-r3',
     ]);
   });
 });
