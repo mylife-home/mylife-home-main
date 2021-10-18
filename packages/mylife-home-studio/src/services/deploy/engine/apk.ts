@@ -6,6 +6,8 @@ import { BufferWriter, apipe } from './buffers';
 
 type DictString = { [key: string]: string; };
 
+// https://docs.alpinelinux.org/user-handbook/0.1a/Working/apk.html
+
 const indexHeaders: DictString = {
   // https://wiki.alpinelinux.org/wiki/Apk_spec
   A: 'architecture', // Architecture
@@ -36,6 +38,67 @@ export interface Package {
   dependencies: DictString;
   provides: DictString;
   size: number;
+}
+
+class Version {
+  readonly major: number;
+  readonly minor: number;
+  readonly revision: number;
+  readonly release: number;
+
+  constructor(value: string) {
+    const [version, release] = value.split('-r');
+    const [major, minor, revision] = version.split('.');
+    this.major = parseInt(major, 10);
+    this.minor = parseInt(minor, 10);
+    this.revision = parseInt(revision, 10);
+    this.release = parseInt(release, 10);
+
+    if (isNaN(this.major) || isNaN(this.release)) {
+      throw new Error(`Invalid version: '${value}'`);
+    }
+  }
+
+  toString() {
+    let value = this.major.toString();
+    if (!isNaN(this.minor)) {
+      value += '.' + this.minor.toString();
+    }
+    if (!isNaN(this.revision)) {
+      value += '.' + this.revision.toString();
+    }
+
+    return value + '-r' + this.release.toString();
+  }
+
+  equals(other: Version) {
+    return this.major === other.major
+      && this.minor === other.minor
+      && this.revision === other.revision
+      && this.release === other.release;
+  }
+
+  greater(other: Version) {
+    if (this.major < other.major) {
+      return false;
+    } else if (this.major > other.major) {
+      return true;
+    }
+
+    if (this.minor < other.minor) {
+      return false;
+    } else if (this.minor > other.minor) {
+      return true;
+    }
+
+    if (this.revision < other.revision) {
+      return false;
+    } else if (this.revision > other.revision) {
+      return true;
+    }
+
+    return this.release > other.release;
+  }
 }
 
 export class Database {
@@ -152,12 +215,6 @@ export class Database {
         continue;
       }
 
-      if (dep.startsWith('!') || dep.startsWith('cmd:')) {
-        // FIXME
-        // ignore it for now
-        continue;
-      }
-
       let operator;
       let key;
       let version;
@@ -179,9 +236,6 @@ export class Database {
         version = split[1] || '*';
       }
 
-      if (!valideProvideDependency(key)) {
-        throw new Error(`Unsupported dependency : ${key} for package ${items.name}`);
-      }
       output.dependencies[key] = version;
     }
 
@@ -194,9 +248,6 @@ export class Database {
         continue;
       }
       const [key, version] = prov.split('=');
-      if (!valideProvideDependency(key)) {
-        continue;
-      }
       output.provides[key] = version || '*';
     }
 
@@ -292,6 +343,7 @@ export class InstallList {
     }
 
     if (version === '*') {
+      // return higher version
       return list[0];
     }
 
@@ -318,14 +370,6 @@ export class InstallList {
   }
 }
 
-function valideProvideDependency(key: string) {
-  const [prefix, name] = key.split(':');
-  if (!name) {
-    return true;
-  } // no prefix
-  return ['so', 'pc'].includes(prefix);
-}
-
 function addMapList<K, V>(map: Map<K, V[]>, key: K, value: V) {
   let list = map.get(key);
   if (!list) {
@@ -343,11 +387,13 @@ function sortMapList<K, V>(map: Map<K, V[]>, sorter: (a: V, b: V) => number) {
 function sortByVersionAndLocal(p1: Package, p2: Package) {
   // best higher possible version
   // best local package
+  const v1 = new Version(p1.version);
+  const v2 = new Version(p2.version);
 
-  if (p1.version < p2.version) {
+  if (v2.greater(v1)) {
     return 1;
   }
-  if (p1.version > p2.version) {
+  if (v1.greater(v2)) {
     return -1;
   }
 
