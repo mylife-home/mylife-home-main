@@ -56,7 +56,7 @@ const nodejsPackage = {
     'so:libstdc++.so.6': '*',
     'so:libz.so.1': '*'
   },
-  provides: { nodejs: '14.18.1-r0', 'nodejs-lts': '14.18.1' },
+  provides: { 'cmd:node': '*', nodejs: '14.18.1-r0', 'nodejs-lts': '14.18.1' },
   size: 12631604
 };
 
@@ -73,12 +73,21 @@ describe('APK', () => {
     await database.addRepository(repo2);
     await database.addRepository(repo1);
     database.index();
-    expect(database.list().length).to.equal(11161);
+    expect(database.list().length).to.equal(13102);
     expect(database.getByName('nodejs')).to.deep.equal(nodejsPackage);
 
     expect(database.getByProvide('nodejs').map((p) => ({ name: p.name, version: p.version }))).to.deep.equal([
-      { name: 'nodejs', version: '8.9.3-r1' },
-      { name: 'nodejs', version: '6.10.3-r2' },
+      { name: 'nodejs-current', version: '16.11.1-r0' },
+      { name: 'nodejs', version: '14.18.1-r0' },
+    ]);
+
+    expect(database.getByProvide('cmd:node').map((p) => ({ name: p.name, version: p.version }))).to.deep.equal([
+      { name: 'nodejs-current', version: '16.11.1-r0' },
+      { name: 'nodejs', version: '14.18.1-r0' },
+    ]);
+
+    expect(database.getByProvide('lirc').map((p) => ({ name: p.name, version: p.version }))).to.deep.equal([
+      { name: 'lirc', version: '0.10.1-r1' },
     ]);
   });
 
