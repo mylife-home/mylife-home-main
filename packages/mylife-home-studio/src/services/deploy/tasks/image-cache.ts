@@ -14,7 +14,7 @@ export const execute: TaskImplementation = async (context, parameters) => {
   const { arch } = parameters;
   const log = createLogger(context, 'image:cache');
   let repositories = readConfigFileLines(context, ['etc', 'apk', 'repositories']);
-  let packages = readConfigFileLines(context, ['etc', 'apk', 'world']);
+  const packages = readConfigFileLines(context, ['etc', 'apk', 'world']);
 
   log.info(`setup image cache for arch '${arch}'`);
 

@@ -337,6 +337,13 @@ export class InstallList {
   }
 
   _findDependency(name: string, version: string) {
+    // Don't understand how really apk implements resolve logic,
+    // but it resolve 'nodejs' as nodejs v14 and node 'nodejs-current' v15 (which also PROVIDE nodejs)
+    const byName = this.database.getByName(name);
+    if(byName && (byName.version === version || version === '*')) {
+      return byName;
+    }
+
     const list = this.database.getByProvide(name);
     if (!list) {
       throw new Error(`Dependency not found : ${name}`);
