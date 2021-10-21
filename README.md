@@ -102,7 +102,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
 # Ameliorations v3
 
 ## studio
-
+ - tab
+   - click milieu = close
  - ui-designer
    - control cannot go outside of window (create, move, resize)
    - on window resize, compute control position ratio + force then to be inside window if on borders
@@ -257,6 +258,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-set40' executing action 'action' with 'false'
 ```
 - Tahoma composants offline, pas de log
+-> Mercredi 20/10 matin
 
 # Notes
 
