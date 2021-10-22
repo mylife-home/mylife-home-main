@@ -111,6 +111,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
  - core-designer
    - multi-select
    - importer des plugins depuis les fichiers de déploiement
+   - importer des plugins depuis online => split par instance
  - git
    - use simple-git to have vscode-like basic git interface and drop gitconvex
    - besoins:
@@ -216,7 +217,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - Vérifier que les composants externes existent bien (avec bon plugin etc)
     - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
     - Vérifier qu'on peut déployer les bindings, et faire une erreur de validation plutot qu'à l'execution
-    - Vérifier que les configs des composants sont corrects (correspondent bien aux plugins)
+    - Vérifier que les configs des composants sont corrects
+      - correspondent bien aux plugins
+      - existent (pas null ou undefined)
+      - qu'il n'y ait pas d'autres clés de config
     - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
   - deploy en ligne
     - augmenter le timeout de call
@@ -284,3 +288,8 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - home-resources
  - dns *-old.apps.mti-team2.dyndns.org and home.mti-team2.dyndns.org
  - portal *old
+
+## drivers
+ - ac dimmer
+   Can ac dimmer work JS only ? (Or cpp userland?)
+   npm epoll = 20k interrupts /sec on rpi4???
