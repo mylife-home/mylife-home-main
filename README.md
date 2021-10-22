@@ -228,6 +228,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - si possible ajouter un progress
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
+  - pouvoir desactiver une etape (sans la supprimer)
+  - pouvoir rajouter des notes sur une etape
 
 ## ui
 - bug: when server offline, ui does not show it (but in its log we see "connection failed")
