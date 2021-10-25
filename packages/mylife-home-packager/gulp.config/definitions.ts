@@ -41,6 +41,7 @@ export const projects = {
       'driver-lirc': buildCorePluginProjectConfiguration('driver-lirc'),
       'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
       'driver-sensors': buildCorePluginProjectConfiguration('driver-sensors'),
+      'driver-sysfs': buildCorePluginProjectConfiguration('driver-sysfs', { nativeModules: ['epoll/build/Release/epoll.node'] }),
       'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
       'irc': buildCorePluginProjectConfiguration('irc'),
       'logic-base': buildCorePluginProjectConfiguration('logic-base'),
@@ -66,11 +67,11 @@ export const projects = {
   },
 };
 
-function buildCorePluginProjectConfiguration(name: string) {
+function buildCorePluginProjectConfiguration(name: string, wpPptions: { [name: string]: any } = {}) {
   return {
     ts: new TsBuild(`mylife-home-core-plugins-${name}`),
-    dev: new WebpackBuild('core', `plugins-${name}`, 'dev'),
-    prod: new WebpackBuild('core', `plugins-${name}`, 'prod'),
+    dev: new WebpackBuild('core', `plugins-${name}`, 'dev', wpPptions),
+    prod: new WebpackBuild('core', `plugins-${name}`, 'prod', wpPptions),
     version: getPackageVersion(`mylife-home-core-plugins-${name}`),
   };
 }

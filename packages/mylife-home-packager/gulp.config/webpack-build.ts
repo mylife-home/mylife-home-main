@@ -5,8 +5,9 @@ export class WebpackBuild {
   private readonly compiler: Compiler;
   private readonly statsOptions: any;
 
-  constructor(binary: string, part: string, mode: Mode) {
+  constructor(binary: string, part: string, mode: Mode, options: { [name: string]: any } = {}) {
     const context = createContext(mode);
+    Object.assign(context.options, options);
     const configurationFactory = getConfigurationFactory(binary, part);
     const config = configurationFactory(context);
 

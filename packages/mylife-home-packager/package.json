@@ -84,6 +84,7 @@
     "mylife-home-core-plugins-driver-lirc": "^1.0.0",
     "mylife-home-core-plugins-driver-mpd": "^1.0.0",
     "mylife-home-core-plugins-driver-sensors": "^1.0.0",
+    "mylife-home-core-plugins-driver-sysfs": "^1.0.0",
     "mylife-home-core-plugins-driver-tahoma": "^1.0.0",
     "mylife-home-core-plugins-irc": "^1.0.0",
     "mylife-home-core-plugins-logic-base": "^1.0.0",
