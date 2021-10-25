@@ -6,7 +6,7 @@ import * as poll from './poll';
 const log = logger.createLogger('mylife:home:core:plugins:driver-sysfs:engine:device');
 
 export class Device {
-  private exported = false;
+  private _exported = false;
   private pollers: Poller[];
 
   constructor(private readonly className: string, private readonly devicePrefix: string, private readonly gpio: number) {}
@@ -23,24 +23,30 @@ export class Device {
     return `${this.className}/${this.devicePrefix}${this.gpio}`;
   }
 
+  get exported() {
+    return this._exported;
+  }
+
   export() {
     const exportPath = this.classPath('export');
     try {
       fs.appendFileSync(exportPath, `${this.gpio}`);
-      return true;
+      this._exported = true;
     } catch (err) {
       log.error(err, `Could not export (path='${exportPath}', gpio='${this.gpio}'`);
-      return false;
+      this._exported = false;
     }
+
+    return this._exported;
   }
 
   close() {
-    if (!this.exported) {
+    if (!this._exported) {
       return;
     }
 
     this.unexport();
-    this.exported = false;
+    this._exported = false;
 
     let poller: Poller;
     while ((poller = this.pollers.pop())) {
@@ -60,7 +66,7 @@ export class Device {
   }
 
   write(attribute: string, value: string) {
-    if (!this.exported) {
+    if (!this._exported) {
       log.debug(`Could not write attribute because device is not exported (device='${this.deviceName}', attribute='${attribute}', value='${value}')`);
       return;
     }
@@ -74,7 +80,7 @@ export class Device {
   }
 
   poll(attribute: string, callback: (value: string) => void) {
-    if (!this.exported) {
+    if (!this._exported) {
       log.debug(`Could not poll attribute because device is not exported (device='${this.deviceName}', attribute='${attribute}')`);
       return;
     }

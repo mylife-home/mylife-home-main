@@ -1,8 +1,5 @@
 import { components } from 'mylife-home-core';
-import { logger } from 'mylife-home-common';
 import { Device } from './engine/device';
-
-const log = logger.createLogger('mylife:home:core:plugins:driver-sysfs:gpio-out');
 
 import m = components.metadata;
 
@@ -52,7 +49,7 @@ export class GpioOut {
     if (this.reverse) {
       value = !value;
     }
-    
+
     this.device.write('value', value ? '1' : '0');
   }
 }

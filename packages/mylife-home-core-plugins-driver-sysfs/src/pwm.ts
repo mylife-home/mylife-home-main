@@ -1,8 +1,5 @@
 import { components } from 'mylife-home-core';
-import { logger } from 'mylife-home-common';
 import { Device } from './engine/device';
-
-const log = logger.createLogger('mylife:home:core:plugins:driver-sysfs:pwm');
 
 import m = components.metadata;
 

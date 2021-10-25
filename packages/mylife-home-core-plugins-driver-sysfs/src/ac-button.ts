@@ -1,8 +1,5 @@
 import { components } from 'mylife-home-core';
-import { logger } from 'mylife-home-common';
 import { Device } from './engine/device';
-
-const log = logger.createLogger('mylife:home:core:plugins:driver-sysfs:ac-button');
 
 import m = components.metadata;
 
@@ -21,7 +18,7 @@ export class AcButton {
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
-    
+
     this.device.poll('value', this.onValueChange);
   }
 
