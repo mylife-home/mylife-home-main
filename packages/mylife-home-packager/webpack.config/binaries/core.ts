@@ -20,7 +20,7 @@ export const lib = (context: Context) => prepareServerConfiguration(context, {
     }),
     new CopyWebpackPlugin({ 
       patterns: [{ 
-        from: `${packagePath('mylife-home-core')}/dummy-dist-package.json`,
+        from: `${packagePath('mylife-home-core')}/package.json`,
         to: path.join(context.outputPath, 'core/package.json')
       }]
     })
