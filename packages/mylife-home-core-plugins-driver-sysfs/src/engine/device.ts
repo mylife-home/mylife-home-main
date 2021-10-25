@@ -18,7 +18,7 @@ export class Device {
   export() {
     const exportPath = this.classPath('export');
     try {
-      fs.writeFileSync(exportPath, `${this.gpio}`);
+      fs.appendFileSync(exportPath, `${this.gpio}`);
       return true;
     } catch (err) {
       log.error(err, `Could not export (path='${exportPath}', gpio='${this.gpio}'`);
@@ -29,11 +29,26 @@ export class Device {
   unexport() {
     const exportPath = this.classPath('unexport');
     try {
-      fs.writeFileSync(exportPath, `${this.gpio}`);
+      fs.appendFileSync(exportPath, `${this.gpio}`);
       return true;
     } catch (err) {
       log.error(err, `Could not unexport (path='${exportPath}', gpio='${this.gpio}'`);
       return false;
     }
   }
+
+  write(attribute: string, value: string | number) {
+    if (typeof value === 'number') {
+      value = `${value}`;
+    }
+
+    const attributePath = this.devicePath(attribute);
+    try {
+      fs.appendFileSync(attributePath, value);
+    } catch(err) {
+      log.error(err, `Could not write attribute (path='${attributePath}', value='${value}'`);
+    }
+  }
+
+  read() {}
 }
