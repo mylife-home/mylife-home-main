@@ -42,7 +42,7 @@ function loadPlugin(registry: components.Registry, filePath: string) {
   const moduleName = path.parse(filePath).name;
   let pluginVersion: string;
 
-  log.info(`loading module ${moduleName} v${pluginVersion}`);
+  log.info(`loading module ${moduleName}`);
 
   metadata.builder.init(moduleName, registry);
   loadingPlugin = true;
