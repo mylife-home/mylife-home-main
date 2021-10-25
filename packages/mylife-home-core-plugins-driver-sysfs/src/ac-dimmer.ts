@@ -23,9 +23,7 @@ export class AcDimmer {
 
   destroy() {
     this.setState(0);
-    if (this.online) {
-      this.device.unexport();
-    }
+    this.device.close();
   }
 
   @m.state
@@ -41,8 +39,6 @@ export class AcDimmer {
   }
 
   private setState(value = this.value) {
-    if (this.online) {
-      this.device.write('value', value);
-    }
+    this.device.write('value', value);
   }
 }

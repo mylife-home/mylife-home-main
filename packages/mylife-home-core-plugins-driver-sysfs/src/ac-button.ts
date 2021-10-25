@@ -21,12 +21,11 @@ export class AcButton {
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+    this.device.poll('value', this.onValueChange);
   }
 
   destroy() {
-    if (this.online) {
-      this.device.unexport();
-    }
+    this.device.close();
   }
 
   @m.state
@@ -34,4 +33,8 @@ export class AcButton {
 
   @m.state
   value: boolean = false;
+
+  private readonly onValueChange = (data: string) => {
+    this.value = data === '1';
+  };
 }

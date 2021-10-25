@@ -19,6 +19,10 @@ export class Device {
     return this.classPath(`${this.devicePrefix}${this.gpio}`, ...parts);
   }
 
+  private deviceName() {
+    return `${this.className}/${this.devicePrefix}${this.gpio}`;
+  }
+
   export() {
     const exportPath = this.classPath('export');
     try {
@@ -31,10 +35,12 @@ export class Device {
   }
 
   close() {
-    if (this.exported) {
-      this.unexport();
-      this.exported = false;
+    if (!this.exported) {
+      return;
     }
+
+    this.unexport();
+    this.exported = false;
 
     let poller: Poller;
     while ((poller = this.pollers.pop())) {
@@ -54,6 +60,11 @@ export class Device {
   }
 
   write(attribute: string, value: string | number) {
+    if (!this.exported) {
+      log.debug(`Could not write attribute because device is not exported (device='${this.deviceName}', attribute='${attribute}', value='${value}')`);
+      return;
+    }
+
     if (typeof value === 'number') {
       value = `${value}`;
     }
@@ -67,6 +78,11 @@ export class Device {
   }
 
   poll(attribute: string, callback: (value: string) => void) {
+    if (!this.exported) {
+      log.debug(`Could not poll attribute because device is not exported (device='${this.deviceName}', attribute='${attribute}')`);
+      return;
+    }
+
     const attributePath = this.devicePath(attribute);
     this.pollers.push(new Poller(attributePath, callback));
   }
