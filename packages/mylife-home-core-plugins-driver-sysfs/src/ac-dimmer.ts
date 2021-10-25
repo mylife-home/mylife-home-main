@@ -18,6 +18,7 @@ export class AcDimmer {
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+    
     this.setState();
   }
 

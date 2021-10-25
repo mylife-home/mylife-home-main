@@ -21,6 +21,7 @@ export class AcButton {
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+    
     this.device.poll('value', this.onValueChange);
   }
 
