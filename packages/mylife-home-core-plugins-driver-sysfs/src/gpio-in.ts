@@ -18,19 +18,24 @@ const DEVICE_PREFIX = 'gpio';
 @m.plugin({ usage: m.PluginUsage.SENSOR })
 @m.config({ name: 'gpio', type: m.ConfigType.INTEGER })
 @m.config({ name: 'activelow', type: m.ConfigType.BOOL })
-@m.config({ name: 'pull', type: m.ConfigType.STRING, description: '"up" for pull up, "down" for pull down, anything else for no pull' })
 export class GpioIn {
   private readonly device: Device;
+  private readonly reverse: boolean;
 
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+
+    this.reverse = config.activelow;
+
+    this.device.write('direction', 'in');
+    this.device.write('edge', 'both');
+
+    this.device.poll('value', this.onValueChange);
   }
 
   destroy() {
-    if (this.online) {
-      this.device.unexport();
-    }
+    this.device.close();
   }
 
   @m.state
@@ -38,4 +43,14 @@ export class GpioIn {
 
   @m.state
   value: boolean = false;
+
+  private readonly onValueChange = (data: string) => {
+    let value = data === '1';
+
+    if(this.reverse) {
+      value = !value;
+    }
+
+    this.value = value;
+  };
 }

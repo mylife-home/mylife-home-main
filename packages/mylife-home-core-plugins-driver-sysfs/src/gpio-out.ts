@@ -19,16 +19,21 @@ const DEVICE_PREFIX = 'gpio';
 @m.config({ name: 'activelow', type: m.ConfigType.BOOL })
 export class GpioOut {
   private readonly device: Device;
+  private readonly reverse: boolean;
 
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+
+    this.reverse = config.activelow;
+
+    this.device.write('direction', 'out');
+    this.setState();
   }
 
   destroy() {
-    if (this.online) {
-      this.device.unexport();
-    }
+    this.setState(false);
+    this.device.close();
   }
 
   @m.state
@@ -36,9 +41,18 @@ export class GpioOut {
 
   @m.state
   value: boolean = false;
-  
+
   @m.action
   setValue(arg: boolean) {
+    this.value = arg;
+    this.setState();
+  }
 
+  private setState(value = this.value) {
+    if (this.reverse) {
+      value = !value;
+    }
+    
+    this.device.write('value', value ? '1' : '0');
   }
 }
