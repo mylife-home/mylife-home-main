@@ -59,14 +59,10 @@ export class Device {
     }
   }
 
-  write(attribute: string, value: string | number) {
+  write(attribute: string, value: string) {
     if (!this.exported) {
       log.debug(`Could not write attribute because device is not exported (device='${this.deviceName}', attribute='${attribute}', value='${value}')`);
       return;
-    }
-
-    if (typeof value === 'number') {
-      value = `${value}`;
     }
 
     const attributePath = this.devicePath(attribute);

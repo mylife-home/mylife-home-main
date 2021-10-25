@@ -21,12 +21,13 @@ export class Pwm {
   constructor(config: Configuration) {
     this.device = new Device(CLASS_NAME, DEVICE_PREFIX, config.gpio);
     this.online = this.device.export();
+
+    this.setState();
   }
 
   destroy() {
-    if (this.online) {
-      this.device.unexport();
-    }
+    this.setState(0);
+    this.device.close();
   }
 
   @m.state
@@ -37,6 +38,11 @@ export class Pwm {
 
   @m.action({ type : new m.Range(0, 100) })
   setValue(arg: number) {
-
+    this.value = arg;
+    this.setState();
+  }
+  
+  private setState(value = this.value) {
+    this.device.write('value', `${value}`);
   }
 }
