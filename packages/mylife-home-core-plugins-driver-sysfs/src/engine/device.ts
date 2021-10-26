@@ -19,7 +19,7 @@ export class Device {
     return this.classPath(`${this.devicePrefix}${this.gpio}`, ...parts);
   }
 
-  private deviceName() {
+  private get deviceName() {
     return `${this.className}/${this.devicePrefix}${this.gpio}`;
   }
 
