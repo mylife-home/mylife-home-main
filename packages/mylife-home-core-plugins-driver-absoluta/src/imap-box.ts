@@ -9,7 +9,7 @@ export interface Configuration extends ConnectionSettings {
   readonly boxKey: string;
 }
 
-@m.plugin({ usage: m.PluginUsage.SENSOR, description: 'Connextion IMAP pour récupérer les évènements de zone Absoluta' })
+@m.plugin({ usage: m.PluginUsage.SENSOR, description: 'Connexion IMAP pour récupérer les évènements de zone Absoluta' })
 @m.config({ name: 'boxKey', type: m.ConfigType.STRING, description: 'Identifiant pour que les zones soient mises à jour à partir de cette imap-box' })
 @m.config({ name: 'user', type: m.ConfigType.STRING })
 @m.config({ name: 'password', type: m.ConfigType.STRING })
