@@ -228,6 +228,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - augmenter le timeout de call
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
+  - ne pas crasher si un projet n'est pas valide
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
