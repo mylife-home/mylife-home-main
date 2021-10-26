@@ -14,12 +14,12 @@ export const lib = (context: Context) => prepareServerConfiguration(context, {
     libraryTarget: 'commonjs2'
   },
   plugins: [
-    new DllPlugin({ 
+    new DllPlugin({
       name: 'CoreLib',
       path: libManifest(context)
     }),
-    new CopyWebpackPlugin({ 
-      patterns: [{ 
+    new CopyWebpackPlugin({
+      patterns: [{
         from: `${packagePath('mylife-home-core')}/package.json`,
         to: path.join(context.outputPath, 'core/package.json')
       }]
@@ -44,12 +44,35 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
 
 export const plugin = (context: Context, pluginName: string) => {
   const nativeModules = context.options.nativeModules as string[] || [];
+
+  const alias: { [key: string]: string; } = {};
+
+  // bypass bindings
+  for (const nativeModule of nativeModules) {
+    alias[path.basename(nativeModule, '.node')] = nativeModule;
+  }
+
   return prepareServerConfiguration(context, {
     entry: {
       [`core/plugins/${pluginName}`]: `mylife-home-core-plugins-${pluginName}`,
     },
     output: {
       libraryTarget: 'commonjs2'
+    },
+    resolve: {
+      alias,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.node$/,
+          loader: 'node-loader',
+          options: {
+            // put it in the dedicated folder
+            name: '../native/[name].[ext]',
+          },
+        },
+      ],
     },
     plugins: [
       createWait(context),
@@ -59,21 +82,15 @@ export const plugin = (context: Context, pluginName: string) => {
         sourceType: 'commonjs2',
         name: '../lib',
       }),
-      new DllPlugin({ 
+      new DllPlugin({
         name: `Plugins${kebabCaseToUpperCamelCase(pluginName)}`,
         path: path.join(context.outputPath, `core/plugins/${pluginName}.js.manifest`)
       }),
       new DefinePlugin({
         __WEBPACK_PLUGIN_VERSION__: JSON.stringify(require(`mylife-home-core-plugins-${pluginName}/package.json`).version),
-      }),
-      nativeModules.length > 0 ? new CopyWebpackPlugin({
-        patterns: nativeModules.map(nativeModule => ({
-          from: `${pluginPath(pluginName)}/node_modules/${nativeModule}`, 
-          to: path.join(context.outputPath, `core/build/${path.basename(nativeModule)}`)
-        }))
-      }) : null
-    ].filter(plugin => plugin),
-  })
+      })
+    ],
+  });
 };
 
 export function listPlugins() {
