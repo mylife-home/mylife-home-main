@@ -197,7 +197,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   => agent:key  => agentKey
   => agent:port removed
 
-## Migrer hallbox
+## Migrer hallbox => OK (lirc failing)
 - sensors
 - lirc
   => repeats: integer => boolean (1=true, 0=false)
