@@ -268,6 +268,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ```
 - Tahoma composants offline, pas de log
 -> Mercredi 20/10 matin
+   => devient verouille si login rawRequest ne repond pas!
+   => ajouté timeout sur request, voir si ca corrige, sinon il faudra gerer avec un timeout directement sur la iere promise (Promise.race() avec setTimeout)
 
 # Notes
 
