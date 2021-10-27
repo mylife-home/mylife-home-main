@@ -7,7 +7,7 @@ const log = logger.createLogger('mylife:home:core:plugins:driver-sysfs:engine:de
 
 export class Device {
   private _exported = false;
-  private pollers: Poller[];
+  private readonly pollers: Poller[] = [];
 
   constructor(private readonly className: string, private readonly devicePrefix: string, private readonly gpio: number) {}
 
