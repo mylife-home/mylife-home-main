@@ -128,7 +128,7 @@ export class API extends EventEmitter {
     const responseData = await new Promise<Buffer>((resolve, reject) => {
       try {
         const url = `https://tahomalink.com/enduser-mobile-web/enduserAPI${query}`;
-        const request = https.request(url, { method }, (response) => {
+        const request = https.request(url, { method, timeout: 10000 }, (response) => {
           this.cookies.readResponse(response);
 
           const data: Buffer[] = [];
@@ -160,6 +160,11 @@ export class API extends EventEmitter {
 
         request.on('error', (err) => {
           reject(err);
+        });
+
+        request.on('timeout', () => {
+          request.destroy();
+          reject(new Error(`Got HTTP timeout (method='${method}', query='${query}')`));
         });
 
         this.cookies.writeRequest(request);
