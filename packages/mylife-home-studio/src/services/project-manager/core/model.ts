@@ -278,9 +278,14 @@ export class Model {
   }
 
   // Note: impacts checks are already done
-  importComponent(id: string, pluginId: string, external: boolean, config: { [id: string]: ConfigItem }) {
+  importComponent(id: string, pluginId: string, external: boolean, config: { [id: string]: ConfigItem; }) {
+    let position: { x: number; y: number; } = { x: 1, y: 1 };
+
     // plugin may have change so re-create
     if (this.hasComponent(id)) {
+      // if it already exists, keep its position
+      position = this.getComponent(id).data.position;
+
       this.clearComponent(id);
     }
 
@@ -288,7 +293,7 @@ export class Model {
 
     const componentData: CoreComponentData = {
       plugin: pluginId,
-      position: { x: 1, y: 1 },
+      position,
       config,
       external,
     };
