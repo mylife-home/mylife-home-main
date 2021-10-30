@@ -208,7 +208,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## Migrer
 
-rpi-home-sockets1
+rpi-home-sockets1 => OK
  - chp switch1,2
  - chp light1,2
 
