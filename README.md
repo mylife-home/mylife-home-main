@@ -206,6 +206,23 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - sysfs
   => drop gpio-in:pull (was backed by gpio-admin, can eventually try to reimplement /dev/mem stuff to achieve this, but I think anyway we cannot open /dev/mem anymore in recent std kernel versions)
 
+## Migrer
+
+rpi-home-sockets1
+ - chp switch1,2
+ - chp light1,2
+
+rpi-home-garden1
+ - arrosage4,5
+ - light1
+
+rpi2-home-garden2
+ - arrosage1,2,3
+ - guirlande1
+
+rpi0-home-garden4
+ - temp,pwm-rgb
+
 # TODO
 
 ## studio
