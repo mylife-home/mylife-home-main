@@ -202,7 +202,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - lirc
   => repeats: integer => boolean (1=true, 0=false)
 
-## Migrer epanel1 et epanel2
+## Migrer epanel1 et epanel2 => OK
 - sysfs
   => drop gpio-in:pull (was backed by gpio-admin, can eventually try to reimplement /dev/mem stuff to achieve this, but I think anyway we cannot open /dev/mem anymore in recent std kernel versions)
 
