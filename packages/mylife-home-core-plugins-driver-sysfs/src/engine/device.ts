@@ -112,7 +112,7 @@ class Poller {
       // Note: make the buffer reusable
       const buffer = Buffer.allocUnsafe(4096);
       const len = fs.readSync(this.fd, buffer, 0, buffer.length, 0);
-      const value = buffer.slice(0, len).toString();
+      const value = buffer.slice(0, len).toString().trimEnd(); // remove trailing \n
 
       this.callback(value);
     } catch (err) {
