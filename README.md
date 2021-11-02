@@ -216,7 +216,7 @@ rpi-home-garden1 => OK
  - arrosage4,5
  - light1
 
-rpi2-home-garden2
+rpi2-home-garden2 => OK
  - arrosage1,2,3
  - guirlande1
 
