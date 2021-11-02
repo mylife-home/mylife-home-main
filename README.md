@@ -212,7 +212,7 @@ rpi-home-sockets1 => OK
  - chp switch1,2
  - chp light1,2
 
-rpi-home-garden1
+rpi-home-garden1 => OK
  - arrosage4,5
  - light1
 
