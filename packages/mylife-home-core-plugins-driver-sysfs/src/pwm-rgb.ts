@@ -29,6 +29,10 @@ export class PwmRgb {
     this.greenDevice = new Device(CLASS_NAME, DEVICE_PREFIX, config.greenGpio);
     this.blueDevice = new Device(CLASS_NAME, DEVICE_PREFIX, config.blueGpio);
 
+    this.redDevice.export();
+    this.greenDevice.export();
+    this.blueDevice.export();
+
     this.online = this.redDevice.exported && this.greenDevice.exported && this.blueDevice.exported;
     this.setState();
   }
