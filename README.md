@@ -161,6 +161,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - pouvoir rajouter des notes sur une etape
 - git
   - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
+- online instances
+  - improve grid layout
 
 ## ui
 - bug: when server offline, ui does not show it (but in its log we see "connection failed")
