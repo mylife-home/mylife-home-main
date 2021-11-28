@@ -12,12 +12,18 @@ import TableRow from '@material-ui/core/TableRow';
 
 import { NamedInstanceInfo } from '../../store/online-instances-view/types';
 import { getInstancesInfos } from '../../store/online-instances-view/selectors';
+import Hardware from './hardware';
 import Uptime from './uptime';
 import ChipArray from './chip-array';
+import Wifi from './wifi';
+import Actions from './actions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: theme.spacing(3)
+  },
+  noWrap: {
+    whiteSpace: 'nowrap'
   }
 }));
 
@@ -45,20 +51,24 @@ const OnlineInstancesView: FunctionComponent = () => {
             <TableHeader sort={sort} setSort={setSort} column='instanceUptime' title='Uptime instance' />
             <TableCell>{'Fonctionalités'}</TableCell>
             <TableCell>{'Versions'}</TableCell>
+            <TableCell>{'Wifi'}</TableCell>
+            <TableCell>{'Actions'}</TableCell>
           </TableRow>
         </TableHead>
 
         <TableBody>
           {data.map(instanceInfo => (
             <TableRow key={instanceInfo.instanceName}>
-              <TableCell>{instanceInfo.instanceName}</TableCell>
-              <TableCell>{instanceInfo.type}</TableCell>
-              <TableCell>{instanceInfo.hostname}</TableCell>
-              <TableCell>{instanceInfo.hardware}</TableCell>
-              <TableCell><Uptime value={instanceInfo.systemUptime} /></TableCell>
-              <TableCell><Uptime value={instanceInfo.instanceUptime} /></TableCell>
+              <TableCell className={classes.noWrap}>{instanceInfo.instanceName}</TableCell>
+              <TableCell className={classes.noWrap}>{instanceInfo.type}</TableCell>
+              <TableCell className={classes.noWrap}>{instanceInfo.hostname}</TableCell>
+              <TableCell className={classes.noWrap}><Hardware value={instanceInfo.hardware} /></TableCell>
+              <TableCell className={classes.noWrap}><Uptime value={instanceInfo.systemUptime} /></TableCell>
+              <TableCell className={classes.noWrap}><Uptime value={instanceInfo.instanceUptime} /></TableCell>
               <TableCell><ChipArray values={instanceInfo.capabilities} /></TableCell>
               <TableCell><ChipArray values={Object.entries(instanceInfo.versions).map(([name, version]) => `${name}: ${version}`)} /></TableCell>
+              <TableCell className={classes.noWrap}><Wifi instanceName={instanceInfo.instanceName} /></TableCell>
+              <TableCell className={classes.noWrap}><Actions instanceName={instanceInfo.instanceName} /></TableCell>
             </TableRow>
           ))}
         </TableBody>
