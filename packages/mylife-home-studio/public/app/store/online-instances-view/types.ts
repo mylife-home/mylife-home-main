@@ -4,6 +4,7 @@ export const enum ActionTypes {
   SET_NOTIFICATION = 'online-instances-view/set-notification',
   CLEAR_NOTIFICATION = 'online-instances-view/clear-notification',
   PUSH_UPDATES = 'online-instances-view/push-updates',
+  EXECUTE_SYSTEM_RESTART = 'online-instances-view/execute-system-restart',
 }
 
 export { InstanceInfo }

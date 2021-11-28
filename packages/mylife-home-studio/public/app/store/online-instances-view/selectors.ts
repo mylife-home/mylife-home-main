@@ -13,3 +13,5 @@ export const getInstancesInfos = createSelector(
   (state: AppState) => getOnlineInstancesView(state).instances,
   (map) => Object.entries(map).map(([instanceName, instanceInfo]) => ({ instanceName, ...instanceInfo } as NamedInstanceInfo))
 );
+
+export const getInstanceInfo = (state: AppState, instanceName: string) =>  getOnlineInstancesView(state).instances[instanceName];
