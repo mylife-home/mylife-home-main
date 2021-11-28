@@ -26,4 +26,8 @@ export interface InstanceInfo {
   instanceUptime: number;
   hostname: string;
   capabilities: string[];
+
+  wifi?: {
+    rssi: number;
+  }
 }
