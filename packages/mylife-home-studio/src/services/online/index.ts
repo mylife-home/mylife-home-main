@@ -40,6 +40,7 @@ export class Online implements Service {
     Services.instance.sessionManager.registerServiceHandler('online/start-notify-history', session => this.historyNotifier.startNotify(session));
     Services.instance.sessionManager.registerServiceHandler('online/stop-notify-history', (session, payload: any) => this.historyNotifier.stopNotify(session, payload));
     Services.instance.sessionManager.registerServiceHandler('online/execute-component-action', (session, payload: any) => this.executeComponentAction(payload));
+    Services.instance.sessionManager.registerServiceHandler('online/execute-system-restart', (session, payload: any) => this.executeSystemRestart(payload));
     /* 
       online instances API should be published here, at least:
       - component config access
@@ -81,35 +82,53 @@ export class Online implements Service {
     return this.instanceNotifier.getInstancesByCapability(capability);
   }
 
+  hasInstanceCapability(instanceName: string, capability: string) {
+    return this.instanceNotifier.hasInstanceCapability(instanceName, capability);
+  }
+
+  checkInstanceCapability(instanceName: string, capability: string) {
+    if (!this.hasInstanceCapability(instanceName, capability)) {
+      throw new Error(`Instance '${instanceName}' does not have capability '${capability}'.'`)
+    }
+  }
+
   async uiSetDefinition(instanceName: string, definition: Definition) {
+    this.checkInstanceCapability(instanceName, 'ui-manager');
     await this.transport.rpc.call(instanceName, 'definition.set', definition);
   }
 
   async coreAddComponent(instanceName: string, config: ComponentConfig) {
+    this.checkInstanceCapability(instanceName, 'components-api');
     await this.transport.rpc.call(instanceName, 'components.add', config);
   }
 
   async coreRemoveComponent(instanceName: string, id: string) {
+    this.checkInstanceCapability(instanceName, 'components-api');
     await this.transport.rpc.call(instanceName, 'components.remove', { id });
   }
 
   async coreListComponents(instanceName: string): Promise<ComponentConfig[]> {
+    this.checkInstanceCapability(instanceName, 'components-api');
     return await this.transport.rpc.call(instanceName, 'components.list');
   }
 
   async coreAddBinding(instanceName: string, config: BindingConfig) {
+    this.checkInstanceCapability(instanceName, 'bindings-api');
     await this.transport.rpc.call(instanceName, 'bindings.add', config);
   }
 
   async coreRemoveBinding(instanceName: string, config: BindingConfig) {
+    this.checkInstanceCapability(instanceName, 'bindings-api');
     await this.transport.rpc.call(instanceName, 'bindings.remove', config);
   }
 
   async coreListBindings(instanceName: string): Promise<BindingConfig[]> {
+    this.checkInstanceCapability(instanceName, 'bindings-api');
     return await this.transport.rpc.call(instanceName, 'bindings.list');
   }
 
   async coreStoreSave(instanceName: string) {
+    this.checkInstanceCapability(instanceName, 'store-api');
     await this.transport.rpc.call(instanceName, 'store.save');
   }
 
@@ -117,4 +136,9 @@ export class Online implements Service {
     const component = this.registry.getComponent(componentId);
     component.executeAction(action, value);
   };
+
+  async executeSystemRestart({ instanceName, failSafe }: { instanceName: string, failSafe: boolean }) {
+    this.checkInstanceCapability(instanceName, 'restart-api');
+    await this.transport.rpc.call(instanceName, 'system.restart', { failSafe });
+  }
 }
