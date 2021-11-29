@@ -5,10 +5,10 @@ export interface InstanceInfo {
   type: string;
 
   /**
-   * 'rpi-<version>?' | 'arduino-<type?>' | 'esp8266'
+   * main: Raspberry ... | nodemcu | x64
+   * others are details like ram, cpu, ...
    */
-  hardware: string;
-
+  hardware: { [name: string]: string };
   /**
    * --- rpi
    * os: linux-xxx
@@ -16,7 +16,7 @@ export interface InstanceInfo {
    * mylife-home-core: 1.0.0
    * mylife-home-common: 1.0.0
    * --- esp/arduino
-   * program: 1.21.4
+   * mylife: 1.21.4
    */
   versions: {
     [component: string]: string;
