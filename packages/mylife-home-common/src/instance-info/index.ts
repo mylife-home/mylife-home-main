@@ -104,8 +104,8 @@ function addComponentVersion(versions: { [component: string]: string; }, compone
   const name = `mylife-home-${componentName}`;
   if (!version) {
     const info = buildInfo.getInfo().modules[name];
-    version || info?.version || '<unknown>';
+    version = info?.version || '<unknown>';
   }
-
+  
   versions[name] = version;
 }
