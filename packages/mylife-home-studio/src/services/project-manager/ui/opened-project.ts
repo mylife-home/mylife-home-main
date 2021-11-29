@@ -292,7 +292,7 @@ export class UiOpenedProject extends OpenedProject {
       return { validationErrors: validation.errors };
     }
 
-    const uiInstances = Services.instance.online.getInstancesByCapability('ui-manager');
+    const uiInstances = Services.instance.online.getInstancesByCapability('ui-api');
     if (uiInstances.length === 0) {
       return { deployError: `Pas d'instance UI en ligne pour deployer` };
     }

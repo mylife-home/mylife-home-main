@@ -93,7 +93,7 @@ export class Online implements Service {
   }
 
   async uiSetDefinition(instanceName: string, definition: Definition) {
-    this.checkInstanceCapability(instanceName, 'ui-manager');
+    this.checkInstanceCapability(instanceName, 'ui-api');
     await this.transport.rpc.call(instanceName, 'definition.set', definition);
   }
 
