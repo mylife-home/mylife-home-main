@@ -91,13 +91,20 @@ function create() {
 }
 
 function getHardwareInfo() {
+  const hardware: { [name: string]: string } = {};
+
   try {
-    const { revision } = pirev.getInfoSync();
-    return `raspberry pi ${revision.type} ${revision.revision} (processor=${revision.processor} memory=${revision.memory} manufacturer=${revision.manufacturer})`;
+    const { revision, model, cpus } = pirev.getInfoSync();
+    hardware.main = model;
+    hardware.processor = `${revision.processor} - ${cpus.length} cores`;
+    hardware.memory = revision.memory;
+    hardware.manufacturer = revision.manufacturer;
   } catch {
     // not a rpi
-    return os.arch();
+    hardware.main = os.arch();
   }
+
+  return hardware;
 }
 
 function addComponentVersion(versions: { [component: string]: string; }, componentName: string, version?: string) {
