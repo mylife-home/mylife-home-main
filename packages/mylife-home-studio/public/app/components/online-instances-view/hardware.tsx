@@ -1,15 +1,14 @@
 import React, { FunctionComponent } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
+import { addLineBreaks } from '../lib/add-line-breaks';
 
-const Hardware: FunctionComponent<{ value: string }> = ({ value }) => {
+const Hardware: FunctionComponent<{ value: string | { [name: string]: string } }> = ({ value }) => {
   if (!value) {
     return null;
   }
 
-  // Display all before first ()
-  // Note: inside () there are additional hw details on rpi
-  const skipIndex = value.indexOf('(');
-  if (skipIndex === -1) {
+  // TODO: remove this legacy when no instance use the old format
+  if (typeof value === 'string') {
     return (
       <>
         {value}
@@ -17,11 +16,11 @@ const Hardware: FunctionComponent<{ value: string }> = ({ value }) => {
     );
   }
 
-  const main = value.substring(0, skipIndex).trimEnd();
-  const details = value.slice(skipIndex + 1, -1); // expect ')' at the end
+  const { main, ...detailsObject } = value;
+  const details = Object.entries(detailsObject).map(([name, value]) => `${name}: ${value}`);
 
   return (
-    <Tooltip title={details}>
+    <Tooltip title={addLineBreaks(details)}>
       <div>
         {main}
       </div>
