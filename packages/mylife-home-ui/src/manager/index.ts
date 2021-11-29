@@ -22,6 +22,7 @@ export class Manager {
     await this.transport.rpc.serve('definition.set', async (definition: Definition) => this.model.setDefinition(definition));
 
     instanceInfo.addCapability('ui-manager');
+    instanceInfo.addCapability('ui-api');
   }
 
   async terminate() {
