@@ -155,6 +155,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - ajouter un popup bloquant de livraison en cours
     - si possible ajouter un progress
   - ne pas crasher si un projet n'est pas valide
+  - import:
+    - permettre d'importer des composants (comme externes) depuis online (pour esp)
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
