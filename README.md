@@ -221,5 +221,3 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - ac dimmer
    Can ac dimmer work JS only ? (Or cpp userland?)
    npm epoll = 20k interrupts /sec on rpi4???
-
-TODO bug capabilities sur deploiement
