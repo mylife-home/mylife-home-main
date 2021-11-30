@@ -162,7 +162,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
   - pouvoir rajouter des notes sur une etape
-  - permettre de ployer meme si une instance (externe ou binding) est hors-ligne (actuellement: "Cannot read properties of null (reading 'capabilities')")
 - git
   - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
 - online instances
