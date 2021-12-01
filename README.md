@@ -164,6 +164,12 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - pouvoir rajouter des notes sur une etape
 - git
   - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
+  - new git engine:
+    - seules operations :
+      - pull,
+      - push (avec commit comment),
+      - git shell ??? (pour gerer les conflits eventuellement)
+    - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
 - online instances
   - improve grid layout
 
