@@ -113,12 +113,19 @@ In Chrome: [chrome://inspect](chrome://inspect)
    - importer des plugins depuis les fichiers de déploiement
    - importer des plugins depuis online => split par instance
  - git
-   - use simple-git to have vscode-like basic git interface and drop gitconvex
-   - besoins:
-     - gestion de remotes => fetch, pull, push
-     - changement de branche
-     - selection staging + commit (vision diff)
-     - gestion des conflits ?
+   - v1:
+     - seules operations :
+       - pull,
+       - push (avec commit comment),
+       - git shell ??? (pour gerer les conflits eventuellement)
+     - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
+   - v2:
+     - use simple-git to have vscode-like basic git interface and drop gitconvex
+     - besoins:
+       - gestion de remotes => fetch, pull, push
+       - changement de branche
+       - selection staging + commit (vision diff)
+       - gestion des conflits ?
  - deploy
    - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 
@@ -164,14 +171,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - pouvoir rajouter des notes sur une etape
 - git
   - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
-  - new git engine:
-    - seules operations :
-      - pull,
-      - push (avec commit comment),
-      - git shell ??? (pour gerer les conflits eventuellement)
-    - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
-- online instances
-  - improve grid layout
 
 ## ui
 - bug: when server offline, ui does not show it (but in its log we see "connection failed")
