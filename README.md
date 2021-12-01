@@ -209,6 +209,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
    => devient verouille si login rawRequest ne repond pas!
    => ajouté timeout sur request, voir si ca corrige, sinon il faudra gerer avec un timeout directement sur la iere promise (Promise.race() avec setTimeout)
 
+## collector
+- logs
+- changements de status (+online/offline)
+
 # Notes
 
 ## git
