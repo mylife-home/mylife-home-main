@@ -179,6 +179,43 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
 
+- errors:
+```
+Error: Plugin esp-home-poele-core:light.rgb does not exist in the registry
+    at Registry.getPlugin (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:88:19)
+    at BusInstance.clear (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:102:46)
+    at RemoteMetadataViewImpl.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:64:50)
+    at RemoteMetadataViewImpl.emit (events.js:400:28)
+    at Client.RemoteMetadataViewImpl.onMessage (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/metadata.js:40:22)
+    at Client.emit (events.js:412:35)
+    at MqttClient.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/client.js:54:60)
+    at MqttClient.emit (events.js:400:28)
+    at MqttClient._handlePublish (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
+    at MqttClient._handlePacket (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:410:12)
+Error: Component rgblight-tv1 does not exist in the registry
+    at Registry.getComponentData (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:135:19)
+    at Registry.getComponent (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:127:21)
+    at BusInstance.clear (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:106:49)
+    at RemoteMetadataViewImpl.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:64:50)
+    at RemoteMetadataViewImpl.emit (events.js:400:28)
+    at Client.RemoteMetadataViewImpl.onMessage (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/metadata.js:40:22)
+    at Client.emit (events.js:412:35)
+    at MqttClient.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/client.js:54:60)
+    at MqttClient.emit (events.js:400:28)
+    at MqttClient._handlePublish (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
+Error: Plugin esp-home-tv-plug-core:sensor.binary does not exist in the registry
+    at Registry.getPlugin (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:88:19)
+    at BusInstance.clear (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:102:46)
+    at RemoteMetadataViewImpl.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:64:50)
+    at RemoteMetadataViewImpl.emit (events.js:400:28)
+    at Client.RemoteMetadataViewImpl.onMessage (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/metadata.js:40:22)
+    at Client.emit (events.js:412:35)
+    at MqttClient.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/client.js:54:60)
+    at MqttClient.emit (events.js:400:28)
+    at MqttClient._handlePublish (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
+    at MqttClient._handlePacket (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:410:12)
+```
+
 ## core/driver-tahoma
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
 - Unhandled event type: CommandExecutionStateChangedEvent
