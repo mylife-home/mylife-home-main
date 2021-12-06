@@ -190,9 +190,6 @@ Error: Component rgblight-tv1 does not exist in the registry
     at MqttClient._handlePublish (/app/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
 ```
 
-## ui
-- bug: when server offline, ui does not show it (but in its log we see "connection failed")
-
 ## core
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
