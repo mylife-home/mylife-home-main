@@ -24,7 +24,7 @@ export class Git implements Service {
     const config = tools.getConfigItem<Config>('git');
     this.status.appUrl = config.appUrl;
 
-    this.intervalUpdater = new Interval(1000, this.intervalUpdate);
+    this.intervalUpdater = new Interval(60000, this.intervalUpdate);
     this.statusUpdater = new Debounce(100, this.updateStatus);
   }
 
