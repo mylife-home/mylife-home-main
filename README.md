@@ -171,6 +171,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - pouvoir rajouter des notes sur une etape
 - git
   - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
+- logs
+  - afficher le log complet dans un tooltip si le message ne tient pas entier sur la ligne
+  - pouvoir c/c des logs
 - vue des instances :
   - crash studio quand une instance ESP reboot et que la vue des instances est ouverte
 ```
@@ -197,6 +200,9 @@ Error: Component rgblight-tv1 does not exist in the registry
 ## core/driver-tahoma
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
 - Unhandled event type: CommandExecutionStateChangedEvent
+
+
+Unhandled event type: CommandExecutionStateChangedEvent ({"timestamp":1638783883302,"setupOID":"3121bb1c-697c-4882-a76d-35bcad622ba9","execId":"8f218a57-98e4-e192-4087-bfd52b9432ff","newState":"FAILED","deviceURL":"io://0220-6975-2311/4185789","rank":0,"failureTypeCode":106,"name":"CommandEx
 
 ## core/driver-absoluta
 06/12/2021, 10:30:55 ERROR  rpi-home-main-core mylife:home:core:plugins:driver-absoluta:engine:parser (seq: 10702, from: noreply@absoluta.info, date: 2021-12-06T06:20:00.000Z, subject: 'Bentel Absoluta: Générique', row: '> AV Salon (Maison) (11:07:21 06/DÃ©c/21)<') : Invalid date in message
