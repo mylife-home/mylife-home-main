@@ -169,8 +169,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
   - pouvoir rajouter des notes sur une etape
-- git
-  - apparemment le check frequent fait foirer le renommage de fichier en dev, et fait foirer de temps en temps git convex
 - logs
   - afficher le log complet dans un tooltip si le message ne tient pas entier sur la ligne
   - pouvoir c/c des logs
