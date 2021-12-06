@@ -197,32 +197,6 @@ Error: Component rgblight-tv1 does not exist in the registry
 ## core/driver-tahoma
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
 - Unhandled event type: CommandExecutionStateChangedEvent
-```
-08/10/2021, 12:54:43 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:client - Execution ended '5f8a5f92-ac10-3e01-18e7-2cb6ea773437' FAILED
-08/10/2021, 12:54:43 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:client - Unhandled event type: CommandExecutionStateChangedEvent
-08/10/2021, 12:54:43 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-state' executing action 'setValue' with '77'
-08/10/2021, 12:54:43 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:api - fetchEvents
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-state' executing action 'setValue' with '89'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:api - fetchEvents
-08/10/2021, 12:54:41 - ERROR - rpi-home-main-core - mylife:home:common:tools - Error on fireAsync
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-selector' executing action 'set2' with 'false'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-set40' executing action 'action' with 'false'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest' executing action 'setValue' with '-1'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:api - cancel
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:client - Canceling execution '5f8a5f92-ac10-3e01-18e7-2cb6ea773437'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest' executing action 'setValue' with '40'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-selector' executing action 'set2' with 'true'
-08/10/2021, 12:54:41 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-set40' executing action 'action' with 'true'
-08/10/2021, 12:54:39 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:api - fetchEvents
-08/10/2021, 12:54:37 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:api - fetchEvents
-08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:plugins:driver-tahoma:engine:client - Started execution '5f8a5f92-ac10-3e01-18e7-2cb6ea773437' of command 'setClosure' on device 'io://0220-6975-2311/14430852'
-08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-selector' executing action 'set2' with 'false'
-08/10/2021, 12:54:36 - DEBUG - rpi-home-main-core - mylife:home:core:components:component-host - Component host 'vr-bvouest-set40' executing action 'action' with 'false'
-```
-- Tahoma composants offline, pas de log
--> Mercredi 20/10 matin
-   => devient verouille si login rawRequest ne repond pas!
-   => ajouté timeout sur request, voir si ca corrige, sinon il faudra gerer avec un timeout directement sur la iere promise (Promise.race() avec setTimeout)
 
 ## collector
 - logs
