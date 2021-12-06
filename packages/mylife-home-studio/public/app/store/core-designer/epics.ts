@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportConfig, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
+import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -38,7 +38,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
-      mapper({ config }: { config: ImportConfig}) {
+      mapper({ config }: { config: ImportFromOnlineConfig}) {
         return { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall;
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {

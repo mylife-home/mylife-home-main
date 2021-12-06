@@ -20,7 +20,7 @@ import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
-import { ImportConfig, ImportFromProjectConfig } from '../../../store/core-designer/types';
+import { ImportFromOnlineConfig, ImportFromProjectConfig } from '../../../store/core-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -38,11 +38,11 @@ const useStyles = makeStyles((theme) => ({
 
 const DEFAULT_CONFIG: ImportFromProjectConfig = { projectId: null, importPlugins: false, importComponents: null };
 
-type ImportFromOnlineDialogResult = ConfirmResult & { config?: ImportConfig };
+type ImportFromOnlineDialogResult = ConfirmResult & { config?: ImportFromOnlineConfig };
 type ImportFromProjectDialogResult = ConfirmResult & { config?: ImportFromProjectConfig };
 
 export function useImportFromOnlineSelectionDialog() {
-  const showDialog = useImportSelectionDialog(false);
+  const showDialog = useImportSelectionDialog(false, false);
 
   return useCallback(async () => {
     const result = await showDialog();
@@ -51,20 +51,22 @@ export function useImportFromOnlineSelectionDialog() {
 }
 
 function convertResult(result: ImportFromProjectDialogResult): ImportFromOnlineDialogResult {
-  if (result.status !== 'ok') {
-    return result;
+  const { status } = result;
+
+  if (status !== 'ok') {
+    return { status };
   }
 
-  // drop projectId
-  const { projectId, ...config } = result.config;
-  return { status: 'ok', config };
+  // drop projectId, convert importComponents
+  const { projectId, importComponents, ...config } = result.config;
+  return { status, config: { ...config, importComponents: !!importComponents } };
 }
 
 export function useImportFromProjectSelectionDialog() {
-  return useImportSelectionDialog(true);
+  return useImportSelectionDialog(true, true);
 }
 
-export function useImportSelectionDialog(showProjectSelection: boolean) {
+export function useImportSelectionDialog(showProjectSelection: boolean, showImportComponentsType: boolean) {
   const classes = useStyles();
   const [onResult, setOnResult] = useState<(result: ImportFromProjectDialogResult) => void>();
 
@@ -134,11 +136,12 @@ export function useImportSelectionDialog(showProjectSelection: boolean) {
             <FormGroup>
               <CheckBoxWithLabel label="Importer les plugins" value={config.importPlugins} onChange={importPlugins => updateConfig(config => ({ ...config, importPlugins}))} />
               <CheckBoxWithLabel label="Importer les composants" value={!!config.importComponents} onChange={value => updateConfig(config => ({ ...config, importComponents: (value ? 'external' : null)}))} />
-
-              <RadioGroup className={classes.componentsOptions} value={config.importComponents} onChange={handleRadioChange}>
-                <FormControlLabel disabled={!config.importComponents} value={'external'} control={<Radio color='primary' />} label="Comme externes (ex: depuis un projet de composants drivers)" />
-                <FormControlLabel disabled={!config.importComponents} value={'standard'} control={<Radio color='primary' />} label="Comme normaux (ex: pour fusionner 2 projets)" />
-              </RadioGroup>
+              {showImportComponentsType && (
+                <RadioGroup className={classes.componentsOptions} value={config.importComponents} onChange={handleRadioChange}>
+                  <FormControlLabel disabled={!config.importComponents} value={'external'} control={<Radio color='primary' />} label="Comme externes (ex: depuis un projet de composants drivers)" />
+                  <FormControlLabel disabled={!config.importComponents} value={'standard'} control={<Radio color='primary' />} label="Comme normaux (ex: pour fusionner 2 projets)" />
+                </RadioGroup>
+              )}
             </FormGroup>
           </DialogContent>
 

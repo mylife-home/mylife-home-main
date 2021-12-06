@@ -415,20 +415,22 @@ export namespace coreImportData {
   }
 }
 
-type ComponentsImportType = null | 'standard' | 'external';
-
-export interface ImportConfig {
+export interface ImportFromOnlineConfig {
   importPlugins: boolean;
-  importComponents: ComponentsImportType;
-}
-
-export interface ImportFromProjectConfig extends ImportConfig {
-  projectId: string;
+  importComponents: boolean; // always external, config is not published online
 }
 
 export interface PrepareImportFromOnlineCoreProjectCall extends CoreProjectCall {
   operation: 'prepare-import-from-online';
-  config: ImportConfig;
+  config: ImportFromOnlineConfig;
+}
+
+type ComponentsImportType = null | 'standard' | 'external';
+
+export interface ImportFromProjectConfig {
+  importPlugins: boolean;
+  importComponents: ComponentsImportType;
+  projectId: string;
 }
 
 export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall {

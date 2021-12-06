@@ -38,7 +38,7 @@ import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
-import { applyChanges, ComponentImport, ImportData, loadOnlinePlugins, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
+import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline, validate } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
@@ -345,9 +345,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareImportFromOnline({ config }: PrepareImportFromOnlineCoreProjectCall) {
-    // TODO TODO TODO
-    console.log(config);
-    const imports = loadOnlinePlugins();
+    const imports = loadOnlineData(config);
     return this.prepareBulkUpdates(imports);
   }
 

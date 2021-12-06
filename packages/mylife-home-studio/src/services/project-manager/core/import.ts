@@ -1,6 +1,6 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
-import { ImportFromProjectConfig, coreImportData, BulkUpdatesStats, ChangeType } from '../../../../shared/project-manager';
+import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats, ChangeType } from '../../../../shared/project-manager';
 import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 
@@ -24,21 +24,53 @@ export interface PluginImport {
   plugin: components.metadata.NetPlugin;
 }
 
-export function loadOnlinePlugins(): ImportData {
+export function loadOnlineData(config: ImportFromOnlineConfig): ImportData {
+  const plugins = new Map<string, PluginImport>();
+  const components: ComponentImport[] = [];
   const onlineService = Services.instance.online;
-  const instanceNames = onlineService.getInstanceNames();
-  const list: PluginImport[] = [];
 
-  for (const instanceName of instanceNames) {
-    const plugins = onlineService.getPlugins(instanceName);
-    for (const onlinePlugin of plugins) {
-      const plugin = components.metadata.encodePlugin(onlinePlugin);
-      const id = `${instanceName}:${onlinePlugin.id}`;
-      list.push({ id, instanceName, plugin });
+  if (config.importPlugins) {
+    const instanceNames = onlineService.getInstanceNames();
+    for (const instanceName of instanceNames) {
+      const onlinePlugins = onlineService.getPlugins(instanceName);
+      for (const onlinePlugin of onlinePlugins) {
+        ensureOnlinePlugin(plugins, instanceName, onlinePlugin);
+      }
     }
   }
 
-  return { plugins: list, components: [] };
+  if (config.importComponents) {
+    for (const { instanceName, component: onlineComponent } of onlineService.getComponentsData()) {
+      const { id: pluginId } = ensureOnlinePlugin(plugins, instanceName, onlineComponent.plugin);
+
+      components.push({
+        id: onlineComponent.id,
+        pluginId,
+        external: true,
+        config: null
+      });
+    }
+  }
+
+  return { plugins: Array.from(plugins.values()), components };
+}
+
+function ensureOnlinePlugin(plugins: Map<string, PluginImport>, instanceName: string, onlinePlugin: components.metadata.Plugin): PluginImport {
+  const id = `${instanceName}:${onlinePlugin.id}`;
+
+  const existing = plugins.get(id);
+  if (existing) {
+    return existing;
+  }
+
+  const pluginImport: PluginImport = {
+    id,
+    instanceName,
+    plugin: components.metadata.encodePlugin(onlinePlugin)
+  };
+
+  plugins.set(id, pluginImport);
+  return pluginImport;
 }
 
 export function loadProjectData(model: Model, config: ImportFromProjectConfig): ImportData {
@@ -217,12 +249,12 @@ export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plu
       && memberModel.valueType === memberImport.valueType
       && memberModel.description === memberImport.description;
   }
-  
+
   function configEqualityComparer(configModel: components.metadata.ConfigItem, configImport: components.metadata.ConfigItem) {
     return configModel.valueType === configImport.valueType
       && configModel.description === configImport.description;
   }
-  
+
   function typeChangeFormatter(name: string, type: ChangeType) {
     return type;
   }
@@ -555,7 +587,7 @@ function lookupDependencies(imports: ImportData, model: Model, changes: coreImpo
     componentsImports.set(componentImport.id, componentImport);
   }
 
-  for (const[id, change] of [...Object.entries(changes.components.adds), ...Object.entries(changes.components.updates), ...Object.entries(changes.components.deletes)]) {
+  for (const [id, change] of [...Object.entries(changes.components.adds), ...Object.entries(changes.components.updates), ...Object.entries(changes.components.deletes)]) {
     const componentImport = componentsImports.get(id);
     const pluginKey = pluginsChangesKeyById.get(componentImport.pluginId);
     if (pluginKey) {
@@ -568,12 +600,12 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
   const updates: Update[] = [];
 
   const importPlugins = new Map<string, PluginImport>();
-  for(const plugin of imports.plugins) {
+  for (const plugin of imports.plugins) {
     importPlugins.set(plugin.id, plugin);
   }
 
   const importComponents = new Map<string, ComponentImport>();
-  for(const component of imports.components) {
+  for (const component of imports.components) {
     importComponents.set(component.id, component);
   }
 
@@ -697,7 +729,7 @@ function applyImpact(impact: Impact, api: UpdateApi, stats: BulkUpdatesStats) {
       ++stats.bindings;
       break;
     }
-      
+
     case 'component-delete': {
       const typedImpact = impact as ComponentDeleteImpact;
       log.debug(`Impact: delete component '${typedImpact.componentId}'`);
@@ -761,7 +793,7 @@ function shouldApply(update: Update, selection: Set<string>) {
       return false;
     }
 
-    if(!isDelete && !dependencySelected) {
+    if (!isDelete && !dependencySelected) {
       // cannot apply component without plugin
       return false;
     }
