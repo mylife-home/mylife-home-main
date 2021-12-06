@@ -199,7 +199,11 @@ export class API extends EventEmitter {
       }
     });
 
-    return JSON.parse(responseData.toString('utf8'));
+    if (responseData.length === 0) {
+      return; // No output
+    } else {
+      return JSON.parse(responseData.toString('utf8'));
+    }
   }
 }
 
