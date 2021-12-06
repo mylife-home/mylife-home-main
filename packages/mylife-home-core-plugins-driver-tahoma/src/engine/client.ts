@@ -181,7 +181,7 @@ export class Client extends EventEmitter {
         break;
 
       default:
-        log.debug(`Unhandled event type: ${event.name}`);
+        log.debug(`Unhandled event type: ${event.name} (${JSON.stringify(event)})`);
         break;
     }
   }
