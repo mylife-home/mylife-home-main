@@ -163,7 +163,7 @@ export class Connection extends EventEmitter {
 }
 
 function decodeBodyContent(content: Buffer) {
-  const [first, ...parts] = content.toString().split('=');
+  const [first, ...parts] = content.toString('ascii').split('=');
   const formattedParts = parts.map(part => {
     const special = part.substr(0, 2);
     const rest = part.substr(2);
@@ -180,7 +180,10 @@ function decodeBodyContent(content: Buffer) {
     return char + rest;
   });
 
-  return [first, ...formattedParts].join('');
+  // reassemble ascii to buffer then decode it as utf8 (else utf8 of multi-part chars fail)
+  const formatted = Buffer.from([first, ...formattedParts].join(''), 'ascii');
+
+  return formatted.toString('utf8');
 }
 
 function formatDebugId(msg: FetchMessageObject) {
