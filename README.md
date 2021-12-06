@@ -159,7 +159,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
   - ne pas crasher si un projet n'est pas valide
   - import:
-    - permettre d'importer des composants (comme externes) depuis online (pour esp)
     - import de plugins: rajouter un regroupement par instance
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
