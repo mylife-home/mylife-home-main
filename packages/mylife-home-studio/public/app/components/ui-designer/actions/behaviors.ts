@@ -8,6 +8,7 @@ import { validateProject, refreshComponentsFromOnline, refreshComponentsFromProj
 import { RefreshData } from '../../../store/ui-designer/types';
 import { UiValidationError } from '../../../../../shared/project-manager';
 import { useSnackbar } from '../../dialogs/snackbar';
+import { useBusy } from '../../dialogs/busy';
 import { useShowValidationErrorsDialog } from './validation-errors-dialog';
 import { useProjectSelectionDialog } from './project-selection-dialog';
 import { useShowBreakingOperationsDialog } from './breaking-operations-dialog';
@@ -91,10 +92,14 @@ export function useProjectDeploy() {
   const fireAsync = useFireAsync();
   const showDialog = useShowValidationErrorsDialog();
   const { enqueueSnackbar } = useSnackbar();
+  const wrapBusy = useBusy('Déploiement en cours ...');
 
   return useCallback(() => {
     fireAsync(async () => {
-      const { validationErrors, deployError } = await dispatch(deployProject({ id: tabId }));
+      const { validationErrors, deployError } = await wrapBusy(async () => {
+        return await dispatch(deployProject({ id: tabId }));
+      }) as { validationErrors?: UiValidationError[]; deployError?: string; };
+      
       if (validationErrors && validationErrors.length > 0) {
         await showDialog(validationErrors);
       } else if (deployError) {

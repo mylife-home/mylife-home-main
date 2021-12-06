@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
+import { useBusy } from '../../dialogs/busy';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
 import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
@@ -142,6 +143,7 @@ export function useDeployToFiles() {
   const confirmValidationErrorsDialog = useConfirmValidationErrorsDialog();
   const showDhowDeployToFilesDialog = useShowDhowDeployToFilesDialog();
   const { enqueueSnackbar } = useSnackbar();
+  const wrapBusy = useBusy('Déploiement en cours ...');
 
   return useCallback(() => {
     fireAsync(async () => {
@@ -159,7 +161,9 @@ export function useDeployToFiles() {
         return;
       }
 
-      const { writtenFilesCount } = await (dispatch as AsyncDispatch<FilesDeployResult>)(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
+      const { writtenFilesCount } = await wrapBusy(async () => {
+        return await (dispatch as AsyncDispatch<FilesDeployResult>)(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
+      }) as FilesDeployResult;
 
       const text = writtenFilesCount < 2 ? `${writtenFilesCount} fichier créé` : `${writtenFilesCount} Fichiers créés`;
       enqueueSnackbar(text, { variant: 'success' });
@@ -175,6 +179,7 @@ export function useDeployToOnline() {
   const showValidationErrorsDialog = useShowValidationErrorsDialog();
   const showDhowDeployToOnlineDialog = useShowDhowDeployToOnlineDialog();
   const { enqueueSnackbar } = useSnackbar();
+  const wrapBusy = useBusy('Déploiement en cours ...');
 
   return useCallback(() => {
     fireAsync(async () => {
@@ -194,8 +199,10 @@ export function useDeployToOnline() {
       if (status === 'cancel') {
         return;
       }
-
-      await dispatch(applyDeployToOnline({ id: tabId, serverData }));
+      
+      await wrapBusy(async () => {
+        await dispatch(applyDeployToOnline({ id: tabId, serverData }));
+      });
 
       enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
     });
