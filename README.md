@@ -111,7 +111,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
  - core-designer
    - multi-select
    - importer des plugins depuis les fichiers de déploiement
-   - importer des plugins depuis online => split par instance
+   - deploy en ligne: ajouter un progress
  - git
    - v1:
      - seules operations :
@@ -157,10 +157,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
       - existent (pas null ou undefined)
       - qu'il n'y ait pas d'autres clés de config
     - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
-  - deploy en ligne
-    - augmenter le timeout de call
-    - ajouter un popup bloquant de livraison en cours
-    - si possible ajouter un progress
   - ne pas crasher si un projet n'est pas valide
   - import:
     - permettre d'importer des composants (comme externes) depuis online (pour esp)
