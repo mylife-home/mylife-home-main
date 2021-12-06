@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
+import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportConfig, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentCoreProjectCall,
@@ -21,6 +21,7 @@ import {
   CoreProjectCall,
   PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProject,
+  PrepareImportFromOnlineCoreProjectCall,
   PrepareImportFromProjectCoreProjectCall,
   ApplyBulkUpdatesCoreProjectCallResult,
   ValidateCoreProjectCallResult,
@@ -36,9 +37,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId,
   callMappers: {
 
-    [ActionTypes.PREPARE_REFRESH_TOOLBOX_FROM_ONLINE]: {
-      mapper() {
-        return { operation: 'prepare-refresh-toolbox-from-online' } as CoreProjectCall;
+    [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
+      mapper({ config }: { config: ImportConfig}) {
+        return { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall;
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };

@@ -315,7 +315,7 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
 
 export interface CoreProjectCall {
   operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
-  | 'prepare-import-from-project' | 'prepare-refresh-toolbox-from-online' | 'apply-bulk-updates'
+  | 'prepare-import-from-online' | 'prepare-import-from-project' | 'apply-bulk-updates'
   | 'validate'
   | 'prepare-deploy-to-files' | 'apply-deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
 }
@@ -417,10 +417,18 @@ export namespace coreImportData {
 
 type ComponentsImportType = null | 'standard' | 'external';
 
-export interface ImportFromProjectConfig {
-  projectId: string;
+export interface ImportConfig {
   importPlugins: boolean;
   importComponents: ComponentsImportType;
+}
+
+export interface ImportFromProjectConfig extends ImportConfig {
+  projectId: string;
+}
+
+export interface PrepareImportFromOnlineCoreProjectCall extends CoreProjectCall {
+  operation: 'prepare-import-from-online';
+  config: ImportConfig;
 }
 
 export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall {

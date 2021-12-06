@@ -9,10 +9,10 @@ import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
 import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
 import { 
-  prepareImportFromProject, prepareRefreshToolboxFromOnline, applyBulkUpdates, 
+  prepareImportFromProject, prepareImportFromOnline, applyBulkUpdates, 
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
 } from '../../../store/core-designer/actions';
-import { useImportFromProjectSelectionDialog } from './import-from-project-selection-dialog';
+import { useImportFromProjectSelectionDialog, useImportFromOnlineSelectionDialog } from './import-selection-dialog';
 import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-errors-dialog';
 import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
 import { useShowDhowDeployToOnlineDialog } from './deploy-to-online-dialog';
@@ -34,21 +34,27 @@ export function useImportFromProject() {
       const bulkUpdatesData = await dispatch(prepareImportFromProject({ id: tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
-  }, [fireAsync]);
+  }, [fireAsync, dispatch, showImportFromProjectSelectionDialog, executeBulkUpdate]);
 }
 
-export function useRefreshToolboxFromOnline() {
+export function useImportFromOnline() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();
   const dispatch = useDispatch<AsyncDispatch<BulkUpdatesData>>();
+  const showImportFromOnlineSelectionDialog = useImportFromOnlineSelectionDialog();
   const executeBulkUpdate = useExecuteRefresh();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const bulkUpdatesData = await dispatch(prepareRefreshToolboxFromOnline({ id: tabId }));
+      const { status, config } = await showImportFromOnlineSelectionDialog();
+      if (status !== 'ok') {
+        return;
+      }
+
+      const bulkUpdatesData = await dispatch(prepareImportFromOnline({ id: tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
-  }, [fireAsync, dispatch]);
+  }, [fireAsync, dispatch, showImportFromOnlineSelectionDialog, executeBulkUpdate]);
 }
 
 function useExecuteRefresh() {

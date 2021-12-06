@@ -24,6 +24,7 @@ import {
   SetCorePluginsNotification,
   SetCorePluginToolboxDisplayNotification,
   UpdateToolboxCoreProjectCall,
+  PrepareImportFromOnlineCoreProjectCall,
   PrepareImportFromProjectCoreProjectCall,
   PrepareBulkUpdatesCoreProjectCallResult,
   ApplyBulkUpdatesCoreProjectCallResult,
@@ -123,8 +124,8 @@ export class CoreOpenedProject extends OpenedProject {
       case 'prepare-import-from-project':
         return this.prepareImportFromProject(callData as PrepareImportFromProjectCoreProjectCall);
 
-      case 'prepare-refresh-toolbox-from-online':
-        return this.prepareRefreshToolboxFromOnline();
+      case 'prepare-import-from-online':
+        return this.prepareImportFromOnline(callData as PrepareImportFromOnlineCoreProjectCall);
 
       case 'apply-bulk-updates':
         return this.applyBulkUpdates(callData as ApplyBulkUpdatesCoreProject);
@@ -343,7 +344,9 @@ export class CoreOpenedProject extends OpenedProject {
     return this.prepareBulkUpdates(imports);
   }
 
-  private prepareRefreshToolboxFromOnline() {
+  private prepareImportFromOnline({ config }: PrepareImportFromOnlineCoreProjectCall) {
+    // TODO TODO TODO
+    console.log(config);
     const imports = loadOnlinePlugins();
     return this.prepareBulkUpdates(imports);
   }

@@ -20,7 +20,7 @@ import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../../store/projects-list/selectors';
-import { ImportFromProjectConfig } from '../../../store/core-designer/types';
+import { ImportConfig, ImportFromProjectConfig } from '../../../store/core-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -38,11 +38,35 @@ const useStyles = makeStyles((theme) => ({
 
 const DEFAULT_CONFIG: ImportFromProjectConfig = { projectId: null, importPlugins: false, importComponents: null };
 
-type DialogResult = ConfirmResult & { config?: ImportFromProjectConfig };
+type ImportFromOnlineDialogResult = ConfirmResult & { config?: ImportConfig };
+type ImportFromProjectDialogResult = ConfirmResult & { config?: ImportFromProjectConfig };
+
+export function useImportFromOnlineSelectionDialog() {
+  const showDialog = useImportSelectionDialog(false);
+
+  return useCallback(async () => {
+    const result = await showDialog();
+    return convertResult(result);
+  }, [showDialog]);
+}
+
+function convertResult(result: ImportFromProjectDialogResult): ImportFromOnlineDialogResult {
+  if (result.status !== 'ok') {
+    return result;
+  }
+
+  // drop projectId
+  const { projectId, ...config } = result.config;
+  return { status: 'ok', config };
+}
 
 export function useImportFromProjectSelectionDialog() {
+  return useImportSelectionDialog(true);
+}
+
+export function useImportSelectionDialog(showProjectSelection: boolean) {
   const classes = useStyles();
-  const [onResult, setOnResult] = useState<(result: DialogResult) => void>();
+  const [onResult, setOnResult] = useState<(result: ImportFromProjectDialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
@@ -69,7 +93,7 @@ export function useImportFromProjectSelectionDialog() {
       };
   
       const validate = () => {
-        if (isConfigValid(config)) {
+        if (isConfigValid(config, showProjectSelection)) {
           hideModal();
           onResult({ status: 'ok', config });
         }
@@ -92,15 +116,19 @@ export function useImportFromProjectSelectionDialog() {
           <DialogTitle id="dialog-title">Sélection de projet</DialogTitle>
 
           <DialogContent dividers>
-            <DialogText value={'Sélectionner un projet à partir duquel importer'} />
+            {showProjectSelection && (
+              <>
+                <DialogText value={'Sélectionner un projet à partir duquel importer'} />
 
-            <List className={classes.list}>
-              {ids.map((id) => (
-                <ProjectItem key={id} id={id} onSelect={createSelectHandler(id)} selected={config.projectId === id} />
-              ))}
-            </List>
+                <List className={classes.list}>
+                  {ids.map((id) => (
+                    <ProjectItem key={id} id={id} onSelect={createSelectHandler(id)} selected={config.projectId === id} />
+                  ))}
+                </List>
 
-            <div className={classes.spacer} />
+                <div className={classes.spacer} />
+              </>
+            )}
 
             <DialogText value={'Sélectionner les éléments à importer'} />
             <FormGroup>
@@ -115,18 +143,18 @@ export function useImportFromProjectSelectionDialog() {
           </DialogContent>
 
           <DialogActions>
-            <Button color="primary" onClick={validate} disabled={!isConfigValid(config)}>OK</Button>
+            <Button color="primary" onClick={validate} disabled={!isConfigValid(config, showProjectSelection)}>OK</Button>
             <Button onClick={cancel}>Annuler</Button>
           </DialogActions>
         </Dialog>
       );
     },
-    [onResult]
+    [onResult, showProjectSelection]
   );
 
   return useCallback(
     () =>
-      new Promise<DialogResult>((resolve) => {
+      new Promise<ImportFromProjectDialogResult>((resolve) => {
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
         showModal();
@@ -149,6 +177,6 @@ const ProjectItem: FunctionComponent<{ id: string; selected: boolean; onSelect: 
   );
 };
 
-function isConfigValid(config: ImportFromProjectConfig) {
-  return config.projectId && (config.importComponents || config.importPlugins);
+function isConfigValid(config: ImportFromProjectConfig, showProjectSelection: boolean) {
+  return (!showProjectSelection || config.projectId) && (config.importComponents || config.importPlugins);
 }
