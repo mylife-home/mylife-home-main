@@ -74,7 +74,10 @@ function parseZone(value: string) {
 }
 
 function parseDate(value: string) {
-  const result = dateParser().exec(value);
+  // remove accents
+  const escaped = value.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
+  const result = dateParser().exec(escaped);
   if (!result) {
     return;
   }
