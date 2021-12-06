@@ -160,6 +160,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - ne pas crasher si un projet n'est pas valide
   - import:
     - import de plugins: rajouter un regroupement par instance
+  - deploy:
+    - pourquoi ap-entree est toujours modifié ? config avec 'é' ?
 - deploy
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
