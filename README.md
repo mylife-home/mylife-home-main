@@ -198,6 +198,10 @@ Error: Component rgblight-tv1 does not exist in the registry
 - refaire une operation sur un volet deja avec une operation en cours arrete l operation en cours mais ne fait pas la nouvelle
 - Unhandled event type: CommandExecutionStateChangedEvent
 
+## core/driver-absoluta
+06/12/2021, 10:30:55 ERROR  rpi-home-main-core mylife:home:core:plugins:driver-absoluta:engine:parser (seq: 10702, from: noreply@absoluta.info, date: 2021-12-06T06:20:00.000Z, subject: 'Bentel Absoluta: Générique', row: '> AV Salon (Maison) (11:07:21 06/DÃ©c/21)<') : Invalid date in message
+06/12/2021, 10:30:55 ERROR  rpi-home-main-core mylife:home:core:plugins:driver-absoluta:engine:parser (seq: 10702, from: noreply@absoluta.info, date: 2021-12-06T06:20:00.000Z, subject: 'Bentel Absoluta: Générique', row: '> AV Salon (Maison) (11:07:14 06/DÃ©c/21)<') : Invalid date in message
+
 ## collector
 - logs
 - changements de status (+online/offline)
