@@ -3,7 +3,7 @@ import { Action } from './execution';
 
 export interface Event {
   readonly timestamp: number;
-  readonly name: 'DeviceStateChangedEvent' | 'GatewaySynchronizationEndedEvent' | 'GatewaySynchronizationStartedEvent' | 'RefreshAllDevicesStatesCompletedEvent' | 'DeviceUnavailableEvent' | 'ExecutionRegisteredEvent' | 'ExecutionStateChangedEvent';
+  readonly name: 'DeviceStateChangedEvent' | 'GatewaySynchronizationEndedEvent' | 'GatewaySynchronizationStartedEvent' | 'RefreshAllDevicesStatesCompletedEvent' | 'DeviceUnavailableEvent' | 'ExecutionRegisteredEvent' | 'ExecutionStateChangedEvent' | 'CommandExecutionStateChangedEvent';
 }
 
 export interface DeviceStateChangedEvent extends Event {
@@ -49,6 +49,17 @@ export interface ExecutionStateChangedEvent extends Event {
   readonly subType: number;
   readonly oldState: EventState;
   readonly timeToNextState: number;
+}
+
+export interface CommandExecutionStateChangedEvent extends Event {
+  readonly name: 'CommandExecutionStateChangedEvent';
+  readonly setupOID: string;
+  readonly deviceURL: string;
+  readonly execId: string;
+  readonly newState: EventState;
+  readonly failureType: string; // CMDCANCELLED, others?
+  readonly failureTypeCode: number; // cancelled = 106
+  readonly rank: number; // 0
 }
 
 export enum EventState {

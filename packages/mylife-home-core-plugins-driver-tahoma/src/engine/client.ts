@@ -178,6 +178,8 @@ export class Client extends EventEmitter {
       case 'GatewaySynchronizationEndedEvent':
       case 'ExecutionRegisteredEvent':
         // sent right after execute (before execution states changes)
+      case 'CommandExecutionStateChangedEvent':
+        // sent after 'cancel', we already removed the execution and we will get 'ExecutionStateChangedEvent' anyway
         break;
 
       default:
