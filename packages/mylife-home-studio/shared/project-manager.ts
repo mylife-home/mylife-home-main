@@ -375,23 +375,18 @@ export type ChangeType = 'add' | 'update' | 'delete';
 export namespace coreImportData {
 
   export interface Changes {
-    plugins: PluginChanges;
-    components: ComponentChanges;
+    plugins: PluginChange[];
+    components: ComponentChange[];
   }
   
   export interface ItemChange {
     key: string; // for selection
+    id: string; // component/plugin id
+    instanceName: string;
+    type: ChangeType;
     dependencies: string[]; // components changes may depends on plugins changes
   }
-  
-  export interface ItemChanges<T> {
-    adds: { [id: string]: T; },
-    updates: { [id: string]: T; },
-    deletes: { [id: string]: T; };
-  }
-  
-  export type PluginChanges = ItemChanges<PluginChange>;
-  
+    
   export interface PluginChange extends ItemChange {
     version: { before: string; after: string; },
     usage: PluginUsage; // or null if no change
@@ -402,9 +397,7 @@ export namespace coreImportData {
       bindings: string[], // bindings will be deleted
     };
   }
-  
-  export type ComponentChanges = ItemChanges<ComponentChange>;
-  
+    
   export interface ComponentChange extends ItemChange {
     config: { [name: string]: { type: ChangeType; value: any; }; };
     external: boolean; // or null if no change

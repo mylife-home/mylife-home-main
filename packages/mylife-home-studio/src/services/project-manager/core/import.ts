@@ -178,8 +178,8 @@ export function prepareChanges(imports: ImportData, model: Model) {
   return { changes, serverData };
 }
 
-function preparePluginUpdates(imports: ImportData, model: Model): coreImportData.PluginChanges {
-  const changes = newItemChanges<coreImportData.PluginChange>();
+function preparePluginUpdates(imports: ImportData, model: Model): coreImportData.PluginChange[] {
+  const changes: coreImportData.PluginChange[] = [];
 
   for (const pluginImport of imports.plugins) {
     const id = pluginImport.id;
@@ -206,19 +206,19 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
 
   function add(pluginImport: PluginImport) {
     const id = pluginImport.id;
-    const change = newPluginChange(`plugin-set:${id}`, { version: { before: null, after: pluginImport.plugin.version } });
+    const change = newPluginChange(`plugin-set:${id}`, id, pluginImport.instanceName, 'add', { version: { before: null, after: pluginImport.plugin.version } });
 
     change.usage = pluginImport.plugin.usage;
     const objectChanges = buildPluginMembersAndConfigChanges(null, pluginImport.plugin);
     change.config = objectChanges.config;
     change.members = objectChanges.members;
 
-    changes.adds[id] = change;
+    changes.push(change);
   }
 
   function update(pluginModel: PluginModel, pluginImport: PluginImport) {
     const id = pluginModel.id;
-    const change = newPluginChange(`plugin-set:${id}`, { version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
+    const change = newPluginChange(`plugin-set:${id}`, id, pluginModel.instance.instanceName, 'update', { version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
 
     if (pluginModel.data.usage !== pluginImport.plugin.usage) {
       change.usage = pluginImport.plugin.usage;
@@ -228,13 +228,13 @@ function preparePluginUpdates(imports: ImportData, model: Model): coreImportData
     change.config = objectChanges.config;
     change.members = objectChanges.members;
 
-    changes.updates[id] = change;
+    changes.push(change);
   }
 
   function remove(pluginModel: PluginModel) {
     const id = pluginModel.id;
-    const change = newPluginChange(`plugin-clear:${id}`, { version: { before: pluginModel.data.version, after: null } });
-    changes.deletes[id] = change;
+    const change = newPluginChange(`plugin-clear:${id}`, id, pluginModel.instance.instanceName, 'delete', { version: { before: pluginModel.data.version, after: null } });
+    changes.push(change);
   }
 }
 
@@ -260,20 +260,8 @@ export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plu
   }
 }
 
-function prepareComponentUpdates(imports: ImportData, model: Model): coreImportData.ComponentChanges {
-  const changes = newItemChanges<coreImportData.ComponentChange>();
-
-  for (const componentImport of imports.components) {
-    const id = componentImport.id;
-    if (!model.hasComponent(id)) {
-      add(componentImport);
-    } else {
-      const componentModel = model.getComponent(id);
-      if (!areComponentsEqual(componentModel, componentImport)) {
-        update(componentModel, componentImport);
-      }
-    }
-  }
+function prepareComponentUpdates(imports: ImportData, model: Model): coreImportData.ComponentChange[] {
+  const changes: coreImportData.ComponentChange[] = [];
 
   // A project is supposed to deploy full instances only.
   // So we can consider each instance with components on imported project, and deduce a list of deleted components per instance
@@ -294,6 +282,19 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
     set.add(componentImport.id);
   }
 
+  for (const componentImport of imports.components) {
+    const id = componentImport.id;
+    if (!model.hasComponent(id)) {
+      const instanceName = pluginImportsInstances.get(componentImport.pluginId);
+      add(componentImport, instanceName);
+    } else {
+      const componentModel = model.getComponent(id);
+      if (!areComponentsEqual(componentModel, componentImport)) {
+        update(componentModel, componentImport);
+      }
+    }
+  }
+
   for (const [instanceName, set] of componentsImportsByInstanceName.entries()) {
     if (!model.hasInstance(instanceName)) {
       continue;
@@ -309,18 +310,19 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
 
   return changes;
 
-  function add(componentImport: ComponentImport) {
+  function add(componentImport: ComponentImport, instanceName: string) {
     const id = componentImport.id;
-    const change = newComponentChange(`component-set:${id}`, pick(componentImport, 'pluginId', 'external'));
+    const change = newComponentChange(`component-set:${id}`, id, instanceName, 'add', pick(componentImport, 'pluginId', 'external'));
 
     change.config = lookupObjectChanges(null, componentImport.config, Object.is, configChangeFormatter);
 
-    changes.adds[id] = change;
+    changes.push(change);
   }
 
   function update(componentModel: ComponentModel, componentImport: ComponentImport) {
     const id = componentModel.id;
-    const change = newComponentChange(`component-set:${id}`);
+    // Note: instanceName may have changed.
+    const change = newComponentChange(`component-set:${id}`, id, componentModel.instance.instanceName, 'update');
 
     if (componentModel.plugin.id !== componentImport.pluginId) {
       change.pluginId = componentImport.pluginId;
@@ -332,13 +334,13 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
 
     change.config = lookupObjectChanges(componentModel.data.config, componentImport.config, Object.is, configChangeFormatter);
 
-    changes.updates[id] = change;
+    changes.push(change);
   }
 
   function remove(componentModel: ComponentModel) {
     const id = componentModel.id;
-    const change = newComponentChange(`component-clear:${id}`);
-    changes.deletes[id] = change;
+    const change = newComponentChange(`component-clear:${id}`, id, componentModel.instance.instanceName, 'delete');
+    changes.push(change);
   }
 
   function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
@@ -346,19 +348,12 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
   }
 }
 
-function newItemChanges<T>() {
-  const changes: coreImportData.ItemChanges<T> = {
-    adds: {},
-    updates: {},
-    deletes: {}
-  };
-
-  return changes;
-}
-
-function newPluginChange(key: string, props: Partial<coreImportData.PluginChange> = {}) {
+function newPluginChange(key: string, id: string, instanceName: string, type: ChangeType, props: Partial<coreImportData.PluginChange> = {}) {
   const change: coreImportData.PluginChange = {
     key,
+    id,
+    instanceName,
+    type,
     dependencies: [],
     version: { before: null, after: null },
     usage: null,
@@ -371,9 +366,12 @@ function newPluginChange(key: string, props: Partial<coreImportData.PluginChange
   return change;
 }
 
-function newComponentChange(key: string, props: Partial<coreImportData.ComponentChange> = {}) {
+function newComponentChange(key: string, id: string, instanceName: string, type: ChangeType, props: Partial<coreImportData.ComponentChange> = {}) {
   const change: coreImportData.ComponentChange = {
     key,
+    id, 
+    instanceName,
+    type,
     dependencies: [],
     config: {},
     external: null,
@@ -458,9 +456,9 @@ function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value
   return changes;
 }
 
-function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.PluginChanges) {
-  for (const [id, change] of Object.entries(changes.deletes)) {
-    const plugin = model.getPlugin(id);
+function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.PluginChange[]) {
+  for (const change of changes.filter(change => change.type === 'delete')) {
+    const plugin = model.getPlugin(change.id);
     const bindingsIds = new Set<string>();
     for (const component of plugin.components.values()) {
       for (const binding of component.getAllBindings()) {
@@ -474,9 +472,9 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes:
     };
   }
 
-  for (const [id, change] of Object.entries(changes.updates)) {
-    const importPlugin = imports.plugins.find(importPlugin => importPlugin.id === id);
-    const modelPlugin = model.getPlugin(id);
+  for (const change of changes.filter(change => change.type === 'update')) {
+    const importPlugin = imports.plugins.find(importPlugin => importPlugin.id === change.id);
+    const modelPlugin = model.getPlugin(change.id);
 
     let componentsImpact: string[] = [];
     if (hasConfigChanges(modelPlugin, importPlugin, change)) {
@@ -555,19 +553,19 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
   return false;
 }
 
-function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.ComponentChanges) {
-  for (const [id, change] of Object.entries(changes.deletes)) {
-    const component = model.getComponent(id);
+function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.ComponentChange[]) {
+  for (const change of changes.filter(change => change.type === 'delete')) {
+    const component = model.getComponent(change.id);
     change.impacts = {
       bindings: Array.from(component.getAllBindingsIds())
     };
   }
 
-  for (const [id, change] of Object.entries(changes.updates)) {
+  for (const change of changes.filter(change => change.type === 'update')) {
     // only impacts on plugin change
     // TODO: could also only lookup for properties that actually changed
     if (change.pluginId) {
-      const component = model.getComponent(id);
+      const component = model.getComponent(change.id);
       change.impacts = {
         bindings: Array.from(component.getAllBindingsIds())
       };
@@ -578,8 +576,8 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: Model, chang
 function lookupDependencies(imports: ImportData, model: Model, changes: coreImportData.Changes) {
   const pluginsChangesKeyById = new Map<string, string>();
 
-  for (const [id, change] of [...Object.entries(changes.plugins.adds), ...Object.entries(changes.plugins.updates), ...Object.entries(changes.plugins.deletes)]) {
-    pluginsChangesKeyById.set(id, change.key);
+  for (const change of changes.plugins) {
+    pluginsChangesKeyById.set(change.id, change.key);
   }
 
   const componentsImports = new Map<string, ComponentImport>();
@@ -587,8 +585,8 @@ function lookupDependencies(imports: ImportData, model: Model, changes: coreImpo
     componentsImports.set(componentImport.id, componentImport);
   }
 
-  for (const [id, change] of [...Object.entries(changes.components.adds), ...Object.entries(changes.components.updates), ...Object.entries(changes.components.deletes)]) {
-    const componentImport = componentsImports.get(id);
+  for (const change of changes.components) {
+    const componentImport = componentsImports.get(change.id);
     const pluginKey = pluginsChangesKeyById.get(componentImport.pluginId);
     if (pluginKey) {
       change.dependencies.push(pluginKey);
@@ -609,28 +607,28 @@ function prepareServerData(imports: ImportData, changes: coreImportData.Changes)
     importComponents.set(component.id, component);
   }
 
-  for (const [id, change] of Object.entries(changes.plugins.deletes)) {
-    clearPlugin(id, change);
+  for (const change of changes.plugins.filter(change => change.type === 'delete')) {
+    clearPlugin(change.id, change);
   }
 
-  for (const [id, change] of Object.entries(changes.plugins.updates)) {
-    setPlugin(id, change);
+  for (const change of changes.plugins.filter(change => change.type === 'update')) {
+    setPlugin(change.id, change);
   }
 
-  for (const [id, change] of Object.entries(changes.plugins.adds)) {
-    setPlugin(id, change);
+  for (const change of changes.plugins.filter(change => change.type === 'add')) {
+    setPlugin(change.id, change);
   }
 
-  for (const [id, change] of Object.entries(changes.components.deletes)) {
-    clearComponent(id, change);
+  for (const change of changes.components.filter(change => change.type === 'delete')) {
+    clearComponent(change.id, change);
   }
 
-  for (const [id, change] of Object.entries(changes.components.updates)) {
-    setComponent(id, change);
+  for (const change of changes.components.filter(change => change.type === 'update')) {
+    setComponent(change.id, change);
   }
 
-  for (const [id, change] of Object.entries(changes.components.adds)) {
-    setComponent(id, change);
+  for (const change of changes.components.filter(change => change.type === 'add')) {
+    setComponent(change.id, change);
   }
 
   return { updates };

@@ -110,17 +110,7 @@ function formatRefreshNotification(stats: BulkUpdatesStats) {
 }
 
 function areChangesEmpty(changes: coreImportData.Changes) {
-  return isChangeSetEmpty(changes.plugins) && isChangeSetEmpty(changes.components);
-}
-
-function isChangeSetEmpty<T>(changeSet: coreImportData.ItemChanges<T>) {
-  return isObjectEmpty(changeSet.adds)
-  && isObjectEmpty(changeSet.updates)
-  && isObjectEmpty(changeSet.deletes)
-}
-
-function isObjectEmpty(object: {}) {
-  return Object.keys(object).length === 0;
+  return changes.plugins.length === 0 && changes.components.length === 0;
 }
 
 export function useProjectValidation() {
