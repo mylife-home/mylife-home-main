@@ -20,7 +20,7 @@ import { useShowDhowDeployToOnlineDialog } from './deploy-to-online-dialog';
 export function useImportFromProject() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();
-  const dispatch = useDispatch<AsyncDispatch<BulkUpdatesData>>();
+  const dispatch = useDispatch();
   const showImportFromProjectSelectionDialog = useImportFromProjectSelectionDialog();
   const executeBulkUpdate = useExecuteRefresh();
 
@@ -31,7 +31,7 @@ export function useImportFromProject() {
         return;
       }
 
-      const bulkUpdatesData = await dispatch(prepareImportFromProject({ id: tabId, config }));
+      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromProject({ id: tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch, showImportFromProjectSelectionDialog, executeBulkUpdate]);
@@ -40,7 +40,7 @@ export function useImportFromProject() {
 export function useImportFromOnline() {
   const tabId = useTabPanelId();
   const fireAsync = useFireAsync();
-  const dispatch = useDispatch<AsyncDispatch<BulkUpdatesData>>();
+  const dispatch = useDispatch();
   const showImportFromOnlineSelectionDialog = useImportFromOnlineSelectionDialog();
   const executeBulkUpdate = useExecuteRefresh();
 
@@ -51,7 +51,7 @@ export function useImportFromOnline() {
         return;
       }
 
-      const bulkUpdatesData = await dispatch(prepareImportFromOnline({ id: tabId, config }));
+      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromOnline({ id: tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch, showImportFromOnlineSelectionDialog, executeBulkUpdate]);
@@ -177,7 +177,6 @@ export function useDeployToFiles() {
   }, [fireAsync, dispatch]);
 }
 
-
 export function useDeployToOnline() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
@@ -212,4 +211,5 @@ export function useDeployToOnline() {
 
       enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
     });
-  }, [fireAsync, dispatch]);}
+  }, [fireAsync, dispatch]);
+}
