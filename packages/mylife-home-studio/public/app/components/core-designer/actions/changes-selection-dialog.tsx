@@ -48,7 +48,7 @@ type TriState = 'unchecked' | 'checked' | 'indeterminate';
 
 export function useShowChangesDialog() {
   const classes = useStyles();
-  const [changes, setChanges] = useState<coreImportData.Changes>();
+  const [changes, setChanges] = useState<coreImportData.ObjectChange[]>();
   const [onResult, setOnResult] = useState<(value: ChangesDialogResult) => void>();
 
   const [showModal, hideModal] = useModal(
@@ -91,8 +91,8 @@ export function useShowChangesDialog() {
             <TypeSelector type={type} setType={setType} />
 
             <List className={classes.list}>
-              <ChangeSetItem type="plugins" stats={stats.plugins} changes={changes.plugins} selection={selection} setSelected={setSelected} />
-              <ChangeSetItem type="components" stats={stats.components} changes={changes.components} selection={selection} setSelected={setSelected} />
+              <ChangeSetItem type="plugins" stats={stats.plugins} changes={changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[]} selection={selection} setSelected={setSelected} />
+              <ChangeSetItem type="components" stats={stats.components} changes={changes.filter(change => change.objectType === 'component') as coreImportData.ComponentChange[]} selection={selection} setSelected={setSelected} />
             </List>
           </DialogContent>
 
@@ -109,7 +109,7 @@ export function useShowChangesDialog() {
   );
 
   return useCallback(
-    (changes: coreImportData.Changes) =>
+    (changes: coreImportData.ObjectChange[]) =>
       new Promise<ChangesDialogResult>((resolve) => {
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
@@ -171,18 +171,18 @@ const ChangeSetItem: FunctionComponent<PluginChangeSetProps | ComponentChangeSet
     case 'plugins':
       return (
         <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
-          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.type === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.type === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.type === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.changeType === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.changeType === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.changeType === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
         </ItemWithChildren>
       );
 
     case 'components':
       return (
         <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
-          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.type === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.type === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.type === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} isDelete />
+          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.changeType === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.changeType === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.changeType === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} isDelete />
         </ItemWithChildren>
       );
   }
@@ -401,7 +401,7 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
   );
 };
 
-const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ItemChange; disabled?: boolean }> = ({ change, disabled, selection, setSelected, children }) => {
+const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ObjectChange; disabled?: boolean }> = ({ change, disabled, selection, setSelected, children }) => {
   const classes = useStyles();
   const checked = selection[change.key];
   const onCheck = () => setSelected({ [change.key]: !checked });
@@ -435,7 +435,7 @@ const ChangeDetailLine: FunctionComponent<{ highlight?: boolean }> = ({ children
   );
 };
 
-function prepareSelectedAll(changes: coreImportData.ItemChange[], selected: boolean) {
+function prepareSelectedAll(changes: coreImportData.ObjectChange[], selected: boolean) {
   const partial: SelectionSet = {};
 
   for (const change of changes) {
@@ -524,13 +524,13 @@ interface Stats {
   components: ChangeSetStats;
 }
 
-function initSelection(changes: coreImportData.Changes): SelectionSet {
+function initSelection(changes: coreImportData.ObjectChange[]): SelectionSet {
   const selection: SelectionSet = {};
 
   // By default select all add/update and unselect deletes
 
-  for (const change of [...changes.plugins, ...changes.components]) {
-    switch (change.type) {
+  for (const change of changes) {
+    switch (change.changeType) {
       case 'add':
       case 'update':
         selection[change.key] = true;
@@ -557,18 +557,18 @@ function formatSelection(selection: SelectionSet) {
   return values;
 }
 
-function computeStats(changes: coreImportData.Changes, selection: SelectionSet): Stats {
+function computeStats(changes: coreImportData.ObjectChange[], selection: SelectionSet): Stats {
   return {
-    plugins: computeChangeSetStats(changes.plugins, selection),
-    components: computeChangeSetStats(changes.components, selection),
+    plugins: computeChangeSetStats(changes.filter(change => change.objectType === 'plugin'), selection),
+    components: computeChangeSetStats(changes.filter(change => change.objectType === 'component'), selection),
   };
 }
 
-function computeChangeSetStats<Item extends coreImportData.ItemChange>(changes: Item[], selection: SelectionSet): ChangeSetStats {
+function computeChangeSetStats<Item extends coreImportData.ObjectChange>(changes: Item[], selection: SelectionSet): ChangeSetStats {
   const stats = {
-    adds: computeItemStats(changes.filter(change => change.type === 'add'), selection),
-    updates: computeItemStats(changes.filter(change => change.type === 'update'), selection),
-    deletes: computeItemStats(changes.filter(change => change.type === 'delete'), selection),
+    adds: computeItemStats(changes.filter(change => change.changeType === 'add'), selection),
+    updates: computeItemStats(changes.filter(change => change.changeType === 'update'), selection),
+    deletes: computeItemStats(changes.filter(change => change.changeType === 'delete'), selection),
   };
 
   const total = {
@@ -579,7 +579,7 @@ function computeChangeSetStats<Item extends coreImportData.ItemChange>(changes: 
   return { ...stats, total };
 }
 
-function computeItemStats(changes: coreImportData.ItemChange[], selection: SelectionSet): StatsItem {
+function computeItemStats(changes: coreImportData.ObjectChange[], selection: SelectionSet): StatsItem {
   const stats: StatsItem = { selected: 0, unselected: 0 };
 
   for (const change of changes) {

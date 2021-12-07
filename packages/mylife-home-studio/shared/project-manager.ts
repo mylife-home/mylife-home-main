@@ -374,20 +374,18 @@ export type ChangeType = 'add' | 'update' | 'delete';
 
 export namespace coreImportData {
 
-  export interface Changes {
-    plugins: PluginChange[];
-    components: ComponentChange[];
-  }
-  
-  export interface ItemChange {
+  export interface ObjectChange {
     key: string; // for selection
     id: string; // component/plugin id
     instanceName: string;
-    type: ChangeType;
+    changeType: ChangeType;
+    objectType: 'component' | 'plugin';
     dependencies: string[]; // components changes may depends on plugins changes
   }
     
-  export interface PluginChange extends ItemChange {
+  export interface PluginChange extends ObjectChange {
+    objectType: 'plugin';
+
     version: { before: string; after: string; },
     usage: PluginUsage; // or null if no change
     config: { [name: string]: ChangeType; },
@@ -398,7 +396,9 @@ export namespace coreImportData {
     };
   }
     
-  export interface ComponentChange extends ItemChange {
+  export interface ComponentChange extends ObjectChange {
+    objectType: 'component';
+
     config: { [name: string]: { type: ChangeType; value: any; }; };
     external: boolean; // or null if no change
     pluginId: string; // or null if no change
@@ -432,7 +432,7 @@ export interface PrepareImportFromProjectCoreProjectCall extends CoreProjectCall
 }
 
 export interface PrepareBulkUpdatesCoreProjectCallResult extends ProjectCallResult {
-  changes: coreImportData.Changes;
+  changes: coreImportData.ObjectChange[];
   serverData: unknown;
 }
 

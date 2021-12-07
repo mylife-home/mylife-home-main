@@ -77,7 +77,7 @@ export interface CoreOpenedProject extends OpenedProjectBase {
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
 export interface BulkUpdatesData {
-  changes: coreImportData.Changes;
+  changes: coreImportData.ObjectChange[];
   serverData: unknown;
 }
 

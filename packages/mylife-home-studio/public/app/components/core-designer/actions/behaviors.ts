@@ -7,7 +7,7 @@ import { useSnackbar } from '../../dialogs/snackbar';
 import { useBusy } from '../../dialogs/busy';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { BulkUpdatesData, BulkUpdatesStats, coreImportData, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
+import { BulkUpdatesData, BulkUpdatesStats, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
 import { 
   prepareImportFromProject, prepareImportFromOnline, applyBulkUpdates, 
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
@@ -65,7 +65,7 @@ function useExecuteRefresh() {
 
   return useCallback(async (bulkUpdatesData: BulkUpdatesData) => {
     const { changes, serverData } = bulkUpdatesData;
-    if (areChangesEmpty(changes)) {
+    if (changes.length === 0) {
       enqueueSnackbar('Le projet est déjà à jour.', { variant: 'info' });
       return;
     }
@@ -107,10 +107,6 @@ function formatRefreshNotification(stats: BulkUpdatesStats) {
   const list = [pluginsText, componentsText, bindingsText].filter(item => item).join(', ');
   const total = stats.plugins + stats.components + stats.bindings;
   return total > 1 ? `${list} ont été mis à jour` : `${list} a été mis à jour`;
-}
-
-function areChangesEmpty(changes: coreImportData.Changes) {
-  return changes.plugins.length === 0 && changes.components.length === 0;
 }
 
 export function useProjectValidation() {
