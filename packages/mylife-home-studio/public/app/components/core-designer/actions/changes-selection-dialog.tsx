@@ -13,6 +13,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Collapse from '@material-ui/core/Collapse';
 import Checkbox from '@material-ui/core/Checkbox';
 import Typography from '@material-ui/core/Typography';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
@@ -52,6 +55,7 @@ export function useShowChangesDialog() {
     ({ in: open, onExited }: TransitionProps) => {
       const [selection, setSelection] = useState(initSelection(changes));
       const stats = useMemo(() => computeStats(changes, selection), [changes, selection]);
+      const [type, setType] = useState<Type>('instances-objectTypes');
 
       const cancel = () => {
         hideModal();
@@ -84,6 +88,8 @@ export function useShowChangesDialog() {
           <DialogContent dividers>
             <DialogText value={'Sélectionnez les changements à apporter au projet :'} />
 
+            <TypeSelector type={type} setType={setType} />
+
             <List className={classes.list}>
               <ChangeSetItem type="plugins" stats={stats.plugins} changes={changes.plugins} selection={selection} setSelected={setSelected} />
               <ChangeSetItem type="components" stats={stats.components} changes={changes.components} selection={selection} setSelected={setSelected} />
@@ -113,6 +119,23 @@ export function useShowChangesDialog() {
     [setChanges, setOnResult, showModal]
   );
 }
+
+type Type = 'instances-objectTypes' | 'objectTypes-instances' | 'objectTypes';
+
+const TypeSelector: FunctionComponent<{ type: Type; setType: (type: Type) => void }> = ({ type, setType }) => {
+  const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setType(event.target.value as Type);
+  };
+
+  return (
+    <RadioGroup value={type} onChange={handleTypeChange} row>
+      <FormControlLabel value="instances-objectTypes" control={<Radio color="primary" />} label="instances / plugins-composants" />
+      <FormControlLabel value="objectTypes-instances" control={<Radio color="primary" />} label="plugins-composants / instances" />
+      <FormControlLabel value="objectTypes" control={<Radio color="primary" />} label="plugins-composants" />
+    </RadioGroup>
+  );
+};
+
 
 interface WithSelectionProps {
   selection: SelectionSet;

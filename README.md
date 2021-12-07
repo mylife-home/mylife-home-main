@@ -160,6 +160,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - ne pas crasher si un projet n'est pas valide
   - import:
     - import de plugins: rajouter un regroupement par instance
+      => 3 choix:
+          - instance puis plugins/composants puis ajout/modif/suppression
+          - plugins/composants puis instance puis ajout/modif/suppression
+          - plugins/composants puis ajout/modif/suppression
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 - deploy
@@ -213,3 +217,6 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - ac dimmer
    Can ac dimmer work JS only ? (Or cpp userland?)
    npm epoll = 20k interrupts /sec on rpi4???
+
+TODO:
+deploy studio + common
