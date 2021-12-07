@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext, useMemo, useEffect } from 'react';
+import React, { FunctionComponent, useContext, useMemo, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import { AutoSizer } from 'react-virtualized';
@@ -42,8 +42,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TreeView: FunctionComponent<TreeViewProps> = ({ className, selection, onSelect }) => {
-  const [type, setType] = React.useState<Type>('instances-plugins-components');
-  const [expanded, setExpanded] = React.useState<string[]>([]);
+  const [type, setType] = useState<Type>('instances-plugins-components');
+  const [expanded, setExpanded] = useState<string[]>([]);
 
   const config = useMemo(() => buildConfig(type), [type]);
   const nodeRepository = useMemo(() => new Map<string, { type: string; id: string }>() as NodeRepository, []);
