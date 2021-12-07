@@ -187,12 +187,7 @@ Error: Component rgblight-tv1 does not exist in the registry
     at MqttClient.emit (node:events:390:28)
     at MqttClient._handlePublish (/app/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
 ```
-- bug timeout RPC sur rpi-home-main
-[2021-12-07T10:30:34.867Z] ERROR: mylife:home:studio:services:session-manager/1518742 on arch-desktop: Error running service handler for service 'project-manager/call-opened' on session 'Wb1xcQRytqS-WgTOAAAC' (instanceName=arch-desktop-studio)
-    Error: Timeout occured while waiting for message on topic 'arch-desktop-studio/rpc/replies/B5QNBQSLFIDWDBXH'
-        at Timeout.<anonymous> (/home/vincent/workspace/mylife-home-main/packages/mylife-home-packager/dist/dev/studio/webpack:/mylife-home-packager/mylife-home-common/dist/bus/rpc.js:144:1)
-        at listOnTimeout (node:internal/timers:557:17)
-        at processTimers (node:internal/timers:500:7)
+
 ## core
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17

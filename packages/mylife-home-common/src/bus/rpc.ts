@@ -103,7 +103,7 @@ export class Rpc {
     const request: Request = { input: data, replyTopic };
     let buffer: Buffer;
 
-    const messageWaiter = new MessageWaiter(this.client, replyTopic);
+    const messageWaiter = new MessageWaiter(this.client, address, replyTopic);
     await messageWaiter.init();
     try {
       await this.client.publish(this.client.buildRemoteTopic(targetInstance, DOMAIN, SERVICES, address), encoding.writeJson(request));
@@ -123,7 +123,7 @@ export class Rpc {
 }
 
 class MessageWaiter {
-  constructor(private readonly client: Client, private readonly topic: string) {
+  constructor(private readonly client: Client, private readonly callAddress: string, private readonly topic: string) {
   }
 
   async init() {
@@ -150,7 +150,7 @@ class MessageWaiter {
       const timer = setTimeout(() => {
         console.log('timeout');
         onEnd();
-        reject(new Error(`Timeout occured while waiting for message on topic '${this.topic}'`));
+        reject(new Error(`Timeout occured while waiting for message on topic '${this.topic}' (call address: '${this.callAddress}', timeout: ${timeout})`));
       }, timeout);
 
       this.client.on('message', messageCb);
