@@ -123,6 +123,7 @@ export function useShowChangesDialog() {
         const stats = computeStats(model, selection);
 
         const setSelected = (node: string, selected: boolean) => {
+          // TODO
           console.log('setSelected', node, selected);
         };
         
@@ -138,8 +139,6 @@ export function useShowChangesDialog() {
         hideModal();
         onResult({ status: 'ok', selection: formatSelection(selection) });
       };
-
-      // const setSelected = useCallback((partial: SelectionSet) => setSelection((selection) => ({ ...selection, ...partial })), [setSelection]);
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
@@ -604,10 +603,6 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
     setOpen(!open);
   };
 
-  if (areStatsEmpty(stats)) {
-    return null;
-  }
-
   return (
     <>
       <ListItem button onClick={handleClick} className={className}>
@@ -873,15 +868,7 @@ function formatSelection(selection: SelectionSet) {
   return values;
 }
 
-function areStatsEmpty(stats: StatsItem) {
-  return stats.selected === 0 && stats.unselected === 0;
-}
-
 function formatStats(stats: StatsItem) {
-  if (areStatsEmpty(stats)) {
-    return '(Aucun)';
-  }
-
   if (stats.selected === 0) {
     const count = stats.unselected;
     return count < 2 ? `${count} item non sélectionné` : `${count} items non sélectionnés`;
