@@ -222,12 +222,11 @@ const TypeSelector: FunctionComponent<{ type: Type; setType: (type: Type) => voi
   );
 };
 
+/*
 interface WithSelectionProps {
   selection: SelectionSet;
   setSelected: (partial: SelectionSet) => void;
 }
-
-/*
 
 interface BaseChangeSetProps extends WithSelectionProps {
   stats: ChangeSetStats;
