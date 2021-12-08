@@ -21,7 +21,60 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { ConfirmResult } from '../../dialogs/confirm';
 import { TransitionProps, DialogText } from '../../dialogs/common';
-import { coreImportData } from '../../../../../shared/project-manager';
+import { coreImportData } from '../../../store/core-designer/types';
+
+interface StatsItem {
+  selected: number;
+  unselected: number;
+}
+
+interface Node {
+  type: 'root' | 'objectType' | 'instanceName' | 'changeType' | 'change';
+}
+
+interface NodeWithChildren extends Node {
+  type: 'root' | 'objectType' | 'instanceName' | 'changeType';
+  children: string[];
+}
+
+interface RootNode extends NodeWithChildren {
+  type: 'root';
+}
+
+interface ObjectTypeNode extends NodeWithChildren {
+  type: 'objectType';
+  objectType: coreImportData.ObjectType;
+}
+
+interface InstanceNameNode extends NodeWithChildren {
+  type: 'instanceName';
+  instanceName: string;
+}
+
+interface ChangeTypeNode extends NodeWithChildren {
+  type: 'changeType';
+  changeType: coreImportData.ChangeType;
+}
+
+interface ChangeNode extends Node {
+  type: 'change';
+  change: string; // key
+}
+
+type Type = 'instances-objectTypes' | 'objectTypes-instances' | 'objectTypes';
+
+// key is change key
+type SelectionSet = { [key: string]: boolean };
+
+// data model is immutable
+interface DataModel {
+  // root nodes have keys: byInstancesObjectTypes, byObjectTypesInstances, byObjectTypes
+  nodes: { [key: string]: Node };
+  changes: { [key: string]: coreImportData.ObjectChange };
+}
+
+// key is node key
+type StatsSet = { [key: string]: StatsItem };
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -39,7 +92,7 @@ const useStyles = makeStyles((theme) => ({
   changeDetailsContainer: {
     display: 'flex',
     flexDirection: 'column',
-  }
+  },
 }));
 
 type ChangesDialogResult = ConfirmResult & { selection?: string[] };
@@ -53,9 +106,14 @@ export function useShowChangesDialog() {
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
-      const [selection, setSelection] = useState(initSelection(changes));
-      const stats = useMemo(() => computeStats(changes, selection), [changes, selection]);
+      const model = useMemo(() => buildDataModel(changes), [changes]);
+      const [selection, setSelection] = useState(() => initSelection(changes));
+      const stats = useMemo(() => computeStats(model, selection), [changes, selection]);
       const [type, setType] = useState<Type>('instances-objectTypes');
+
+      console.log(model);
+      console.log(selection);
+      console.log(stats);
 
       const cancel = () => {
         hideModal();
@@ -91,8 +149,22 @@ export function useShowChangesDialog() {
             <TypeSelector type={type} setType={setType} />
 
             <List className={classes.list}>
-              <ChangeSetItem type="plugins" stats={stats.plugins} changes={changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[]} selection={selection} setSelected={setSelected} />
-              <ChangeSetItem type="components" stats={stats.components} changes={changes.filter(change => change.objectType === 'component') as coreImportData.ComponentChange[]} selection={selection} setSelected={setSelected} />
+              {/*
+              <ChangeSetItem
+                type="plugins"
+                stats={stats.plugins}
+                changes={changes.filter((change) => change.objectType === 'plugin') as coreImportData.PluginChange[]}
+                selection={selection}
+                setSelected={setSelected}
+              />
+              <ChangeSetItem
+                type="components"
+                stats={stats.components}
+                changes={changes.filter((change) => change.objectType === 'component') as coreImportData.ComponentChange[]}
+                selection={selection}
+                setSelected={setSelected}
+              />
+              */}
             </List>
           </DialogContent>
 
@@ -120,8 +192,6 @@ export function useShowChangesDialog() {
   );
 }
 
-type Type = 'instances-objectTypes' | 'objectTypes-instances' | 'objectTypes';
-
 const TypeSelector: FunctionComponent<{ type: Type; setType: (type: Type) => void }> = ({ type, setType }) => {
   const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setType(event.target.value as Type);
@@ -136,11 +206,12 @@ const TypeSelector: FunctionComponent<{ type: Type; setType: (type: Type) => voi
   );
 };
 
-
 interface WithSelectionProps {
   selection: SelectionSet;
   setSelected: (partial: SelectionSet) => void;
 }
+
+/*
 
 interface BaseChangeSetProps extends WithSelectionProps {
   stats: ChangeSetStats;
@@ -171,18 +242,61 @@ const ChangeSetItem: FunctionComponent<PluginChangeSetProps | ComponentChangeSet
     case 'plugins':
       return (
         <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
-          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.changeType === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.changeType === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.changeType === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
+          <ChangeTypeItem
+            stats={stats.adds}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'add')}
+            title="Ajouts"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+          />
+          <ChangeTypeItem
+            stats={stats.updates}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'update')}
+            title="Modifications"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+          />
+          <ChangeTypeItem
+            stats={stats.deletes}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'delete')}
+            title="Suppressions"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+          />
         </ItemWithChildren>
       );
 
     case 'components':
       return (
         <ItemWithChildren className={classes.changeSetItem} title={title} stats={stats.total}>
-          <ChangeTypeItem stats={stats.adds} changes={typeAndChanges.changes.filter(change => change.changeType === 'add')} title="Ajouts" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.updates} changes={typeAndChanges.changes.filter(change => change.changeType === 'update')} title="Modifications" type={typeAndChanges.type} selection={selection} setSelected={setSelected} />
-          <ChangeTypeItem stats={stats.deletes} changes={typeAndChanges.changes.filter(change => change.changeType === 'delete')} title="Suppressions" type={typeAndChanges.type} selection={selection} setSelected={setSelected} isDelete />
+          <ChangeTypeItem
+            stats={stats.adds}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'add')}
+            title="Ajouts"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+          />
+          <ChangeTypeItem
+            stats={stats.updates}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'update')}
+            title="Modifications"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+          />
+          <ChangeTypeItem
+            stats={stats.deletes}
+            changes={typeAndChanges.changes.filter((change) => change.changeType === 'delete')}
+            title="Suppressions"
+            type={typeAndChanges.type}
+            selection={selection}
+            setSelected={setSelected}
+            isDelete
+          />
         </ItemWithChildren>
       );
   }
@@ -230,7 +344,7 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
     case 'plugins':
       return (
         <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
-          {typeAndChanges.changes.map(change => (
+          {typeAndChanges.changes.map((change) => (
             <PluginChangeItem key={change.key} change={change} selection={selection} setSelected={setSelected} />
           ))}
         </ItemWithChildren>
@@ -239,28 +353,26 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
     case 'components':
       return (
         <ItemWithChildren className={classes.changeTypeItem} title={title} stats={stats} checked={checkState} onCheckChange={onCheckChange}>
-          {typeAndChanges.changes.map(change => (
+          {typeAndChanges.changes.map((change) => (
             <ComponentChangeItem key={change.key} change={change} selection={selection} setSelected={setSelected} isDelete={typeAndChanges.isDelete} />
           ))}
         </ItemWithChildren>
       );
   }
 };
+*/
 
 const PluginChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.PluginChange }> = ({ change, selection, setSelected }) => {
   return (
     <ChangeItem change={change} selection={selection} setSelected={setSelected}>
-
       <ChangeDetailLine>{`Version : ${formatVersion(change.version)}`}</ChangeDetailLine>
 
-      {change.usage && (
-        <ChangeDetailLine>{`Changement d'usage : ${change.usage}`}</ChangeDetailLine>
-      )}
+      {change.usage && <ChangeDetailLine>{`Changement d'usage : ${change.usage}`}</ChangeDetailLine>}
 
       {Object.entries(change.members || {}).map(([memberName, type]) => {
         let changeType: string;
 
-        switch(type) {
+        switch (type) {
           case 'add':
             changeType = 'Ajout de membre';
             break;
@@ -274,15 +386,13 @@ const PluginChangeItem: FunctionComponent<WithSelectionProps & { change: coreImp
             break;
         }
 
-        return (
-          <ChangeDetailLine key={memberName}>{`${changeType} : ${memberName}`}</ChangeDetailLine>
-        );
+        return <ChangeDetailLine key={memberName}>{`${changeType} : ${memberName}`}</ChangeDetailLine>;
       })}
 
       {Object.entries(change.config || {}).map(([configName, type]) => {
         let changeType: string;
 
-        switch(type) {
+        switch (type) {
           case 'add':
             changeType = 'Ajout de configuration';
             break;
@@ -296,25 +406,23 @@ const PluginChangeItem: FunctionComponent<WithSelectionProps & { change: coreImp
             break;
         }
 
-        return (
-          <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>
-        );
+        return <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>;
       })}
 
-      {(change.impacts?.components || []).map(componentId => {
-        <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>
+      {(change.impacts?.components || []).map((componentId) => {
+        <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>;
       })}
 
-      {(change.impacts?.bindings || []).map(bindingId => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>
+      {(change.impacts?.bindings || []).map((bindingId) => {
+        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
       })}
     </ChangeItem>
   );
 };
 
-function formatVersion({ before, after }: { before: string; after: string; }) {
+function formatVersion({ before, after }: { before: string; after: string }) {
   if (before && after) {
-    if(before !== after) {
+    if (before !== after) {
       return `${before} -> ${after}`;
     } else {
       return before;
@@ -332,7 +440,12 @@ function formatVersion({ before, after }: { before: string; after: string; }) {
   return null;
 }
 
-const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ComponentChange; isDelete: boolean; }> = ({ change, isDelete, selection, setSelected }) => {
+const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ComponentChange; isDelete: boolean }> = ({
+  change,
+  isDelete,
+  selection,
+  setSelected,
+}) => {
   // only one dependency for now
   const dependency = change.dependencies[0];
 
@@ -341,12 +454,12 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
   if (dependency) {
     const dependencySelected = selection[dependency];
 
-      // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+    // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
     if (isDelete && dependencySelected) {
       forcedValue = true;
     }
 
-    if(!isDelete && !dependencySelected) {
+    if (!isDelete && !dependencySelected) {
       forcedValue = false;
     }
   }
@@ -365,7 +478,7 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
       {Object.entries(change.config || {}).map(([configName, { type, value }]) => {
         let changeType: string;
 
-        switch(type) {
+        switch (type) {
           case 'add':
             changeType = 'Ajout de configuration';
             break;
@@ -381,27 +494,27 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
 
         const formattedValue = value === undefined ? '' : ` -> '${value}'`;
 
-        return (
-          <ChangeDetailLine key={configName}>{`${changeType} : ${configName}${formattedValue}`}</ChangeDetailLine>
-        );
+        return <ChangeDetailLine key={configName}>{`${changeType} : ${configName}${formattedValue}`}</ChangeDetailLine>;
       })}
 
-      {change.external != null && (
-        <ChangeDetailLine>{`Changement flag 'externe' : ${change.external}`}</ChangeDetailLine>
-      )}
+      {change.external != null && <ChangeDetailLine>{`Changement flag 'externe' : ${change.external}`}</ChangeDetailLine>}
 
-      {change.pluginId != null && (
-        <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>
-      )}
+      {change.pluginId != null && <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>}
 
-      {(change.impacts?.bindings || []).map(bindingId => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>
+      {(change.impacts?.bindings || []).map((bindingId) => {
+        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
       })}
     </ChangeItem>
   );
 };
 
-const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ObjectChange; disabled?: boolean }> = ({ change, disabled, selection, setSelected, children }) => {
+const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ObjectChange; disabled?: boolean }> = ({
+  change,
+  disabled,
+  selection,
+  setSelected,
+  children,
+}) => {
   const classes = useStyles();
   const checked = selection[change.key];
   const onCheck = () => setSelected({ [change.key]: !checked });
@@ -409,29 +522,19 @@ const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportDat
   return (
     <ListItem className={classes.changeItem} button onClick={onCheck} disabled={disabled}>
       <ListItemIcon>
-        <Checkbox
-          edge="start"
-          color="primary"
-          checked={checked}
-          tabIndex={-1}
-        />
+        <Checkbox edge="start" color="primary" checked={checked} tabIndex={-1} />
       </ListItemIcon>
 
-      <ListItemText
-        disableTypography
-        primary={<Typography variant="body1">{change.id}</Typography>}
-        secondary={
-          <div className={classes.changeDetailsContainer}>
-            {children}
-          </div>
-        } />
+      <ListItemText disableTypography primary={<Typography variant="body1">{change.id}</Typography>} secondary={<div className={classes.changeDetailsContainer}>{children}</div>} />
     </ListItem>
   );
 };
 
 const ChangeDetailLine: FunctionComponent<{ highlight?: boolean }> = ({ children, highlight = false }) => {
   return (
-    <Typography variant="body2" color={highlight ? 'error' : 'textSecondary'}>{children}</Typography>
+    <Typography variant="body2" color={highlight ? 'error' : 'textSecondary'}>
+      {children}
+    </Typography>
   );
 };
 
@@ -505,23 +608,205 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
   );
 };
 
-type SelectionSet = { [key: string]: boolean };
+function buildDataModel(changes: coreImportData.ObjectChange[]) {
+  const model: DataModel = {
+    nodes: {},
+    changes: {},
+  };
 
-interface StatsItem {
-  selected: number;
-  unselected: number;
+  addRootNode('byInstancesObjectTypes');
+  addRootNode('byObjectTypesInstances');
+  addRootNode('byObjectTypes');
+
+  for (const change of changes) {
+    const { key, instanceName, objectType, changeType } = change;
+    model.changes[key] = change;
+
+    addNodeChain('byInstancesObjectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
+    addNodeChain('byObjectTypesInstances', objectTypeNode(objectType), instanceNode(instanceName), changeTypeNode(changeType), changeNode(key));
+    addNodeChain('byObjectTypes', objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
+  }
+
+  for (const node of Object.values(model.nodes)) {
+    // sort depending of the type of children
+    if (node.type === 'change') {
+      continue;
+    }
+
+    // all other types have children
+    const { children } = node as NodeWithChildren;
+    if (children.length === 0) {
+      continue; // Nothing to sort
+    }
+
+    const childType = model.nodes[children[0]].type;
+    switch (childType) {
+      case 'objectType':
+        children.sort(objectTypeNodeComparer);
+        break;
+
+      case 'instanceName':
+        children.sort(instanceNameNodeComparer);
+        break;
+
+      case 'changeType':
+        children.sort(changeTypeNodeComparer);
+        break;
+
+      case 'change':
+        children.sort(changeNodeComparer);
+        break;
+    }
+  }
+
+  return model;
+
+  function addRootNode(path: string) {
+    const key = path; // path is mono-part for root node
+
+    const node: RootNode = {
+      type: 'root',
+      children: []
+    };
+
+    model.nodes[key] = node;
+  }
+
+  type Builder = (parentPath: string[]) => string;
+
+  function addNodeChain(root: string, ...builders: Builder[]) {
+    const path = [root];
+
+    for (const builder of builders) {
+      path.push(builder(path));
+    }
+  }
+
+  function instanceNode(instanceName: string): Builder {
+    return (parentPath: string[]) => {
+      addOrGet<InstanceNameNode>([...parentPath, instanceName], () => ({ type: 'instanceName', instanceName, children: [] }));
+      return instanceName;
+    };
+  }
+
+  function objectTypeNode(objectType: coreImportData.ObjectType): Builder {
+    return (parentPath: string[]) => {
+      addOrGet<ObjectTypeNode>([...parentPath, objectType], () => ({ type: 'objectType', objectType, children: [] }));
+      return objectType;
+    };
+  }
+
+  function changeTypeNode(changeType: coreImportData.ChangeType): Builder {
+    return (parentPath: string[]) => {
+      addOrGet<ChangeTypeNode>([...parentPath, changeType], () => ({ type: 'changeType', changeType, children: [] }));
+      return changeType;
+    };
+  }
+
+  function changeNode(changeKey: string): Builder {
+    return (parentPath: string[]) => {
+      addOrGet<ChangeNode>([...parentPath, changeKey], () => ({ type: 'change', change: changeKey }));
+      return changeKey;
+    };
+  }
+
+  function addOrGet<TNode extends Node>(path: string[], factory: () => TNode): { key: string, node: TNode } {
+    const key = path.join('/');
+    const existing = model.nodes[key];
+    if (existing) {
+      return { key, node: existing as TNode };
+    }
+
+    const parentKey = path.slice(0, -1).join('/');
+    const parentNode = model.nodes[parentKey] as NodeWithChildren;
+
+    const newNode = factory();
+    model.nodes[key] = newNode;
+    parentNode.children.push(key);
+  }
+
+  function objectTypeNodeComparer(key1: string, key2: string) {
+    const objectTypeOrdering = {
+      plugin: 1,
+      component: 2
+    };
+  
+    const node1 = model.nodes[key1] as ObjectTypeNode;
+    const node2 = model.nodes[key2] as ObjectTypeNode;
+
+    return objectTypeOrdering[node1.objectType] - objectTypeOrdering[node2.objectType];
+  }
+
+  function instanceNameNodeComparer(key1: string, key2: string) {
+    const node1 = model.nodes[key1] as InstanceNameNode;
+    const node2 = model.nodes[key2] as InstanceNameNode;
+
+    return node1.instanceName.localeCompare(node2.instanceName);
+  }
+
+  function changeTypeNodeComparer(key1: string, key2: string) {
+    const changeTypeOrdering = {
+      add: 1,
+      update: 2,
+      delete: 3
+    };
+  
+    const node1 = model.nodes[key1] as ChangeTypeNode;
+    const node2 = model.nodes[key2] as ChangeTypeNode;
+
+    return changeTypeOrdering[node1.changeType] - changeTypeOrdering[node2.changeType];
+  }
+
+  function changeNodeComparer(key1: string, key2: string) {
+    const node1 = model.nodes[key1] as ChangeNode;
+    const node2 = model.nodes[key2] as ChangeNode;
+
+    const change1 = model.changes[node1.change];
+    const change2 = model.changes[node2.change];
+
+    return change1.id.localeCompare(change2.id);
+  }
 }
 
-interface ChangeSetStats {
-  total: StatsItem;
-  adds: StatsItem;
-  updates: StatsItem;
-  deletes: StatsItem;
-}
+function computeStats(model: DataModel, selection: SelectionSet): StatsSet {
+  const stats: StatsSet = {};
 
-interface Stats {
-  plugins: ChangeSetStats;
-  components: ChangeSetStats;
+  computeNode('byInstancesObjectTypes');
+  computeNode('byObjectTypesInstances');
+  computeNode('byObjectTypes');
+
+  return stats;
+
+  function computeNode(key: string): StatsItem {
+    const existing = stats[key];
+    if (existing) {
+      return existing;
+    }
+
+    const node = model.nodes[key];
+    const result: StatsItem = { selected: 0, unselected: 0 };
+
+    if (node.type === 'change') {
+      const changeNode = node as ChangeNode;
+
+      if(selection[changeNode.change]) {
+        ++result.selected;
+      } else {
+        ++result.unselected;
+      }
+    } else {
+      // all other types have children
+      for (const child of (node as NodeWithChildren).children) {
+        const childStats = computeNode(child);
+        result.selected += childStats.selected;
+        result.unselected += childStats.unselected;
+      }
+
+      stats[key] = result;
+    }
+
+    return result;
+  }
 }
 
 function initSelection(changes: coreImportData.ObjectChange[]): SelectionSet {
@@ -536,9 +821,9 @@ function initSelection(changes: coreImportData.ObjectChange[]): SelectionSet {
         selection[change.key] = true;
         break;
 
-    case 'delete':
-      selection[change.key] = false;
-      break;
+      case 'delete':
+        selection[change.key] = false;
+        break;
     }
   }
 
@@ -548,49 +833,13 @@ function initSelection(changes: coreImportData.ObjectChange[]): SelectionSet {
 function formatSelection(selection: SelectionSet) {
   const values = [];
 
-  for (const [id, selected] of Object.entries(selection)) {
+  for (const [key, selected] of Object.entries(selection)) {
     if (selected) {
-      values.push(id);
+      values.push(key);
     }
   }
 
   return values;
-}
-
-function computeStats(changes: coreImportData.ObjectChange[], selection: SelectionSet): Stats {
-  return {
-    plugins: computeChangeSetStats(changes.filter(change => change.objectType === 'plugin'), selection),
-    components: computeChangeSetStats(changes.filter(change => change.objectType === 'component'), selection),
-  };
-}
-
-function computeChangeSetStats<Item extends coreImportData.ObjectChange>(changes: Item[], selection: SelectionSet): ChangeSetStats {
-  const stats = {
-    adds: computeItemStats(changes.filter(change => change.changeType === 'add'), selection),
-    updates: computeItemStats(changes.filter(change => change.changeType === 'update'), selection),
-    deletes: computeItemStats(changes.filter(change => change.changeType === 'delete'), selection),
-  };
-
-  const total = {
-    selected: Object.values(stats).reduce((acc, item) => acc + item.selected, 0),
-    unselected: Object.values(stats).reduce((acc, item) => acc + item.unselected, 0),
-  };
-
-  return { ...stats, total };
-}
-
-function computeItemStats(changes: coreImportData.ObjectChange[], selection: SelectionSet): StatsItem {
-  const stats: StatsItem = { selected: 0, unselected: 0 };
-
-  for (const change of changes) {
-    if (selection[change.key]) {
-      ++stats.selected;
-    } else {
-      ++stats.unselected;
-    }
-  }
-
-  return stats;
 }
 
 function areStatsEmpty(stats: StatsItem) {
