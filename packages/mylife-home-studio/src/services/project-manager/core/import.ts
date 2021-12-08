@@ -1,6 +1,6 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
-import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats, ChangeType } from '../../../../shared/project-manager';
+import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
 import { ComponentModel, Model, PluginModel } from './model';
 import { Services } from '../..';
 
@@ -254,7 +254,7 @@ export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plu
       && configModel.description === configImport.description;
   }
 
-  function typeChangeFormatter(name: string, type: ChangeType) {
+  function typeChangeFormatter(name: string, type: coreImportData.ChangeType) {
     return type;
   }
 }
@@ -342,12 +342,12 @@ function prepareComponentUpdates(imports: ImportData, model: Model): coreImportD
     changes.push(change);
   }
 
-  function configChangeFormatter(name: string, type: ChangeType, valueModel: any, valueImport: any) {
+  function configChangeFormatter(name: string, type: coreImportData.ChangeType, valueModel: any, valueImport: any) {
     return { type, value: valueImport };
   }
 }
 
-function newPluginChange(key: string, id: string, instanceName: string, changeType: ChangeType, props: Partial<coreImportData.PluginChange> = {}) {
+function newPluginChange(key: string, id: string, instanceName: string, changeType: coreImportData.ChangeType, props: Partial<coreImportData.PluginChange> = {}) {
   const change: coreImportData.PluginChange = {
     key,
     id,
@@ -366,7 +366,7 @@ function newPluginChange(key: string, id: string, instanceName: string, changeTy
   return change;
 }
 
-function newComponentChange(key: string, id: string, instanceName: string, changeType: ChangeType, props: Partial<coreImportData.ComponentChange> = {}) {
+function newComponentChange(key: string, id: string, instanceName: string, changeType: coreImportData.ChangeType, props: Partial<coreImportData.ComponentChange> = {}) {
   const change: coreImportData.ComponentChange = {
     key,
     id, 
@@ -431,7 +431,7 @@ function areComponentsEqual(componentModel: ComponentModel, componentImport: Com
   return true;
 }
 
-function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: ChangeType, valueModel: Value, valueImport: Value) => Change) {
+function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: coreImportData.ChangeType, valueModel: Value, valueImport: Value) => Change) {
   const changes: { [name: string]: Change; } = {};
 
   const safeObjectModel = objectModel || {};

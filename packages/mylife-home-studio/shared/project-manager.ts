@@ -370,16 +370,17 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   bindingId: string;
 }
 
-export type ChangeType = 'add' | 'update' | 'delete';
-
 export namespace coreImportData {
 
+  export type ChangeType = 'add' | 'update' | 'delete';
+  export type ObjectType = 'component' | 'plugin';
+  
   export interface ObjectChange {
     key: string; // for selection
     id: string; // component/plugin id
     instanceName: string;
     changeType: ChangeType;
-    objectType: 'component' | 'plugin';
+    objectType: ObjectType;
     dependencies: string[]; // components changes may depends on plugins changes
   }
     
@@ -451,6 +452,8 @@ export interface BulkUpdatesStats {
 export interface ApplyBulkUpdatesCoreProjectCallResult extends ProjectCallResult {
   stats: BulkUpdatesStats;
 };
+
+export type ChangeType = 'add' | 'update' | 'delete';
 
 export interface CoreValidationError {
   instanceName: string;
