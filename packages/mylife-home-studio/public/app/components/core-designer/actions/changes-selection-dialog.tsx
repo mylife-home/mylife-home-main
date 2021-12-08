@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo, useEffect } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo, useEffect, createContext, useContext } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -76,6 +76,15 @@ interface DataModel {
 // key is node key
 type StatsSet = { [key: string]: StatsItem };
 
+interface TreeContextProps {
+  model: DataModel;
+  stats: StatsSet;
+  selection: SelectionSet;
+  setSelected: (key: string, selected: boolean) => void;
+}
+
+const TreeContext = createContext<TreeContextProps>(null);
+
 const useStyles = makeStyles((theme) => ({
   list: {
     height: '50vh',
@@ -106,14 +115,19 @@ export function useShowChangesDialog() {
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
-      const model = useMemo(() => buildDataModel(changes), [changes]);
       const [selection, setSelection] = useState(() => initSelection(changes));
-      const stats = useMemo(() => computeStats(model, selection), [changes, selection]);
       const [type, setType] = useState<Type>('instances-objectTypes');
 
-      console.log(model);
-      console.log(selection);
-      console.log(stats);
+      const treeContext: TreeContextProps = useMemo(() => {
+        const model = buildDataModel(changes);
+        const stats = computeStats(model, selection);
+
+        const setSelected = (node: string, selected: boolean) => {
+          console.log('setSelected', node, selected);
+        };
+        
+        return { model, stats, selection, setSelected };
+      }, [changes, selection]);
 
       const cancel = () => {
         hideModal();
@@ -125,7 +139,7 @@ export function useShowChangesDialog() {
         onResult({ status: 'ok', selection: formatSelection(selection) });
       };
 
-      const setSelected = useCallback((partial: SelectionSet) => setSelection((selection) => ({ ...selection, ...partial })), [setSelection]);
+      // const setSelected = useCallback((partial: SelectionSet) => setSelection((selection) => ({ ...selection, ...partial })), [setSelection]);
 
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
@@ -148,24 +162,26 @@ export function useShowChangesDialog() {
 
             <TypeSelector type={type} setType={setType} />
 
-            <List className={classes.list}>
-              {/*
-              <ChangeSetItem
-                type="plugins"
-                stats={stats.plugins}
-                changes={changes.filter((change) => change.objectType === 'plugin') as coreImportData.PluginChange[]}
-                selection={selection}
-                setSelected={setSelected}
-              />
-              <ChangeSetItem
-                type="components"
-                stats={stats.components}
-                changes={changes.filter((change) => change.objectType === 'component') as coreImportData.ComponentChange[]}
-                selection={selection}
-                setSelected={setSelected}
-              />
-              */}
-            </List>
+            <TreeContext.Provider value={treeContext}>
+              <List className={classes.list}>
+                {/*
+                <ChangeSetItem
+                  type="plugins"
+                  stats={stats.plugins}
+                  changes={changes.filter((change) => change.objectType === 'plugin') as coreImportData.PluginChange[]}
+                  selection={selection}
+                  setSelected={setSelected}
+                />
+                <ChangeSetItem
+                  type="components"
+                  stats={stats.components}
+                  changes={changes.filter((change) => change.objectType === 'component') as coreImportData.ComponentChange[]}
+                  selection={selection}
+                  setSelected={setSelected}
+                />
+                */}
+              </List>
+            </TreeContext.Provider>
           </DialogContent>
 
           <DialogActions>
@@ -362,9 +378,16 @@ const ChangeTypeItem: FunctionComponent<PluginChangeTypeProps | ComponentChangeT
 };
 */
 
-const PluginChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.PluginChange }> = ({ change, selection, setSelected }) => {
+const PluginChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model, selection, setSelected } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const change = model.changes[node.change] as coreImportData.PluginChange;
+  const selected = selection[node.change];
+  const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
+
   return (
-    <ChangeItem change={change} selection={selection} setSelected={setSelected}>
+    <ChangeItem title={change.id} selected={selected} onSetSelected={onSetSelected}>
       <ChangeDetailLine>{`Version : ${formatVersion(change.version)}`}</ChangeDetailLine>
 
       {change.usage && <ChangeDetailLine>{`Changement d'usage : ${change.usage}`}</ChangeDetailLine>}
@@ -440,12 +463,15 @@ function formatVersion({ before, after }: { before: string; after: string }) {
   return null;
 }
 
-const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ComponentChange; isDelete: boolean }> = ({
-  change,
-  isDelete,
-  selection,
-  setSelected,
-}) => {
+const ComponentChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model, selection, setSelected } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const change = model.changes[node.change] as coreImportData.ComponentChange;
+  const selected = selection[node.change];
+  const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
+  
+  const isDelete = change.changeType === 'delete';
   // only one dependency for now
   const dependency = change.dependencies[0];
 
@@ -469,12 +495,12 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
   // Force value when we become disabled
   useEffect(() => {
     if (disabled && selection[change.key] !== forcedValue) {
-      setSelected({ [change.key]: forcedValue });
+      setSelected(nodeKey, forcedValue);
     }
   }, [selection, forcedValue, disabled]);
 
   return (
-    <ChangeItem change={change} disabled={disabled} selection={selection} setSelected={setSelected}>
+    <ChangeItem title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
       {Object.entries(change.config || {}).map(([configName, { type, value }]) => {
         let changeType: string;
 
@@ -508,24 +534,30 @@ const ComponentChangeItem: FunctionComponent<WithSelectionProps & { change: core
   );
 };
 
-const ChangeItem: FunctionComponent<WithSelectionProps & { change: coreImportData.ObjectChange; disabled?: boolean }> = ({
-  change,
+interface ChangeItemProps {
+  title: string;
+  selected: boolean;
+  onSetSelected: (value: boolean) => void;
+  disabled?: boolean;
+}
+
+const ChangeItem: FunctionComponent<ChangeItemProps> = ({
+  title,
   disabled,
-  selection,
-  setSelected,
+  selected,
+  onSetSelected,
   children,
 }) => {
   const classes = useStyles();
-  const checked = selection[change.key];
-  const onCheck = () => setSelected({ [change.key]: !checked });
+  const onCheck = () => onSetSelected(!selected);
 
   return (
     <ListItem className={classes.changeItem} button onClick={onCheck} disabled={disabled}>
       <ListItemIcon>
-        <Checkbox edge="start" color="primary" checked={checked} tabIndex={-1} />
+        <Checkbox edge="start" color="primary" checked={selected} tabIndex={-1} />
       </ListItemIcon>
 
-      <ListItemText disableTypography primary={<Typography variant="body1">{change.id}</Typography>} secondary={<div className={classes.changeDetailsContainer}>{children}</div>} />
+      <ListItemText disableTypography primary={<Typography variant="body1">{title}</Typography>} secondary={<div className={classes.changeDetailsContainer}>{children}</div>} />
     </ListItem>
   );
 };
