@@ -130,6 +130,10 @@ export class API extends EventEmitter {
       try {
         const url = `https://tahomalink.com/enduser-mobile-web/enduserAPI${query}`;
         const request = https.request(url, { method, timeout: 10000 }, (response) => {
+          response.on('error', (err) => {
+            reject(err);
+          })
+
           this.cookies.readResponse(response);
 
           const data: Buffer[] = [];
