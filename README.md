@@ -70,6 +70,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## studio
 
 ### Archi
+
  - Keep:
    - Deploy (tâche pour faire image + livraison ssh)
    - Studio Deploy components/bindings (diff core vs hw + livraison au diff de composants, avec sélection possible)
@@ -79,6 +80,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
    - pouvoir publier la sortie de packager vers la plateforme de Deploy
 
 #### core-designer toolbox
+
  - objectifs:
    - pouvoir référencer d'autres composants pour les bindings d'un projet
    - pouvoir avoir un projet 'hw' et un projet 'logic' sur une seule instance
@@ -97,6 +99,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
  - must handle component overwrite on import from online instances/core projet if it already exist as non-external in the project
 
 ### Git
+
  - web-ui pour gerer git: https://gitconvex.com/
 
 ## ui
@@ -155,6 +158,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 # TODO
 
 ## studio
+
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - bugs:
@@ -200,10 +204,12 @@ Error: Component rgblight-tv1 does not exist in the registry
 ```
 
 ## core
+
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
 
 ## collector
+
 - logs
 - changements de status (+online/offline)
 
@@ -221,6 +227,7 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ```
 
 ## drivers
+
  - ac dimmer
    Can ac dimmer work JS only ? (Or cpp userland?)
    npm epoll = 20k interrupts /sec on rpi4???
