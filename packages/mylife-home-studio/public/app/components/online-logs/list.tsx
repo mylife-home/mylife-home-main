@@ -17,8 +17,8 @@ const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ cla
     <Level value={value} />
   );
 
-  const textRenderer = (value: string) => (
-    <Text value={value} />
+  const messageRenderer = (value: string) => (
+    <Message value={value} />
   );
 
   const errorRenderer = (value: LogError) => (
@@ -30,8 +30,8 @@ const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ cla
     { dataKey: 'level', width: 100, headerRenderer: 'Niveau', cellRenderer: levelRenderer },
     { dataKey: 'instanceName', width: 200, headerRenderer: 'Instance' },
     { dataKey: 'name', width: 500, headerRenderer: 'Nom' },
-    { dataKey: 'msg', headerRenderer: 'Message', cellRenderer: textRenderer },
-    { dataKey: 'err', width: 100, headerRenderer: 'Erreur', cellRenderer: errorRenderer },
+    { dataKey: 'msg', headerRenderer: 'Message', cellRenderer: messageRenderer },
+    { dataKey: 'err', headerRenderer: 'Erreur', cellRenderer: errorRenderer },
   ];
 
   return (
@@ -44,8 +44,6 @@ export default List;
 const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   const classes = useLevelStyles();
   const level = findLevelByValue(value);
-
-  type Ids = 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace';
   const levelClass = getLevelClass(classes, level);
   const levelDisplay = level ? level.id.toUpperCase() : `${value}`;
 
@@ -56,23 +54,37 @@ const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   );
 };
 
-const Text: FunctionComponent<{ value: string }> = ({ value }) => (
-  <Typography variant='body2' noWrap>
-    {value}
-  </Typography>
-);
-
-const useErrorStyles = makeStyles((theme) => ({
+const useRendererStyles = makeStyles((theme) => ({
   tooltip: {
     backgroundColor: theme.palette.common.white,
     color: 'rgba(0, 0, 0, 0.87)',
     boxShadow: theme.shadows[1],
     maxWidth: 'calc(100% - 64px)'
   },
-}))
+}));
+
+const Message: FunctionComponent<{ value: string }> = ({ value }) => {
+  const classes = useRendererStyles();
+
+  return (
+    <Tooltip classes={{ tooltip: classes.tooltip }} title={
+      <>
+        <DialogContent>
+          <DialogContentText>
+            {addLineBreaks(value)}
+          </DialogContentText>
+        </DialogContent>
+      </>
+    }>
+      <Typography variant='body2' noWrap>
+        {value}
+      </Typography>
+    </Tooltip>
+  );
+};
 
 const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
-  const classes = useErrorStyles();
+  const classes = useRendererStyles();
 
   if(!value) {
     return null;
@@ -91,9 +103,11 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
         </DialogContent>
       </>
     }>
-      <SearchIcon/>
+      <Typography variant='body2' noWrap>
+        {value.message}
+      </Typography>
     </Tooltip>
-  )
+  );
 };
 
 function formatTimestamp(value: Date) {
