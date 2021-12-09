@@ -144,6 +144,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
        - gestion des conflits ?
  - deploy
    - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
+ - logs
+   - pouvoir c/c des logs
 
 ## ui
 
@@ -181,9 +183,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
   - pouvoir rajouter des notes sur une etape
-- logs
-  - afficher le log complet dans un tooltip si le message ne tient pas entier sur la ligne
-  - pouvoir c/c des logs
 - vue des instances :
   - crash studio quand une instance ESP reboot et que la vue des instances est ouverte
 ```
