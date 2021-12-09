@@ -91,12 +91,20 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'auto',
     border: `1px solid ${theme.palette.divider}`,
   },
-  changeSetItem: {},
-  changeTypeItem: {
+  indent0: {
     paddingLeft: theme.spacing(4),
   },
-  changeItem: {
+  indent1: {
     paddingLeft: theme.spacing(8),
+  },
+  indent2: {
+    paddingLeft: theme.spacing(12),
+  },
+  indent3: {
+    paddingLeft: theme.spacing(16),
+  },
+  indent4: {
+    paddingLeft: theme.spacing(20),
   },
   changeDetailsContainer: {
     display: 'flex',
@@ -232,13 +240,13 @@ const Tree: FunctionComponent<{ type: Type; }> = ({ type }) => {
   return (
     <>
       {root.children.map(child => (
-        <TreeNode key={child} node={child} />
+        <TreeNode key={child} indent={0} node={child} />
       ))}
     </>
   );
 };
 
-const TreeNode: FunctionComponent<{ node: string }> = ({ node: nodeKey }) => {
+const TreeNode: FunctionComponent<{ indent: number; node: string }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
   const { model, stats } = treeContext;
   const node = model.nodes[nodeKey];
@@ -248,19 +256,20 @@ const TreeNode: FunctionComponent<{ node: string }> = ({ node: nodeKey }) => {
 
     switch (change.objectType) {
       case 'plugin':
-        return (<PluginChangeItem node={nodeKey} />);
+        return (<PluginChangeItem indent={indent} node={nodeKey} />);
       case 'component':
-        return (<ComponentChangeItem node={nodeKey} />);
+        return (<ComponentChangeItem indent={indent} node={nodeKey} />);
     }
   } else {
     const itemStats = stats[nodeKey];
     const title = getNodeTitle(node);
+    const childrenIndent = indent + 1;
 
-    // TODO: className, checked, onCheckChange
+    // TODO: checked, onCheckChange
     return (
-      <ItemWithChildren title={title} stats={itemStats}>
+      <ItemWithChildren indent={indent} title={title} stats={itemStats}>
         {(node as NodeWithChildren).children.map(child => (
-          <TreeNode key={child} node={child} />
+          <TreeNode key={child} indent={childrenIndent} node={child} />
         ))}
       </ItemWithChildren>
     );
@@ -298,7 +307,7 @@ function getNodeTitle(node: Node) {
   }
 }
 
-const PluginChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+const PluginChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
   const { model, selection, setSelected } = treeContext;
   const node = model.nodes[nodeKey] as ChangeNode;
@@ -307,7 +316,7 @@ const PluginChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeKey 
   const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
 
   return (
-    <ChangeItem title={change.id} selected={selected} onSetSelected={onSetSelected}>
+    <ChangeItem indent={indent} title={change.id} selected={selected} onSetSelected={onSetSelected}>
       <ChangeDetailLine>{`Version : ${formatVersion(change.version)}`}</ChangeDetailLine>
 
       {change.usage && <ChangeDetailLine>{`Changement d'usage : ${change.usage}`}</ChangeDetailLine>}
@@ -383,7 +392,7 @@ function formatVersion({ before, after }: { before: string; after: string }) {
   return null;
 }
 
-const ComponentChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
   const { model, selection, setSelected } = treeContext;
   const node = model.nodes[nodeKey] as ChangeNode;
@@ -421,7 +430,7 @@ const ComponentChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeK
   }, [selection, forcedValue, disabled]);
 
   return (
-    <ChangeItem title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
+    <ChangeItem indent={indent} title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
       {Object.entries(change.config || {}).map(([configName, { type, value }]) => {
         let changeType: string;
 
@@ -456,6 +465,7 @@ const ComponentChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeK
 };
 
 interface ChangeItemProps {
+  indent: number;
   title: string;
   selected: boolean;
   onSetSelected: (value: boolean) => void;
@@ -463,6 +473,7 @@ interface ChangeItemProps {
 }
 
 const ChangeItem: FunctionComponent<ChangeItemProps> = ({
+  indent,
   title,
   disabled,
   selected,
@@ -470,10 +481,11 @@ const ChangeItem: FunctionComponent<ChangeItemProps> = ({
   children,
 }) => {
   const classes = useStyles();
+  const indentClass = useIndentClass(indent);
   const onCheck = () => onSetSelected(!selected);
 
   return (
-    <ListItem className={classes.changeItem} button onClick={onCheck} disabled={disabled}>
+    <ListItem className={indentClass} button onClick={onCheck} disabled={disabled}>
       <ListItemIcon>
         <Checkbox edge="start" color="primary" checked={selected} tabIndex={-1} />
       </ListItemIcon>
@@ -512,8 +524,8 @@ function getTriState(stats: StatsItem): TriState {
   }
 }
 
-const ItemWithChildren: FunctionComponent<{ className?: string; title: string; stats: StatsItem; checked?: TriState; onCheckChange?: () => void }> = ({
-  className,
+const ItemWithChildren: FunctionComponent<{ indent: number; title: string; stats: StatsItem; checked?: TriState; onCheckChange?: () => void }> = ({
+  indent,
   title,
   stats,
   checked,
@@ -521,6 +533,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
   children,
 }) => {
   const [open, setOpen] = useState(true);
+  const indentClass = useIndentClass(indent);
 
   const handleClick = () => {
     setOpen(!open);
@@ -528,7 +541,7 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
 
   return (
     <>
-      <ListItem button onClick={handleClick} className={className}>
+      <ListItem button onClick={handleClick} className={indentClass}>
         {checked && onCheckChange && (
           <ListItemIcon>
             <Checkbox
@@ -549,13 +562,33 @@ const ItemWithChildren: FunctionComponent<{ className?: string; title: string; s
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
+        <List component="div">
           {children}
         </List>
       </Collapse>
     </>
   );
 };
+
+function useIndentClass(indent: number) {
+  const classes = useStyles();
+
+  switch(indent) {
+    case 0:
+      return classes.indent0;
+    case 1:
+      return classes.indent1;
+    case 2:
+      return classes.indent2;
+    case 3:
+      return classes.indent3;
+    case 4:
+      return classes.indent4;
+    default:
+      console.error('Unsupported indent', indent);
+      return null;
+  }
+}
 
 function buildDataModel(changes: coreImportData.ObjectChange[]) {
   const model: DataModel = {
