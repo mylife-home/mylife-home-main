@@ -453,27 +453,92 @@ export interface ApplyBulkUpdatesCoreProjectCallResult extends ProjectCallResult
   stats: BulkUpdatesStats;
 };
 
-export type ChangeType = 'add' | 'update' | 'delete';
+export namespace coreValidation {
+  export type ChangeType = 'add' | 'update' | 'delete';
+  export type ItemType = 'plugin-changed' | 'existing-component-id' | 'missing-external-component' | 'invalid-binding-api' | 'component-bad-config' | 'binding-mismatch';
+  export type Severity = 'info' | 'warning' | 'error';
+  
+  export interface Item {
+    type: ItemType;
+    severity: Severity;
+  }
 
-export interface CoreValidationError {
-  instanceName: string;
-  module: string;
-  name: string;
+  export interface PluginChanged extends Item {
+    type: 'plugin-changed';
 
-  changeType: ChangeType; // update or delete only
-  config: { [name: string]: ChangeType; },
-  members: { [name: string]: ChangeType; },
-  impacts: string[]; // list of impacted components
+    instanceName: string;
+    module: string;
+    name: string;
+  
+    changeType: ChangeType; // update or delete only
+    config: { [name: string]: ChangeType; },
+    members: { [name: string]: ChangeType; },
+    impacts: string[]; // list of impacted components
+  }
+
+  export interface ExistingComponentId extends Item {
+    type: 'existing-component-id';
+    
+    componentId: string;
+    project: {
+      instanceName: string;
+      module: string;
+      name: string;
+    };
+    existing: {
+      instanceName: string;
+      module: string;
+      name: string;
+    };
+  }
+
+  export interface MissingExternalComponent extends Item {
+    type: 'missing-external-component';
+
+    componentId: string;
+    instanceName: string;
+    module: string;
+    name: string;
+  }
+
+  export interface InvalidBindingApi extends Item {
+    type: 'invalid-binding-api';
+
+    instanceNames: string[]; // error if none or multiple
+  }
+
+  export interface ComponentBadConfig extends Item {
+    type: 'component-bad-config';
+
+    componentId: string;
+    instanceName: string;
+    module: string;
+    name: string;
+    config: { [name: string]: ChangeType; };
+  }
+
+  export interface BindingMismatch extends Item {
+    type: 'binding-mismatch';
+
+    sourceComponent: string;
+    sourceState: string;
+    sourceType: string;
+    targetComponent: string;
+    targetAction: string;
+    targetType: string;
+  }
 }
 
 export interface ValidateCoreProjectCallResult extends ProjectCallResult {
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
 }
 
 export interface DeployChanges {
   components: ComponentDeployChange[];
   bindings: BindingDeployChange[];
 }
+
+export type ChangeType = 'add' | 'update' | 'delete';
 
 export interface ComponentDeployChange {
   type: ChangeType;
@@ -488,7 +553,7 @@ export interface BindingDeployChange {
 }
 
 export interface PrepareDeployToFilesCoreProjectCallResult extends ProjectCallResult {
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
   changes: DeployChanges; // only adds
   files: string[];
   bindingsInstanceName: {
@@ -509,7 +574,7 @@ export interface ApplyDeployToFilesCoreProjectCallResult extends ProjectCallResu
 }
 
 export interface PrepareDeployToOnlineCoreProjectCallResult extends ProjectCallResult {
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
   changes: DeployChanges;
   serverData: unknown;
 }

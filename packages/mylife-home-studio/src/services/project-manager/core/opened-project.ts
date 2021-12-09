@@ -384,8 +384,8 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private validate(): ValidateCoreProjectCallResult {
-    const errors = validate(this.model);
-    return { errors };
+    const validation = validate(this.model, { onlineSeverity: 'error' });
+    return { validation };
   }
 
   private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {

@@ -1,5 +1,5 @@
 import { components, logger } from 'mylife-home-common';
-import { ChangeType, CoreValidationError, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
+import { ChangeType, coreValidation, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
 import { BindingModel, ComponentModel, Model, PluginModel } from './model';
@@ -7,7 +7,7 @@ import { buildPluginMembersAndConfigChanges } from './import';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
 
-export function validate(model: Model): CoreValidationError[] {
+export function validate(model: Model, { onlineSeverity }: { onlineSeverity: coreValidation.Severity }): coreValidation.Item[] {
   const usedPlugins = new Map<PluginModel, string[]>();
 
   for (const componentId of model.getComponentsIds()) {
@@ -27,30 +27,38 @@ export function validate(model: Model): CoreValidationError[] {
   }
 
   const onlineService = Services.instance.online;
-  const errors: CoreValidationError[] = [];
+  const result: coreValidation.Item[] = [];
 
   for (const [pluginModel, impacts] of usedPlugins.entries()) {
     const onlinePlugin = onlineService.findPlugin(pluginModel.instance.instanceName, `${pluginModel.data.module}.${pluginModel.data.name}`);
     if (!onlinePlugin) {
-      errors.push(newValidationError(pluginModel, impacts, 'delete'));
+      result.push(newPluginChangedValidationError(pluginModel, impacts, 'delete', onlineSeverity));
       continue;
     }
 
     const plugin = components.metadata.encodePlugin(onlinePlugin);
     const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
     if (!isObjectEmpty(changes.config) || !isObjectEmpty(changes.members)) {
-      const error = newValidationError(pluginModel, impacts, 'update');
+      const error = newPluginChangedValidationError(pluginModel, impacts, 'update', onlineSeverity);
       error.config = changes.config;
       error.members = changes.members;
-      errors.push(error);
+      result.push(error);
     }
   }
 
-  return errors;
+  // TODO: other validation items
+
+  return result;
 }
 
-function newValidationError(pluginModel: PluginModel, impacts: string[], changeType: ChangeType): CoreValidationError {
+function hasError(validation: coreValidation.Item[]) {
+  return !!validation.find(item => item.severity === 'error');
+}
+
+function newPluginChangedValidationError(pluginModel: PluginModel, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
   return {
+    type: 'plugin-changed',
+    severity,
     instanceName: pluginModel.instance.instanceName,
     module: pluginModel.data.module,
     name: pluginModel.data.name,
@@ -66,7 +74,12 @@ interface DeployToFilesServerData {
 }
 
 export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
-  const errors = validate(model);
+  const validation = validate(model, { onlineSeverity: 'warning' });
+  if (hasError(validation)) {
+    // Validation errors, cannot go further.
+    return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
+  }
+
   const usedInstancesNamesSet = new Set<string>();
   const changes: DeployChanges = { bindings: [], components: [] };
 
@@ -90,7 +103,7 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   const files = usedInstancesNames.map(createFileName);
   const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
-  return { errors, bindingsInstanceName, files, changes, serverData };
+  return { validation, bindingsInstanceName, files, changes, serverData };
 }
 
 function findBindingInstance(model: Model, usedInstancesNames: string[]) {
@@ -195,10 +208,10 @@ interface OnlineTask {
 }
 
 export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-  const errors = validate(model);
-  if (errors.length > 0) {
+  const validation = validate(model, { onlineSeverity: 'error' });
+  if (hasError(validation)) {
     // Validation errors, cannot go further.
-    return { errors, changes: null, serverData: null };
+    return { validation, changes: null, serverData: null };
   }
 
   const bindingsDelete: OnlineTask[] = [];
@@ -286,9 +299,8 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
 
   const tasks = [...bindingsDelete, ...componentsDelete, ...componentsAdd, ...bindingsAdd];
   const serverData: DeployToOnlineServerData = { tasks };
-  return { errors, changes, serverData };
+  return { validation, changes, serverData };
 }
-
 
 function areComponentsEqual(componentModel: ComponentModel, componentOnline: ComponentConfig) {
   const modelPluginData = componentModel.plugin.data;
