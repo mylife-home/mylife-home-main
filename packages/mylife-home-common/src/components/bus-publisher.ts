@@ -70,8 +70,8 @@ class BusInstance {
   constructor(private readonly transport: Transport, private readonly registry: Registry, private readonly instanceName: string) {
     fireAsync(async () => {
       this.view = await this.transport.metadata.createView(this.instanceName);
-      this.view.on('set', (path, value) => this.set(path, value));
-      this.view.on('clear', (path) => this.clear(path));
+      this.view.on('set', this.set);
+      this.view.on('clear', this.clear);
 
       // set first plugins then components
       const paths = sortPaths(this.view.paths);
@@ -84,7 +84,7 @@ class BusInstance {
     });
   }
 
-  private set(path: string, value: any) {
+  private readonly set = (path: string, value: any) => {
     const [type, id] = path.split('/');
     switch (type) {
       case 'plugins': {
@@ -107,9 +107,9 @@ class BusInstance {
         break;
       }
     }
-  }
+  };
 
-  private clear(path: string) {
+  private readonly clear = (path: string) => {
     const [type, id] = path.split('/');
     switch (type) {
       case 'plugins':
@@ -123,7 +123,7 @@ class BusInstance {
         (component as BusComponent).close();
         break;
     }
-  }
+  };
 
   close() {
     for (const { instanceName, component } of this.registry.getComponentsData()) {
@@ -140,6 +140,8 @@ class BusInstance {
     }
 
     fireAsync(async () => {
+      this.view.off('set', this.set);
+      this.view.off('clear', this.clear);
       await this.transport.metadata.closeView(this.view);
     });
   }
