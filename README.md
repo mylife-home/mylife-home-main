@@ -53,6 +53,18 @@ In Chrome: [chrome://inspect](chrome://inspect)
  - Pouvoir déployer les images en SSH
  - Garder un backup de chaque image déployée, pour pouvoir restaurer rapidement sur une SDCard à la main s'il y a un problème
 
+## Collector
+
+ - Base de données Mongo
+ - Integrer les logs
+ - Integrer l'historique des états de la domotique sous forme d'events de changement d'etat
+   - online/offline du collector lui-meme (pour pouvoir detecter les down time)
+   - online/offline des entites (same)
+   - publication des plugins (pour avoir un historique des ptes des composants)
+   - publication des composants (meta aussi)
+   - publication des changements de state
+ - gerer les purges pour eviter d'avoir une data trop grosse? (notamment des logs?)
+
 # Packages notes
 
 ## studio
