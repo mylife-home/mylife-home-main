@@ -66,6 +66,8 @@ type Type = 'instances-objectTypes' | 'objectTypes-instances' | 'objectTypes';
 // key is change key
 type SelectionSet = { [key: string]: boolean };
 
+type DisabledSet = { [key: string]: boolean };
+
 // data model is immutable
 interface DataModel {
   // root nodes have keys: instances-objectTypes, objectTypes-instances, objectTypes
@@ -80,6 +82,7 @@ interface TreeContextProps {
   model: DataModel;
   stats: StatsSet;
   selection: SelectionSet;
+  disabledSet: DisabledSet;
   setSelected: (key: string, selected: boolean) => void;
 }
 
@@ -124,6 +127,7 @@ export function useShowChangesDialog() {
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
       const [selection, setSelection] = useState(() => initSelection(changes));
+      const [disabledSet, setDisabledSet] = useState<DisabledSet>({});
       const [type, setType] = useState<Type>('instances-objectTypes');
 
       const treeContext: TreeContextProps = useMemo(() => {
@@ -135,11 +139,23 @@ export function useShowChangesDialog() {
           fillChanges(node, changes);
 
           const newSelection = { ...selection };
+          const newDisabledSet: DisabledSet = {};
+
           for (const change of changes) {
             newSelection[change] = selected;
           }
 
+          for (const [key, change] of Object.entries(model.changes)) {
+            const forcedValue = getForcedValue(change);
+
+            if (forcedValue !== null) {
+              newSelection[key] = forcedValue;
+              newDisabledSet[key] = true;
+            }
+          }
+
           setSelection(newSelection);
+          setDisabledSet(newDisabledSet);
 
           function fillChanges(nodeKey: string, changes: string[]) {
             const node = model.nodes[nodeKey];
@@ -151,10 +167,37 @@ export function useShowChangesDialog() {
               }
             }
           }
+
+          function getForcedValue(change: coreImportData.ObjectChange) {
+            if (change.objectType !== 'component') {
+              return null;
+            }
+
+            // only one dependency for now
+            const dependency = change.dependencies[0];
+            
+            if (!dependency) {
+              return null;
+            }
+
+            const isDelete = change.changeType === 'delete';
+            const dependencySelected = newSelection[dependency];
+        
+            // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
+            if (isDelete && dependencySelected) {
+              return true;
+            }
+        
+            if (!isDelete && !dependencySelected) {
+              return false;
+            }
+
+            return null;
+          }
         };
         
-        return { model, stats, selection, setSelected };
-      }, [changes, selection]);
+        return { model, stats, disabledSet, selection, setSelected };
+      }, [changes, selection, disabledSet]);
 
       const cancel = () => {
         hideModal();
@@ -417,41 +460,13 @@ function formatVersion({ before, after }: { before: string; after: string }) {
 
 const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
-  const { model, selection, setSelected } = treeContext;
+  const { model, selection, disabledSet, setSelected } = treeContext;
   const node = model.nodes[nodeKey] as ChangeNode;
   const change = model.changes[node.change] as coreImportData.ComponentChange;
   const selected = selection[node.change];
+  const disabled = disabledSet[node.change];
   const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
   
-  const isDelete = change.changeType === 'delete';
-  // only one dependency for now
-  const dependency = change.dependencies[0];
-
-  let forcedValue: boolean = null;
-
-  if (dependency) {
-    const dependencySelected = selection[dependency];
-
-    // On delete, the component only appears if its plugin deletion is not checked (else its deletion is already an impact of plugin deletion)
-    if (isDelete && dependencySelected) {
-      forcedValue = true;
-    }
-
-    if (!isDelete && !dependencySelected) {
-      forcedValue = false;
-    }
-  }
-
-  const disabled = forcedValue !== null;
-
-  // Force value when we become disabled
-  // TODO: this should be enforced in the model rather than here as a UI change
-  useEffect(() => {
-    if (disabled && selection[change.key] !== forcedValue) {
-      setSelected(nodeKey, forcedValue);
-    }
-  }, [selection, forcedValue, disabled]);
-
   return (
     <ChangeItem indent={indent} title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
       {Object.entries(change.config || {}).map(([configName, { type, value }]) => {
