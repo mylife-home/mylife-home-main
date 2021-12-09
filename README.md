@@ -206,6 +206,22 @@ Error: Component rgblight-tv1 does not exist in the registry
 
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
+- error apres restart esp-component:
+```
+rpi-home-main:~# cat /var/log/mylife-home/error.log
+Error: Component rgblight-poele1 does not exist in the registry
+    at Registry.getComponentData (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:135:19)
+    at Registry.getComponent (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:127:21)
+    at BusInstance.clear (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:106:49)
+    at RemoteMetadataViewImpl.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:64:50)
+    at RemoteMetadataViewImpl.emit (events.js:400:28)
+    at Client.RemoteMetadataViewImpl.onMessage (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/metadata.js:40:22)
+    at Client.emit (events.js:412:35)
+    at MqttClient.<anonymous> (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/dist/bus/client.js:54:60)
+    at MqttClient.emit (events.js:400:28)
+    at MqttClient._handlePublish (/usr/mylife-home/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
+rpi-home-main:~#
+```
 
 ## collector
 
