@@ -175,9 +175,9 @@ const ErrorDialog: FunctionComponent<ErrorDialogProps> = ({ open, onExited, onCl
 };
 
 const CHANGE_TYPES = {
-  add: 'Plugin ajouté', // Note: ne devrait pas apparaître
-  update: 'Plugin modifié',
-  delete: 'Plugin suprimé'
+  add: 'Plugin ajouté', // ne devrait pas apparaître
+  update: 'Plugin mis à jour',
+  delete: 'Plugin inexistant'
 };
 
 const ErrorItem: FunctionComponent<{ error: CoreValidationError }> = ({ error }) => {
@@ -237,9 +237,9 @@ const ErrorItem: FunctionComponent<{ error: CoreValidationError }> = ({ error })
               );
             })}
 
-            {(error.impacts || []).map(componentId => {
+            {(error.impacts || []).map(componentId => (
               <DetailLine key={componentId}>{`Impact sur le composant ${componentId}`}</DetailLine>
-            })}
+            ))}
 
           </div>
         } />
