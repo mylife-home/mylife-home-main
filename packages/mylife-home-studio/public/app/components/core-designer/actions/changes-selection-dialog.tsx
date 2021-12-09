@@ -123,8 +123,26 @@ export function useShowChangesDialog() {
         const stats = computeStats(model, selection);
 
         const setSelected = (node: string, selected: boolean) => {
-          // TODO
-          console.log('setSelected', node, selected);
+          const changes: string[] = [];
+          fillChanges(node, changes);
+
+          const newSelection = { ...selection };
+          for (const change of changes) {
+            newSelection[change] = selected;
+          }
+
+          setSelection(newSelection);
+
+          function fillChanges(nodeKey: string, changes: string[]) {
+            const node = model.nodes[nodeKey];
+            if (node.type === 'change') {
+              changes.push((node as ChangeNode).change);
+            } else {
+              for (const child of (node as NodeWithChildren).children) {
+                fillChanges(child, changes);
+              }
+            }
+          }
         };
         
         return { model, stats, selection, setSelected };
@@ -491,6 +509,7 @@ const ComponentChangeItem: FunctionComponent<{ node: string; }> = ({ node: nodeK
   const disabled = forcedValue !== null;
 
   // Force value when we become disabled
+  // TODO: this should be enforced in the model rather than here as a UI change
   useEffect(() => {
     if (disabled && selection[change.key] !== forcedValue) {
       setSelected(nodeKey, forcedValue);
