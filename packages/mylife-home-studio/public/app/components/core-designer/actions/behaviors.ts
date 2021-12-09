@@ -7,7 +7,7 @@ import { useSnackbar } from '../../dialogs/snackbar';
 import { useBusy } from '../../dialogs/busy';
 import { useShowChangesDialog } from './changes-selection-dialog';
 import { AsyncDispatch } from '../../../store/types';
-import { BulkUpdatesData, BulkUpdatesStats, CoreValidationError, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
+import { BulkUpdatesData, BulkUpdatesStats, coreValidation, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
 import { 
   prepareImportFromProject, prepareImportFromOnline, applyBulkUpdates, 
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
@@ -111,14 +111,14 @@ function formatRefreshNotification(stats: BulkUpdatesStats) {
 
 export function useProjectValidation() {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch<AsyncDispatch<CoreValidationError[]>>();
+  const dispatch = useDispatch();
   const fireAsync = useFireAsync();
   const showDialog = useShowValidationErrorsDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
     fireAsync(async () => {
-      const errors = await dispatch(validateProject({ id: tabId }));
+      const errors = await (dispatch as AsyncDispatch<coreValidation.Item[]>)(validateProject({ id: tabId }));
       if (errors.length === 0) {
         enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
       } else {
@@ -140,8 +140,8 @@ export function useDeployToFiles() {
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await (dispatch as AsyncDispatch<FilesDeployData>)(prepareDeployToFiles({ id: tabId }));
-      if (deployData.errors.length > 0) {
-        const { status } = await confirmValidationErrorsDialog(deployData.errors);
+      if (deployData.validation.length > 0) {
+        const { status } = await confirmValidationErrorsDialog(deployData.validation);
         if (status === 'cancel') {
           return;
         }
@@ -174,9 +174,10 @@ export function useDeployToOnline() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const { errors, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ id: tabId }));
-      if (errors.length > 0) {
-        await showValidationErrorsDialog(errors);
+      const { validation, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ id: tabId }));
+      if (validation.length > 0) {
+        // TODO: may continue if warning validated
+        await showValidationErrorsDialog(validation);
         // cannot go further if online validation failed
         return;
       }

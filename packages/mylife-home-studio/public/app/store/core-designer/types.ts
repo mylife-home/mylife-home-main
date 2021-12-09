@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, CoreValidationError, DeployChanges } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -29,7 +29,7 @@ export const enum ActionTypes {
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
 }
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, CoreValidationError, coreImportData, DeployChanges };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges };
 
 export type PluginUse = 'unused' | 'external' | 'used';
 
@@ -82,13 +82,13 @@ export interface BulkUpdatesData {
 }
 
 export interface OnlineDeployData {
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
   changes: DeployChanges;
   serverData: unknown;
 }
 
 export interface FilesDeployData {
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
   changes: DeployChanges; // only adds
   files: string[];
   bindingsInstanceName: {

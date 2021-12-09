@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, CoreValidationError, FilesDeployResult } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, coreValidation, FilesDeployResult } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -10,7 +10,7 @@ export const updateProject = createAction<{ id: string; update: UpdateProjectNot
 export const prepareImportFromProject = createAsyncAction<{ id: string; config: ImportFromProjectConfig }, BulkUpdatesData>(ActionTypes.PREPARE_IMPORT_FROM_PROJECT);
 export const prepareImportFromOnline = createAsyncAction<{ id: string; config: ImportFromOnlineConfig }, BulkUpdatesData>(ActionTypes.PREPARE_IMPORT_FROM_ONLINE);
 export const applyBulkUpdates = createAsyncAction<{ id: string; selection: string[]; serverData: unknown; }, BulkUpdatesStats>(ActionTypes.APPLY_BULK_UPDATES);
-export const validateProject = createAsyncAction<{ id: string; }, { errors: CoreValidationError[]; }>(ActionTypes.VALIDATE_PROJECT);
+export const validateProject = createAsyncAction<{ id: string; }, { validation: coreValidation.Item[]; }>(ActionTypes.VALIDATE_PROJECT);
 export const prepareDeployToFiles = createAsyncAction<{ id: string; }, FilesDeployData>(ActionTypes.PREPARE_DEPLOY_TO_FILES);
 export const applyDeployToFiles = createAsyncAction<{ id: string; bindingsInstanceName?: string; serverData: unknown; }, FilesDeployResult>(ActionTypes.APPLY_DEPLOY_TO_FILES);
 export const prepareDeployToOnline = createAsyncAction<{ id: string; }, OnlineDeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);

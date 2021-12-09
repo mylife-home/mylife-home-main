@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { ConfirmResult } from '../../dialogs/confirm';
-import { CoreValidationError } from '../../../store/core-designer/types';
+import { coreValidation } from '../../../store/core-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function useShowValidationErrorsDialog() {
-  const [errors, setErrors] = useState<CoreValidationError[]>();
+  const [validation, setValidation] = useState<coreValidation.Item[]>();
   const [onClose, setOnClose] = useState<() => void>();
 
   const [showModal, hideModal] = useModal(
@@ -54,26 +54,28 @@ export function useShowValidationErrorsDialog() {
       );
 
       return (
-        <ErrorDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} errors={errors} actions={actions} />
+        <ValidationDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} validation={validation} actions={actions} />
       );
     },
-    [errors, onClose]
+    [validation, onClose]
   );
 
   return useCallback(
-    (errors: CoreValidationError[]) =>
+    (validation: coreValidation.Item[]) =>
       new Promise<void>((resolve) => {
-        setErrors(errors);
+        setValidation(validation);
         setOnClose(() => resolve); // else useState think resolve is a state updater
+
+        console.log('useShowValidationErrorsDialog', validation);
 
         showModal();
       }),
-    [setErrors, setOnClose]
+    [setValidation, setOnClose]
   );
 }
 
 export function useConfirmValidationErrorsDialog() {
-  const [errors, setErrors] = useState<CoreValidationError[]>();
+  const [validation, setValidation] = useState<coreValidation.Item[]>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
   const [showModal, hideModal] = useModal(
@@ -120,36 +122,38 @@ export function useConfirmValidationErrorsDialog() {
       );
 
       return (
-        <ErrorDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} errors={errors} contentBottom={contentBottom} actions={actions} />
+        <ValidationDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} validation={validation} contentBottom={contentBottom} actions={actions} />
       );
     },
-    [errors, onResult]
+    [validation, onResult]
   );
 
   return useCallback(
-    (errors: CoreValidationError[]) =>
+    (validation: coreValidation.Item[]) =>
       new Promise<ConfirmResult>((resolve) => {
-        setErrors(errors);
+        setValidation(validation);
         setOnResult(() => resolve); // else useState think resolve is a state updater
+
+        console.log('useConfirmValidationErrorsDialog', validation);
 
         showModal();
       }),
-    [setErrors, setOnResult]
+    [setValidation, setOnResult]
   );
 }
 
-interface ErrorDialogProps {
+interface ValidationDialogProps {
   open: boolean;
   onExited: () => void;
   onClose: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 
-  errors: CoreValidationError[];
+  validation: coreValidation.Item[];
   contentBottom?: React.ReactNode;
   actions: React.ReactNode;
 }
 
-const ErrorDialog: FunctionComponent<ErrorDialogProps> = ({ open, onExited, onClose, onKeyDown, errors, contentBottom, actions }) => {
+const ValidationDialog: FunctionComponent<ValidationDialogProps> = ({ open, onExited, onClose, onKeyDown, validation, contentBottom, actions }) => {
   const classes = useStyles();
 
   return (
@@ -160,7 +164,7 @@ const ErrorDialog: FunctionComponent<ErrorDialogProps> = ({ open, onExited, onCl
         <DialogText value={'Le projet a les erreurs de validation suivantes :'} />
 
         <List className={classes.list}>
-          {errors.map((error, index) => (<ErrorItem key={index} error={error} />))}
+          {validation.map((item, index) => (<ValidationItem key={index} item={item} />))}
         </List>
 
         {contentBottom}
@@ -180,8 +184,9 @@ const CHANGE_TYPES = {
   delete: 'Plugin inexistant'
 };
 
-const ErrorItem: FunctionComponent<{ error: CoreValidationError }> = ({ error }) => {
+const ValidationItem: FunctionComponent<{ item: coreValidation.Item }> = ({ item }) => {
   const classes = useStyles();
+  const error = item as coreValidation.PluginChanged; // TODO: others
   const title = `${error.instanceName}:${error.module}.${error.name}`;
 
   return (

@@ -69,7 +69,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'validate' } as CoreProjectCall;
       },
       resultMapper(serviceResult: ValidateCoreProjectCallResult) {
-        return serviceResult.errors;
+        return serviceResult.validation;
       }
     },
 
@@ -78,8 +78,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'prepare-deploy-to-files' } as CoreProjectCall;
       },
       resultMapper(serviceResult: PrepareDeployToFilesCoreProjectCallResult): FilesDeployData {
-        const { errors, changes, serverData, files, bindingsInstanceName } = serviceResult;
-        return { errors, changes, serverData, files, bindingsInstanceName };
+        const { validation, changes, serverData, files, bindingsInstanceName } = serviceResult;
+        return { validation, changes, serverData, files, bindingsInstanceName };
       }
     },
 
@@ -98,8 +98,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'prepare-deploy-to-online' } as CoreProjectCall;
       },
       resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult): OnlineDeployData {
-        const { errors, changes, serverData } = serviceResult;
-        return { errors, changes, serverData };
+        const { validation, changes, serverData } = serviceResult;
+        return { validation, changes, serverData };
       }
     },
 
@@ -149,7 +149,6 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall;
       },
     },
-    // TODO
   }
 });
 
