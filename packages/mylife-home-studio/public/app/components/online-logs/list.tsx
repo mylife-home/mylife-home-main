@@ -59,7 +59,7 @@ const useRendererStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.common.white,
     color: 'rgba(0, 0, 0, 0.87)',
     boxShadow: theme.shadows[1],
-    maxWidth: 'calc(100% - 64px)'
+    maxWidth: 'calc(100vw - 64px)'
   },
 }));
 
