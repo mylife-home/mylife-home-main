@@ -68,7 +68,7 @@ type SelectionSet = { [key: string]: boolean };
 
 // data model is immutable
 interface DataModel {
-  // root nodes have keys: byInstancesObjectTypes, byObjectTypesInstances, byObjectTypes
+  // root nodes have keys: instances-objectTypes, objectTypes-instances, objectTypes
   nodes: { [key: string]: Node };
   changes: { [key: string]: coreImportData.ObjectChange };
 }
@@ -181,22 +181,7 @@ export function useShowChangesDialog() {
 
             <TreeContext.Provider value={treeContext}>
               <List className={classes.list}>
-                {/*
-                <ChangeSetItem
-                  type="plugins"
-                  stats={stats.plugins}
-                  changes={changes.filter((change) => change.objectType === 'plugin') as coreImportData.PluginChange[]}
-                  selection={selection}
-                  setSelected={setSelected}
-                />
-                <ChangeSetItem
-                  type="components"
-                  stats={stats.components}
-                  changes={changes.filter((change) => change.objectType === 'component') as coreImportData.ComponentChange[]}
-                  selection={selection}
-                  setSelected={setSelected}
-                />
-                */}
+                <Tree type={type} />
               </List>
             </TreeContext.Provider>
           </DialogContent>
@@ -238,6 +223,80 @@ const TypeSelector: FunctionComponent<{ type: Type; setType: (type: Type) => voi
     </RadioGroup>
   );
 };
+
+const Tree: FunctionComponent<{ type: Type; }> = ({ type }) => {
+  const treeContext = useContext(TreeContext);
+  const { model } = treeContext;
+  const root = model.nodes[type] as NodeWithChildren;
+
+  return (
+    <>
+      {root.children.map(child => (
+        <TreeNode key={child} node={child} />
+      ))}
+    </>
+  );
+};
+
+const TreeNode: FunctionComponent<{ node: string }> = ({ node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model, stats } = treeContext;
+  const node = model.nodes[nodeKey];
+
+  if (node.type === 'change') {
+    const change = model.changes[(node as ChangeNode).change];
+
+    switch (change.objectType) {
+      case 'plugin':
+        return (<PluginChangeItem node={nodeKey} />);
+      case 'component':
+        return (<ComponentChangeItem node={nodeKey} />);
+    }
+  } else {
+    const itemStats = stats[nodeKey];
+    const title = getNodeTitle(node);
+
+    // TODO: className, checked, onCheckChange
+    return (
+      <ItemWithChildren title={title} stats={itemStats}>
+        {(node as NodeWithChildren).children.map(child => (
+          <TreeNode key={child} node={child} />
+        ))}
+      </ItemWithChildren>
+    );
+  }
+};
+
+function getNodeTitle(node: Node) {
+  switch (node.type) {
+    // case 'root'
+    // case 'change'
+
+    case 'objectType': {
+      switch((node as ObjectTypeNode).objectType) {
+        case 'plugin': 
+          return 'Plugins';
+        case 'component': 
+          return 'Composants';
+      }
+    }
+
+    case 'instanceName': {
+      return (node as InstanceNameNode).instanceName;
+    }
+
+    case 'changeType': {
+      switch((node as ChangeTypeNode).changeType) {
+        case 'add':
+          return 'Ajouts';
+        case 'update':
+          return 'Modifications';
+        case 'delete':
+          return 'Suppressions';
+      }
+    }
+  }
+}
 
 /*
 interface WithSelectionProps {
@@ -659,17 +718,17 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
     changes: {},
   };
 
-  addRootNode('byInstancesObjectTypes');
-  addRootNode('byObjectTypesInstances');
-  addRootNode('byObjectTypes');
+  addRootNode('instances-objectTypes');
+  addRootNode('objectTypes-instances');
+  addRootNode('objectTypes');
 
   for (const change of changes) {
     const { key, instanceName, objectType, changeType } = change;
     model.changes[key] = change;
 
-    addNodeChain('byInstancesObjectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
-    addNodeChain('byObjectTypesInstances', objectTypeNode(objectType), instanceNode(instanceName), changeTypeNode(changeType), changeNode(key));
-    addNodeChain('byObjectTypes', objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
+    addNodeChain('instances-objectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
+    addNodeChain('objectTypes-instances', objectTypeNode(objectType), instanceNode(instanceName), changeTypeNode(changeType), changeNode(key));
+    addNodeChain('objectTypes', objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
   }
 
   for (const node of Object.values(model.nodes)) {
@@ -816,9 +875,9 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
 function computeStats(model: DataModel, selection: SelectionSet): StatsSet {
   const stats: StatsSet = {};
 
-  computeNode('byInstancesObjectTypes');
-  computeNode('byObjectTypesInstances');
-  computeNode('byObjectTypes');
+  computeNode('instances-objectTypes');
+  computeNode('objectTypes-instances');
+  computeNode('objectTypes');
 
   return stats;
 
