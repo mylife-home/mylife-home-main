@@ -248,7 +248,7 @@ const Tree: FunctionComponent<{ type: Type; }> = ({ type }) => {
 
 const TreeNode: FunctionComponent<{ indent: number; node: string }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
-  const { model, stats } = treeContext;
+  const { model, stats, setSelected } = treeContext;
   const node = model.nodes[nodeKey];
 
   if (node.type === 'change') {
@@ -264,10 +264,22 @@ const TreeNode: FunctionComponent<{ indent: number; node: string }> = ({ indent,
     const itemStats = stats[nodeKey];
     const title = getNodeTitle(node);
     const childrenIndent = indent + 1;
+    const checked = getTriState(itemStats);
 
-    // TODO: checked, onCheckChange
+    const onCheckChange = () => {
+      switch (checked) {
+        case 'indeterminate':
+        case 'checked':
+          setSelected(nodeKey, false);
+          break;
+        case 'unchecked':
+          setSelected(nodeKey, true);
+          break;
+      }
+    };
+
     return (
-      <ItemWithChildren indent={indent} title={title} stats={itemStats}>
+      <ItemWithChildren indent={indent} title={title} stats={itemStats} checked={checked} onCheckChange={onCheckChange}>
         {(node as NodeWithChildren).children.map(child => (
           <TreeNode key={child} indent={childrenIndent} node={child} />
         ))}
@@ -282,7 +294,7 @@ function getNodeTitle(node: Node) {
     // case 'change'
 
     case 'objectType': {
-      switch((node as ObjectTypeNode).objectType) {
+      switch ((node as ObjectTypeNode).objectType) {
         case 'plugin': 
           return 'Plugins';
         case 'component': 
@@ -295,7 +307,7 @@ function getNodeTitle(node: Node) {
     }
 
     case 'changeType': {
-      switch((node as ChangeTypeNode).changeType) {
+      switch ((node as ChangeTypeNode).changeType) {
         case 'add':
           return 'Ajouts';
         case 'update':
@@ -304,6 +316,17 @@ function getNodeTitle(node: Node) {
           return 'Suppressions';
       }
     }
+  }
+}
+
+function getTriState(stats: StatsItem): TriState {
+  // both empty and (some selected and some unselected)
+  if (!!stats.selected === !!stats.unselected) {
+    return 'indeterminate';
+  } else if (stats.selected) {
+    return 'checked';
+  } else {
+    return 'unchecked';
   }
 }
 
@@ -503,27 +526,6 @@ const ChangeDetailLine: FunctionComponent<{ highlight?: boolean }> = ({ children
   );
 };
 
-function prepareSelectedAll(changes: coreImportData.ObjectChange[], selected: boolean) {
-  const partial: SelectionSet = {};
-
-  for (const change of changes) {
-    partial[change.key] = selected;
-  }
-
-  return partial;
-}
-
-function getTriState(stats: StatsItem): TriState {
-  // both empty and (some selected and some unselected)
-  if (!!stats.selected === !!stats.unselected) {
-    return 'indeterminate';
-  } else if (stats.selected) {
-    return 'checked';
-  } else {
-    return 'unchecked';
-  }
-}
-
 const ItemWithChildren: FunctionComponent<{ indent: number; title: string; stats: StatsItem; checked?: TriState; onCheckChange?: () => void }> = ({
   indent,
   title,
@@ -573,7 +575,7 @@ const ItemWithChildren: FunctionComponent<{ indent: number; title: string; stats
 function useIndentClass(indent: number) {
   const classes = useStyles();
 
-  switch(indent) {
+  switch (indent) {
     case 0:
       return classes.indent0;
     case 1:
