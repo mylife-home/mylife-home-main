@@ -114,6 +114,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 # Ameliorations v3
 
 ## studio
+
  - tab
    - click milieu = close
  - ui-designer
