@@ -1,73 +1,11 @@
-import { components, logger } from 'mylife-home-common';
-import { ChangeType, coreValidation, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
+import { logger } from 'mylife-home-common';
+import { ChangeType, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { BindingModel, ComponentModel, Model, PluginModel } from './model';
-import { buildPluginMembersAndConfigChanges } from './import';
+import { BindingModel, ComponentModel, Model } from './model';
+import { validate, hasError } from './validation';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
-
-export function validate(model: Model, { onlineSeverity }: { onlineSeverity: coreValidation.Severity }): coreValidation.Item[] {
-  const usedPlugins = new Map<PluginModel, string[]>();
-
-  for (const componentId of model.getComponentsIds()) {
-    const component = model.getComponent(componentId);
-    if (component.data.external) {
-      continue;
-    }
-
-    const plugin = component.plugin;
-    let impacts = usedPlugins.get(plugin);
-    if (!impacts) {
-      impacts = [];
-      usedPlugins.set(plugin, impacts);
-    }
-
-    impacts.push(componentId);
-  }
-
-  const onlineService = Services.instance.online;
-  const result: coreValidation.Item[] = [];
-
-  for (const [pluginModel, impacts] of usedPlugins.entries()) {
-    const onlinePlugin = onlineService.findPlugin(pluginModel.instance.instanceName, `${pluginModel.data.module}.${pluginModel.data.name}`);
-    if (!onlinePlugin) {
-      result.push(newPluginChangedValidationError(pluginModel, impacts, 'delete', onlineSeverity));
-      continue;
-    }
-
-    const plugin = components.metadata.encodePlugin(onlinePlugin);
-    const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
-    if (!isObjectEmpty(changes.config) || !isObjectEmpty(changes.members)) {
-      const error = newPluginChangedValidationError(pluginModel, impacts, 'update', onlineSeverity);
-      error.config = changes.config;
-      error.members = changes.members;
-      result.push(error);
-    }
-  }
-
-  // TODO: other validation items
-
-  return result;
-}
-
-function hasError(validation: coreValidation.Item[]) {
-  return !!validation.find(item => item.severity === 'error');
-}
-
-function newPluginChangedValidationError(pluginModel: PluginModel, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
-  return {
-    type: 'plugin-changed',
-    severity,
-    instanceName: pluginModel.instance.instanceName,
-    module: pluginModel.data.module,
-    name: pluginModel.data.name,
-    changeType,
-    config: null,
-    members: null,
-    impacts
-  };
-}
 
 interface DeployToFilesServerData {
   guessedBindingsInstanceName: string;
@@ -411,8 +349,4 @@ function createBindingConfig(id: string): BindingConfig {
   }
 
   return { sourceComponent, sourceState, targetComponent, targetAction };
-}
-
-function isObjectEmpty(obj: {}) {
-  return Object.keys(obj).length === 0;
 }

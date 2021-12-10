@@ -39,7 +39,8 @@ import { CoreProjects } from './projects';
 import { Model } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
-import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline, validate } from './deploy';
+import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
+import { validate } from './validation';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
