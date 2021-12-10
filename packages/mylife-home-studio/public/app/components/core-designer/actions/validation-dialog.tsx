@@ -185,6 +185,8 @@ function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
       return getPluginChangedDisplay(item as coreValidation.PluginChanged);
 
     case 'existing-component-id':
+      return getExistingComponentIdDisplay(item as coreValidation.ExistingComponentId);
+      
     case 'missing-external-component':
     case 'invalid-binding-api':
     case 'component-bad-config':
@@ -248,6 +250,18 @@ function getPluginChangedDisplay(item: coreValidation.PluginChanged) {
   for (const componentId of item.impacts || []) {
     display.details.push(`Impact sur le composant ${componentId}`);
   }
+
+  return display;
+}
+
+function getExistingComponentIdDisplay(item: coreValidation.ExistingComponentId) {
+  const display: ValidationDisplay = {
+    title: `Composant déjà existant - ${item.componentId}`,
+    details: [
+      `Existant: ${item.existing.instanceName}:${item.existing.module}.${item.existing.name}`,
+      `A livrer: ${item.project.instanceName}:${item.project.module}.${item.project.name}`,
+    ]
+  };
 
   return display;
 }

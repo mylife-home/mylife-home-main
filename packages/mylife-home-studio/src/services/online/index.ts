@@ -78,6 +78,14 @@ export class Online implements Service {
     return this.registry.findPlugin(instanceName, id);
   }
 
+  findComponentData(id: string) {
+    return this.registry.findComponentData(id);
+  }
+
+  getComponentData(id: string) {
+    return this.registry.getComponentData(id);
+  }
+
   getInstancesByCapability(capability: string) {
     return this.instanceNotifier.getInstancesByCapability(capability);
   }

@@ -7,6 +7,7 @@ import { buildPluginMembersAndConfigChanges } from './import';
 export function validate(model: Model, { onlineSeverity }: { onlineSeverity: coreValidation.Severity }): coreValidation.Item[] {
   const validation: coreValidation.Item[] = [];
   validatePluginChanges(model, onlineSeverity, validation);
+  validateExistingComponents(model, onlineSeverity, validation);
   // TODO: other validation items
   return validation;
 }
@@ -66,6 +67,40 @@ function newPluginChangedValidationError(pluginModel: PluginModel, impacts: stri
 
 function isObjectEmpty(obj: {}) {
   return Object.keys(obj).length === 0;
+}
+
+function validateExistingComponents(model: Model, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
+  const onlineService = Services.instance.online;
+
+  for (const componentId of model.getComponentsIds()) {
+    const componentModel = model.getComponent(componentId);
+    const componentOnline = onlineService.findComponentData(componentId);
+
+    if (componentModel.instance.instanceName === componentOnline.instanceName) {
+      continue;
+    }
+
+    const onlinePlugin = componentOnline.component.plugin;
+    const modelPlugindata = componentModel.plugin.data;
+
+    const item: coreValidation.ExistingComponentId = {
+      type: 'existing-component-id',
+      severity,
+      componentId,
+      existing: {
+        instanceName: componentOnline.instanceName,
+        module: onlinePlugin.module,
+        name: onlinePlugin.name,
+      },
+      project: {
+        instanceName: componentModel.instance.instanceName,
+        module: modelPlugindata.module,
+        name: modelPlugindata.name,
+      }
+    };
+
+    validation.push(item);
+  }
 }
 
 export function hasError(validation: coreValidation.Item[]) {
