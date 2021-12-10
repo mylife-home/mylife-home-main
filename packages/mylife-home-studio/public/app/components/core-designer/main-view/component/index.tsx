@@ -129,5 +129,5 @@ function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
 }
 
 function renderConfigValue(type: types.ConfigType, value: any) {
-  return value.toString();
+  return value == null ? '<missing>' : value.toString();
 }
