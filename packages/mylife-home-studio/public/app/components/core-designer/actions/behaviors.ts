@@ -13,7 +13,7 @@ import {
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog, useImportFromOnlineSelectionDialog } from './import-selection-dialog';
-import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-errors-dialog';
+import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-dialog';
 import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
 import { useShowDhowDeployToOnlineDialog } from './deploy-to-online-dialog';
 
