@@ -186,10 +186,14 @@ function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
 
     case 'existing-component-id':
       return getExistingComponentIdDisplay(item as coreValidation.ExistingComponentId);
-      
+
     case 'missing-external-component':
     case 'invalid-binding-api':
+      return { title: 'TODO', details: [] };
+
     case 'component-bad-config':
+      return getComponentBadConfigDisplay(item as coreValidation.ComponentBadConfig);
+
     case 'binding-mismatch':
       return { title: 'TODO', details: [] };
   }
@@ -261,6 +265,15 @@ function getExistingComponentIdDisplay(item: coreValidation.ExistingComponentId)
       `Existant: ${item.existing.instanceName}:${item.existing.module}.${item.existing.name}`,
       `A livrer: ${item.project.instanceName}:${item.project.module}.${item.project.name}`,
     ]
+  };
+
+  return display;
+}
+
+function getComponentBadConfigDisplay(item: coreValidation.ComponentBadConfig) {
+  const display: ValidationDisplay = {
+    title: `Composant avec mauvaise configuration - ${item.componentId}`,
+    details: Object.entries(item.config).map(([configKey, reason]) => `Clé "${configKey}" : ${reason}`)
   };
 
   return display;
