@@ -13,7 +13,7 @@ import {
   prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
 } from '../../../store/core-designer/actions';
 import { useImportFromProjectSelectionDialog, useImportFromOnlineSelectionDialog } from './import-selection-dialog';
-import { useShowValidationErrorsDialog, useConfirmValidationErrorsDialog } from './validation-dialog';
+import { useShowValidationDialog } from './validation-dialog';
 import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
 import { useShowDhowDeployToOnlineDialog } from './deploy-to-online-dialog';
 
@@ -113,7 +113,7 @@ export function useProjectValidation() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const fireAsync = useFireAsync();
-  const showDialog = useShowValidationErrorsDialog();
+  const showDialog = useShowValidationDialog();
   const { enqueueSnackbar } = useSnackbar();
 
   return useCallback(() => {
@@ -132,7 +132,7 @@ export function useDeployToFiles() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const fireAsync = useFireAsync();
-  const confirmValidationErrorsDialog = useConfirmValidationErrorsDialog();
+  const validate = useValidate();
   const showDhowDeployToFilesDialog = useShowDhowDeployToFilesDialog();
   const { enqueueSnackbar } = useSnackbar();
   const wrapBusy = useBusy('Déploiement en cours ...');
@@ -140,11 +140,8 @@ export function useDeployToFiles() {
   return useCallback(() => {
     fireAsync(async () => {
       const deployData = await (dispatch as AsyncDispatch<FilesDeployData>)(prepareDeployToFiles({ id: tabId }));
-      if (deployData.validation.length > 0) {
-        const { status } = await confirmValidationErrorsDialog(deployData.validation);
-        if (status === 'cancel') {
-          return;
-        }
+      if (!await validate(deployData.validation)) {
+        return;
       }
 
       const { changes, files, serverData } = deployData;
@@ -167,7 +164,7 @@ export function useDeployToOnline() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const fireAsync = useFireAsync();
-  const showValidationErrorsDialog = useShowValidationErrorsDialog();
+  const validate = useValidate();
   const showDhowDeployToOnlineDialog = useShowDhowDeployToOnlineDialog();
   const { enqueueSnackbar } = useSnackbar();
   const wrapBusy = useBusy('Déploiement en cours ...');
@@ -175,10 +172,7 @@ export function useDeployToOnline() {
   return useCallback(() => {
     fireAsync(async () => {
       const { validation, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ id: tabId }));
-      if (validation.length > 0) {
-        // TODO: may continue if warning validated
-        await showValidationErrorsDialog(validation);
-        // cannot go further if online validation failed
+      if (!await validate(validation)) {
         return;
       }
 
@@ -199,4 +193,17 @@ export function useDeployToOnline() {
       enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });
     });
   }, [fireAsync, dispatch]);
+}
+
+function useValidate() {
+  const showValidationDialog = useShowValidationDialog({ isConfirm: true });
+
+  return useCallback(async (validation: coreValidation.Item[]) => {
+    if (validation.length === 0) {
+      return true;
+    }
+
+    const { status } = await showValidationDialog(validation);
+    return status === 'ok';
+  }, [showValidationDialog]);
 }

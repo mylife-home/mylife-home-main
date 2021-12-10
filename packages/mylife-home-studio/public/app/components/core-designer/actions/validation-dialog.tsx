@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -27,59 +27,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function useShowValidationErrorsDialog() {
-  const [validation, setValidation] = useState<coreValidation.Item[]>();
-  const [onClose, setOnClose] = useState<() => void>();
-
-  const [showModal, hideModal] = useModal(
-    ({ in: open, onExited }: TransitionProps) => {
-      const close = () => {
-        hideModal();
-        onClose();
-      };
-
-      const handleKeyDown = (e: React.KeyboardEvent) => {
-        switch (e.key) {
-          case 'Enter':
-          case 'Escape':
-            close();
-            break;
-        }
-      };
-
-      const actions = (
-        <Button color="primary" onClick={close}>
-          OK
-        </Button>
-      );
-
-      return (
-        <ValidationDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} validation={validation} actions={actions} />
-      );
-    },
-    [validation, onClose]
-  );
-
-  return useCallback(
-    (validation: coreValidation.Item[]) =>
-      new Promise<void>((resolve) => {
-        setValidation(validation);
-        setOnClose(() => resolve); // else useState think resolve is a state updater
-
-        console.log('useShowValidationErrorsDialog', validation);
-
-        showModal();
-      }),
-    [setValidation, setOnClose]
-  );
-}
-
-export function useConfirmValidationErrorsDialog() {
+export function useShowValidationDialog({ isConfirm = false }: { isConfirm?: boolean } = {}) {
   const [validation, setValidation] = useState<coreValidation.Item[]>();
   const [onResult, setOnResult] = useState<(value: ConfirmResult) => void>();
 
+  const canValidate = useMemo(() => validation && !validation.find(item => item.severity === 'error'), [validation]);
+  const hasChoice = isConfirm && canValidate;
+
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
+      const classes = useStyles();
+
       const cancel = () => {
         hideModal();
         onResult({ status: 'cancel' });
@@ -93,7 +51,11 @@ export function useConfirmValidationErrorsDialog() {
       const handleKeyDown = (e: React.KeyboardEvent) => {
         switch (e.key) {
           case 'Enter':
-            validate();
+            if (hasChoice) {
+              validate();
+            } else {
+              cancel();
+            }
             break;
 
           case 'Escape':
@@ -102,27 +64,45 @@ export function useConfirmValidationErrorsDialog() {
         }
       };
 
-      const contentBottom=(
-        <>
-          <DialogSeparator />
-          <DialogText value={'Continuer ?'} />
-        </>
-      );
-
-      const actions = (
-        <>
-          <Button color="primary" onClick={validate}>
-            Oui
-          </Button>
-
-          <Button onClick={cancel}>
-            Non
-          </Button>
-        </>
-      );
-
       return (
-        <ValidationDialog open={open} onExited={onExited} onClose={close} onKeyDown={handleKeyDown} validation={validation} contentBottom={contentBottom} actions={actions} />
+        <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} scroll="paper" maxWidth="lg" fullWidth onKeyDown={handleKeyDown}>
+          <DialogTitle id="dialog-title">Problèmes de validation</DialogTitle>
+    
+          <DialogContent dividers>
+            <DialogText value={'Le projet a les problèmes de validation suivants :'} />
+    
+            <List className={classes.list}>
+              {validation.map((item, index) => (<ValidationItem key={index} item={item} />))}
+            </List>
+
+            {hasChoice && (
+              <>
+                <DialogSeparator />
+
+                <DialogText value={'Continuer ?'} />
+              </>
+            )}
+    
+          </DialogContent>
+    
+          <DialogActions>
+            {hasChoice ? (
+              <>
+                <Button color="primary" onClick={validate}>
+                  Oui
+                </Button>
+
+                <Button onClick={cancel}>
+                  Non
+                </Button>
+              </>
+            ) : (
+              <Button color="primary" onClick={cancel}>
+                OK
+              </Button>
+            )}
+          </DialogActions>
+        </Dialog>
       );
     },
     [validation, onResult]
@@ -134,49 +114,13 @@ export function useConfirmValidationErrorsDialog() {
         setValidation(validation);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
-        console.log('useConfirmValidationErrorsDialog', validation);
+        console.log('useShowValidationDialog', validation);
 
         showModal();
       }),
     [setValidation, setOnResult]
   );
 }
-
-interface ValidationDialogProps {
-  open: boolean;
-  onExited: () => void;
-  onClose: () => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-
-  validation: coreValidation.Item[];
-  contentBottom?: React.ReactNode;
-  actions: React.ReactNode;
-}
-
-const ValidationDialog: FunctionComponent<ValidationDialogProps> = ({ open, onExited, onClose, onKeyDown, validation, contentBottom, actions }) => {
-  const classes = useStyles();
-
-  return (
-    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="lg" fullWidth onKeyDown={onKeyDown}>
-      <DialogTitle id="dialog-title">Erreurs de validation</DialogTitle>
-
-      <DialogContent dividers>
-        <DialogText value={'Le projet a les erreurs de validation suivantes :'} />
-
-        <List className={classes.list}>
-          {validation.map((item, index) => (<ValidationItem key={index} item={item} />))}
-        </List>
-
-        {contentBottom}
-
-      </DialogContent>
-
-      <DialogActions>
-        {actions}
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 const CHANGE_TYPES = {
   add: 'Plugin ajouté', // ne devrait pas apparaître
