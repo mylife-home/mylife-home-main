@@ -514,7 +514,7 @@ export namespace coreValidation {
     instanceName: string;
     module: string;
     name: string;
-    config: { [name: string]: ChangeType; };
+    config: { [name: string]: string; };
   }
 
   export interface BindingMismatch extends Item {

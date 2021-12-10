@@ -8,6 +8,7 @@ export function validate(model: Model, { onlineSeverity }: { onlineSeverity: cor
   const validation: coreValidation.Item[] = [];
   validatePluginChanges(model, onlineSeverity, validation);
   validateExistingComponents(model, onlineSeverity, validation);
+  validateComponentConfigs(model, validation);
   // TODO: other validation items
   return validation;
 }
@@ -65,10 +66,6 @@ function newPluginChangedValidationError(pluginModel: PluginModel, impacts: stri
   };
 }
 
-function isObjectEmpty(obj: {}) {
-  return Object.keys(obj).length === 0;
-}
-
 function validateExistingComponents(model: Model, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
   const onlineService = Services.instance.online;
 
@@ -76,7 +73,7 @@ function validateExistingComponents(model: Model, severity: coreValidation.Sever
     const componentModel = model.getComponent(componentId);
     const componentOnline = onlineService.findComponentData(componentId);
 
-    if (componentModel.instance.instanceName === componentOnline.instanceName) {
+    if (!componentOnline || componentModel.instance.instanceName === componentOnline.instanceName) {
       continue;
     }
 
@@ -101,6 +98,56 @@ function validateExistingComponents(model: Model, severity: coreValidation.Sever
 
     validation.push(item);
   }
+}
+
+function validateComponentConfigs(model: Model, validation: coreValidation.Item[]) {
+  for (const componentId of model.getComponentsIds()) {
+    const component = model.getComponent(componentId);
+    if (component.data.external) {
+      continue;
+    }
+
+    const componentConfig = component.data.config;
+    const pluginConfig = component.plugin.data.config;
+
+    const errors: { [key: string]: string } = {};
+
+    for (const configId of Object.keys(componentConfig)) {
+      if (!pluginConfig[configId]) {
+        errors[configId] = 'Extra config key';
+      }
+    }
+
+    for (const configId of Object.keys(pluginConfig)) {
+      const value = component.data.config[configId];
+
+      try {
+        component.plugin.validateConfigValue(configId, value);
+      } catch(err) {
+        errors[configId] = err.message;
+      }
+    }
+
+    if (isObjectEmpty(errors)) {
+      continue;
+    }
+
+    const item: coreValidation.ComponentBadConfig = {
+      type: 'component-bad-config',
+      severity: 'error',
+      componentId,
+      instanceName: component.instance.instanceName,
+      module: component.plugin.data.module,
+      name: component.plugin.data.name,
+      config: errors,
+    };
+
+    validation.push(item);
+  }
+}
+
+function isObjectEmpty(obj: {}) {
+  return Object.keys(obj).length === 0;
 }
 
 export function hasError(validation: coreValidation.Item[]) {
