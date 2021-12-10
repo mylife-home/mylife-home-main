@@ -183,24 +183,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
   - pouvoir rajouter des notes sur une etape
-- vue des instances :
-  - crash studio quand une instance ESP reboot et que la vue des instances est ouverte
-```
-{"name":"mylife:home:common:components:registry","hostname":"studio-68d4bdfdf8-s8xs9","pid":1,"instanceName":"studio-68d4bdfdf8-s8xs9-studio","level":20,"msg":"Component 'esp-home-tv-core:rgblight-tv1' removed","time":"2021-12-05T10:07:16.133Z","v":0}
-{"name":"mylife:home:common:components:registry","hostname":"studio-68d4bdfdf8-s8xs9","pid":1,"instanceName":"studio-68d4bdfdf8-s8xs9-studio","level":20,"msg":"Component 'esp-home-tv-core:rgblight-tv2' removed","time":"2021-12-05T10:07:16.134Z","v":0}
-{"name":"mylife:home:common:components:registry","hostname":"studio-68d4bdfdf8-s8xs9","pid":1,"instanceName":"studio-68d4bdfdf8-s8xs9-studio","level":20,"msg":"Plugin 'esp-home-tv-core:light.rgb' removed","time":"2021-12-05T10:07:16.135Z","v":0}
-Error: Component rgblight-tv1 does not exist in the registry
-    at Registry.getComponentData (/app/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:135:19)
-    at Registry.getComponent (/app/webpack:/mylife-home-packager/mylife-home-common/dist/components/registry.js:127:21)
-    at BusInstance.clear (/app/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:106:49)
-    at RemoteMetadataViewImpl.<anonymous> (/app/webpack:/mylife-home-packager/mylife-home-common/dist/components/bus-publisher.js:64:50)
-    at RemoteMetadataViewImpl.emit (node:events:390:28)
-    at Client.RemoteMetadataViewImpl.onMessage (/app/webpack:/mylife-home-packager/mylife-home-common/dist/bus/metadata.js:40:22)
-    at Client.emit (node:events:402:35)
-    at MqttClient.<anonymous> (/app/webpack:/mylife-home-packager/mylife-home-common/dist/bus/client.js:54:60)
-    at MqttClient.emit (node:events:390:28)
-    at MqttClient._handlePublish (/app/webpack:/mylife-home-packager/mylife-home-common/node_modules/mqtt/lib/client.js:1277:12)
-```
 
 ## core
 
