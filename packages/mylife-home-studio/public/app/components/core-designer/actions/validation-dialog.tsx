@@ -9,7 +9,11 @@ import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Typography from '@material-ui/core/Typography';
+import ErrorIcon from '@material-ui/icons/Error';
+import WarningIcon from '@material-ui/icons/Warning';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { ConfirmResult } from '../../dialogs/confirm';
@@ -24,6 +28,15 @@ const useStyles = makeStyles((theme) => ({
   detailsContainer: {
     display: 'flex',
     flexDirection: 'column',
+  },
+  error: {
+    color: theme.palette.error.main,
+  },
+  warning: {
+    color: theme.palette.warning.main,
+  },
+  info: {
+    color: theme.palette.info.main,
   }
 }));
 
@@ -122,80 +135,119 @@ export function useShowValidationDialog({ isConfirm = false }: { isConfirm?: boo
   );
 }
 
-const CHANGE_TYPES = {
-  add: 'Plugin ajouté', // ne devrait pas apparaître
-  update: 'Plugin mis à jour',
-  delete: 'Plugin inexistant'
-};
+interface ValidationDisplay {
+  title: string;
+  details: string[];
+}
 
 const ValidationItem: FunctionComponent<{ item: coreValidation.Item }> = ({ item }) => {
   const classes = useStyles();
-  const error = item as coreValidation.PluginChanged; // TODO: others
-  const title = `${error.instanceName}:${error.module}.${error.name}`;
+  const { title, details } = useMemo(() => getValidationDisplay(item), [item]);
 
   return (
-    <ListItem>
+    <ListItem alignItems='flex-start'>
+      <ListItemIcon>
+        <SeverityIcon severity={item.severity} />
+      </ListItemIcon>
+
       <ListItemText
         disableTypography
         primary={<Typography variant="body1">{title}</Typography>}
         secondary={
           <div className={classes.detailsContainer}>
-            <DetailLine>{CHANGE_TYPES[error.changeType]}</DetailLine>
-
-            {Object.entries(error.members || {}).map(([memberName, type]) => {
-              let changeType: string;
-
-              switch(type) {
-                case 'add':
-                  changeType = 'Ajout de membre';
-                  break;
-
-                case 'update':
-                  changeType = 'Modification de membre';
-                  break;
-
-                case 'delete':
-                  changeType = 'Suppression de membre';
-                  break;
-              }
-
-              return (
-                <DetailLine key={memberName}>{`${changeType} : ${memberName}`}</DetailLine>
-              );
-            })}
-
-            {Object.entries(error.config || {}).map(([configName, type]) => {
-              let changeType: string;
-
-              switch(type) {
-                case 'add':
-                  changeType = 'Ajout de configuration';
-                  break;
-
-                case 'update':
-                  changeType = 'Modification de configuration';
-                  break;
-
-                case 'delete':
-                  changeType = 'Suppression de configuration';
-                  break;
-              }
-
-              return (
-                <DetailLine key={configName}>{`${changeType} : ${configName}`}</DetailLine>
-              );
-            })}
-
-            {(error.impacts || []).map(componentId => (
-              <DetailLine key={componentId}>{`Impact sur le composant ${componentId}`}</DetailLine>
+            {details.map((line, index) => (
+              <Typography key={index} variant="body2" color="textSecondary">{line}</Typography>
             ))}
-
           </div>
         } />
     </ListItem>
   );
 };
 
-const DetailLine: FunctionComponent = ({ children }) => (
-  <Typography variant="body2" color="textSecondary">{children}</Typography>
-);
+const SeverityIcon: FunctionComponent<{ severity: coreValidation.Severity }> = ({ severity }) => {
+  const classes = useStyles();
+
+  switch(severity) {
+    case 'error':
+      return <ErrorIcon className={classes.error} />;
+
+    case 'warning':
+      return <WarningIcon className={classes.warning} />;
+
+    case 'info':
+      return <InfoOutlinedIcon className={classes.info} />;
+  }
+};
+
+function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
+  switch (item.type) {
+    case 'plugin-changed':
+      return getPluginChangedDisplay(item as coreValidation.PluginChanged);
+
+    case 'existing-component-id':
+    case 'missing-external-component':
+    case 'invalid-binding-api':
+    case 'component-bad-config':
+    case 'binding-mismatch':
+      return { title: 'TODO', details: [] };
+  }
+}
+
+const CHANGE_TYPES = {
+  add: 'Plugin ajouté', // ne devrait pas apparaître
+  update: 'Plugin mis à jour',
+  delete: 'Plugin inexistant'
+};
+
+function getPluginChangedDisplay(item: coreValidation.PluginChanged) {
+  const display: ValidationDisplay = {
+    title: `${CHANGE_TYPES[item.changeType]} - ${item.instanceName}:${item.module}.${item.name}`,
+    details: []
+  };
+
+  for (const [memberName, type] of Object.entries(item.members || {})) {
+    let changeType: string;
+
+    switch(type) {
+      case 'add':
+        changeType = 'Ajout de membre';
+        break;
+
+      case 'update':
+        changeType = 'Modification de membre';
+        break;
+
+      case 'delete':
+        changeType = 'Suppression de membre';
+        break;
+    }
+
+    display.details.push(`${changeType} : ${memberName}`);
+  }
+
+  for (const [configName, type] of Object.entries(item.config || {})) {
+    let changeType: string;
+
+    switch(type) {
+      case 'add':
+        changeType = 'Ajout de configuration';
+        break;
+
+      case 'update':
+        changeType = 'Modification de configuration';
+        break;
+
+      case 'delete':
+        changeType = 'Suppression de configuration';
+        break;
+    }
+
+    display.details.push(`${changeType} : ${configName}`);
+  }
+
+  for (const componentId of item.impacts || []) {
+    display.details.push(`Impact sur le composant ${componentId}`);
+  }
+
+  return display;
+}
