@@ -586,7 +586,7 @@ function lookupDependencies(imports: ImportData, model: Model, changes: coreImpo
     componentsImports.set(componentImport.id, componentImport);
   }
 
-  for (const change of changes.filter(change => change.objectType === 'component')) {
+  for (const change of changes.filter(change => change.objectType === 'component' && change.changeType !== 'delete')) {
     const componentImport = componentsImports.get(change.id);
     const pluginKey = pluginsChangesKeyById.get(componentImport.pluginId);
     if (pluginKey) {
