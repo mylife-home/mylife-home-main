@@ -126,8 +126,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
    - on window resize window cannot be smaller that larger of its control
  - core-designer
    - multi-select
-   - importer des plugins depuis les fichiers de déploiement
    - deploy en ligne: ajouter un progress
+   - ne pas crasher si un projet n'est pas valide
  - git
    - v1:
      - seules operations :
@@ -176,7 +176,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
       - existent (pas null ou undefined)
       - qu'il n'y ait pas d'autres clés de config
     - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
-  - ne pas crasher si un projet n'est pas valide
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 - deploy
