@@ -1,14 +1,18 @@
 import { components } from 'mylife-home-common';
 import { ChangeType, coreValidation } from '../../../../shared/project-manager';
 import { Services } from '../..';
-import { Model, PluginModel } from './model';
+import { ComponentModel, Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
 
 export function validate(model: Model, { onlineSeverity }: { onlineSeverity: coreValidation.Severity }): coreValidation.Item[] {
   const validation: coreValidation.Item[] = [];
   validatePluginChanges(model, onlineSeverity, validation);
   validateExistingComponents(model, onlineSeverity, validation);
+  validateExternalComponents(model,onlineSeverity, validation);
+
+  // Note: this are project JSON logical errors, it may only happen when manualy editing project.
   validateComponentConfigs(model, validation);
+
   // TODO: other validation items
   return validation;
 }
@@ -98,6 +102,72 @@ function validateExistingComponents(model: Model, severity: coreValidation.Sever
 
     validation.push(item);
   }
+}
+
+function validateExternalComponents(model: Model, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
+  const onlineService = Services.instance.online;
+
+  for (const componentId of model.getComponentsIds()) {
+    const componentModel = model.getComponent(componentId);
+    if (!componentModel.data.external) {
+      continue;
+    }
+
+    const componentOnline = onlineService.findComponentData(componentModel.id);
+    if (!componentOnline) {
+      validation.push(newBadExternalComponent(componentModel, null, 'warning'));
+      continue;
+    }
+
+    if (isSamePlugin(componentModel, componentOnline)) {
+      continue;
+    }
+
+    // only info if plugins are compatible
+    const finalSeverity = arePluginsCompatible(componentModel, componentOnline) ? 'info' : severity;
+    validation.push(newBadExternalComponent(componentModel, componentOnline, finalSeverity));
+  }
+}
+
+function isSamePlugin(componentModel: ComponentModel, componentOnline: components.ComponentData) {
+  if (componentModel.instance.instanceName !== componentOnline.instanceName) {
+    return false;
+  }
+
+  const pluginModelData = componentModel.plugin.data;
+  const pluginOnline = componentOnline.component.plugin;
+  return pluginModelData.module === pluginOnline.module
+      && pluginModelData.name === pluginOnline.name
+      && pluginModelData.version === pluginOnline.version;
+}
+
+function arePluginsCompatible(componentModel: ComponentModel, componentOnline: components.ComponentData) {
+  const pluginModel = componentModel.plugin;
+  const pluginOnline = componentOnline.component.plugin;
+
+  const plugin = components.metadata.encodePlugin(pluginOnline);
+  const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
+  return isObjectEmpty(changes.members);
+}
+
+function newBadExternalComponent(componentModel: ComponentModel, componentOnline: components.ComponentData, severity: coreValidation.Severity): coreValidation.BadExternalComponent {
+  return {
+    type: 'bad-external-component',
+    severity,
+    componentId: componentModel.id,
+    project: {
+      instanceName: componentModel.instance.instanceName,
+      module: componentModel.plugin.data.module,
+      name: componentModel.plugin.data.name,
+      version: componentModel.plugin.data.version,
+    },
+    existing: componentOnline ? {
+      instanceName: componentOnline.instanceName,
+      module: componentOnline.component.plugin.module,
+      name: componentOnline.component.plugin.name,
+      version: componentOnline.component.plugin.version,
+    } : null
+  };
 }
 
 function validateComponentConfigs(model: Model, validation: coreValidation.Item[]) {

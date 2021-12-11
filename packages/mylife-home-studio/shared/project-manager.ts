@@ -455,7 +455,7 @@ export interface ApplyBulkUpdatesCoreProjectCallResult extends ProjectCallResult
 
 export namespace coreValidation {
   export type ChangeType = 'add' | 'update' | 'delete';
-  export type ItemType = 'plugin-changed' | 'existing-component-id' | 'missing-external-component' | 'invalid-binding-api' | 'component-bad-config' | 'binding-mismatch';
+  export type ItemType = 'plugin-changed' | 'existing-component-id' | 'bad-external-component' | 'invalid-binding-api' | 'component-bad-config' | 'binding-mismatch';
   export type Severity = 'info' | 'warning' | 'error';
   
   export interface Item {
@@ -492,13 +492,24 @@ export namespace coreValidation {
     };
   }
 
-  export interface MissingExternalComponent extends Item {
-    type: 'missing-external-component';
+  export interface BadExternalComponent extends Item {
+    // may be only severity:info if plugin has same members
+    // if existing is empty then it's missing
+    type: 'bad-external-component';
 
     componentId: string;
-    instanceName: string;
-    module: string;
-    name: string;
+    project: {
+      instanceName: string;
+      module: string;
+      name: string;
+      version: string;
+    };
+    existing: {
+      instanceName: string;
+      module: string;
+      name: string;
+      version: string;
+    };
   }
 
   export interface InvalidBindingApi extends Item {

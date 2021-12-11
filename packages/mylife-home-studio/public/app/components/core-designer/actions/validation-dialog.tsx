@@ -187,7 +187,9 @@ function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
     case 'existing-component-id':
       return getExistingComponentIdDisplay(item as coreValidation.ExistingComponentId);
 
-    case 'missing-external-component':
+    case 'bad-external-component':
+      return getBadExternalComponentDisplay(item as coreValidation.BadExternalComponent);
+
     case 'invalid-binding-api':
       return { title: 'TODO', details: [] };
 
@@ -268,6 +270,29 @@ function getExistingComponentIdDisplay(item: coreValidation.ExistingComponentId)
   };
 
   return display;
+}
+
+function getBadExternalComponentDisplay(item: coreValidation.BadExternalComponent) {
+  if (!item.existing) {
+    const display: ValidationDisplay = {
+      title: `Composant externe inexistant - ${item.componentId}`,
+      details: [
+        `${item.project.instanceName}:${item.project.module}.${item.project.name}`,
+      ]
+    };
+  
+    return display;
+  } else {
+    const display: ValidationDisplay = {
+      title: `Composant externe différent - ${item.componentId}`,
+      details: [
+        `Existant: ${item.existing.instanceName}:${item.existing.module}.${item.existing.name} v${item.existing.version}`,
+        `A livrer: ${item.project.instanceName}:${item.project.module}.${item.project.name} v${item.project.version}`,
+      ]
+    };
+  
+    return display;
+  }
 }
 
 function getComponentBadConfigDisplay(item: coreValidation.ComponentBadConfig) {
