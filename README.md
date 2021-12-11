@@ -230,4 +230,4 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
    npm epoll = 20k interrupts /sec on rpi4???
 
 TODO:
-deploy studio + common
+ - improvements studio: deploy studio
