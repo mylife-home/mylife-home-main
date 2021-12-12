@@ -167,15 +167,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - apparemment les x,y des composants se sont pas toujours des valeurs entieres
     - quand on accede depuis "quick access" et on modifie une config, les bindings sautent, puis ce n'est pas sauvegarde
     - apres refresh des entites en lignes, le projet n'est pas valide avec des erreurs qui refletent un modele pas a jour
-  - validation
-    - Vérifier que les composants externes existent bien (avec bon plugin etc)
-    - Vérifier que les composants id sont uniques (qu'un id à livrer n'existe pas déjà sur une autre instance)
-    - Vérifier qu'on peut déployer les bindings, et faire une erreur de validation plutot qu'à l'execution
-    - Vérifier que les configs des composants sont corrects
-      - correspondent bien aux plugins
-      - existent (pas null ou undefined)
-      - qu'il n'y ait pas d'autres clés de config
-    - Vérifier que les bindings sont corrects (que les state/action correspondent bien aux plugins)
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 - deploy
@@ -211,6 +202,3 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
  - ac dimmer
    Can ac dimmer work JS only ? (Or cpp userland?)
    npm epoll = 20k interrupts /sec on rpi4???
-
-TODO:
- - improvements studio: deploy studio
