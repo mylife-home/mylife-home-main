@@ -190,13 +190,13 @@ function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
     case 'bad-external-component':
       return getBadExternalComponentDisplay(item as coreValidation.BadExternalComponent);
 
-    case 'invalid-binding-api':
-      return { title: 'TODO', details: [] };
-
     case 'component-bad-config':
       return getComponentBadConfigDisplay(item as coreValidation.ComponentBadConfig);
 
     case 'binding-mismatch':
+      return getBindingMismatchDisplay(item as coreValidation.BindingMismatch);
+
+    case 'invalid-binding-api':
       return { title: 'TODO', details: [] };
   }
 }
@@ -299,6 +299,18 @@ function getComponentBadConfigDisplay(item: coreValidation.ComponentBadConfig) {
   const display: ValidationDisplay = {
     title: `Composant avec mauvaise configuration - ${item.componentId}`,
     details: Object.entries(item.config).map(([configKey, reason]) => `Clé "${configKey}" : ${reason}`)
+  };
+
+  return display;
+}
+
+function getBindingMismatchDisplay(item: coreValidation.BindingMismatch) {
+  const display: ValidationDisplay = {
+    title: `Binding incohérent - ${item.sourceComponent}:${item.sourceState}:${item.targetComponent}:${item.targetAction}`,
+    details: [
+      item.sourceType ? `Type source : '${item.sourceType}'` : `L'état source n'existe pas sur le composant`,
+      item.targetType ? `Type cible : '${item.targetType}'` : `L'action cible n'existe pas sur le composant`,
+    ]
   };
 
   return display;

@@ -12,6 +12,7 @@ export function validate(model: Model, { onlineSeverity }: { onlineSeverity: cor
 
   // Note: this are project JSON logical errors, it may only happen when manualy editing project.
   validateComponentConfigs(model, validation);
+  validateBindingsConsistency(model, validation);
 
   // TODO: other validation items
   return validation;
@@ -210,6 +211,31 @@ function validateComponentConfigs(model: Model, validation: coreValidation.Item[
       module: component.plugin.data.module,
       name: component.plugin.data.name,
       config: errors,
+    };
+
+    validation.push(item);
+  }
+}
+
+function validateBindingsConsistency(model: Model, validation: coreValidation.Item[]) {
+  for (const bindingId of model.getBindingsIds()) {
+    const bindingModel = model.getBinding(bindingId);
+    const sourceType = bindingModel.sourceComponent.plugin.data.members[bindingModel.sourceState]?.valueType;
+    const targetType = bindingModel.targetComponent.plugin.data.members[bindingModel.targetAction]?.valueType;
+
+    if (sourceType && targetType && sourceType === targetType) {
+      continue;
+    }
+
+    const item: coreValidation.BindingMismatch = {
+      type: 'binding-mismatch',
+      severity: 'error',
+      sourceComponent: bindingModel.sourceComponent.id,
+      sourceState: bindingModel.sourceState,
+      sourceType,
+      targetComponent: bindingModel.targetComponent.id,
+      targetAction: bindingModel.targetAction,
+      targetType,
     };
 
     validation.push(item);

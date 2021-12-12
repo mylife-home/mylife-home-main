@@ -533,10 +533,10 @@ export namespace coreValidation {
 
     sourceComponent: string;
     sourceState: string;
-    sourceType: string;
+    sourceType: string; // null = does not exist
     targetComponent: string;
     targetAction: string;
-    targetType: string;
+    targetType: string; // null = does not exist
   }
 }
 
