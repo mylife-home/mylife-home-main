@@ -385,7 +385,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private validate(): ValidateCoreProjectCallResult {
-    const validation = validate(this.model, { onlineSeverity: 'error' });
+    const validation = validate(this.model, { onlineSeverity: 'error', checkBindingApi: true });
     return { validation };
   }
 

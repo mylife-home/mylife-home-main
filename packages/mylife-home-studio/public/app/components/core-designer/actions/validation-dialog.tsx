@@ -127,8 +127,6 @@ export function useShowValidationDialog({ isConfirm = false }: { isConfirm?: boo
         setValidation(validation);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
-        console.log('useShowValidationDialog', validation);
-
         showModal();
       }),
     [setValidation, setOnResult]
@@ -190,14 +188,14 @@ function getValidationDisplay(item: coreValidation.Item): ValidationDisplay {
     case 'bad-external-component':
       return getBadExternalComponentDisplay(item as coreValidation.BadExternalComponent);
 
+    case 'invalid-binding-api':
+      return getInvalidBindingApiDisplay(item as coreValidation.InvalidBindingApi);
+  
     case 'component-bad-config':
       return getComponentBadConfigDisplay(item as coreValidation.ComponentBadConfig);
 
     case 'binding-mismatch':
       return getBindingMismatchDisplay(item as coreValidation.BindingMismatch);
-
-    case 'invalid-binding-api':
-      return { title: 'TODO', details: [] };
   }
 }
 
@@ -289,6 +287,24 @@ function getBadExternalComponentDisplay(item: coreValidation.BadExternalComponen
         `Existant: ${item.existing.instanceName}:${item.existing.module}.${item.existing.name} v${item.existing.version}`,
         `A livrer: ${item.project.instanceName}:${item.project.module}.${item.project.name} v${item.project.version}`,
       ]
+    };
+  
+    return display;
+  }
+}
+
+function getInvalidBindingApiDisplay(item: coreValidation.InvalidBindingApi) {
+  if (item.instanceNames.length === 0) {
+    const display: ValidationDisplay = {
+      title: `Pas d'instance de gestion de bindings en ligne pour déployer`,
+      details: []
+    };
+  
+    return display;
+  } else {
+    const display: ValidationDisplay = {
+      title: `Il y a plusieurs instances de gestion de bindings en ligne`,
+      details: item.instanceNames.map(instanceName => `Instance "${instanceName}"`)
     };
   
     return display;

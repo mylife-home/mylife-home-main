@@ -12,7 +12,7 @@ interface DeployToFilesServerData {
 }
 
 export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
-  const validation = validate(model, { onlineSeverity: 'warning' });
+  const validation = validate(model, { onlineSeverity: 'warning', checkBindingApi: false });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
     return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
@@ -46,6 +46,7 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
 
 function findBindingInstance(model: Model, usedInstancesNames: string[]) {
   // If there are bindings and only one instance, then use instance as binder, else we need to ask to user for it.
+  // Note: this is a different behavior than online deployment
   const bindingsInstanceName = {
     actual: null as string,
     needed: false
@@ -146,7 +147,7 @@ interface OnlineTask {
 }
 
 export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-  const validation = validate(model, { onlineSeverity: 'error' });
+  const validation = validate(model, { onlineSeverity: 'error', checkBindingApi: true });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
     return { validation, changes: null, serverData: null };
@@ -160,16 +161,8 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   const onlineService = Services.instance.online;
 
   if (model.hasBindings()) {
-    const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
-    if (bindingsInstances.length === 0) {
-      throw new Error(`Pas d'instance de gestion de bindings en ligne pour deployer`);
-    }
-
-    if (bindingsInstances.length > 1) {
-      throw new Error('Il y a plusieurs instances de gestion de bindings en ligne. Non supporté');
-    }
-
-    const instanceName = bindingsInstances[0];
+    // Note: there is one instance, this is checked at validation stage
+    const [instanceName] = Services.instance.online.getInstancesByCapability('bindings-api');
 
     const onlineBindings = new Map<string, BindingConfig>();
     for(const onlineBinding of await onlineService.coreListBindings(instanceName)) {

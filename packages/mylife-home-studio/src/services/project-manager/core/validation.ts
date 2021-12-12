@@ -4,17 +4,20 @@ import { Services } from '../..';
 import { ComponentModel, Model, PluginModel } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
 
-export function validate(model: Model, { onlineSeverity }: { onlineSeverity: coreValidation.Severity }): coreValidation.Item[] {
+export function validate(model: Model, { onlineSeverity, checkBindingApi }: { onlineSeverity: coreValidation.Severity; checkBindingApi: boolean }): coreValidation.Item[] {
   const validation: coreValidation.Item[] = [];
   validatePluginChanges(model, onlineSeverity, validation);
   validateExistingComponents(model, onlineSeverity, validation);
   validateExternalComponents(model,onlineSeverity, validation);
 
+  if (checkBindingApi) {
+    validateBindingApi(model, validation);
+  }
+
   // Note: this are project JSON logical errors, it may only happen when manualy editing project.
   validateComponentConfigs(model, validation);
   validateBindingsConsistency(model, validation);
 
-  // TODO: other validation items
   return validation;
 }
 
@@ -168,6 +171,23 @@ function newBadExternalComponent(componentModel: ComponentModel, componentOnline
       name: componentOnline.component.plugin.name,
       version: componentOnline.component.plugin.version,
     } : null
+  };
+}
+
+function validateBindingApi(model: Model, validation: coreValidation.Item[]) {
+  if (model.hasBindings()) {
+    const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
+    if (bindingsInstances.length !== 1) {
+      validation.push(newInvalidBindingApi(bindingsInstances));
+    }
+  }
+}
+
+function newInvalidBindingApi(instanceNames: string[]): coreValidation.InvalidBindingApi {
+  return {
+    type: 'invalid-binding-api',
+    severity: 'error',
+    instanceNames
   };
 }
 
