@@ -181,6 +181,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug modifications non prises en compte avec duplication et navigation entre recettes
   - pouvoir desactiver une etape (sans la supprimer)
   - pouvoir rajouter des notes sur une etape
+  - modif de champ text perd le focus quand l'update devient effectif
 
 ## core
 
