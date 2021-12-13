@@ -5,7 +5,7 @@ const WAIT_INTERVAL = 300;
 class Debounce<T> {
   private timer: NodeJS.Timeout;
 
-  constructor(private readonly callback: (arg: T) => void, private readonly waitInterval: number) {
+  constructor(private callback: (arg: T) => void, private waitInterval: number) {
     this.timer = null;
   }
 
@@ -27,12 +27,23 @@ class Debounce<T> {
     clearTimeout(this.timer);
     this.timer = null;
   }
+
+  resetCallback(callback: (arg: T) => void) {
+    this.callback = callback;
+    this.reset();
+  }
+
+  resetWaitInterval(waitInterval: number) {
+    this.waitInterval = waitInterval;
+    this.reset();
+  }
 }
 
 export function useDebounced<T>(value: T, onChange: (arg: T) => void, waitInterval = WAIT_INTERVAL) {
 
   const debounceRef = useRef(new Debounce<T>(onChange, waitInterval));
-  useEffect(() => () => debounceRef.current.reset(), []);
+  useEffect(() => debounceRef.current.resetCallback(onChange), [onChange]);
+  useEffect(() => debounceRef.current.resetWaitInterval(waitInterval), [waitInterval]);
 
   const [stateValue, setStateValue] = useState(value);
   useEffect(() => {

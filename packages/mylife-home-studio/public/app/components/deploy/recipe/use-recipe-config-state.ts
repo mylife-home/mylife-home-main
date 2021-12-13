@@ -16,7 +16,7 @@ export function useRecipeConfigState(id: string): [RecipeConfig, SetRecipeConfig
     (config: RecipeConfig) => {
       dispatch(setRecipe({ id, config }));
     },
-    [dispatch]
+    [dispatch, id]
   );
 
   const { componentValue, componentChange } = useDebounced(recipe.config, persistRecipeConfig);
