@@ -26,6 +26,10 @@ export class Recipe {
     const { steps } = JSON.parse(fs.readFileSync(fullname, 'utf8')) as RecipeConfig;
 
     for (const step of steps) {
+      if (!step.enabled) {
+        continue;
+      }
+
       const StepType = STEP_BY_TYPE[step.type];
       if (!StepType) {
         throw new Error(`Unknown step type : ${step.type}`);

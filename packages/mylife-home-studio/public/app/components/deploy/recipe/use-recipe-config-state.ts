@@ -50,7 +50,7 @@ function newId() {
 
 export function useStepOperations(setConfig: SetRecipeConfig) {
   const newStep = useCallback(() => setConfig((config) => {
-    const newStep: TaskStepConfig = { type: 'task', task: null, parameters: {} };
+    const newStep: TaskStepConfig = { type: 'task', enabled: true, note: '', task: null, parameters: {} };
     const newSteps = [...config.steps, newStep];
     const newStepIds = [...config.stepIds, newId()];
     return { ...config, steps: newSteps, stepIds: newStepIds };

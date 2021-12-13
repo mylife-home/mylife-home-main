@@ -75,16 +75,17 @@ export default StepEditor;
 const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newType = event.target.value as StepType;
+    const { enabled, note } = step;
 
     switch (newType) {
       case 'task': {
-        const newStep: TaskStepConfig = { type: 'task', task: null, parameters: {} };
+        const newStep: TaskStepConfig = { type: 'task', enabled, note, task: null, parameters: {} };
         setStep(newStep);
         break;
       }
 
       case 'recipe': {
-        const newStep: RecipeStepConfig = { type: 'recipe', recipe: null };
+        const newStep: RecipeStepConfig = { type: 'recipe', enabled, note, recipe: null };
         setStep(newStep);
         break;
       }
