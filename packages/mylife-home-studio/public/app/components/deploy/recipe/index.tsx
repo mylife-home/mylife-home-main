@@ -18,8 +18,9 @@ import { RecipeIcon } from '../icons';
 import RecipeActions from '../recipe-actions';
 import { AppState } from '../../../store/types';
 import { getRecipe } from '../../../store/deploy/selectors';
+import { RecipeConfig } from '../../../store/deploy/types';
 
-import { useRecipeConfigState, useStepOperations, RecipeConfigWithIds, SetRecipeConfig } from './use-recipe-config-state';
+import { useRecipeConfigState, useStepOperations, SetRecipeConfig } from './use-recipe-config-state';
 import StepEditor from './step-editor';
 import { SetStepConfig } from './step-common';
 
@@ -72,7 +73,7 @@ const useHeaderPanelStyles = makeStyles((theme) => ({
   },
 }));
 
-const HeaderPanel: FunctionComponent<{ className?: string; id: string; config: RecipeConfigWithIds; setConfig: SetRecipeConfig }> = ({ className, id, config, setConfig }) => {
+const HeaderPanel: FunctionComponent<{ className?: string; id: string; config: RecipeConfig; setConfig: SetRecipeConfig }> = ({ className, id, config, setConfig }) => {
   const classes = useHeaderPanelStyles();
 
   const updateDescription = useCallback(
@@ -101,7 +102,7 @@ const useConfigPanelStyles = makeStyles((theme) => ({
   },
 }));
 
-const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfigWithIds; setConfig: SetRecipeConfig }> = ({ className, config, setConfig }) => {
+const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfig; setConfig: SetRecipeConfig }> = ({ className, config, setConfig }) => {
   const classes = useConfigPanelStyles();
   const { moveStep, deleteStep, setStep } = useStepOperations(setConfig);
 
@@ -110,9 +111,8 @@ const ConfigPanel: FunctionComponent<{ className?: string; config: RecipeConfigW
       {config.steps.map((step, index) => {
         const onSetStep: SetStepConfig = (newStep) => setStep(index, newStep);
         const onDelete = () => deleteStep(index);
-        const key = config.stepIds[index];
 
-        return <StepEditor key={key} step={step} setStep={onSetStep} onDelete={onDelete} />;
+        return <StepEditor key={index} step={step} setStep={onSetStep} onDelete={onDelete} />;
       })}
 
       <AddStepItem setConfig={setConfig} />
