@@ -10,6 +10,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
 import CheckIcon from '@material-ui/icons/Check';
 import BlockIcon from '@material-ui/icons/Block';
 
@@ -50,6 +51,10 @@ const useStyles = makeStyles((theme) => ({
   moveHandle: {
     margin: theme.spacing(3),
   },
+  note: {
+    flex: '1 0 auto',
+    marginLeft: theme.spacing(10)
+  }
 }));
 
 const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; onDelete: () => void }> = ({ step, setStep, onDelete }) => {
@@ -79,6 +84,8 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; 
           </div>
 
           <DetailEditor step={step} setStep={setStep} />
+
+          <NoteEditor step={step} setStep={setStep} />
         </CardContent>
       </Card>
     </SortableListItem>
@@ -138,4 +145,24 @@ const DetailEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig
     case 'recipe':
       return <RecipeStepEditor step={step as RecipeStepConfig} setStep={setStep} />;
   }
+};
+
+const NoteEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
+  const classes = useStyles();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { value } = e.target;
+    setStep({ ...step, note: value });
+  };
+
+  return (
+    <TextField
+      className={classes.note}
+      label={'Note'}
+      variant="outlined"
+      multiline
+      rows={5}
+      value={step.note}
+      onChange={handleChange}
+    />
+  );
 };
