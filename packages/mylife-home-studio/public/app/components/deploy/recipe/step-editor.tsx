@@ -8,6 +8,10 @@ import CardContent from '@material-ui/core/CardContent';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import CheckIcon from '@material-ui/icons/Check';
+import BlockIcon from '@material-ui/icons/Block';
 
 import DeleteButton from '../../lib/delete-button';
 import { SortableListItem, SortableListMoveHandle } from '../../lib/sortable-list';
@@ -34,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
   recipeContainer: {
     backgroundColor: fade(green[100], 0.2),
   },
-  buttonsContainer: {
+  blockContainer: {
+    alignSelf: 'center',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -56,12 +61,18 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; 
     <SortableListItem useChildAsPreview>
       <Card className={classes.card} square>
         <CardContent className={containerClasses}>
-          <div className={classes.buttonsContainer}>
+          <div className={classes.blockContainer}>
             <SortableListMoveHandle className={classes.moveHandle} />
-            <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
           </div>
 
-          <StepTypeSelector step={step} setStep={setStep} />
+          <div className={classes.blockContainer}>
+            <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+            <EnabledEditor step={step} setStep={setStep} />
+          </div>
+
+          <div className={classes.blockContainer}>
+            <StepTypeSelector step={step} setStep={setStep} />
+          </div>
 
           <DetailEditor step={step} setStep={setStep} />
         </CardContent>
@@ -71,6 +82,22 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; 
 };
 
 export default StepEditor;
+
+const EnabledEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
+  const { enabled } = step;
+  const handleClick = () => {
+    const newStep = { ...step, enabled: !enabled };
+    setStep(newStep);
+  };
+
+  return (
+    <Tooltip title={enabled ? 'Désactiver' : 'Activer'}>
+      <IconButton onClick={handleClick}>
+        {enabled ? <BlockIcon/> : <CheckIcon/>}
+      </IconButton>
+    </Tooltip>
+  );
+};
 
 const StepTypeSelector: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig }> = ({ step, setStep }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
