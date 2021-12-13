@@ -32,6 +32,8 @@ export type StepType = 'task' | 'recipe';
 
 export interface StepConfig {
   type: StepType;
+  enabled: boolean;
+  note: string;
 }
 
 export interface TaskStepConfig extends StepConfig {
