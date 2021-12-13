@@ -177,11 +177,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - apres refresh des entites en lignes, le projet n'est pas valide avec des erreurs qui refletent un modele pas a jour
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
-- deploy
-  - bug modifications non prises en compte avec duplication et navigation entre recettes
-  - pouvoir desactiver une etape (sans la supprimer)
-  - pouvoir rajouter des notes sur une etape
-  - modif de champ text perd le focus quand l'update devient effectif
 
 ## core
 
