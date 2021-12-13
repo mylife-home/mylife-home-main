@@ -38,6 +38,9 @@ const useStyles = makeStyles((theme) => ({
   recipeContainer: {
     backgroundColor: fade(green[100], 0.2),
   },
+  containerDisabled: {
+    opacity: 0.5,
+  },
   blockContainer: {
     alignSelf: 'center',
     display: 'flex',
@@ -55,6 +58,7 @@ const StepEditor: FunctionComponent<{ step: StepConfig; setStep: SetStepConfig; 
     [classes.container]: true,
     [classes.taskContainer]: step.type === 'task',
     [classes.recipeContainer]: step.type === 'recipe',
+    [classes.containerDisabled]: !step.enabled,
   });
 
   return (
