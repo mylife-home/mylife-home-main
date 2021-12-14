@@ -184,8 +184,10 @@ export class Model {
 
     for (const binding of component.getAllBindings()) {
       this.bindings.delete(binding.id);
+      delete this.data.bindings[binding.id];
       binding.rebuild();
       this.bindings.set(binding.id, binding);
+      this.data.bindings[binding.id] = binding.data;
     }
   }
 
@@ -587,6 +589,7 @@ export class BindingModel {
     this.data.sourceComponent = this.sourceComponent.id;
     this.data.targetComponent = this.targetComponent.id;
     this._id = BindingModel.makeId(this.data);
+    console.log('rebuild', this._id);
   }
 
   get id() {
