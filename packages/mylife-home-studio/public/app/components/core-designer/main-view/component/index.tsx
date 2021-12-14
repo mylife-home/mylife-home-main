@@ -10,7 +10,7 @@ import { useCanvasTheme } from '../../drawing/theme';
 import { computeComponentRect, lockComponentPosition } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
-import { BindingDnd, BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
+import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
 import * as types from '../../../../store/core-designer/types';
 import { isBindingTarget } from '../../binding-tools';
@@ -27,8 +27,11 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const onDrag = useBindingDraggable();
   const bindingDndInfo = useBindingDndInfo();
 
-  const dragBoundHandler = useCallback((pos: Point) => lockComponentPosition(rect, pos), [rect]);
-  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => move({ x: e.target.x() / GRID_STEP_SIZE, y : e.target.y() / GRID_STEP_SIZE }), [move, GRID_STEP_SIZE]);
+  const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
+    const userPos: Point = { x: e.target.x(), y : e.target.y() };
+    const pos = lockComponentPosition(rect, userPos);
+    move({ x: pos.x / GRID_STEP_SIZE, y : pos.y / GRID_STEP_SIZE });
+  }, [rect, move, GRID_STEP_SIZE]);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
@@ -43,7 +46,6 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       {...rect}
       onMouseDown={select}
       draggable
-      dragBoundFunc={dragBoundHandler}
       onDragMove={dragMoveHandler}
       onDragEnd={moveEnd}
     >
