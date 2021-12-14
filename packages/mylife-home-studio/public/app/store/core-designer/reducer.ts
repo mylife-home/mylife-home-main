@@ -145,6 +145,18 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       arrayAdd(plugin.components, id, true);
       updatePluginStats(openedProject, plugin);
       updateInstanceStats(openedProject, plugin.instanceName);
+
+      // This can be a component update, so also reindex its bindings
+      for (const binding of Object.values(openedProject.bindings.byId)) {
+        if (binding.sourceComponent === id) {
+          addBinding(openedProject, binding.sourceComponent, binding.sourceState, binding.id);
+        }
+
+        if (binding.targetComponent === id) {
+          addBinding(openedProject, binding.targetComponent, binding.targetAction, binding.id);
+        }
+      }
+
       break;
     }
 
