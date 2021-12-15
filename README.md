@@ -118,44 +118,44 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## studio
 
- - tab
-   - click milieu = close
- - ui-designer
-   - control cannot go outside of window (create, move, resize)
-   - on window resize, compute control position ratio + force then to be inside window if on borders
-   - on window resize window cannot be smaller that larger of its control
-   - templates
- - core-designer
-   - deploy en ligne: ajouter un progress
-   - ne pas crasher si un projet n'est pas valide
-   - groups (put some components inside a group, to be able to select and move them at once)
-   - templates
- - git
-   - v1:
-     - seules operations :
-       - pull,
-       - push (avec commit comment),
-       - git shell ??? (pour gerer les conflits eventuellement)
-     - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
-   - v2:
-     - use simple-git to have vscode-like basic git interface and drop gitconvex
-     - besoins:
-       - gestion de remotes => fetch, pull, push
-       - changement de branche
-       - selection staging + commit (vision diff)
-       - gestion des conflits ?
- - deploy
-   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
- - logs
-   - pouvoir c/c des logs
- - nouveau modele de modif/enregistrement
-   - liste de pending changes a coté de "requetes en cours"
-   - deploy: modele par recipe
-   - appliquer les modifications sur un "overlay" du modele
-   - la vue affichée est toujours la superposition du modele et de l overlay
-   - on debounce l emission des pending changes au serveur
-   - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
-   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
+- tab
+  - click milieu = close
+- ui-designer
+  - control cannot go outside of window (create, move, resize)
+  - on window resize, compute control position ratio + force then to be inside window if on borders
+  - on window resize window cannot be smaller that larger of its control
+  - templates
+- core-designer
+  - deploy en ligne: ajouter un progress
+  - ne pas crasher si un projet n'est pas valide
+  - groups (put some components inside a group, to be able to select and move them at once)
+  - templates
+- git
+  - v1:
+    - seules operations :
+      - pull,
+      - push (avec commit comment),
+      - git shell ??? (pour gerer les conflits eventuellement)
+    - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
+  - v2:
+    - use simple-git to have vscode-like basic git interface and drop gitconvex
+    - besoins:
+      - gestion de remotes => fetch, pull, push
+      - changement de branche
+      - selection staging + commit (vision diff)
+      - gestion des conflits ?
+- deploy
+  - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
+- logs
+  - pouvoir c/c des logs
+- nouveau modele de modif/enregistrement
+  - liste de pending changes a coté de "requetes en cours"
+  - deploy: modele par recipe
+  - appliquer les modifications sur un "overlay" du modele
+  - la vue affichée est toujours la superposition du modele et de l overlay
+  - on debounce l emission des pending changes au serveur
+  - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
+  - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
 
 ## ui
 
