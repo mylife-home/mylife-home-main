@@ -148,7 +148,6 @@ class MessageWaiter {
       };
 
       const timer = setTimeout(() => {
-        console.log('timeout');
         onEnd();
         reject(new Error(`Timeout occured while waiting for message on topic '${this.topic}' (call address: '${this.callAddress}', timeout: ${timeout})`));
       }, timeout);
