@@ -126,10 +126,20 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - templates
 - core-designer
+  - multi-select
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
-  - groups (put some components inside a group, to be able to select and move them at once)
   - templates
+    - multiple components with template id (with config)
+    - bindings between components in the template
+    - config settings
+    - exports (explicit to avoid pollution):
+      - state/action (with possible renaming)
+      - config (with possible renaming)
+    - then, on use, a template is seen as a plugin, which can be instantiated into a component
+    - notes:
+      - take care on plugin refresh
+      - a template can use another template, take care of circular dependencies
 - git
   - v1:
     - seules operations :
