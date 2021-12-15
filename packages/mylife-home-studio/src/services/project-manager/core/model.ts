@@ -115,6 +115,10 @@ export class Model {
     return this.plugins.has(id);
   }
 
+  findPlugin(id: string) {
+    return this.plugins.get(id);
+  }
+
   getPlugin(id: string) {
     const plugin = this.plugins.get(id);
     if (!plugin) {
@@ -130,6 +134,10 @@ export class Model {
 
   hasComponent(id: string) {
     return this.components.has(id);
+  }
+
+  findComponent(id: string) {
+    return this.components.get(id);
   }
 
   getComponent(id: string) {
@@ -268,34 +276,33 @@ export class Model {
     };
 
     const id = `${instanceName}:${netPlugin.module}.${netPlugin.name}`;
-    // re-create it if already exists
-    if (this.hasPlugin(id)) {
-      this.deletePlugin(id);
+    const existing = this.findPlugin(id);
+    if (existing) {
+      // update its data
+      existing.executeImport(pluginData);
+      return existing;
     }
 
     const plugin = this.registerPlugin(id, pluginData);
-    this.data.plugins[id] = pluginData;
+    this.data.plugins[id] = plugin.data;
 
     return plugin;
   }
 
   // Note: impacts checks are already done
   importComponent(id: string, pluginId: string, external: boolean, config: { [id: string]: ConfigItem; }) {
-    let position: { x: number; y: number; } = { x: 1, y: 1 };
+    const existing = this.findComponent(id);
 
-    // plugin may have change so re-create
-    if (this.hasComponent(id)) {
-      // if it already exists, keep its position
-      position = this.getComponent(id).data.position;
-
-      this.clearComponent(id);
+    if (existing) {
+      // update its data
+      const plugin = this.getPlugin(pluginId);
+      existing.executeImport(plugin, { config, external });
+      return existing;
     }
-
-    const plugin = this.getPlugin(pluginId);
 
     const componentData: CoreComponentData = {
       plugin: pluginId,
-      position,
+      position: { x: 1, y: 1 },
       config,
       external,
     };
@@ -385,6 +392,14 @@ export class PluginModel {
   public readonly components = new Map<string, ComponentModel>();
 
   constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) { }
+
+  executeImport(data: CorePluginData) {
+    for (const prop of Object.keys(this.data)) {
+      delete (this.data as any)[prop];
+    }
+
+    Object.assign(this.data, data);
+  }
 
   get id() {
     return this._id;
@@ -483,11 +498,29 @@ export class PluginModel {
 export class ComponentModel {
   private bindingsFrom = new Set<BindingModel>();
   private bindingsTo = new Set<BindingModel>();
+  private _plugin: PluginModel;
 
-  constructor(public readonly instance: InstanceModel, public readonly plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) { }
+  constructor(public readonly instance: InstanceModel, plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) {
+    this._plugin = plugin;
+  }
+
+  executeImport(plugin: PluginModel, data: Omit<CoreComponentData, 'plugin' | 'position'>) {
+    // keep its position
+    const { position } = this.data;
+
+    for (const prop of Object.keys(this.data)) {
+      delete (this.data as any)[prop];
+    }
+
+    Object.assign(this.data, data, { position, plugin: plugin.id });
+  }
 
   get id() {
     return this._id;
+  }
+
+  get plugin() {
+    return this._plugin;
   }
 
   rename(newId: string) {
