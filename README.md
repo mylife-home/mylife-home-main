@@ -196,9 +196,3 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ```
 GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ```
-
-## drivers
-
- - ac dimmer
-   Can ac dimmer work JS only ? (Or cpp userland?)
-   npm epoll = 20k interrupts /sec on rpi4???
