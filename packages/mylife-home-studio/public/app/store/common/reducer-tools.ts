@@ -63,3 +63,9 @@ export function arrayRemove(array: string[], id: string) {
   const index = array.indexOf(id);
   array.splice(index, 1);
 }
+
+export function arraySet(array: string[], id: string, sortById = false) {
+  if (!array.includes(id)) {
+    arrayAdd(array, id, sortById);
+  }
+}

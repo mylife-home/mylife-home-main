@@ -1,7 +1,7 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
 import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance } from './types';
-import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove } from '../common/reducer-tools';
+import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, CorePluginData, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
@@ -251,7 +251,7 @@ function setPlugin(openedProject: CoreOpenedProject, id: string, pluginData: Cor
     tableSet(openedProject.instances, instance, true);
   }
 
-  instance.plugins.push(plugin.id);
+  arraySet(instance.plugins, plugin.id, true);
 
   return { plugin, instance };
 }
