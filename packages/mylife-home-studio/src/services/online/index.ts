@@ -137,7 +137,7 @@ export class Online implements Service {
 
   async coreStoreSave(instanceName: string) {
     this.checkInstanceCapability(instanceName, 'store-api');
-    await this.transport.rpc.call(instanceName, 'store.save', 5000); // store save may be slow on rpi
+    await this.transport.rpc.call(instanceName, 'store.save', null, 5000); // store save may be slow on rpi
   }
 
   async executeComponentAction({ componentId, action, value }: { componentId: string, action: string, value: any; }) {
