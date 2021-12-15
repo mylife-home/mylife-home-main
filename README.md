@@ -124,10 +124,12 @@ In Chrome: [chrome://inspect](chrome://inspect)
    - control cannot go outside of window (create, move, resize)
    - on window resize, compute control position ratio + force then to be inside window if on borders
    - on window resize window cannot be smaller that larger of its control
+   - templates
  - core-designer
-   - multi-select
    - deploy en ligne: ajouter un progress
    - ne pas crasher si un projet n'est pas valide
+   - groups (put some components inside a group, to be able to select and move them at once)
+   - templates
  - git
    - v1:
      - seules operations :
