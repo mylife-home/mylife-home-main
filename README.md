@@ -171,9 +171,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
-  - bug:
-      apres plugins refresh, il semble que le projet ne valide pas alors que si on ferme/ouvre le projet, il valide ?!
-      reproduire: refresh plugins sur projet rpi-home-garden1
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 
