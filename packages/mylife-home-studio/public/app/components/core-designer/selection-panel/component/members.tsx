@@ -207,8 +207,8 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
 
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
-  const { selection } = useSelection();
-  const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, selection.id, memberName));
+  const { selectedComponent: componentId } = useSelection();
+  const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, componentId, memberName));
   const newBinding = useNewBinding(memberName);
 
   const onSelect = (value: BindingHalf) => {

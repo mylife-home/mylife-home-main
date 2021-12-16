@@ -47,9 +47,8 @@ export default Configuration;
 
 function useConfigure() {
   const tabId = useTabPanelId();
-  const { selection } = useSelection();
+  const { selectedComponent: componentId } = useSelection();
   const dispatch = useDispatch();
-  const componentId = selection.id;
 
   return useCallback((configId: string, configValue: any) => {
     dispatch(configureComponent({ id: tabId, componentId, configId, configValue }));

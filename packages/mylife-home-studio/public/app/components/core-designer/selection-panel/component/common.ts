@@ -6,8 +6,8 @@ import { getComponent, getPlugin } from '../../../../store/core-designer/selecto
 
 export function useComponentData() {
   const tabId = useTabPanelId();
-  const { selection } = useSelection();
-  const component = useSelector((state: AppState) => getComponent(state, tabId, selection.id));
+  const { selectedComponent } = useSelection();
+  const component = useSelector((state: AppState) => getComponent(state, tabId, selectedComponent));
   const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
   return { component, plugin };
 }

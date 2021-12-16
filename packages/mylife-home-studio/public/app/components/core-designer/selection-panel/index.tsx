@@ -58,14 +58,17 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
         </NullWrapper>
       );
 
+    case 'multiple':
+      return <>TODO multiple</>;
+
     default:
       return null;
   }
 }
 
 const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string, id: string) => any; }> = ({ selector, children }) => {
-  const { selection } = useSelection();
-  const item = useTabSelector((state, tabId) => selector(state, tabId, selection.id));
+  const { selectedComponent, selectedBinding } = useSelection();
+  const item = useTabSelector((state, tabId) => selector(state, tabId, selectedComponent || selectedBinding));
   useResetSelectionIfNull(item);
 
   if(!item) {

@@ -62,10 +62,9 @@ export default Actions;
 
 function useActionsConnect() {
   const tabId = useTabPanelId();
-  const { selection } = useSelection();
+  const { selectedComponent: componentId } = useSelection();
   const dispatch = useDispatch();
 
-  const componentId = selection.id;
   const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
   const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
   const componentIds = useSelector((state: AppState) => getComponentIds(state, tabId));

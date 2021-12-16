@@ -19,15 +19,14 @@ interface ComponentMoveContextProps {
 export const ComponentMoveContext = createContext<ComponentMoveContextProps>(null);
 
 export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
-  const { selection } = useSelection();
+  const { selectedComponent } = useSelection();
   const [componentId, setComponentId] = useState<string>(null);
   const [position, move] = useState<types.Position>(null);
 
   useEffect(() => {
-    const selectedComponentId = selection && selection.type === 'component' ? selection.id : null;
-    setComponentId(selectedComponentId);
+    setComponentId(selectedComponent);
     move(null);
-  }, [selection]);
+  }, [selectedComponent]);
 
   const contextProps = useMemo(() => ({ componentId, position, move }), [componentId, position, move]);
 
