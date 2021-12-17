@@ -23,7 +23,8 @@ interface SelectionContextProps {
   selectedComponent: string;
   selectedBinding: string;
   selectedComponents: MultiSelectionIds;
-  select: (selection: SimpleSelection | MultipleSelection) => void;
+  select: (selection: SimpleSelection) => void;
+  selectMulti: (ids: MultiSelectionIds) => void;
 }
 
 export const SelectionContext = createContext<SelectionContextProps>(null);
@@ -33,27 +34,17 @@ export function useSelection() {
 }
 
 export function useComponentSelection(componentId: string) {
-  const { selection, select: setSelection } = useSelection();
+  const { selection, select, selectMulti } = useSelection();
 
   return { 
     selected: isComponentSelected(componentId, selection),
-    select: useCallback(() => setSelection({ type: 'component', id: componentId }), [setSelection, componentId]),
+    select: useCallback(() => select({ type: 'component', id: componentId }), [select, componentId]),
     multiSelectToggle: useCallback(() => {
       const selectedComponents = getSelectedComponents(selection);
       const ids = { ... selectedComponents };
       toggle(ids, componentId);
-      const array = Object.keys(ids);
-
-      if (array.length === 0) {
-        // unselected last component, no selection anymore
-        setSelection(null);
-      } else if (array.length === 1) {
-        // switch back to single if only one selected
-        setSelection({ type: 'component', id: array[0] });
-      } else {
-        setSelection({ type: 'multiple', ids });
-      }
-    }, [setSelection, componentId, selection])
+      selectMulti(ids);
+    }, [selectMulti, componentId, selection])
   };
 }
 
@@ -103,7 +94,23 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
     selectedComponent: selection?.type === 'component' ? (selection as SimpleSelection).id : null,
     selectedBinding: selection?.type === 'binding' ? (selection as SimpleSelection).id : null,
     selectedComponents: selection?.type === 'multiple' ? (selection as MultipleSelection).ids : null,
-    select
+    select,
+    selectMulti: (ids: MultiSelectionIds) => {
+      const array = Object.keys(ids);
+
+      if (array.length === 0) {
+        // unselected last component, no selection anymore
+        select(null);
+      } else if (array.length === 1) {
+        // switch back to single if only one selected
+        const sel: SimpleSelection = { type: 'component', id: array[0] };
+        select(sel);
+      } else {
+        const sel: MultipleSelection = { type: 'multiple', ids };
+        select(sel);
+      }
+
+    }
   }), [selection, select]);
 
   return (

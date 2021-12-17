@@ -5,6 +5,7 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import DeleteButton from '../../lib/delete-button';
+import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { Rectangle } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
@@ -16,7 +17,7 @@ import { Group, Item } from '../../lib/properties-layout';
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
 import { getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
-import { clearBinding } from '../../../store/core-designer/actions';
+import { clearComponent } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -30,11 +31,8 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
   const classes = useStyles();
   const { selectedComponents, select } = useSelection();
   const ids = useMemo(() => Object.keys(selectedComponents).sort(), [selectedComponents]);
-  const centerPosition = useCenterPosition(selectedComponents);
-
-  const clearAll = () => {
-    console.log('TODO delete all component');
-  };
+  const { clearAll } = useActionsConnect();
+  const centerPosition = useCenterPosition();
 
   return (
     <div className={className}>
@@ -56,8 +54,22 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 
 export default Multiple;
 
+function useActionsConnect() {
+  const tabId = useTabPanelId();
+  const { selectedComponents } = useSelection();
+  const dispatch = useDispatch();
 
-function useCenterPosition(selectedComponents: MultiSelectionIds) {
+  const clearAll = useCallback(() => {
+    for (const componentId of Object.keys(selectedComponents)) {
+      dispatch(clearComponent({ id: tabId, componentId }));
+    }
+  }, [tabId, dispatch, selectedComponents]);
+
+  return { clearAll };
+}
+
+function useCenterPosition() {
+  const { selectedComponents } = useSelection();
   const { components, plugins } = useTabSelector(getAllComponentsAndPlugins);
   const theme = useCanvasTheme();
 
