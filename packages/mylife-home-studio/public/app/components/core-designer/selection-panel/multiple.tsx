@@ -5,17 +5,17 @@ import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 
 import DeleteButton from '../../lib/delete-button';
-import { useTabPanelId } from '../../lib/tab-panel';
-import { Point } from '../drawing/types';
+import { useTabSelector } from '../../lib/use-tab-selector';
+import { Rectangle } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
-import { computeBindingAnchors } from '../drawing/shapes';
-import { useSelection } from '../selection';
+import { computeComponentRect } from '../drawing/shapes';
+import { useSelection, MultiSelectionIds } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
+import { getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
 import { clearBinding } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -30,9 +30,7 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
   const classes = useStyles();
   const { selectedComponents, select } = useSelection();
   const ids = useMemo(() => Object.keys(selectedComponents).sort(), [selectedComponents]);
-
-  // TODO
-  const centerPosition = { x: 0, y: 0 };
+  const centerPosition = useCenterPosition(selectedComponents);
 
   const clearAll = () => {
     console.log('TODO delete all component');
@@ -57,3 +55,39 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 };
 
 export default Multiple;
+
+
+function useCenterPosition(selectedComponents: MultiSelectionIds) {
+  const { components, plugins } = useTabSelector(getAllComponentsAndPlugins);
+  const theme = useCanvasTheme();
+
+  return useMemo(() => {
+    const rects = Object.keys(selectedComponents).map(id => {
+      const component = components[id];
+      const plugin = plugins[component.plugin];
+      return computeComponentRect(theme, component, plugin);
+    });
+
+    return computeCenter(rects);
+
+  }, [theme, selectedComponents]);
+}
+
+function computeCenter(rects: Rectangle[]) {
+  let left = Infinity;
+  let right = 0;
+  let top = Infinity;
+  let bottom = 0;
+
+  for (const rect of rects) {
+    left = Math.min(left, rect.x);
+    right = Math.max(right, rect.x + rect.width);
+    top = Math.min(top, rect.y);
+    bottom = Math.max(bottom, rect.y + rect.height);
+  }
+
+  return {
+    x: (left + right) / 2,
+    y: (top + bottom) / 2
+  };
+}

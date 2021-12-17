@@ -1,6 +1,6 @@
 import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 
-type SelectionType = 'component' | 'binding' | 'multiple';
+export type SelectionType = 'component' | 'binding' | 'multiple';
 
 export interface Selection {
   type: SelectionType;
@@ -11,7 +11,7 @@ export interface SimpleSelection extends Selection {
   id: string;
 }
 
-type MultiSelectionIds = { [id: string]: true };
+export type MultiSelectionIds = { [id: string]: true };
 
 export interface MultipleSelection extends Selection {
   type: 'multiple';
