@@ -22,7 +22,7 @@ import { setBinding } from '../../../store/core-designer/actions';
 
 const MainView: FunctionComponent = () => {
   const { componentIds, bindingIds } = useConnect();
-  const { selectedComponent } = useSelection();
+  const { selectedComponent, selectedComponents } = useSelection();
   const stageRef = useRef<Konva.Stage>(null);
   const onDrop = useNewBinding();
 
@@ -45,6 +45,10 @@ const MainView: FunctionComponent = () => {
           {selectedComponent && (
             <ComponentSelectionMark componentId={selectedComponent} />
           )}
+
+          {selectedComponents && Object.keys(selectedComponents).map(componentId => (
+            <ComponentSelectionMark key={componentId} componentId={componentId} />
+          ))}
         </Layer>
       </BindingDndProvider>
     </Canvas>

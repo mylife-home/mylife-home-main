@@ -7,6 +7,7 @@ import QuickAccess from '../../lib/quick-access';
 import { useResetSelectionIfNull, useSelection } from '../selection';
 import Component from './component';
 import Binding from './binding';
+import Multiple from './multiple';
 import { AppState } from '../../../store/types';
 import { getComponentIds, getComponent, getBinding } from '../../../store/core-designer/selectors';
 
@@ -59,7 +60,9 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
       );
 
     case 'multiple':
-      return <>TODO multiple</>;
+      return (
+        <Multiple className={className} />
+      );
 
     default:
       return null;

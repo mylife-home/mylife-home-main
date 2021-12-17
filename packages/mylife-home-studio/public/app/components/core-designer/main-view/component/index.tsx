@@ -23,7 +23,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const theme = useCanvasTheme();
   const { component, plugin, move, moveEnd } = useMovableComponent(componentId);
   const rect = computeComponentRect(theme, component, plugin);
-  const { select } = useComponentSelection(componentId);
+  const { select, multiSelectToggle } = useComponentSelection(componentId);
   const onDrag = useBindingDraggable();
   const bindingDndInfo = useBindingDndInfo();
 
@@ -41,10 +41,19 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
   const createDraggablePropertyHandler = (bindingSource: BindingSource) => (type: DragEventType, mousePosition: types.Position) => onDrag(type, mousePosition, bindingSource);
 
+  const mouseDownHandler = (e: Konva.KonvaEventObject<MouseEvent>)=> {
+    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    if (metaPressed) {
+      multiSelectToggle();
+    } else {
+      select();
+    }
+  }
+
   return (
     <Group
       {...rect}
-      onMouseDown={select}
+      onMouseDown={mouseDownHandler}
       draggable
       onDragMove={dragMoveHandler}
       onDragEnd={moveEnd}
