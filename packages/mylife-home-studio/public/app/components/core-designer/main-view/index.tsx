@@ -5,7 +5,7 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useSelection } from '../selection';
 import { Konva, Layer } from '../drawing/konva';
 import { BindingDndProvider, BindingSource } from './binding-dnd';
-import Canvas from './canvas';
+import Canvas, { MetaDragEvent } from './canvas';
 import Component from './component';
 import Binding from './binding';
 import ComponentSelectionMark from './component-selection-mark';
@@ -26,8 +26,12 @@ const MainView: FunctionComponent = () => {
   const stageRef = useRef<Konva.Stage>(null);
   const onDrop = useNewBinding();
 
+  const onMetaDrag = (e: MetaDragEvent) => {
+    console.log(e);
+  }
+
   return (
-    <Canvas stageRef={stageRef}>
+    <Canvas stageRef={stageRef} onMetaDrag={onMetaDrag}>
       <BindingDndProvider stage={stageRef.current} onDrop={onDrop}>
         <Layer name='bindings'>
           {bindingIds.map(id => (

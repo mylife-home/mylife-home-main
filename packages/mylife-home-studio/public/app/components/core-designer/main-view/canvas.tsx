@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useLayoutEffect, MutableRefObject } from 'react';
+import React, { FunctionComponent, useCallback, useLayoutEffect, MutableRefObject, useState } from 'react';
 import useResizeObserver from '@react-hook/resize-observer';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -15,7 +15,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'main-view-canvas' });
 
-const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage> }> = ({ stageRef, children }) => {
+export interface MetaDragEvent {
+  type: 'start' | 'move' | 'end';
+  position: { x: number; y: number; };
+}
+
+const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage>; onMetaDrag: (e: MetaDragEvent) => void; }> = ({ stageRef, onMetaDrag, children }) => {
   const classes = useStyles();
   const ref = useDroppable(stageRef.current);
   const { viewInfo } = useViewInfo();
@@ -23,7 +28,8 @@ const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage> }> = (
   useStageContainerSize(stageRef);
 
   const wheelHandler = useWheelHandler(stageRef);
-  const dragMoveHander = useDragMoveHandler();
+  const onDragMove = useDragMoveHandler();
+  const { onMouseDown, onMouseMove, onMouseUp } = useMetaSelect(onMetaDrag);
 
   const { x, y, scale } = viewInfo.viewport;
   const { width, height } = viewInfo.container;
@@ -40,7 +46,10 @@ const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage> }> = (
         scaleY={scale}
         draggable
         onWheel={wheelHandler}
-        onDragMove={dragMoveHander}
+        onDragMove={onDragMove}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
       >
         {children}
       </BaseCanvas>
@@ -73,6 +82,49 @@ function useDragMoveHandler() {
     const stage = e.target;
     setContainerPosition({ x: -stage.x(), y: -stage.y() });
   }, [setContainerPosition]);
+}
+
+function useMetaSelect(onMetaDrag: (e: MetaDragEvent) => void) {
+  const [selecting, setSelecting] = useState(false);
+
+  const fireMetaDrag = useCallback((e: Konva.KonvaEventObject<MouseEvent>, type: 'start' | 'move' | 'end') => {
+    e.evt.preventDefault();
+    e.evt.stopPropagation();
+
+    const stage = e.target as Konva.Stage;
+    const { x, y } = stage.getPointerPosition();
+    onMetaDrag({ type, position: { x, y }});
+  }, [onMetaDrag]);
+
+  const onMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (!(e.target instanceof Konva.Stage)) {
+      return;
+    }
+
+    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    if (!metaPressed) {
+      return;
+    }
+
+    setSelecting(true);
+    fireMetaDrag(e, 'start');
+  }, [setSelecting, fireMetaDrag]);
+
+  const onMouseMove = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    if (selecting) {
+      fireMetaDrag(e, 'move');
+    }
+  }, [selecting, fireMetaDrag]);
+
+
+  const onMouseUp = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
+    if (selecting) {
+      setSelecting(false);
+      fireMetaDrag(e, 'end');
+    }
+  }, [selecting, setSelecting, fireMetaDrag]);
+
+  return { onMouseDown, onMouseMove, onMouseUp };
 }
 
 function useWheelHandler(stageRef: React.MutableRefObject<Konva.Stage>) {
