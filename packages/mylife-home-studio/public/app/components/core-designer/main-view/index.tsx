@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useRef } from 'react';
+import React, { FunctionComponent, useCallback, useRef, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
@@ -10,7 +10,8 @@ import Component from './component';
 import Binding from './binding';
 import ComponentSelectionMark from './component-selection-mark';
 import BindingDndMark from './binding-dnd-mark';
-import { Rectangle } from '../drawing/types';
+import SelectingMark from './selecting-mark';
+import { Rectangle, Point } from '../drawing/types';
 import { CanvasTheme, useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, computeMemberRect } from '../drawing/shapes';
 import { createBindingData, isBindingTarget } from '../binding-tools';
@@ -26,9 +27,7 @@ const MainView: FunctionComponent = () => {
   const stageRef = useRef<Konva.Stage>(null);
   const onDrop = useNewBinding();
 
-  const onMetaDrag = (e: MetaDragEvent) => {
-    console.log(e);
-  }
+  const { selectingRect, onMetaDrag } = useMultiSelecting();
 
   return (
     <Canvas stageRef={stageRef} onMetaDrag={onMetaDrag}>
@@ -53,6 +52,10 @@ const MainView: FunctionComponent = () => {
           {selectedComponents && Object.keys(selectedComponents).map(componentId => (
             <ComponentSelectionMark key={componentId} componentId={componentId} />
           ))}
+
+          {selectingRect && (
+            <SelectingMark rect={selectingRect} />
+          )}
         </Layer>
       </BindingDndProvider>
     </Canvas>
@@ -117,4 +120,42 @@ function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { 
 
 function isInRect(position: types.Position, rect: Rectangle) {
   return position.x >= rect.x && position.x < rect.x + rect.width && position.y >= rect.y && position.y < rect.y + rect.height;
+}
+
+function useMultiSelecting() {
+  const [start, setStart] = useState<Point>(null);
+  const [move, setMove] = useState<Point>(null);
+
+  const selectingRect = useMemo(() => {
+    if (!start || !move) {
+      return null;
+    }
+
+    return {
+      x: Math.min(start.x, move.x),
+      y: Math.min(start.y, move.y),
+      width: Math.abs(start.x - move.x),
+      height: Math.abs(start.y - move.y),
+    };
+  }, [start, move]);
+  
+  const onMetaDrag = useCallback((e: MetaDragEvent) => {
+    switch (e.type) {
+      case 'start': 
+        setStart(e.position);
+        setMove(e.position);
+        break;
+      
+      case 'move':
+        setMove(e.position);
+        break;
+
+      case 'end':
+        console.log(selectingRect);
+        setStart(null);
+        setMove(null);
+    }
+  }, [setStart, setMove, selectingRect]);
+
+  return { selectingRect, onMetaDrag };
 }
