@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Konva } from '../drawing/konva';
 import { useViewInfo } from '../drawing/view-info';
 import BaseCanvas from '../drawing/canvas';
-import { useZoom, usePosition } from '../drawing/viewport-manips';
+import { useZoom, usePosition, useCursorPositionConverter } from '../drawing/viewport-manips';
 import { useDroppable } from '../component-creation-dnd';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +29,7 @@ const Canvas: FunctionComponent<{ stageRef: MutableRefObject<Konva.Stage>; onMet
 
   const wheelHandler = useWheelHandler(stageRef);
   const onDragMove = useDragMoveHandler();
-  const { onMouseDown, onMouseMove, onMouseUp } = useMetaSelect(onMetaDrag);
+  const { onMouseDown, onMouseMove, onMouseUp } = useMetaSelect(stageRef.current, onMetaDrag);
 
   const { x, y, scale } = viewInfo.viewport;
   const { width, height } = viewInfo.container;
@@ -84,17 +84,17 @@ function useDragMoveHandler() {
   }, [setContainerPosition]);
 }
 
-function useMetaSelect(onMetaDrag: (e: MetaDragEvent) => void) {
+function useMetaSelect(stage: Konva.Stage, onMetaDrag: (e: MetaDragEvent) => void) {
+  const convertCursorPosition = useCursorPositionConverter(stage);
   const [selecting, setSelecting] = useState(false);
 
   const fireMetaDrag = useCallback((e: Konva.KonvaEventObject<MouseEvent>, type: 'start' | 'move' | 'end') => {
     e.evt.preventDefault();
     e.evt.stopPropagation();
 
-    const stage = e.target as Konva.Stage;
-    const { x, y } = stage.getPointerPosition();
+    const { x, y } = convertCursorPosition({ x: e.evt.clientX, y: e.evt.clientY });
     onMetaDrag({ type, position: { x, y }});
-  }, [onMetaDrag]);
+  }, [convertCursorPosition, onMetaDrag]);
 
   const onMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     if (!(e.target instanceof Konva.Stage)) {
