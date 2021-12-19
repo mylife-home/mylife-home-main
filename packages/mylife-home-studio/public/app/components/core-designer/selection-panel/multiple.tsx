@@ -56,6 +56,7 @@ function useActionsConnect() {
   const dispatch = useDispatch();
 
   const clearAll = useCallback(() => {
+    // TODO: one call with multiple ids
     for (const componentId of Object.keys(selectedComponents)) {
       dispatch(clearComponent({ id: tabId, componentId }));
     }

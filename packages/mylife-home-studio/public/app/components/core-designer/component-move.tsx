@@ -106,11 +106,16 @@ export function useMovableComponent(componentId: string) {
         return;
       }
 
-      // TODO 
-      console.log('moveComponents', Object.keys(context.componentsIds), context.delta);
-      // dispatch(moveComponent({ id: tabId, componentId, position: context.position }));
+      // TODO: one call with multiple ids
+      for (const componentId of Object.keys(context.componentsIds)) {
+        const component = componentsAndPlugins.components[componentId];
+        const position = addPositions(component.position, context.delta);
+        dispatch(moveComponent({ id: tabId, componentId, position }));
+      }
+  
+      context.move(null);
     },
-    [dispatch, tabId, componentId, context]
+    [dispatch, tabId, componentId, context, componentsAndPlugins]
   );
 
   return {
