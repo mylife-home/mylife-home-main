@@ -1,15 +1,14 @@
 import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useSafeSelector } from './drawing/use-safe-selector';
-import { GRID_STEP_SIZE } from './drawing/defs';
-import { computeComponentRect, lockComponentPosition } from './drawing/shapes';
+import { computeComponentRect, lockSelectionPosition, mergeRects } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
 import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 
 import { AppState } from '../../store/types';
-import { getComponent, getPlugin } from '../../store/core-designer/selectors';
+import { getComponent, getPlugin, getAllComponentsAndPlugins } from '../../store/core-designer/selectors';
 import { moveComponent } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
@@ -46,6 +45,7 @@ export function useMovableComponent(componentId: string) {
   const dispatch = useDispatch();
   const storeComponent = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
   const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, storeComponent.plugin));
+  const componentsAndPlugins = useSelector((state: AppState) => getAllComponentsAndPlugins(state, tabId));
   
   const context = useContext(ComponentMoveContext);
 
@@ -64,9 +64,15 @@ export function useMovableComponent(componentId: string) {
         console.error(`Trying to move unselected component '${componentId}', ignored`);
         return;
       }
-      
-      const rect = computeComponentRect(theme, storeComponent, plugin);
-      const position = lockComponentPosition(rect, userPos);
+
+      const rects = Object.keys(context.componentsIds).map(id => {
+        const component = componentsAndPlugins.components[id];
+        const plugin = componentsAndPlugins.plugins[component.plugin];
+        return computeComponentRect(theme, component, plugin);
+      });
+
+      const rect = mergeRects(rects);
+      const position = lockSelectionPosition(rect, userPos);
 
       const delta = subPositions(position, storeComponent.position);
       context.move(delta);
@@ -86,7 +92,7 @@ export function useMovableComponent(componentId: string) {
         return;
       }
 
-      // TODO
+      // TODO 
       console.log('moveComponents', Object.keys(context.componentsIds), context.delta);
       // dispatch(moveComponent({ id: tabId, componentId, position: context.position }));
     },

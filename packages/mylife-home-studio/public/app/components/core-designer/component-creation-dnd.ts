@@ -9,7 +9,7 @@ import { Point } from './drawing/types';
 import { GRID_STEP_SIZE } from './drawing/defs';
 import { getPlugin } from '../../store/core-designer/selectors';
 import { Component, Position } from '../../store/core-designer/types';
-import { computeComponentRect, lockComponentPosition } from './drawing/shapes';
+import { computeComponentRect, lockSelectionPosition } from './drawing/shapes';
 
 const ItemType = Symbol('dnd-canvas-create');
 
@@ -71,7 +71,7 @@ function useNewComponentPosition(pluginId: string) {
     }
 
     const rect = computeComponentRect(theme, fakeComponent, plugin);
-    const lockedPoint = lockComponentPosition(rect, point);
+    const lockedPoint = lockSelectionPosition(rect, point);
     
     const position: Position = {
       x: Math.round(lockedPoint.x / GRID_STEP_SIZE),

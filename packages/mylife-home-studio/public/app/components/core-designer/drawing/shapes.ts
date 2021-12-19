@@ -111,10 +111,10 @@ export function posToGrid(userPos: Point): Point {
   };
 }
 
-export function lockComponentPosition(componentRect: Rectangle, position: Point): Point {
+export function lockSelectionPosition(selectionRect: Rectangle, position: Point): Point {
   return posToGrid({
-    x: lockBetween(position.x * GRID_STEP_SIZE, LAYER_SIZE - componentRect.width),
-    y: lockBetween(position.y * GRID_STEP_SIZE, LAYER_SIZE - componentRect.height),
+    x: lockBetween(position.x * GRID_STEP_SIZE, LAYER_SIZE - selectionRect.width),
+    y: lockBetween(position.y * GRID_STEP_SIZE, LAYER_SIZE - selectionRect.height),
   });
 }
 
@@ -128,4 +128,32 @@ function lockBetween(value: number, max: number) {
   }
   
   return value;
+}
+
+export function mergeRects(rects: Rectangle[]): Rectangle {
+  let left = Infinity;
+  let right = 0;
+  let top = Infinity;
+  let bottom = 0;
+
+  for (const rect of rects) {
+    left = Math.min(left, rect.x);
+    right = Math.max(right, rect.x + rect.width);
+    top = Math.min(top, rect.y);
+    bottom = Math.max(bottom, rect.y + rect.height);
+  }
+
+  return {
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top
+  };
+}
+
+export function computeCenter(rect: Rectangle) {
+  return {
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2
+  };
 }

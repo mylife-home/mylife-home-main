@@ -1,21 +1,17 @@
 import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Link from '@material-ui/core/Link';
-import Typography from '@material-ui/core/Typography';
 
 import DeleteButton from '../../lib/delete-button';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
-import { Rectangle } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
-import { computeComponentRect } from '../drawing/shapes';
-import { useSelection, MultiSelectionIds } from '../selection';
+import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
+import { useSelection } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
-import { AppState } from '../../../store/types';
-import * as types from '../../../store/core-designer/types';
 import { getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
 import { clearComponent } from '../../../store/core-designer/actions';
 
@@ -80,26 +76,7 @@ function useCenterPosition() {
       return computeComponentRect(theme, component, plugin);
     });
 
-    return computeCenter(rects);
+    return computeCenter(mergeRects(rects));
 
   }, [theme, selectedComponents]);
-}
-
-function computeCenter(rects: Rectangle[]) {
-  let left = Infinity;
-  let right = 0;
-  let top = Infinity;
-  let bottom = 0;
-
-  for (const rect of rects) {
-    left = Math.min(left, rect.x);
-    right = Math.max(right, rect.x + rect.width);
-    top = Math.min(top, rect.y);
-    bottom = Math.max(bottom, rect.y + rect.height);
-  }
-
-  return {
-    x: (left + right) / 2,
-    y: (top + bottom) / 2
-  };
 }

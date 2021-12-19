@@ -9,8 +9,7 @@ import DeleteButton from '../../../lib/delete-button';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
-import { Rectangle } from '../../drawing/types';
-import { computeComponentRect } from '../../drawing/shapes';
+import { computeCenter, computeComponentRect } from '../../drawing/shapes';
 import { useSelection } from '../../selection';
 import CenterButton from '../center-button';
 import { useRenameDialog } from '../../../dialogs/rename';
@@ -87,11 +86,4 @@ function useCenterComponent(component: types.Component, plugin: types.Plugin) {
     const rect = computeComponentRect(theme, component, plugin);
     return computeCenter(rect);
   }, [theme, component]);
-}
-
-function computeCenter(rect: Rectangle) {
-  return {
-    x: rect.x + rect.width / 2,
-    y: rect.y + rect.height / 2
-  };
 }
