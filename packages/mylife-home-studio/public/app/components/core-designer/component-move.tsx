@@ -2,8 +2,9 @@ import React, { FunctionComponent, createContext, useState, useMemo, useContext,
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useSafeSelector } from './drawing/use-safe-selector';
-import { computeComponentRect, lockSelectionPosition, mergeRects } from './drawing/shapes';
+import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
+import { Point, Rectangle } from './drawing/types';
 import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 
@@ -65,16 +66,29 @@ export function useMovableComponent(componentId: string) {
         return;
       }
 
+      let currentComponentRect: Rectangle;
+
       const rects = Object.keys(context.componentsIds).map(id => {
         const component = componentsAndPlugins.components[id];
         const plugin = componentsAndPlugins.plugins[component.plugin];
-        return computeComponentRect(theme, component, plugin);
+        const rect = computeComponentRect(theme, component, plugin);
+
+        if (id === componentId) {
+          currentComponentRect = rect;
+        }
+
+        return rect;
       });
 
       const rect = mergeRects(rects);
-      const position = lockSelectionPosition(rect, userPos);
+      // compute offset between component position and selection position
+      const offset = subPositions(posToGrid(currentComponentRect), posToGrid(rect));
 
-      const delta = subPositions(position, storeComponent.position);
+      const selectionPos = subPositions(userPos, offset);
+      const lockedSelectionPosition = lockSelectionPosition(rect, selectionPos);
+      const componentPosition = addPositions(lockedSelectionPosition, offset);
+
+      const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
     [dispatch, tabId, componentId, context, storeComponent.position, plugin]
