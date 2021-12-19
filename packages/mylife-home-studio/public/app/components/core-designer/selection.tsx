@@ -41,14 +41,14 @@ export function useComponentSelection(componentId: string) {
 
     select: useCallback(() => {
       // If already selected do nothing
-      const selectedComponents = getSelectedComponents(selection);
+      const selectedComponents = getSelectedComponentsIds(selection);
       if (!selectedComponents[componentId]) {
         select({ type: 'component', id: componentId });
       }
     }, [select, componentId, selection]),
 
     multiSelectToggle: useCallback(() => {
-      const selectedComponents = getSelectedComponents(selection);
+      const selectedComponents = getSelectedComponentsIds(selection);
       const ids = { ... selectedComponents };
       toggle(ids, componentId);
       selectMulti(ids);
@@ -67,7 +67,7 @@ function isComponentSelected(componentId: string, selection: Selection) {
   return false;
 }
 
-function getSelectedComponents(selection: Selection): MultiSelectionIds {
+export function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
   switch (selection?.type) {
     case 'component':
       return { [(selection as SimpleSelection).id]: true };
