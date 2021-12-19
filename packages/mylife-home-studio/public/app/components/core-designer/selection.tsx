@@ -38,7 +38,15 @@ export function useComponentSelection(componentId: string) {
 
   return { 
     selected: isComponentSelected(componentId, selection),
-    select: useCallback(() => select({ type: 'component', id: componentId }), [select, componentId]),
+
+    select: useCallback(() => {
+      // If already selected do nothing
+      const selectedComponents = getSelectedComponents(selection);
+      if (!selectedComponents[componentId]) {
+        select({ type: 'component', id: componentId });
+      }
+    }, [select, componentId, selection]),
+
     multiSelectToggle: useCallback(() => {
       const selectedComponents = getSelectedComponents(selection);
       const ids = { ... selectedComponents };
