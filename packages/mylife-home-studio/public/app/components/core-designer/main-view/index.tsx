@@ -2,7 +2,8 @@ import React, { FunctionComponent, useCallback, useRef, useState, useMemo } from
 import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
-import { useSelection } from '../selection';
+import { useTabSelector } from '../../lib/use-tab-selector';
+import { useSelection, MultiSelectionIds } from '../selection';
 import { Konva, Layer } from '../drawing/konva';
 import { BindingDndProvider, BindingSource } from './binding-dnd';
 import Canvas, { MetaDragEvent } from './canvas';
@@ -96,35 +97,13 @@ function useNewBinding() {
   }, [theme, componentsAndPlugins, dispatch, tabId]);
 }
 
-// TODO: need model cleanup
-function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }): BindingSource {
-  for (const component of Object.values(components)) {
-    const plugin = plugins[component.plugin];
-
-    const componentRect = computeComponentRect(theme, component, plugin);
-    if (!isInRect(mousePosition, componentRect)) {
-      continue;
-    }
-
-    for (const [memberName, member] of Object.entries(plugin.members)) {
-      const memberRect = computeMemberRect(theme, component, plugin, memberName);
-      if (isInRect(mousePosition, memberRect)) {
-        return { componentId: component.id, memberName, memberType: member.memberType, valueType: member.valueType };
-      }
-    }
-
-    // If we found a component, no need to continue
-    break;
-  }
-}
-
-function isInRect(position: types.Position, rect: Rectangle) {
-  return position.x >= rect.x && position.x < rect.x + rect.width && position.y >= rect.y && position.y < rect.y + rect.height;
-}
-
 function useMultiSelecting() {
   const [start, setStart] = useState<Point>(null);
   const [move, setMove] = useState<Point>(null);
+  const { selectMulti } = useSelection();
+
+  const theme = useCanvasTheme();
+  const componentsAndPlugins = useTabSelector(getAllComponentsAndPlugins);
 
   const selectingRect = useMemo(() => {
     if (!start || !move) {
@@ -150,12 +129,65 @@ function useMultiSelecting() {
         setMove(e.position);
         break;
 
-      case 'end':
-        console.log(selectingRect);
+      case 'end': {
         setStart(null);
         setMove(null);
+
+        const ids = findComponentsInRect(theme, selectingRect, componentsAndPlugins);
+        selectMulti(ids);
+        break;
+      }
     }
-  }, [setStart, setMove, selectingRect]);
+  }, [setStart, setMove, selectingRect, theme, componentsAndPlugins, selectMulti]);
 
   return { selectingRect, onMetaDrag };
+}
+
+// TODO: need model cleanup
+function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }): BindingSource {
+  for (const component of Object.values(components)) {
+    const plugin = plugins[component.plugin];
+
+    const componentRect = computeComponentRect(theme, component, plugin);
+    if (!isInRect(mousePosition, componentRect)) {
+      continue;
+    }
+
+    for (const [memberName, member] of Object.entries(plugin.members)) {
+      const memberRect = computeMemberRect(theme, component, plugin, memberName);
+      if (isInRect(mousePosition, memberRect)) {
+        return { componentId: component.id, memberName, memberType: member.memberType, valueType: member.valueType };
+      }
+    }
+
+    // If we found a component, no need to continue
+    break;
+  }
+}
+
+// TODO: need model cleanup
+function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }) {
+  const ids: MultiSelectionIds = {};
+
+  for (const component of Object.values(components)) {
+    const plugin = plugins[component.plugin];
+    const componentRect = computeComponentRect(theme, component, plugin);
+    if (isRectInRect(componentRect, selectingRect)) {
+      ids[component.id] = true;
+    }
+  }
+
+  return ids;
+}
+
+function isInRect(position: types.Position, rect: Rectangle) {
+  return position.x >= rect.x && position.x < rect.x + rect.width && position.y >= rect.y && position.y < rect.y + rect.height;
+}
+
+function isRectInRect(position: Rectangle, rect: Rectangle) {
+  const topLeft = { x: position.x, y: position.y };
+  const topRight = { x: position.x + position.width, y: position.y };
+  const bottomLeft = { x: position.x, y: position.y + position.height };
+  const bottomRight = { x: position.x + position.width, y: position.y + position.height };
+  return isInRect(topLeft, rect) || isInRect(topRight, rect) || isInRect(bottomLeft, rect) || isInRect(bottomRight, rect);
 }
