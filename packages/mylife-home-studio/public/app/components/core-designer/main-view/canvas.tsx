@@ -90,7 +90,6 @@ function useMetaSelect(stage: Konva.Stage, onMetaDrag: (e: MetaDragEvent) => voi
 
   const fireMetaDrag = useCallback((e: Konva.KonvaEventObject<MouseEvent>, type: 'start' | 'move' | 'end') => {
     e.evt.preventDefault();
-    e.evt.stopPropagation();
 
     const { x, y } = convertCursorPosition({ x: e.evt.clientX, y: e.evt.clientY });
     onMetaDrag({ type, position: { x, y }});
@@ -107,6 +106,7 @@ function useMetaSelect(stage: Konva.Stage, onMetaDrag: (e: MetaDragEvent) => voi
     }
 
     setSelecting(true);
+    stage.draggable(false);
     fireMetaDrag(e, 'start');
   }, [setSelecting, fireMetaDrag]);
 
@@ -120,6 +120,7 @@ function useMetaSelect(stage: Konva.Stage, onMetaDrag: (e: MetaDragEvent) => voi
   const onMouseUp = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     if (selecting) {
       setSelecting(false);
+      stage.draggable(true);
       fireMetaDrag(e, 'end');
     }
   }, [selecting, setSelecting, fireMetaDrag]);
