@@ -3,11 +3,10 @@ import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { parseType } from '../../../lib/member-types';
 import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
-import { GRID_STEP_SIZE } from '../../drawing/defs';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
 // import CachedGroup from '../../drawing/cached-group';
-import { computeComponentRect, lockComponentPosition } from '../../drawing/shapes';
+import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
 import { Title, Property, BorderGroup } from './layout';
 import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
@@ -29,9 +28,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     const userPos: Point = { x: e.target.x(), y : e.target.y() };
-    const pos = lockComponentPosition(rect, userPos);
-    move({ x: pos.x / GRID_STEP_SIZE, y : pos.y / GRID_STEP_SIZE });
-  }, [rect, move, GRID_STEP_SIZE]);
+    move(posToGrid(userPos));
+  }, [move]);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);

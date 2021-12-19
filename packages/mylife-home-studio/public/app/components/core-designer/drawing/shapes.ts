@@ -104,17 +104,18 @@ function computeDistance(a: Point, b: Point) {
   return Math.sqrt(x * x + y * y);
 }
 
-export function lockComponentPosition(componentRect: Rectangle, position: Point) {
-  const result: Point = {
-    x: lockBetween(snapToGrid(position.x, GRID_STEP_SIZE), LAYER_SIZE - componentRect.width),
-    y: lockBetween(snapToGrid(position.y, GRID_STEP_SIZE), LAYER_SIZE - componentRect.height),
+export function posToGrid(userPos: Point): Point {
+  return {
+    x:  Math.round(userPos.x / GRID_STEP_SIZE),
+    y:  Math.round(userPos.y / GRID_STEP_SIZE),
   };
-
-  return result;
 }
 
-function snapToGrid(value: number, gridStep: number) {
-  return Math.round(value / gridStep) * gridStep;
+export function lockComponentPosition(componentRect: Rectangle, position: Point): Point {
+  return posToGrid({
+    x: lockBetween(position.x * GRID_STEP_SIZE, LAYER_SIZE - componentRect.width),
+    y: lockBetween(position.y * GRID_STEP_SIZE, LAYER_SIZE - componentRect.height),
+  });
 }
 
 function lockBetween(value: number, max: number) {

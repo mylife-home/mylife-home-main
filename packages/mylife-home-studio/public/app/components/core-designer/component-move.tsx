@@ -2,7 +2,10 @@ import React, { FunctionComponent, createContext, useState, useMemo, useContext,
 import { useDispatch } from 'react-redux';
 
 import { useSafeSelector } from './drawing/use-safe-selector';
-import { useSelection } from './selection';
+import { GRID_STEP_SIZE } from './drawing/defs';
+import { computeComponentRect, lockComponentPosition } from './drawing/shapes';
+import { useCanvasTheme } from './drawing/theme';
+import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 
 import { AppState } from '../../store/types';
@@ -11,24 +14,24 @@ import { moveComponent } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
 interface ComponentMoveContextProps {
-  componentId: string;
-  position: types.Position;
-  move: (position: types.Position) => void;
+  componentsIds: MultiSelectionIds;
+  delta: types.Position;
+  move: (delta: types.Position) => void;
 }
 
 export const ComponentMoveContext = createContext<ComponentMoveContextProps>(null);
 
 export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
-  const { selectedComponent } = useSelection();
-  const [componentId, setComponentId] = useState<string>(null);
-  const [position, move] = useState<types.Position>(null);
+  const { selection } = useSelection();
+  const [componentsIds, setComponentsIds] = useState<MultiSelectionIds>(null);
+  const [delta, move] = useState<types.Position>(null);
 
   useEffect(() => {
-    setComponentId(selectedComponent);
+    setComponentsIds(getSelectedComponentsIds(selection));
     move(null);
-  }, [selectedComponent]);
+  }, [selection]);
 
-  const contextProps = useMemo(() => ({ componentId, position, move }), [componentId, position, move]);
+  const contextProps = useMemo(() => ({ componentsIds, delta, move }), [componentsIds, delta, move]);
 
   return (
     <ComponentMoveContext.Provider value={contextProps}>
@@ -38,6 +41,7 @@ export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
 };
 
 export function useMovableComponent(componentId: string) {
+  const theme = useCanvasTheme();
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const storeComponent = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
@@ -46,39 +50,45 @@ export function useMovableComponent(componentId: string) {
   const context = useContext(ComponentMoveContext);
 
   const component = useMemo(() => {
-    const { componentId, position } = context;
-    if (!storeComponent || componentId !== storeComponent.id || !position) {
+    const { componentsIds, delta } = context;
+    if (!storeComponent || !componentsIds[storeComponent.id] || !delta) {
       return storeComponent;
     }
 
-    return { ...storeComponent, position };
+    return { ...storeComponent, position: addPositions(storeComponent.position, delta) };
   }, [storeComponent, context]);
 
   const move = useCallback(
-    (position: types.Position) => {
-      if (componentId !== context.componentId) {
+    (userPos: types.Position) => {
+      if (!context.componentsIds[componentId]) {
         console.error(`Trying to move unselected component '${componentId}', ignored`);
         return;
       }
+      
+      const rect = computeComponentRect(theme, storeComponent, plugin);
+      const position = lockComponentPosition(rect, userPos);
 
-      context.move(position);
+      const delta = subPositions(position, storeComponent.position);
+      context.move(delta);
     },
-    [dispatch, tabId, componentId, context]
+    [dispatch, tabId, componentId, context, storeComponent.position, plugin]
   );
 
   const moveEnd = useCallback(
     () => {
-      if (componentId !== context.componentId) {
+      if (!context.componentsIds[componentId]) {
         console.error(`Trying to moveEnd unselected component '${componentId}', ignored`);
         return;
       }
 
-      if (!context.position) {
-        console.error(`Trying to moveEnd component '${componentId}' with no position defined, ignored`);
+      if (!context.delta) {
+        console.error(`Trying to moveEnd component '${componentId}' with no delta defined, ignored`);
         return;
       }
 
-      dispatch(moveComponent({ id: tabId, componentId, position: context.position }));
+      // TODO
+      console.log('moveComponents', Object.keys(context.componentsIds), context.delta);
+      // dispatch(moveComponent({ id: tabId, componentId, position: context.position }));
     },
     [dispatch, tabId, componentId, context]
   );
@@ -88,5 +98,19 @@ export function useMovableComponent(componentId: string) {
     plugin, 
     move,
     moveEnd,
+  };
+}
+
+function addPositions(p1: types.Position, p2: types.Position): types.Position {
+  return {
+    x: p1.x + p2.x,
+    y: p1.y + p2.y,
+  };
+}
+
+function subPositions(p1: types.Position, p2: types.Position): types.Position {
+  return {
+    x: p1.x - p2.x,
+    y: p1.y - p2.y,
   };
 }
