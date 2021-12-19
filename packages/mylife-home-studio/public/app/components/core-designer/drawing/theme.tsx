@@ -15,6 +15,7 @@ export interface CanvasTheme {
   borderColorSelected: string;
   selectionWidth: number;
   bindingDndMarkColor: string;
+  multiSelectingBackground: string;
 
   component: {
     boxHeight: number;
@@ -59,6 +60,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
     borderColorSelected: muiTheme.palette.primary.main,
     selectionWidth: 2,
     bindingDndMarkColor: darken(muiTheme.palette.background.paper, 0.5),
+    multiSelectingBackground: fade(darken(muiTheme.palette.background.paper, 0.1), 0.5),
 
     component: {
       boxHeight: GRID_STEP_SIZE,
