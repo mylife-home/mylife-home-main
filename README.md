@@ -182,7 +182,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - core designer:
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
-  - multi-select
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 
