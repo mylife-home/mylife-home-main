@@ -10,7 +10,7 @@ import { useTabPanelId } from '../lib/tab-panel';
 
 import { AppState } from '../../store/types';
 import { getComponent, getPlugin, getAllComponentsAndPlugins } from '../../store/core-designer/selectors';
-import { moveComponent } from '../../store/core-designer/actions';
+import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
 interface ComponentMoveContextProps {
@@ -91,7 +91,7 @@ export function useMovableComponent(componentId: string) {
       const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
-    [dispatch, tabId, componentId, context, storeComponent.position, plugin]
+    [dispatch, tabId, componentId, context, storeComponent?.position, plugin]
   );
 
   const moveEnd = useCallback(
@@ -106,13 +106,7 @@ export function useMovableComponent(componentId: string) {
         return;
       }
 
-      // TODO: one call with multiple ids
-      for (const componentId of Object.keys(context.componentsIds)) {
-        const component = componentsAndPlugins.components[componentId];
-        const position = addPositions(component.position, context.delta);
-        dispatch(moveComponent({ id: tabId, componentId, position }));
-      }
-  
+      dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
       context.move(null);
     },
     [dispatch, tabId, componentId, context, componentsAndPlugins]

@@ -17,10 +17,10 @@ export const prepareDeployToOnline = createAsyncAction<{ id: string; }, OnlineDe
 export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
 
 export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
-export const moveComponent = createAsyncAction<{ id: string; componentId: string; position: Position; }>(ActionTypes.MOVE_COMPONENT);
+export const moveComponents = createAsyncAction<{ id: string; componentsIds: string[]; delta: Position; }>(ActionTypes.MOVE_COMPONENTS);
 export const configureComponent = createAsyncAction<{ id: string; componentId: string; configId: string; configValue: any }>(ActionTypes.CONFIGURE_COMPONENT);
 export const renameComponent = createAsyncAction<{ id: string; componentId: string; newId: string }>(ActionTypes.RENAME_COMPONENT);
-export const clearComponent = createAsyncAction<{ id: string; componentId: string; }>(ActionTypes.CLEAR_COMPONENT);
+export const clearComponents = createAsyncAction<{ id: string; componentsIds: string[]; }>(ActionTypes.CLEAR_COMPONENTS);
 export const setBinding = createAsyncAction<{ id: string; binding: CoreBindingData; }>(ActionTypes.SET_BINDING);
 export const clearBinding = createAsyncAction<{ id: string; bindingId: string; }>(ActionTypes.CLEAR_BINDING);
 export const updateToolbox = createAsyncAction<{ id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);

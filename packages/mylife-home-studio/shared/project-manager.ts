@@ -314,7 +314,7 @@ export interface RenameWindowUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
-  operation: 'update-toolbox' | 'set-component' | 'move-component' | 'configure-component' | 'rename-component' | 'clear-component' | 'set-binding' | 'clear-binding'
+  operation: 'update-toolbox' | 'set-component' | 'move-components' | 'configure-component' | 'rename-component' | 'clear-components' | 'set-binding' | 'clear-binding'
   | 'prepare-import-from-online' | 'prepare-import-from-project' | 'apply-bulk-updates'
   | 'validate'
   | 'prepare-deploy-to-files' | 'apply-deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
@@ -335,11 +335,10 @@ export interface SetComponentCoreProjectCall extends CoreProjectCall {
   y: number;
 }
 
-export interface MoveComponentCoreProjectCall extends CoreProjectCall {
-  operation: 'move-component';
-  componentId: string;
-  x: number;
-  y: number;
+export interface MoveComponentsCoreProjectCall extends CoreProjectCall {
+  operation: 'move-components';
+  componentsIds: string[];
+  delta: { x: number; y: number };
 }
 
 export interface ConfigureComponentCoreProjectCall extends CoreProjectCall {
@@ -355,9 +354,9 @@ export interface RenameComponentCoreProjectCall extends CoreProjectCall {
   newId: string;
 }
 
-export interface ClearComponentCoreProjectCall extends CoreProjectCall {
-  operation: 'clear-component';
-  componentId: string;
+export interface ClearComponentsCoreProjectCall extends CoreProjectCall {
+  operation: 'clear-components';
+  componentsIds: string[];
 }
 
 export interface SetBindingCoreProjectCall extends CoreProjectCall {

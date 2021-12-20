@@ -13,7 +13,7 @@ import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
 import { getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
-import { clearComponent } from '../../../store/core-designer/actions';
+import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -56,10 +56,7 @@ function useActionsConnect() {
   const dispatch = useDispatch();
 
   const clearAll = useCallback(() => {
-    // TODO: one call with multiple ids
-    for (const componentId of Object.keys(selectedComponents)) {
-      dispatch(clearComponent({ id: tabId, componentId }));
-    }
+    dispatch(clearComponents({ id: tabId, componentsIds: Object.keys(selectedComponents) }));
   }, [tabId, dispatch, selectedComponents]);
 
   return { clearAll };

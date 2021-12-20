@@ -527,8 +527,11 @@ export class ComponentModel {
     this._id = newId;
   }
 
-  move(x: number, y: number) {
-    this.data.position = { x, y };
+  move(delta: { x: number; y: number }) {
+    this.data.position = {
+      x: this.data.position.x + delta.x,
+      y: this.data.position.y + delta.y,
+    };
   }
 
   configure(configId: string, configValue: any) {

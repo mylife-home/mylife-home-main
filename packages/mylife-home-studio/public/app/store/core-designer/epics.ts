@@ -8,10 +8,10 @@ import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdLis
 import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
 import {
   UpdateToolboxCoreProjectCall,
-  MoveComponentCoreProjectCall,
+  MoveComponentsCoreProjectCall,
   ConfigureComponentCoreProjectCall,
   RenameComponentCoreProjectCall,
-  ClearComponentCoreProjectCall,
+  ClearComponentsCoreProjectCall,
   SetBindingCoreProjectCall,
   ClearBindingCoreProjectCall,
   CoreBindingData,
@@ -119,9 +119,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall;
       },
     },
-    [ActionTypes.MOVE_COMPONENT]: {
-      mapper({ componentId, position }: { componentId: string; position: Position }) {
-        return { operation: 'move-component', componentId, x: position.x, y: position.y } as MoveComponentCoreProjectCall;
+    [ActionTypes.MOVE_COMPONENTS]: {
+      mapper({ componentsIds, delta }: { componentsIds: string[]; delta: Position }) {
+        return { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall;
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
@@ -134,9 +134,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall;
       },
     },
-    [ActionTypes.CLEAR_COMPONENT]: {
-      mapper({ componentId }: { componentId: string }) {
-        return { operation: 'clear-component', componentId } as ClearComponentCoreProjectCall;
+    [ActionTypes.CLEAR_COMPONENTS]: {
+      mapper({ componentsIds }: { componentsIds: string[] }) {
+        return { operation: 'clear-components', componentsIds } as ClearComponentsCoreProjectCall;
       },
     },
     [ActionTypes.SET_BINDING]: {

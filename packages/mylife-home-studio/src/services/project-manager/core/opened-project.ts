@@ -3,7 +3,7 @@ import {
   ApplyDeployToOnlineCoreProjectCall,
   ApplyBulkUpdatesCoreProject,
   ClearBindingCoreProjectCall,
-  ClearComponentCoreProjectCall,
+  ClearComponentsCoreProjectCall,
   ClearCoreBindingNotification,
   ClearCoreComponentNotification,
   SetCorePluginNotification,
@@ -12,7 +12,7 @@ import {
   CoreProject,
   CoreProjectCall,
   CoreToolboxDisplay,
-  MoveComponentCoreProjectCall,
+  MoveComponentsCoreProjectCall,
   PrepareDeployToOnlineCoreProjectCallResult,
   ProjectCallResult,
   RenameComponentCoreProjectCall,
@@ -98,8 +98,8 @@ export class CoreOpenedProject extends OpenedProject {
         this.setComponent(callData as SetComponentCoreProjectCall);
         break;
 
-      case 'move-component':
-        this.moveComponent(callData as MoveComponentCoreProjectCall);
+      case 'move-components':
+        this.moveComponents(callData as MoveComponentsCoreProjectCall);
         break;
 
       case 'configure-component':
@@ -110,8 +110,8 @@ export class CoreOpenedProject extends OpenedProject {
         this.renameComponent(callData as RenameComponentCoreProjectCall);
         break;
 
-      case 'clear-component':
-        this.clearComponent(callData as ClearComponentCoreProjectCall);
+      case 'clear-components':
+        this.clearComponents(callData as ClearComponentsCoreProjectCall);
         break;
 
       case 'set-binding':
@@ -273,11 +273,13 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private moveComponent({ componentId, x, y }: MoveComponentCoreProjectCall) {
+  private moveComponents({ componentsIds, delta }: MoveComponentsCoreProjectCall) {
     this.executeUpdate(() => {
-      const component = this.model.getComponent(componentId);
-      component.move(x, y);
-      this.notifyAllSetComponent(component.id);
+      for (const componentId of componentsIds) {
+        const component = this.model.getComponent(componentId);
+        component.move(delta);
+        this.notifyAllSetComponent(component.id);
+      }
     });
   }
 
@@ -309,16 +311,18 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private clearComponent({ componentId }: ClearComponentCoreProjectCall) {
+  private clearComponents({ componentsIds }: ClearComponentsCoreProjectCall) {
     this.executeUpdate(() => {
-      const component = this.model.getComponent(componentId);
-      for (const binding of component.getAllBindings()) {
-        this.model.clearBinding(binding.id);
-        this.notifyAllClearBinding(binding.id);
+      for (const componentId of componentsIds) {
+        const component = this.model.getComponent(componentId);
+        for (const binding of component.getAllBindings()) {
+          this.model.clearBinding(binding.id);
+          this.notifyAllClearBinding(binding.id);
+        }
+  
+        this.model.clearComponent(componentId);
+        this.notifyAllClearComponent(componentId);
       }
-
-      this.model.clearComponent(componentId);
-      this.notifyAllClearComponent(componentId);
     });
   }
 

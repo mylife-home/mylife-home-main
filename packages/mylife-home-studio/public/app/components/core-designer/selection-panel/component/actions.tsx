@@ -17,7 +17,7 @@ import { useRenameDialog } from '../../../dialogs/rename';
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
 import { getComponentIds, getComponent, getPlugin } from '../../../../store/core-designer/selectors';
-import { clearComponent, renameComponent } from '../../../../store/core-designer/actions';
+import { clearComponents, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -70,7 +70,7 @@ function useActionsConnect() {
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
-      dispatch(clearComponent({ id: tabId, componentId }));
+      dispatch(clearComponents({ id: tabId, componentsIds: [componentId] }));
     },
     rename: (newId: string) => {
       dispatch(renameComponent({ id: tabId, componentId, newId }));
