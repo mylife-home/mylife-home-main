@@ -18,5 +18,10 @@ import './constant-byte';
 import './value-binary';
 import './value-nullable-percent';
 
+// bool
+import './bool-and';
+import './bool-or';
+import './bool-not';
+
 declare var __WEBPACK_PLUGIN_VERSION__: string;
 registerPluginVersion(__WEBPACK_PLUGIN_VERSION__);
