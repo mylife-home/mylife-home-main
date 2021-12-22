@@ -189,6 +189,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
+- cleanup:
+  - virer plugins-irc, driver-arduino-irc
 
 ## collector
 
