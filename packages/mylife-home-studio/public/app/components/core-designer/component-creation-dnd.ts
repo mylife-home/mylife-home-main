@@ -6,10 +6,9 @@ import { Konva } from './drawing/konva';
 import { useCursorPositionConverter } from './drawing/viewport-manips';
 import { useCanvasTheme } from './drawing/theme';
 import { Point } from './drawing/types';
-import { GRID_STEP_SIZE } from './drawing/defs';
 import { getPlugin } from '../../store/core-designer/selectors';
 import { Component, Position } from '../../store/core-designer/types';
-import { computeComponentRect, lockSelectionPosition } from './drawing/shapes';
+import { computeComponentRect, lockSelectionPosition, posToGrid } from './drawing/shapes';
 
 const ItemType = Symbol('dnd-canvas-create');
 
@@ -54,7 +53,7 @@ function useNewComponentPosition(pluginId: string) {
   const theme = useCanvasTheme();
   const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, pluginId));
 
-  return useCallback((point: Point) => {
+  return useCallback((userPos: Point) => {
     // Create fake component to get its rect
     const fakeComponent: Component = {
       id: null,
@@ -70,14 +69,10 @@ function useNewComponentPosition(pluginId: string) {
       fakeComponent.config[id] = null;
     }
 
+    const position = posToGrid(userPos);
     const rect = computeComponentRect(theme, fakeComponent, plugin);
-    const lockedPoint = lockSelectionPosition(rect, point);
-    
-    const position: Position = {
-      x: Math.round(lockedPoint.x / GRID_STEP_SIZE),
-      y: Math.round(lockedPoint.y / GRID_STEP_SIZE),
-    };
+    const lockedPos = lockSelectionPosition(rect, position);
 
-    return position;
+    return lockedPos;
   }, [theme, plugin]);
 }
