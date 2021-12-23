@@ -184,6 +184,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+  - bugs:
+    - quand creation nouveau composant en DnD a partir de la boite a outils, le composant n est pas créé a l endroit du drop
+    - new-1 plutot que new_1
 
 ## core
 
