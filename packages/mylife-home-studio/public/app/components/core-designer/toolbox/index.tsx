@@ -210,7 +210,7 @@ function useMakeNewId() {
 
   return useCallback(() => {
     for (let i = 1; ; ++i) {
-      const candidate = `new_${i}`;
+      const candidate = `new-${i}`;
       if (!set.has(candidate)) {
         return candidate;
       }
