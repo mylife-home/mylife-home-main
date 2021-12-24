@@ -121,11 +121,13 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - tab
   - click milieu = close
 - ui-designer
+  - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
   - templates
 - core-designer
+  - move selection data to redux store (and avoid resetIfNull components)
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
   - templates
