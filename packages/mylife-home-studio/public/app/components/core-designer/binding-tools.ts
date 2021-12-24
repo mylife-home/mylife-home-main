@@ -19,7 +19,7 @@ export function createBindingData(componentId: string, memberName: string, membe
       return bindingData;
     }
 
-    case types.MemberType.STATE: {
+    case types.MemberType.ACTION: {
       const bindingData: types.CoreBindingData = {
         sourceComponent: newValue.componentId,
         sourceState: newValue.memberName,
