@@ -28,13 +28,13 @@ const useStyles = makeStyles((theme) => ({
 
 const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedBinding, select } = useSelection();
+  const { selectedBinding, selectComponent } = useSelection();
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect(selectedBinding);
   const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
   const type = sourcePlugin.members[binding.sourceState].valueType;
-  const handleSelectSource = () => select({ type: 'component', id: binding.sourceComponent });
-  const handleSelectTarget = () => select({ type: 'component', id: binding.targetComponent });
+  const handleSelectSource = () => selectComponent(binding.sourceComponent);
+  const handleSelectTarget = () => selectComponent(binding.targetComponent);
 
   return (
     <div className={className}>

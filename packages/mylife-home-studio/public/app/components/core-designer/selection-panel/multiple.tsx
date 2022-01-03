@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedComponents, select } = useSelection();
+  const { selectedComponents, selectComponent } = useSelection();
   const ids = useMemo(() => Object.keys(selectedComponents).sort(), [selectedComponents]);
   const { clearAll } = useActionsConnect();
   const centerPosition = useCenterPosition();
@@ -40,7 +40,7 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 
         <Item title="Composants" multiline>
           {ids.map(id => (
-            <Link key={id} variant="body1" color="textPrimary" href="#" onClick={() => select({ type: 'component', id})}>{id}</Link>
+            <Link key={id} variant="body1" color="textPrimary" href="#" onClick={() => selectComponent(id)}>{id}</Link>
           ))}
         </Item>
       </Group>

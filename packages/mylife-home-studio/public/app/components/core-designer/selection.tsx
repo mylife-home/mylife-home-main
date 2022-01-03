@@ -20,11 +20,14 @@ export interface MultipleSelection extends Selection {
 
 interface SelectionContextProps {
   selection: Selection;
+  select: (callback: (prev: Selection) => Selection) => void;
+
   selectedComponent: string;
   selectedBinding: string;
   selectedComponents: MultiSelectionIds;
-  select: (selection: SimpleSelection) => void;
-  selectMulti: (ids: MultiSelectionIds) => void;
+  selectComponent: (id: string) => void;
+  selectComponents: (ids: string[]) => void;
+  selectBinding: (id: string) => void;
 }
 
 export const SelectionContext = createContext<SelectionContextProps>(null);
@@ -34,25 +37,35 @@ export function useSelection() {
 }
 
 export function useComponentSelection(componentId: string) {
-  const { selection, select, selectMulti } = useSelection();
+  const { selection, select } = useSelection();
 
   return { 
     selected: isComponentSelected(componentId, selection),
 
     select: useCallback(() => {
-      // If already selected do nothing
-      const selectedComponents = getSelectedComponentsIds(selection);
-      if (!selectedComponents[componentId]) {
-        select({ type: 'component', id: componentId });
-      }
-    }, [select, componentId, selection]),
+      select((selection) => {
+        // If already selected do nothing
+        const selectedComponents = getSelectedComponentsIds(selection);
+        if (selectedComponents[componentId]) {
+          return selection;
+        }
+
+        const newSelection: SimpleSelection = { type: 'component', id: componentId };
+        return newSelection;
+      });
+    }, [select, componentId]),
 
     multiSelectToggle: useCallback(() => {
-      const selectedComponents = getSelectedComponentsIds(selection);
-      const ids = { ... selectedComponents };
-      toggle(ids, componentId);
-      selectMulti(ids);
-    }, [selectMulti, componentId, selection])
+      select((selection) => {
+        const selectedComponents = getSelectedComponentsIds(selection);
+
+        const ids = { ... selectedComponents };
+        toggle(ids, componentId);
+
+        const newSelection: MultipleSelection = { type: 'multiple', ids };
+        return newSelection;
+      });
+    }, [select, componentId])
   };
 }
 
@@ -87,39 +100,50 @@ function toggle(ids: MultiSelectionIds, id: string) {
 }
 
 export function useBindingSelection(bindingId: string) {
-  const { selectedBinding, select: setSelection } = useSelection();
+  const { selectedBinding, selectBinding } = useSelection();
 
   return { 
     selected: selectedBinding === bindingId,
-    select: useCallback(() => setSelection({ type: 'binding', id: bindingId }), [setSelection, bindingId])
+    select: useCallback(() => selectBinding(bindingId), [selectBinding, bindingId])
   };
 }
 
 export const SelectionProvider: FunctionComponent = ({ children }) => {
   const [selection, select] = useState<Selection>(null);
+
+  const selectComponent = useCallback((id: string) => {
+    const newSelection: SimpleSelection = { type: 'component', id };
+    select(newSelection);
+  }, [select]);
+
+  const selectComponents = useCallback((ids: string[]) => {
+    const newIds: MultiSelectionIds = {};
+    const newSelection: MultipleSelection = { type: 'multiple', ids: newIds };
+
+    for (const id of ids) {
+      newIds[id] = true;
+    }
+
+    select(newSelection);
+  }, [select]);
+
+  const selectBinding = useCallback((id: string) => {
+    const newSelection: SimpleSelection = { type: 'binding', id };
+    select(newSelection);
+  }, [select]);
+
   const contextProps = useMemo(() => ({ 
     selection,
+    select,
+
     selectedComponent: selection?.type === 'component' ? (selection as SimpleSelection).id : null,
     selectedBinding: selection?.type === 'binding' ? (selection as SimpleSelection).id : null,
     selectedComponents: selection?.type === 'multiple' ? (selection as MultipleSelection).ids : null,
-    select,
-    selectMulti: (ids: MultiSelectionIds) => {
-      const array = Object.keys(ids);
 
-      if (array.length === 0) {
-        // unselected last component, no selection anymore
-        select(null);
-      } else if (array.length === 1) {
-        // switch back to single if only one selected
-        const sel: SimpleSelection = { type: 'component', id: array[0] };
-        select(sel);
-      } else {
-        const sel: MultipleSelection = { type: 'multiple', ids };
-        select(sel);
-      }
-
-    }
-  }), [selection, select]);
+    selectComponent,
+    selectComponents,
+    selectBinding
+  }), [selection, select, selectComponent, selectComponents, selectBinding]);
 
   return (
     <SelectionContext.Provider value={contextProps}>

@@ -120,10 +120,10 @@ const useBindingStyles = makeStyles((theme) => ({
 
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
   const classes = useBindingStyles();
-  const { select } = useSelection();
+  const { selectBinding } = useSelection();
   const BindingIcon = getBindingIcon(memberType);
   const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
-  const handleSelect = () => select({ type: 'binding', id: binding.id });
+  const handleSelect = () => selectBinding(binding.id);
 
   return (
     <Link variant="body1" color="textPrimary" href="#" className={classes.bindingLink} onClick={handleSelect}>

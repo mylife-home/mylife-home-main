@@ -27,12 +27,12 @@ const useStyles = makeStyles((theme) => ({
 
 const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { select } = useSelection();
+  const { selectComponent } = useSelection();
   const componentsIds = useTabSelector(getComponentIds);
 
   return (
     <div className={clsx(classes.container, className)}>
-      <QuickAccess className={classes.componentSelector} list={componentsIds} onSelect={id => select({ type: 'component', id })} />
+      <QuickAccess className={classes.componentSelector} list={componentsIds} onSelect={selectComponent} />
       <DisplayDispatcher className={classes.display} />
     </div>
   );
@@ -88,18 +88,19 @@ const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string
 };
 
 const MultiNullWrapper: FunctionComponent = ({ children }) => {
-  const { selectedComponents, selectMulti } = useSelection();
+  const { selectedComponents, selectComponents } = useSelection();
   const { components } = useTabSelector(getAllComponentsAndPlugins);
 
   useEffect(() => {
     // Unselect components that does not exist anymore.
     // If selection becomes empty, clear it. it only one component stay selected, move to single selection.
-    const ids = { ... selectedComponents };
+    const ids: string[] = [];
     let changed = false;
   
     for (const id of Object.keys(selectedComponents)) {
-      if (!components[id]) {
-        delete ids[id];
+      if (components[id]) {
+        ids.push(id);
+      } else {
         changed = true;
       }
     }
@@ -108,8 +109,8 @@ const MultiNullWrapper: FunctionComponent = ({ children }) => {
       return;
     }
 
-    selectMulti(ids);
-  }, [selectedComponents, components, selectMulti]);
+    selectComponents(ids);
+  }, [selectedComponents, components, selectComponents]);
 
   return (
     <>

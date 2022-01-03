@@ -188,7 +188,7 @@ function useCreate(pluginId: string) {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const makeNewId = useMakeNewId();
-  const { select } = useSelection();
+  const { selectComponent } = useSelection();
   const fireAsync = useFireAsync();
   const waitForComponentId = useWaitForComponentId();
 
@@ -198,7 +198,7 @@ function useCreate(pluginId: string) {
         const componentId = makeNewId();
         await dispatch(setComponent({ id: tabId, componentId, pluginId, position }));
         await waitForComponentId(componentId);
-        select({ type: 'component', id: componentId });
+        selectComponent(componentId);
       }),
     [fireAsync, dispatch, tabId, pluginId, makeNewId]
   );

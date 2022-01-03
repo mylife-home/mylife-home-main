@@ -100,7 +100,7 @@ function useNewBinding() {
 function useMultiSelecting() {
   const [start, setStart] = useState<Point>(null);
   const [move, setMove] = useState<Point>(null);
-  const { selectMulti } = useSelection();
+  const { selectComponents } = useSelection();
 
   const theme = useCanvasTheme();
   const componentsAndPlugins = useTabSelector(getAllComponentsAndPlugins);
@@ -134,11 +134,11 @@ function useMultiSelecting() {
         setMove(null);
 
         const ids = findComponentsInRect(theme, selectingRect, componentsAndPlugins);
-        selectMulti(ids);
+        selectComponents(ids);
         break;
       }
     }
-  }, [setStart, setMove, selectingRect, theme, componentsAndPlugins, selectMulti]);
+  }, [setStart, setMove, selectingRect, theme, componentsAndPlugins, selectComponents]);
 
   return { selectingRect, onMetaDrag };
 }
@@ -167,13 +167,13 @@ function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { 
 
 // TODO: need model cleanup
 function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }) {
-  const ids: MultiSelectionIds = {};
+  const ids: string[] = [];
 
   for (const component of Object.values(components)) {
     const plugin = plugins[component.plugin];
     const componentRect = computeComponentRect(theme, component, plugin);
     if (isRectInRect(componentRect, selectingRect)) {
-      ids[component.id] = true;
+      ids.push(component.id);
     }
   }
 
