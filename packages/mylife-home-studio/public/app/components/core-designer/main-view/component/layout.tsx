@@ -22,7 +22,7 @@ export const Title: FunctionComponent<{ text: string; }> = ({ text }) => {
   );
 };
 
-interface PropertyProps {
+export interface PropertyProps {
   yIndex: number;
   onDrag?: (type: DragEventType, mousePosition: Position) => void; // if defined, then the propery becomes draggable
   icon: Image;

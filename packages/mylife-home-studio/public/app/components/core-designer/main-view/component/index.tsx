@@ -8,7 +8,7 @@ import { useCanvasTheme } from '../../drawing/theme';
 // import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
-import { Title, Property, BorderGroup } from './layout';
+import { Title, Property, BorderGroup, PropertyProps } from './layout';
 import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
 import * as types from '../../../../store/core-designer/types';
@@ -36,8 +36,6 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
 
   const yIndex = createIndexManager();
-
-  const createDraggablePropertyHandler = (bindingSource: BindingSource) => (type: DragEventType, mousePosition: types.Position) => onDrag(type, mousePosition, bindingSource);
 
   const mouseDownHandler = (e: Konva.KonvaEventObject<MouseEvent>)=> {
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
@@ -75,9 +73,10 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <BorderGroup yIndex={yIndex.peek()}>
           {stateItems.map((item, index) => (
-            <Property
+            <BindableProperty
               key={index}
-              onDrag={createDraggablePropertyHandler(item.bindingSource)}
+              onDrag={onDrag}
+              bindingSource={item.bindingSource}
               highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='state'
@@ -91,9 +90,10 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
         <BorderGroup yIndex={yIndex.peek()}>
           {actionItems.map((item, index) => (
-            <Property
+            <BindableProperty
               key={index}
-              onDrag={createDraggablePropertyHandler(item.bindingSource)}
+              onDrag={onDrag}
+              bindingSource={item.bindingSource}
               highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='action'
@@ -108,6 +108,17 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
       </Group>
     </Group>
   );
+};
+
+interface BindablePropertyProps extends Omit<PropertyProps, 'onDrag'> {
+  bindingSource: BindingSource;
+  onDrag: (type: DragEventType, mousePosition: types.Position, source?: BindingSource) => void;
+}
+
+const BindableProperty: FunctionComponent<BindablePropertyProps> = ({ bindingSource, onDrag, ...propertyProps }) => {
+  const propertyOnDrag = useCallback((type: DragEventType, mousePosition: types.Position) => onDrag(type, mousePosition, bindingSource), [bindingSource, onDrag]);
+
+  return <Property {...propertyProps} onDrag={propertyOnDrag} />;
 };
 
 export default Component;

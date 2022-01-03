@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useCallback } from 'react';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useBindingSelection } from '../selection';
@@ -62,7 +62,7 @@ function useAnchors(binding: types.Binding, sourceComponent: types.Component, so
 
 function useConnect(bindingId: string) {
   const tabId = useTabPanelId();
-  const binding = useSafeSelector((state: AppState) => getBinding(state, tabId, bindingId));
+  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [bindingId]));
   const { component: sourceComponent, plugin: sourcePlugin } = useMovableComponent(binding.sourceComponent);
   const { component: targetComponent, plugin: targetPlugin } = useMovableComponent(binding.targetComponent);
   return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin };

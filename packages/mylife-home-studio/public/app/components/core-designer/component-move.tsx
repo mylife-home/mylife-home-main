@@ -44,9 +44,9 @@ export function useMovableComponent(componentId: string) {
   const theme = useCanvasTheme();
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  const storeComponent = useSafeSelector((state: AppState) => getComponent(state, tabId, componentId));
-  const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, storeComponent.plugin));
-  const componentsAndPlugins = useSelector((state: AppState) => getAllComponentsAndPlugins(state, tabId));
+  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
+  const componentsAndPlugins = useSelector(useCallback((state: AppState) => getAllComponentsAndPlugins(state, tabId), [tabId]));
   
   const context = useContext(ComponentMoveContext);
 
