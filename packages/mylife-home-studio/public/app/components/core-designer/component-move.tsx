@@ -69,7 +69,6 @@ export function useMovableComponent(componentId: string) {
       let currentComponentRect: Rectangle;
 
       const rects = Object.keys(context.componentsIds).map(id => {
-        // FIXME: this is messy as componentsAndPlugins is not in the useCallback deps
         const component = componentsAndPlugins.components[id];
         const plugin = componentsAndPlugins.plugins[component.plugin];
         const rect = computeComponentRect(theme, component, plugin);
@@ -92,7 +91,7 @@ export function useMovableComponent(componentId: string) {
       const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
-    [dispatch, tabId, componentId, context, storeComponent?.position, plugin]
+    [dispatch, tabId, componentId, context, storeComponent?.position, plugin, componentsAndPlugins]
   );
 
   const moveEnd = useCallback(
@@ -110,7 +109,7 @@ export function useMovableComponent(componentId: string) {
       dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
       context.move(null);
     },
-    [dispatch, tabId, componentId, context, componentsAndPlugins]
+    [dispatch, tabId, componentId, context]
   );
 
   return {
