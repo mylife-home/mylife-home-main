@@ -22,6 +22,8 @@ const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
   const theme = useCanvasTheme();
   const { selected, select } = useBindingSelection(bindingId);
+  const points = useMemo(() => [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y], [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]);
+
 
   const color = selected ? theme.borderColorSelected : theme.color;
 
@@ -29,7 +31,7 @@ const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
     <Arrow
       fill={color}
       stroke={color}
-      points={[sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]}
+      points={points}
       onMouseDown={select}
       pointerLength={theme.binding.pointerLength}
       pointerWidth={theme.binding.pointerWidth}

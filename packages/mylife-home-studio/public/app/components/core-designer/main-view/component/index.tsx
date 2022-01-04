@@ -37,13 +37,15 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 
   const yIndex = createIndexManager();
 
-  const mouseDownHandler = (e: Konva.KonvaEventObject<MouseEvent>)=> {
+  const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>)=> {
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
     if (metaPressed) {
       multiSelectToggle();
     } else {
       select();
     }
+  }, [multiSelectToggle, select]);
+
   }
 
   return (
