@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useViewInfo, ViewInfo } from './view-info';
-import { Point } from './types';
+import { Point, Rectangle } from './types';
 import { Konva } from './konva';
 
 const SCALE_BY = 1.1;
@@ -98,4 +98,70 @@ export function useCursorPositionConverter(stage: Konva.Stage) {
 
     return result;
   }, [viewport.x, viewport.y, viewport.scale, rect.x, rect.y]);
+}
+
+export function useViewPortVisibility() {
+  const { viewInfo } = useViewInfo();
+  const { viewport } = viewInfo;
+
+  const isPointVisible = useCallback((point: Point) => {
+    return point.x >= viewport.x && point.x <= viewport.x + viewport.width
+      && point.y >= viewport.y && point.y <= viewport.y + viewport.height;
+  }, [viewport.x, viewport.y, viewport.width, viewport.height]);
+
+  const isRectVisible = useCallback((rect: Rectangle) => {
+    return rect.x + rect.width >= viewport.x && rect.x <= viewport.x + viewport.width
+      && rect.y + rect.height >= viewport.y && rect.y <= viewport.y + viewport.height;
+  }, [viewport.x, viewport.y, viewport.width, viewport.height]);
+
+  const isLineVisible = useCallback((p1: Point, p2: Point) => {
+    if (isPointVisible(p1) || isPointVisible(p2)) {
+      return true;
+    }
+
+    const line: Line = { p1, p2 };
+
+    const topLeft: Point = { x: viewport.x, y: viewport.y };
+    const topRight: Point = { x: viewport.x + viewport.width, y: viewport.y };
+    const bottomLeft: Point = { x: viewport.x, y: viewport.y + viewport.height };
+    const bottomRight: Point = { x: viewport.x + viewport.width, y: viewport.y + viewport.height };
+
+    return (intersect(line, { p1: topLeft, p2: topRight })
+      || intersect(line, { p1: topRight, p2: bottomRight })
+      || intersect(line, { p1: bottomRight, p2: bottomLeft })
+      || intersect(line, { p1: bottomLeft, p2: topLeft }));
+
+  }, [viewport.x, viewport.y, viewport.width, viewport.height]);
+
+  return { isPointVisible, isRectVisible, isLineVisible };
+}
+
+interface Line {
+  p1: Point;
+  p2: Point;
+}
+
+type Direction = 'colinear' | 'anti-clockwise' | 'clockwise';
+
+// https://www.tutorialspoint.com/Check-if-two-line-segments-intersect
+
+function direction(a: Point, b: Point, c: Point): Direction {
+  const val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+  if (val == 0) {
+    return 'colinear';
+  } else if (val < 0) {
+    return 'anti-clockwise';
+  } else {
+    return 'clockwise';
+  }
+}
+
+function intersect(l1: Line, l2: Line) {
+  //four direction for two lines and points of other line
+  const dir1 = direction(l1.p1, l1.p2, l2.p1);
+  const dir2 = direction(l1.p1, l1.p2, l2.p2);
+  const dir3 = direction(l2.p1, l2.p2, l1.p1);
+  const dir4 = direction(l2.p1, l2.p2, l1.p2);
+
+  return dir1 != dir2 && dir3 != dir4;
 }

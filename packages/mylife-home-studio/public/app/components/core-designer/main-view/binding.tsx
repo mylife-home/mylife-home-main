@@ -7,6 +7,7 @@ import { GRID_STEP_SIZE } from '../drawing/defs';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
 import { useSafeSelector } from '../drawing/use-safe-selector';
+import { useViewPortVisibility } from '../drawing/viewport-manips';
 import { useMovableComponent } from '../component-move';
 
 import { AppState } from '../../../store/types';
@@ -22,8 +23,12 @@ const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
   const theme = useCanvasTheme();
   const { selected, select } = useBindingSelection(bindingId);
+  const { isLineVisible } = useViewPortVisibility();
   const points = useMemo(() => [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y], [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]);
 
+  if (!isLineVisible(sourceAnchor, targetAnchor)) {
+    return null;
+  }
 
   const color = selected ? theme.borderColorSelected : theme.color;
 

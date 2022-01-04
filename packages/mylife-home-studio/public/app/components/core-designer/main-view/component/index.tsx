@@ -5,6 +5,7 @@ import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
+import { useViewPortVisibility } from '../../drawing/viewport-manips';
 // import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useMovableComponent } from '../../component-move';
@@ -25,6 +26,7 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const { select, multiSelectToggle } = useComponentSelection(componentId);
   const onDrag = useBindingDraggable();
   const bindingDndInfo = useBindingDndInfo();
+  const { isRectVisible } = useViewPortVisibility();
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     const userPos: Point = { x: e.target.x(), y : e.target.y() };
@@ -46,6 +48,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
     }
   }, [multiSelectToggle, select]);
 
+  if (!isRectVisible(rect)) {
+    return null;
   }
 
   return (
