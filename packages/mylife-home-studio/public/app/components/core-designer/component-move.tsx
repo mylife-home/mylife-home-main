@@ -66,14 +66,16 @@ export function useMovableComponent(componentId: string) {
   
   const context = useContext(ComponentMoveContext);
 
-  const component = useMemo(() => {
+  const position = useMemo(() => {
     const { componentsIds, delta } = context;
     if (!storeComponent || !componentsIds[storeComponent.id] || !delta) {
-      return storeComponent;
+      return storeComponent.position;
     }
 
-    return { ...storeComponent, position: addPositions(storeComponent.position, delta) };
-  }, [storeComponent, context]);
+    return addPositions(storeComponent.position, delta);
+  }, [storeComponent, context.delta, context.componentsIds]);
+
+  const component = useMemo(() => (position ? { ...storeComponent, position } : storeComponent), [storeComponent, position]);
 
   const move = useCallback(
     (userPos: types.Position) => {
@@ -129,7 +131,8 @@ export function useMovableComponent(componentId: string) {
   );
 
   return {
-    component, 
+    position,
+    component,
     plugin, 
     move,
     moveEnd,

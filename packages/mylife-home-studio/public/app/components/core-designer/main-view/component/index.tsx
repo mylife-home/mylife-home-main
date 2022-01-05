@@ -23,29 +23,32 @@ export interface ComponentProps {
   componentId: string;
 }
 
+// FIXME: shouldbe "movable" component only if it's selected
+// => create a "SelectableComponent and a SelectedComponent"
+// same for bindings
+
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
-  const { component, plugin, move, moveEnd } = useMovableComponent(componentId);
-  const { select, multiSelectToggle } = useComponentSelection(componentId);
+  const { selected } = useComponentSelection(componentId);
+
+  return selected ? (
+    <SelectedComponent componentId={componentId} />
+  ) : (
+    <ComponentLayout componentId={componentId} />
+  );
+};
+
+const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) => {
+  const { position, move, moveEnd } = useMovableComponent(componentId);
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     const userPos: Point = { x: e.target.x(), y : e.target.y() };
     move(posToGrid(userPos));
   }, [move]);
 
-  const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>)=> {
-    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
-    if (metaPressed) {
-      multiSelectToggle();
-    } else {
-      select();
-    }
-  }, [multiSelectToggle, select]);
-
   return (
     <ComponentLayout
       componentId={componentId}
-      position={component.position}
-      onMouseDown={mouseDownHandler}
+      position={position}
       onDragMove={dragMoveHandler}
       onDragEnd={moveEnd}
     />
@@ -55,12 +58,11 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 interface ComponentLayoutProps {
   componentId: string;
   position?: types.Position;
-  onMouseDown?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
 }
 
-const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position, onMouseDown, onDragMove, onDragEnd }) => {
+const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position, onDragMove, onDragEnd }) => {
   const theme = useCanvasTheme();
   const { isRectVisible } = useViewPortVisibility();
   const tabId = useTabPanelId();
@@ -68,10 +70,20 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
   const onDrag = useBindingDraggable();
   const bindingDndInfo = useBindingDndInfo();
+  const { select, multiSelectToggle } = useComponentSelection(componentId);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
   const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
+
+  const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>)=> {
+    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    if (metaPressed) {
+      multiSelectToggle();
+    } else {
+      select();
+    }
+  }, [multiSelectToggle, select]);
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, plugin);
@@ -85,8 +97,8 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   return (
     <Group
       {...rect}
-      onMouseDown={onMouseDown}
-      draggable
+      onMouseDown={mouseDownHandler}
+      draggable={!!onDragMove && !!onDragEnd}
       onDragMove={onDragMove}
       onDragEnd={onDragEnd}
     >
