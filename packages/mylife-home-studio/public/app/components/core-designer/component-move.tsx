@@ -1,4 +1,4 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
+import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useSafeSelector } from './drawing/use-safe-selector';
@@ -9,7 +9,7 @@ import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './sel
 import { useTabPanelId } from '../lib/tab-panel';
 
 import { AppState } from '../../store/types';
-import { getComponent, getPlugin, getAllComponentsAndPlugins } from '../../store/core-designer/selectors';
+import { getComponent, getPlugin, getAllComponents, getAllPlugins } from '../../store/core-designer/selectors';
 import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
@@ -24,7 +24,22 @@ export const ComponentMoveContext = createContext<ComponentMoveContextProps>(nul
 export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
   const { selection } = useSelection();
   const [componentsIds, setComponentsIds] = useState<MultiSelectionIds>(null);
-  const [delta, move] = useState<types.Position>(null);
+  const [delta, setDelta] = useState<types.Position>(null);
+
+  const move = useCallback((point: types.Position) => {
+    setDelta(prev => {
+      if (!prev || !point) {
+        return point;
+      }
+
+      if (prev.x === point.x && prev.y === point.y) {
+        // Do not change the point if it's equal to the previous (it avoids memo to be re-computed).
+        return prev;
+      } else {
+        return point;
+      }
+    });
+  }, [setDelta]);
 
   useEffect(() => {
     setComponentsIds(getSelectedComponentsIds(selection));
@@ -46,7 +61,8 @@ export function useMovableComponent(componentId: string) {
   const dispatch = useDispatch();
   const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
-  const componentsAndPlugins = useSelector(useCallback((state: AppState) => getAllComponentsAndPlugins(state, tabId), [tabId]));
+  const allComponents = useSelector(useCallback((state: AppState) => getAllComponents(state, tabId), [tabId]));
+  const allPlugins = useSelector(useCallback((state: AppState) => getAllPlugins(state, tabId), [tabId]));
   
   const context = useContext(ComponentMoveContext);
 
@@ -69,8 +85,8 @@ export function useMovableComponent(componentId: string) {
       let currentComponentRect: Rectangle;
 
       const rects = Object.keys(context.componentsIds).map(id => {
-        const component = componentsAndPlugins.components[id];
-        const plugin = componentsAndPlugins.plugins[component.plugin];
+        const component = allComponents[id];
+        const plugin = allPlugins[component.plugin];
         const rect = computeComponentRect(theme, component, plugin);
 
         if (id === componentId) {
@@ -91,7 +107,7 @@ export function useMovableComponent(componentId: string) {
       const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
-    [dispatch, tabId, componentId, context, storeComponent?.position, plugin, componentsAndPlugins]
+    [dispatch, tabId, componentId, context, storeComponent?.position, plugin, allComponents, allPlugins]
   );
 
   const moveEnd = useCallback(

@@ -44,6 +44,10 @@ export const getAllComponentsAndPlugins = (state: AppState, tabId: string) => ({
   plugins: getOpenedProject(state, tabId).plugins.byId,
 });
 
+// TODO: same pate
+export const getAllComponents = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components.byId;
+export const getAllPlugins = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.byId;
+
 export const getInstanceStats = (state: AppState, tabId: string, instanceId: string) => {
   const project = getOpenedProject(state, tabId);
   const instance = getInstance(state, tabId, instanceId);
