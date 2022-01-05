@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
 
 import { parseType } from '../../../lib/member-types';
+import { useTabPanelId } from '../../../lib/tab-panel';
 import { useComponentSelection } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { Point } from '../../drawing/types';
@@ -8,36 +9,28 @@ import { useCanvasTheme } from '../../drawing/theme';
 import { useViewPortVisibility } from '../../drawing/viewport-manips';
 // import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
+import { useSafeSelector } from '../../drawing/use-safe-selector';
 import { useMovableComponent } from '../../component-move';
+import { isBindingTarget } from '../../binding-tools';
 import { Title, Property, BorderGroup, PropertyProps } from './layout';
 import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
+import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { isBindingTarget } from '../../binding-tools';
+import { getComponent, getPlugin } from '../../../../store/core-designer/selectors';
 
 export interface ComponentProps {
   componentId: string;
 }
 
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
-  const theme = useCanvasTheme();
   const { component, plugin, move, moveEnd } = useMovableComponent(componentId);
-  const rect = computeComponentRect(theme, component, plugin);
   const { select, multiSelectToggle } = useComponentSelection(componentId);
-  const onDrag = useBindingDraggable();
-  const bindingDndInfo = useBindingDndInfo();
-  const { isRectVisible } = useViewPortVisibility();
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     const userPos: Point = { x: e.target.x(), y : e.target.y() };
     move(posToGrid(userPos));
   }, [move]);
-
-  const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
-  const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
-  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
-
-  const yIndex = createIndexManager();
 
   const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>)=> {
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
@@ -48,17 +41,54 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
     }
   }, [multiSelectToggle, select]);
 
+  return (
+    <ComponentLayout
+      componentId={componentId}
+      position={component.position}
+      onMouseDown={mouseDownHandler}
+      onDragMove={dragMoveHandler}
+      onDragEnd={moveEnd}
+    />
+  );
+};
+
+interface ComponentLayoutProps {
+  componentId: string;
+  position?: types.Position;
+  onMouseDown?: (e: Konva.KonvaEventObject<MouseEvent>) => void;
+  onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+}
+
+const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position, onMouseDown, onDragMove, onDragEnd }) => {
+  const theme = useCanvasTheme();
+  const { isRectVisible } = useViewPortVisibility();
+  const tabId = useTabPanelId();
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+  const onDrag = useBindingDraggable();
+  const bindingDndInfo = useBindingDndInfo();
+
+  const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
+  const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
+  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
+
+  const movedComponent = { ...component, position: position || component.position };
+  const rect = computeComponentRect(theme, movedComponent, plugin);
+
   if (!isRectVisible(rect)) {
     return null;
   }
 
+  const yIndex = createIndexManager();
+
   return (
     <Group
       {...rect}
-      onMouseDown={mouseDownHandler}
+      onMouseDown={onMouseDown}
       draggable
-      onDragMove={dragMoveHandler}
-      onDragEnd={moveEnd}
+      onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
     >
       {/* CachedGroup breaks property highlights */}
       <Group x={0} y={0} width={rect.width} height={rect.height}>
