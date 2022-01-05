@@ -10,6 +10,7 @@ import { useViewPortVisibility } from '../../drawing/viewport-manips';
 // import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useSafeSelector } from '../../drawing/use-safe-selector';
+import Border from '../../drawing/border';
 import { useMovableComponent } from '../../component-move';
 import { isBindingTarget } from '../../binding-tools';
 import { Title, Property, BorderGroup, PropertyProps } from './layout';
@@ -46,11 +47,37 @@ const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) =
   }, [move]);
 
   return (
-    <ComponentLayout
-      componentId={componentId}
-      position={position}
-      onDragMove={dragMoveHandler}
-      onDragEnd={moveEnd}
+    <>
+      <ComponentSelectionMark
+        componentId={componentId}
+        position={position}
+      />
+
+      <ComponentLayout
+        componentId={componentId}
+        position={position}
+        onDragMove={dragMoveHandler}
+        onDragEnd={moveEnd}
+      />
+    </>
+  );
+};
+
+const ComponentSelectionMark: FunctionComponent<{componentId: string; position?: types.Position;}> = ({ componentId, position }) => {
+  const theme = useCanvasTheme();
+  const tabId = useTabPanelId();
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+
+  const movedComponent = { ...component, position: position || component.position };
+  const rect = computeComponentRect(theme, movedComponent, plugin);
+
+  return (
+    <Border
+      {...rect}
+      type='outer'
+      color={theme.borderColorSelected}
+      thickness={theme.selectionWidth}
     />
   );
 };

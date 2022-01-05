@@ -3,13 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
-import { useSelection, MultiSelectionIds } from '../selection';
+import { useSelection } from '../selection';
 import { Konva, Layer } from '../drawing/konva';
 import { BindingDndProvider, BindingSource } from './binding-dnd';
 import Canvas, { MetaDragEvent } from './canvas';
 import Component from './component';
 import Binding from './binding';
-import ComponentSelectionMark from './component-selection-mark';
 import BindingDndMark from './binding-dnd-mark';
 import SelectingMark from './selecting-mark';
 import { Rectangle, Point } from '../drawing/types';
@@ -24,7 +23,6 @@ import { setBinding } from '../../../store/core-designer/actions';
 
 const MainView: FunctionComponent = () => {
   const { componentIds, bindingIds } = useConnect();
-  const { selectedComponent, selectedComponents } = useSelection();
   const stageRef = useRef<Konva.Stage>(null);
   const onDrop = useNewBinding();
 
@@ -44,14 +42,6 @@ const MainView: FunctionComponent = () => {
         <Layer name='components'>
           {componentIds.map(id => (
             <Component key={id} componentId={id} />  
-          ))}
-
-          {selectedComponent && (
-            <ComponentSelectionMark componentId={selectedComponent} />
-          )}
-
-          {selectedComponents && Object.keys(selectedComponents).map(componentId => (
-            <ComponentSelectionMark key={componentId} componentId={componentId} />
           ))}
 
           {selectingRect && (
