@@ -24,10 +24,6 @@ export interface ComponentProps {
   componentId: string;
 }
 
-// FIXME: shouldbe "movable" component only if it's selected
-// => create a "SelectableComponent and a SelectedComponent"
-// same for bindings
-
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const { selected } = useComponentSelection(componentId);
 
