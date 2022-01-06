@@ -183,7 +183,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## studio
 
 - core designer:
-  - perf: https://konvajs.org/docs/performance/All_Performance_Tips.html
+  - moving component is not following the grid?
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 
