@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSafeSelector } from './drawing/use-safe-selector';
 import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
-import { Point, Rectangle } from './drawing/types';
+import { Rectangle } from './drawing/types';
 import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 
