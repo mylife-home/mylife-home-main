@@ -55,15 +55,11 @@ export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
   );
 };
 
-export function useMovableComponent(componentId: string) {
-  const theme = useCanvasTheme();
+export function useComponentData(componentId: string) {
   const tabId = useTabPanelId();
-  const dispatch = useDispatch();
   const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
-  const allComponents = useSelector(useCallback((state: AppState) => getAllComponents(state, tabId), [tabId]));
-  const allPlugins = useSelector(useCallback((state: AppState) => getAllPlugins(state, tabId), [tabId]));
-  
+
   const context = useContext(ComponentMoveContext);
 
   const position = useMemo(() => {
@@ -76,6 +72,24 @@ export function useMovableComponent(componentId: string) {
   }, [storeComponent, context.delta, context.componentsIds]);
 
   const component = useMemo(() => (position ? { ...storeComponent, position } : storeComponent), [storeComponent, position]);
+
+  return {
+    position,
+    component,
+    plugin, 
+  };
+}
+
+export function useMovableComponent(componentId: string) {
+  const theme = useCanvasTheme();
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
+  const allComponents = useSelector(useCallback((state: AppState) => getAllComponents(state, tabId), [tabId]));
+  const allPlugins = useSelector(useCallback((state: AppState) => getAllPlugins(state, tabId), [tabId]));
+  
+  const context = useContext(ComponentMoveContext);
 
   const move = useCallback(
     (userPos: types.Position) => {
@@ -131,9 +145,6 @@ export function useMovableComponent(componentId: string) {
   );
 
   return {
-    position,
-    component,
-    plugin, 
     move,
     moveEnd,
   };

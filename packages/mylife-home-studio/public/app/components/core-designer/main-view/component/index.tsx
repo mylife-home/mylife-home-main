@@ -11,7 +11,7 @@ import { useViewPortVisibility } from '../../drawing/viewport-manips';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useSafeSelector } from '../../drawing/use-safe-selector';
 import Border from '../../drawing/border';
-import { useMovableComponent } from '../../component-move';
+import { useMovableComponent, useComponentData } from '../../component-move';
 import { isBindingTarget } from '../../binding-tools';
 import { Title, Property, BorderGroup, PropertyProps } from './layout';
 import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
@@ -35,7 +35,8 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
 };
 
 const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) => {
-  const { position, move, moveEnd } = useMovableComponent(componentId);
+  const { position } = useComponentData(componentId);
+  const { move, moveEnd } = useMovableComponent(componentId);
 
   const dragMoveHandler = useCallback((e: Konva.KonvaEventObject<DragEvent>) => {
     const userPos: Point = { x: e.target.x(), y : e.target.y() };
