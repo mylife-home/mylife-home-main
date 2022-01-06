@@ -138,7 +138,11 @@ export function useMovableComponent(componentId: string) {
         return;
       }
 
-      dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
+      if (context.delta.x || context.delta.y) {
+        // No need to dispatch if not moved at the end.
+        dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
+      }
+
       context.move(null);
     },
     [dispatch, tabId, componentId, context]
