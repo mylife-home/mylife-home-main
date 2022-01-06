@@ -7,7 +7,6 @@ import { Konva, Rect, Group } from '../../drawing/konva';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
 import { useViewPortVisibility } from '../../drawing/viewport-manips';
-// import CachedGroup from '../../drawing/cached-group';
 import { computeComponentRect, posToGrid } from '../../drawing/shapes';
 import { useSafeSelector } from '../../drawing/use-safe-selector';
 import Border from '../../drawing/border';
@@ -24,13 +23,26 @@ export interface ComponentProps {
   componentId: string;
 }
 
+// Note: we split component layout and hit because the hit support the DnD which is not snapped to grid
+
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const { selected } = useComponentSelection(componentId);
 
   return selected ? (
     <SelectedComponent componentId={componentId} />
   ) : (
-    <ComponentLayout componentId={componentId} />
+    <SelectableComponent componentId={componentId} />
+  );
+};
+
+export default Component;
+
+const SelectableComponent: FunctionComponent<ComponentProps> = ({ componentId }) => {
+  return (
+    <>
+      <ComponentLayout componentId={componentId} />
+      <ComponentHit componentId={componentId} />
+    </>
   );
 };
 
@@ -51,6 +63,11 @@ const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) =
       />
 
       <ComponentLayout
+        componentId={componentId}
+        position={position}
+      />
+
+      <ComponentHit
         componentId={componentId}
         position={position}
         onDragMove={dragMoveHandler}
@@ -82,32 +99,19 @@ const ComponentSelectionMark: FunctionComponent<{componentId: string; position?:
 interface ComponentLayoutProps {
   componentId: string;
   position?: types.Position;
-  onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
-  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
 }
 
-const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position, onDragMove, onDragEnd }) => {
+const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position }) => {
   const theme = useCanvasTheme();
   const { isRectVisible } = useViewPortVisibility();
   const tabId = useTabPanelId();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
-  const onDrag = useBindingDraggable();
   const bindingDndInfo = useBindingDndInfo();
-  const { select, multiSelectToggle } = useComponentSelection(componentId);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
   const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
-
-  const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>)=> {
-    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
-    if (metaPressed) {
-      multiSelectToggle();
-    } else {
-      select();
-    }
-  }, [multiSelectToggle, select]);
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, plugin);
@@ -119,15 +123,8 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   const yIndex = createIndexManager();
 
   return (
-    <Group
-      {...rect}
-      onMouseDown={mouseDownHandler}
-      draggable={!!onDragMove && !!onDragEnd}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
-    >
-      {/* CachedGroup breaks property highlights */}
-      <Group x={0} y={0} width={rect.width} height={rect.height}>
+    <>
+      <Group {...rect} listening={false}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
 
         <Title text={component.id} />
@@ -145,10 +142,8 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
 
         <BorderGroup yIndex={yIndex.peek()}>
           {stateItems.map((item, index) => (
-            <BindableProperty
+            <Property
               key={index}
-              onDrag={onDrag}
-              bindingSource={item.bindingSource}
               highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='state'
@@ -162,10 +157,8 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
 
         <BorderGroup yIndex={yIndex.peek()}>
           {actionItems.map((item, index) => (
-            <BindableProperty
+            <Property
               key={index}
-              onDrag={onDrag}
-              bindingSource={item.bindingSource}
               highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
               icon='action'
@@ -178,29 +171,121 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
         </BorderGroup>
 
       </Group>
+    </>
+
+  );
+};
+
+interface ComponentHitProps extends ComponentLayoutProps {
+  onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+}
+
+const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, position, onDragMove, onDragEnd }) => {
+  const theme = useCanvasTheme();
+  const { isRectVisible } = useViewPortVisibility();
+  const tabId = useTabPanelId();
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+  const onDrag = useBindingDraggable();
+  const { select, multiSelectToggle } = useComponentSelection(componentId);
+
+  const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
+  const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
+  const configItemsCount = useMemo(() => component.external ? 0 : plugin.configIds.length, [component.external, plugin]);
+
+  const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
+    if (metaPressed) {
+      multiSelectToggle();
+    } else {
+      select();
+    }
+  }, [multiSelectToggle, select]);
+
+  const movedComponent = { ...component, position: position || component.position };
+  const rect = computeComponentRect(theme, movedComponent, plugin);
+
+  if (!isRectVisible(rect)) {
+    return null;
+  }
+
+  const yIndex = createIndexManager();
+  yIndex.add(configItemsCount + 2); // 2 => instance + plugin
+
+  return (
+    <Group
+      {...rect}
+      onMouseDown={mouseDownHandler}
+      draggable={!!onDragMove && !!onDragEnd}
+      onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
+    >
+      <Rect x={0} y={0} width={rect.width} height={rect.height} />
+
+      {stateItems.map((item, index) => (
+        <PropertyHit
+          key={index}
+          onDrag={onDrag}
+          bindingSource={item.bindingSource}
+          yIndex={yIndex.next()}
+        />
+      ))}
+
+      {actionItems.map((item, index) => (
+        <PropertyHit
+          key={index}
+          onDrag={onDrag}
+          bindingSource={item.bindingSource}
+          yIndex={yIndex.next()}
+        />
+      ))}
+
     </Group>
   );
 };
 
-interface BindablePropertyProps extends Omit<PropertyProps, 'onDrag'> {
+interface PropertyHitProps {
+  yIndex: number;
   bindingSource: BindingSource;
   onDrag: (type: DragEventType, mousePosition: types.Position, source?: BindingSource) => void;
 }
 
-const BindableProperty: FunctionComponent<BindablePropertyProps> = ({ bindingSource, onDrag, ...propertyProps }) => {
+const PropertyHit: FunctionComponent<PropertyHitProps> = ({ yIndex, bindingSource, onDrag }) => {
+  const theme = useCanvasTheme();
   const propertyOnDrag = useCallback((type: DragEventType, mousePosition: types.Position) => onDrag(type, mousePosition, bindingSource), [bindingSource, onDrag]);
 
-  return <Property {...propertyProps} onDrag={propertyOnDrag} />;
-};
+  const yBase = theme.component.boxHeight * yIndex;
 
-export default Component;
+  const createDragEventHandler = (type: DragEventType) => {
+    return (e: Konva.KonvaEventObject<DragEvent>) => {
+      e.cancelBubble = true;
+      propertyOnDrag(type, { x: e.evt.x, y: e.evt.y });
+    };
+  };
+
+  return (
+    <Rect
+      x={0}
+      y={yBase}
+      width={theme.component.width}
+      height={theme.component.boxHeight}
+      draggable
+      onDragStart={createDragEventHandler('start')}
+      onDragMove={createDragEventHandler('move')}
+      onDragEnd={createDragEventHandler('end')}
+    />
+  );
+
+}
 
 function createIndexManager() {
   let index = 0; // start at 1 for Title
 
   return { 
-    next: ()  => ++index, 
-    peek: () =>  index + 1
+    next: () => ++index, 
+    peek: () =>  index + 1,
+    add: (count: number) => index += count,
   };
 }
 
