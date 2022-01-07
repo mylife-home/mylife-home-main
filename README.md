@@ -10,6 +10,7 @@
 - gulp build:dev:core --all-plugins
 - gulp build:dev:ui
 - gulp build:dev:studio
+- gulp build:dev:collector
 
 _cf package.json npm scripts for docker action_
 
@@ -22,6 +23,7 @@ _cf gulp.conf/index.ts for gulp script: dev build, watch, docker testing images_
   - gulp publish:core
   - gulp publish:ui
   - gulp publish:studio
+  - gulp publish:collector
 
 _alpine build/deployment: `rpi-alpine-build` repository_
 
