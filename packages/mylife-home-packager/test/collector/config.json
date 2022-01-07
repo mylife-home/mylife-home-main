@@ -1,0 +1,11 @@
+{
+  "logging": {
+    "console": true
+  },
+  "bus": {
+    "serverUrl": "tcp://rpi-dev-home-main"
+  },
+  "database": {
+    "__TODO__": true
+  }
+}

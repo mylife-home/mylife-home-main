@@ -1,0 +1,11 @@
+{
+  "logging": {
+    "console": true
+  },
+  "bus": {
+    "serverUrl": "%{BUS_SERVER|tcp://localhost}"
+  },
+  "database": {
+    "__TODO_DOCKER_": true
+  }
+}

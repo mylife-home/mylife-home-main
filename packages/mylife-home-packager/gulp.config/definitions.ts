@@ -65,6 +65,15 @@ export const projects = {
     },
     version: getPackageVersion('mylife-home-studio'),
   },
+
+  collector: {
+    ts: new TsBuild('mylife-home-collector'),
+    bin: {
+      dev: new WebpackBuild('collector', 'bin', 'dev'),
+      prod: new WebpackBuild('collector', 'bin', 'prod'),
+    },
+    version: getPackageVersion('mylife-home-collector'),
+  },
 };
 
 function buildCorePluginProjectConfiguration(name: string, wpPptions: { [name: string]: any } = {}) {
@@ -94,6 +103,9 @@ export const globs = {
   studio: {
     bin: projects.studio.ts.globs,
     client: packagePublicGlobs('mylife-home-studio')
+  },
+  collector: {
+    bin: projects.collector.ts.globs,
   },
 };
 

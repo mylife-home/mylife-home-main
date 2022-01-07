@@ -16,6 +16,7 @@
     "start:core": "node --trace-warnings dist/dev/core/bin.js --config=test/core/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:ui": "node --trace-warnings dist/dev/ui/bin.js --config=test/ui/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "start:studio": "node --trace-warnings dist/dev/studio/bin.js --config=test/studio/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
+    "start:collector": "node --trace-warnings dist/dev/collector/bin.js --config=test/collector/config.json | ../mylife-home-common/node_modules/.bin/bunyan",
     "docker:start:ui": "docker run --rm -d -p 8001:80 -e BUS_SERVER=tcp://rpi-dev-home-main -e DATA_PATH=/tmp --name mylife-home-ui mylife-home-ui:testing",
     "docker:stop:ui": "docker rm -f mylife-home-ui",
     "docker:restart:ui": "npm run docker:stop:ui && npm run docker:start:ui",
@@ -24,7 +25,10 @@
     "docker:restart:core": "npm run docker:stop:core && npm run docker:start:core",
     "docker:start:studio": "docker run --rm -d -p 8002:80 -e BUS_SERVER=tcp://rpi-dev-home-main -v $(realpath ../../../mylife-home-studio-data-dev):/data --name mylife-home-studio mylife-home-studio:testing",
     "docker:stop:studio": "docker rm -f mylife-home-studio",
-    "docker:restart:studio": "npm run docker:stop:studio && npm run docker:start:studio"
+    "docker:restart:studio": "npm run docker:stop:studio && npm run docker:start:studio",
+    "docker:start:collector": "docker run --rm -d -e BUS_SERVER=tcp://rpi-dev-home-main --name mylife-home-collector mylife-home-collector:testing",
+    "docker:stop:collector": "docker rm -f mylife-home-collector",
+    "docker:restart:collector": "npm run docker:stop:collector && npm run docker:start:collector"
   },
   "devDependencies": {
     "@babel/core": "^7.12.17",
@@ -94,6 +98,7 @@
     "mylife-home-core-plugins-logic-timers": "^1.0.0",
     "mylife-home-core-plugins-ui-base": "^1.0.0",
     "mylife-home-studio": "^1.0.0",
+    "mylife-home-collector": "^1.0.0",
     "mylife-home-ui": "^1.0.0"
   }
 }
