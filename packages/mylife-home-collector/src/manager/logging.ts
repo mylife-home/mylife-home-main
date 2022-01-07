@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
 import { bus, logger } from 'mylife-home-common';
 import { Writer } from '../database/writer';
+import { LogRecord } from '../types/logging';
 
 const log = logger.createLogger('mylife:home:collector:manager:logging');
 
@@ -27,7 +28,7 @@ export class Logging {
 
   async terminate() {
     this.stream.destroy();
-    this.writer.terminate();
+    await this.writer.terminate();
   }
 }
 
@@ -38,20 +39,4 @@ function parseRecord(chunk: Buffer) {
     log.error(err, 'Cannot parse stream chunk');
     return null;
   }
-}
-
-interface LogRecord {
-  name: string;
-  instanceName: string;
-  hostname: string;
-  pid: number;
-  level: number;
-  msg: string;
-  time: string;
-  v: number;
-  err?: {
-    message: string;
-    name: string;
-    stack: string;
-  };
 }

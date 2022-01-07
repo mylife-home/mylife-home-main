@@ -3,7 +3,7 @@ import { logger } from 'mylife-home-common';
 const log = logger.createLogger('mylife:home:collector:database:writer');
 
 export class Writer<T> {
-  constructor(collectionName: string) {
+  constructor(private readonly collectionName: string) {
 
   }
 
@@ -15,6 +15,8 @@ export class Writer<T> {
 
   write(object: T) {
     // TODO
-    console.log('WRITE', object);
+
+    // TODO: use real dates (logging.time, history.timestamp)
+    console.log('WRITE', this.collectionName, object);
   }
 }
