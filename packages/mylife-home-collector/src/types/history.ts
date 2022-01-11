@@ -21,7 +21,6 @@ export interface ComponentSetHistoryRecord extends HistoryRecord {
   componentId: string;
   instanceName: string;
   plugin: components.metadata.NetPlugin;
-  states: { [name: string]: any; };
 }
 
 export interface ComponentClearHistoryRecord extends HistoryRecord {

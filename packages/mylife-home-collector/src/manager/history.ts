@@ -92,15 +92,17 @@ class NotifierContext {
 class ComponentNotifier {
   constructor(private readonly context: NotifierContext, private readonly instanceName: string, private readonly component: components.Component) {
     const plugin = components.metadata.encodePlugin(this.component.plugin);
-    const record: ComponentSetHistoryRecord = { ...makeBaseRecord(), type: 'component-set', componentId: this.component.id, instanceName: this.instanceName, plugin, states: {} };
-
-    for (const [name, value] of Object.entries(this.component.getStates())) {
-      record.states[name] = value;
-    }
-
+    const record: ComponentSetHistoryRecord = { ...makeBaseRecord(), type: 'component-set', componentId: this.component.id, instanceName: this.instanceName, plugin };
     this.context.addRecord(record);
 
     this.component.on('state', this.onStateChange);
+
+    // Usually at this time state is still not defined, but just in case
+    for (const [name, value] of Object.entries(this.component.getStates())) {
+      if (value !== null) {
+        this.onStateChange(name, value);
+      }
+    }
   }
 
   close() {
