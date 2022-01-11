@@ -5,5 +5,5 @@
   "bus": {
     "serverUrl": "tcp://rpi-dev-home-main"
   },
-  "database": "mongodb://localhost/mylife-home"
+  "database": "mongodb://localhost/mylife-home?directConnection=true"
 }
