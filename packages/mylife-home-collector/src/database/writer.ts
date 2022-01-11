@@ -1,4 +1,4 @@
-import { MongoClient, Collection, ObjectId } from 'mongodb';
+import { MongoClient, Collection, ObjectId, Long } from 'mongodb';
 import { logger, tools } from 'mylife-home-common';
 import { Sequence } from './sequence';
 import { CompletionBag } from './completion-bag';
@@ -7,7 +7,7 @@ const log = logger.createLogger('mylife:home:collector:database:writer');
 
 interface DataHeader {
   _id: ObjectId;
-  seqnum: BigInt;
+  seqnum: Long;
 }
 
 type DataRecord<T> = T & DataHeader;
@@ -43,7 +43,7 @@ export class Writer<T> {
   write(object: T) {
     const data: DataRecord<T> = {
       _id: new ObjectId(),
-      seqnum: this.sequence.next(),
+      seqnum: new Long(this.sequence.next()),
       ...object
     };
 

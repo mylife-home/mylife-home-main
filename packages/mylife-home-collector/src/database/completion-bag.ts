@@ -26,7 +26,7 @@ export class CompletionBag {
     }
 
     const deferred = new tools.Deferred<void>();
-    this.waitCallback = deferred.resolve;
+    this.waitCallback = () => deferred.resolve();
     await deferred.promise;
     this.waitCallback = null;
   }
