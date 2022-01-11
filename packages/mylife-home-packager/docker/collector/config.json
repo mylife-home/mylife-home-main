@@ -5,7 +5,5 @@
   "bus": {
     "serverUrl": "%{BUS_SERVER|tcp://localhost}"
   },
-  "database": {
-    "__TODO_DOCKER_": true
-  }
+  "database": "%{MONGO_URL|mongodb://localhost/mylife-home}"
 }

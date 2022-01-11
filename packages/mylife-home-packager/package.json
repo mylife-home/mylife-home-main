@@ -26,7 +26,7 @@
     "docker:start:studio": "docker run --rm -d -p 8002:80 -e BUS_SERVER=tcp://rpi-dev-home-main -v $(realpath ../../../mylife-home-studio-data-dev):/data --name mylife-home-studio mylife-home-studio:testing",
     "docker:stop:studio": "docker rm -f mylife-home-studio",
     "docker:restart:studio": "npm run docker:stop:studio && npm run docker:start:studio",
-    "docker:start:collector": "docker run --rm -d -e BUS_SERVER=tcp://rpi-dev-home-main --name mylife-home-collector mylife-home-collector:testing",
+    "docker:start:collector": "docker run --rm -d -e BUS_SERVER=tcp://rpi-dev-home-main -e MONGO_URL=mongodb://localhost/mylife-home --name mylife-home-collector mylife-home-collector:testing",
     "docker:stop:collector": "docker rm -f mylife-home-collector",
     "docker:restart:collector": "npm run docker:stop:collector && npm run docker:start:collector"
   },
