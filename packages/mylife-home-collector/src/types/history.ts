@@ -1,9 +1,15 @@
-export interface HistoryRecord {
-  timestamp: number;
-  type: 'instance-set' | 'instance-clear' | 'component-set' | 'component-clear' | 'state-set';
+import { components } from 'mylife-home-common';
+
+export namespace HistoryRecord {
+  export const VERSION = 1;
 }
 
-// TODO: match with "besoins"
+export interface HistoryRecord {
+  time: Date;
+  v: number;
+  type: 'self-set' | 'self-clear' | 'instance-set' | 'instance-clear' | 'component-set' | 'component-clear' | 'state-set';
+
+}
 
 export interface InstanceHistoryRecord extends HistoryRecord {
   type: 'instance-set' | 'instance-clear';
@@ -12,20 +18,19 @@ export interface InstanceHistoryRecord extends HistoryRecord {
 
 export interface ComponentSetHistoryRecord extends HistoryRecord {
   type: 'component-set';
-  instanceName: string;
   componentId: string;
-  states?: { [name: string]: any; };
+  instanceName: string;
+  plugin: components.metadata.NetPlugin;
+  states: { [name: string]: any; };
 }
 
 export interface ComponentClearHistoryRecord extends HistoryRecord {
   type: 'component-clear';
-  instanceName: string;
   componentId: string;
 }
 
 export interface StateHistoryRecord extends HistoryRecord {
   type: 'state-set';
-  instanceName: string;
   componentId: string;
   stateName: string;
   stateValue: any;

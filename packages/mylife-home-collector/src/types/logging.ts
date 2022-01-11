@@ -1,12 +1,14 @@
+export namespace LogRecord {
+  export const VERSION = 1;
+}
+
 export interface LogRecord {
-  name: string;
+  time: Date;
+  v: number;
   instanceName: string;
-  hostname: string;
-  pid: number;
+  name: string;
   level: number;
   msg: string;
-  time: string;
-  v: number;
   err?: {
     message: string;
     name: string;
