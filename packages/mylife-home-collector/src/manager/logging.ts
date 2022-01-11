@@ -11,26 +11,27 @@ export class Logging {
 
   constructor(transport: bus.Transport) {
     this.stream = transport.logger.createAggregatedReadableStream();
-
-    this.stream.on('data', (chunk: Buffer) => {
-      const streamRecord = parseRecord(chunk);
-      if (!streamRecord) {
-        return;
-      }
-
-      const record = convertRecord(streamRecord);
-      this.writer.write(record);
-    });
   }
 
   async init() {
     await this.writer.init();
+    this.stream.on('data', this.onStreamData);
   }
 
   async terminate() {
     this.stream.destroy();
     await this.writer.terminate();
   }
+
+  private readonly onStreamData = (chunk: Buffer) => {
+    const streamRecord = parseRecord(chunk);
+    if (!streamRecord) {
+      return;
+    }
+
+    const record = convertRecord(streamRecord);
+    this.writer.write(record);
+};
 }
 
 function parseRecord(chunk: Buffer) {

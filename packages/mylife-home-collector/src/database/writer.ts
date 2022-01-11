@@ -47,7 +47,8 @@ export class Writer<T> {
       ...object
     };
 
-    // seems that _id typing is broken
+    // Seems that _id typing is broken.
+    // Note: we do not handle exception, we want to fail if we cannot write to mongo.
     const task = this.collection.insertOne(data as any);
 
     this.completionBag.addTask(task);
