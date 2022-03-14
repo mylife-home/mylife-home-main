@@ -18,13 +18,3 @@ export function useSelection() {
     }, [tabId, dispatch])
   };
 }
-
-export function useResetSelectionIfNull<T>(obj: T) {
-  const { select } = useSelection();
-
-  useEffect(() => {
-    if (!obj) {
-      select({ type: 'project' });
-    }
-  }, [obj]);
-}

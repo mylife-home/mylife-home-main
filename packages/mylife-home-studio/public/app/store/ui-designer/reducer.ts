@@ -138,6 +138,11 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     case 'clear-ui-window': {
       const { id } = update as ClearUiWindowNotification;
       tableRemove(openedProject.windows, id);
+
+      if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
+        openedProject.selection = { type: 'project' };
+      }
+
       break;
     }
 
@@ -147,6 +152,10 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
       tableRemove(openedProject.windows, id);
       window.id = newId;
       tableSet(openedProject.windows, window, true);
+
+      if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
+        openedProject.selection.id = newId;
+      }
 
       break;
     }

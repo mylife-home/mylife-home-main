@@ -6,7 +6,6 @@ import { WindowIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import SplitPane from '../../../lib/split-pane';
 import { getWindow } from '../../../../store/ui-designer/selectors';
-import { useResetSelectionIfNull } from '../../selection';
 import { WindowActions } from '../common/window-actions';
 import { WindowStateProvider } from './window-state';
 import Canvas from './canvas';
@@ -23,9 +22,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Window: FunctionComponent<{ id: string }> = ({ id }) => {
   const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
-
-  // handle window that becomes null (after deletion)
-  useResetSelectionIfNull(window);
 
   if (!window) {
     return null;
