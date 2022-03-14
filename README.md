@@ -120,8 +120,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## studio
 
-- tab
-  - click milieu = close
 - ui-designer
   - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - control cannot go outside of window (create, move, resize)
