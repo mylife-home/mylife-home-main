@@ -1,6 +1,6 @@
 import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 
-export type SelectionType = 'component' | 'binding' | 'multiple';
+export type SelectionType = 'component' | 'binding' | 'components';
 
 export interface Selection {
   type: SelectionType;
@@ -14,7 +14,7 @@ export interface SimpleSelection extends Selection {
 export type MultiSelectionIds = { [id: string]: true };
 
 export interface MultipleSelection extends Selection {
-  type: 'multiple';
+  type: 'components';
   ids: MultiSelectionIds;
 }
 
@@ -62,7 +62,7 @@ export function useComponentSelection(componentId: string) {
         const ids = { ... selectedComponents };
         toggle(ids, componentId);
 
-        const newSelection: MultipleSelection = { type: 'multiple', ids };
+        const newSelection: MultipleSelection = { type: 'components', ids };
         return newSelection;
       });
     }, [select, componentId])
@@ -73,7 +73,7 @@ function isComponentSelected(componentId: string, selection: Selection) {
   switch (selection?.type) {
     case 'component':
       return componentId === (selection as SimpleSelection).id;
-    case 'multiple':
+    case 'components':
       return !!(selection as MultipleSelection).ids[componentId];
   }
 
@@ -84,7 +84,7 @@ export function getSelectedComponentsIds(selection: Selection): MultiSelectionId
   switch (selection?.type) {
     case 'component':
       return { [(selection as SimpleSelection).id]: true };
-    case 'multiple':
+    case 'components':
       return (selection as MultipleSelection).ids;
   }
 
@@ -118,7 +118,7 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
 
   const selectComponents = useCallback((ids: string[]) => {
     const newIds: MultiSelectionIds = {};
-    const newSelection: MultipleSelection = { type: 'multiple', ids: newIds };
+    const newSelection: MultipleSelection = { type: 'components', ids: newIds };
 
     for (const id of ids) {
       newIds[id] = true;
@@ -138,7 +138,7 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
 
     selectedComponent: selection?.type === 'component' ? (selection as SimpleSelection).id : null,
     selectedBinding: selection?.type === 'binding' ? (selection as SimpleSelection).id : null,
-    selectedComponents: selection?.type === 'multiple' ? (selection as MultipleSelection).ids : null,
+    selectedComponents: selection?.type === 'components' ? (selection as MultipleSelection).ids : null,
 
     selectComponent,
     selectComponents,

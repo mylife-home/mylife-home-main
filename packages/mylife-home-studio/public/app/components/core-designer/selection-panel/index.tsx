@@ -59,7 +59,7 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
         </NullWrapper>
       );
 
-    case 'multiple':
+    case 'components':
       return (
         <MultiNullWrapper>
           <Multiple className={className} />
