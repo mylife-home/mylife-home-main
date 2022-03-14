@@ -121,7 +121,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## studio
 
 - ui-designer
-  - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
