@@ -91,6 +91,12 @@ const Tab: FunctionComponent<TabProps> = ({ id, text, index, onClose, onMove, on
       classes={{ root: clsx(classes.root, { [classes.dropTarget]: isHovered }), selected: classes.selected, wrapper: classes.wrapper }}
       ref={ref}
       component='div'
+      onMouseDown={(e: React.MouseEvent) => {
+        if (onClose && e.button === 1) {
+          // Middle button
+          onClose(id);
+        }
+      }}
       label={
         <>
 
