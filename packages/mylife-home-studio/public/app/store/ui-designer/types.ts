@@ -22,6 +22,7 @@ export const enum ActionTypes {
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
+  SELECT = 'ui-designer/select',
 }
 
 export { DesignerTabActionData, DefaultWindow };
@@ -40,6 +41,13 @@ export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
   controls: UiControl[];
 }
 
+export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
+
+export interface Selection {
+  type: SelectionType;
+  id?: string;
+}
+
 export interface UiOpenedProject extends OpenedProjectBase {
   components: Table<UiComponent>; // plugin points to plugin instanceName:module.name
   plugins: Table<UiPlugin>;
@@ -49,6 +57,8 @@ export interface UiOpenedProject extends OpenedProjectBase {
   windows: Table<UiWindow>;
 
   defaultWindow: DefaultWindow;
+
+  selection: Selection;
 }
 
 export type UiDesignerState = DesignerState<UiOpenedProject>;

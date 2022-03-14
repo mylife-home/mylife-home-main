@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
 import { UiValidationError, UpdateProjectNotification } from '../../../../shared/project-manager';
-import { ActionTypes, DefaultWindow, RefreshData, UiResource, UiWindow } from './types';
+import { ActionTypes, DefaultWindow, RefreshData, UiResource, UiWindow, Selection } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -13,6 +13,7 @@ export const refreshComponentsFromOnline = createAsyncAction<{ id: string; }, Re
 export const refreshComponentsFromProject = createAsyncAction<{ id: string; projectId: string; }, RefreshData>(ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT);
 export const applyRefreshComponents = createAsyncAction<{ id: string; serverData: unknown; }, any>(ActionTypes.APPLY_REFRESH_COMPONENTS);
 export const deployProject = createAsyncAction<{ id: string; }, any>(ActionTypes.DEPLOY_PROJECT);
+export const select = createAsyncAction<{ id: string; selection: Selection; }>(ActionTypes.SELECT);
 
 export const setDefaultWindow = createAsyncAction<{ id: string; defaultWindow: DefaultWindow; }>(ActionTypes.SET_DEFAULT_WINDOW);
 export const setResource = createAsyncAction<{ id: string; resource: UiResource; }>(ActionTypes.SET_RESOURCE);

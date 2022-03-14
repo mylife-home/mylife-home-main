@@ -180,3 +180,8 @@ export const getDefaultWindow = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.defaultWindow;
 };
+
+export const getSelection = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.selection;
+}

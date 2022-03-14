@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, DefaultWindow } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, DefaultWindow, Selection } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -73,6 +73,12 @@ export default createReducer(initialState, {
       const openedProject = state.openedProjects.byId[id];
       applyProjectUpdate(openedProject, update);
     }
+  },
+
+  [ActionTypes.SELECT]: (state, action: PayloadAction<{ id: string; selection: Selection }>) => {
+    const { id, selection } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
+    openedProject.selection = selection;
   },
 });
 
@@ -167,15 +173,15 @@ function updateComponentData(openedProject: UiOpenedProject, componentData: UiCo
   openedProject.components = components;
 }
 
-
-
 function createInitialProjectState() {
   const defaultWindow: DefaultWindow = { desktop: null, mobile: null };
+  const selection: Selection = { type: 'project' };
   return {
     components: createTable<UiComponent>(),
     plugins: createTable<UiPlugin>(),
     resources: createTable<UiResource>(),
     windows: createTable<UiWindow>(),
     defaultWindow,
+    selection,
   };
 }
