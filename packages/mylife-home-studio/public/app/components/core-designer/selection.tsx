@@ -6,14 +6,14 @@ export interface Selection {
   type: SelectionType;
 }
 
-export interface SimpleSelection extends Selection {
+export interface SingleSelection extends Selection {
   type: 'component' | 'binding';
   id: string;
 }
 
 export type MultiSelectionIds = { [id: string]: true };
 
-export interface MultipleSelection extends Selection {
+export interface MultiSelection extends Selection {
   type: 'components';
   ids: MultiSelectionIds;
 }
@@ -50,7 +50,7 @@ export function useComponentSelection(componentId: string) {
           return selection;
         }
 
-        const newSelection: SimpleSelection = { type: 'component', id: componentId };
+        const newSelection: SingleSelection = { type: 'component', id: componentId };
         return newSelection;
       });
     }, [select, componentId]),
@@ -62,7 +62,7 @@ export function useComponentSelection(componentId: string) {
         const ids = { ... selectedComponents };
         toggle(ids, componentId);
 
-        const newSelection: MultipleSelection = { type: 'components', ids };
+        const newSelection: MultiSelection = { type: 'components', ids };
         return newSelection;
       });
     }, [select, componentId])
@@ -72,9 +72,9 @@ export function useComponentSelection(componentId: string) {
 function isComponentSelected(componentId: string, selection: Selection) {
   switch (selection?.type) {
     case 'component':
-      return componentId === (selection as SimpleSelection).id;
+      return componentId === (selection as SingleSelection).id;
     case 'components':
-      return !!(selection as MultipleSelection).ids[componentId];
+      return !!(selection as MultiSelection).ids[componentId];
   }
 
   return false;
@@ -83,9 +83,9 @@ function isComponentSelected(componentId: string, selection: Selection) {
 export function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
   switch (selection?.type) {
     case 'component':
-      return { [(selection as SimpleSelection).id]: true };
+      return { [(selection as SingleSelection).id]: true };
     case 'components':
-      return (selection as MultipleSelection).ids;
+      return (selection as MultiSelection).ids;
   }
 
   return {};
@@ -112,13 +112,13 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
   const [selection, select] = useState<Selection>(null);
 
   const selectComponent = useCallback((id: string) => {
-    const newSelection: SimpleSelection = { type: 'component', id };
+    const newSelection: SingleSelection = { type: 'component', id };
     select(newSelection);
   }, [select]);
 
   const selectComponents = useCallback((ids: string[]) => {
     const newIds: MultiSelectionIds = {};
-    const newSelection: MultipleSelection = { type: 'components', ids: newIds };
+    const newSelection: MultiSelection = { type: 'components', ids: newIds };
 
     for (const id of ids) {
       newIds[id] = true;
@@ -128,7 +128,7 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
   }, [select]);
 
   const selectBinding = useCallback((id: string) => {
-    const newSelection: SimpleSelection = { type: 'binding', id };
+    const newSelection: SingleSelection = { type: 'binding', id };
     select(newSelection);
   }, [select]);
 
@@ -136,9 +136,9 @@ export const SelectionProvider: FunctionComponent = ({ children }) => {
     selection,
     select,
 
-    selectedComponent: selection?.type === 'component' ? (selection as SimpleSelection).id : null,
-    selectedBinding: selection?.type === 'binding' ? (selection as SimpleSelection).id : null,
-    selectedComponents: selection?.type === 'components' ? (selection as MultipleSelection).ids : null,
+    selectedComponent: selection?.type === 'component' ? (selection as SingleSelection).id : null,
+    selectedBinding: selection?.type === 'binding' ? (selection as SingleSelection).id : null,
+    selectedComponents: selection?.type === 'components' ? (selection as MultiSelection).ids : null,
 
     selectComponent,
     selectComponents,
