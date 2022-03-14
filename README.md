@@ -155,6 +155,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
       - selection staging + commit (vision diff)
       - gestion des conflits ?
 - deploy
+  - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 - logs
   - pouvoir c/c des logs
