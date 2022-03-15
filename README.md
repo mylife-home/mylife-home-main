@@ -126,7 +126,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - templates
 - core-designer
-  - move selection data to redux store (and avoid resetIfNull components)
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
   - templates
