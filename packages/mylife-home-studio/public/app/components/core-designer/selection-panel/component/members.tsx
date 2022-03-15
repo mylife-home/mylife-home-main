@@ -16,7 +16,7 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
-import { useBindingSelection } from '../../selection';
+import { useSelectBinding } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
@@ -120,7 +120,8 @@ const useBindingStyles = makeStyles((theme) => ({
 
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
   const classes = useBindingStyles();
-  const { select } = useBindingSelection(id);
+  const selectBinding = useSelectBinding();
+  const select = useCallback(() => selectBinding(id), [selectBinding, id]);
   const BindingIcon = getBindingIcon(memberType);
   const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
 

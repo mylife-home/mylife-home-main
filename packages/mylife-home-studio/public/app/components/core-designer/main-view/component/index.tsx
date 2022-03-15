@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 
 import { parseType } from '../../../lib/member-types';
 import { useTabPanelId } from '../../../lib/tab-panel';
@@ -17,7 +18,7 @@ import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } 
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin } from '../../../../store/core-designer/selectors';
+import { getComponent, getPlugin, isComponentSelected } from '../../../../store/core-designer/selectors';
 
 export interface ComponentProps {
   componentId: string;
@@ -26,7 +27,8 @@ export interface ComponentProps {
 // Note: we split component layout and hit because the hit support the DnD which is not snapped to grid
 
 const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
-  const { selected } = useComponentSelection(componentId);
+  const tabId = useTabPanelId();
+  const selected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, componentId), [tabId, componentId]));
 
   return selected ? (
     <SelectedComponent componentId={componentId} />

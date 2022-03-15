@@ -208,7 +208,16 @@ export const getSelectedComponent = (state: AppState, tabId: string) => {
   return ids.length > 0 ? ids[0] : null;
 };
 
+export const isComponentSelected = (state: AppState, tabId: string, componentId: string) => {
+  const ids = getSelectedComponents(state, tabId);
+  return !!ids[componentId];
+};
+
 export const getSelectedBinding = (state: AppState, tabId: string) => {
   const { selection } = getOpenedProject(state, tabId);
   return selection?.type === 'binding' ? (selection as BindingSelection).id : null;
+};
+
+export const isBindingSelected = (state: AppState, tabId: string, bindingId: string) => {
+  return getSelectedBinding(state, tabId) === bindingId;
 };

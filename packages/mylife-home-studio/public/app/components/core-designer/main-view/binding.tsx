@@ -1,7 +1,8 @@
 import React, { FunctionComponent, useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
-import { useBindingSelection, useComponentSelection } from '../selection';
+import { useSelectBinding } from '../selection';
 import { Arrow } from '../drawing/konva';
 import { GRID_STEP_SIZE } from '../drawing/defs';
 import { useCanvasTheme } from '../drawing/theme';
@@ -13,7 +14,7 @@ import { useComponentData } from '../component-move';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getBinding, getComponent, getPlugin } from '../../../store/core-designer/selectors';
+import { getBinding, getComponent, getPlugin, isComponentSelected, isBindingSelected } from '../../../store/core-designer/selectors';
 
 export interface BindingProps {
   bindingId: string;
@@ -21,9 +22,9 @@ export interface BindingProps {
 
 const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const tabId = useTabPanelId();
-  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [bindingId]));
-  const { selected: isSourceSelected } = useComponentSelection(binding.sourceComponent);
-  const { selected: isTargetSelected } = useComponentSelection(binding.targetComponent);
+  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [tabId, bindingId]));
+  const isSourceSelected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, binding.sourceComponent), [tabId, binding.sourceComponent]));
+  const isTargetSelected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, binding.targetComponent), [tabId, binding.targetComponent]));
   const movable = isSourceSelected || isTargetSelected;
 
   return movable ? (
@@ -65,8 +66,11 @@ const FixedBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
 
 const BindingLayout: FunctionComponent<{ bindingId: string; sourceAnchor: Point; targetAnchor: Point; }> = ({ bindingId, sourceAnchor, targetAnchor }) => {
   const theme = useCanvasTheme();
+  const tabId = useTabPanelId();
   const { isLineVisible } = useViewPortVisibility();
-  const { selected, select } = useBindingSelection(bindingId);
+  const selected = useSelector(useCallback((state: AppState) => isBindingSelected(state, tabId, bindingId), [tabId, bindingId]));
+  const selectBinding = useSelectBinding();
+  const select = useCallback(() => selectBinding(bindingId), [selectBinding, bindingId]);
   const points = useMemo(() => [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y], [sourceAnchor.x, sourceAnchor.y, targetAnchor.x, targetAnchor.y]);
 
   if (!isLineVisible(sourceAnchor, targetAnchor)) {
