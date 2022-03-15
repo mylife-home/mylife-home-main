@@ -20,6 +20,28 @@ export function useSelection() {
   };
 }
 
+export function useSelectionType() {
+  const { selection } = useSelection();
+
+  switch (selection?.type) {
+    case 'binding':
+      return 'binding';
+    case 'components':
+      return Object.keys((selection as ComponentsSelection).ids).length > 1 ? 'components' : 'component';
+    default:
+      return null;
+  }
+}
+
+export function useSelectComponent() {
+  const { select } = useSelection();
+
+  return useCallback((componentId: string) => {
+    const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
+    select(newSelection);
+  }, [select]);
+}
+
 export function useExtendedSelection() {
   const { selection, select } = useSelection();
 

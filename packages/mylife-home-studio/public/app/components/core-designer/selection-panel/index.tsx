@@ -1,15 +1,14 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { useTabSelector } from '../../lib/use-tab-selector';
 import QuickAccess from '../../lib/quick-access';
-import { useExtendedSelection } from '../selection';
+import { useSelectionType, useSelectComponent } from '../selection';
 import Component from './component';
 import Binding from './binding';
 import Multiple from './multiple';
-import { AppState } from '../../../store/types';
-import { getComponentIds, getComponent, getBinding, getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
+import { getComponentIds } from '../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectComponent } = useExtendedSelection();
+  const selectComponent = useSelectComponent();
   const componentsIds = useTabSelector(getComponentIds);
 
   return (
@@ -41,21 +40,25 @@ const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className 
 export default SelectionPanel;
 
 const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const { selectedBinding, selectedComponent, selectedComponents } = useExtendedSelection();
+  const type = useSelectionType();
 
-  if (selectedBinding) {
-    return (
-      <Binding className={className} />
-    );
-  } else if (selectedComponent) {
-    return (
-      <Component className={className} />
-    );
-  } else if (selectedComponents) {
-    return (
+  switch (type) {
+    case 'binding':
+      return (
+        <Binding className={className} />
+      );
+
+    case 'component':
+      return (
+        <Component className={className} />
+      );
+
+    case 'components':
+      return (
         <Multiple className={className} />
-    );
-  } else {
-    return null;
+      );
+
+    default:
+      return null;
   }
 }
