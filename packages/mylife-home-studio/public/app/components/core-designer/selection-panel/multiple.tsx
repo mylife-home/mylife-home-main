@@ -8,7 +8,7 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
-import { useSelection } from '../selection';
+import { useExtendedSelection } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedComponents, selectComponent } = useSelection();
+  const { selectedComponents, selectComponent } = useExtendedSelection();
   const ids = useMemo(() => Object.keys(selectedComponents).sort(), [selectedComponents]);
   const { clearAll } = useActionsConnect();
   const centerPosition = useCenterPosition();
@@ -52,7 +52,7 @@ export default Multiple;
 
 function useActionsConnect() {
   const tabId = useTabPanelId();
-  const { selectedComponents } = useSelection();
+  const { selectedComponents } = useExtendedSelection();
   const dispatch = useDispatch();
 
   const clearAll = useCallback(() => {
@@ -63,7 +63,7 @@ function useActionsConnect() {
 }
 
 function useCenterPosition() {
-  const { selectedComponents } = useSelection();
+  const { selectedComponents } = useExtendedSelection();
   const { components, plugins } = useTabSelector(getAllComponentsAndPlugins);
   const theme = useCanvasTheme();
 

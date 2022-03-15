@@ -1,19 +1,19 @@
 import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 
-export type SelectionType = 'component' | 'binding' | 'components';
+export type SelectionType = 'components' | 'binding';
 
 export interface Selection {
   type: SelectionType;
 }
 
-export interface SingleSelection extends Selection {
-  type: 'component' | 'binding';
+export interface BindingSelection extends Selection {
+  type: 'binding';
   id: string;
 }
 
 export type MultiSelectionIds = { [id: string]: true };
 
-export interface MultiSelection extends Selection {
+export interface ComponentsSelection extends Selection {
   type: 'components';
   ids: MultiSelectionIds;
 }
@@ -21,13 +21,6 @@ export interface MultiSelection extends Selection {
 interface SelectionContextProps {
   selection: Selection;
   select: (callback: (prev: Selection) => Selection) => void;
-
-  selectedComponent: string;
-  selectedBinding: string;
-  selectedComponents: MultiSelectionIds;
-  selectComponent: (id: string) => void;
-  selectComponents: (ids: string[]) => void;
-  selectBinding: (id: string) => void;
 }
 
 export const SelectionContext = createContext<SelectionContextProps>(null);
@@ -36,11 +29,49 @@ export function useSelection() {
   return useContext(SelectionContext);
 }
 
+export function useExtendedSelection() {
+  const { selection, select } = useSelection();
+
+  const selectionDetails = useMemo(() => {
+    const comps = getSelectedComponentsIds(selection);
+    const compsArray = Object.keys(comps);
+
+    return {
+      selectedComponent: compsArray.length === 1 ? compsArray[0] : null,
+      selectedComponents: compsArray.length > 1 ? comps : null,
+      selectedBinding: selection?.type === 'binding' ? (selection as BindingSelection).id : null,
+    };
+
+  }, [selection]);
+
+  const selectComponent = useCallback((componentId: string) => {
+    const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
+    select(() => newSelection);
+  }, [select]);
+
+  const selectBinding = useCallback((bindingId: string) => {
+    const newSelection: BindingSelection = { type: 'binding', id: bindingId };
+    select(() => newSelection);
+  }, [select]);
+
+  const selectComponents = useCallback((componentsIds: string[]) => {
+    const ids: MultiSelectionIds = {};
+    for (const id of componentsIds) {
+      ids[id] = true;
+    }
+
+    const newSelection: ComponentsSelection = { type: 'components', ids };
+    select(() => newSelection);
+  }, [select]);
+
+  return { ...selectionDetails, selectComponent, selectBinding, selectComponents };
+}
+
 export function useComponentSelection(componentId: string) {
   const { selection, select } = useSelection();
 
   return { 
-    selected: isComponentSelected(componentId, selection),
+    selected: !!getSelectedComponentsIds(selection)[componentId],
 
     select: useCallback(() => {
       select((selection) => {
@@ -50,7 +81,7 @@ export function useComponentSelection(componentId: string) {
           return selection;
         }
 
-        const newSelection: SingleSelection = { type: 'component', id: componentId };
+        const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
         return newSelection;
       });
     }, [select, componentId]),
@@ -62,33 +93,15 @@ export function useComponentSelection(componentId: string) {
         const ids = { ... selectedComponents };
         toggle(ids, componentId);
 
-        const newSelection: MultiSelection = { type: 'components', ids };
+        const newSelection: ComponentsSelection = { type: 'components', ids };
         return newSelection;
       });
     }, [select, componentId])
   };
 }
 
-function isComponentSelected(componentId: string, selection: Selection) {
-  switch (selection?.type) {
-    case 'component':
-      return componentId === (selection as SingleSelection).id;
-    case 'components':
-      return !!(selection as MultiSelection).ids[componentId];
-  }
-
-  return false;
-}
-
 export function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
-  switch (selection?.type) {
-    case 'component':
-      return { [(selection as SingleSelection).id]: true };
-    case 'components':
-      return (selection as MultiSelection).ids;
-  }
-
-  return {};
+  return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
 }
 
 function toggle(ids: MultiSelectionIds, id: string) {
@@ -100,50 +113,20 @@ function toggle(ids: MultiSelectionIds, id: string) {
 }
 
 export function useBindingSelection(bindingId: string) {
-  const { selectedBinding, selectBinding } = useSelection();
+  const { selection, select } = useSelection();
 
   return { 
-    selected: selectedBinding === bindingId,
-    select: useCallback(() => selectBinding(bindingId), [selectBinding, bindingId])
+    selected: selection?.type === 'binding' && (selection as BindingSelection).id === bindingId,
+    select: useCallback(() => {
+      const newSelection: BindingSelection = { type: 'binding', id: bindingId };
+      select(() => newSelection);
+    }, [select, bindingId])
   };
 }
 
 export const SelectionProvider: FunctionComponent = ({ children }) => {
   const [selection, select] = useState<Selection>(null);
-
-  const selectComponent = useCallback((id: string) => {
-    const newSelection: SingleSelection = { type: 'component', id };
-    select(newSelection);
-  }, [select]);
-
-  const selectComponents = useCallback((ids: string[]) => {
-    const newIds: MultiSelectionIds = {};
-    const newSelection: MultiSelection = { type: 'components', ids: newIds };
-
-    for (const id of ids) {
-      newIds[id] = true;
-    }
-
-    select(newSelection);
-  }, [select]);
-
-  const selectBinding = useCallback((id: string) => {
-    const newSelection: SingleSelection = { type: 'binding', id };
-    select(newSelection);
-  }, [select]);
-
-  const contextProps = useMemo(() => ({ 
-    selection,
-    select,
-
-    selectedComponent: selection?.type === 'component' ? (selection as SingleSelection).id : null,
-    selectedBinding: selection?.type === 'binding' ? (selection as SingleSelection).id : null,
-    selectedComponents: selection?.type === 'components' ? (selection as MultiSelection).ids : null,
-
-    selectComponent,
-    selectComponents,
-    selectBinding
-  }), [selection, select, selectComponent, selectComponents, selectBinding]);
+  const contextProps = useMemo(() => ({ selection, select }), [selection, select]);
 
   return (
     <SelectionContext.Provider value={contextProps}>

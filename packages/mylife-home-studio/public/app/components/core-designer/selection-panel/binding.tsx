@@ -9,7 +9,7 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
-import { useSelection } from '../selection';
+import { useExtendedSelection } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedBinding, selectComponent } = useSelection();
+  const { selectedBinding, selectComponent } = useExtendedSelection();
   const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect(selectedBinding);
   const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 

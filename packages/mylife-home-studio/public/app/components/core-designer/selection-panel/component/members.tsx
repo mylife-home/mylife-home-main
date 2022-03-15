@@ -16,7 +16,7 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
-import { useSelection } from '../../selection';
+import { useExtendedSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
@@ -120,7 +120,7 @@ const useBindingStyles = makeStyles((theme) => ({
 
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
   const classes = useBindingStyles();
-  const { selectBinding } = useSelection();
+  const { selectBinding } = useExtendedSelection();
   const BindingIcon = getBindingIcon(memberType);
   const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
   const handleSelect = () => selectBinding(binding.id);
@@ -207,7 +207,7 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
 
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
-  const { selectedComponent: componentId } = useSelection();
+  const { selectedComponent: componentId } = useExtendedSelection();
   const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, componentId, memberName));
   const newBinding = useNewBinding(memberName);
 

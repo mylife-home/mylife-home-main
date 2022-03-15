@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { useTabSelector } from '../../lib/use-tab-selector';
 import QuickAccess from '../../lib/quick-access';
-import { useResetSelectionIfNull, useSelection } from '../selection';
+import { useResetSelectionIfNull, useExtendedSelection } from '../selection';
 import Component from './component';
 import Binding from './binding';
 import Multiple from './multiple';
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectComponent } = useSelection();
+  const { selectComponent } = useExtendedSelection();
   const componentsIds = useTabSelector(getComponentIds);
 
   return (
@@ -41,38 +41,33 @@ const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className 
 export default SelectionPanel;
 
 const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const { selection } = useSelection();
+  const { selectedBinding, selectedComponent, selectedComponents } = useExtendedSelection();
 
-  switch(selection?.type) {
-
-    case 'component':
-      return (
-        <NullWrapper selector={getComponent}>
-          <Component className={className} />
-        </NullWrapper>
-      );
-
-    case 'binding':
-      return (
-        <NullWrapper selector={getBinding}>
-          <Binding className={className} />
-        </NullWrapper>
-      );
-
-    case 'components':
-      return (
-        <MultiNullWrapper>
-          <Multiple className={className} />
-        </MultiNullWrapper>
-      );
-
-    default:
-      return null;
+  if (selectedBinding) {
+    return (
+      <NullWrapper selector={getBinding}>
+        <Binding className={className} />
+      </NullWrapper>
+    );
+  } else if (selectedComponent) {
+    return (
+      <NullWrapper selector={getComponent}>
+        <Component className={className} />
+      </NullWrapper>
+    );
+  } else if (selectedComponents) {
+    return (
+      <MultiNullWrapper>
+        <Multiple className={className} />
+      </MultiNullWrapper>
+    );
+  } else {
+    return null;
   }
 }
 
 const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string, id: string) => any; }> = ({ selector, children }) => {
-  const { selectedComponent, selectedBinding } = useSelection();
+  const { selectedComponent, selectedBinding } = useExtendedSelection();
   const item = useTabSelector((state, tabId) => selector(state, tabId, selectedComponent || selectedBinding));
   useResetSelectionIfNull(item);
 
@@ -88,7 +83,7 @@ const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string
 };
 
 const MultiNullWrapper: FunctionComponent = ({ children }) => {
-  const { selectedComponents, selectComponents } = useSelection();
+  const { selectedComponents, selectComponents } = useExtendedSelection();
   const { components } = useTabSelector(getAllComponentsAndPlugins);
 
   useEffect(() => {

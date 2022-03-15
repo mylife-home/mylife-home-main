@@ -8,7 +8,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useSelection } from '../../selection';
+import { useExtendedSelection } from '../../selection';
 import { useComponentData } from './common';
 import { ConfigItem, ConfigType } from '../../../../store/core-designer/types';
 import { configureComponent } from '../../../../store/core-designer/actions';
@@ -47,7 +47,7 @@ export default Configuration;
 
 function useConfigure() {
   const tabId = useTabPanelId();
-  const { selectedComponent: componentId } = useSelection();
+  const { selectedComponent: componentId } = useExtendedSelection();
   const dispatch = useDispatch();
 
   return useCallback((configId: string, configValue: any) => {

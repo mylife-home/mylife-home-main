@@ -10,7 +10,7 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
 import { computeCenter, computeComponentRect } from '../../drawing/shapes';
-import { useSelection } from '../../selection';
+import { useExtendedSelection } from '../../selection';
 import CenterButton from '../center-button';
 import { useRenameDialog } from '../../../dialogs/rename';
 
@@ -61,7 +61,7 @@ export default Actions;
 
 function useActionsConnect() {
   const tabId = useTabPanelId();
-  const { selectedComponent: componentId } = useSelection();
+  const { selectedComponent: componentId } = useExtendedSelection();
   const dispatch = useDispatch();
 
   const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));

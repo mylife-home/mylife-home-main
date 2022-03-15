@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
-import { useSelection } from '../selection';
+import { useExtendedSelection } from '../selection';
 import { Konva, Layer } from '../drawing/konva';
 import { BindingDndProvider, BindingSource } from './binding-dnd';
 import Canvas, { MetaDragEvent } from './canvas';
@@ -90,7 +90,7 @@ function useNewBinding() {
 function useMultiSelecting() {
   const [start, setStart] = useState<Point>(null);
   const [move, setMove] = useState<Point>(null);
-  const { selectComponents } = useSelection();
+  const { selectComponents } = useExtendedSelection();
 
   const theme = useCanvasTheme();
   const componentsAndPlugins = useTabSelector(getAllComponentsAndPlugins);

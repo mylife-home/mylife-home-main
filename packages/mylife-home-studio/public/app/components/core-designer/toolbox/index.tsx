@@ -24,7 +24,7 @@ import { getInstanceIds, getInstance, getPlugin, getComponentIds } from '../../.
 import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
 import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
-import { useSelection } from '../selection';
+import { useExtendedSelection } from '../selection';
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -188,7 +188,7 @@ function useCreate(pluginId: string) {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const makeNewId = useMakeNewId();
-  const { selectComponent } = useSelection();
+  const { selectComponent } = useExtendedSelection();
   const fireAsync = useFireAsync();
   const waitForComponentId = useWaitForComponentId();
 
