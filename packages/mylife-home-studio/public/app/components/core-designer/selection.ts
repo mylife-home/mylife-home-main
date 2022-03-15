@@ -7,7 +7,7 @@ import { Selection, BindingSelection, MultiSelectionIds, ComponentsSelection } f
 import { getSelection } from '../../store/core-designer/selectors';
 import { select, toggleComponentSelection } from '../../store/core-designer/actions';
 
-export function useSelection() {
+function useSelection() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
@@ -60,7 +60,7 @@ export function useComponentSelection(componentId: string) {
   };
 }
 
-export function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
+function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
   return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
 }
 

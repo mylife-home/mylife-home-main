@@ -5,11 +5,11 @@ import { useSafeSelector } from './drawing/use-safe-selector';
 import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
 import { Rectangle } from './drawing/types';
-import { useSelection, getSelectedComponentsIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
+import { useTabSelector } from '../lib/use-tab-selector';
 
 import { AppState } from '../../store/types';
-import { getComponent, getPlugin, getAllComponents, getAllPlugins } from '../../store/core-designer/selectors';
+import { getComponent, getPlugin, getAllComponents, getAllPlugins, getSelectedComponents } from '../../store/core-designer/selectors';
 import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
@@ -22,8 +22,7 @@ interface ComponentMoveContextProps {
 export const ComponentMoveContext = createContext<ComponentMoveContextProps>(null);
 
 export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
-  const { selection } = useSelection();
-  const [componentsIds, setComponentsIds] = useState<types.MultiSelectionIds>(null);
+  const componentsIds = useTabSelector(getSelectedComponents);
   const [delta, setDelta] = useState<types.Position>(null);
 
   const move = useCallback((point: types.Position) => {
@@ -42,9 +41,8 @@ export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
   }, [setDelta]);
 
   useEffect(() => {
-    setComponentsIds(getSelectedComponentsIds(selection));
     move(null);
-  }, [selection]);
+  }, [componentsIds]);
 
   const contextProps = useMemo(() => ({ componentsIds, delta, move }), [componentsIds, delta, move]);
 
