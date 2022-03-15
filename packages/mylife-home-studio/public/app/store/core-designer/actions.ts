@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, coreValidation, FilesDeployResult } from './types';
+import { ActionTypes, Position, UpdateProjectNotification, CoreBindingData, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, coreValidation, FilesDeployResult, Selection } from './types';
 
 export const setNotifier = createAction<{ id: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -15,6 +15,8 @@ export const prepareDeployToFiles = createAsyncAction<{ id: string; }, FilesDepl
 export const applyDeployToFiles = createAsyncAction<{ id: string; bindingsInstanceName?: string; serverData: unknown; }, FilesDeployResult>(ActionTypes.APPLY_DEPLOY_TO_FILES);
 export const prepareDeployToOnline = createAsyncAction<{ id: string; }, OnlineDeployData>(ActionTypes.PREPARE_DEPLOY_TO_ONLINE);
 export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: unknown; }, void>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
+export const select = createAction<{ id: string; selection: Selection; }>(ActionTypes.SELECT);
+export const toggleComponentSelection = createAction<{ id: string; componentId: string; }>(ActionTypes.TOGGLE_COMPONENT_SELECTION);
 
 export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
 export const moveComponents = createAsyncAction<{ id: string; componentsIds: string[]; delta: Position; }>(ActionTypes.MOVE_COMPONENTS);

@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection } from './types';
 import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, CorePluginData, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
@@ -60,6 +60,29 @@ export default createReducer(initialState, {
     for (const { id, update } of action.payload) {
       const openedProject = state.openedProjects.byId[id];
       applyProjectUpdate(openedProject, update);
+    }
+  },
+
+  [ActionTypes.SELECT]: (state, action: PayloadAction<{ id: string; selection: Selection }>) => {
+    const { id, selection } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
+    openedProject.selection = selection;
+  },
+
+  [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<{ id: string; componentId: string }>) => {
+    const { id, componentId } = action.payload;
+    const openedProject = state.openedProjects.byId[id];
+    
+    if (openedProject.selection?.type !== 'components') {
+      const newSelection: ComponentsSelection = { type: 'components', ids: {} };
+      openedProject.selection = newSelection;
+    }
+
+    const selection = openedProject.selection as ComponentsSelection;
+    toggleSelection(selection.ids, componentId);
+
+    if (Object.keys(openedProject.selection).length === 0) {
+      openedProject.selection = null;
     }
   },
 });
@@ -341,6 +364,15 @@ function createInitialProjectState() {
     instances: createTable<Instance>(),
     plugins: createTable<Plugin>(),
     components: createTable<Component>(),
-    bindings: createTable<Binding>()
+    bindings: createTable<Binding>(),
+    selection: null as Selection,
   };
+}
+
+function toggleSelection(ids: MultiSelectionIds, id: string) {
+  if(ids[id]) {
+    delete ids[id];
+  } else {
+    ids[id] = true;
+  }
 }

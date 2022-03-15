@@ -27,6 +27,8 @@ export const enum ActionTypes {
   SET_BINDING = 'core-designer/set-binding',
   CLEAR_BINDING = 'core-designer/clear-binding',
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
+  SELECT = 'core-designer/select',
+  TOGGLE_COMPONENT_SELECTION = 'core-designer/toggle-compomnent-selection',
 }
 
 export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges };
@@ -67,11 +69,31 @@ export interface Component extends CoreComponentData {
   bindings: { [memberName: string]: string[]; };
 }
 
+export type SelectionType = 'components' | 'binding';
+
+export interface Selection {
+  type: SelectionType;
+}
+
+export interface BindingSelection extends Selection {
+  type: 'binding';
+  id: string;
+}
+
+export type MultiSelectionIds = { [id: string]: true };
+
+export interface ComponentsSelection extends Selection {
+  type: 'components';
+  ids: MultiSelectionIds;
+}
+
 export interface CoreOpenedProject extends OpenedProjectBase {
   instances: Table<Instance>;
   plugins: Table<Plugin>;
   components: Table<Component>;
   bindings: Table<Binding>;
+
+  selection: Selection;
 }
 
 export type CoreDesignerState = DesignerState<CoreOpenedProject>;

@@ -172,3 +172,8 @@ function makeBindingId(memberType: MemberType, componentId: string, memberName: 
       throw new Error(`Unhandled MemberType: '${memberType}'`);
   }
 }
+
+export const getSelection = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.selection;
+}

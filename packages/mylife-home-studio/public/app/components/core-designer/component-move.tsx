@@ -1,11 +1,11 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect, useRef } from 'react';
+import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useSafeSelector } from './drawing/use-safe-selector';
 import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
 import { Rectangle } from './drawing/types';
-import { useSelection, getSelectedComponentsIds, MultiSelectionIds } from './selection';
+import { useSelection, getSelectedComponentsIds } from './selection';
 import { useTabPanelId } from '../lib/tab-panel';
 
 import { AppState } from '../../store/types';
@@ -14,7 +14,7 @@ import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
 interface ComponentMoveContextProps {
-  componentsIds: MultiSelectionIds;
+  componentsIds: types.MultiSelectionIds;
   delta: types.Position;
   move: (delta: types.Position) => void;
 }
@@ -23,7 +23,7 @@ export const ComponentMoveContext = createContext<ComponentMoveContextProps>(nul
 
 export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
   const { selection } = useSelection();
-  const [componentsIds, setComponentsIds] = useState<MultiSelectionIds>(null);
+  const [componentsIds, setComponentsIds] = useState<types.MultiSelectionIds>(null);
   const [delta, setDelta] = useState<types.Position>(null);
 
   const move = useCallback((point: types.Position) => {

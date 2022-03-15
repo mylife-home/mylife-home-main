@@ -1,22 +1,11 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useContext, useCallback, useEffect } from 'react';
+import React, { FunctionComponent, createContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTabPanelId } from '../lib/tab-panel';
 
-export type SelectionType = 'components' | 'binding';
-
-export interface Selection {
-  type: SelectionType;
-}
-
-export interface BindingSelection extends Selection {
-  type: 'binding';
-  id: string;
-}
-
-export type MultiSelectionIds = { [id: string]: true };
-
-export interface ComponentsSelection extends Selection {
-  type: 'components';
-  ids: MultiSelectionIds;
-}
+import { AppState } from '../../store/types';
+import { Selection, BindingSelection, MultiSelectionIds, ComponentsSelection } from '../../store/core-designer/types';
+import { getSelection } from '../../store/core-designer/selectors';
+import { select, toggleComponentSelection } from '../../store/core-designer/actions';
 
 interface SelectionContextProps {
   selection: Selection;
@@ -26,7 +15,16 @@ interface SelectionContextProps {
 export const SelectionContext = createContext<SelectionContextProps>(null);
 
 export function useSelection() {
-  return useContext(SelectionContext);
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+
+  return {
+    selection: useSelector((state: AppState) => getSelection(state, tabId)),
+    ...useMemo(() => ({
+      select: (selection: Selection) => dispatch(select({ id: tabId, selection })),
+      toggleComponentSelection: (componentId: string) => dispatch(toggleComponentSelection({ id: tabId, componentId })),
+    }), [tabId, dispatch])
+  };
 }
 
 export function useExtendedSelection() {
@@ -46,12 +44,12 @@ export function useExtendedSelection() {
 
   const selectComponent = useCallback((componentId: string) => {
     const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
-    select(() => newSelection);
+    select(newSelection);
   }, [select]);
 
   const selectBinding = useCallback((bindingId: string) => {
     const newSelection: BindingSelection = { type: 'binding', id: bindingId };
-    select(() => newSelection);
+    select(newSelection);
   }, [select]);
 
   const selectComponents = useCallback((componentsIds: string[]) => {
@@ -61,55 +59,31 @@ export function useExtendedSelection() {
     }
 
     const newSelection: ComponentsSelection = { type: 'components', ids };
-    select(() => newSelection);
+    select(newSelection);
   }, [select]);
 
   return { ...selectionDetails, selectComponent, selectBinding, selectComponents };
 }
 
 export function useComponentSelection(componentId: string) {
-  const { selection, select } = useSelection();
+  const { selection, select, toggleComponentSelection } = useSelection();
 
   return { 
     selected: !!getSelectedComponentsIds(selection)[componentId],
 
     select: useCallback(() => {
-      select((selection) => {
-        // If already selected do nothing
-        const selectedComponents = getSelectedComponentsIds(selection);
-        if (selectedComponents[componentId]) {
-          return selection;
-        }
-
-        const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
-        return newSelection;
-      });
+      const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
+      select(newSelection);
     }, [select, componentId]),
 
-    multiSelectToggle: useCallback(() => {
-      select((selection) => {
-        const selectedComponents = getSelectedComponentsIds(selection);
-
-        const ids = { ... selectedComponents };
-        toggle(ids, componentId);
-
-        const newSelection: ComponentsSelection = { type: 'components', ids };
-        return newSelection;
-      });
-    }, [select, componentId])
+    toggle: useCallback(() => {
+      toggleComponentSelection(componentId);
+    }, [toggleComponentSelection, componentId])
   };
 }
 
 export function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
   return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
-}
-
-function toggle(ids: MultiSelectionIds, id: string) {
-  if(ids[id]) {
-    delete ids[id];
-  } else {
-    ids[id] = true;
-  }
 }
 
 export function useBindingSelection(bindingId: string) {
@@ -119,7 +93,7 @@ export function useBindingSelection(bindingId: string) {
     selected: selection?.type === 'binding' && (selection as BindingSelection).id === bindingId,
     select: useCallback(() => {
       const newSelection: BindingSelection = { type: 'binding', id: bindingId };
-      select(() => newSelection);
+      select(newSelection);
     }, [select, bindingId])
   };
 }

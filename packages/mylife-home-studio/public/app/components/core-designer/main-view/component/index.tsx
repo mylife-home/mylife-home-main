@@ -188,7 +188,7 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
   const onDrag = useBindingDraggable();
-  const { select, multiSelectToggle } = useComponentSelection(componentId);
+  const { select, toggle } = useComponentSelection(componentId);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
@@ -197,11 +197,11 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
     if (metaPressed) {
-      multiSelectToggle();
+      toggle();
     } else {
       select();
     }
-  }, [multiSelectToggle, select]);
+  }, [toggle, select]);
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, plugin);
