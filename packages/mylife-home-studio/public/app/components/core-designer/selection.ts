@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTabPanelId } from '../lib/tab-panel';
 
