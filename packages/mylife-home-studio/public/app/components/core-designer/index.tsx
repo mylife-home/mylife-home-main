@@ -5,7 +5,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Divider from '@material-ui/core/Divider';
 
-import { SelectionProvider } from './selection';
 import { ComponentMoveProvider } from './component-move';
 import { ViewInfoProvider } from './drawing/view-info';
 import { CanvasThemeProvider } from './drawing/theme';
@@ -56,43 +55,41 @@ const CoreDesigner: FunctionComponent = () => {
   return (
     <CanvasThemeProvider>
       <ViewInfoProvider>
-        <SelectionProvider>
-          <ComponentMoveProvider>
-            <SplitPane split="vertical" defaultSize={450} minSize={300}>
+        <ComponentMoveProvider>
+          <SplitPane split="vertical" defaultSize={450} minSize={300}>
 
-              <div className={classes.sideBar}>
+            <div className={classes.sideBar}>
 
-                <div className={classes.miniViewContainer}>
-                  <MiniView />
-                  <ZoomSlider />
-                </div>
-
-                <Divider />
-
-                <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
-                  <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
-                  <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
-                </Tabs>
-
-                <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
-                  <SelectionPanel className={classes.tabContent} />
-                </div>
-
-                <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
-                  <Toolbox className={classes.tabContent} />
-                </div>
-
-                <Divider />
-
-                <Actions />
-
+              <div className={classes.miniViewContainer}>
+                <MiniView />
+                <ZoomSlider />
               </div>
 
-              <MainView />
+              <Divider />
 
-            </SplitPane>
-          </ComponentMoveProvider>
-        </SelectionProvider>
+              <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
+                <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
+                <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
+              </Tabs>
+
+              <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
+                <SelectionPanel className={classes.tabContent} />
+              </div>
+
+              <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
+                <Toolbox className={classes.tabContent} />
+              </div>
+
+              <Divider />
+
+              <Actions />
+
+            </div>
+
+            <MainView />
+
+          </SplitPane>
+        </ComponentMoveProvider>
       </ViewInfoProvider>
     </CanvasThemeProvider>
   );

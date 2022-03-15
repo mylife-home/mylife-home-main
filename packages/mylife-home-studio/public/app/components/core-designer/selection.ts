@@ -1,4 +1,4 @@
-import React, { FunctionComponent, createContext, useState, useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTabPanelId } from '../lib/tab-panel';
 
@@ -6,13 +6,6 @@ import { AppState } from '../../store/types';
 import { Selection, BindingSelection, MultiSelectionIds, ComponentsSelection } from '../../store/core-designer/types';
 import { getSelection } from '../../store/core-designer/selectors';
 import { select, toggleComponentSelection } from '../../store/core-designer/actions';
-
-interface SelectionContextProps {
-  selection: Selection;
-  select: (callback: (prev: Selection) => Selection) => void;
-}
-
-export const SelectionContext = createContext<SelectionContextProps>(null);
 
 export function useSelection() {
   const tabId = useTabPanelId();
@@ -96,17 +89,6 @@ export function useBindingSelection(bindingId: string) {
       select(newSelection);
     }, [select, bindingId])
   };
-}
-
-export const SelectionProvider: FunctionComponent = ({ children }) => {
-  const [selection, select] = useState<Selection>(null);
-  const contextProps = useMemo(() => ({ selection, select }), [selection, select]);
-
-  return (
-    <SelectionContext.Provider value={contextProps}>
-      {children}
-    </SelectionContext.Provider>
-  );
 }
 
 export function useResetSelectionIfNull<T>(obj: T) {
