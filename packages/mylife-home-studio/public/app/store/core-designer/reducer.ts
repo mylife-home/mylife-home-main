@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection } from './types';
+import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection } from './types';
 import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, CorePluginData, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
@@ -192,6 +192,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       arrayRemove(plugin.components, component.id);
       updatePluginStats(openedProject, plugin);
       updateInstanceStats(openedProject, plugin.instanceName);
+      unselectComponent(openedProject, id);
       break;
     }
 
@@ -210,6 +211,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
 
       updatePluginStats(openedProject, plugin);
       updateInstanceStats(openedProject, plugin.instanceName);
+      renameComponentSelection(openedProject, id, newId);
       break;
     }
 
@@ -227,6 +229,7 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
       tableRemove(openedProject.bindings, id);
       removeBinding(openedProject, binding.sourceComponent, binding.sourceState, id);
       removeBinding(openedProject, binding.targetComponent, binding.targetAction, id);
+      unselectBinding(openedProject, id);
       break;
     }
 
@@ -374,5 +377,44 @@ function toggleSelection(ids: MultiSelectionIds, id: string) {
     delete ids[id];
   } else {
     ids[id] = true;
+  }
+}
+
+function renameComponentSelection(openedProject: CoreOpenedProject, oldId: string, newId: string) {
+  if (openedProject.selection?.type !== 'components') {
+    return;
+  } 
+  
+  const selection = openedProject.selection as ComponentsSelection;
+
+  if (selection.ids[oldId]) {
+    delete selection.ids[oldId];
+    selection.ids[newId] = true;
+  }
+}
+
+function unselectComponent(openedProject: CoreOpenedProject, componentId: string) {
+  if (openedProject.selection?.type !== 'components') {
+    return;
+  } 
+  
+  const selection = openedProject.selection as ComponentsSelection;
+
+  delete selection.ids[componentId];
+
+  if (Object.keys(selection.ids).length === 0) {
+    openedProject.selection = null;
+  }
+}
+
+function unselectBinding(openedProject: CoreOpenedProject, bindingId: string) {
+  if (openedProject.selection?.type !== 'binding') {
+    return;
+  } 
+  
+  const selection = openedProject.selection as BindingSelection;
+  
+  if (selection.id === bindingId) {
+    openedProject.selection = null;
   }
 }

@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { useTabSelector } from '../../lib/use-tab-selector';
 import QuickAccess from '../../lib/quick-access';
-import { useResetSelectionIfNull, useExtendedSelection } from '../selection';
+import { useExtendedSelection } from '../selection';
 import Component from './component';
 import Binding from './binding';
 import Multiple from './multiple';
@@ -45,71 +45,17 @@ const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ classNa
 
   if (selectedBinding) {
     return (
-      <NullWrapper selector={getBinding}>
-        <Binding className={className} />
-      </NullWrapper>
+      <Binding className={className} />
     );
   } else if (selectedComponent) {
     return (
-      <NullWrapper selector={getComponent}>
-        <Component className={className} />
-      </NullWrapper>
+      <Component className={className} />
     );
   } else if (selectedComponents) {
     return (
-      <MultiNullWrapper>
         <Multiple className={className} />
-      </MultiNullWrapper>
     );
   } else {
     return null;
   }
 }
-
-const NullWrapper: FunctionComponent<{ selector: (state: AppState, tabId: string, id: string) => any; }> = ({ selector, children }) => {
-  const { selectedComponent, selectedBinding } = useExtendedSelection();
-  const item = useTabSelector((state, tabId) => selector(state, tabId, selectedComponent || selectedBinding));
-  useResetSelectionIfNull(item);
-
-  if(!item) {
-    return null;
-  }
-
-  return (
-    <>
-      {children}
-    </>
-  );
-};
-
-const MultiNullWrapper: FunctionComponent = ({ children }) => {
-  const { selectedComponents, selectComponents } = useExtendedSelection();
-  const { components } = useTabSelector(getAllComponentsAndPlugins);
-
-  useEffect(() => {
-    // Unselect components that does not exist anymore.
-    // If selection becomes empty, clear it. it only one component stay selected, move to single selection.
-    const ids: string[] = [];
-    let changed = false;
-  
-    for (const id of Object.keys(selectedComponents)) {
-      if (components[id]) {
-        ids.push(id);
-      } else {
-        changed = true;
-      }
-    }
-
-    if (!changed) {
-      return;
-    }
-
-    selectComponents(ids);
-  }, [selectedComponents, components, selectComponents]);
-
-  return (
-    <>
-      {children}
-    </>
-  );
-};

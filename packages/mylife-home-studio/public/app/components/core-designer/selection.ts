@@ -90,13 +90,3 @@ export function useBindingSelection(bindingId: string) {
     }, [select, bindingId])
   };
 }
-
-export function useResetSelectionIfNull<T>(obj: T) {
-  const { select } = useSelection();
-
-  useEffect(() => {
-    if (!obj) {
-      select(null);
-    }
-  }, [obj]);
-}
