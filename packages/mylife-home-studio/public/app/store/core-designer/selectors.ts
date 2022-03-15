@@ -191,9 +191,11 @@ export const getSelectionType = (state: AppState, tabId: string) => {
   }
 };
 
+const EMPTY_SELECTION = {};
+
 export const getSelectedComponents = (state: AppState, tabId: string) => {
   const { selection } = getOpenedProject(state, tabId);
-  return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
+  return selection?.type === 'components' ? (selection as ComponentsSelection).ids : EMPTY_SELECTION;
 };
 
 export const getSelectedComponentsArray = createSelector(
