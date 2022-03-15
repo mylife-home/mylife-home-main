@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { CoreOpenedProject, MemberType } from './types';
+import { CoreOpenedProject, MemberType, ComponentsSelection, BindingSelection } from './types';
 
 const getOpenedProjects = (state: AppState) => state.coreDesigner.openedProjects;
 
@@ -176,4 +176,37 @@ function makeBindingId(memberType: MemberType, componentId: string, memberName: 
 export const getSelection = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.selection;
-}
+};
+
+export const getSelectionType = (state: AppState, tabId: string) => {
+  const selection = getSelection(state, tabId);
+
+  switch (selection?.type) {
+    case 'binding':
+      return 'binding';
+    case 'components':
+      return Object.keys((selection as ComponentsSelection).ids).length > 1 ? 'components' : 'component';
+    default:
+      return null;
+  }
+};
+
+export const getSelectedComponents = (state: AppState, tabId: string) => {
+  const { selection } = getOpenedProject(state, tabId);
+  return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
+};
+
+export const getSelectedComponentsArray = createSelector(
+  getSelectedComponents,
+  (components) => Object.keys(components).sort(),
+);
+
+export const getSelectedComponent = (state: AppState, tabId: string) => {
+  const ids = getSelectedComponentsArray(state, tabId);
+  return ids.length > 0 ? ids[0] : null;
+};
+
+export const getSelectedBinding = (state: AppState, tabId: string) => {
+  const { selection } = getOpenedProject(state, tabId);
+  return selection?.type === 'binding' ? (selection as BindingSelection).id : null;
+};

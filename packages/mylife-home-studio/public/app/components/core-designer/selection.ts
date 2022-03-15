@@ -20,19 +20,6 @@ export function useSelection() {
   };
 }
 
-export function useSelectionType() {
-  const { selection } = useSelection();
-
-  switch (selection?.type) {
-    case 'binding':
-      return 'binding';
-    case 'components':
-      return Object.keys((selection as ComponentsSelection).ids).length > 1 ? 'components' : 'component';
-    default:
-      return null;
-  }
-}
-
 export function useSelectComponent() {
   const { select } = useSelection();
 
@@ -42,32 +29,10 @@ export function useSelectComponent() {
   }, [select]);
 }
 
-export function useExtendedSelection() {
-  const { selection, select } = useSelection();
+export function useSelectComponents() {
+  const { select } = useSelection();
 
-  const selectionDetails = useMemo(() => {
-    const comps = getSelectedComponentsIds(selection);
-    const compsArray = Object.keys(comps);
-
-    return {
-      selectedComponent: compsArray.length === 1 ? compsArray[0] : null,
-      selectedComponents: compsArray.length > 1 ? comps : null,
-      selectedBinding: selection?.type === 'binding' ? (selection as BindingSelection).id : null,
-    };
-
-  }, [selection]);
-
-  const selectComponent = useCallback((componentId: string) => {
-    const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
-    select(newSelection);
-  }, [select]);
-
-  const selectBinding = useCallback((bindingId: string) => {
-    const newSelection: BindingSelection = { type: 'binding', id: bindingId };
-    select(newSelection);
-  }, [select]);
-
-  const selectComponents = useCallback((componentsIds: string[]) => {
+  return useCallback((componentsIds: string[]) => {
     const ids: MultiSelectionIds = {};
     for (const id of componentsIds) {
       ids[id] = true;
@@ -76,8 +41,6 @@ export function useExtendedSelection() {
     const newSelection: ComponentsSelection = { type: 'components', ids };
     select(newSelection);
   }, [select]);
-
-  return { ...selectionDetails, selectComponent, selectBinding, selectComponents };
 }
 
 export function useComponentSelection(componentId: string) {

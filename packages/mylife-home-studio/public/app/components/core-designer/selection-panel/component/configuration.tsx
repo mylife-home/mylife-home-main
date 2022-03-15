@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
@@ -8,10 +8,11 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useExtendedSelection } from '../../selection';
 import { useComponentData } from './common';
+import { AppState } from '../../../../store/types';
 import { ConfigItem, ConfigType } from '../../../../store/core-designer/types';
 import { configureComponent } from '../../../../store/core-designer/actions';
+import { getSelectedComponent } from '../../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   editor: {
@@ -47,7 +48,7 @@ export default Configuration;
 
 function useConfigure() {
   const tabId = useTabPanelId();
-  const { selectedComponent: componentId } = useExtendedSelection();
+  const componentId = useSelector(useCallback((state: AppState) => getSelectedComponent(state, tabId), [tabId]));
   const dispatch = useDispatch();
 
   return useCallback((configId: string, configValue: any) => {

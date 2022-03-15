@@ -8,11 +8,11 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
-import { useExtendedSelection } from '../selection';
+import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
-import { getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
+import { getAllComponentsAndPlugins, getSelectedComponentsArray } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,10 +25,10 @@ const useStyles = makeStyles((theme) => ({
 
 const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedComponents, selectComponent } = useExtendedSelection();
-  const ids = useMemo(() => Object.keys(selectedComponents).sort(), [selectedComponents]);
-  const { clearAll } = useActionsConnect();
-  const centerPosition = useCenterPosition();
+  const componentsIds = useTabSelector(getSelectedComponentsArray);
+  const { clearAll } = useActionsConnect(componentsIds);
+  const centerPosition = useCenterPosition(componentsIds);
+  const selectComponent = useSelectComponent();
 
   return (
     <div className={className}>
@@ -39,7 +39,7 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
         </div>
 
         <Item title="Composants" multiline>
-          {ids.map(id => (
+          {componentsIds.map(id => (
             <Link key={id} variant="body1" color="textPrimary" href="#" onClick={() => selectComponent(id)}>{id}</Link>
           ))}
         </Item>
@@ -50,25 +50,23 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 
 export default Multiple;
 
-function useActionsConnect() {
+function useActionsConnect(componentsIds: string[]) {
   const tabId = useTabPanelId();
-  const { selectedComponents } = useExtendedSelection();
   const dispatch = useDispatch();
 
   const clearAll = useCallback(() => {
-    dispatch(clearComponents({ id: tabId, componentsIds: Object.keys(selectedComponents) }));
-  }, [tabId, dispatch, selectedComponents]);
+    dispatch(clearComponents({ id: tabId, componentsIds }));
+  }, [tabId, dispatch, componentsIds]);
 
   return { clearAll };
 }
 
-function useCenterPosition() {
-  const { selectedComponents } = useExtendedSelection();
+function useCenterPosition(componentsIds: string[]) {
   const { components, plugins } = useTabSelector(getAllComponentsAndPlugins);
   const theme = useCanvasTheme();
 
   return useMemo(() => {
-    const rects = Object.keys(selectedComponents).map(id => {
+    const rects = componentsIds.map(id => {
       const component = components[id];
       const plugin = plugins[component.plugin];
       return computeComponentRect(theme, component, plugin);
@@ -76,5 +74,5 @@ function useCenterPosition() {
 
     return computeCenter(mergeRects(rects));
 
-  }, [theme, selectedComponents]);
+  }, [theme, componentsIds, components, plugins]);
 }

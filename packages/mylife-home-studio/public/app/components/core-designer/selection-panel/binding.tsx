@@ -9,13 +9,13 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeBindingAnchors } from '../drawing/shapes';
-import { useExtendedSelection } from '../selection';
+import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getComponent, getPlugin, getBinding } from '../../../store/core-designer/selectors';
+import { getComponent, getPlugin, getBinding, getSelectedBinding } from '../../../store/core-designer/selectors';
 import { clearBinding } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -28,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { selectedBinding, selectComponent } = useExtendedSelection();
-  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect(selectedBinding);
+  const selectComponent = useSelectComponent();
+  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect();
   const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 
   const type = sourcePlugin.members[binding.sourceState].valueType;
@@ -60,15 +60,17 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
 
 export default Binding;
 
-function useConnect(bindingId: string) {
+function useConnect() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
-  const binding = useSelector((state: AppState) => getBinding(state, tabId, bindingId));
-  const sourceComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.sourceComponent));
-  const targetComponent = useSelector((state: AppState) => getComponent(state, tabId, binding.targetComponent));
-  const sourcePlugin = useSelector((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin));
-  const targetPlugin = useSelector((state: AppState) => getPlugin(state, tabId, targetComponent.plugin));
+  const bindingId = useSelector(useCallback((state: AppState) => getSelectedBinding(state, tabId), [tabId]));
+
+  const binding = useSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [tabId, bindingId]));
+  const sourceComponent = useSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.sourceComponent), [tabId, binding.sourceComponent]));
+  const targetComponent = useSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.targetComponent), [tabId, binding.targetComponent]));
+  const sourcePlugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin), [tabId, sourceComponent.plugin]));
+  const targetPlugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, targetComponent.plugin), [tabId, targetComponent.plugin]));
 
   const clear = useCallback(() => {
     dispatch(clearBinding({ id: tabId, bindingId }));

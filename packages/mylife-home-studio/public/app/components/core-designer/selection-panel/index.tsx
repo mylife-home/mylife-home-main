@@ -4,11 +4,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { useTabSelector } from '../../lib/use-tab-selector';
 import QuickAccess from '../../lib/quick-access';
-import { useSelectionType, useSelectComponent } from '../selection';
+import { useSelectComponent } from '../selection';
 import Component from './component';
 import Binding from './binding';
 import Multiple from './multiple';
-import { getComponentIds } from '../../../store/core-designer/selectors';
+import { getComponentIds, getSelectionType } from '../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -40,7 +40,7 @@ const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className 
 export default SelectionPanel;
 
 const DisplayDispatcher: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const type = useSelectionType();
+  const type = useTabSelector(getSelectionType);
 
   switch (type) {
     case 'binding':

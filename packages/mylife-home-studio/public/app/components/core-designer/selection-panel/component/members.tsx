@@ -16,11 +16,11 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
-import { useExtendedSelection } from '../../selection';
+import { useBindingSelection } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
-import { getBinding, getNewBindingHalfList } from '../../../../store/core-designer/selectors';
+import { getBinding, getNewBindingHalfList, getSelectedComponent } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
 import { BindingHalf, createBindingData } from '../../binding-tools';
 
@@ -120,13 +120,12 @@ const useBindingStyles = makeStyles((theme) => ({
 
 const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberType }> = ({ id, memberType }) => {
   const classes = useBindingStyles();
-  const { selectBinding } = useExtendedSelection();
+  const { select } = useBindingSelection(id);
   const BindingIcon = getBindingIcon(memberType);
   const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
-  const handleSelect = () => selectBinding(binding.id);
 
   return (
-    <Link variant="body1" color="textPrimary" href="#" className={classes.bindingLink} onClick={handleSelect}>
+    <Link variant="body1" color="textPrimary" href="#" className={classes.bindingLink} onClick={select}>
       <BindingIcon />
       {getBindingDisplay(binding, memberType)}
     </Link>
@@ -207,7 +206,7 @@ const NewBindingButton: FunctionComponent<{ className?: string; memberName: stri
 
 const NewBindingPopoverContent: FunctionComponent<{ memberName: string; onClose: () => void; }> = ({ memberName, onClose }) => {
   const classes = useNewBindingStyles();
-  const { selectedComponent: componentId } = useExtendedSelection();
+  const componentId = useTabSelector(getSelectedComponent);
   const list = useTabSelector((state, tabId) => getNewBindingHalfList(state, tabId, componentId, memberName));
   const newBinding = useNewBinding(memberName);
 

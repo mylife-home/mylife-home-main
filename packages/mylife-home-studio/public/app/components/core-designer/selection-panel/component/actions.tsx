@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -10,13 +10,12 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
 import { computeCenter, computeComponentRect } from '../../drawing/shapes';
-import { useExtendedSelection } from '../../selection';
 import CenterButton from '../center-button';
 import { useRenameDialog } from '../../../dialogs/rename';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponentIds, getComponent, getPlugin } from '../../../../store/core-designer/selectors';
+import { getComponentIds, getComponent, getPlugin, getSelectedComponent } from '../../../../store/core-designer/selectors';
 import { clearComponents, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -61,12 +60,12 @@ export default Actions;
 
 function useActionsConnect() {
   const tabId = useTabPanelId();
-  const { selectedComponent: componentId } = useExtendedSelection();
+  const componentId = useSelector(useCallback((state: AppState) => getSelectedComponent(state, tabId), [tabId]));
   const dispatch = useDispatch();
 
-  const component = useSelector((state: AppState) => getComponent(state, tabId, componentId));
-  const plugin = useSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
-  const componentIds = useSelector((state: AppState) => getComponentIds(state, tabId));
+  const component = useSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [tabId, componentId]));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [tabId, component.plugin]));
+  const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
