@@ -81,7 +81,7 @@ export default createReducer(initialState, {
     const selection = openedProject.selection as ComponentsSelection;
     toggleSelection(selection.ids, componentId);
 
-    if (Object.keys(openedProject.selection).length === 0) {
+    if (Object.keys(selection.ids).length === 0) {
       openedProject.selection = null;
     }
   },
