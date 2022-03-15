@@ -2,7 +2,6 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
-import { useComponentSelection } from '../selection';
 import { Rect } from '../drawing/konva';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect } from '../drawing/shapes';

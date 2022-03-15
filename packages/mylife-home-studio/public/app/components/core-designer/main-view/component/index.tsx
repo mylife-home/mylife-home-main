@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import { parseType } from '../../../lib/member-types';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useComponentSelection } from '../../selection';
+import { useSelectComponent, useToggleComponent } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
@@ -13,7 +13,7 @@ import { useSafeSelector } from '../../drawing/use-safe-selector';
 import Border from '../../drawing/border';
 import { useMovableComponent, useComponentData } from '../../component-move';
 import { isBindingTarget } from '../../binding-tools';
-import { Title, Property, BorderGroup, PropertyProps } from './layout';
+import { Title, Property, BorderGroup } from './layout';
 import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } from '../binding-dnd';
 
 import { AppState } from '../../../../store/types';
@@ -190,7 +190,10 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
   const onDrag = useBindingDraggable();
-  const { select, toggle } = useComponentSelection(componentId);
+  const selectComponent = useSelectComponent();
+  const toggleComponent = useToggleComponent();
+  const select = useCallback(() => selectComponent(componentId), [selectComponent, componentId]);
+  const toggle = useCallback(() => toggleComponent(componentId), [toggleComponent, componentId]);
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
   const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);

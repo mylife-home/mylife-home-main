@@ -29,6 +29,11 @@ export function useSelectComponent() {
   }, [select]);
 }
 
+export function useToggleComponent() {
+  const { toggleComponentSelection } = useSelection();
+  return toggleComponentSelection;
+}
+
 export function useSelectComponents() {
   const { select } = useSelection();
 
@@ -49,26 +54,5 @@ export function useSelectBinding() {
   return useCallback((bindingId: string) => {
     const newSelection: BindingSelection = { type: 'binding', id: bindingId };
     select(newSelection);
-}, [select]);
-}
-
-export function useComponentSelection(componentId: string) {
-  const { selection, select, toggleComponentSelection } = useSelection();
-
-  return { 
-    selected: !!getSelectedComponentsIds(selection)[componentId],
-
-    select: useCallback(() => {
-      const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
-      select(newSelection);
-    }, [select, componentId]),
-
-    toggle: useCallback(() => {
-      toggleComponentSelection(componentId);
-    }, [toggleComponentSelection, componentId])
-  };
-}
-
-function getSelectedComponentsIds(selection: Selection): MultiSelectionIds {
-  return selection?.type === 'components' ? (selection as ComponentsSelection).ids : {};
+  }, [select]);
 }
