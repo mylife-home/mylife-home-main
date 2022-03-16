@@ -38,8 +38,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
-      mapper({ config }: { config: ImportFromOnlineConfig}) {
-        return { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall;
+      mapper({ id, config }: { id: string; config: ImportFromOnlineConfig}) {
+        return {
+          tabId: id,
+          callData: { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -47,8 +50,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
-      mapper({ config }: { config: ImportFromProjectConfig}) {
-        return { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall;
+      mapper({ id, config }: { id: string; config: ImportFromProjectConfig}) {
+        return {
+          tabId: id,
+          callData: { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -56,8 +62,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
-      mapper({ serverData, selection }: { serverData: unknown, selection: string[] }) {
-        return { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject;
+      mapper({ id, serverData, selection }: { id: string; serverData: unknown, selection: string[] }) {
+        return {
+          tabId: id,
+          callData: { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject
+        };
       },
       resultMapper(serviceResult: ApplyBulkUpdatesCoreProjectCallResult): BulkUpdatesStats {
         return serviceResult.stats;
@@ -65,8 +74,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.VALIDATE_PROJECT]: {
-      mapper() {
-        return { operation: 'validate' } as CoreProjectCall;
+      mapper({ id }: { id: string }) {
+        return {
+          tabId: id,
+          callData: { operation: 'validate' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: ValidateCoreProjectCallResult) {
         return serviceResult.validation;
@@ -74,8 +86,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
-      mapper() {
-        return { operation: 'prepare-deploy-to-files' } as CoreProjectCall;
+      mapper({ id }: { id: string }) {
+        return {
+          tabId: id,
+          callData: { operation: 'prepare-deploy-to-files' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareDeployToFilesCoreProjectCallResult): FilesDeployData {
         const { validation, changes, serverData, files, bindingsInstanceName } = serviceResult;
@@ -84,8 +99,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
-      mapper({ bindingsInstanceName, serverData }: { bindingsInstanceName?: string; serverData: unknown }) {
-        return { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall;
+      mapper({ id, bindingsInstanceName, serverData }: { id: string; bindingsInstanceName?: string; serverData: unknown }) {
+        return {
+          tabId: id,
+          callData: { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall
+        };
       },
       resultMapper(serviceResult: ApplyDeployToFilesCoreProjectCallResult): FilesDeployResult {
         const { writtenFilesCount } = serviceResult;
@@ -94,8 +112,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_ONLINE]: {
-      mapper() {
-        return { operation: 'prepare-deploy-to-online' } as CoreProjectCall;
+      mapper({ id }: { id: string }) {
+        return {
+          tabId: id,
+          callData: { operation: 'prepare-deploy-to-online' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult): OnlineDeployData {
         const { validation, changes, serverData } = serviceResult;
@@ -104,49 +125,76 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
-      mapper({ serverData }: { serverData: unknown }) {
-        return { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall;
+      mapper({ id, serverData }: { id: string; serverData: unknown }) {
+        return {
+          tabId: id,
+          callData: { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall
+        };
       }
     },
 
     [ActionTypes.UPDATE_TOOLBOX]: {
-      mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
-        return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
+      mapper({ id, itemType, itemId, action }: { id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
+        return {
+          tabId: id,
+          callData: { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall
+        };
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ componentId, pluginId, position }: { componentId: string; pluginId: string; position: Position }) {
-        return { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall;
+      mapper({ id, componentId, pluginId, position }: { id: string; componentId: string; pluginId: string; position: Position }) {
+        return {
+          tabId: id,
+          callData: { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
-      mapper({ componentsIds, delta }: { componentsIds: string[]; delta: Position }) {
-        return { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall;
+      mapper({ id, componentsIds, delta }: { id: string; componentsIds: string[]; delta: Position }) {
+        return {
+          tabId: id,
+          callData: { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall
+        };
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
-      mapper({ componentId, configId, configValue }: { componentId: string; configId: string; configValue: any }) {
-        return { operation: 'configure-component', componentId, configId, configValue } as ConfigureComponentCoreProjectCall;
+      mapper({ id, componentId, configId, configValue }: { id: string; componentId: string; configId: string; configValue: any }) {
+        return {
+          tabId: id,
+          callData: { operation: 'configure-component', componentId, configId, configValue } as ConfigureComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
-      mapper({ componentId, newId }: { componentId: string; newId: string }) {
-        return { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall;
+      mapper({ id, componentId, newId }: { id: string; componentId: string; newId: string }) {
+        return {
+          tabId: id,
+          callData: { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
-      mapper({ componentsIds }: { componentsIds: string[] }) {
-        return { operation: 'clear-components', componentsIds } as ClearComponentsCoreProjectCall;
+      mapper({ id, componentsIds }: { id: string; componentsIds: string[] }) {
+        return {
+          tabId: id,
+          callData: { operation: 'clear-components', componentsIds } as ClearComponentsCoreProjectCall
+        };
       },
     },
     [ActionTypes.SET_BINDING]: {
-      mapper({ binding }: { binding: CoreBindingData }) {
-        return { operation: 'set-binding', binding } as SetBindingCoreProjectCall;
+      mapper({ id, binding }: { id: string; binding: CoreBindingData }) {
+        return {
+          tabId: id,
+          callData: { operation: 'set-binding', binding } as SetBindingCoreProjectCall
+        };
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
-      mapper({ bindingId }: { bindingId: string }) {
-        return { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall;
+      mapper({ id, bindingId }: { id: string; bindingId: string }) {
+        return {
+          tabId: id,
+          callData: { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall
+        };
       },
     },
   }

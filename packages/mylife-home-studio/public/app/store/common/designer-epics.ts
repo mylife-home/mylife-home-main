@@ -15,6 +15,11 @@ import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
 import { ProjectCall, ProjectCallResult, SetNameProjectNotification, UpdateProjectNotification } from '../../../../shared/project-manager';
 import { DeferredPayload } from './async-action';
 
+interface MapperResult {
+  tabId: string;
+  callData: ProjectCall;
+}
+
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
   projectType: ProjectType;
@@ -35,7 +40,7 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
 
   // project calls
   callMappers: { [actionType: string]: {
-    mapper: (payload: any) => ProjectCall;
+    mapper: (payload: any) => MapperResult;
     resultMapper?: (payload: ProjectCallResult) => unknown;
   } }
 }
@@ -135,15 +140,15 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     );
   }
 
-  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectCall, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
+  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => MapperResult, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
         withLatestFrom(state$),
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
-          const { notifierId } = getOpenedProject(state, action.payload.id);
-          const updateData = mapper(action.payload);
-          return callProjectCall(notifierId, updateData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
+          const { tabId, callData } = mapper(action.payload);
+          const { notifierId } = getOpenedProject(state, tabId);
+          return callProjectCall(notifierId, callData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
         })
       );
   }
