@@ -58,8 +58,8 @@ export default MainView;
 function useConnect() {
   const tabId = useTabPanelId();
   return {
-    componentIds: useSelector((state: AppState) => getComponentIds(state, tabId)),
-    bindingIds: useSelector((state: AppState) => getBindingIds(state, tabId)),
+    componentIds: useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId])),
+    bindingIds: useSelector(useCallback((state: AppState) => getBindingIds(state, tabId), [tabId])),
   };
 }
 
@@ -76,8 +76,6 @@ function useNewBinding() {
     // else render problem ?!?
     setTimeout(() => {
       const target = findBindingTarget(theme, mousePosition, componentsIds, componentsMap, pluginsMap);
-
-
       if (!target || !isBindingTarget(source, target)) {
         return;
       }

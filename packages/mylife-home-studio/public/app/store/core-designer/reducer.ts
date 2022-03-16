@@ -204,6 +204,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       tableSet(state.components, { ...component, id, componentId, bindings: {}, plugin: pluginId }, true);
 
       const plugin = state.plugins.byId[pluginId];
+      arrayAdd(openedProject.components, id, true);
       arrayAdd(plugin.components, id, true);
       updatePluginStats(state, openedProject, plugin);
       updateInstanceStats(state, plugin.instance);
