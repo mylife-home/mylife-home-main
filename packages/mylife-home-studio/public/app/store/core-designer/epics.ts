@@ -150,9 +150,24 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
-      mapper({ id, componentsIds, delta }: { id: string; componentsIds: string[]; delta: Position }) {
+      mapper({ componentsIds: fullComponentIds, delta }: { componentsIds: string[]; delta: Position }) {
+        const componentsIds: string[] = [];
+        let finalTabId = null;
+
+        for (const fullId of fullComponentIds) {
+          const { tabId, id } = extractIds(fullId);
+
+          if (!finalTabId) {
+            finalTabId = tabId;
+          } else if (tabId !== finalTabId) {
+            throw new Error(`Project id mismatch! ('${tabId}' !== '${finalTabId}')`);
+          }
+
+          componentsIds.push(id);
+        }
+
         return {
-          tabId: id,
+          tabId: finalTabId,
           callData: { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall
         };
       },
@@ -201,3 +216,15 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 });
 
 export default combineEpics(openedProjectManagementEpic);
+
+function extractIds(fullId: string): { tabId: string, id: string; } {
+  const sepPos = fullId.indexOf(':');
+  if (sepPos < 0) {
+    throw new Error(`Bad id: '${fullId}'`);
+  }
+
+  return {
+    tabId: fullId.substring(0, sepPos),
+    id: fullId.substring(sepPos + 1),
+  };
+}
