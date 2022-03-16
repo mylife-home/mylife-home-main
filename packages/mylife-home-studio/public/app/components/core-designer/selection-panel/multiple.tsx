@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Link from '@material-ui/core/Link';
 
 import DeleteButton from '../../lib/delete-button';
@@ -12,7 +12,7 @@ import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
 import { Group, Item } from '../../lib/properties-layout';
 
-import { getAllComponentsAndPlugins, getSelectedComponentsArray } from '../../../store/core-designer/selectors';
+import { getComponentsMap, getPluginsMap, getSelectedComponentsArray } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -62,17 +62,18 @@ function useActionsConnect(componentsIds: string[]) {
 }
 
 function useCenterPosition(componentsIds: string[]) {
-  const { components, plugins } = useTabSelector(getAllComponentsAndPlugins);
   const theme = useCanvasTheme();
+  const componentsMap = useSelector(getComponentsMap);
+  const pluginsMap = useSelector(getPluginsMap);
 
   return useMemo(() => {
     const rects = componentsIds.map(id => {
-      const component = components[id];
-      const plugin = plugins[component.plugin];
+      const component = componentsMap[id];
+      const plugin = pluginsMap[component.plugin];
       return computeComponentRect(theme, component, plugin);
     });
 
     return computeCenter(mergeRects(rects));
 
-  }, [theme, componentsIds, components, plugins]);
+  }, [theme, componentsIds, componentsMap, pluginsMap]);
 }

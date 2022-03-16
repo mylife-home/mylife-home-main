@@ -17,7 +17,7 @@ import { computeComponentRect, computeMemberRect } from '../drawing/shapes';
 import { createBindingData, isBindingTarget } from '../binding-tools';
 
 import { AppState } from '../../../store/types';
-import { getComponentIds, getBindingIds, getAllComponentsAndPlugins } from '../../../store/core-designer/selectors';
+import { getComponentIds, getBindingIds, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
 import * as types from '../../../store/core-designer/types';
 import { setBinding } from '../../../store/core-designer/actions';
 
@@ -66,14 +66,16 @@ function useConnect() {
 function useNewBinding() {
   const tabId = useTabPanelId();
   const theme = useCanvasTheme();
-  const componentsAndPlugins = useSelector((state: AppState) => getAllComponentsAndPlugins(state, tabId));
+  const componentsIds = useTabSelector(getComponentIds);
+  const componentsMap = useSelector(getComponentsMap);
+  const pluginsMap = useSelector(getPluginsMap);
   const dispatch = useDispatch();
 
   return useCallback((source: BindingSource, mousePosition: types.Position) => {
 
     // else render problem ?!?
     setTimeout(() => {
-      const target = findBindingTarget(theme, mousePosition, componentsAndPlugins);
+      const target = findBindingTarget(theme, mousePosition, componentsIds, componentsMap, pluginsMap);
 
 
       if (!target || !isBindingTarget(source, target)) {
@@ -84,7 +86,7 @@ function useNewBinding() {
       dispatch(setBinding({ id: tabId, binding }));
     }, 0);
 
-  }, [theme, componentsAndPlugins, dispatch, tabId]);
+  }, [theme, componentsIds, componentsMap, pluginsMap, dispatch, tabId]);
 }
 
 function useMultiSelecting() {
@@ -93,7 +95,9 @@ function useMultiSelecting() {
   const selectComponents = useSelectComponents();
 
   const theme = useCanvasTheme();
-  const componentsAndPlugins = useTabSelector(getAllComponentsAndPlugins);
+  const componentsIds = useTabSelector(getComponentIds);
+  const componentsMap = useSelector(getComponentsMap);
+  const pluginsMap = useSelector(getPluginsMap);
 
   const selectingRect = useMemo(() => {
     if (!start || !move) {
@@ -123,20 +127,21 @@ function useMultiSelecting() {
         setStart(null);
         setMove(null);
 
-        const ids = findComponentsInRect(theme, selectingRect, componentsAndPlugins);
+        const ids = findComponentsInRect(theme, selectingRect, componentsIds, componentsMap, pluginsMap);
         selectComponents(ids);
         break;
       }
     }
-  }, [setStart, setMove, selectingRect, theme, componentsAndPlugins, selectComponents]);
+  }, [setStart, setMove, selectingRect, theme, componentsIds, componentsMap, pluginsMap, selectComponents]);
 
   return { selectingRect, onMetaDrag };
 }
 
 // TODO: need model cleanup
-function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }): BindingSource {
-  for (const component of Object.values(components)) {
-    const plugin = plugins[component.plugin];
+function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, componentsIds: string[], componentsMap: { [id: string]: types.Component }, pluginsMap: { [id: string]: types.Plugin }): BindingSource {
+  for (const componentId of componentsIds) {
+    const component = componentsMap[componentId];
+    const plugin = pluginsMap[component.plugin];
 
     const componentRect = computeComponentRect(theme, component, plugin);
     if (!isInRect(mousePosition, componentRect)) {
@@ -156,11 +161,13 @@ function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, { 
 }
 
 // TODO: need model cleanup
-function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, { components, plugins }: { components: { [id: string]: types.Component }, plugins: { [id: string]: types.Plugin } }) {
+function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, componentsIds: string[], componentsMap: { [id: string]: types.Component }, pluginsMap: { [id: string]: types.Plugin }) {
   const ids: string[] = [];
 
-  for (const component of Object.values(components)) {
-    const plugin = plugins[component.plugin];
+  for (const componentId of componentsIds) {
+    const component = componentsMap[componentId];
+    const plugin = pluginsMap[component.plugin];
+    
     const componentRect = computeComponentRect(theme, component, plugin);
     if (isRectInRect(componentRect, selectingRect)) {
       ids.push(component.id);

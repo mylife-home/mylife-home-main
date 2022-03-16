@@ -1,5 +1,5 @@
 import React, { ReactNode, MouseEvent, FunctionComponent, forwardRef, useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,7 +14,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { useTabPanelId } from '../../lib/tab-panel';
-import { useTabSelector } from '../../lib/use-tab-selector';
+import { AppState } from '../../../store/types';
 import { getInstance, getPlugin, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
 import { updateToolbox } from '../../../store/core-designer/actions';
 
@@ -26,8 +26,8 @@ const useStyles = makeStyles((theme) => ({
 
 export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
-  const stats = useTabSelector((state, tabId) => getInstanceStats(state, tabId, id));
+  const instance = useSelector(useCallback((state: AppState) => getInstance(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getInstanceStats(state, id), [id]));
   const updateToolbox = useToolboxUpdateAction('instance', id);
 
   return (
@@ -48,8 +48,8 @@ export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) =>
 
 export const PluginMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
-  const stats = useTabSelector((state, tabId) => getPluginStats(state, tabId, id));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getPluginStats(state, id), [id]));
   const updateToolbox = useToolboxUpdateAction('plugin', id);
 
   return (

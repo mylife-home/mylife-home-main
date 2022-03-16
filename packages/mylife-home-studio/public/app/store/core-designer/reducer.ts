@@ -1,11 +1,15 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
 import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection } from './types';
-import { createTable, tableAdd, tableRemove, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
+import { createTable, tableAdd, tableRemove, tableRemoveAll, tableClear, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, CorePluginData, RenameCoreComponentNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
-  openedProjects: createTable<CoreOpenedProject>()
+  openedProjects: createTable<CoreOpenedProject>(),
+  instances: createTable<Instance>(),
+  plugins: createTable<Plugin>(),
+  components: createTable<Component>(),
+  bindings: createTable<Binding>(),
 };
 
 export default createReducer(initialState, {
@@ -21,7 +25,11 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
-      ...createInitialProjectState()
+      instances: [],
+      plugins: [],
+      components: [],
+      bindings: [],
+      selection: null,
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -39,7 +47,11 @@ export default createReducer(initialState, {
 
   [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
     const { id } = action.payload;
-
+    const openedProject = state.openedProjects.byId[id];
+    tableRemoveAll(state.instances, openedProject.instances);
+    tableRemoveAll(state.plugins, openedProject.plugins);
+    tableRemoveAll(state.components, openedProject.components);
+    tableRemoveAll(state.bindings, openedProject.bindings);
     tableRemove(state.openedProjects, id);
   },
 
@@ -52,14 +64,23 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
-      Object.assign(openedProject, createInitialProjectState());
+      openedProject.selection = null;
+      openedProject.instances = [];
+      openedProject.plugins = [];
+      openedProject.components = [];
+      openedProject.bindings = [];
     }
+
+    tableClear(state.instances);
+    tableClear(state.plugins);
+    tableClear(state.components);
+    tableClear(state.bindings);
   },
 
   [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification; }[]>) => {
     for (const { id, update } of action.payload) {
       const openedProject = state.openedProjects.byId[id];
-      applyProjectUpdate(openedProject, update);
+      applyProjectUpdate(state, openedProject, update);
     }
   },
 
@@ -87,7 +108,7 @@ export default createReducer(initialState, {
   },
 });
 
-function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProjectNotification) {
+function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedProject, update: UpdateProjectNotification) {
   switch (update.operation) {
     case 'set-name': {
       const { name } = update as SetNameProjectNotification;
@@ -96,23 +117,34 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     }
 
     case 'reset': {
-      Object.assign(openedProject, createInitialProjectState());
+      tableRemoveAll(state.instances, openedProject.instances);
+      tableRemoveAll(state.plugins, openedProject.plugins);
+      tableRemoveAll(state.components, openedProject.components);
+      tableRemoveAll(state.bindings, openedProject.bindings);
+
+      openedProject.selection = null;
+      openedProject.instances = [];
+      openedProject.plugins = [];
+      openedProject.components = [];
+      openedProject.bindings = [];
+
       break;
     }
 
     case 'set-core-plugins': {
-      openedProject.instances = createTable<Instance>();
-      openedProject.plugins = createTable<Plugin>();
+      tableRemoveAll(state.instances, openedProject.instances);
+      tableRemoveAll(state.plugins, openedProject.plugins);
 
       const { plugins } = update as SetCorePluginsNotification;
 
-      for (const [id, pluginData] of Object.entries(plugins)) {
-        setPlugin(openedProject, id, pluginData);
+      for (const [pluginId, pluginData] of Object.entries(plugins)) {
+        setPlugin(state, openedProject, pluginId, pluginData);
       }
 
       // sort filled instances
-      for (const instance of Object.values(openedProject.instances.byId)) {
-        updateInstanceStats(openedProject, instance.id);
+      for (const id of openedProject.instances) {
+        const instance = state.instances.byId[id];
+        updateInstanceStats(state, id);
         instance.plugins.sort();
       }
 
@@ -120,63 +152,71 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     }
 
     case 'set-core-plugin-toolbox-display': {
-      const { id, display } = update as SetCorePluginToolboxDisplayNotification;
-      const plugin = openedProject.plugins.byId[id];
+      const { id: pluginId, display } = update as SetCorePluginToolboxDisplayNotification;
+      const id = `${openedProject.id}:${pluginId}`;
+      const plugin = state.plugins.byId[id];
       plugin.toolboxDisplay = display;
 
-      updateInstanceStats(openedProject, plugin.instanceName);
+      updateInstanceStats(state, plugin.instance);
 
       break;
     }
 
     case 'set-core-plugin': {
-      const { id, plugin: pluginData } = update as SetCorePluginNotification;
-      const { instance } = setPlugin(openedProject, id, pluginData);
+      const { id: pluginId, plugin: pluginData } = update as SetCorePluginNotification;
+      const id = `${openedProject.id}:${pluginId}`;
+      const { instance } = setPlugin(state, openedProject, id, pluginData);
 
-      updateInstanceStats(openedProject, instance.id);
+      updateInstanceStats(state, instance.id);
       instance.plugins.sort();
       
       break;
     }
 
     case 'clear-core-plugin': {
-      const { id } = update as ClearCorePluginNotification;
-      const plugin = openedProject.plugins.byId[id];
+      const { id: pluginId } = update as ClearCorePluginNotification;
+      const id = `${openedProject.id}:${pluginId}`;
+      const plugin = state.plugins.byId[id];
+
       if (plugin.use !== 'unused') {
         throw new Error(`Receive notification to delete plugin '${id}' which is used!`);
       }
 
-      const instance = openedProject.instances.byId[plugin.instanceName];
+      const instance = state.instances.byId[plugin.instance];
 
-      tableRemove(openedProject.plugins, id);
+      arrayRemove(openedProject.plugins, id);
       arrayRemove(instance.plugins, id);
+      tableRemove(state.plugins, id);
 
       if (instance.plugins.length === 0) {
-        tableRemove(openedProject.instances, instance.id);
+        tableRemove(state.instances, instance.id);
       } else {
-        updateInstanceStats(openedProject, instance.id);
+        updateInstanceStats(state, instance.id);
       }
 
       break;
     }
 
     case 'set-core-component': {
-      const { id, component } = update as SetCoreComponentNotification;
-      tableSet(openedProject.components, { id, bindings: {}, ...component }, true);
+      const { id: componentId, component } = update as SetCoreComponentNotification;
+      const id = `${openedProject.id}:${componentId}`;
+      const pluginId = `${openedProject.id}:${component.plugin}`;
+      tableSet(state.components, { ...component, id, componentId, bindings: {}, plugin: pluginId }, true);
 
-      const plugin = openedProject.plugins.byId[component.plugin];
+      const plugin = state.plugins.byId[pluginId];
       arrayAdd(plugin.components, id, true);
-      updatePluginStats(openedProject, plugin);
-      updateInstanceStats(openedProject, plugin.instanceName);
+      updatePluginStats(state, openedProject, plugin);
+      updateInstanceStats(state, plugin.instance);
 
       // This can be a component update, so also reindex its bindings
-      for (const binding of Object.values(openedProject.bindings.byId)) {
+      for (const bindingId of openedProject.bindings) {
+        const binding = state.bindings.byId[bindingId];
         if (binding.sourceComponent === id) {
-          addBinding(openedProject, binding.sourceComponent, binding.sourceState, binding.id);
+          addBinding(state, binding.sourceComponent, binding.sourceState, binding.id);
         }
 
         if (binding.targetComponent === id) {
-          addBinding(openedProject, binding.targetComponent, binding.targetAction, binding.id);
+          addBinding(state, binding.targetComponent, binding.targetAction, binding.id);
         }
       }
 
@@ -184,51 +224,66 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
     }
 
     case 'clear-core-component': {
-      const { id } = update as ClearCoreComponentNotification;
-      const component = openedProject.components.byId[id];
-      const plugin = openedProject.plugins.byId[component.plugin];
+      const { id: componentId } = update as ClearCoreComponentNotification;
+      const id = `${openedProject.id}:${componentId}`;
+      const component = state.components.byId[id];
+      const plugin = state.plugins.byId[component.plugin];
 
-      tableRemove(openedProject.components, id);
-      arrayRemove(plugin.components, component.id);
-      updatePluginStats(openedProject, plugin);
-      updateInstanceStats(openedProject, plugin.instanceName);
+      arrayRemove(plugin.components, id);
+      arrayRemove(openedProject.components, id);
+      tableRemove(state.components, id);
+      updatePluginStats(state, openedProject, plugin);
+      updateInstanceStats(state, plugin.instance);
       unselectComponent(openedProject, id);
       break;
     }
 
     case 'rename-core-component': {
       const { id, newId } = update as RenameCoreComponentNotification;
-      const component = openedProject.components.byId[id];
-      const plugin = openedProject.plugins.byId[component.plugin];
+      const component = state.components.byId[id];
+      const plugin = state.plugins.byId[component.plugin];
 
-      tableRemove(openedProject.components, id);
+      tableRemove(state.components, id);
+      arrayRemove(openedProject.components, component.id);
       arrayRemove(plugin.components, component.id);
 
       component.id = newId;
 
-      tableSet(openedProject.components, component, true);
+      tableSet(state.components, component, true);
       arrayAdd(plugin.components, component.id, true);
+      arrayAdd(openedProject.components, component.id, true);
 
-      updatePluginStats(openedProject, plugin);
-      updateInstanceStats(openedProject, plugin.instanceName);
+      updatePluginStats(state, openedProject, plugin);
+      updateInstanceStats(state, plugin.instance);
       renameComponentSelection(openedProject, id, newId);
       break;
     }
 
     case 'set-core-binding': {
-      const { id, binding } = update as SetCoreBindingNotification;
-      tableSet(openedProject.bindings, { id, ...binding }, true);
-      addBinding(openedProject, binding.sourceComponent, binding.sourceState, id);
-      addBinding(openedProject, binding.targetComponent, binding.targetAction, id);
+      const { id: bindingId, binding: bindingData } = update as SetCoreBindingNotification;
+      const { sourceComponent: sourceComponentId, targetComponent: targetComponentId, ...data } = bindingData;
+      const binding = {
+        id: `${openedProject.id}:${bindingId}`,
+        sourceComponent: `${openedProject.id}:${sourceComponentId}`,
+        targetComponent: `${openedProject.id}:${targetComponentId}`,
+        ...data
+      };
+
+      tableSet(state.bindings, binding, true);
+      arrayAdd(openedProject.bindings, binding.id, true);
+      addBinding(state, binding.sourceComponent, binding.sourceState, binding.id);
+      addBinding(state, binding.targetComponent, binding.targetAction, binding.id);
       break;
     }
 
     case 'clear-core-binding': {
-      const { id } = update as ClearCoreBindingNotification;
-      const binding = openedProject.bindings.byId[id];
-      tableRemove(openedProject.bindings, id);
-      removeBinding(openedProject, binding.sourceComponent, binding.sourceState, id);
-      removeBinding(openedProject, binding.targetComponent, binding.targetAction, id);
+      const { id: bindingId } = update as ClearCoreBindingNotification;
+      const id = `${openedProject.id}:${bindingId}`;
+      const binding = state.bindings.byId[id];
+      arrayRemove(openedProject.bindings, id);
+      tableRemove(state.bindings, id);
+      removeBinding(state, binding.sourceComponent, binding.sourceState, id);
+      removeBinding(state, binding.targetComponent, binding.targetAction, id);
       unselectBinding(openedProject, id);
       break;
     }
@@ -238,15 +293,19 @@ function applyProjectUpdate(openedProject: CoreOpenedProject, update: UpdateProj
   }
 }
 
-function setPlugin(openedProject: CoreOpenedProject, id: string, pluginData: CorePluginData) {
+function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, pluginId: string, pluginData: CorePluginData) {
+  const id = `${openedProject.id}:${pluginId}`;
+  const { instanceName, ...data } = pluginData;
+  const instanceId = `${openedProject.id}:${instanceName}`;
   const plugin: Plugin = {
     id,
-    ...pluginData,
+    ...data,
+    instance: instanceId,
     stateIds: [],
     actionIds: [],
     configIds: [],
     use: 'unused',
-    components: []
+    components: [],
   };
 
   for (const [name, { memberType }] of Object.entries(plugin.members)) {
@@ -268,13 +327,15 @@ function setPlugin(openedProject: CoreOpenedProject, id: string, pluginData: Cor
   plugin.actionIds.sort();
   plugin.configIds.sort();
 
-  updatePluginStats(openedProject, plugin, true);
-  tableSet(openedProject.plugins, plugin, true);
+  updatePluginStats(state, openedProject, plugin, true);
+  tableSet(state.plugins, plugin, true);
+  arrayAdd(openedProject.plugins, plugin.id, true);
 
-  let instance = openedProject.instances.byId[plugin.instanceName];
+  let instance = state.instances.byId[instanceId];
   if (!instance) {
-    instance = { id: plugin.instanceName, plugins: [], use: 'unused', hasShown: false, hasHidden: false };
-    tableSet(openedProject.instances, instance, true);
+    instance = { id: instanceId, instanceName, plugins: [], use: 'unused', hasShown: false, hasHidden: false };
+    tableSet(state.instances, instance, true);
+    arrayAdd(openedProject.instances, instance.id, true);
   }
 
   arraySet(instance.plugins, plugin.id, true);
@@ -282,11 +343,12 @@ function setPlugin(openedProject: CoreOpenedProject, id: string, pluginData: Cor
   return { plugin, instance };
 }
 
-function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
+function updatePluginStats(state: CoreDesignerState, openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
   if (rebuildComponentList) {
     const components: string[] = [];
 
-    for (const component of Object.values(openedProject.components.byId)) {
+    for (const componentId of Object.values(openedProject.components)) {
+      const component = state.components.byId[componentId];
       if (component.plugin === plugin.id) {
         components.push(component.id);
       }
@@ -300,7 +362,7 @@ function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, reb
   plugin.use = 'unused';
 
   for (const componentId of plugin.components) {
-    const component = openedProject.components.byId[componentId];
+    const component = state.components.byId[componentId];
 
     if (component.external) {
       plugin.use = 'external';
@@ -312,14 +374,14 @@ function updatePluginStats(openedProject: CoreOpenedProject, plugin: Plugin, reb
   }
 }
 
-function updateInstanceStats(openedProject: CoreOpenedProject, instanceName: string) {
-  const instance = openedProject.instances.byId[instanceName];
+function updateInstanceStats(state: CoreDesignerState, id: string) {
+  const instance = state.instances.byId[id];
   instance.use = 'unused';
   instance.hasShown = false;
   instance.hasHidden = false;
 
   for (const pluginId of instance.plugins) {
-    const plugin = openedProject.plugins.byId[pluginId];
+    const plugin = state.plugins.byId[pluginId];
 
     switch (plugin.toolboxDisplay) {
       case 'show':
@@ -345,31 +407,21 @@ function updateInstanceStats(openedProject: CoreOpenedProject, instanceName: str
   }
 }
 
-function addBinding(openedProject: CoreOpenedProject, componentId: string, member: string, binding: string) {
-  const component = openedProject.components.byId[componentId];
+function addBinding(state: CoreDesignerState, componentId: string, member: string, bindingId: string) {
+  const component = state.components.byId[componentId];
   if (!component.bindings[member]) {
     component.bindings[member] = [];
   }
 
-  arrayAdd(component.bindings[member], binding, true);
+  arrayAdd(component.bindings[member], bindingId, true);
 }
 
-function removeBinding(openedProject: CoreOpenedProject, componentId: string, member: string, binding: string) {
-  const component = openedProject.components.byId[componentId];
-  arrayRemove(component.bindings[member], binding);
+function removeBinding(state: CoreDesignerState, componentId: string, member: string, bindingId: string) {
+  const component = state.components.byId[componentId];
+  arrayRemove(component.bindings[member], bindingId);
   if (component.bindings[member].length === 0) {
     delete component.bindings[member];
   }
-}
-
-function createInitialProjectState() {
-  return {
-    instances: createTable<Instance>(),
-    plugins: createTable<Plugin>(),
-    components: createTable<Component>(),
-    bindings: createTable<Binding>(),
-    selection: null as Selection,
-  };
 }
 
 function toggleSelection(ids: MultiSelectionIds, id: string) {

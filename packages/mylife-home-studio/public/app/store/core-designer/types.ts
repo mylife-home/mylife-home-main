@@ -1,6 +1,6 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
 import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges } from '../../../../shared/project-manager';
-import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
 export { CoreToolboxDisplay, UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
@@ -37,6 +37,7 @@ export type PluginUse = 'unused' | 'external' | 'used';
 
 export interface Instance {
   id: string;
+  instanceName: string;
   plugins: string[];
 
   use: PluginUse;
@@ -44,9 +45,10 @@ export interface Instance {
   hasHidden: boolean;
 }
 
-export interface Plugin extends CorePluginData {
+export interface Plugin extends Omit<CorePluginData, 'instanceName'> {
   id: string;
-
+  instance: string; // instance ID
+  
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
@@ -65,7 +67,9 @@ export interface Position {
 }
 
 export interface Component extends CoreComponentData {
+  // plugin points to store plugin id: `projectId:instanceName:module.name`
   id: string;
+  componentId: string;
   bindings: { [memberName: string]: string[]; };
 }
 
@@ -88,15 +92,20 @@ export interface ComponentsSelection extends Selection {
 }
 
 export interface CoreOpenedProject extends OpenedProjectBase {
+  instances: string[];
+  plugins: string[];
+  components: string[];
+  bindings: string[];
+  selection: Selection;
+}
+
+export interface CoreDesignerState {
+  openedProjects: Table<CoreOpenedProject>;
   instances: Table<Instance>;
   plugins: Table<Plugin>;
   components: Table<Component>;
   bindings: Table<Binding>;
-
-  selection: Selection;
 }
-
-export type CoreDesignerState = DesignerState<CoreOpenedProject>;
 
 export interface BulkUpdatesData {
   changes: coreImportData.ObjectChange[];

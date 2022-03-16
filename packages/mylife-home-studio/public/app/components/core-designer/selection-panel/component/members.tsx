@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -18,6 +18,7 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelectBinding } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
+import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
 import { getBinding, getNewBindingHalfList, getSelectedComponent } from '../../../../store/core-designer/selectors';
@@ -123,7 +124,7 @@ const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberTyp
   const selectBinding = useSelectBinding();
   const select = useCallback(() => selectBinding(id), [selectBinding, id]);
   const BindingIcon = getBindingIcon(memberType);
-  const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
+  const binding = useSelector(useCallback((state: AppState) => getBinding(state, id), [id]));
 
   return (
     <Link variant="body1" color="textPrimary" href="#" className={classes.bindingLink} onClick={select}>

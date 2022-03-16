@@ -18,7 +18,7 @@ import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } 
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin, isComponentSelected } from '../../../../store/core-designer/selectors';
+import { getComponent, getPlugin, getInstance, isComponentSelected } from '../../../../store/core-designer/selectors';
 
 export interface ComponentProps {
   componentId: string;
@@ -81,9 +81,8 @@ const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) =
 
 const ComponentSelectionMark: FunctionComponent<{componentId: string; position?: types.Position;}> = ({ componentId, position }) => {
   const theme = useCanvasTheme();
-  const tabId = useTabPanelId();
-  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, plugin);
@@ -106,9 +105,9 @@ interface ComponentLayoutProps {
 const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position }) => {
   const theme = useCanvasTheme();
   const { isRectVisible } = useViewPortVisibility();
-  const tabId = useTabPanelId();
-  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
+  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, plugin.instance), [plugin.instance]));
   const bindingDndInfo = useBindingDndInfo();
 
   const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
@@ -132,7 +131,7 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
         <Title text={component.id} />
 
         <BorderGroup yIndex={yIndex.peek()}>
-          <Property yIndex={yIndex.next()} icon='instance' primary={plugin.instanceName} primaryItalic />
+          <Property yIndex={yIndex.next()} icon='instance' primary={instance.instanceName} primaryItalic />
           <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
         </BorderGroup>
 
@@ -186,9 +185,8 @@ interface ComponentHitProps extends ComponentLayoutProps {
 const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, position, onDragMove, onDragEnd }) => {
   const theme = useCanvasTheme();
   const { isRectVisible } = useViewPortVisibility();
-  const tabId = useTabPanelId();
-  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [component.plugin]));
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   const onDrag = useBindingDraggable();
   const selectComponent = useSelectComponent();
   const toggleComponent = useToggleComponent();

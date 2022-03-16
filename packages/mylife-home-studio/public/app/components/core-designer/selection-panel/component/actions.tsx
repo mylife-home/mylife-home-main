@@ -63,8 +63,8 @@ function useActionsConnect() {
   const componentId = useSelector(useCallback((state: AppState) => getSelectedComponent(state, tabId), [tabId]));
   const dispatch = useDispatch();
 
-  const component = useSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [tabId, componentId]));
-  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [tabId, component.plugin]));
+  const component = useSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
 
   const { clear, rename } = useMemo(() => ({
