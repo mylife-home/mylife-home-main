@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -125,7 +125,7 @@ function useWindowsConnect() {
     (id: string) => {
       const newWindow = createNewWindow();
       newWindow.id = id;
-      dispatch(setWindow({ id: tabId, window: newWindow }));
+      dispatch(setWindow({ tabId, window: newWindow }));
     },
     [dispatch, tabId]
   );
@@ -145,13 +145,13 @@ function useWindowConnect(id: string) {
       duplicate: (newId: string) => {
         const newWindow = clone(window);
         newWindow.id = newId;
-        dispatch(setWindow({ id: tabId, window: newWindow }));
+        dispatch(setWindow({ tabId, window: newWindow }));
       },
       rename: (newId: string) => {
-        dispatch(renameWindow({ id: tabId, windowId: id, newId }));
+        dispatch(renameWindow({ tabId, windowId: id, newId }));
       },
       remove: () => {
-        dispatch(clearWindow({ id: tabId, windowId: id }));
+        dispatch(clearWindow({ tabId, windowId: id }));
       },
     }),
     [dispatch, tabId, id]

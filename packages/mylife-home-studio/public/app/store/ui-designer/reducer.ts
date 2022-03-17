@@ -49,15 +49,15 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
-    const { id } = action.payload;
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ tabId: string; }>) => {
+    const { tabId } = action.payload;
 
-    tableRemove(state.openedProjects, id);
+    tableRemove(state.openedProjects, tabId);
   },
 
-  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string; }>) => {
-    const { id, notifierId } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ tabId: string; notifierId: string; }>) => {
+    const { tabId, notifierId } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     openedProject.notifierId = notifierId;
   },
 
@@ -68,16 +68,16 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification; }[]>) => {
-    for (const { id, update } of action.payload) {
-      const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ tabId: string; update: UpdateProjectNotification; }[]>) => {
+    for (const { tabId, update } of action.payload) {
+      const openedProject = state.openedProjects.byId[tabId];
       applyProjectUpdate(openedProject, update);
     }
   },
 
-  [ActionTypes.SELECT]: (state, action: PayloadAction<{ id: string; selection: Selection }>) => {
-    const { id, selection } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.SELECT]: (state, action: PayloadAction<{ tabId: string; selection: Selection }>) => {
+    const { tabId, selection } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     openedProject.selection = selection;
   },
 });

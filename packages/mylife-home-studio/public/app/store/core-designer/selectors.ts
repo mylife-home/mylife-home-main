@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { CoreDesignerState, CoreOpenedProject, MemberType, ComponentsSelection, BindingSelection } from './types';
+import { MemberType, ComponentsSelection, BindingSelection } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
@@ -207,7 +207,7 @@ export const getSelectedComponent = (state: AppState, tabId: string) => {
 
 export const isComponentSelected = (state: AppState, tabId: string, componentId: string) => {
   const ids = getSelectedComponents(state, tabId);
-  return !!ids[componentId];
+  return !!(ids as { [key: string]: boolean })[componentId];
 };
 
 export const getSelectedBinding = (state: AppState, tabId: string) => {

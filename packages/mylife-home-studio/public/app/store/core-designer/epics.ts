@@ -38,9 +38,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
-      mapper({ id, config }: { id: string; config: ImportFromOnlineConfig}) {
+      mapper({ tabId, config }: { tabId: string; config: ImportFromOnlineConfig}) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall
         };
       },
@@ -50,9 +50,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
-      mapper({ id, config }: { id: string; config: ImportFromProjectConfig}) {
+      mapper({ tabId, config }: { tabId: string; config: ImportFromProjectConfig}) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall
         };
       },
@@ -62,9 +62,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
-      mapper({ id, serverData, selection }: { id: string; serverData: unknown, selection: string[] }) {
+      mapper({ tabId, serverData, selection }: { tabId: string; serverData: unknown, selection: string[] }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject
         };
       },
@@ -74,9 +74,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.VALIDATE_PROJECT]: {
-      mapper({ id }: { id: string }) {
+      mapper({ tabId }: { tabId: string }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'validate' } as CoreProjectCall
         };
       },
@@ -86,9 +86,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
-      mapper({ id }: { id: string }) {
+      mapper({ tabId }: { tabId: string }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'prepare-deploy-to-files' } as CoreProjectCall
         };
       },
@@ -99,9 +99,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
-      mapper({ id, bindingsInstanceName, serverData }: { id: string; bindingsInstanceName?: string; serverData: unknown }) {
+      mapper({ tabId, bindingsInstanceName, serverData }: { tabId: string; bindingsInstanceName?: string; serverData: unknown }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall
         };
       },
@@ -112,9 +112,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_ONLINE]: {
-      mapper({ id }: { id: string }) {
+      mapper({ tabId }: { tabId: string }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'prepare-deploy-to-online' } as CoreProjectCall
         };
       },
@@ -125,9 +125,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
-      mapper({ id, serverData }: { id: string; serverData: unknown }) {
+      mapper({ tabId, serverData }: { tabId: string; serverData: unknown }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall
         };
       }

@@ -45,19 +45,19 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ id: string; }>) => {
-    const { id } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ tabId: string; }>) => {
+    const { tabId } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     tableRemoveAll(state.instances, openedProject.instances);
     tableRemoveAll(state.plugins, openedProject.plugins);
     tableRemoveAll(state.components, openedProject.components);
     tableRemoveAll(state.bindings, openedProject.bindings);
-    tableRemove(state.openedProjects, id);
+    tableRemove(state.openedProjects, tabId);
   },
 
-  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ id: string; notifierId: string; }>) => {
-    const { id, notifierId } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ tabId: string; notifierId: string; }>) => {
+    const { tabId, notifierId } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     openedProject.notifierId = notifierId;
   },
 
@@ -77,22 +77,22 @@ export default createReducer(initialState, {
     tableClear(state.bindings);
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ id: string; update: UpdateProjectNotification; }[]>) => {
-    for (const { id, update } of action.payload) {
-      const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ tabId: string; update: UpdateProjectNotification; }[]>) => {
+    for (const { tabId, update } of action.payload) {
+      const openedProject = state.openedProjects.byId[tabId];
       applyProjectUpdate(state, openedProject, update);
     }
   },
 
-  [ActionTypes.SELECT]: (state, action: PayloadAction<{ id: string; selection: Selection }>) => {
-    const { id, selection } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.SELECT]: (state, action: PayloadAction<{ tabId: string; selection: Selection }>) => {
+    const { tabId, selection } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     openedProject.selection = selection;
   },
 
-  [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<{ id: string; componentId: string }>) => {
-    const { id, componentId } = action.payload;
-    const openedProject = state.openedProjects.byId[id];
+  [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<{ tabId: string; componentId: string }>) => {
+    const { tabId, componentId } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
     
     if (openedProject.selection?.type !== 'components') {
       const newSelection: ComponentsSelection = { type: 'components', ids: {} };

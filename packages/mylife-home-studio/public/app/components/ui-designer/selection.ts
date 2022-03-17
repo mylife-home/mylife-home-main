@@ -14,7 +14,7 @@ export function useSelection() {
   return {
     selection: useSelector((state: AppState) => getSelection(state, tabId)),
     select: useCallback((selection: Selection) => {
-      dispatch(select({ id: tabId, selection }));
+      dispatch(select({ tabId, selection }));
     }, [tabId, dispatch])
   };
 }
