@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -80,12 +80,13 @@ export default Toolbox;
 const Controls: FunctionComponent = () => {
   const classes = useStyles();
   const { controlsIds, selectControl } = useSelectableControlList();
+  const list = useMemo(() => controlsIds.map(id => ({ id, label: id })), [controlsIds]);
 
   return (
     <div className={classes.controls}>
       <Control />
       <SnapEditor />
-      <QuickAccess className={classes.controlSelector} list={controlsIds} onSelect={selectControl} />
+      <QuickAccess className={classes.controlSelector} list={list} onSelect={selectControl} />
     </div>
   );
 };

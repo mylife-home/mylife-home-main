@@ -15,7 +15,7 @@ const Component: FunctionComponent<{ className?: string; }> = ({ className }) =>
 
   return (
     <div className={className}>
-      <Group title={component.id}>
+      <Group title={component.componentId}>
         <Actions />
 
         <Item title="Instance">

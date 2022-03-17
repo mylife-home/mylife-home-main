@@ -1,4 +1,5 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -8,7 +9,7 @@ import { useSelectComponent } from '../selection';
 import Component from './component';
 import Binding from './binding';
 import Multiple from './multiple';
-import { getComponentIds, getSelectionType } from '../../../store/core-designer/selectors';
+import { getComponentIds, getComponentsMap, getSelectionType } from '../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -28,10 +29,16 @@ const SelectionPanel: FunctionComponent<{ className?: string; }> = ({ className 
   const classes = useStyles();
   const selectComponent = useSelectComponent();
   const componentsIds = useTabSelector(getComponentIds);
+  const componentsMap = useSelector(getComponentsMap);
+
+  const list = useMemo(() => componentsIds.map(id => {
+    const component = componentsMap[id];
+    return { id, label: component.componentId };
+  }), [componentsIds, componentsMap]);
 
   return (
     <div className={clsx(classes.container, className)}>
-      <QuickAccess className={classes.componentSelector} list={componentsIds} onSelect={selectComponent} />
+      <QuickAccess className={classes.componentSelector} list={list} onSelect={selectComponent} />
       <DisplayDispatcher className={classes.display} />
     </div>
   );

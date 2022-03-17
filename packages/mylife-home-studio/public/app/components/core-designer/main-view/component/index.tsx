@@ -128,7 +128,7 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
       <Group {...rect} listening={false}>
         <Rect x={0} y={0} width={rect.width} height={rect.height} fill={component.external ? theme.backgroundColorExternal : theme.backgroundColor} />
 
-        <Title text={component.id} />
+        <Title text={component.componentId} />
 
         <BorderGroup yIndex={yIndex.peek()}>
           <Property yIndex={yIndex.next()} icon='instance' primary={instance.instanceName} primaryItalic />
