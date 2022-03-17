@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Link from '@material-ui/core/Link';
 
 import DeleteButton from '../../lib/delete-button';
-import { useTabPanelId } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
@@ -51,12 +50,11 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 export default Multiple;
 
 function useActionsConnect(componentsIds: string[]) {
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
   const clearAll = useCallback(() => {
-    dispatch(clearComponents({ id: tabId, componentsIds }));
-  }, [tabId, dispatch, componentsIds]);
+    dispatch(clearComponents({ componentsIds }));
+  }, [dispatch, componentsIds]);
 
   return { clearAll };
 }

@@ -81,7 +81,7 @@ function useNewBinding() {
       }
   
       const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
-      dispatch(setBinding({ id: tabId, binding }));
+      dispatch(setBinding({ tabId, binding }));
     }, 0);
 
   }, [theme, componentsIds, componentsMap, pluginsMap, dispatch, tabId]);

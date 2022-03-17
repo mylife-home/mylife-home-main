@@ -69,10 +69,10 @@ function useActionsConnect() {
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
-      dispatch(clearComponents({ id: tabId, componentsIds: [componentId] }));
+      dispatch(clearComponents({ componentsIds: [componentId] }));
     },
     rename: (newId: string) => {
-      dispatch(renameComponent({ id: tabId, componentId, newId }));
+      dispatch(renameComponent({ componentId, newId }));
     },
   }), [tabId, dispatch, componentId]);
 

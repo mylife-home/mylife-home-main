@@ -197,7 +197,7 @@ function useCreate(pluginId: string) {
     async (position: Position) =>
       fireAsync(async () => {
         const componentId = makeNewId();
-        await dispatch(setComponent({ id: tabId, componentId, pluginId, position }));
+        await dispatch(setComponent({ tabId, componentId, pluginId, position }));
         await waitForComponentId(componentId);
         selectComponent(componentId);
       }),

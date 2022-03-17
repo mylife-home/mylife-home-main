@@ -73,8 +73,8 @@ function useConnect() {
   const targetPlugin = useSelector(useCallback((state: AppState) => getPlugin(state, targetComponent.plugin), [targetComponent.plugin]));
 
   const clear = useCallback(() => {
-    dispatch(clearBinding({ id: tabId, bindingId }));
-  }, [tabId, dispatch, bindingId]);
+    dispatch(clearBinding({ bindingId }));
+  }, [dispatch, bindingId]);
 
   return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear };
 }

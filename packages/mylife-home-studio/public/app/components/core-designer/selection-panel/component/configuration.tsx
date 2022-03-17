@@ -52,7 +52,7 @@ function useConfigure() {
   const dispatch = useDispatch();
 
   return useCallback((configId: string, configValue: any) => {
-    dispatch(configureComponent({ id: tabId, componentId, configId, configValue }));
+    dispatch(configureComponent({ componentId, configId, configValue }));
   }, [dispatch, tabId, componentId]);
 }
 

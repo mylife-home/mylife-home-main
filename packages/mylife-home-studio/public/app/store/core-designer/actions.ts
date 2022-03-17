@@ -18,11 +18,11 @@ export const applyDeployToOnline = createAsyncAction<{ id: string; serverData: u
 export const select = createAction<{ id: string; selection: Selection; }>(ActionTypes.SELECT);
 export const toggleComponentSelection = createAction<{ id: string; componentId: string; }>(ActionTypes.TOGGLE_COMPONENT_SELECTION);
 
-export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
+export const setComponent = createAsyncAction<{ tabId: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
 export const moveComponents = createAsyncAction<{ componentsIds: string[]; delta: Position; }>(ActionTypes.MOVE_COMPONENTS);
-export const configureComponent = createAsyncAction<{ id: string; componentId: string; configId: string; configValue: any }>(ActionTypes.CONFIGURE_COMPONENT);
-export const renameComponent = createAsyncAction<{ id: string; componentId: string; newId: string }>(ActionTypes.RENAME_COMPONENT);
-export const clearComponents = createAsyncAction<{ id: string; componentsIds: string[]; }>(ActionTypes.CLEAR_COMPONENTS);
-export const setBinding = createAsyncAction<{ id: string; binding: CoreBindingData; }>(ActionTypes.SET_BINDING);
-export const clearBinding = createAsyncAction<{ id: string; bindingId: string; }>(ActionTypes.CLEAR_BINDING);
+export const configureComponent = createAsyncAction<{ componentId: string; configId: string; configValue: any }>(ActionTypes.CONFIGURE_COMPONENT);
+export const renameComponent = createAsyncAction<{ componentId: string; newId: string }>(ActionTypes.RENAME_COMPONENT); // Note: newId is new componentId only, not full id
+export const clearComponents = createAsyncAction<{ componentsIds: string[]; }>(ActionTypes.CLEAR_COMPONENTS);
+export const setBinding = createAsyncAction<{ tabId: string; binding: CoreBindingData; }>(ActionTypes.SET_BINDING);
+export const clearBinding = createAsyncAction<{ bindingId: string; }>(ActionTypes.CLEAR_BINDING);
 export const updateToolbox = createAsyncAction<{ id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);

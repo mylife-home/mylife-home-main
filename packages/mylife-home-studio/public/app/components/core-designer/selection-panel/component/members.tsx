@@ -277,7 +277,7 @@ function useNewBinding(memberName: string) {
 
   return useCallback((newValue: BindingHalf) => {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
-    dispatch(setBinding({ id: tabId, binding }));
+    dispatch(setBinding({ tabId, binding }));
   }, [dispatch, tabId, component.id, memberName]);
 }
 

@@ -142,73 +142,63 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ id, componentId, pluginId, position }: { id: string; componentId: string; pluginId: string; position: Position }) {
+      mapper({ tabId, componentId, pluginId, position }: { tabId: string; componentId: string; pluginId: string; position: Position }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall
         };
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
-      mapper({ componentsIds: fullComponentIds, delta }: { componentsIds: string[]; delta: Position }) {
-        const componentsIds: string[] = [];
-        let finalTabId = null;
-
-        for (const fullId of fullComponentIds) {
-          const { tabId, id } = extractIds(fullId);
-
-          if (!finalTabId) {
-            finalTabId = tabId;
-          } else if (tabId !== finalTabId) {
-            throw new Error(`Project id mismatch! ('${tabId}' !== '${finalTabId}')`);
-          }
-
-          componentsIds.push(id);
-        }
-
+      mapper({ componentsIds, delta }: { componentsIds: string[]; delta: Position }) {
+        const { tabId, ids } = extractIdsList(componentsIds);
         return {
-          tabId: finalTabId,
-          callData: { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall
+          tabId,
+          callData: { operation: 'move-components', componentsIds: ids, delta } as MoveComponentsCoreProjectCall
         };
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
-      mapper({ id, componentId, configId, configValue }: { id: string; componentId: string; configId: string; configValue: any }) {
+      mapper({ componentId, configId, configValue }: { componentId: string; configId: string; configValue: any }) {
+        const { tabId, id } = extractIds(componentId);
         return {
-          tabId: id,
-          callData: { operation: 'configure-component', componentId, configId, configValue } as ConfigureComponentCoreProjectCall
+          tabId,
+          callData: { operation: 'configure-component', componentId: id, configId, configValue } as ConfigureComponentCoreProjectCall
         };
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
-      mapper({ id, componentId, newId }: { id: string; componentId: string; newId: string }) {
+      mapper({ componentId, newId }: { componentId: string; newId: string }) {
+        const { tabId, id } = extractIds(componentId);
         return {
-          tabId: id,
-          callData: { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall
+          tabId,
+          callData: { operation: 'rename-component', componentId: id, newId } as RenameComponentCoreProjectCall
         };
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
-      mapper({ id, componentsIds }: { id: string; componentsIds: string[] }) {
+      mapper({ componentsIds }: { componentsIds: string[] }) {
+        const { tabId, ids } = extractIdsList(componentsIds);
         return {
-          tabId: id,
-          callData: { operation: 'clear-components', componentsIds } as ClearComponentsCoreProjectCall
+          tabId,
+          callData: { operation: 'clear-components', componentsIds: ids } as ClearComponentsCoreProjectCall
         };
       },
     },
     [ActionTypes.SET_BINDING]: {
-      mapper({ id, binding }: { id: string; binding: CoreBindingData }) {
+      mapper({ tabId, binding }: { tabId: string; binding: CoreBindingData }) {
         return {
-          tabId: id,
+          tabId,
           callData: { operation: 'set-binding', binding } as SetBindingCoreProjectCall
         };
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
-      mapper({ id, bindingId }: { id: string; bindingId: string }) {
+      mapper({ bindingId }: { bindingId: string }) {
+        const { tabId, id } = extractIds(bindingId);
         return {
-          tabId: id,
-          callData: { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall
+          tabId,
+          callData: { operation: 'clear-binding', bindingId: id } as ClearBindingCoreProjectCall
         };
       },
     },
@@ -227,4 +217,23 @@ function extractIds(fullId: string): { tabId: string, id: string; } {
     tabId: fullId.substring(0, sepPos),
     id: fullId.substring(sepPos + 1),
   };
+}
+
+function extractIdsList(fullIds: string[]): { tabId: string, ids: string[]; } {
+  const ids: string[] = [];
+  let finalTabId = null;
+
+  for (const fullId of fullIds) {
+    const { tabId, id } = extractIds(fullId);
+
+    if (!finalTabId) {
+      finalTabId = tabId;
+    } else if (tabId !== finalTabId) {
+      throw new Error(`Project id mismatch! ('${tabId}' !== '${finalTabId}')`);
+    }
+
+    ids.push(id);
+  }
+
+  return { tabId: finalTabId, ids };
 }
