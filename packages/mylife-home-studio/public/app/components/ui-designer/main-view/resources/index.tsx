@@ -208,14 +208,14 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
 };
 
 function useResourcesActions() {
-  const id = useTabPanelId();
+  const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
   return useMemo(() => ({
-    setResource: (resource: UiResource) => dispatch(setResource({ id, resource })),
-    clearResource: (resourceId: string) => dispatch(clearResource({ id, resourceId })),
-    renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ id, resourceId, newId })),
-  }), [dispatch, id]);
+    setResource: (resource: UiResource) => dispatch(setResource({ tabId, resource })),
+    clearResource: (resourceId: string) => dispatch(clearResource({ tabId, resourceId })),
+    renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ tabId, resourceId, newId })),
+  }), [dispatch, tabId]);
 }
 
 async function fileToResource(file: File) {

@@ -1,8 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { CoreOpenedProject, MemberType, ComponentsSelection, BindingSelection } from './types';
+import { MemberType, ComponentsSelection, BindingSelection } from './types';
 
-const getOpenedProjects = (state: AppState) => state.coreDesigner.openedProjects;
+const getCoreDesigner = (state: AppState) => state.coreDesigner;
+const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
+const getInstancesTable = (state: AppState) => getCoreDesigner(state).instances;
+const getPluginsTable = (state: AppState) => getCoreDesigner(state).plugins;
+const getComponentsTable = (state: AppState) => getCoreDesigner(state).components;
+const getBindingsTable = (state: AppState) => getCoreDesigner(state).bindings;
 
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
 export const getOpenedProject = (state: AppState, tabId: string) => getOpenedProjects(state).byId[tabId];
@@ -28,29 +33,22 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   return map.get(notifierId);
 };
 
-export const getInstanceIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).instances.allIds;
-export const getInstance = (state: AppState, tabId: string, instanceId: string) => getOpenedProject(state, tabId).instances.byId[instanceId];
-export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.allIds;
-export const getPlugin = (state: AppState, tabId: string, pluginId: string) => getOpenedProject(state, tabId).plugins.byId[pluginId];
-export const getComponentIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components.allIds;
-export const getComponent = (state: AppState, tabId: string, componentId: string) => getOpenedProject(state, tabId).components.byId[componentId];
-export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings.allIds;
-export const getBinding = (state: AppState, tabId: string, bindingId: string) => getOpenedProject(state, tabId).bindings.byId[bindingId];
+export const getInstanceIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).instances;
+export const getInstance = (state: AppState, instanceId: string) => getInstancesTable(state).byId[instanceId];
+export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins;
+export const getPlugin = (state: AppState, pluginId: string) => getPluginsTable(state).byId[pluginId];
+export const getComponentIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components;
+export const getComponent = (state: AppState, componentId: string) => getComponentsTable(state).byId[componentId];
+export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings;
+export const getBinding = (state: AppState, bindingId: string) => getBindingsTable(state).byId[bindingId];
 
 // TODO: used for binding DnD creation, need model refactoring
 // TODO: used by multiple selection panel
-export const getAllComponentsAndPlugins = (state: AppState, tabId: string) => ({
-  components: getOpenedProject(state, tabId).components.byId,
-  plugins: getOpenedProject(state, tabId).plugins.byId,
-});
+export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
+export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 
-// TODO: same pate
-export const getAllComponents = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components.byId;
-export const getAllPlugins = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins.byId;
-
-export const getInstanceStats = (state: AppState, tabId: string, instanceId: string) => {
-  const project = getOpenedProject(state, tabId);
-  const instance = getInstance(state, tabId, instanceId);
+export const getInstanceStats = (state: AppState, instanceId: string) => {
+  const instance = getInstance(state, instanceId);
 
   const stats = {
     plugins: 0,
@@ -60,30 +58,28 @@ export const getInstanceStats = (state: AppState, tabId: string, instanceId: str
 
   for (const pluginId of instance.plugins) {
     ++stats.plugins;
-    computePluginStats(project, pluginId, stats);
+    computePluginStats(state, pluginId, stats);
   }
 
   return stats;
 };
 
-export const getPluginStats = (state: AppState, tabId: string, pluginId: string) => {
-  const project = getOpenedProject(state, tabId);
-
+export const getPluginStats = (state: AppState, pluginId: string) => {
   const stats = {
     components: 0,
     externalComponents: 0,
   };
 
-  computePluginStats(project, pluginId, stats);
+  computePluginStats(state, pluginId, stats);
 
   return stats;
 };
 
-function computePluginStats(project: CoreOpenedProject, pluginId: string, stats: { components: number; externalComponents: number; }) {
-  const plugin = project.plugins.byId[pluginId];
+function computePluginStats(state: AppState, pluginId: string, stats: { components: number; externalComponents: number; }) {
+  const plugin = getPlugin(state, pluginId);
 
   for (const componentId of plugin.components) {
-    const component = project.components.byId[componentId];
+    const component = getComponent(state, componentId);
 
     if (component.external) {
       ++stats.externalComponents;
@@ -94,22 +90,22 @@ function computePluginStats(project: CoreOpenedProject, pluginId: string, stats:
 }
 
 export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
-  const project = getOpenedProject(state, tabId);
-  const component = project.components.byId[componentId];
-  const plugin = project.plugins.byId[component.plugin];
+  const component = getComponent(state, componentId);
+  const plugin = getPlugin(state, component.plugin);
   const member = plugin.members[memberName];
 
-  const possiblePluginMembers = buildPossibleMembers(project, getBindingOtherHalfType(member.memberType), member.valueType);
+  const possiblePluginMembers = buildPossibleMembers(state, tabId, getBindingOtherHalfType(member.memberType), member.valueType);
 
   const list: { componentId: string; memberName: string; }[] = [];
 
   // select all action/state with same type, and for which no binding already exist
-  for (const possibleComponent of Object.values(project.components.byId)) {
+  for (const possibleComponentId of getComponentIds(state, tabId)) {
     // for now avoid binding on self
-    if (possibleComponent.id === component.id) {
+    if (possibleComponentId === component.id) {
       continue;
     }
 
+    const possibleComponent = getComponent(state, possibleComponentId);
     const possiblePlugin = possiblePluginMembers.get(possibleComponent.plugin);
     if (!possiblePlugin) {
       continue;
@@ -129,10 +125,11 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
   return list;
 };
 
-function buildPossibleMembers(project: CoreOpenedProject, memberType: MemberType, valueType: string) {
+function buildPossibleMembers(state: AppState, tabId: string, memberType: MemberType, valueType: string) {
   const possiblePluginMembers = new Map<string, Set<string>>();
 
-  for (const plugin of Object.values(project.plugins.byId)) {
+  for (const pluginId of getPluginIds(state, tabId)) {
+    const plugin = getPlugin(state, pluginId);
     for (const [memberName, member] of Object.entries(plugin.members)) {
       if (member.memberType !== memberType || member.valueType !== valueType) {
         continue;
@@ -210,7 +207,7 @@ export const getSelectedComponent = (state: AppState, tabId: string) => {
 
 export const isComponentSelected = (state: AppState, tabId: string, componentId: string) => {
   const ids = getSelectedComponents(state, tabId);
-  return !!ids[componentId];
+  return !!(ids as { [key: string]: boolean })[componentId];
 };
 
 export const getSelectedBinding = (state: AppState, tabId: string) => {

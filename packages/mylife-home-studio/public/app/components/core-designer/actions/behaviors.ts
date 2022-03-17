@@ -31,7 +31,7 @@ export function useImportFromProject() {
         return;
       }
 
-      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromProject({ id: tabId, config }));
+      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromProject({ tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch, showImportFromProjectSelectionDialog, executeBulkUpdate]);
@@ -51,7 +51,7 @@ export function useImportFromOnline() {
         return;
       }
 
-      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromOnline({ id: tabId, config }));
+      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(prepareImportFromOnline({ tabId, config }));
       await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch, showImportFromOnlineSelectionDialog, executeBulkUpdate]);
@@ -75,7 +75,7 @@ function useExecuteRefresh() {
       return;
     }
 
-    const stats = await dispatch(applyBulkUpdates({ id: tabId, selection, serverData }));
+    const stats = await dispatch(applyBulkUpdates({ tabId, selection, serverData }));
 
     enqueueSnackbar(formatRefreshNotification(stats), { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
@@ -118,7 +118,7 @@ export function useProjectValidation() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const errors = await (dispatch as AsyncDispatch<coreValidation.Item[]>)(validateProject({ id: tabId }));
+      const errors = await (dispatch as AsyncDispatch<coreValidation.Item[]>)(validateProject({ tabId }));
       if (errors.length === 0) {
         enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
       } else {
@@ -139,7 +139,7 @@ export function useDeployToFiles() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const deployData = await (dispatch as AsyncDispatch<FilesDeployData>)(prepareDeployToFiles({ id: tabId }));
+      const deployData = await (dispatch as AsyncDispatch<FilesDeployData>)(prepareDeployToFiles({ tabId }));
       if (!await validate(deployData.validation)) {
         return;
       }
@@ -151,7 +151,7 @@ export function useDeployToFiles() {
       }
 
       const { writtenFilesCount } = await wrapBusy(async () => {
-        return await (dispatch as AsyncDispatch<FilesDeployResult>)(applyDeployToFiles({ id: tabId, bindingsInstanceName, serverData }));
+        return await (dispatch as AsyncDispatch<FilesDeployResult>)(applyDeployToFiles({ tabId, bindingsInstanceName, serverData }));
       }) as FilesDeployResult;
 
       const text = writtenFilesCount < 2 ? `${writtenFilesCount} fichier créé` : `${writtenFilesCount} Fichiers créés`;
@@ -171,7 +171,7 @@ export function useDeployToOnline() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const { validation, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ id: tabId }));
+      const { validation, changes, serverData } = await (dispatch as AsyncDispatch<OnlineDeployData>)(prepareDeployToOnline({ tabId }));
       if (!await validate(validation)) {
         return;
       }
@@ -187,7 +187,7 @@ export function useDeployToOnline() {
       }
       
       await wrapBusy(async () => {
-        await dispatch(applyDeployToOnline({ id: tabId, serverData }));
+        await dispatch(applyDeployToOnline({ tabId, serverData }));
       });
 
       enqueueSnackbar('Le projet a été deployé avec succès.', { variant: 'success' });

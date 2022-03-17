@@ -22,7 +22,7 @@ export function useProjectValidation() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const errors = await dispatch(validateProject({ id: tabId }));
+      const errors = await dispatch(validateProject({ tabId }));
       if (errors.length === 0) {
         enqueueSnackbar('Le projet a été validé sans erreur.', { variant: 'success' });
       } else {
@@ -40,7 +40,7 @@ export function useRefreshComponentsFromOnline() {
 
   return useCallback(() => {
     fireAsync(async () => {
-      const refreshData = await dispatch(refreshComponentsFromOnline({ id: tabId }));
+      const refreshData = await dispatch(refreshComponentsFromOnline({ tabId }));
       await executeRefresh(refreshData);
     });
   }, [fireAsync, dispatch, executeRefresh]);
@@ -60,7 +60,7 @@ export function useRefreshComponentsFromCoreProject() {
         return;
       }
 
-      const refreshData = await dispatch(refreshComponentsFromProject({ id: tabId, projectId }));
+      const refreshData = await dispatch(refreshComponentsFromProject({ tabId, projectId }));
       await executeRefresh(refreshData);
     });
   }, [fireAsync, dispatch, showProjectSelectionDialog, executeRefresh]);
@@ -80,7 +80,7 @@ function useExecuteRefresh() {
       }
     }
 
-    await dispatch(applyRefreshComponents({ id: tabId, serverData: refreshData.serverData }));
+    await dispatch(applyRefreshComponents({ tabId, serverData: refreshData.serverData }));
 
     enqueueSnackbar('Les composants ont été mis à jour.', { variant: 'success' });
   }, [dispatch, enqueueSnackbar]);
@@ -97,7 +97,7 @@ export function useProjectDeploy() {
   return useCallback(() => {
     fireAsync(async () => {
       const { validationErrors, deployError } = await wrapBusy(async () => {
-        return await dispatch(deployProject({ id: tabId }));
+        return await dispatch(deployProject({ tabId }));
       }) as { validationErrors?: UiValidationError[]; deployError?: string; };
       
       if (validationErrors && validationErrors.length > 0) {

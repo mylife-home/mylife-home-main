@@ -22,7 +22,7 @@ export interface BindingProps {
 
 const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const tabId = useTabPanelId();
-  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [tabId, bindingId]));
+  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
   const isSourceSelected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, binding.sourceComponent), [tabId, binding.sourceComponent]));
   const isTargetSelected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, binding.targetComponent), [tabId, binding.targetComponent]));
   const movable = isSourceSelected || isTargetSelected;
@@ -37,8 +37,7 @@ const Binding: FunctionComponent<BindingProps> = ({ bindingId }) => {
 export default Binding;
 
 const MovableBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
-  const tabId = useTabPanelId();
-  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [bindingId]));
+  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
   const { component: sourceComponent, plugin: sourcePlugin } = useComponentData(binding.sourceComponent);
   const { component: targetComponent, plugin: targetPlugin } = useComponentData(binding.targetComponent);
 
@@ -50,12 +49,11 @@ const MovableBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
 };
 
 const FixedBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
-  const tabId = useTabPanelId();
-  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [bindingId]));
-  const sourceComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.sourceComponent), [binding.sourceComponent]));
-  const sourcePlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin), [sourceComponent.plugin]));
-  const targetComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.targetComponent), [binding.targetComponent]));
-  const targetPlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, targetComponent.plugin), [targetComponent.plugin]));
+  const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
+  const sourceComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, binding.sourceComponent), [binding.sourceComponent]));
+  const sourcePlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, sourceComponent.plugin), [sourceComponent.plugin]));
+  const targetComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, binding.targetComponent), [binding.targetComponent]));
+  const targetPlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, targetComponent.plugin), [targetComponent.plugin]));
 
   const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
 

@@ -45,10 +45,10 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
         </div>
 
         <Item title="Source">
-          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectSource}>{`${binding.sourceComponent}.${binding.sourceState}`}</Link>
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectSource}>{`${sourceComponent.componentId}.${binding.sourceState}`}</Link>
         </Item>
         <Item title="Cible">
-          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${binding.targetComponent}.${binding.targetAction}`}</Link>
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${targetComponent.componentId}.${binding.targetAction}`}</Link>
         </Item>
         <Item title="Type">
           <Typography variant="body1" color="textPrimary">{type}</Typography>
@@ -66,15 +66,15 @@ function useConnect() {
 
   const bindingId = useSelector(useCallback((state: AppState) => getSelectedBinding(state, tabId), [tabId]));
 
-  const binding = useSelector(useCallback((state: AppState) => getBinding(state, tabId, bindingId), [tabId, bindingId]));
-  const sourceComponent = useSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.sourceComponent), [tabId, binding.sourceComponent]));
-  const targetComponent = useSelector(useCallback((state: AppState) => getComponent(state, tabId, binding.targetComponent), [tabId, binding.targetComponent]));
-  const sourcePlugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, sourceComponent.plugin), [tabId, sourceComponent.plugin]));
-  const targetPlugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, targetComponent.plugin), [tabId, targetComponent.plugin]));
+  const binding = useSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
+  const sourceComponent = useSelector(useCallback((state: AppState) => getComponent(state, binding.sourceComponent), [binding.sourceComponent]));
+  const targetComponent = useSelector(useCallback((state: AppState) => getComponent(state, binding.targetComponent), [binding.targetComponent]));
+  const sourcePlugin = useSelector(useCallback((state: AppState) => getPlugin(state, sourceComponent.plugin), [sourceComponent.plugin]));
+  const targetPlugin = useSelector(useCallback((state: AppState) => getPlugin(state, targetComponent.plugin), [targetComponent.plugin]));
 
   const clear = useCallback(() => {
-    dispatch(clearBinding({ id: tabId, bindingId }));
-  }, [tabId, dispatch, bindingId]);
+    dispatch(clearBinding({ bindingId }));
+  }, [dispatch, bindingId]);
 
   return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear };
 }

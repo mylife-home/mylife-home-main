@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles, fade } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
@@ -20,7 +20,8 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds } from '../../../store/core-designer/selectors';
+import { AppState } from '../../../store/types';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
 import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
@@ -94,7 +95,7 @@ const Hidden: FunctionComponent = ({ children }) => {
 const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
-  const instance = useTabSelector((state, tabId) => getInstance(state, tabId, id));
+  const instance = useSelector(useCallback((state: AppState) => getInstance(state, id), [id]));
 
   switch (display) {
     case 'show':
@@ -142,7 +143,7 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
 
 const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
-  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, id));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
 
   if (display !== plugin.toolboxDisplay) {
     return null;
@@ -196,9 +197,10 @@ function useCreate(pluginId: string) {
     async (position: Position) =>
       fireAsync(async () => {
         const componentId = makeNewId();
-        await dispatch(setComponent({ id: tabId, componentId, pluginId, position }));
-        await waitForComponentId(componentId);
-        selectComponent(componentId);
+        await dispatch(setComponent({ tabId, componentId, pluginId, position }));
+        const id = `${tabId}:${componentId}`;
+        await waitForComponentId(id);
+        selectComponent(id);
       }),
     [fireAsync, dispatch, tabId, pluginId, makeNewId]
   );
@@ -206,7 +208,8 @@ function useCreate(pluginId: string) {
 
 function useMakeNewId() {
   const componentIds = useTabSelector(getComponentIds);
-  const set = useMemo(() => new Set(componentIds), [componentIds]);
+  const componentsMap = useSelector(getComponentsMap);
+  const set = useMemo(() => new Set(componentIds.map(id => componentsMap[id].componentId)), [componentIds, componentsMap]);
 
   return useCallback(() => {
     for (let i = 1; ; ++i) {

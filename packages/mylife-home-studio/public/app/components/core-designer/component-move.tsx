@@ -5,11 +5,10 @@ import { useSafeSelector } from './drawing/use-safe-selector';
 import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
 import { Rectangle } from './drawing/types';
-import { useTabPanelId } from '../lib/tab-panel';
 import { useTabSelector } from '../lib/use-tab-selector';
 
 import { AppState } from '../../store/types';
-import { getComponent, getPlugin, getAllComponents, getAllPlugins, getSelectedComponents } from '../../store/core-designer/selectors';
+import { getComponent, getPlugin, getComponentsMap, getPluginsMap, getSelectedComponents } from '../../store/core-designer/selectors';
 import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
@@ -54,9 +53,8 @@ export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
 };
 
 export function useComponentData(componentId: string) {
-  const tabId = useTabPanelId();
-  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
+  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, storeComponent.plugin), [storeComponent.plugin]));
 
   const context = useContext(ComponentMoveContext);
 
@@ -80,12 +78,11 @@ export function useComponentData(componentId: string) {
 
 export function useMovableComponent(componentId: string) {
   const theme = useCanvasTheme();
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, tabId, storeComponent.plugin), [storeComponent.plugin]));
-  const allComponents = useSelector(useCallback((state: AppState) => getAllComponents(state, tabId), [tabId]));
-  const allPlugins = useSelector(useCallback((state: AppState) => getAllPlugins(state, tabId), [tabId]));
+  const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, storeComponent.plugin), [storeComponent.plugin]));
+  const componentsMap = useSelector(getComponentsMap);
+  const pluginsMap = useSelector(getPluginsMap);
   
   const context = useContext(ComponentMoveContext);
 
@@ -99,8 +96,8 @@ export function useMovableComponent(componentId: string) {
       let currentComponentRect: Rectangle;
 
       const rects = Object.keys(context.componentsIds).map(id => {
-        const component = allComponents[id];
-        const plugin = allPlugins[component.plugin];
+        const component = componentsMap[id];
+        const plugin = pluginsMap[component.plugin];
         const rect = computeComponentRect(theme, component, plugin);
 
         if (id === componentId) {
@@ -121,7 +118,7 @@ export function useMovableComponent(componentId: string) {
       const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
-    [dispatch, tabId, componentId, context, storeComponent?.position, plugin, allComponents, allPlugins]
+    [dispatch, componentId, context, storeComponent?.position, plugin, componentsMap, pluginsMap]
   );
 
   const moveEnd = useCallback(
@@ -138,12 +135,12 @@ export function useMovableComponent(componentId: string) {
 
       if (context.delta.x || context.delta.y) {
         // No need to dispatch if not moved at the end.
-        dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
+        dispatch(moveComponents({ componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
       }
 
       context.move(null);
     },
-    [dispatch, tabId, componentId, context]
+    [dispatch, componentId, context]
   );
 
   return {

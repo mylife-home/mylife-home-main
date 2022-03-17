@@ -31,7 +31,7 @@ const Actions: FunctionComponent = () => {
   const { componentIds, component, plugin, clear, rename } = useActionsConnect();
   const componentCenterPosition = useCenterComponent(component, plugin);
   const fireAsync = useFireAsync();
-  const showRenameDialog = useRenameDialog(componentIds, component.id, 'Entrer un nom de composant');
+  const showRenameDialog = useRenameDialog(componentIds, component.componentId, 'Entrer un nom de composant');
   
   const onRename = () =>
     fireAsync(async () => {
@@ -63,16 +63,16 @@ function useActionsConnect() {
   const componentId = useSelector(useCallback((state: AppState) => getSelectedComponent(state, tabId), [tabId]));
   const dispatch = useDispatch();
 
-  const component = useSelector(useCallback((state: AppState) => getComponent(state, tabId, componentId), [tabId, componentId]));
-  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [tabId, component.plugin]));
+  const component = useSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
-      dispatch(clearComponents({ id: tabId, componentsIds: [componentId] }));
+      dispatch(clearComponents({ componentsIds: [componentId] }));
     },
     rename: (newId: string) => {
-      dispatch(renameComponent({ id: tabId, componentId, newId }));
+      dispatch(renameComponent({ componentId, newId }));
     },
   }), [tabId, dispatch, componentId]);
 

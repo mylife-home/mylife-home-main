@@ -14,8 +14,8 @@ function useSelection() {
   return {
     selection: useSelector((state: AppState) => getSelection(state, tabId)),
     ...useMemo(() => ({
-      select: (selection: Selection) => dispatch(select({ id: tabId, selection })),
-      toggleComponentSelection: (componentId: string) => dispatch(toggleComponentSelection({ id: tabId, componentId })),
+      select: (selection: Selection) => dispatch(select({ tabId, selection })),
+      toggleComponentSelection: (componentId: string) => dispatch(toggleComponentSelection({ tabId, componentId })),
     }), [tabId, dispatch])
   };
 }

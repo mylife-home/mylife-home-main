@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -18,9 +18,10 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
 import { useSelectBinding } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
+import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
-import { getBinding, getNewBindingHalfList, getSelectedComponent } from '../../../../store/core-designer/selectors';
+import { getBinding, getNewBindingHalfList, getSelectedComponent, getComponentsMap } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
 import { BindingHalf, createBindingData } from '../../binding-tools';
 
@@ -123,12 +124,13 @@ const MemberBinding: FunctionComponent<{ id: string; memberType: types.MemberTyp
   const selectBinding = useSelectBinding();
   const select = useCallback(() => selectBinding(id), [selectBinding, id]);
   const BindingIcon = getBindingIcon(memberType);
-  const binding = useTabSelector((state, tabId) => getBinding(state, tabId, id));
+  const binding = useSelector(useCallback((state: AppState) => getBinding(state, id), [id]));
+  const componentsMap = useSelector(getComponentsMap);
 
   return (
     <Link variant="body1" color="textPrimary" href="#" className={classes.bindingLink} onClick={select}>
       <BindingIcon />
-      {getBindingDisplay(binding, memberType)}
+      {getBindingDisplay(binding, componentsMap, memberType)}
     </Link>
   );
 };
@@ -142,12 +144,17 @@ function getBindingIcon(memberType: types.MemberType) {
   }
 }
 
-function getBindingDisplay(binding: types.Binding, memberType: types.MemberType) {
+function getBindingDisplay(binding: types.Binding, componentsMap: { [id: string]: types.Component }, memberType: types.MemberType) {
   switch (memberType) {
-    case types.MemberType.STATE:
-      return `${binding.targetComponent}.${binding.targetAction}`;
-    case types.MemberType.ACTION:
-      return `${binding.sourceComponent}.${binding.sourceState}`;
+    case types.MemberType.STATE: {
+      const { componentId } = componentsMap[binding.targetComponent];
+      return `${componentId}.${binding.targetAction}`;
+    }
+    
+    case types.MemberType.ACTION: {
+      const { componentId } = componentsMap[binding.sourceComponent];
+      return `${componentId}.${binding.sourceState}`;
+    }
   }
 }
 
@@ -276,7 +283,7 @@ function useNewBinding(memberName: string) {
 
   return useCallback((newValue: BindingHalf) => {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
-    dispatch(setBinding({ id: tabId, binding }));
+    dispatch(setBinding({ tabId, binding }));
   }, [dispatch, tabId, component.id, memberName]);
 }
 

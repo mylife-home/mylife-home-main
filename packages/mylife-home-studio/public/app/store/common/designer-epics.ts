@@ -15,6 +15,11 @@ import { DesignerTabActionData, OpenedProjectBase } from './designer-types';
 import { ProjectCall, ProjectCallResult, SetNameProjectNotification, UpdateProjectNotification } from '../../../../shared/project-manager';
 import { DeferredPayload } from './async-action';
 
+interface MapperResult {
+  tabId: string;
+  callData: ProjectCall;
+}
+
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
   projectType: ProjectType;
@@ -27,15 +32,15 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   getOpenedProjectIdByNotifierId: (state: AppState, notifierId: string) => string;
 
   // action creators
-  setNotifier: ({ id, notifierId }: { id: string; notifierId: string }) => Action;
+  setNotifier: ({ tabId, notifierId }: { tabId: string; notifierId: string }) => Action;
   clearAllNotifiers: () => Action;
-  removeOpenedProject: ({ id }: { id: string }) => Action;
-  updateProject: (updates: { id: string; update: UpdateProjectNotification }[]) => Action;
-  updateTab: (id: string, data: DesignerTabActionData) => Action;
+  removeOpenedProject: ({ tabId }: { tabId: string }) => Action;
+  updateProject: (updates: { tabId: string; update: UpdateProjectNotification }[]) => Action;
+  updateTab: (tabId: string, data: DesignerTabActionData) => Action;
 
   // project calls
   callMappers: { [actionType: string]: {
-    mapper: (payload: any) => ProjectCall;
+    mapper: (payload: any) => MapperResult;
     resultMapper?: (payload: ProjectCallResult) => unknown;
   } }
 }
@@ -74,7 +79,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
       mergeMap((openedProject) => {
         const { id, notifierId } = openedProject;
         return closeProjectCall(notifierId).pipe(
-          map(() => removeOpenedProject({ id })),
+          map(() => removeOpenedProject({ tabId: id })),
           handleError()
         );
       })
@@ -110,11 +115,11 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
       filterNotification('project-manager/opened-project'),
       withLatestFrom(state$),
       map(([notification, state]) => {
-        const id = getOpenedProjectIdByNotifierId(state, notification.notifierId);
+        const tabId = getOpenedProjectIdByNotifierId(state, notification.notifierId);
         const update = notification.data as UpdateProjectNotification;
-        return { id, update };
+        return { tabId, update };
       }),
-      filter((update) => !!update.id), // else project not found => different project type
+      filter((update) => !!update.tabId), // else project not found => different project type
       bufferDebounceTime(100), // debounce to avoid multiple store updates
       concatMap(createActionFromUpdates)
     );
@@ -128,34 +133,34 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
 
   return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...calls);
 
-  function openProject(id: string, projectId: string) {
+  function openProject(tabId: string, projectId: string) {
     return openProjectCall(projectType, projectId).pipe(
-      map(({ notifierId }) => setNotifier({ id, notifierId })),
+      map(({ notifierId }) => setNotifier({ tabId, notifierId })),
       handleError()
     );
   }
 
-  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => ProjectCall, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
+  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => MapperResult, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
         withLatestFrom(state$),
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
-          const { notifierId } = getOpenedProject(state, action.payload.id);
-          const updateData = mapper(action.payload);
-          return callProjectCall(notifierId, updateData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
+          const { tabId, callData } = mapper(action.payload);
+          const { notifierId } = getOpenedProject(state, tabId);
+          return callProjectCall(notifierId, callData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
         })
       );
   }
 
-  function createActionFromUpdates(updates: { id: string; update: UpdateProjectNotification }[]) {
+  function createActionFromUpdates(updates: { tabId: string; update: UpdateProjectNotification }[]) {
     const actions = [updateProject(updates)];
 
     // create additional updates for tabs
-    for (const { id, update } of updates) {
+    for (const { tabId, update } of updates) {
       if (update.operation === 'set-name') {
         const typedUpdate = update as SetNameProjectNotification;
-        actions.push(updateTab(id, { projectId: typedUpdate.name }));
+        actions.push(updateTab(tabId, { projectId: typedUpdate.name }));
       }
     }
 

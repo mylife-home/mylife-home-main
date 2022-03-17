@@ -1,9 +1,8 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { AppState } from '../../../store/types';
 import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
 import { MemberType } from '../../../store/core-designer/types';
 
-import { useTabPanelId } from '../../lib/tab-panel';
 import { Point } from '../drawing/types';
 import { Arrow } from '../drawing/konva';
 import { useCanvasTheme } from '../drawing/theme';
@@ -21,9 +20,8 @@ export default BindingDndMark;
 const Mark: FunctionComponent = () => {
   const theme = useCanvasTheme();
   const { source, mousePosition } = useBindingDndInfo();
-  const tabId = useTabPanelId();
-  const component = useSafeSelector((state: AppState) => getComponent(state, tabId, source.componentId));
-  const plugin = useSafeSelector((state: AppState) => getPlugin(state, tabId, component.plugin));
+  const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, source.componentId), [source.componentId]));
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   const anchor = computeBindingDndAnchor(theme, component, plugin, source.memberName, mousePosition);
   const color = theme.bindingDndMarkColor;
 

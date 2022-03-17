@@ -38,8 +38,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
-      mapper({ config }: { config: ImportFromOnlineConfig}) {
-        return { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall;
+      mapper({ tabId, config }: { tabId: string; config: ImportFromOnlineConfig}) {
+        return {
+          tabId,
+          callData: { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -47,8 +50,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
-      mapper({ config }: { config: ImportFromProjectConfig}) {
-        return { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall;
+      mapper({ tabId, config }: { tabId: string; config: ImportFromProjectConfig}) {
+        return {
+          tabId,
+          callData: { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -56,8 +62,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
-      mapper({ serverData, selection }: { serverData: unknown, selection: string[] }) {
-        return { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject;
+      mapper({ tabId, serverData, selection }: { tabId: string; serverData: unknown, selection: string[] }) {
+        return {
+          tabId,
+          callData: { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject
+        };
       },
       resultMapper(serviceResult: ApplyBulkUpdatesCoreProjectCallResult): BulkUpdatesStats {
         return serviceResult.stats;
@@ -65,8 +74,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.VALIDATE_PROJECT]: {
-      mapper() {
-        return { operation: 'validate' } as CoreProjectCall;
+      mapper({ tabId }: { tabId: string }) {
+        return {
+          tabId,
+          callData: { operation: 'validate' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: ValidateCoreProjectCallResult) {
         return serviceResult.validation;
@@ -74,8 +86,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
-      mapper() {
-        return { operation: 'prepare-deploy-to-files' } as CoreProjectCall;
+      mapper({ tabId }: { tabId: string }) {
+        return {
+          tabId,
+          callData: { operation: 'prepare-deploy-to-files' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareDeployToFilesCoreProjectCallResult): FilesDeployData {
         const { validation, changes, serverData, files, bindingsInstanceName } = serviceResult;
@@ -84,8 +99,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
-      mapper({ bindingsInstanceName, serverData }: { bindingsInstanceName?: string; serverData: unknown }) {
-        return { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall;
+      mapper({ tabId, bindingsInstanceName, serverData }: { tabId: string; bindingsInstanceName?: string; serverData: unknown }) {
+        return {
+          tabId,
+          callData: { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall
+        };
       },
       resultMapper(serviceResult: ApplyDeployToFilesCoreProjectCallResult): FilesDeployResult {
         const { writtenFilesCount } = serviceResult;
@@ -94,8 +112,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_ONLINE]: {
-      mapper() {
-        return { operation: 'prepare-deploy-to-online' } as CoreProjectCall;
+      mapper({ tabId }: { tabId: string }) {
+        return {
+          tabId,
+          callData: { operation: 'prepare-deploy-to-online' } as CoreProjectCall
+        };
       },
       resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult): OnlineDeployData {
         const { validation, changes, serverData } = serviceResult;
@@ -104,52 +125,126 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
-      mapper({ serverData }: { serverData: unknown }) {
-        return { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall;
+      mapper({ tabId, serverData }: { tabId: string; serverData: unknown }) {
+        return {
+          tabId,
+          callData: { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall
+        };
       }
     },
 
     [ActionTypes.UPDATE_TOOLBOX]: {
       mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
-        return { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall;
+        const { tabId, id } = extractIds(itemId);
+        return {
+          tabId,
+          callData: { operation: 'update-toolbox', itemType, itemId: id, action } as UpdateToolboxCoreProjectCall
+        };
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ componentId, pluginId, position }: { componentId: string; pluginId: string; position: Position }) {
-        return { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall;
+      mapper({ tabId, componentId, pluginId: fullPluginId, position }: { tabId: string; componentId: string; pluginId: string; position: Position }) {
+        const { id: pluginId } = extractIds(fullPluginId);
+        return {
+          tabId,
+          callData: { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
       mapper({ componentsIds, delta }: { componentsIds: string[]; delta: Position }) {
-        return { operation: 'move-components', componentsIds, delta } as MoveComponentsCoreProjectCall;
+        const { tabId, ids } = extractIdsList(componentsIds);
+        return {
+          tabId,
+          callData: { operation: 'move-components', componentsIds: ids, delta } as MoveComponentsCoreProjectCall
+        };
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
       mapper({ componentId, configId, configValue }: { componentId: string; configId: string; configValue: any }) {
-        return { operation: 'configure-component', componentId, configId, configValue } as ConfigureComponentCoreProjectCall;
+        const { tabId, id } = extractIds(componentId);
+        return {
+          tabId,
+          callData: { operation: 'configure-component', componentId: id, configId, configValue } as ConfigureComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
       mapper({ componentId, newId }: { componentId: string; newId: string }) {
-        return { operation: 'rename-component', componentId, newId } as RenameComponentCoreProjectCall;
+        const { tabId, id } = extractIds(componentId);
+        return {
+          tabId,
+          callData: { operation: 'rename-component', componentId: id, newId } as RenameComponentCoreProjectCall
+        };
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
       mapper({ componentsIds }: { componentsIds: string[] }) {
-        return { operation: 'clear-components', componentsIds } as ClearComponentsCoreProjectCall;
+        const { tabId, ids } = extractIdsList(componentsIds);
+        return {
+          tabId,
+          callData: { operation: 'clear-components', componentsIds: ids } as ClearComponentsCoreProjectCall
+        };
       },
     },
     [ActionTypes.SET_BINDING]: {
-      mapper({ binding }: { binding: CoreBindingData }) {
-        return { operation: 'set-binding', binding } as SetBindingCoreProjectCall;
+      mapper({ tabId, binding }: { tabId: string; binding: CoreBindingData }) {
+        const { id: sourceComponent } = extractIds(binding.sourceComponent);
+        const { id: targetComponent } = extractIds(binding.targetComponent);
+
+        const bindingData: CoreBindingData = {
+          ...binding,
+          sourceComponent,
+          targetComponent,
+        };
+        
+        return {
+          tabId,
+          callData: { operation: 'set-binding', binding: bindingData } as SetBindingCoreProjectCall
+        };
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
       mapper({ bindingId }: { bindingId: string }) {
-        return { operation: 'clear-binding', bindingId } as ClearBindingCoreProjectCall;
+        const { tabId, id } = extractIds(bindingId);
+        return {
+          tabId,
+          callData: { operation: 'clear-binding', bindingId: id } as ClearBindingCoreProjectCall
+        };
       },
     },
   }
 });
 
 export default combineEpics(openedProjectManagementEpic);
+
+function extractIds(fullId: string): { tabId: string, id: string; } {
+  const sepPos = fullId.indexOf(':');
+  if (sepPos < 0) {
+    throw new Error(`Bad id: '${fullId}'`);
+  }
+
+  return {
+    tabId: fullId.substring(0, sepPos),
+    id: fullId.substring(sepPos + 1),
+  };
+}
+
+function extractIdsList(fullIds: string[]): { tabId: string, ids: string[]; } {
+  const ids: string[] = [];
+  let finalTabId = null;
+
+  for (const fullId of fullIds) {
+    const { tabId, id } = extractIds(fullId);
+
+    if (!finalTabId) {
+      finalTabId = tabId;
+    } else if (tabId !== finalTabId) {
+      throw new Error(`Project id mismatch! ('${tabId}' !== '${finalTabId}')`);
+    }
+
+    ids.push(id);
+  }
+
+  return { tabId: finalTabId, ids };
+}

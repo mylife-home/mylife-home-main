@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
+import { useSelector } from 'react-redux';
 
-import { useTabSelector } from '../lib/use-tab-selector';
 import { Konva } from './drawing/konva';
 import { useCursorPositionConverter } from './drawing/viewport-manips';
 import { useCanvasTheme } from './drawing/theme';
 import { Point } from './drawing/types';
+import { AppState } from '../../store/types';
 import { getPlugin } from '../../store/core-designer/selectors';
 import { Component, Position } from '../../store/core-designer/types';
 import { computeComponentRect, lockSelectionPosition, posToGrid } from './drawing/shapes';
@@ -51,12 +52,13 @@ export function useCreatable(pluginId: string, onCreate: (position: Position) =>
 
 function useNewComponentPosition(pluginId: string) {
   const theme = useCanvasTheme();
-  const plugin = useTabSelector((state, tabId) => getPlugin(state, tabId, pluginId));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, pluginId), [pluginId]));
 
   return useCallback((userPos: Point) => {
     // Create fake component to get its rect
     const fakeComponent: Component = {
       id: null,
+      componentId: null,
       external: false,
       bindings: null,
       config: {}, 

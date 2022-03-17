@@ -50,6 +50,17 @@ export function tableRemove<T extends ItemWithId>(table: Table<T>, id: string) {
   arrayRemove(table.allIds, id);
 }
 
+export function tableRemoveAll<T extends ItemWithId>(table: Table<T>, ids: string[]) {
+  for (const id of ids) {
+    tableRemove(table, id);
+  }
+}
+
+export function tableClear<T extends ItemWithId>(table: Table<T>) {
+  table.allIds = [];
+  table.byId = {};
+}
+
 export function arrayAdd(array: string[], id: string, sortById = false) {
   array.push(id);
 

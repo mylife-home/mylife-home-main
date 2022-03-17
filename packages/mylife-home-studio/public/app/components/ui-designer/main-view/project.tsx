@@ -59,7 +59,7 @@ function useProjectConnect() {
   const updateDefaultWindow = useCallback(
     (type: string, windowId: string) => {
       const newDefaultWindow: DefaultWindow = { ...defaultWindow, [type]: windowId };
-      dispatch(setDefaultWindow({ id: tabId, defaultWindow: newDefaultWindow }));
+      dispatch(setDefaultWindow({ tabId, defaultWindow: newDefaultWindow }));
     },
     [defaultWindow, dispatch]
   );

@@ -7,7 +7,7 @@ import { getComponent, getPlugin, getSelectedComponent } from '../../../../store
 export function useComponentData() {
   const tabId = useTabPanelId();
   const selectedComponent = useSelector(useCallback((state: AppState) => getSelectedComponent(state, tabId), [tabId]));
-  const component = useSelector(useCallback((state: AppState) => getComponent(state, tabId, selectedComponent), [tabId, selectedComponent]));
-  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, tabId, component.plugin), [tabId, component.plugin]));
+  const component = useSelector(useCallback((state: AppState) => getComponent(state, selectedComponent), [selectedComponent]));
+  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   return { component, plugin };
 }

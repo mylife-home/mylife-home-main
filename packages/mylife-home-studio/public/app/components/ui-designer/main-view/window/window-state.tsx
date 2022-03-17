@@ -40,7 +40,7 @@ function useWindowStateFactory(id: string) {
   const dispatch = useDispatch();
   const persistWindow = useCallback(
     (window: UiWindow) => {
-      dispatch(setWindow({ id: tabId, window }));
+      dispatch(setWindow({ tabId, window }));
     },
     [dispatch]
   );
