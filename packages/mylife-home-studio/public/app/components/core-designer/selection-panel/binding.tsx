@@ -45,10 +45,10 @@ const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
         </div>
 
         <Item title="Source">
-          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectSource}>{`${binding.sourceComponent}.${binding.sourceState}`}</Link>
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectSource}>{`${sourceComponent.componentId}.${binding.sourceState}`}</Link>
         </Item>
         <Item title="Cible">
-          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${binding.targetComponent}.${binding.targetAction}`}</Link>
+          <Link variant="body1" color="textPrimary" href="#" onClick={handleSelectTarget}>{`${targetComponent.componentId}.${binding.targetAction}`}</Link>
         </Item>
         <Item title="Type">
           <Typography variant="body1" color="textPrimary">{type}</Typography>
