@@ -25,4 +25,4 @@ export const renameComponent = createAsyncAction<{ componentId: string; newId: s
 export const clearComponents = createAsyncAction<{ componentsIds: string[]; }>(ActionTypes.CLEAR_COMPONENTS);
 export const setBinding = createAsyncAction<{ tabId: string; binding: CoreBindingData; }>(ActionTypes.SET_BINDING);
 export const clearBinding = createAsyncAction<{ bindingId: string; }>(ActionTypes.CLEAR_BINDING);
-export const updateToolbox = createAsyncAction<{ id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);
+export const updateToolbox = createAsyncAction<{ itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }>(ActionTypes.UPDATE_TOOLBOX);

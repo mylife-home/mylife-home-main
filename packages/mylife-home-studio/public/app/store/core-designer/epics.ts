@@ -134,10 +134,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.UPDATE_TOOLBOX]: {
-      mapper({ id, itemType, itemId, action }: { id: string; itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
+      mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
+        const { tabId, id } = extractIds(itemId);
         return {
-          tabId: id,
-          callData: { operation: 'update-toolbox', itemType, itemId, action } as UpdateToolboxCoreProjectCall
+          tabId,
+          callData: { operation: 'update-toolbox', itemType, itemId: id, action } as UpdateToolboxCoreProjectCall
         };
       },
     },

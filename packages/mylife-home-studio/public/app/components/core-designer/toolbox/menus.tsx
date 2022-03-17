@@ -13,7 +13,6 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { useTabPanelId } from '../../lib/tab-panel';
 import { AppState } from '../../../store/types';
 import { getInstance, getPlugin, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
 import { updateToolbox } from '../../../store/core-designer/actions';
@@ -131,12 +130,11 @@ const Stats = forwardRef<HTMLLIElement, { items: StatItem[] }>(({ items }, ref) 
 });
 
 function useToolboxUpdateAction(itemType: 'instance' | 'plugin', itemId: string) {
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
   return useCallback(
     (action: 'show' | 'hide' | 'delete') => {
-      dispatch(updateToolbox({ id: tabId, itemType, itemId, action }));
+      dispatch(updateToolbox({ itemType, itemId, action }));
     },
-    [dispatch, tabId, itemType, itemId]
+    [dispatch, itemType, itemId]
   );
 }
