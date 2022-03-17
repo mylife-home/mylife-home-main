@@ -143,7 +143,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ tabId, componentId, pluginId, position }: { tabId: string; componentId: string; pluginId: string; position: Position }) {
+      mapper({ tabId, componentId, pluginId: fullPluginId, position }: { tabId: string; componentId: string; pluginId: string; position: Position }) {
+        const { id: pluginId } = extractIds(fullPluginId);
         return {
           tabId,
           callData: { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall
@@ -188,9 +189,18 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
     [ActionTypes.SET_BINDING]: {
       mapper({ tabId, binding }: { tabId: string; binding: CoreBindingData }) {
+        const { id: sourceComponent } = extractIds(binding.sourceComponent);
+        const { id: targetComponent } = extractIds(binding.targetComponent);
+
+        const bindingData: CoreBindingData = {
+          ...binding,
+          sourceComponent,
+          targetComponent,
+        };
+        
         return {
           tabId,
-          callData: { operation: 'set-binding', binding } as SetBindingCoreProjectCall
+          callData: { operation: 'set-binding', binding: bindingData } as SetBindingCoreProjectCall
         };
       },
     },

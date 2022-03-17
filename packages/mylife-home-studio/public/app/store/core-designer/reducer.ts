@@ -240,7 +240,9 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
     }
 
     case 'rename-core-component': {
-      const { id, newId } = update as RenameCoreComponentNotification;
+      const { id: componentId, newId: newComponentId } = update as RenameCoreComponentNotification;
+      const id = `${openedProject.id}:${componentId}`;
+      const newId = `${openedProject.id}:${newComponentId}`;
       const component = state.components.byId[id];
       const plugin = state.plugins.byId[component.plugin];
 
@@ -249,6 +251,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       arrayRemove(plugin.components, component.id);
 
       component.id = newId;
+      component.componentId = newComponentId;
 
       tableSet(state.components, component, true);
       arrayAdd(plugin.components, component.id, true);
