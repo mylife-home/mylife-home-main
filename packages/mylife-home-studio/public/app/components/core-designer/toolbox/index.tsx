@@ -21,7 +21,7 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
 import { AppState } from '../../../store/types';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds } from '../../../store/core-designer/selectors';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
 import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
@@ -198,8 +198,9 @@ function useCreate(pluginId: string) {
       fireAsync(async () => {
         const componentId = makeNewId();
         await dispatch(setComponent({ tabId, componentId, pluginId, position }));
-        await waitForComponentId(componentId);
-        selectComponent(componentId);
+        const id = `${tabId}:${componentId}`;
+        await waitForComponentId(id);
+        selectComponent(id);
       }),
     [fireAsync, dispatch, tabId, pluginId, makeNewId]
   );
@@ -207,7 +208,8 @@ function useCreate(pluginId: string) {
 
 function useMakeNewId() {
   const componentIds = useTabSelector(getComponentIds);
-  const set = useMemo(() => new Set(componentIds), [componentIds]);
+  const componentsMap = useSelector(getComponentsMap);
+  const set = useMemo(() => new Set(componentIds.map(id => componentsMap[id].componentId)), [componentIds, componentsMap]);
 
   return useCallback(() => {
     for (let i = 1; ; ++i) {
