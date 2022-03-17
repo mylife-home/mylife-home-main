@@ -5,7 +5,6 @@ import { useSafeSelector } from './drawing/use-safe-selector';
 import { computeComponentRect, lockSelectionPosition, mergeRects, posToGrid } from './drawing/shapes';
 import { useCanvasTheme } from './drawing/theme';
 import { Rectangle } from './drawing/types';
-import { useTabPanelId } from '../lib/tab-panel';
 import { useTabSelector } from '../lib/use-tab-selector';
 
 import { AppState } from '../../store/types';
@@ -79,7 +78,6 @@ export function useComponentData(componentId: string) {
 
 export function useMovableComponent(componentId: string) {
   const theme = useCanvasTheme();
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, storeComponent.plugin), [storeComponent.plugin]));
@@ -137,12 +135,12 @@ export function useMovableComponent(componentId: string) {
 
       if (context.delta.x || context.delta.y) {
         // No need to dispatch if not moved at the end.
-        dispatch(moveComponents({ id: tabId, componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
+        dispatch(moveComponents({ componentsIds: Object.keys(context.componentsIds), delta: context.delta }));
       }
 
       context.move(null);
     },
-    [dispatch, tabId, componentId, context]
+    [dispatch, componentId, context]
   );
 
   return {

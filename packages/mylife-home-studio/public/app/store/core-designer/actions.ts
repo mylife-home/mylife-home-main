@@ -19,7 +19,7 @@ export const select = createAction<{ id: string; selection: Selection; }>(Action
 export const toggleComponentSelection = createAction<{ id: string; componentId: string; }>(ActionTypes.TOGGLE_COMPONENT_SELECTION);
 
 export const setComponent = createAsyncAction<{ id: string; componentId: string; pluginId: string; position: Position; }>(ActionTypes.SET_COMPONENT);
-export const moveComponents = createAsyncAction<{ id: string; componentsIds: string[]; delta: Position; }>(ActionTypes.MOVE_COMPONENTS);
+export const moveComponents = createAsyncAction<{ componentsIds: string[]; delta: Position; }>(ActionTypes.MOVE_COMPONENTS);
 export const configureComponent = createAsyncAction<{ id: string; componentId: string; configId: string; configValue: any }>(ActionTypes.CONFIGURE_COMPONENT);
 export const renameComponent = createAsyncAction<{ id: string; componentId: string; newId: string }>(ActionTypes.RENAME_COMPONENT);
 export const clearComponents = createAsyncAction<{ id: string; componentsIds: string[]; }>(ActionTypes.CLEAR_COMPONENTS);
