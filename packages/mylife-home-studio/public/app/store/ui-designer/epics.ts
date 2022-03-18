@@ -94,9 +94,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.SET_DEFAULT_WINDOW]: {
       mapper({ tabId, defaultWindow }: { tabId: string; defaultWindow: DefaultWindow }) {
+        const desktop = extractNullableId(defaultWindow.desktop, tabId);
+        const mobile = extractNullableId(defaultWindow.mobile, tabId);
         return {
           tabId,
-          callData: { operation: 'set-default-window', defaultWindow } as SetDefaultWindowUiProjectCall
+          callData: { operation: 'set-default-window', defaultWindow: { desktop, mobile } } as SetDefaultWindowUiProjectCall
         };
       },
     },
@@ -158,3 +160,28 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 });
 
 export default combineEpics(openedProjectManagementEpic);
+
+function extractIds(fullId: string): { tabId: string, id: string; } {
+  const sepPos = fullId.indexOf(':');
+  if (sepPos < 0) {
+    throw new Error(`Bad id: '${fullId}'`);
+  }
+
+  return {
+    tabId: fullId.substring(0, sepPos),
+    id: fullId.substring(sepPos + 1),
+  };
+}
+
+function extractNullableId(fullId: string, expectedTabId: string) {
+  if (!fullId) {
+    return fullId;
+  }
+
+  const { tabId, id } = extractIds(fullId);
+  if (tabId !== expectedTabId) {
+    throw new Error(`Project id mismatch! ('${tabId}' !== '${expectedTabId}')`);
+  }
+
+  return id;
+}

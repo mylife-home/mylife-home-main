@@ -135,7 +135,10 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'set-ui-default-window': {
       const { defaultWindow } = update as SetUiDefaultWindowNotification;
-      openedProject.defaultWindow = defaultWindow;
+      openedProject.defaultWindow = {
+        desktop: makeNullableId(openedProject, defaultWindow.desktop),
+        mobile: makeNullableId(openedProject, defaultWindow.mobile),
+      };
       break;
     }
 
@@ -263,4 +266,8 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
 
   openedProject.plugins.sort();
   openedProject.components.sort();
+}
+
+function makeNullableId(openedProject: UiOpenedProject, id: string) {
+  return id ? `${openedProject.id}:${id}` : id;
 }
