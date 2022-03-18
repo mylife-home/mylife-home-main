@@ -193,6 +193,8 @@ export function makeGetWindowUsage() {
   );
 };
 
+export const getWindowsMap = (state: AppState) => getWindowsTable(state).byId;
+
 export const getDefaultWindow = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.defaultWindow;
