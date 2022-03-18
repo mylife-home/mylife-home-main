@@ -13,27 +13,21 @@ export interface WindowSelectorProps {
   onChange: (value: string) => void;
 }
 
-interface Item {
-  id: string;
-  label: string;
-}
-
 const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = false, value, onChange }) => {
   const classes = useComponentStyles();
   const windowsIds = useTabSelector(getWindowsIds);
   const windowsMap = useSelector(getWindowsMap);
-  const list = useMemo(() => windowsIds.map(id => ({ id, label: windowsMap[id].windowId })), [windowsIds, windowsMap]);
 
   return (
     <Autocomplete
       disableClearable={!nullable}
-      options={list}
-      getOptionLabel={item => item.label}
+      options={windowsIds}
+      getOptionLabel={id => windowsMap[id].windowId}
       className={classes.component}
       renderInput={(params) => <TextField {...params} variant="outlined" />}
       value={value}
       onChange={(event, newValue) => {
-        onChange((newValue as Item).id);
+        onChange(newValue);
       }}
     />
   );
