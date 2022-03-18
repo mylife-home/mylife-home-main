@@ -105,9 +105,11 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.SET_RESOURCE]: {
       mapper({ tabId, resource }: { tabId: string; resource: UiResource }) {
+        const { resourceId, ...definition } = resource;
+        definition.id = resourceId;
         return {
           tabId,
-          callData: { operation: 'set-resource', resource } as SetResourceUiProjectCall
+          callData: { operation: 'set-resource', resource: definition } as SetResourceUiProjectCall
         };
       },
     },
@@ -134,9 +136,14 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.SET_WINDOW]: {
       mapper({ tabId, window }: { tabId: string; window: UiWindow }) {
+        const { windowId, ...definition } = window;
+        definition.id = windowId;
+
+        // FIXME: translate all ids
+
         return {
           tabId,
-          callData: { operation: 'set-window', window } as SetWindowUiProjectCall
+          callData: { operation: 'set-window', window: definition } as SetWindowUiProjectCall
         };
       },
     },
