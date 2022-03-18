@@ -166,6 +166,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on debounce l emission des pending changes au serveur
   - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
+- nouveau mode + simple : update le state a l'avance (eg: move components) de toutes facons le server va ecraser les modifs bientot, ou faire une erreur
 
 ## ui
 
