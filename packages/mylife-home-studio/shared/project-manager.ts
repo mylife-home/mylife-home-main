@@ -229,7 +229,7 @@ export interface ProjectCallResult {
 export interface UiProjectCall {
   operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window'
   | 'set-resource' | 'clear-resource' | 'rename-resource'
-  | 'set-window' | 'clear-window' | 'rename-window'
+  | 'set-window' | 'clear-window' | 'rename-window' | 'clone-window'
   | 'set-control' | 'clear-control' | 'rename-control';
 }
 
@@ -308,6 +308,12 @@ export interface ClearWindowUiProjectCall extends UiProjectCall {
 
 export interface RenameWindowUiProjectCall extends UiProjectCall {
   operation: 'rename-window';
+  id: string;
+  newId: string;
+}
+
+export interface CloneWindowUiProjectCall extends UiProjectCall {
+  operation: 'clone-window';
   id: string;
   newId: string;
 }

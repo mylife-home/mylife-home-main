@@ -16,6 +16,7 @@ import {
   ClearUiWindowNotification,
   RenameWindowUiProjectCall,
   RenameUiWindowNotification,
+  CloneWindowUiProjectCall,
   SetControlUiProjectCall,
   ClearControlUiProjectCall,
   RenameControlUiProjectCall,
@@ -35,6 +36,7 @@ import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
+import { clone } from '../../../utils/object-utils';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
 
@@ -120,6 +122,10 @@ export class UiOpenedProject extends OpenedProject {
         this.renameWindow(callData as RenameWindowUiProjectCall);
         break;
 
+      case 'clone-window':
+        this.cloneWindow(callData as CloneWindowUiProjectCall);
+        break;
+  
       case 'set-control':
         this.setControl(callData as SetControlUiProjectCall);
         break;
@@ -234,6 +240,16 @@ export class UiOpenedProject extends OpenedProject {
           this.notifyAllWindow(window);
         }
       }
+    });
+  }
+
+  private cloneWindow({ id, newId }: CloneWindowUiProjectCall) {
+    this.executeUpdate(() => {
+      const source = this.windows.getById(id);
+      const newWindow = clone(source.data);
+      newWindow.id = newId;
+      const model = this.windows.set(newWindow);
+      this.notifyAllWindow(model);
     });
   }
 
