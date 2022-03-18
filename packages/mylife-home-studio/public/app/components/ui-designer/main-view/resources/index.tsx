@@ -25,7 +25,7 @@ import { useFireAsync } from '../../../lib/use-error-handling';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { AppState } from '../../../../store/types';
-import { getResourcesIds, getResource, makeGetResourceUsage } from '../../../../store/ui-designer/selectors';
+import { getResourcesIds, getResource, getResourcesMap, makeGetResourceUsage } from '../../../../store/ui-designer/selectors';
 import { setResource, clearResource, renameResource } from '../../../../store/ui-designer/actions';
 import { UiResource } from '../../../../store/ui-designer/types';
 import { useRemoveUsageConfirmDialog } from '../common/remove-usage-confirm-dialog';
@@ -62,13 +62,15 @@ const Resources: FunctionComponent = () => {
   const classes = useStyles();
   const fireAsync = useFireAsync();
   const resourcesIds = useTabSelector(getResourcesIds);
+  const resourcesMap = useSelector(getResourcesMap);
+  const resourcesNames = useMemo(() => resourcesIds.map(id => resourcesMap[id].resourceId), [resourcesIds, resourcesMap]);
   const { setResource } = useResourcesActions();
   const [selection, select] = useSelection(resourcesIds);
   
   const onUploadFiles = (uploadFiles: File[]) =>
     fireAsync(async () => {
       // this does not really support concurrency
-      const existingIds = new Set(resourcesIds);
+      const existingNames = new Set(resourcesNames);
       for (const file of uploadFiles) {
         // ignore non-image files
         if (!file.type.startsWith('image/')) {
@@ -76,8 +78,8 @@ const Resources: FunctionComponent = () => {
         }
 
         const resource = await fileToResource(file);
-        resource.id = makeUniqueId(existingIds, resource.id);
-        existingIds.add(resource.id);
+        resource.resourceId = makeUniqueId(existingNames, resource.resourceId);
+        existingNames.add(resource.resourceId);
         setResource(resource);
       }
     });
@@ -214,8 +216,8 @@ function useResourcesActions() {
 
   return useMemo(() => ({
     setResource: (resource: UiResource) => dispatch(setResource({ tabId, resource })),
-    clearResource: (resourceId: string) => dispatch(clearResource({ tabId, resourceId })),
-    renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ tabId, resourceId, newId })),
+    clearResource: (resourceId: string) => dispatch(clearResource({ resourceId })),
+    renameResource: (resourceId: string, newId: string) => dispatch(renameResource({ resourceId, newId })),
   }), [dispatch, tabId]);
 }
 
