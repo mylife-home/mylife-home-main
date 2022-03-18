@@ -39,15 +39,17 @@ export interface UiResource extends Mutable<DefinitionResource> {
 }
 
 export interface UiControl extends Mutable<Control> {
-  controlId: string; // id in window
+  // TODO: normalize
+  // controlId: string; // id in window
 }
 
 export interface UiPlugin extends UiPluginData {
-  id: string; // id: instanceName:module.name
+  id: string; // id: projectId:instanceName:module.name
 }
 
 export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
-  controls: string[];
+  windowId: string; // id in project
+  controls: UiControl[]; // TODO: normalize
 }
 
 export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
