@@ -144,14 +144,14 @@ function useWindowConnect(id: string) {
     () => ({
       duplicate: (newId: string) => {
         const newWindow = clone(window);
-        newWindow.id = newId;
+        newWindow.windowId = newId;
         dispatch(setWindow({ tabId, window: newWindow }));
       },
       rename: (newId: string) => {
-        dispatch(renameWindow({ tabId, windowId: id, newId }));
+        dispatch(renameWindow({ windowId: id, newId }));
       },
       remove: () => {
-        dispatch(clearWindow({ tabId, windowId: id }));
+        dispatch(clearWindow({ windowId: id }));
       },
     }),
     [dispatch, tabId, id]
