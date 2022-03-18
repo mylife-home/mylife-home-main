@@ -1,4 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -9,6 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Container, Title } from '../../lib/main-view-layout';
 import { ComponentIcon, StateIcon, ActionIcon } from '../../lib/icons';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { AppState } from '../../../store/types';
 import { getComponentsIds, getComponentAndPlugin } from '../../../store/ui-designer/selectors';
 import { Member, MemberType } from '../../../../../shared/component-model';
 
@@ -74,7 +76,7 @@ export default Components;
 
 const ComponentItem: FunctionComponent<{ id: string; selected: boolean; select: () => void; }> = ({ id, selected, select }) => {
   const classes = useStyles();
-  const { component, plugin } = useTabSelector((state, tabId) => getComponentAndPlugin(state, tabId, id));
+  const { component, plugin } = useSelector((state: AppState) => getComponentAndPlugin(state, id));
   const text = plugin.description ? `${plugin.id} - ${plugin.description}` : plugin.id;
 
   return (

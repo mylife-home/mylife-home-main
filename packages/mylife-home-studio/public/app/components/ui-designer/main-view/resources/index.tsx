@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState, useMemo, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -24,6 +24,7 @@ import { useRenameDialog } from '../../../dialogs/rename';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
+import { AppState } from '../../../../store/types';
 import { getResourcesIds, getResource, makeGetResourceUsage } from '../../../../store/ui-designer/selectors';
 import { setResource, clearResource, renameResource } from '../../../../store/ui-designer/actions';
 import { UiResource } from '../../../../store/ui-designer/types';
@@ -118,7 +119,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   const classes = useStyles();
   const getResourceUsage = useMemo(() => makeGetResourceUsage(), []);
   const resources = useTabSelector(getResourcesIds);
-  const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const resource = useSelector((state: AppState) => getResource(state, id));
   const usage = useTabSelector((state, tabId) => getResourceUsage(state, tabId, id));
   const { setResource, renameResource, clearResource } = useResourcesActions();
   const fireAsync = useFireAsync();

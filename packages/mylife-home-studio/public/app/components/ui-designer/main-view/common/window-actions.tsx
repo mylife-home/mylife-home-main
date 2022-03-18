@@ -136,7 +136,7 @@ function useWindowsConnect() {
 function useWindowConnect(id: string) {
   const tabId = useTabPanelId();
   const getWindowUsage = useMemo(() => makeGetWindowUsage(), []);
-  const window = useSelector((state: AppState) => getWindow(state, tabId, id));
+  const window = useSelector((state: AppState) => getWindow(state, id));
   const usage = useSelector((state: AppState) => getWindowUsage(state, tabId, id));
   const dispatch = useDispatch();
 

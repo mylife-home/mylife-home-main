@@ -1,6 +1,7 @@
 import React, { FunctionComponent, CSSProperties } from 'react';
+import { useSelector } from 'react-redux';
 
-import { useTabSelector } from '../../../lib/use-tab-selector';
+import { AppState } from '../../../../store/types';
 import { getResource } from '../../../../store/ui-designer/selectors';
 import { makeDataUrl } from '../resources/utils';
 
@@ -25,7 +26,7 @@ const Image: FunctionComponent<ImageProps> = ({ resource, ...props }) => {
 type NotNullImageProps = ImageProps & { resource: string };
 
 const NotNullImage: FunctionComponent<NotNullImageProps> = ({ resource: id, ...props }) => {
-  const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const resource = useSelector((state: AppState) => getResource(state, id));
   if(!resource) {
     console.warn(`Resource not found: '${id}'`);
     return null;

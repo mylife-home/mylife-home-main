@@ -1,11 +1,11 @@
 import React, { FunctionComponent, createContext, useContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useDebounced } from '../../../lib/use-debounced';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { clone } from '../../../lib/clone';
+import { AppState } from '../../../../store/types';
 import { setWindow } from '../../../../store/ui-designer/actions';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
@@ -36,7 +36,7 @@ export const WindowStateProvider: FunctionComponent<{ id: string; }> = ({ id, ch
 
 function useWindowStateFactory(id: string) {
   const tabId = useTabPanelId();
-  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
+  const window = useSelector((state: AppState) => getWindow(state, id));
   const dispatch = useDispatch();
   const persistWindow = useCallback(
     (window: UiWindow) => {

@@ -4,6 +4,7 @@ import { clone } from '../../../lib/clone';
 
 const WINDOW_TEMPLATE: UiWindow = {
   id: null,
+  windowId: null,
   style: null,
   height: 500,
   width: 500,
