@@ -22,6 +22,10 @@ export const enum ActionTypes {
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
+  CLONE_WINDOW = 'ui-designer/clone-window',
+  SET_CONTROL = 'ui-designer/set-control',
+  CLEAR_CONTROL = 'ui-designer/clear-control',
+  RENAME_CONTROL = 'ui-designer/rename-control',
   SELECT = 'ui-designer/select',
 }
 

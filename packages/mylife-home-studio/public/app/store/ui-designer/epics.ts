@@ -5,16 +5,20 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow } from './types';
+import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl } from './types';
 import {
   UiProjectCall,
   ClearResourceUiProjectCall,
   ClearWindowUiProjectCall,
+  ClearControlUiProjectCall,
   RenameResourceUiProjectCall,
   RenameWindowUiProjectCall,
+  RenameControlUiProjectCall,
+  CloneWindowUiProjectCall,
   SetDefaultWindowUiProjectCall,
   SetResourceUiProjectCall,
   SetWindowUiProjectCall,
+  SetControlUiProjectCall,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
   ApplyRefreshComponentsUiProjectCall,
@@ -140,6 +144,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         definition.id = windowId;
 
         // FIXME: translate all ids
+        // FIXME: add controls or handle that server side (no control on set)
 
         return {
           tabId,
@@ -167,12 +172,56 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         };
       },
     },
+
+    [ActionTypes.CLONE_WINDOW]: {
+      mapper({ windowId, newId }: { windowId: string; newId: string }) {
+        const { tabId, id } = extractIds(windowId);
+        return {
+          tabId,
+          callData: { operation: 'clone-window', id, newId } as CloneWindowUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.SET_CONTROL]: {
+      mapper({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
+        const { controlId, ...definition } = control;
+        control.id = controlId;
+
+        // FIXME: translate all ids
+
+        return {
+          tabId,
+          callData: { operation: 'set-control', windowId, control: definition } as SetControlUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.CLEAR_CONTROL]: {
+      mapper({ controlId }: { controlId: string }) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+        return {
+          tabId,
+          callData: { operation: 'clear-control', windowId, id } as ClearControlUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.RENAME_CONTROL]: {
+      mapper({ controlId, newId }: { controlId: string; newId: string }) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+        return {
+          tabId,
+          callData: { operation: 'rename-control', windowId, id, newId } as RenameControlUiProjectCall
+        };
+      },
+    },
   }
 });
 
 export default combineEpics(openedProjectManagementEpic);
 
-function extractIds(fullId: string): { tabId: string, id: string; } {
+function extractIds(fullId: string): { tabId: string; id: string; } {
   const sepPos = fullId.indexOf(':');
   if (sepPos < 0) {
     throw new Error(`Bad id: '${fullId}'`);
@@ -195,4 +244,13 @@ function extractNullableId(fullId: string, expectedTabId: string) {
   }
 
   return id;
+}
+
+function extractControlIds(fullId: string): { tabId: string; windowId: string; id: string; } {
+  // first extract tab
+  const { tabId, id: remaining } = extractIds(fullId);
+  // then extract windowId
+  const { tabId: windowId, id } = extractIds(remaining);
+
+  return { tabId, windowId, id };
 }
