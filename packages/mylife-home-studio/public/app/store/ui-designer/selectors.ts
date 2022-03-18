@@ -8,6 +8,7 @@ const getComponentsTable = (state: AppState) => getUiDesigner(state).components;
 const getPluginsTable = (state: AppState) => getUiDesigner(state).plugins;
 const getResourcesTable = (state: AppState) => getUiDesigner(state).resources;
 const getWindowsTable = (state: AppState) => getUiDesigner(state).windows;
+const getControlsTable = (state: AppState) => getUiDesigner(state).controls;
 
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
 export const getOpenedProject = (state: AppState, tabId: string) => getOpenedProjects(state).byId[tabId];
@@ -40,11 +41,13 @@ export const getResourcesIds = (state: AppState, tabId: string) => getOpenedProj
 export const getResource = (state: AppState, resourceId: string) => getResourcesTable(state).byId[resourceId];
 export const getWindowsIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).windows;
 export const getWindow = (state: AppState, windowId: string) => getWindowsTable(state).byId[windowId];
+export const getControl = (state: AppState, controlId: string) => getControlsTable(state).byId[controlId];
 
 const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 export const getWindowsMap = (state: AppState) => getWindowsTable(state).byId;
 export const getResourcesMap = (state: AppState) => getResourcesTable(state).byId;
+export const getControlsMap = (state: AppState) => getControlsTable(state).byId;
 
 export const getComponentAndPlugin = (state: AppState, componentId: string) => {
   const component = getComponent(state, componentId);
@@ -102,8 +105,9 @@ export function makeGetResourceUsage() {
   return createSelector(
     getOpenedProject,
     getWindowsMap,
+    getControlsMap,
     (state: AppState, tabId: string, resourceId: string) => resourceId,
-    (project, windows, resourceId) => {
+    (project, windows, controls, resourceId) => {
       const usage: Usage = [];
 
       for (const wid of project.windows) {
@@ -113,11 +117,12 @@ export function makeGetResourceUsage() {
           usage.push([{ type: 'window', id: wid }]);
         }
 
-        for (const control of window.controls) {
+        for (const cid of window.controls) {
+          const control = controls[cid];
           if (isResourceUsedByControl(control, resourceId)) {
             usage.push([
               { type: 'window', id: wid },
-              { type: 'control', id: control.id },
+              { type: 'control', id: cid },
             ]);
           }
         }
@@ -151,8 +156,9 @@ export function makeGetWindowUsage() {
   return createSelector(
     getOpenedProject,
     getWindowsMap,
+    getControlsMap,
     (state: AppState, tabId: string, windowId: string) => windowId,
-    (project, windows, windowId) => {
+    (project, windows, controls, windowId) => {
       const usage: Usage = [];
 
       for (const [key, value] of Object.entries(project.defaultWindow)) {
@@ -163,12 +169,13 @@ export function makeGetWindowUsage() {
 
       for (const wid of project.windows) {
         const window = windows[wid];
-        for (const control of window.controls) {
+        for (const cid of window.controls) {
+          const control = controls[cid];
           for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
             if (control[aid]?.window?.id === windowId) {
               usage.push([
                 { type: 'window', id: wid },
-                { type: 'control', id: control.id },
+                { type: 'control', id: cid },
                 { type: 'action', id: aid },
               ]);
             }

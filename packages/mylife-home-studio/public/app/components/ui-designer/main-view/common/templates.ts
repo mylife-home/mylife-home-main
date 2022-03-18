@@ -26,6 +26,7 @@ const CONTROL_TEXT_TEMPLATE: ControlText = {
 
 const CONTROL_TEMPLATE: UiControl = {
   id: null,
+  controlId: null,
   x: null,
   y: null,
 

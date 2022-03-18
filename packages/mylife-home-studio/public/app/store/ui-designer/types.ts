@@ -39,8 +39,7 @@ export interface UiResource extends Mutable<DefinitionResource> {
 }
 
 export interface UiControl extends Mutable<Control> {
-  // TODO: normalize
-  // controlId: string; // id in window
+  controlId: string; // id in window
 }
 
 export interface UiPlugin extends UiPluginData {
@@ -49,7 +48,7 @@ export interface UiPlugin extends UiPluginData {
 
 export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
   windowId: string; // id in project
-  controls: UiControl[]; // TODO: normalize
+  controls: string[];
 }
 
 export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
@@ -74,6 +73,7 @@ export interface UiDesignerState {
   plugins: Table<UiPlugin>;
   resources: Table<UiResource>;
   windows: Table<UiWindow>;
+  controls: Table<UiControl>;
 }
 
 export { UiElementPath, UiElementPathNode };
