@@ -12,13 +12,19 @@ import {
   SetUiWindowNotification,
   UpdateProjectNotification,
 } from '../../../../shared/project-manager';
-import { createTable, tableAdd, tableRemove, tableSet } from '../common/reducer-tools';
+import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
 import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, DefaultWindow, Selection } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
+  components: createTable<UiComponent>(),
+  plugins: createTable<UiPlugin>(),
+  resources: createTable<UiResource>(),
+  windows: createTable<UiWindow>(),
 };
+
+const DEFAULT_SELECTION: Selection = { type: 'project' };
 
 export default createReducer(initialState, {
   [TabsActionTypes.NEW]: (state, action: PayloadAction<NewTabAction>) => {
@@ -33,7 +39,12 @@ export default createReducer(initialState, {
       id,
       projectId,
       notifierId: null,
-      ...createInitialProjectState()
+      components: [],
+      plugins: [],
+      resources: [],
+      windows: [],
+      selection: DEFAULT_SELECTION,
+      defaultWindow: { desktop: null, mobile: null },
     };
 
     tableAdd(state.openedProjects, openedProject);
@@ -64,14 +75,24 @@ export default createReducer(initialState, {
   [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
-      Object.assign(openedProject, createInitialProjectState());
+      openedProject.components = [];
+      openedProject.plugins = [];
+      openedProject.resources = [];
+      openedProject.windows = [];
+      openedProject.selection = DEFAULT_SELECTION;
+      openedProject.defaultWindow = { desktop: null, mobile: null };
     }
+
+    tableClear(state.components);
+    tableClear(state.plugins);
+    tableClear(state.resources);
+    tableClear(state.windows);
   },
 
   [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ tabId: string; update: UpdateProjectNotification; }[]>) => {
     for (const { tabId, update } of action.payload) {
       const openedProject = state.openedProjects.byId[tabId];
-      applyProjectUpdate(openedProject, update);
+      applyProjectUpdate(state, openedProject, update);
     }
   },
 
@@ -82,7 +103,7 @@ export default createReducer(initialState, {
   },
 });
 
-function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjectNotification) {
+function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProject, update: UpdateProjectNotification) {
   switch (update.operation) {
     case 'set-name': {
       const { name } = update as SetNameProjectNotification;
@@ -91,7 +112,18 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     case 'reset': {
-      Object.assign(openedProject, createInitialProjectState());
+      tableRemoveAll(state.components, openedProject.components);
+      tableRemoveAll(state.plugins, openedProject.plugins);
+      tableRemoveAll(state.resources, openedProject.resources);
+      tableRemoveAll(state.windows, openedProject.windows);
+
+      openedProject.components = [];
+      openedProject.plugins = [];
+      openedProject.resources = [];
+      openedProject.windows = [];
+      openedProject.selection = DEFAULT_SELECTION;
+      openedProject.defaultWindow = { desktop: null, mobile: null };
+
       break;
     }
 
@@ -108,50 +140,83 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
     }
 
     case 'set-ui-resource': {
-      const { resource } = update as SetUiResourceNotification;
-      tableSet(openedProject.resources, resource, true);
+      const { resource: resourceData } = update as SetUiResourceNotification;
+      const { id: resourceId, ...data } = resourceData;
+
+      const resource: UiResource = {
+        id: `${openedProject.id}:${resourceId}`,
+        resourceId,
+        ...data
+      };
+
+      tableSet(state.resources, resource, true);
+      arraySet(openedProject.resources, resource.id, true);
       break;
     }
 
     case 'clear-ui-resource': {
-      const { id } = update as ClearUiResourceNotification;
-      tableRemove(openedProject.resources, id);
+      const { id: resourceId } = update as ClearUiResourceNotification;
+      const id = `${openedProject.id}:${resourceId}`;
+      tableRemove(state.resources, id);
+      arrayRemove(openedProject.resources, id);
       break;
     }
 
     case 'rename-ui-resource': {
-      const { id, newId } = update as RenameUiResourceNotification;
-      const resource = openedProject.resources.byId[id];
-      tableRemove(openedProject.resources, id);
+      const { id: resourceId, newId: newResourceId } = update as RenameUiResourceNotification;
+      const id = `${openedProject.id}:${resourceId}`;
+      const newId = `${openedProject.id}:${newResourceId}`;
+
+      const resource = state.resources.byId[id];
+      tableRemove(state.resources, id);
+      arrayRemove(openedProject.resources, id);
+
       resource.id = newId;
-      tableSet(openedProject.resources, resource, true);
+      resource.resourceId = newResourceId;
+
+      tableSet(state.resources, resource, true);
+      arraySet(openedProject.resources, resource.id, true);
       break;
     }
 
     case 'set-ui-window': {
-      const { window } = update as SetUiWindowNotification;
+      const { window: windowData } = update as SetUiWindowNotification;
       // reuse existing controls or init array
-      tableSet(openedProject.windows, window, true);
+      const { id: windowId, ...data } = windowData;
+
+      const window: UiWindow = {
+        id: `${openedProject.id}:${windowId}`,
+        windowId,
+        ...data
+      };
+
+      tableSet(state.windows, window, true);
+      arraySet(openedProject.windows, window.id, true);
       break;
     }
 
     case 'clear-ui-window': {
-      const { id } = update as ClearUiWindowNotification;
-      tableRemove(openedProject.windows, id);
-
-      if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
-        openedProject.selection = { type: 'project' };
-      }
-
+      const { id: windowId } = update as ClearUiWindowNotification;
+      const id = `${openedProject.id}:${windowId}`;
+      tableRemove(state.windows, id);
+      arrayRemove(openedProject.windows, id);
       break;
     }
 
     case 'rename-ui-window': {
-      const { id, newId } = update as RenameUiWindowNotification;
-      const window = openedProject.windows.byId[id];
-      tableRemove(openedProject.windows, id);
+      const { id: windowId, newId: newResourceId } = update as RenameUiWindowNotification;
+      const id = `${openedProject.id}:${windowId}`;
+      const newId = `${openedProject.id}:${newResourceId}`;
+
+      const window = state.windows.byId[id];
+      tableRemove(state.windows, id);
+      arrayRemove(openedProject.windows, id);
+
       window.id = newId;
-      tableSet(openedProject.windows, window, true);
+      window.windowId = newResourceId;
+
+      tableSet(state.windows, window, true);
+      arraySet(openedProject.windows, window.id, true);
 
       if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
         openedProject.selection.id = newId;
@@ -165,32 +230,35 @@ function applyProjectUpdate(openedProject: UiOpenedProject, update: UpdateProjec
   }
 }
 
-function updateComponentData(openedProject: UiOpenedProject, componentData: UiComponentData) {
-  const components = createTable<UiComponent>();
-  const plugins = createTable<UiPlugin>();
+function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProject, componentData: UiComponentData) {
+  tableRemoveAll(state.plugins, openedProject.plugins);
+  tableRemoveAll(state.components, openedProject.components);
+  openedProject.plugins = [];
+  openedProject.components = [];
 
-  for (const [id, plugin] of Object.entries(componentData.plugins)) {
-    const uiPlugin: UiPlugin = { id, ...plugin };
-    tableSet(plugins, uiPlugin, true);
+  for (const [pluginId, data] of Object.entries(componentData.plugins)) {
+    const id = `${openedProject.id}:${pluginId}`;
+    const plugin: UiPlugin = { id, ...data };
+
+    tableSet(state.plugins, plugin, true);
+    arrayAdd(openedProject.plugins, plugin.id);
   }
 
-  for (const component of componentData.components) {
-    tableSet(components, component, true);
+  for (const { id: componentId, plugin: pluginId, ...data } of componentData.components) {
+    const id = `${openedProject.id}:${componentId}`;
+    const plugin = `${openedProject.id}:${pluginId}`;
+
+    const component: UiComponent = {
+      id,
+      componentId,
+      plugin,
+      ...data
+    };
+
+    tableSet(state.components, component, true);
+    arrayAdd(openedProject.components, component.id);
   }
 
-  openedProject.plugins = plugins;
-  openedProject.components = components;
-}
-
-function createInitialProjectState() {
-  const defaultWindow: DefaultWindow = { desktop: null, mobile: null };
-  const selection: Selection = { type: 'project' };
-  return {
-    components: createTable<UiComponent>(),
-    plugins: createTable<UiPlugin>(),
-    resources: createTable<UiResource>(),
-    windows: createTable<UiWindow>(),
-    defaultWindow,
-    selection,
-  };
+  openedProject.plugins.sort();
+  openedProject.components.sort();
 }
