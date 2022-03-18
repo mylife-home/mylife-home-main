@@ -10,7 +10,3 @@ export interface OpenedProjectBase {
   projectId: string; // TODO: can change, need to update tab title on change
   notifierId: string;
 }
-
-export interface DesignerState<OpenedProject extends OpenedProjectBase> {
-  openedProjects: Table<OpenedProject>;
-}

@@ -1,7 +1,7 @@
 import { Component } from '../../../../shared/component-model';
 import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
-import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
