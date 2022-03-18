@@ -1,8 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { UiControl, Usage } from './types';
+import { UiControl, UiPlugin, Usage } from './types';
 
-const getOpenedProjects = (state: AppState) => state.uiDesigner.openedProjects;
+const getUiDesigner = (state: AppState) => state.uiDesigner;
+const getOpenedProjects = (state: AppState) => getUiDesigner(state).openedProjects;
+const getComponentsTable = (state: AppState) => getUiDesigner(state).components;
+const getPluginsTable = (state: AppState) => getUiDesigner(state).plugins;
+const getWindowsTable = (state: AppState) => getUiDesigner(state).windows;
+
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
 export const getOpenedProject = (state: AppState, tabId: string) => getOpenedProjects(state).byId[tabId];
 
@@ -29,44 +34,36 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
 
 export const getComponentsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
-  return project.components.allIds;
+  return project.components;
 };
 
-export const getComponentAndPlugin = (state: AppState, tabId: string, id: string) => {
-  const project = getOpenedProject(state, tabId);
-  const component = project.components.byId[id];
+export const getComponentAndPlugin = (state: AppState, componentId: string) => {
+  const designerState = getUiDesigner(state);
+  const component = designerState.components.byId[componentId];
   if (!component) {
     return;
   }
 
-  const plugin = project.plugins.byId[component.plugin];
+  const plugin = designerState.plugins.byId[component.plugin];
   return { component, plugin };
 };
 
-export const getComponentMemberValueType = (state: AppState, tabId: string, componentId: string, memberName: string) => {
-  const project = getOpenedProject(state, tabId);
-  const component = project.components.byId[componentId];
-  if (!component) {
+export const getComponentMemberValueType = (state: AppState, componentId: string, memberName: string) => {
+  const componentAndPlugin = getComponentAndPlugin(state, componentId);
+  if (!componentAndPlugin) {
     return;
   }
 
-  const plugin = project.plugins.byId[component.plugin];
+  const { plugin } = componentAndPlugin;
   return plugin.members[memberName]?.valueType;
 };
 
-// components data does not change often in the project lifecycle
-function makeGetComponentsData() {
+export function makeGetComponentsAndPlugins() {
   return createSelector(
     getOpenedProject,
-    (project) => ({ components: project.components, plugins: project.plugins })
-  );
-}
-
-export function makeGetComponentsAndPlugins() {
-  const getComponentsData = makeGetComponentsData();
-  return createSelector(
-    getComponentsData,
-    ({ components, plugins }) => components.allIds.map(id => {
+    getComponentsTable,
+    getPluginsTable,
+    (project, components, plugins) => project.components.map(id => {
       const component = components.byId[id];
       const plugin = plugins.byId[component.plugin];
       return { component, plugin };
@@ -74,26 +71,45 @@ export function makeGetComponentsAndPlugins() {
   );
 }
 
+export function makeGetPluginsMap() {
+  return createSelector(
+    getOpenedProject,
+    getComponentsTable,
+    getPluginsTable,
+    (project, components, plugins) => {
+      const map = new Map<string, UiPlugin>();
+
+      for(const id of project.components) {
+        const component = components.byId[id];
+        const plugin = plugins.byId[component.plugin];
+        map.set(component.componentId, plugin);
+      }
+
+      return map;
+    }
+  );
+}
 
 export const getResourcesIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
-  return project.resources.allIds;
+  return project.resources;
 };
 
-export const getResource = (state: AppState, tabId: string, id: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.resources.byId[id];
+export const getResource = (state: AppState, resourceId: string) => {
+  const designerState = getUiDesigner(state);
+  return designerState.resources.byId[resourceId];
 };
 
 export function makeGetResourceUsage() {
   return createSelector(
     getOpenedProject,
+    getWindowsTable,
     (state: AppState, tabId: string, resourceId: string) => resourceId,
-    (project, resourceId) => {
+    (project, windows, resourceId) => {
       const usage: Usage = [];
 
-      for (const wid of project.windows.allIds) {
-        const window = project.windows.byId[wid];
+      for (const wid of project.windows) {
+        const window = windows.byId[wid];
 
         if (window.backgroundResource === resourceId) {
           usage.push([{ type: 'window', id: wid }]);
@@ -135,19 +151,20 @@ function isResourceUsedByControl(control: UiControl, resourceId: string) {
 
 export const getWindowsIds = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
-  return project.windows.allIds;
+  return project.windows;
 };
 
-export const getWindow = (state: AppState, tabId: string, id: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.windows.byId[id];
+export const getWindow = (state: AppState, windowId: string) => {
+  const designerState = getUiDesigner(state);
+  return designerState.windows.byId[windowId];
 };
 
 export function makeGetWindowUsage() {
   return createSelector(
     getOpenedProject,
+    getWindowsTable,
     (state: AppState, tabId: string, windowId: string) => windowId,
-    (project, windowId) => {
+    (project, windows, windowId) => {
       const usage: Usage = [];
 
       for (const [key, value] of Object.entries(project.defaultWindow)) {
@@ -156,8 +173,8 @@ export function makeGetWindowUsage() {
         }
       }
 
-      for (const wid of project.windows.allIds) {
-        const window = project.windows.byId[wid];
+      for (const wid of project.windows) {
+        const window = windows.byId[wid];
         for (const control of window.controls) {
           for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
             if (control[aid]?.window?.id === windowId) {

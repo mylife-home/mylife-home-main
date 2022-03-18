@@ -129,7 +129,7 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'set-ui-component-data': {
       const { componentData } = update as SetUiComponentDataNotification;
-      updateComponentData(openedProject, componentData);
+      updateComponentData(state, openedProject, componentData);
       break;
     }
 
@@ -183,6 +183,8 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       const { window: windowData } = update as SetUiWindowNotification;
       // reuse existing controls or init array
       const { id: windowId, ...data } = windowData;
+      
+      // FIXME: resources + components links
 
       const window: UiWindow = {
         id: `${openedProject.id}:${windowId}`,
