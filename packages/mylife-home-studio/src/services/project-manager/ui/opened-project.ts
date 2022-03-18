@@ -16,6 +16,9 @@ import {
   ClearUiWindowNotification,
   RenameWindowUiProjectCall,
   RenameUiWindowNotification,
+  SetControlUiProjectCall,
+  ClearControlUiProjectCall,
+  RenameControlUiProjectCall,
   SetUiComponentDataNotification,
   ProjectCallResult,
   ValidateUiProjectCallResult,
@@ -117,6 +120,18 @@ export class UiOpenedProject extends OpenedProject {
         this.renameWindow(callData as RenameWindowUiProjectCall);
         break;
 
+      case 'set-control':
+        this.setControl(callData as SetControlUiProjectCall);
+        break;
+
+      case 'clear-control':
+        this.clearControl(callData as ClearControlUiProjectCall);
+        break;
+
+      case 'rename-control':
+        this.renameControl(callData as RenameControlUiProjectCall);
+        break;
+        
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -219,6 +234,30 @@ export class UiOpenedProject extends OpenedProject {
           this.notifyAllWindow(window);
         }
       }
+    });
+  }
+
+  private setControl({ windowId, control }: SetControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.setControl(control);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private clearControl({ windowId, id }: ClearControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.clearControl(id);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private renameControl({ windowId, id, newId }: RenameControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.renameControl(id, newId);
+      this.notifyAllWindow(windowModel);
     });
   }
 
