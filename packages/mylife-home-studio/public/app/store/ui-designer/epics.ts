@@ -113,19 +113,21 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.CLEAR_RESOURCE]: {
-      mapper({ tabId, resourceId }: { tabId: string; resourceId: string }) {
+      mapper({ resourceId }: { resourceId: string }) {
+        const { tabId, id } = extractIds(resourceId);
         return {
           tabId,
-          callData: { operation: 'clear-resource', id: resourceId } as ClearResourceUiProjectCall
+          callData: { operation: 'clear-resource', id } as ClearResourceUiProjectCall
         };
       },
     },
 
     [ActionTypes.RENAME_RESOURCE]: {
-      mapper({ tabId, resourceId, newId }: { tabId: string; resourceId: string; newId: string }) {
+      mapper({ resourceId, newId }: { resourceId: string; newId: string }) {
+        const { tabId, id } = extractIds(resourceId);
         return {
           tabId,
-          callData: { operation: 'rename-resource', id: resourceId, newId } as RenameResourceUiProjectCall
+          callData: { operation: 'rename-resource', id, newId } as RenameResourceUiProjectCall
         };
       },
     },
@@ -140,19 +142,21 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.CLEAR_WINDOW]: {
-      mapper({ tabId, windowId }: { tabId: string; windowId: string }) {
+      mapper({ windowId }: { windowId: string }) {
+        const { tabId, id } = extractIds(windowId);
         return {
           tabId,
-          callData: { operation: 'clear-window', id: windowId } as ClearWindowUiProjectCall
+          callData: { operation: 'clear-window', id } as ClearWindowUiProjectCall
         };
       },
     },
 
     [ActionTypes.RENAME_WINDOW]: {
-      mapper({ tabId, windowId, newId }: { tabId: string; windowId: string; newId: string }) {
+      mapper({ windowId, newId }: { windowId: string; newId: string }) {
+        const { tabId, id } = extractIds(windowId);
         return {
           tabId,
-          callData: { operation: 'rename-window', id: windowId, newId } as RenameWindowUiProjectCall
+          callData: { operation: 'rename-window', id, newId } as RenameWindowUiProjectCall
         };
       },
     },
