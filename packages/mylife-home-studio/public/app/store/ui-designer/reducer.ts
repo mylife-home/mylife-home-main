@@ -185,14 +185,33 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'set-ui-window': {
       const { window: windowData } = update as SetUiWindowNotification;
-      // reuse existing controls or init array
-      const { id: windowId, ...data } = windowData;
-      
-      // FIXME: resources + components links
+      const { id: windowId, backgroundResource, controls, ...data } = windowData;
+
+      const id = `${openedProject.id}:${windowId}`;
+
+      const existing = state.windows.byId[id];
+      if (existing) {
+        tableRemoveAll(state.controls, existing.controls);
+      }
+
+      const controlIds = controls.map(controlData => {
+        const control: UiControl = {
+          ...controlData,
+          id: `${openedProject.id}:${windowId}:${controlData.id}`,
+          controlId: controlData.id,
+        };
+
+        adaptControlLinks(openedProject, control);
+        tableSet(state.controls, control, true);
+
+        return control.id;
+      });
 
       const window: UiWindow = {
         id: `${openedProject.id}:${windowId}`,
         windowId,
+        backgroundResource: makeNullableId(openedProject, backgroundResource),
+        controls: controlIds,
         ...data
       };
 
@@ -204,6 +223,10 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
     case 'clear-ui-window': {
       const { id: windowId } = update as ClearUiWindowNotification;
       const id = `${openedProject.id}:${windowId}`;
+
+      const window = state.windows.byId[id];
+      tableRemoveAll(state.controls, window.controls);
+
       tableRemove(state.windows, id);
       arrayRemove(openedProject.windows, id);
       break;
@@ -271,4 +294,35 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
 
 function makeNullableId(openedProject: UiOpenedProject, id: string) {
   return id ? `${openedProject.id}:${id}` : id;
+}
+
+function adaptControlLinks(openedProject: UiOpenedProject, control: UiControl) {
+  for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+    if (!control[aid]) {
+      continue;
+    }
+
+    if (control[aid].window) {
+      control[aid] = { 
+        ... control[aid],
+        window: {
+          ... control[aid].window,
+          id: makeNullableId(openedProject, control[aid].window.id)
+        },
+      };
+    }
+    
+    if (control[aid].component) {
+      control[aid] = { 
+        ... control[aid],
+        component: {
+          ... control[aid].component,
+          id: makeNullableId(openedProject, control[aid].component.id)
+        },
+      };
+    }
+  }
+
+  // FIXME: fix links ids (display, text)
+
 }

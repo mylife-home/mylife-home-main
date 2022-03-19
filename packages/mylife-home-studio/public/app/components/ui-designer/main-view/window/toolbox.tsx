@@ -79,14 +79,13 @@ export default Toolbox;
 
 const Controls: FunctionComponent = () => {
   const classes = useStyles();
-  const { controlsIds, selectControl } = useSelectableControlList();
-  const list = useMemo(() => controlsIds.map(id => ({ id, label: id })), [controlsIds]);
+  const { controlsList, selectControl } = useSelectableControlList();
 
   return (
     <div className={classes.controls}>
       <Control />
       <SnapEditor />
-      <QuickAccess className={classes.controlSelector} list={list} onSelect={selectControl} />
+      <QuickAccess className={classes.controlSelector} list={controlsList} onSelect={selectControl} />
     </div>
   );
 };

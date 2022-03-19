@@ -11,7 +11,7 @@ import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
-import { useControlState, useWindowState } from '../window-state';
+import { useControlState, useWindowState, useGetExistingControlNames } from '../window-state';
 import { useSnapValue } from '../snap';
 import PropertiesControlAppearence from './control-appearence';
 import PropertiesControlActions from './control-actions';
@@ -28,10 +28,11 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
   const classes = useStyles();
   const { control, update, duplicate, remove } = useControlState(id);
   const { window } = useWindowState();
+  const getExistingControlNames = useGetExistingControlNames();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
-  const controlIds = useMemo(() => window.controls.map((control) => control.id), [window.controls]);
-  const showRenameDialog = useRenameDialog(controlIds, id, 'Entrer un nom de contrôle');
+  const existingNames = useMemo(() => Array.from(getExistingControlNames()), [getExistingControlNames]);
+  const showRenameDialog = useRenameDialog(existingNames, id, 'Entrer un nom de contrôle');
 
   const onRename = () =>
     fireAsync(async () => {
