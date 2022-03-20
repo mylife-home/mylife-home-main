@@ -323,6 +323,19 @@ function adaptControlLinks(openedProject: UiOpenedProject, control: UiControl) {
     }
   }
 
-  // FIXME: fix links ids (display, text)
+  if (control.display) {
+    control.display = {
+      ...control.display,
+      componentId: makeNullableId(openedProject, control.display.componentId),
+      defaultResource: makeNullableId(openedProject, control.display.defaultResource),
+      map: control.display.map.map(({ resource, ...item }) => ({ ...item, resource: makeNullableId(openedProject, resource) }))
+    };
+  }
 
+  if (control.text) {
+    control.text = {
+      ...control.text,
+      context: control.text.context.map(({ componentId, ...item }) => ({ ...item, componentId: makeNullableId(openedProject, componentId) }))
+    };
+  }
 }
