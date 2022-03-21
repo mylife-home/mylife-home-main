@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent } from 'react';
 import { useSelector } from 'react-redux';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
@@ -22,7 +22,7 @@ const WindowSelector: FunctionComponent<WindowSelectorProps> = ({ nullable = fal
     <Autocomplete
       disableClearable={!nullable}
       options={windowsIds}
-      getOptionLabel={id => windowsMap[id].windowId}
+      getOptionLabel={id => windowsMap[id]?.windowId || ''}
       className={classes.component}
       renderInput={(params) => <TextField {...params} variant="outlined" />}
       value={value}
