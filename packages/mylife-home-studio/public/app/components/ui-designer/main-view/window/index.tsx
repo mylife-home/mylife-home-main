@@ -29,7 +29,7 @@ const Window: FunctionComponent<{ id: string }> = ({ id }) => {
     <Container
       title={
         <>
-          <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
+          <Title text={`Fenêtre ${window.windowId}`} icon={WindowIcon} />
 
           <div className={classes.titleActions}>
             <WindowActions id={id} />

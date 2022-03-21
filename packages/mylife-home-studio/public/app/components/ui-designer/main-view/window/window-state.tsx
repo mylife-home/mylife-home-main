@@ -5,7 +5,7 @@ import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { clone } from '../../../lib/clone';
 import { AppState } from '../../../../store/types';
-import { setWindow, setControl, clearControl } from '../../../../store/ui-designer/actions';
+import { setWindow, setControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
 import { getControl, getWindow, getControlsMap } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { createNewControl } from '../common/templates';
@@ -81,7 +81,7 @@ export function useControlState(id: string) {
     const existingNames = getExistingControlNames();
     const newControl = clone(control);
     newControl.controlId = makeUniqueId(existingNames, control.controlId);
-    newControl.id = `${tabId}:${windowId}:${newControl.controlId}`;
+    newControl.id = `${windowId}:${newControl.controlId}`;
     newControl.x = control.x +10;
     newControl.y = control.y +10;
 
@@ -91,6 +91,12 @@ export function useControlState(id: string) {
     
   }, [dispatch, tabId, windowId, control, getExistingControlNames]);
 
+  const rename = useCallback((newId: string) => {
+    dispatch(renameControl({ controlId: id, newId }));
+    const newFullId = `${windowId}:${newId}`;
+    setSelection(newFullId);
+  }, [dispatch, tabId, windowId, id, setSelection]);
+
   const remove = useCallback(() => {
     dispatch(clearControl({ controlId: id }));
     setSelection(null);
@@ -99,7 +105,7 @@ export function useControlState(id: string) {
   const selected = selection === id;
   const select = useCallback(() => setSelection(id), [setSelection]);
 
-  return { control, update, duplicate, remove, selected, select };
+  return { control, update, duplicate, rename, remove, selected, select };
 }
 
 export type SelectionType = 'control' | 'window';
@@ -122,7 +128,7 @@ export function useCreateControl() {
     const existingNames = getExistingControlNames();
     const newControl = createNewControl();
     newControl.controlId = makeUniqueId(existingNames, 'new-control');
-    newControl.id = `${tabId}:${windowId}:${newControl.controlId}`;
+    newControl.id = `${windowId}:${newControl.controlId}`;
     newControl.x = position.x;
     newControl.y = position.y;
     newControl.width = size.width;

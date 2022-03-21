@@ -77,14 +77,14 @@ export default Components;
 const ComponentItem: FunctionComponent<{ id: string; selected: boolean; select: () => void; }> = ({ id, selected, select }) => {
   const classes = useStyles();
   const { component, plugin } = useSelector((state: AppState) => getComponentAndPlugin(state, id));
-  const text = plugin.description ? `${plugin.id} - ${plugin.description}` : plugin.id;
+  const text = plugin.description ? `${plugin.module}:${plugin.name} - ${plugin.description}` : `${plugin.module}:${plugin.name}`;
 
   return (
     <Accordion expanded={selected} onChange={select}>
 
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <div className={classes.componentContainer}>
-          <Typography className={classes.componentId}>{component.id}</Typography>
+          <Typography className={classes.componentId}>{component.componentId}</Typography>
           <Typography className={classes.componentDescription} variant="body2" color="textSecondary">{text}</Typography>
         </div>
       </AccordionSummary>

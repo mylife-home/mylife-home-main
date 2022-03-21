@@ -28,7 +28,7 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
     <div className={className}>
       <Group title={'Fenêtre'}>
         <Item title={'Identifiant'}>
-          <ReadonlyStringEditor value={window.id} />
+          <ReadonlyStringEditor value={window.windowId} />
         </Item>
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={window.width} onChange={(value) => update({ width: value })} />

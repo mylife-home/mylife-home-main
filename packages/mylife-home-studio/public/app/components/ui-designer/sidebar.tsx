@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Actions from './actions';
@@ -6,7 +7,8 @@ import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons'
 import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { useSelection } from './selection';
 import { useTabSelector } from '../lib/use-tab-selector';
-import { getWindowsIds } from '../../store/ui-designer/selectors';
+import { AppState } from '../../store/types';
+import { getWindowsIds, getWindow } from '../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -56,9 +58,18 @@ const Windows: FunctionComponent = () => {
     <>
       <Section title="Fenêtres" icon={WindowIcon} onClick={() => select({ type: 'windows' })} />
       {windowsIds.map((id) => (
-        <Item key={id} title={id} icon={WindowIcon} onClick={() => select({ type: 'window', id })} />
+        <WindowItem key={id} id={id} />
       ))}
     </>
+  );
+};
+
+const WindowItem: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { select } = useSelection();
+  const window = useSelector((state: AppState) => getWindow(state, id));
+
+  return (
+    <Item title={window.windowId} icon={WindowIcon} onClick={() => select({ type: 'window', id })} />
   );
 };
 

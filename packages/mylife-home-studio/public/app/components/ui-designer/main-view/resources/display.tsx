@@ -54,7 +54,7 @@ const Display : FunctionComponent<{ id: string; className?: string; }> = ({ id, 
         </RadioGroup>
 
         <Typography variant="h6" className={classes.toolbarTitle}>
-          {resource.id}
+          {resource.resourceId}
         </Typography>
 
         {size && (

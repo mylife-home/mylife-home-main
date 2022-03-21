@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useMemo } from 'react';
+import React, { FunctionComponent, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,10 +12,12 @@ import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
-import { useControlState, useWindowState, useGetExistingControlNames } from '../window-state';
+import { useControlState, useGetExistingControlNames } from '../window-state';
 import { useSnapValue } from '../snap';
 import PropertiesControlAppearence from './control-appearence';
 import PropertiesControlActions from './control-actions';
+import { AppState } from '../../../../../store/types';
+import { getControl } from '../../../../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -24,21 +27,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }), { name: 'properties-control' });
 
+// A control can be selected before it actually exists, let's be safe
+
 const PropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
+  const control = useSelector((state: AppState) => getControl(state, id));
+  useEffect(() => {});
+  console.log('CONTROL', control);
+
+  if (control) {
+    return <UnsafePropertiesControl className={className} id={id} />;
+  } else {
+    return  <div className={className} />;
+  }
+};
+
+export default PropertiesControl;
+
+const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
-  const { control, update, duplicate, remove } = useControlState(id);
-  const { window } = useWindowState();
+  const { control, update, duplicate, rename, remove } = useControlState(id);
   const getExistingControlNames = useGetExistingControlNames();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
   const existingNames = useMemo(() => Array.from(getExistingControlNames()), [getExistingControlNames]);
-  const showRenameDialog = useRenameDialog(existingNames, id, 'Entrer un nom de contrôle');
+  const showRenameDialog = useRenameDialog(existingNames, control.controlId, 'Entrer un nom de contrôle');
 
   const onRename = () =>
     fireAsync(async () => {
       const { status, newName } = await showRenameDialog();
       if (status === 'ok') {
-        update({ id: newName });
+        rename(newName);
       }
     });
 
@@ -62,7 +80,7 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
         </div>
 
         <Item title={'Identifiant'}>
-          <ReadonlyStringEditor value={control.id} />
+          <ReadonlyStringEditor value={control.controlId} />
         </Item>
         <Item title={'X'}>
           <SnappedIntegerEditor snap={snap} value={control.x} onChange={(value) => update({ x: value })} />
@@ -83,5 +101,3 @@ const PropertiesControl: FunctionComponent<{ className?: string; id: string }> =
     </div>
   );
 };
-
-export default PropertiesControl;

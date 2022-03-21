@@ -54,7 +54,7 @@ export const WindowsActions: FunctionComponent = () => {
 
 export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const { duplicate, rename, remove, usage } = useWindowConnect(id);
+  const { duplicate, rename, remove, usage, window } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
   const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
@@ -69,7 +69,7 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
 
   const onRename = () =>
     fireAsync(async () => {
-      const { status, id: newId } = await showNewNameDialog(id);
+      const { status, id: newId } = await showNewNameDialog(window.windowId);
       if (status === 'ok') {
         rename(newId);
       }
@@ -157,7 +157,7 @@ function useWindowConnect(id: string) {
     [dispatch, tabId, id]
   );
 
-  return { ...callbacks, usage };
+  return { ...callbacks, usage, window };
 }
 
 function useNewNameDialog() {

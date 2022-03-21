@@ -174,7 +174,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
         <ImageIcon />
       </ListItemIcon>
 
-      <ListItemText primary={id} secondary={`${resource.mime} - ${formatBinaryLength(resource)}`} />
+      <ListItemText primary={resource.resourceId} secondary={`${resource.mime} - ${formatBinaryLength(resource)}`} />
 
       <ListItemSecondaryAction>
         <Tooltip title="Renommer">

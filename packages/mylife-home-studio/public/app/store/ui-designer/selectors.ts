@@ -174,8 +174,8 @@ export function makeGetWindowUsage() {
           for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
             if (control[aid]?.window?.id === windowId) {
               usage.push([
-                { type: 'window', id: wid },
-                { type: 'control', id: cid },
+                { type: 'window', id: window.windowId },
+                { type: 'control', id: control.controlId },
                 { type: 'action', id: aid },
               ]);
             }
