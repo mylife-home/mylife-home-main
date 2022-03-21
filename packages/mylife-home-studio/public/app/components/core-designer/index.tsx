@@ -45,7 +45,8 @@ const useStyles = makeStyles((theme) => ({
 
 const enum SideBarTabValues {
   SELECTION = 'selection',
-  TOOLBOX = 'toolbox'
+  TOOLBOX = 'toolbox',
+  EXPORTS = 'exports',
 };
 
 const CoreDesigner: FunctionComponent = () => {
@@ -60,6 +61,12 @@ const CoreDesigner: FunctionComponent = () => {
 
             <div className={classes.sideBar}>
 
+              <div>
+                Templates
+              </div>
+
+              <Divider />
+
               <div className={classes.miniViewContainer}>
                 <MiniView />
                 <ZoomSlider />
@@ -70,6 +77,7 @@ const CoreDesigner: FunctionComponent = () => {
               <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
                 <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
                 <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
+                <Tab classes={{root: classes.tab }} label='Exports' value={SideBarTabValues.EXPORTS} />
               </Tabs>
 
               <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
@@ -78,6 +86,10 @@ const CoreDesigner: FunctionComponent = () => {
 
               <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
                 <Toolbox className={classes.tabContent} />
+              </div>
+
+              <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.EXPORTS}>
+                Exports
               </div>
 
               <Divider />
