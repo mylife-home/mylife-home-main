@@ -152,6 +152,11 @@ export class WindowModel {
     this.data.id = value;
   }
 
+  update(window: Omit<Window, 'id' | 'controls'>) {
+    const { style, backgroundResource, height, width } = window;
+    Object.assign(this.data, { style, backgroundResource, height, width });
+  }
+
   setControl(control: Control) {
     return this.controls.set(control);
   }

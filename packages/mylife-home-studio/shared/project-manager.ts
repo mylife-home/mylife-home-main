@@ -298,7 +298,7 @@ export interface RenameResourceUiProjectCall extends UiProjectCall {
 
 export interface SetWindowUiProjectCall extends UiProjectCall {
   operation: 'set-window';
-  window: Window;
+  window: Omit<Window, 'controls'>;
 }
 
 export interface ClearWindowUiProjectCall extends UiProjectCall {

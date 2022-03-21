@@ -204,7 +204,14 @@ export class UiOpenedProject extends OpenedProject {
 
   private setWindow({ window }: SetWindowUiProjectCall) {
     this.executeUpdate(() => {
-      const model = this.windows.set(window);
+      let model = this.windows.findById(window.id);
+      if (model) {
+        model.update(window);
+      } else {
+        // init new model with no control
+        model = this.windows.set({ ...window, controls: [] });
+      }
+
       this.notifyAllWindow(model);
     });
   }

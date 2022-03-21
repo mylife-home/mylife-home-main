@@ -140,11 +140,10 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.SET_WINDOW]: {
       mapper({ tabId, window }: { tabId: string; window: UiWindow }) {
-        const { windowId, ...definition } = window;
+        const { windowId, controls, ...definition } = window;
+        
         definition.id = windowId;
-
-        // FIXME: translate all ids
-        // FIXME: add controls or handle that server side (no control on set)
+        definition.backgroundResource = extractNullableId(definition.backgroundResource, tabId);
 
         return {
           tabId,
