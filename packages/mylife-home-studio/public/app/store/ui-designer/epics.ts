@@ -25,6 +25,7 @@ import {
   RefreshComponentsUiProjectCallResult,
   DeployUiProjectCallResult,
 } from '../../../../shared/project-manager';
+import { Control } from '../../../../shared/ui-model';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'ui',
@@ -185,13 +186,15 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     [ActionTypes.SET_CONTROL]: {
       mapper({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
         const { controlId, ...definition } = control;
-        control.id = controlId;
-
-        // FIXME: translate all ids
+        definition.id = controlId;
 
         return {
           tabId,
-          callData: { operation: 'set-control', windowId, control: definition } as SetControlUiProjectCall
+          callData: { 
+            operation: 'set-control', 
+            windowId: extractNullableId(windowId, tabId),
+            control: adaptControlLinks(definition, tabId)
+          } as SetControlUiProjectCall
         };
       },
     },
@@ -252,4 +255,52 @@ function extractControlIds(fullId: string): { tabId: string; windowId: string; i
   const { tabId: windowId, id } = extractIds(remaining);
 
   return { tabId, windowId, id };
+}
+
+function adaptControlLinks(input: Control, tabId: string): Control {
+  const control = { ... input };
+
+  for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+    if (!control[aid]) {
+      continue;
+    }
+
+    if (control[aid].window) {
+      control[aid] = { 
+        ... control[aid],
+        window: {
+          ... control[aid].window,
+          id: extractNullableId(control[aid].window.id, tabId)
+        },
+      };
+    }
+    
+    if (control[aid].component) {
+      control[aid] = { 
+        ... control[aid],
+        component: {
+          ... control[aid].component,
+          id: extractNullableId(control[aid].component.id, tabId)
+        },
+      };
+    }
+  }
+
+  if (control.display) {
+    control.display = {
+      ...control.display,
+      componentId: extractNullableId(control.display.componentId, tabId),
+      defaultResource: extractNullableId(control.display.defaultResource, tabId),
+      map: control.display.map.map(({ resource, ...item }) => ({ ...item, resource: extractNullableId(resource, tabId) }))
+    };
+  }
+
+  if (control.text) {
+    control.text = {
+      ...control.text,
+      context: control.text.context.map(({ componentId, ...item }) => ({ ...item, componentId: extractNullableId(componentId, tabId) }))
+    };
+  }
+
+  return control;
 }
