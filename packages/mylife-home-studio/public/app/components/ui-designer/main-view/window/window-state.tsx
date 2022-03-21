@@ -1,20 +1,18 @@
 import React, { FunctionComponent, createContext, useContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { useTabSelector } from '../../../lib/use-tab-selector';
-import { useDebounced } from '../../../lib/use-debounced';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { clone } from '../../../lib/clone';
-import { setWindow } from '../../../../store/ui-designer/actions';
-import { getWindow } from '../../../../store/ui-designer/selectors';
+import { AppState } from '../../../../store/types';
+import { setWindow, setControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
+import { getControl, getWindow, getControlsMap } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { createNewControl } from '../common/templates';
 import { Position, Size } from './canvas/types';
 
 interface ContextProps {
-  window: UiWindow;
-  updateWindow: (callback: (prev: UiWindow) => UiWindow) => void;
+  windowId: string;
 
   selection: string; // control id or null for window itself
   setSelection: React.Dispatch<React.SetStateAction<string>>;
@@ -22,31 +20,15 @@ interface ContextProps {
 
 const Context = createContext<ContextProps>(null);
 
-export const WindowStateProvider: FunctionComponent<{ id: string; }> = ({ id, children }) => {
-  const { window, updateWindow } = useWindowStateFactory(id);
-  const { selection, setSelection } = useSelectionFactory(id);
-  const context: ContextProps = useMemo(() => ({ window, updateWindow, selection, setSelection }), [window, updateWindow, selection, setSelection]);
+export const WindowStateProvider: FunctionComponent<{ id: string; }> = ({ id: windowId, children }) => {
+  const { selection, setSelection } = useSelectionFactory(windowId);
+  const context: ContextProps = useMemo(() => ({ windowId, selection, setSelection }), [windowId, selection, setSelection]);
 
   return (
     <Context.Provider value={context}>
       {children}
     </Context.Provider>
   );
-};
-
-function useWindowStateFactory(id: string) {
-  const tabId = useTabPanelId();
-  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
-  const dispatch = useDispatch();
-  const persistWindow = useCallback(
-    (window: UiWindow) => {
-      dispatch(setWindow({ tabId, window }));
-    },
-    [dispatch]
-  );
-
-  const { componentValue, componentChange } = useDebounced(window, persistWindow);
-  return { window: componentValue, updateWindow: componentChange };
 };
 
 function useSelectionFactory(windowId: string) {
@@ -58,12 +40,24 @@ function useSelectionFactory(windowId: string) {
   return { selection, setSelection };
 }
 
+export function useGetExistingControlNames() {
+  const { windowId } = useContext(Context);
+  const window = useSelector((state: AppState) => getWindow(state, windowId));
+  const controlsMap = useSelector(getControlsMap);
+
+  return useCallback(() => new Set(window.controls.map(id => controlsMap[id].controlId)), [window.controls, controlsMap]);
+}
+
 export function useWindowState() {
-  const { window, updateWindow, selection, setSelection } = useContext(Context);
+  const { windowId, selection, setSelection } = useContext(Context);
+  const window = useSelector((state: AppState) => getWindow(state, windowId));
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
 
   const update = useCallback((props: Partial<UiWindow>) => {
-    updateWindow((prev) => ({ ...prev, ...props }));
-  }, [updateWindow]);
+    const newWindow = { ... window, ... props };
+    dispatch(setWindow({ tabId, window: newWindow }));
+  }, [dispatch, tabId, window]);
 
   const selected = selection === null;
   const select = useCallback(() => setSelection(null), [setSelection]);
@@ -72,53 +66,46 @@ export function useWindowState() {
 }
 
 export function useControlState(id: string) {
-  const { window, updateWindow, selection, setSelection } = useContext(Context);
+  const { windowId, selection, setSelection } = useContext(Context);
+  const control = useSelector((state: AppState) => getControl(state, id));
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const getExistingControlNames = useGetExistingControlNames();
 
-  const index = useMemo(() => window.controls.findIndex(control => control.id === id), [window.controls, id]);
-  const control = window.controls[index];
+  const update = useCallback((props: Partial<UiControl>) => {
+    const newControl = { ...control, ...props };
+    dispatch(setControl({ tabId, windowId, control: newControl }));
+  }, [dispatch, tabId, windowId, control]);
 
-  const update = useCallback((props: Partial<UiControl>) => updateWindow(window => {
-    const newWindow = { ...window, controls: window.controls.slice() };
-    const control = window.controls[index];
-    newWindow.controls[index] = { ...control, ...props };
-
-    const newId = props.id;
-    if (newId) {
-      // update selection on rename
-      setSelection(selection => selection === id ? newId : selection);
-    }
-
-    return newWindow;
-  }), [id, setSelection, index]);
-
-  const duplicate = useCallback(() => updateWindow(window => {
-    const control = window.controls[index];
-    const existingIds = new Set(window.controls.map(control => control.id));
+  const duplicate = useCallback(() => {
+    const existingNames = getExistingControlNames();
     const newControl = clone(control);
-    const newWindow = { ...window, controls: [...window.controls, newControl] };
-
-    newControl.id = makeUniqueId(existingIds, control.id);
+    newControl.controlId = makeUniqueId(existingNames, control.controlId);
+    newControl.id = `${windowId}:${newControl.controlId}`;
     newControl.x = control.x +10;
     newControl.y = control.y +10;
 
+    dispatch(setControl({ tabId, windowId, control: newControl }));
+
     setSelection(newControl.id);
+    
+  }, [dispatch, tabId, windowId, control, getExistingControlNames]);
 
-    return newWindow;
-  }), [id, setSelection, index]);
+  const rename = useCallback((newId: string) => {
+    dispatch(renameControl({ controlId: id, newId }));
+    const newFullId = `${windowId}:${newId}`;
+    setSelection(newFullId);
+  }, [dispatch, tabId, windowId, id, setSelection]);
 
-  const remove = useCallback(() => updateWindow(window => {
-    const newWindow = { ...window, controls: window.controls.slice() };
-    newWindow.controls.splice(index, 1);
-
+  const remove = useCallback(() => {
+    dispatch(clearControl({ controlId: id }));
     setSelection(null);
-
-    return newWindow;
-  }), [id, setSelection, index]);
+  }, [dispatch, id, setSelection]);
 
   const selected = selection === id;
   const select = useCallback(() => setSelection(id), [setSelection]);
 
-  return { control, update, duplicate, remove, selected, select };
+  return { control, update, duplicate, rename, remove, selected, select };
 }
 
 export type SelectionType = 'control' | 'window';
@@ -132,25 +119,32 @@ export function useSelection() {
 }
 
 export function useCreateControl() {
-  const { updateWindow, setSelection } = useContext(Context);
+  const { windowId, setSelection } = useContext(Context);
+  const tabId = useTabPanelId();
+  const dispatch = useDispatch();
+  const getExistingControlNames = useGetExistingControlNames();
   
-  return useCallback((position: Position, size: Size) => updateWindow(window => {
-    const existingIds = new Set(window.controls.map(control => control.id));
+  return useCallback((position: Position, size: Size) => {
+    const existingNames = getExistingControlNames();
     const newControl = createNewControl();
-    newControl.id = makeUniqueId(existingIds, 'new-control');
+    newControl.controlId = makeUniqueId(existingNames, 'new-control');
+    newControl.id = `${windowId}:${newControl.controlId}`;
     newControl.x = position.x;
     newControl.y = position.y;
     newControl.width = size.width;
     newControl.height = size.height;
 
-    setSelection(newControl.id);
+    dispatch(setControl({ tabId, windowId, control: newControl }));
 
-    return { ...window, controls: [...window.controls, newControl] };
-  }), [updateWindow, setSelection]);
+    setSelection(newControl.id);
+    
+  }, [dispatch, tabId, windowId, getExistingControlNames]);
 }
 
 export function useSelectableControlList() {
-  const { window, setSelection } = useContext(Context);
-  const controlsIds = useMemo(() => window.controls.map(control => control.id), [window.controls]);
-  return { controlsIds, selectControl: setSelection };
+  const { windowId, setSelection } = useContext(Context);
+  const window = useSelector((state: AppState) => getWindow(state, windowId));
+  const controlsMap = useSelector(getControlsMap);
+  const controlsList = useMemo(() => window.controls.map(id => ({ id, label: controlsMap[id].controlId })), [window.controls, controlsMap]);
+  return { controlsList, selectControl: setSelection };
 }

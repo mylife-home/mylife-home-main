@@ -16,6 +16,10 @@ import {
   ClearUiWindowNotification,
   RenameWindowUiProjectCall,
   RenameUiWindowNotification,
+  CloneWindowUiProjectCall,
+  SetControlUiProjectCall,
+  ClearControlUiProjectCall,
+  RenameControlUiProjectCall,
   SetUiComponentDataNotification,
   ProjectCallResult,
   ValidateUiProjectCallResult,
@@ -32,6 +36,7 @@ import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
+import { clone } from '../../../utils/object-utils';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
 
@@ -117,6 +122,22 @@ export class UiOpenedProject extends OpenedProject {
         this.renameWindow(callData as RenameWindowUiProjectCall);
         break;
 
+      case 'clone-window':
+        this.cloneWindow(callData as CloneWindowUiProjectCall);
+        break;
+  
+      case 'set-control':
+        this.setControl(callData as SetControlUiProjectCall);
+        break;
+
+      case 'clear-control':
+        this.clearControl(callData as ClearControlUiProjectCall);
+        break;
+
+      case 'rename-control':
+        this.renameControl(callData as RenameControlUiProjectCall);
+        break;
+        
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -183,7 +204,14 @@ export class UiOpenedProject extends OpenedProject {
 
   private setWindow({ window }: SetWindowUiProjectCall) {
     this.executeUpdate(() => {
-      const model = this.windows.set(window);
+      let model = this.windows.findById(window.id);
+      if (model) {
+        model.update(window);
+      } else {
+        // init new model with no control
+        model = this.windows.set({ ...window, controls: [] });
+      }
+
       this.notifyAllWindow(model);
     });
   }
@@ -219,6 +247,40 @@ export class UiOpenedProject extends OpenedProject {
           this.notifyAllWindow(window);
         }
       }
+    });
+  }
+
+  private cloneWindow({ id, newId }: CloneWindowUiProjectCall) {
+    this.executeUpdate(() => {
+      const source = this.windows.getById(id);
+      const newWindow = clone(source.data);
+      newWindow.id = newId;
+      const model = this.windows.set(newWindow);
+      this.notifyAllWindow(model);
+    });
+  }
+
+  private setControl({ windowId, control }: SetControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.setControl(control);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private clearControl({ windowId, id }: ClearControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.clearControl(id);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private renameControl({ windowId, id, newId }: RenameControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.renameControl(id, newId);
+      this.notifyAllWindow(windowModel);
     });
   }
 

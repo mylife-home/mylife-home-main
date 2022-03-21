@@ -42,8 +42,6 @@ export const getComponent = (state: AppState, componentId: string) => getCompone
 export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings;
 export const getBinding = (state: AppState, bindingId: string) => getBindingsTable(state).byId[bindingId];
 
-// TODO: used for binding DnD creation, need model refactoring
-// TODO: used by multiple selection panel
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 

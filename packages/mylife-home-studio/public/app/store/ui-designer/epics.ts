@@ -5,22 +5,27 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow } from './types';
+import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl } from './types';
 import {
   UiProjectCall,
   ClearResourceUiProjectCall,
   ClearWindowUiProjectCall,
+  ClearControlUiProjectCall,
   RenameResourceUiProjectCall,
   RenameWindowUiProjectCall,
+  RenameControlUiProjectCall,
+  CloneWindowUiProjectCall,
   SetDefaultWindowUiProjectCall,
   SetResourceUiProjectCall,
   SetWindowUiProjectCall,
+  SetControlUiProjectCall,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
   ApplyRefreshComponentsUiProjectCall,
   RefreshComponentsUiProjectCallResult,
   DeployUiProjectCallResult,
 } from '../../../../shared/project-manager';
+import { Control } from '../../../../shared/ui-model';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
   projectType: 'ui',
@@ -94,63 +99,122 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.SET_DEFAULT_WINDOW]: {
       mapper({ tabId, defaultWindow }: { tabId: string; defaultWindow: DefaultWindow }) {
+        const desktop = extractNullableId(defaultWindow.desktop, tabId);
+        const mobile = extractNullableId(defaultWindow.mobile, tabId);
         return {
           tabId,
-          callData: { operation: 'set-default-window', defaultWindow } as SetDefaultWindowUiProjectCall
+          callData: { operation: 'set-default-window', defaultWindow: { desktop, mobile } } as SetDefaultWindowUiProjectCall
         };
       },
     },
 
     [ActionTypes.SET_RESOURCE]: {
       mapper({ tabId, resource }: { tabId: string; resource: UiResource }) {
+        const { resourceId, ...definition } = resource;
+        definition.id = resourceId;
         return {
           tabId,
-          callData: { operation: 'set-resource', resource } as SetResourceUiProjectCall
+          callData: { operation: 'set-resource', resource: definition } as SetResourceUiProjectCall
         };
       },
     },
 
     [ActionTypes.CLEAR_RESOURCE]: {
-      mapper({ tabId, resourceId }: { tabId: string; resourceId: string }) {
+      mapper({ resourceId }: { resourceId: string }) {
+        const { tabId, id } = extractIds(resourceId);
         return {
           tabId,
-          callData: { operation: 'clear-resource', id: resourceId } as ClearResourceUiProjectCall
+          callData: { operation: 'clear-resource', id } as ClearResourceUiProjectCall
         };
       },
     },
 
     [ActionTypes.RENAME_RESOURCE]: {
-      mapper({ tabId, resourceId, newId }: { tabId: string; resourceId: string; newId: string }) {
+      mapper({ resourceId, newId }: { resourceId: string; newId: string }) {
+        const { tabId, id } = extractIds(resourceId);
         return {
           tabId,
-          callData: { operation: 'rename-resource', id: resourceId, newId } as RenameResourceUiProjectCall
+          callData: { operation: 'rename-resource', id, newId } as RenameResourceUiProjectCall
         };
       },
     },
 
     [ActionTypes.SET_WINDOW]: {
       mapper({ tabId, window }: { tabId: string; window: UiWindow }) {
+        const { windowId, controls, ...definition } = window;
+        
+        definition.id = windowId;
+        definition.backgroundResource = extractNullableId(definition.backgroundResource, tabId);
+
         return {
           tabId,
-          callData: { operation: 'set-window', window } as SetWindowUiProjectCall
+          callData: { operation: 'set-window', window: definition } as SetWindowUiProjectCall
         };
       },
     },
 
     [ActionTypes.CLEAR_WINDOW]: {
-      mapper({ tabId, windowId }: { tabId: string; windowId: string }) {
+      mapper({ windowId }: { windowId: string }) {
+        const { tabId, id } = extractIds(windowId);
         return {
           tabId,
-          callData: { operation: 'clear-window', id: windowId } as ClearWindowUiProjectCall
+          callData: { operation: 'clear-window', id } as ClearWindowUiProjectCall
         };
       },
     },
 
     [ActionTypes.RENAME_WINDOW]: {
-      mapper({ tabId, windowId, newId }: { tabId: string; windowId: string; newId: string }) {
+      mapper({ windowId, newId }: { windowId: string; newId: string }) {
+        const { tabId, id } = extractIds(windowId);
         return {
           tabId,
-          callData: { operation: 'rename-window', id: windowId, newId } as RenameWindowUiProjectCall
+          callData: { operation: 'rename-window', id, newId } as RenameWindowUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.CLONE_WINDOW]: {
+      mapper({ windowId, newId }: { windowId: string; newId: string }) {
+        const { tabId, id } = extractIds(windowId);
+        return {
+          tabId,
+          callData: { operation: 'clone-window', id, newId } as CloneWindowUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.SET_CONTROL]: {
+      mapper({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
+        const { controlId, ...definition } = control;
+        definition.id = controlId;
+
+        return {
+          tabId,
+          callData: { 
+            operation: 'set-control', 
+            windowId: extractNullableId(windowId, tabId),
+            control: adaptControlLinks(definition, tabId)
+          } as SetControlUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.CLEAR_CONTROL]: {
+      mapper({ controlId }: { controlId: string }) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+        return {
+          tabId,
+          callData: { operation: 'clear-control', windowId, id } as ClearControlUiProjectCall
+        };
+      },
+    },
+
+    [ActionTypes.RENAME_CONTROL]: {
+      mapper({ controlId, newId }: { controlId: string; newId: string }) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+        return {
+          tabId,
+          callData: { operation: 'rename-control', windowId, id, newId } as RenameControlUiProjectCall
         };
       },
     },
@@ -158,3 +222,85 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 });
 
 export default combineEpics(openedProjectManagementEpic);
+
+function extractIds(fullId: string): { tabId: string; id: string; } {
+  const sepPos = fullId.indexOf(':');
+  if (sepPos < 0) {
+    throw new Error(`Bad id: '${fullId}'`);
+  }
+
+  return {
+    tabId: fullId.substring(0, sepPos),
+    id: fullId.substring(sepPos + 1),
+  };
+}
+
+function extractNullableId(fullId: string, expectedTabId: string) {
+  if (!fullId) {
+    return fullId;
+  }
+
+  const { tabId, id } = extractIds(fullId);
+  if (tabId !== expectedTabId) {
+    throw new Error(`Project id mismatch! ('${tabId}' !== '${expectedTabId}')`);
+  }
+
+  return id;
+}
+
+function extractControlIds(fullId: string): { tabId: string; windowId: string; id: string; } {
+  // first extract tab
+  const { tabId, id: remaining } = extractIds(fullId);
+  // then extract windowId
+  const { tabId: windowId, id } = extractIds(remaining);
+
+  return { tabId, windowId, id };
+}
+
+function adaptControlLinks(input: Control, tabId: string): Control {
+  const control = { ... input };
+
+  for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+    if (!control[aid]) {
+      continue;
+    }
+
+    if (control[aid].window) {
+      control[aid] = { 
+        ... control[aid],
+        window: {
+          ... control[aid].window,
+          id: extractNullableId(control[aid].window.id, tabId)
+        },
+      };
+    }
+    
+    if (control[aid].component) {
+      control[aid] = { 
+        ... control[aid],
+        component: {
+          ... control[aid].component,
+          id: extractNullableId(control[aid].component.id, tabId)
+        },
+      };
+    }
+  }
+
+  if (control.display) {
+    control.display = {
+      ...control.display,
+      componentId: extractNullableId(control.display.componentId, tabId),
+      defaultResource: extractNullableId(control.display.defaultResource, tabId),
+      map: control.display.map.map(({ resource, ...item }) => ({ ...item, resource: extractNullableId(resource, tabId) }))
+    };
+  }
+
+  if (control.text) {
+    control.text = {
+      ...control.text,
+      context: control.text.context.map(({ componentId, ...item }) => ({ ...item, componentId: extractNullableId(componentId, tabId) }))
+    };
+  }
+
+  return control;
+}

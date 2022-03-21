@@ -3,7 +3,7 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useSelectableControlList, useWindowState, useControlState } from '../window-state';
+import { useWindowState, useControlState } from '../window-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
-  const { controlsIds } = useSelectableControlList();
+  const { window } = useWindowState();
 
   return (
     <CanvasContainerContextProvider>
@@ -33,7 +33,7 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
 
               <CanvasWindow />
 
-              {controlsIds.map(id => (
+              {window.controls.map(id => (
                 <CanvasControl key={id} id={id} />
               ))}
 

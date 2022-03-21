@@ -1,5 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import RadioGroup from '@material-ui/core/RadioGroup';
@@ -8,6 +9,7 @@ import Radio from '@material-ui/core/Radio';
 import AddIcon from '@material-ui/icons/Add';
 import CodeIcon from '@material-ui/icons/Code';
 
+import { AppState } from '../../../../../store/types';
 import { UiControl } from '../../../../../store/ui-designer/types';
 import { ControlDisplay, ControlText } from '../../../../../../../shared/ui-model';
 import { MemberType } from '../../../../../../../shared/component-model';
@@ -100,7 +102,7 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
 
 const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void }> = ({ display, update }) => {
   const classes = useStyles();
-  const memberValueType = useTabSelector((state, tabId) => getComponentMemberValueType(state, tabId, display.componentId, display.componentState));
+  const memberValueType = useSelector((state: AppState) => getComponentMemberValueType(state, display.componentId, display.componentState));
   const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', createNewControlDisplayMapItem);
 
   const componentChange = (newValue: ComponentAndMember, newMemberValueType: string) => {

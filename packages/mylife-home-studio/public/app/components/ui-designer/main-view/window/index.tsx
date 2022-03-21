@@ -1,10 +1,11 @@
 import React, { FunctionComponent } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { Container, Title } from '../../../lib/main-view-layout';
 import { WindowIcon } from '../../../lib/icons';
-import { useTabSelector } from '../../../lib/use-tab-selector';
 import SplitPane from '../../../lib/split-pane';
+import { AppState } from '../../../../store/types';
 import { getWindow } from '../../../../store/ui-designer/selectors';
 import { WindowActions } from '../common/window-actions';
 import { WindowStateProvider } from './window-state';
@@ -21,26 +22,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Window: FunctionComponent<{ id: string }> = ({ id }) => {
-  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
-
-  if (!window) {
-    return null;
-  }
-
-  return <NotNullWindow id={id} />;
-};
-
-export default Window;
-
-const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const window = useTabSelector((state, tabId) => getWindow(state, tabId, id));
+  const window = useSelector((state: AppState) => getWindow(state, id));
 
   return (
     <Container
       title={
         <>
-          <Title text={`Fenêtre ${window.id}`} icon={WindowIcon} />
+          <Title text={`Fenêtre ${window.windowId}`} icon={WindowIcon} />
 
           <div className={classes.titleActions}>
             <WindowActions id={id} />
@@ -59,3 +48,5 @@ const NotNullWindow: FunctionComponent<{ id: string }> = ({ id }) => {
     </Container>
   );
 };
+
+export default Window;

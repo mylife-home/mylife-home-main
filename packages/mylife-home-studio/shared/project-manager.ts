@@ -1,4 +1,4 @@
-import { Window, DefaultWindow, Definition, DefinitionResource } from './ui-model';
+import { Window, Control, DefaultWindow, Definition, DefinitionResource } from './ui-model';
 import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
@@ -227,7 +227,10 @@ export interface ProjectCallResult {
  */
 
 export interface UiProjectCall {
-  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window' | 'set-resource' | 'clear-resource' | 'rename-resource' | 'set-window' | 'clear-window' | 'rename-window';
+  operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window'
+  | 'set-resource' | 'clear-resource' | 'rename-resource'
+  | 'set-window' | 'clear-window' | 'rename-window' | 'clone-window'
+  | 'set-control' | 'clear-control' | 'rename-control';
 }
 
 export interface UiValidationError {
@@ -295,7 +298,7 @@ export interface RenameResourceUiProjectCall extends UiProjectCall {
 
 export interface SetWindowUiProjectCall extends UiProjectCall {
   operation: 'set-window';
-  window: Window;
+  window: Omit<Window, 'controls'>;
 }
 
 export interface ClearWindowUiProjectCall extends UiProjectCall {
@@ -305,6 +308,31 @@ export interface ClearWindowUiProjectCall extends UiProjectCall {
 
 export interface RenameWindowUiProjectCall extends UiProjectCall {
   operation: 'rename-window';
+  id: string;
+  newId: string;
+}
+
+export interface CloneWindowUiProjectCall extends UiProjectCall {
+  operation: 'clone-window';
+  id: string;
+  newId: string;
+}
+
+export interface SetControlUiProjectCall extends UiProjectCall {
+  operation: 'set-control';
+  windowId: string;
+  control: Control;
+}
+
+export interface ClearControlUiProjectCall extends UiProjectCall {
+  operation: 'clear-control';
+  windowId: string;
+  id: string;
+}
+
+export interface RenameControlUiProjectCall extends UiProjectCall {
+  operation: 'rename-control';
+  windowId: string;
   id: string;
   newId: string;
 }

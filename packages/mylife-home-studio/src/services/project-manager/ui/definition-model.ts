@@ -45,6 +45,15 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
     return mapItem?.item;
   }
 
+  getById(id: string) {
+    const mapItem = this.map.get(id);
+    if (!mapItem) {
+      throw new Error(`Item with id '${id}' does not exist`);
+    }
+
+    return mapItem?.item;
+  }
+
   // push at the end of array, or replace if id exists
   set(itemData: TData) {
     const item = new this.ModelFactory(itemData);
@@ -129,7 +138,10 @@ export class DefaultWindowModel {
 }
 
 export class WindowModel {
+  private readonly controls: CollectionModel<Control, ControlModel>;
+
   constructor(public readonly data: Mutable<Window>) {
+    this.controls = new CollectionModel(this.data.controls, ControlModel);
   }
 
   get id() {
@@ -138,6 +150,23 @@ export class WindowModel {
 
   set id(value: string) {
     this.data.id = value;
+  }
+
+  update(window: Omit<Window, 'id' | 'controls'>) {
+    const { style, backgroundResource, height, width } = window;
+    Object.assign(this.data, { style, backgroundResource, height, width });
+  }
+
+  setControl(control: Control) {
+    return this.controls.set(control);
+  }
+
+  clearControl(controlId: string) {
+    this.controls.clear(controlId);
+  }
+
+  renameControl(id: string, newId: string) {
+    return this.controls.rename(id, newId);
   }
 
   /**
@@ -153,22 +182,9 @@ export class WindowModel {
       changed = true;
     }
 
-    for (const control of this.data.controls) {
-      const { display } = control;
-      if (!display) {
-        continue;
-      }
-
-      if (display.defaultResource === resourceId) {
-        asMutable(display).defaultResource = newId;
+    for (const controlModel of this.controls) {
+      if (controlModel.onRenameResource(resourceId, newId)) {
         changed = true;
-      }
-
-      for (const item of display.map) {
-        if (item.resource === resourceId) {
-          asMutable(item).resource = newId;
-          changed = true;
-        }
       }
     }
 
@@ -191,14 +207,9 @@ export class WindowModel {
   onRenameWindow(windowId: string, newId: string) {
     let changed = false;
 
-    for (const control of this.data.controls) {
-      for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-        const windowAction = control[aid]?.window;
-
-        if (windowAction?.id === windowId) {
-          asMutable(windowAction).id = newId;
-          changed = true;
-        }
+    for (const controlModel of this.controls) {
+      if (controlModel.onRenameWindow(windowId, newId)) {
+        changed = true;
       }
     }
 
@@ -216,29 +227,122 @@ export class WindowModel {
   validate(context: ValidationContext) {
     context.checkResourceId(this.data.backgroundResource, () => [{ type: 'window', id: this.id }], { optional: true });
 
-    for (const [index, control] of this.data.controls.entries()) {
-      context.checkId(control.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: index.toString() }]);
-
-      if ((control.display && control.text) || (!control.display && !control.text)) {
-        context.addError('Le contrôle doit être image ou texte', [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]);
-      } else if (control.display) {
-        this.validateControlDisplay(control, context);
-      } else if (control.text) {
-        this.validateControlText(control, context);
-      }
-
-      this.validateControlAction(control, 'primaryAction', context);
-      this.validateControlAction(control, 'secondaryAction', context);
+    let index = 0;
+    for (const controlModel of this.controls) {
+      controlModel.validate(context, this.id, index++);
     }
   }
 
-  private validateControlDisplay(control: Control, context: ValidationContext) {
-    const { display } = control;
-    const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }];
+  collectComponentsUsage(usage: ComponentUsage[]) {
+    for (const controlModel of this.controls) {
+      controlModel.collectComponentsUsage(usage, this.id);
+    }
+  }
+
+  clearComponentUsage(usage: ComponentUsage) {
+    const node = usage.path[1];
+    if (node.type !== 'control') {
+      return false; // paranoia
+    }
+
+    const controlModel = this.controls.findById(node.id);
+    if (!controlModel) {
+      return false; // paranoia
+    }
+    return controlModel.clearComponentUsage(usage);
+  }
+}
+
+export class ControlModel {
+  constructor(public readonly data: Mutable<Control>) {
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  set id(value: string) {
+    this.data.id = value;
+  }
+
+ /**
+  * @param resourceId
+  * @param newId
+  * @returns `true` if the window has been changed, `false` otherwise
+  */
+  onRenameResource(resourceId: string, newId: string) {
+    const { display } = this.data;
+    if (!display) {
+      return false;
+    }
+
+    let changed = false;
+    
+    if (display.defaultResource === resourceId) {
+      asMutable(display).defaultResource = newId;
+      changed = true;
+    }
+
+    for (const item of display.map) {
+      if (item.resource === resourceId) {
+        asMutable(item).resource = newId;
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
+  /**
+    * @param resourceId
+    * @param newId
+    * @returns `true` if the window has been changed, `false` otherwise
+    */
+  onClearResource(resourceId: string) {
+    return this.onRenameResource(resourceId, null);
+  }
+
+  /**
+    * @param windowId 
+    * @returns `true` if the window has been changed, `false` otherwise
+    */
+  onRenameWindow(windowId: string, newId: string) {
+    let changed = false;
+
+    for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+      const windowAction = this.data[aid]?.window;
+
+      if (windowAction?.id === windowId) {
+        asMutable(windowAction).id = newId;
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
+  validate(context: ValidationContext, windowId: string, index: number) {
+    context.checkId(this.id, () => [{ type: 'window', id: windowId }, { type: 'control', id: index.toString() }]);
+
+    if ((this.data.display && this.data.text) || (!this.data.display && !this.data.text)) {
+      context.addError('Le contrôle doit être image ou texte', [{ type: 'window', id: windowId }, { type: 'control', id: this.id }]);
+    } else if (this.data.display) {
+      this.validateDisplay(context, windowId);
+    } else if (this.data.text) {
+      this.validateText(context, windowId);
+    }
+
+    this.validateAction('primaryAction', context, windowId);
+    this.validateAction('secondaryAction', context, windowId);
+  }
+
+  private validateDisplay(context: ValidationContext, windowId: string) {
+    const { display } = this.data;
+    const pathBuilder = () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }];
     context.checkResourceId(display.defaultResource, pathBuilder, { optional: true });
 
     for (const [index, item] of display.map.entries()) {
-      context.checkResourceId(item.resource, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }]);
+      context.checkResourceId(item.resource, () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'map-item', id: index.toString() }]);
     }
 
     const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
@@ -253,37 +357,37 @@ export class WindowModel {
     }
 
     for (const [index, item] of display.map.entries()) {
-      const pathBuilder = () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'map-item', id: index.toString() }];
+      const pathBuilder = () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'map-item', id: index.toString() }];
 
       switch (type.typeId) {
         case 'range': {
           const rangeType = type as components.metadata.Range;
-          this.validateRange(item, rangeType.min, rangeType.max, context, pathBuilder);
+          this.validateRangeValue(item, rangeType.min, rangeType.max, context, pathBuilder);
           break;
         }
 
         case 'text':
-          this.validateText(item, context, pathBuilder);
+          this.validateTextValue(item, context, pathBuilder);
           break;
 
         case 'float':
-          this.validateFloat(item, context, pathBuilder);
+          this.validateFloatValue(item, context, pathBuilder);
           break;
 
         case 'bool':
-          this.validateEnum(item, [true, false], context, pathBuilder);
+          this.validateEnumValue(item, [true, false], context, pathBuilder);
           break;
 
         case 'enum': {
           const enumType = type as components.metadata.Enum;
-          this.validateEnum(item, enumType.values, context, pathBuilder);
+          this.validateEnumValue(item, enumType.values, context, pathBuilder);
           break;
         }
       }
     }
   }
 
-  private validateText(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateTextValue(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.min !== null || item.max !== null) {
       context.addError(`Le type 'text' ne doit pas utiliser min/max`, pathBuilder());
     }
@@ -293,7 +397,7 @@ export class WindowModel {
     }
   }
 
-  private validateEnum(item: ControlDisplayMapItem, values: readonly any[], context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateEnumValue(item: ControlDisplayMapItem, values: readonly any[], context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.min !== null || item.max !== null) {
       context.addError(`Le type 'enum' ne doit pas utiliser min/max`, pathBuilder());
     }
@@ -303,7 +407,7 @@ export class WindowModel {
     }
   }
 
-  private validateFloat(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateFloatValue(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
       context.addError(`Le type 'float' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }
@@ -321,7 +425,7 @@ export class WindowModel {
     }
   }
 
-  private validateRange(item: ControlDisplayMapItem, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateRangeValue(item: ControlDisplayMapItem, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
       context.addError(`Le type 'range' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }
@@ -339,15 +443,15 @@ export class WindowModel {
     }
   }
 
-  private validateControlText(control: Control, context: ValidationContext) {
-    const { text } = control;
+  private validateText(context: ValidationContext, windowId: string) {
+    const { text } = this.data;
     for (const [index, item] of text.context.entries()) {
-      context.checkId(item.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }]);
+      context.checkId(item.id, () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'context-item', id: index.toString() }]);
 
       context.checkComponent(
         item.componentId,
         item.componentState,
-        () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: item.id }],
+        () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'context-item', id: item.id }],
         { memberType: MemberType.STATE }
       );
     }
@@ -357,18 +461,18 @@ export class WindowModel {
     try {
       new Function(argNames, text.format);
     } catch (compileError) {
-      context.addError('Le format est invalide', [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]);
+      context.addError('Le format est invalide', [{ type: 'window', id: windowId }, { type: 'control', id: this.id }]);
     }
   }
 
-  private validateControlAction(control: Control, type: 'primaryAction' | 'secondaryAction', context: ValidationContext) {
-    const action = control[type];
+  private validateAction(type: 'primaryAction' | 'secondaryAction', context: ValidationContext, windowId: string) {
+    const action = this.data[type];
     if (!action) {
       return;
     }
 
     if ((action.component && action.window) || (!action.component && !action.window)) {
-      context.addError(`L'action doit être composant ou fenêtre`, [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
+      context.addError(`L'action doit être composant ou fenêtre`, [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'action', id: type }]);
       return;
     }
 
@@ -376,65 +480,57 @@ export class WindowModel {
       context.checkComponent(
         action.component.id,
         action.component.action,
-        () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }],
+        () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'action', id: type }],
         { memberType: MemberType.ACTION, valueType: 'bool' }
       );
     }
 
     if (action.window) {
-      context.checkWindowId(action.window.id, () => [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]);
+      context.checkWindowId(action.window.id, () => [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'action', id: type }]);
     }
   }
 
-  collectComponentsUsage(usage: ComponentUsage[]) {
-    for (const control of this.data.controls) {
-      const { display, text } = control;
-      if (display) {
-        if (display.componentId && display.componentState) {
+  collectComponentsUsage(usage: ComponentUsage[], windowId: string) {
+    const { display, text } = this.data;
+    if (display) {
+      if (display.componentId && display.componentState) {
+        usage.push({
+          componentId: display.componentId,
+          memberName: display.componentState,
+          path: [{ type: 'window', id: windowId }, { type: 'control', id: this.id }]
+        });
+      }
+    }
+
+    if (text) {
+      for (const [index, item] of text.context.entries()) {
+        if (item.componentId && item.componentState) {
           usage.push({
-            componentId: display.componentId,
-            memberName: display.componentState,
-            path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }]
+            componentId: item.componentId,
+            memberName: item.componentState,
+            path: [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'context-item', id: index.toString() }]
           });
         }
       }
+    }
 
-      if (text) {
-        for (const [index, item] of text.context.entries()) {
-          if (item.componentId && item.componentState) {
-            usage.push({
-              componentId: item.componentId,
-              memberName: item.componentState,
-              path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'context-item', id: index.toString() }]
-            });
-          }
-        }
-      }
+    for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+      const component = this.data[type]?.component;
 
-      for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-        const component = control[type]?.component;
-
-        if (component) {
-          if (component.id && component.action) {
-            usage.push({
-              componentId: component.id,
-              memberName: component.action,
-              path: [{ type: 'window', id: this.id }, { type: 'control', id: control.id }, { type: 'action', id: type }]
-            });
-          }
+      if (component) {
+        if (component.id && component.action) {
+          usage.push({
+            componentId: component.id,
+            memberName: component.action,
+            path: [{ type: 'window', id: windowId }, { type: 'control', id: this.id }, { type: 'action', id: type }]
+          });
         }
       }
     }
   }
 
   clearComponentUsage(usage: ComponentUsage) {
-    const node = usage.path[1];
-    if (node.type !== 'control') {
-      return false; // paranoia
-    }
-
-    const control = this.data.controls.find(control => control.id === node.id);
-    const { display, text } = control;
+    const { display, text } = this.data;
     let changed = false;
 
     if (display && display.componentId === usage.componentId && display.componentState === usage.memberName) {
@@ -454,7 +550,7 @@ export class WindowModel {
     }
 
     for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-      const component = control[type]?.component;
+      const component = this.data[type]?.component;
 
       if (component && component.id === usage.componentId && component.action === usage.memberName) {
         asMutable(component).id = null;

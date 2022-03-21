@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
-import { makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
+import { makeGetPluginsMap } from '../../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import TestValueEditor from './test-value-editor';
 
@@ -70,18 +70,14 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
 export default TestPanel;
 
 function useContextData(context: ControlTextContextItem[]) {
-  const getComponentsAndPlugins = useMemo(() => makeGetComponentsAndPlugins(), []);
-  const componentsAndPlugins = useTabSelector(getComponentsAndPlugins);
+  const getPluginsMap = useMemo(() => makeGetPluginsMap(), []);
+  const pluginsMap = useTabSelector(getPluginsMap);
 
-  return useMemo(() => {
-    const map = new Map(componentsAndPlugins.map(componentAndPlugin => ([componentAndPlugin.component.id, componentAndPlugin.plugin])));
-
-    return context.map(item => {
-      const plugin = map.get(item.componentId);
-      const state = plugin.members[item.componentState];
-      return { ...item, valueType: state.valueType };
-    });
-  }, [context, componentsAndPlugins]);
+  return useMemo(() => context.map(item => {
+    const plugin = pluginsMap.get(item.componentId);
+    const state = plugin.members[item.componentState];
+    return { ...item, valueType: state.valueType };
+  }), [context, pluginsMap]);
 }
 
 function useValues(context: ControlTextContextItem[]) {

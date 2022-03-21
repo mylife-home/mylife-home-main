@@ -1,10 +1,12 @@
 import React, { FunctionComponent, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 import { Member, MemberType } from '../../../../../../shared/component-model';
-import { makeGetComponentsAndPlugins } from '../../../../store/ui-designer/selectors';
+import { AppState } from '../../../../store/types';
+import { makeGetComponentsAndPlugins, getComponentsMap, getComponent } from '../../../../store/ui-designer/selectors';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useComponentStyles } from '../../../lib/properties-layout';
 
@@ -28,13 +30,14 @@ export interface ComponentMemberSelectorProps {
 const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> = ({ nullable = false, memberType, filter = defaultFilter, value, onChange }) => {
   const classes = useComponentStyles();
   const options = useOptions(memberType, filter);
+  const componentsMap = useSelector(getComponentsMap);
 
   return (
     <Autocomplete
       disableClearable={!nullable}
       className={classes.component}
       options={options}
-      getOptionLabel={(option: Option) => `${option.component}.${option.member}`}
+      getOptionLabel={(option: Option) => `${componentsMap[option.component].componentId}.${option.member}`}
       renderOption={(option: Option) => <OptionDisplay option={option} />}
       getOptionSelected={getOptionSelected}
       renderInput={(params) => <TextField {...params} variant="outlined" />}
@@ -48,12 +51,15 @@ const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> =
 
 export default ComponentMemberSelector;
 
-const OptionDisplay: FunctionComponent<{ option: Option }> = ({ option }) => (
-  <>
-    <span style={{flex: 1}}>{`${option.component}.${option.member}`}</span>
-    <Typography variant="overline">{option.type}</Typography>
-  </>
-);
+const OptionDisplay: FunctionComponent<{ option: Option }> = ({ option }) => {
+  const component = useSelector((state: AppState) => getComponent(state, option.component));
+  return (
+    <>
+      <span style={{flex: 1}}>{`${component.componentId}.${option.member}`}</span>
+      <Typography variant="overline">{option.type}</Typography>
+    </>
+  );
+};
 
 function defaultFilter() {
   return true;

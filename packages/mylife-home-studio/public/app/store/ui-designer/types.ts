@@ -1,7 +1,7 @@
 import { Component } from '../../../../shared/component-model';
 import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
-import { DesignerTabActionData, OpenedProjectBase, DesignerState } from '../common/designer-types';
+import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
 export const enum ActionTypes {
@@ -22,6 +22,10 @@ export const enum ActionTypes {
   SET_WINDOW = 'ui-designer/set-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
+  CLONE_WINDOW = 'ui-designer/clone-window',
+  SET_CONTROL = 'ui-designer/set-control',
+  CLEAR_CONTROL = 'ui-designer/clear-control',
+  RENAME_CONTROL = 'ui-designer/rename-control',
   SELECT = 'ui-designer/select',
 }
 
@@ -29,16 +33,26 @@ export { DesignerTabActionData, DefaultWindow };
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
-export type UiComponent = Component;
-export type UiResource = Mutable<DefinitionResource>;
-export type UiControl = Mutable<Control>;
+export interface UiComponent extends Component {
+  // plugin points to store plugin id: `projectId:instanceName:module.name`
+  componentId: string; // id in project
+}
+
+export interface UiResource extends Mutable<DefinitionResource> {
+  resourceId: string; // id in project
+}
+
+export interface UiControl extends Mutable<Control> {
+  controlId: string; // id in window
+}
 
 export interface UiPlugin extends UiPluginData {
-  id: string; // id: instanceName:module.name
+  id: string; // id: projectId:instanceName:module.name
 }
 
 export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
-  controls: UiControl[];
+  windowId: string; // id in project
+  controls: string[];
 }
 
 export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
@@ -49,19 +63,22 @@ export interface Selection {
 }
 
 export interface UiOpenedProject extends OpenedProjectBase {
-  components: Table<UiComponent>; // plugin points to plugin instanceName:module.name
-  plugins: Table<UiPlugin>;
-
-  resources: Table<UiResource>;
-
-  windows: Table<UiWindow>;
-
+  components: string[];
+  plugins: string[];
+  resources: string[];
+  windows: string[];
   defaultWindow: DefaultWindow;
-
   selection: Selection;
 }
 
-export type UiDesignerState = DesignerState<UiOpenedProject>;
+export interface UiDesignerState {
+  openedProjects: Table<UiOpenedProject>;
+  components: Table<UiComponent>;
+  plugins: Table<UiPlugin>;
+  resources: Table<UiResource>;
+  windows: Table<UiWindow>;
+  controls: Table<UiControl>;
+}
 
 export { UiElementPath, UiElementPathNode };
 export type Usage = UiElementPath[];

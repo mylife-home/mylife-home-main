@@ -54,7 +54,7 @@ export const WindowsActions: FunctionComponent = () => {
 
 export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const { duplicate, rename, remove, usage } = useWindowConnect(id);
+  const { duplicate, rename, remove, usage, window } = useWindowConnect(id);
   const fireAsync = useFireAsync();
   const showNewNameDialog = useNewNameDialog();
   const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
@@ -69,7 +69,7 @@ export const WindowActions: FunctionComponent<{ id: string }> = ({ id }) => {
 
   const onRename = () =>
     fireAsync(async () => {
-      const { status, id: newId } = await showNewNameDialog(id);
+      const { status, id: newId } = await showNewNameDialog(window.windowId);
       if (status === 'ok') {
         rename(newId);
       }
@@ -136,7 +136,7 @@ function useWindowsConnect() {
 function useWindowConnect(id: string) {
   const tabId = useTabPanelId();
   const getWindowUsage = useMemo(() => makeGetWindowUsage(), []);
-  const window = useSelector((state: AppState) => getWindow(state, tabId, id));
+  const window = useSelector((state: AppState) => getWindow(state, id));
   const usage = useSelector((state: AppState) => getWindowUsage(state, tabId, id));
   const dispatch = useDispatch();
 
@@ -144,20 +144,20 @@ function useWindowConnect(id: string) {
     () => ({
       duplicate: (newId: string) => {
         const newWindow = clone(window);
-        newWindow.id = newId;
+        newWindow.windowId = newId;
         dispatch(setWindow({ tabId, window: newWindow }));
       },
       rename: (newId: string) => {
-        dispatch(renameWindow({ tabId, windowId: id, newId }));
+        dispatch(renameWindow({ windowId: id, newId }));
       },
       remove: () => {
-        dispatch(clearWindow({ tabId, windowId: id }));
+        dispatch(clearWindow({ windowId: id }));
       },
     }),
     [dispatch, tabId, id]
   );
 
-  return { ...callbacks, usage };
+  return { ...callbacks, usage, window };
 }
 
 function useNewNameDialog() {

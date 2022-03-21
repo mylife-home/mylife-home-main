@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
 import { UiValidationError, UpdateProjectNotification } from '../../../../shared/project-manager';
-import { ActionTypes, DefaultWindow, RefreshData, UiResource, UiWindow, Selection } from './types';
+import { ActionTypes, DefaultWindow, RefreshData, UiResource, UiWindow, UiControl, Selection } from './types';
 
 export const setNotifier = createAction<{ tabId: string; notifierId: string; }>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -17,8 +17,12 @@ export const select = createAction<{ tabId: string; selection: Selection; }>(Act
 
 export const setDefaultWindow = createAsyncAction<{ tabId: string; defaultWindow: DefaultWindow; }>(ActionTypes.SET_DEFAULT_WINDOW);
 export const setResource = createAsyncAction<{ tabId: string; resource: UiResource; }>(ActionTypes.SET_RESOURCE);
-export const clearResource = createAsyncAction<{ tabId: string; resourceId: string; }>(ActionTypes.CLEAR_RESOURCE);
-export const renameResource = createAsyncAction<{ tabId: string; resourceId: string; newId: string; }>(ActionTypes.RENAME_RESOURCE);
+export const clearResource = createAsyncAction<{ resourceId: string; }>(ActionTypes.CLEAR_RESOURCE);
+export const renameResource = createAsyncAction<{ resourceId: string; newId: string; }>(ActionTypes.RENAME_RESOURCE);
 export const setWindow = createAsyncAction<{ tabId: string; window: UiWindow; }>(ActionTypes.SET_WINDOW);
-export const clearWindow = createAsyncAction<{ tabId: string; windowId: string; }>(ActionTypes.CLEAR_WINDOW);
-export const renameWindow = createAsyncAction<{ tabId: string; windowId: string; newId: string; }>(ActionTypes.RENAME_WINDOW);
+export const clearWindow = createAsyncAction<{ windowId: string; }>(ActionTypes.CLEAR_WINDOW);
+export const renameWindow = createAsyncAction<{ windowId: string; newId: string; }>(ActionTypes.RENAME_WINDOW);
+export const cloneWindow = createAsyncAction<{ windowId: string; newId: string; }>(ActionTypes.CLONE_WINDOW);
+export const setControl = createAsyncAction<{ tabId: string; windowId: string; control: UiControl; }>(ActionTypes.SET_CONTROL);
+export const clearControl = createAsyncAction<{ controlId: string; }>(ActionTypes.CLEAR_CONTROL);
+export const renameControl = createAsyncAction<{ controlId: string; newId: string; }>(ActionTypes.RENAME_CONTROL);

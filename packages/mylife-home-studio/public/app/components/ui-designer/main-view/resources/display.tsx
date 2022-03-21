@@ -1,4 +1,5 @@
 import React, { ChangeEvent, FunctionComponent, useState } from 'react';
+import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles, darken } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -7,7 +8,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Typography from '@material-ui/core/Typography';
 
-import { useTabSelector } from '../../../lib/use-tab-selector';
+import { AppState } from '../../../../store/types';
 import { getResource } from '../../../../store/ui-designer/selectors';
 import Image, { useImageSizeWithElement } from './image';
 import { makeDataUrl } from './utils';
@@ -34,7 +35,7 @@ export type DisplayStyle = 'fit' | 'original';
 
 const Display : FunctionComponent<{ id: string; className?: string; }> = ({ id, className }) => {
   const classes = useStyles();
-  const resource = useTabSelector((state, tabId) => getResource(state, tabId, id));
+  const resource = useSelector((state: AppState) => getResource(state, id));
   const url = makeDataUrl(resource);
   const [size, onLoad] = useImageSizeWithElement(url);
   const [style, setStyle] = useState<DisplayStyle>('fit');
@@ -53,7 +54,7 @@ const Display : FunctionComponent<{ id: string; className?: string; }> = ({ id, 
         </RadioGroup>
 
         <Typography variant="h6" className={classes.toolbarTitle}>
-          {resource.id}
+          {resource.resourceId}
         </Typography>
 
         {size && (
