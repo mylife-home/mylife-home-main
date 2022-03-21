@@ -35,7 +35,7 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
 };
 
 export const getComponentsIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components;
-const getComponent = (state: AppState, componentId: string) => getComponentsTable(state).byId[componentId];
+export const getComponent = (state: AppState, componentId: string) => getComponentsTable(state).byId[componentId];
 const getPlugin = (state: AppState, pluginId: string) => getPluginsTable(state).byId[pluginId];
 export const getResourcesIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).resources;
 export const getResource = (state: AppState, resourceId: string) => getResourcesTable(state).byId[resourceId];
@@ -43,7 +43,7 @@ export const getWindowsIds = (state: AppState, tabId: string) => getOpenedProjec
 export const getWindow = (state: AppState, windowId: string) => getWindowsTable(state).byId[windowId];
 export const getControl = (state: AppState, controlId: string) => getControlsTable(state).byId[controlId];
 
-const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
+export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 export const getWindowsMap = (state: AppState) => getWindowsTable(state).byId;
 export const getResourcesMap = (state: AppState) => getResourcesTable(state).byId;
