@@ -31,8 +31,6 @@ const useStyles = makeStyles((theme) => ({
 
 const PropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const control = useSelector((state: AppState) => getControl(state, id));
-  useEffect(() => {});
-  console.log('CONTROL', control);
 
   if (control) {
     return <UnsafePropertiesControl className={className} id={id} />;
