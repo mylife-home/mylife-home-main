@@ -1,29 +1,23 @@
 import { logger } from 'mylife-home-common';
 import { ConfigItem, ConfigType, MemberType, Plugin } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay, CoreView, CoreTemplate } from '../../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
-export class Model {
-  private readonly instances = new Map<string, InstanceModel>();
-  private readonly plugins = new Map<string, PluginModel>();
+export abstract class ViewModel {
   private readonly components = new Map<string, ComponentModel>();
   private readonly bindings = new Map<string, BindingModel>();
 
-  constructor(public readonly data: CoreProject) {
-    for (const [id, pluginData] of Object.entries(data.plugins)) {
-      this.registerPlugin(id, pluginData);
-    }
+  abstract readonly data: CoreView;
+  protected abstract readonly project: Model;
 
-    for (const [id, componentData] of Object.entries(data.components)) {
+  // call after project ctor
+  protected init() {
+    for (const [id, componentData] of Object.entries(this.data.components)) {
       this.registerComponent(id, componentData);
     }
 
-    for (const [id, componentData] of Object.entries(data.components)) {
-      this.registerComponent(id, componentData);
-    }
-
-    for (const [id, bindingData] of Object.entries(data.bindings)) {
+    for (const [id, bindingData] of Object.entries(this.data.bindings)) {
       const binding = this.registerBinding(bindingData);
 
       if (binding.id !== id) {
@@ -32,42 +26,8 @@ export class Model {
     }
   }
 
-  private getOrCreateInstance(instanceName: string) {
-    const existing = this.instances.get(instanceName);
-    if (existing) {
-      return existing;
-    }
-
-    const newInstance = new InstanceModel(instanceName);
-    this.instances.set(instanceName, newInstance);
-    return newInstance;
-  }
-
-  private registerPlugin(id: string, pluginData: CorePluginData) {
-    const instance = this.getOrCreateInstance(pluginData.instanceName);
-    const plugin = new PluginModel(instance, id, pluginData);
-
-    this.plugins.set(plugin.id, plugin);
-    instance.registerPlugin(plugin);
-
-    return plugin;
-  }
-
-  deletePlugin(id: string) {
-    const plugin = this.getPlugin(id);
-    this.plugins.delete(id);
-
-    delete this.data.plugins[id];
-
-    const { instance } = plugin;
-    instance.unregisterPlugin(id);
-    if (!instance.hasPlugins) {
-      this.instances.delete(instance.instanceName);
-    }
-  }
-
-  private registerComponent(id: string, componentData: CoreComponentData) {
-    const plugin = this.getPlugin(componentData.plugin);
+  protected registerComponent(id: string, componentData: CoreComponentData) {
+    const plugin = this.project.getPlugin(componentData.plugin);
     const { instance } = plugin;
     const component = new ComponentModel(instance, plugin, id, componentData);
 
@@ -78,7 +38,7 @@ export class Model {
     return component;
   }
 
-  private registerBinding(bindingData: CoreBindingData) {
+  protected registerBinding(bindingData: CoreBindingData) {
     const sourceComponent = this.getComponent(bindingData.sourceComponent);
     const targetComponent = this.getComponent(bindingData.targetComponent);
     const binding = new BindingModel(bindingData, sourceComponent, targetComponent);
@@ -89,45 +49,7 @@ export class Model {
 
     return binding;
   }
-
-  hasInstance(instanceName: string) {
-    return this.instances.has(instanceName);
-  }
-
-  getInstance(instanceName: string) {
-    const instance = this.instances.get(instanceName);
-    if (!instance) {
-      throw new Error(`Instance '${instanceName}' does not exist`);
-    }
-
-    return instance;
-  }
-
-  getInstancesNames() {
-    return Array.from(this.instances.keys());
-  }
-
-  getPluginsIds() {
-    return Array.from(this.plugins.keys());
-  }
-
-  hasPlugin(id: string) {
-    return this.plugins.has(id);
-  }
-
-  findPlugin(id: string) {
-    return this.plugins.get(id);
-  }
-
-  getPlugin(id: string) {
-    const plugin = this.plugins.get(id);
-    if (!plugin) {
-      throw new Error(`Instance '${id}' does not exist`);
-    }
-
-    return plugin;
-  }
-
+  
   getComponentsIds() {
     return Array.from(this.components.keys());
   }
@@ -154,7 +76,7 @@ export class Model {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
-    const plugin = this.getPlugin(pluginId);
+    const plugin = this.project.getPlugin(pluginId);
 
     const componentData: CoreComponentData = {
       plugin: pluginId,
@@ -266,6 +188,181 @@ export class Model {
 
     delete this.data.bindings[binding.id];
   }
+}
+
+export class Model extends ViewModel {
+  private readonly instances = new Map<string, InstanceModel>();
+  private readonly plugins = new Map<string, PluginModel>();
+  private readonly templates = new Map<string, TemplateModel>();
+
+  protected get project() {
+    return this;
+  }
+
+  constructor(public readonly data: CoreProject) {
+    super();
+
+    for (const [id, pluginData] of Object.entries(data.plugins)) {
+      this.registerPlugin(id, pluginData);
+    }
+
+    for (const [id, templateData] of Object.entries(data.templates)) {
+      this.registerTemplate(id, templateData);
+    }
+
+    super.init();
+  }
+
+  private getOrCreateInstance(instanceName: string) {
+    const existing = this.instances.get(instanceName);
+    if (existing) {
+      return existing;
+    }
+
+    const newInstance = new InstanceModel(instanceName);
+    this.instances.set(instanceName, newInstance);
+    return newInstance;
+  }
+
+  private registerPlugin(id: string, pluginData: CorePluginData) {
+    const instance = this.getOrCreateInstance(pluginData.instanceName);
+    const plugin = new PluginModel(instance, id, pluginData);
+
+    this.plugins.set(plugin.id, plugin);
+    instance.registerPlugin(plugin);
+
+    return plugin;
+  }
+
+  deletePlugin(id: string) {
+    const plugin = this.getPlugin(id);
+    this.plugins.delete(id);
+
+    delete this.data.plugins[id];
+
+    const { instance } = plugin;
+    instance.unregisterPlugin(id);
+    if (!instance.hasPlugins) {
+      this.instances.delete(instance.instanceName);
+    }
+  }
+
+  hasInstance(instanceName: string) {
+    return this.instances.has(instanceName);
+  }
+
+  getInstance(instanceName: string) {
+    const instance = this.instances.get(instanceName);
+    if (!instance) {
+      throw new Error(`Instance '${instanceName}' does not exist`);
+    }
+
+    return instance;
+  }
+
+  getInstancesNames() {
+    return Array.from(this.instances.keys());
+  }
+
+  getPluginsIds() {
+    return Array.from(this.plugins.keys());
+  }
+
+  hasPlugin(id: string) {
+    return this.plugins.has(id);
+  }
+
+  findPlugin(id: string) {
+    return this.plugins.get(id);
+  }
+
+  getPlugin(id: string) {
+    const plugin = this.plugins.get(id);
+    if (!plugin) {
+      throw new Error(`Instance '${id}' does not exist`);
+    }
+
+    return plugin;
+  }
+
+  getTemplatesIds() {
+    return Array.from(this.templates.keys());
+  }
+
+  hasTemplate(id: string) {
+    return this.templates.has(id);
+  }
+
+  findTemplate(id: string) {
+    return this.templates.get(id);
+  }
+
+  getTemplate(id: string) {
+    const component = this.templates.get(id);
+    if (!component) {
+      throw new Error(`Template '${id}' does not exist`);
+    }
+
+    return component;
+  }
+
+  private registerTemplate(id: string, templateData: CoreTemplate) {
+    const template = new TemplateModel(this, id, templateData);
+
+    this.templates.set(template.id, template);
+
+    return template;
+  }
+
+  setTemplate(templateId: string) {
+    if (this.hasTemplate(templateId)) {
+      throw new Error(`Template id already exists: '${templateId}'`);
+    }
+
+    const templateData: CoreTemplate = {
+      components: {},
+      bindings: {},
+      exports: {
+        config: {},
+        members: {}
+      }
+    };
+
+    const template = this.registerTemplate(templateId, templateData);
+    this.data.templates[template.id] = template.data;
+
+    return template;
+  }
+
+  renameTemplate(id: string, newId: string) {
+    if (this.hasTemplate(newId)) {
+      throw new Error(`Template id already exists: '${newId}'`);
+    }
+
+    const template = this.templates.get(id);
+    this.templates.delete(id);
+    delete this.data.templates[id];
+
+    template.rename(newId);
+
+    this.templates.set(template.id, template);
+    this.data.templates[template.id] = template.data;
+  }
+
+  clearTemplate(id: string) {
+    const template = this.templates.get(id);
+
+    for (const componentId of template.getComponentsIds()) {
+      template.clearComponent(componentId);
+    }
+
+    for (const bindingId of template.getBindingsIds()) {
+      template.clearBinding(bindingId);
+    }
+
+    this.templates.delete(template.id);
+    delete this.data.templates[template.id];
+  }
 
   // Note: impacts checks are already done
   importPlugin(instanceName: string, netPlugin: Plugin) {
@@ -311,6 +408,21 @@ export class Model {
     this.data.components[component.id] = component.data;
 
     return component;
+  }
+}
+
+export class TemplateModel extends ViewModel {
+  constructor(protected readonly project: Model, private _id: string, public readonly data: CoreTemplate) {
+    super();
+    this.init();
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  rename(newId: string) {
+    this._id = newId;
   }
 }
 
