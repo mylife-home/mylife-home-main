@@ -11,7 +11,8 @@ export function convertCoreProject(input: coreV1.Project): { name: string, proje
   const project: CoreProject = {
     plugins: {},
     components: {},
-    bindings: {}
+    bindings: {},
+    templates: {},
   };
 
   for (const toolboxItem of input.Toolbox) {

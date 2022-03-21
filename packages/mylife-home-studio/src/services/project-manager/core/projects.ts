@@ -11,6 +11,7 @@ export class CoreProjects extends Store<CoreProject> {
       components: {},
       plugins: {},
       bindings: {},
+      templates: {},
     };
 
     this.create(name, project);

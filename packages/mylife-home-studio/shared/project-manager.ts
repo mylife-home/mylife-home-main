@@ -26,13 +26,33 @@ export interface UiPluginData extends Omit<Plugin, 'usage' | 'config'> {
 /**
  * Core project model
  */
-
-export interface CoreProject {
-  //name: string;
-  components: { [id: string]: CoreComponentData; };
+export interface CoreProject extends CoreView {
   plugins: { [id: string]: CorePluginData; }; // id: instanceName:module.name
+  templates: { [id: string]: CoreTemplate; };
+}
+
+export interface CoreView {
+  components: { [id: string]: CoreComponentData; };
   bindings: { [id: string]: CoreBindingData; }; // id = sourceId:sourceState:targetId:targetAction
-  // bindings instance ?
+}
+
+export interface CoreTemplate extends CoreView {
+  exports: CoreTemplateExports;
+}
+
+export interface CoreTemplateExports {
+  config: { [id: string]: CoreTemplateConfigExport },
+  members: { [id: string]: CoreTemplateMemberExport }
+}
+
+export interface CoreTemplateConfigExport {
+  component: string;
+  configName: string;
+}
+
+export interface CoreTemplateMemberExport {
+  component: string;
+  member: string;
 }
 
 export type CoreBindingData = Mutable<BindingConfig>;
@@ -101,7 +121,7 @@ export interface CoreProjectInfo extends ProjectInfo {
 export interface UpdateProjectNotification {
   operation: 'set-name' | 'reset'
   | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
-  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding';
+  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding' | 'set-core-template' | 'clear-core-template' | 'rename-core-template';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -188,6 +208,7 @@ export interface SetCoreComponentNotification extends UpdateProjectNotification 
   operation: 'set-core-component';
   id: string;
   component: CoreComponentData;
+  templateId: string; // null if no template
 }
 
 export interface ClearCoreComponentNotification extends UpdateProjectNotification {
@@ -210,6 +231,23 @@ export interface SetCoreBindingNotification extends UpdateProjectNotification {
 export interface ClearCoreBindingNotification extends UpdateProjectNotification {
   operation: 'clear-core-binding';
   id: string;
+}
+
+export interface SetCoreTemplateNotification extends UpdateProjectNotification {
+  operation: 'set-core-template';
+  id: string;
+  exports: CoreTemplateExports;
+}
+
+export interface ClearCoreTemplateNotification extends UpdateProjectNotification {
+  operation: 'clear-core-template';
+  id: string;
+}
+
+export interface RenameCoreTemplateNotification extends UpdateProjectNotification {
+  operation: 'rename-core-template';
+  id: string;
+  newId: string;
 }
 
 /**
@@ -342,7 +380,10 @@ export interface RenameControlUiProjectCall extends UiProjectCall {
  */
 
 export interface CoreProjectCall {
-  operation: 'update-toolbox' | 'set-component' | 'move-components' | 'configure-component' | 'rename-component' | 'clear-components' | 'set-binding' | 'clear-binding'
+  operation: 'update-toolbox'
+  | 'set-template' | 'clear-template' | 'rename-template' | 'set-template-export' | 'clear-template-export'
+  | 'set-component'| 'move-components' | 'configure-component' | 'rename-component' | 'clear-components'
+  | 'set-binding' | 'clear-binding'
   | 'prepare-import-from-online' | 'prepare-import-from-project' | 'apply-bulk-updates'
   | 'validate'
   | 'prepare-deploy-to-files' | 'apply-deploy-to-files' | 'prepare-deploy-to-online' | 'apply-deploy-to-online';
@@ -353,6 +394,37 @@ export interface UpdateToolboxCoreProjectCall extends CoreProjectCall {
   itemType: 'instance' | 'plugin';
   itemId: string;
   action: 'show' | 'hide' | 'delete'
+}
+
+export interface SetTemplateCoreProjectCall extends CoreProjectCall {
+  operation: 'set-template';
+  templateId: string;
+}
+
+export interface RenameTemplateCoreProjectCall extends CoreProjectCall {
+  operation: 'rename-template';
+  templateId: string;
+}
+
+export interface ClearTemplateCoreProjectCall extends CoreProjectCall {
+  operation: 'clear-template';
+  templateId: string;
+}
+
+export interface SetTemplateExportCoreProjectCall extends CoreProjectCall {
+  operation: 'set-template-export';
+  templateId: string;
+  exportType: 'config' | 'member';
+  exportId: string;
+  componentId: string;
+  propertyName: string; // config or member
+}
+
+export interface ClearTemplateExportCoreProjectCall extends CoreProjectCall {
+  operation: 'clear-template-export';
+  templateId: string;
+  exportType: 'config' | 'member';
+  exportId: string;
 }
 
 export interface SetComponentCoreProjectCall extends CoreProjectCall {
