@@ -11,6 +11,10 @@ export abstract class ViewModel {
   abstract readonly data: CoreView;
   protected abstract readonly project: Model;
 
+  private get template(): TemplateModel {
+    return (this instanceof TemplateModel) ? this : null;
+  }
+
   // call after project ctor
   protected init() {
     for (const [id, componentData] of Object.entries(this.data.components)) {
@@ -29,7 +33,7 @@ export abstract class ViewModel {
   protected registerComponent(id: string, componentData: CoreComponentData) {
     const plugin = this.project.getPlugin(componentData.plugin);
     const { instance } = plugin;
-    const component = new ComponentModel(instance, plugin, id, componentData);
+    const component = new ComponentModel(instance, plugin, this.template, id, componentData);
 
     this.components.set(component.id, component);
     plugin.registerComponent(component);
@@ -41,7 +45,7 @@ export abstract class ViewModel {
   protected registerBinding(bindingData: CoreBindingData) {
     const sourceComponent = this.getComponent(bindingData.sourceComponent);
     const targetComponent = this.getComponent(bindingData.targetComponent);
-    const binding = new BindingModel(bindingData, sourceComponent, targetComponent);
+    const binding = new BindingModel(this.template, bindingData, sourceComponent, targetComponent);
 
     this.bindings.set(binding.id, binding);
     sourceComponent.registerBinding(binding);
@@ -306,6 +310,10 @@ export class Model extends ViewModel {
     return component;
   }
 
+  getTemplateOrSelf(templateId: string): ViewModel {
+    return templateId ? this.getTemplate(templateId) : this;
+  }
+
   private registerTemplate(id: string, templateData: CoreTemplate) {
     const template = new TemplateModel(this, id, templateData);
 
@@ -424,6 +432,57 @@ export class TemplateModel extends ViewModel {
   rename(newId: string) {
     this._id = newId;
   }
+
+  setExport(exportType: 'config' | 'member', exportId: string, componentId: string, propertyName: string) {
+    switch (exportType) {
+
+    case 'config': 
+      this.setConfigExport(exportId, componentId, propertyName);
+      break;
+
+    case 'member':
+      this.setMemberExport(exportId, componentId, propertyName);
+      break;
+
+    default:
+      throw new Error(`Invalid export type: '${exportType}'`);
+    }
+  }
+
+  private setConfigExport(exportId: string, componentId: string, configName: string) {
+    const component = this.getComponent(componentId);
+    component.plugin.ensureConfig(configName);
+
+    const exports = this.data.exports.config;
+    exports[exportId] = { component: component.id, configName };
+  }
+
+  private setMemberExport(exportId: string, componentId: string, memberName: string) {
+    const component = this.getComponent(componentId);
+    component.plugin.ensureMember(memberName);
+
+    const exports = this.data.exports.members;
+    exports[exportId] = { component: component.id, member: memberName };
+  }
+
+  clearExport(exportType: 'config' | 'member', exportId: string) {
+    switch (exportType) {
+    case 'config': {
+      const exports = this.data.exports.config;
+      delete exports[exportId];
+      break;
+    }
+
+    case 'member': {
+      const exports = this.data.exports.members;
+      delete exports[exportId];
+      break;
+    }
+
+    default:
+      throw new Error(`Invalid export type: '${exportType}'`);
+    }
+  }
 }
 
 export class InstanceModel {
@@ -538,6 +597,13 @@ export class PluginModel {
     return member.valueType;
   }
 
+  ensureMember(name: string) {
+    const member = this.data.members[name];
+    if (!member) {
+      throw new Error(`Member '${name}' does not exist on plugin '${this.id}'`);
+    }
+  }
+
   updateDisplay(wantedDisplay: CoreToolboxDisplay) {
     if (this.data.toolboxDisplay === wantedDisplay) {
       return false;
@@ -573,13 +639,23 @@ export class PluginModel {
     return template;
   }
 
-  validateConfigValue(configId: string, configValue: any) {
+  private getConfigType(configId: string) {
     const item = this.data.config[configId];
     if (!item) {
       throw new Error(`Config '${configId}' does not exist on plugin '${this.id}'`);
     }
 
-    switch (item.valueType) {
+    return item.valueType;
+  }
+
+  ensureConfig(configId: string) {
+    this.getConfigType(configId);
+  }
+
+  validateConfigValue(configId: string, configValue: any) {
+    const valueType = this.getConfigType(configId);
+
+    switch (valueType) {
       case ConfigType.STRING:
         if (typeof configValue !== 'string') {
           throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a string but got '${JSON.stringify(configValue)}'.`);
@@ -611,9 +687,11 @@ export class ComponentModel {
   private bindingsFrom = new Set<BindingModel>();
   private bindingsTo = new Set<BindingModel>();
   private _plugin: PluginModel;
+  private _template: TemplateModel; // null if on project directly
 
-  constructor(public readonly instance: InstanceModel, plugin: PluginModel, private _id: string, public readonly data: CoreComponentData) {
+  constructor(public readonly instance: InstanceModel, plugin: PluginModel, template: TemplateModel, private _id: string, public readonly data: CoreComponentData) {
     this._plugin = plugin;
+    this._template = template;
   }
 
   executeImport(plugin: PluginModel, data: Omit<CoreComponentData, 'plugin' | 'position'>) {
@@ -633,6 +711,10 @@ export class ComponentModel {
 
   get plugin() {
     return this._plugin;
+  }
+
+  get template() {
+    return this._template;
   }
 
   rename(newId: string) {
@@ -724,8 +806,10 @@ export class ComponentModel {
 // Note: bindings have no update, then can only be created or deleted
 export class BindingModel {
   private _id: string;
+  private _template: TemplateModel; // null if on project directly
 
-  constructor(public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
+  constructor(template: TemplateModel, public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
+    this._template = template;
     this.rebuild();
   }
 
@@ -741,6 +825,10 @@ export class BindingModel {
 
   get id() {
     return this._id;
+  }
+
+  get template() {
+    return this._template;
   }
 
   get sourceState() {

@@ -206,30 +206,34 @@ export interface ClearCorePluginNotification extends UpdateProjectNotification {
 
 export interface SetCoreComponentNotification extends UpdateProjectNotification {
   operation: 'set-core-component';
+  templateId: string; // null if no template
   id: string;
   component: CoreComponentData;
-  templateId: string; // null if no template
 }
 
 export interface ClearCoreComponentNotification extends UpdateProjectNotification {
   operation: 'clear-core-component';
+  templateId: string; // null if no template
   id: string;
 }
 
 export interface RenameCoreComponentNotification extends UpdateProjectNotification {
   operation: 'rename-core-component';
+  templateId: string; // null if no template
   id: string;
   newId: string;
 }
 
 export interface SetCoreBindingNotification extends UpdateProjectNotification {
   operation: 'set-core-binding';
+  templateId: string; // null if no template
   id: string;
   binding: CoreBindingData;
 }
 
 export interface ClearCoreBindingNotification extends UpdateProjectNotification {
   operation: 'clear-core-binding';
+  templateId: string; // null if no template
   id: string;
 }
 
@@ -404,6 +408,7 @@ export interface SetTemplateCoreProjectCall extends CoreProjectCall {
 export interface RenameTemplateCoreProjectCall extends CoreProjectCall {
   operation: 'rename-template';
   templateId: string;
+  newId: string;
 }
 
 export interface ClearTemplateCoreProjectCall extends CoreProjectCall {
@@ -429,6 +434,7 @@ export interface ClearTemplateExportCoreProjectCall extends CoreProjectCall {
 
 export interface SetComponentCoreProjectCall extends CoreProjectCall {
   operation: 'set-component';
+  templateId: string;
   componentId: string;
   pluginId: string;
   x: number;
@@ -437,12 +443,14 @@ export interface SetComponentCoreProjectCall extends CoreProjectCall {
 
 export interface MoveComponentsCoreProjectCall extends CoreProjectCall {
   operation: 'move-components';
+  templateId: string;
   componentsIds: string[];
   delta: { x: number; y: number };
 }
 
 export interface ConfigureComponentCoreProjectCall extends CoreProjectCall {
   operation: 'configure-component';
+  templateId: string;
   componentId: string;
   configId: string;
   configValue: any;
@@ -450,22 +458,26 @@ export interface ConfigureComponentCoreProjectCall extends CoreProjectCall {
 
 export interface RenameComponentCoreProjectCall extends CoreProjectCall {
   operation: 'rename-component';
+  templateId: string;
   componentId: string;
   newId: string;
 }
 
 export interface ClearComponentsCoreProjectCall extends CoreProjectCall {
   operation: 'clear-components';
+  templateId: string;
   componentsIds: string[];
 }
 
 export interface SetBindingCoreProjectCall extends CoreProjectCall {
   operation: 'set-binding';
+  templateId: string;
   binding: CoreBindingData;
 }
 
 export interface ClearBindingCoreProjectCall extends CoreProjectCall {
   operation: 'clear-binding';
+  templateId: string;
   bindingId: string;
 }
 

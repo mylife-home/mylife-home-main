@@ -32,11 +32,19 @@ import {
   PrepareDeployToFilesCoreProjectCallResult,
   ApplyDeployToFilesCoreProjectCall,
   ApplyDeployToFilesCoreProjectCallResult,
+  SetTemplateCoreProjectCall,
+  ClearTemplateCoreProjectCall,
+  SetTemplateExportCoreProjectCall,
+  ClearTemplateExportCoreProjectCall,
+  RenameTemplateCoreProjectCall,
+  SetCoreTemplateNotification,
+  ClearCoreTemplateNotification,
+  RenameCoreTemplateNotification,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { Model } from './model';
+import { BindingModel, ComponentModel, Model, TemplateModel } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
@@ -94,6 +102,26 @@ export class CoreOpenedProject extends OpenedProject {
         this.updateToolbox(callData as UpdateToolboxCoreProjectCall);
         break;
 
+      case 'set-template':
+        this.setTemplate(callData as SetTemplateCoreProjectCall);
+        break;
+
+      case 'clear-template':
+        this.clearTemplate(callData as ClearTemplateCoreProjectCall);
+        break;
+  
+      case 'rename-template':
+        this.renameTemplate(callData as RenameTemplateCoreProjectCall);
+        break;
+        
+      case 'set-template-export':
+        this.setTemplateExport(callData as SetTemplateExportCoreProjectCall);
+        break;
+
+      case 'clear-template-export':
+        this.clearTemplateExport(callData as ClearTemplateExportCoreProjectCall);
+        break;
+    
       case 'set-component':
         this.setComponent(callData as SetComponentCoreProjectCall);
         break;
@@ -175,24 +203,38 @@ export class CoreOpenedProject extends OpenedProject {
     this.notifyAll<ClearCorePluginNotification>({ operation: 'clear-core-plugin', id });
   }
 
-  private notifyAllSetComponent(id: string) {
-    this.notifyAll<SetCoreComponentNotification>({ operation: 'set-core-component', id, component: this.project.components[id] });
+  private notifyAllSetTemplate(template: TemplateModel) {
+    this.notifyAll<SetCoreTemplateNotification>({ operation: 'set-core-template', id: template.id, exports: template.data.exports });
   }
 
-  private notifyAllClearComponent(id: string) {
-    this.notifyAll<ClearCoreComponentNotification>({ operation: 'clear-core-component', id });
+  private notifyAllClearTemplate(id: string) {
+    this.notifyAll<ClearCoreTemplateNotification>({ operation: 'clear-core-template', id });
   }
 
-  private notifyAllRenameComponent(id: string, newId: string) {
-    this.notifyAll<RenameCoreComponentNotification>({ operation: 'rename-core-component', id, newId });
+  private notifyAllRenameTemplate(id: string, newId: string) {
+    this.notifyAll<RenameCoreTemplateNotification>({ operation: 'rename-core-template', id, newId });
   }
 
-  private notifyAllSetBinding(id: string) {
-    this.notifyAll<SetCoreBindingNotification>({ operation: 'set-core-binding', id, binding: this.project.bindings[id] });
+  private notifyAllSetComponent(component: ComponentModel) {
+    const templateId = component.template?.id || null;
+    this.notifyAll<SetCoreComponentNotification>({ operation: 'set-core-component', templateId, id: component.id, component: component.data });
   }
 
-  private notifyAllClearBinding(id: string) {
-    this.notifyAll<ClearCoreBindingNotification>({ operation: 'clear-core-binding', id });
+  private notifyAllClearComponent(templateId: string, id: string) {
+    this.notifyAll<ClearCoreComponentNotification>({ operation: 'clear-core-component', templateId, id });
+  }
+
+  private notifyAllRenameComponent(templateId: string, id: string, newId: string) {
+    this.notifyAll<RenameCoreComponentNotification>({ operation: 'rename-core-component', templateId, id, newId });
+  }
+
+  private notifyAllSetBinding(binding: BindingModel) {
+    const templateId = binding.template?.id || null;
+    this.notifyAll<SetCoreBindingNotification>({ operation: 'set-core-binding', templateId, id: binding.id, binding: binding.data });
+  }
+
+  private notifyAllClearBinding(templateId: string, id: string) {
+    this.notifyAll<ClearCoreBindingNotification>({ operation: 'clear-core-binding', templateId, id });
   }
 
   private updateToolbox({ itemType, itemId, action }: UpdateToolboxCoreProjectCall) {
@@ -266,77 +308,121 @@ export class CoreOpenedProject extends OpenedProject {
     }
   }
 
-  private setComponent({ componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
+  private setTemplate({ templateId }: SetTemplateCoreProjectCall) {
     this.executeUpdate(() => {
-      const component = this.model.setComponent(componentId, pluginId, x, y);
-      this.notifyAllSetComponent(component.id);
+      const template = this.model.setTemplate(templateId);
+      this.notifyAllSetTemplate(template);
     });
   }
 
-  private moveComponents({ componentsIds, delta }: MoveComponentsCoreProjectCall) {
+  private clearTemplate({ templateId }: ClearTemplateCoreProjectCall) {
     this.executeUpdate(() => {
+      this.model.clearTemplate(templateId);
+      this.notifyAllClearTemplate(templateId);
+    });
+  }
+
+  private renameTemplate({ templateId, newId }: RenameTemplateCoreProjectCall) {
+    this.executeUpdate(() => {
+      this.model.renameTemplate(templateId, newId);
+      this.notifyAllRenameTemplate(templateId, newId);
+    });
+  }
+
+  private setTemplateExport({ templateId, exportType, exportId, componentId, propertyName }: SetTemplateExportCoreProjectCall) {
+    this.executeUpdate(() => {
+      const template = this.model.getTemplate(templateId);
+      template.setExport(exportType, exportId, componentId, propertyName);
+      this.notifyAllSetTemplate(template);
+    });
+  }
+
+  private clearTemplateExport({ templateId, exportType, exportId }: ClearTemplateExportCoreProjectCall) {
+    this.executeUpdate(() => {
+      const template = this.model.getTemplate(templateId);
+      template.clearExport(exportType, exportId);
+      this.notifyAllSetTemplate(template);
+    });
+  }
+
+  private setComponent({ templateId, componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
+    this.executeUpdate(() => {
+      const view = this.model.getTemplateOrSelf(templateId);
+      const component = view.setComponent(componentId, pluginId, x, y);
+      this.notifyAllSetComponent(component);
+    });
+  }
+
+  private moveComponents({ templateId, componentsIds, delta }: MoveComponentsCoreProjectCall) {
+    this.executeUpdate(() => {
+      const view = this.model.getTemplateOrSelf(templateId);
       for (const componentId of componentsIds) {
-        const component = this.model.getComponent(componentId);
+        const component = view.getComponent(componentId);
         component.move(delta);
-        this.notifyAllSetComponent(component.id);
+        this.notifyAllSetComponent(component);
       }
     });
   }
 
-  private configureComponent({ componentId, configId, configValue }: ConfigureComponentCoreProjectCall) {
+  private configureComponent({ templateId, componentId, configId, configValue }: ConfigureComponentCoreProjectCall) {
     this.executeUpdate(() => {
-      const component = this.model.getComponent(componentId);
+      const view = this.model.getTemplateOrSelf(templateId);
+      const component = view.getComponent(componentId);
       component.configure(configId, configValue);
-      this.notifyAllSetComponent(component.id);
+      this.notifyAllSetComponent(component);
     });
   }
 
-  private renameComponent({ componentId, newId }: RenameComponentCoreProjectCall) {
+  private renameComponent({ templateId, componentId, newId }: RenameComponentCoreProjectCall) {
     this.executeUpdate(() => {
-      const component = this.model.getComponent(componentId);
+      const view = this.model.getTemplateOrSelf(templateId);
+      const component = view.getComponent(componentId);
       // Ids will be updated while renaming, need to get them before
       const bindingIds = Array.from(component.getAllBindingsIds());
 
-      this.model.renameComponent(componentId, newId);
+      view.renameComponent(componentId, newId);
 
       for (const bindingId of bindingIds) {
-        this.notifyAllClearBinding(bindingId);
+        this.notifyAllClearBinding(templateId, bindingId);
       }
 
-      this.notifyAllRenameComponent(componentId, newId);
+      this.notifyAllRenameComponent(templateId, componentId, newId);
 
       for (const binding of component.getAllBindings()) {
-        this.notifyAllSetBinding(binding.id);
+        this.notifyAllSetBinding(binding);
       }
     });
   }
 
-  private clearComponents({ componentsIds }: ClearComponentsCoreProjectCall) {
+  private clearComponents({ templateId, componentsIds }: ClearComponentsCoreProjectCall) {
     this.executeUpdate(() => {
+      const view = this.model.getTemplateOrSelf(templateId);
       for (const componentId of componentsIds) {
-        const component = this.model.getComponent(componentId);
+        const component = view.getComponent(componentId);
         for (const binding of component.getAllBindings()) {
-          this.model.clearBinding(binding.id);
-          this.notifyAllClearBinding(binding.id);
+          view.clearBinding(binding.id);
+          this.notifyAllClearBinding(templateId, binding.id);
         }
   
-        this.model.clearComponent(componentId);
-        this.notifyAllClearComponent(componentId);
+        view.clearComponent(componentId);
+        this.notifyAllClearComponent(templateId, componentId);
       }
     });
   }
 
-  private setBinding({ binding: bindingData }: SetBindingCoreProjectCall) {
+  private setBinding({ templateId, binding: bindingData }: SetBindingCoreProjectCall) {
     this.executeUpdate(() => {
-      const binding = this.model.setBinding(bindingData);
-      this.notifyAllSetBinding(binding.id);
+      const view = this.model.getTemplateOrSelf(templateId);
+      const binding = view.setBinding(bindingData);
+      this.notifyAllSetBinding(binding);
     });
   }
 
-  private clearBinding({ bindingId }: ClearBindingCoreProjectCall) {
+  private clearBinding({ templateId, bindingId }: ClearBindingCoreProjectCall) {
     this.executeUpdate(() => {
-      this.model.clearBinding(bindingId);
-      this.notifyAllClearBinding(bindingId);
+      const view = this.model.getTemplateOrSelf(templateId);
+      view.clearBinding(bindingId);
+      this.notifyAllClearBinding(templateId, bindingId);
     });
   }
 
@@ -360,6 +446,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject): ApplyBulkUpdatesCoreProjectCallResult {
+    // FIXME: add templates support
     const api = {
       clearPlugin: (pluginId: string) => {
         this.model.deletePlugin(pluginId);
@@ -367,11 +454,11 @@ export class CoreOpenedProject extends OpenedProject {
       },
       clearComponent: (componentId: string) => {
         this.model.clearComponent(componentId);
-        this.notifyAllClearComponent(componentId);
+        this.notifyAllClearComponent(null, componentId);
       },
       clearBinding: (bindingId: string) => {
         this.model.clearBinding(bindingId);
-        this.notifyAllClearBinding(bindingId);
+        this.notifyAllClearBinding(null, bindingId);
       },
       setPlugin: ({ instanceName, plugin }: PluginImport) => {
         const pluginModel = this.model.importPlugin(instanceName, plugin);
@@ -379,7 +466,7 @@ export class CoreOpenedProject extends OpenedProject {
       },
       setComponent: ({ id, pluginId, external, config }: ComponentImport) => {
         const componentModel = this.model.importComponent(id, pluginId, external, config);
-        this.notifyAllSetComponent(componentModel.id);
+        this.notifyAllSetComponent(componentModel);
       },
     };
 
