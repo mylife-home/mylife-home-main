@@ -94,6 +94,7 @@ export default createReducer(initialState, {
     const { tabId, templateId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.activeTemplate = templateId;
+    openedProject.viewSelection = null;
   },
 
   [ActionTypes.SELECT]: (state, action: PayloadAction<{ tabId: string; selection: Selection }>) => {

@@ -1,11 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { MemberType, ComponentsSelection, BindingSelection } from './types';
+import { MemberType, ComponentsSelection, BindingSelection, View } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
 const getInstancesTable = (state: AppState) => getCoreDesigner(state).instances;
 const getPluginsTable = (state: AppState) => getCoreDesigner(state).plugins;
+const getTemplatesTable = (state: AppState) => getCoreDesigner(state).templates;
 const getComponentsTable = (state: AppState) => getCoreDesigner(state).components;
 const getBindingsTable = (state: AppState) => getCoreDesigner(state).bindings;
 
@@ -33,13 +34,19 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   return map.get(notifierId);
 };
 
+const getView = (state: AppState, tabId: string, templateId: string): View => {
+  return templateId ? getTemplate(state, templateId) : getOpenedProject(state, tabId);
+}
+
 export const getInstanceIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).instances;
 export const getInstance = (state: AppState, instanceId: string) => getInstancesTable(state).byId[instanceId];
 export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins;
 export const getPlugin = (state: AppState, pluginId: string) => getPluginsTable(state).byId[pluginId];
-export const getComponentIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).components;
+export const getTemplateIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).templates;
+export const getTemplate = (state: AppState, templateId: string) => getTemplatesTable(state).byId[templateId];
+export const getComponentIds = (state: AppState, tabId: string, templateId: string) => getView(state, tabId, templateId).components;
 export const getComponent = (state: AppState, componentId: string) => getComponentsTable(state).byId[componentId];
-export const getBindingIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).bindings;
+export const getBindingIds = (state: AppState, tabId: string, templateId: string) => getView(state, tabId, templateId).bindings;
 export const getBinding = (state: AppState, bindingId: string) => getBindingsTable(state).byId[bindingId];
 
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
@@ -87,7 +94,7 @@ function computePluginStats(state: AppState, pluginId: string, stats: { componen
   }
 }
 
-export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
+export const getNewBindingHalfList = (state: AppState, tabId: string, templateId: string, componentId: string, memberName: string) => {
   const component = getComponent(state, componentId);
   const plugin = getPlugin(state, component.plugin);
   const member = plugin.members[memberName];
@@ -97,7 +104,7 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
   const list: { componentId: string; memberName: string; }[] = [];
 
   // select all action/state with same type, and for which no binding already exist
-  for (const possibleComponentId of getComponentIds(state, tabId)) {
+  for (const possibleComponentId of getComponentIds(state, tabId, templateId)) {
     // for now avoid binding on self
     if (possibleComponentId === component.id) {
       continue;
@@ -168,9 +175,14 @@ function makeBindingId(memberType: MemberType, componentId: string, memberName: 
   }
 }
 
+export const getActiveTemplate = (state: AppState, tabId: string) => {
+  const project = getOpenedProject(state, tabId);
+  return project.activeTemplate;
+};
+
 export const getSelection = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
-  return project.selection;
+  return project.viewSelection;
 };
 
 export const getSelectionType = (state: AppState, tabId: string) => {
@@ -189,7 +201,7 @@ export const getSelectionType = (state: AppState, tabId: string) => {
 const EMPTY_SELECTION = {};
 
 export const getSelectedComponents = (state: AppState, tabId: string) => {
-  const { selection } = getOpenedProject(state, tabId);
+  const selection = getSelection(state, tabId);
   return selection?.type === 'components' ? (selection as ComponentsSelection).ids : EMPTY_SELECTION;
 };
 
@@ -209,7 +221,7 @@ export const isComponentSelected = (state: AppState, tabId: string, componentId:
 };
 
 export const getSelectedBinding = (state: AppState, tabId: string) => {
-  const { selection } = getOpenedProject(state, tabId);
+  const selection = getSelection(state, tabId);
   return selection?.type === 'binding' ? (selection as BindingSelection).id : null;
 };
 
