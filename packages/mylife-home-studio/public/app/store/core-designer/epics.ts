@@ -28,6 +28,11 @@ import {
   PrepareDeployToFilesCoreProjectCallResult,
   ApplyDeployToFilesCoreProjectCall,
   ApplyDeployToFilesCoreProjectCallResult,
+  SetTemplateCoreProjectCall,
+  RenameTemplateCoreProjectCall,
+  ClearTemplateCoreProjectCall,
+  SetTemplateExportCoreProjectCall,
+  ClearTemplateExportCoreProjectCall,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -139,6 +144,50 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         return {
           tabId,
           callData: { operation: 'update-toolbox', itemType, itemId: id, action } as UpdateToolboxCoreProjectCall
+        };
+      },
+    },
+    [ActionTypes.SET_TEMPLATE]: {
+      mapper({ tabId, templateId }: { tabId: string; templateId: string }) {
+        return {
+          tabId,
+          callData: { operation: 'set-template', templateId } as SetTemplateCoreProjectCall
+        };
+      },
+    },
+    [ActionTypes.RENAME_TEMPLATE]: {
+      mapper({ templateId, newId }: { templateId: string; newId: string }) {
+        const { tabId, id } = extractIds(templateId);
+        return {
+          tabId,
+          callData: { operation: 'rename-template', templateId: id, newId } as RenameTemplateCoreProjectCall
+        };
+      },
+    },
+    [ActionTypes.CLEAR_TEMPLATE]: {
+      mapper({ templateId }: { templateId: string }) {
+        const { tabId, id } = extractIds(templateId);
+        return {
+          tabId,
+          callData: { operation: 'clear-template', templateId: id } as ClearTemplateCoreProjectCall
+        };
+      },
+    },
+    [ActionTypes.SET_TEMPLATE_EXPORT]: {
+      mapper({ templateId, exportType, exportId, componentId, propertyName }: { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; }) {
+        const { tabId, id } = extractIds(templateId);
+        return {
+          tabId,
+          callData: { operation: 'set-template-export', templateId: id, exportType, exportId, componentId, propertyName } as SetTemplateExportCoreProjectCall
+        };
+      },
+    },
+    [ActionTypes.CLEAR_TEMPLATE_EXPORT]: {
+      mapper({ templateId, exportType, exportId }: { templateId: string; exportType: 'config' | 'member'; exportId: string; }) {
+        const { tabId, id } = extractIds(templateId);
+        return {
+          tabId,
+          callData: { operation: 'clear-template-export', templateId: id, exportType, exportId } as ClearTemplateExportCoreProjectCall
         };
       },
     },

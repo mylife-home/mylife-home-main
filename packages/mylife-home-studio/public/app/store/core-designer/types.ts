@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -19,6 +19,11 @@ export const enum ActionTypes {
   APPLY_DEPLOY_TO_FILES = 'core-designer/apply-deploy-to-files',
   PREPARE_DEPLOY_TO_ONLINE = 'core-designer/prepare-deploy-to-online',
   APPLY_DEPLOY_TO_ONLINE = 'core-designer/apply-deploy-to-online',
+  SET_TEMPLATE = 'core-designer/set-template',
+  RENAME_TEMPLATE = 'core-designer/rename-template',
+  CLEAR_TEMPLATE = 'core-designer/clear-template',
+  SET_TEMPLATE_EXPORT = 'core-designer/set-template-export',
+  CLEAR_TEMPLATE_EXPORT = 'core-designer/clear-template-export',
   SET_COMPONENT = 'core-designer/set-component',
   MOVE_COMPONENTS = 'core-designer/move-components',
   CONFIGURE_COMPONENT = 'core-designer/configure-component',
@@ -27,9 +32,14 @@ export const enum ActionTypes {
   SET_BINDING = 'core-designer/set-binding',
   CLEAR_BINDING = 'core-designer/clear-binding',
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
+  ACTIVATE_VIEW = 'core-designer/activate-view',
   SELECT = 'core-designer/select',
   TOGGLE_COMPONENT_SELECTION = 'core-designer/toggle-compomnent-selection',
 }
+
+export type TemplateExports = CoreTemplateExports;
+export type TemplateConfigExport = CoreTemplateConfigExport;
+export type TemplateMemberExport = CoreTemplateMemberExport;
 
 export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges };
 
@@ -91,20 +101,33 @@ export interface ComponentsSelection extends Selection {
   ids: MultiSelectionIds;
 }
 
-export interface CoreOpenedProject extends OpenedProjectBase {
+export interface CoreOpenedProject extends OpenedProjectBase, View {
   instances: string[];
   plugins: string[];
-  components: string[];
-  bindings: string[];
-  selection: Selection;
+  templates: string[];
+
+  activeTemplate: string; // null if main view is active
+  viewSelection: Selection; // selection on the view
+}
+
+export interface Template extends View {
+  id: string;
+  templateId: string;
+  exports: TemplateExports;
 }
 
 export interface CoreDesignerState {
   openedProjects: Table<CoreOpenedProject>;
   instances: Table<Instance>;
   plugins: Table<Plugin>;
+  templates: Table<Template>;
   components: Table<Component>;
   bindings: Table<Binding>;
+}
+
+export interface View {
+  components: string[];
+  bindings: string[];
 }
 
 export interface BulkUpdatesData {
