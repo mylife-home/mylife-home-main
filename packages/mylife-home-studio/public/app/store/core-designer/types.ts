@@ -1,9 +1,9 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport, UpdateProjectNotification } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
-export { CoreToolboxDisplay, UpdateProjectNotification, SetNameProjectNotification } from '../../../../shared/project-manager';
+export { CoreToolboxDisplay, SetNameProjectNotification } from '../../../../shared/project-manager';
 
 export const enum ActionTypes {
   SET_NOTIFIER = 'core-designer/set-notifier',
@@ -37,11 +37,45 @@ export const enum ActionTypes {
   TOGGLE_COMPONENT_SELECTION = 'core-designer/toggle-compomnent-selection',
 }
 
+export namespace ActionPayloads {
+
+  export type SetNotifier = { tabId: string; notifierId: string; };
+  export type ClearAllNotifiers = void;
+  export type RemoveOpenedProject = { tabId: string; };
+  export type UpdateProject = { tabId: string; update: UpdateProjectNotification }[];
+
+  export type PrepareImportFromProject = { tabId: string; config: ImportFromProjectConfig };
+  export type PrepareImportFromOnline = { tabId: string; config: ImportFromOnlineConfig };
+  export type ApplyBulkUpdates = { tabId: string; selection: string[]; serverData: unknown; };
+  export type ValidateProject = { tabId: string; };
+  export type PrepareDeployToFiles = { tabId: string; };
+  export type ApplyDeployToFiles = { tabId: string; bindingsInstanceName?: string; serverData: unknown; };
+  export type PrepareDeployToOnline = { tabId: string; };
+  export type ApplyDeployToOnline = { tabId: string; serverData: unknown; };
+  export type ActivateView = { tabId: string; templateId: string; };
+  export type Select = { tabId: string; selection: Selection; };
+  export type ToggleComponentSelection = { tabId: string; componentId: string; };
+
+  export type SetComponent = { tabId: string; componentId: string; pluginId: string; position: Position; };
+  export type MoveComponents = { componentsIds: string[]; delta: Position; };
+  export type ConfigureComponent = { componentId: string; configId: string; configValue: any };
+  export type RenameComponent = { componentId: string; newId: string };
+  export type ClearComponents = { componentsIds: string[]; };
+  export type SetTemplate = { tabId: string; templateId: string; };
+  export type RenameTemplate = { templateId: string; newId: string };
+  export type ClearTemplate = { templateId: string[]; };
+  export type SetTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; };
+  export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
+  export type SetBinding = { tabId: string; binding: CoreBindingData; };
+  export type ClearBinding = { bindingId: string; };
+  export type UpdateToolbox = { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' };
+}
+
 export type TemplateExports = CoreTemplateExports;
 export type TemplateConfigExport = CoreTemplateConfigExport;
 export type TemplateMemberExport = CoreTemplateMemberExport;
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges, UpdateProjectNotification };
 
 export type PluginUse = 'unused' | 'external' | 'used';
 
