@@ -262,7 +262,19 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
       const id = `${openedProject.id}:${templateId}`;
 
+      const template = state.templates.byId[id];
+
       // remove all bindings+components
+      // Note: we don't care about links, all will be dropped
+      tableRemoveAll(state.components, template.components);
+      tableRemoveAll(state.bindings, template.bindings);
+      tableRemove(state.templates, template.id);
+      arrayRemove(openedProject.templates, template.id);
+
+      if (openedProject.activeTemplate === id) {
+        openedProject.activeTemplate = null;
+        openedProject.viewSelection = null;
+      }
 
       break;
     }
@@ -283,6 +295,10 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
       tableSet(state.templates, template, true);
       arrayAdd(openedProject.templates, template.id, true);
+
+      if (openedProject.activeTemplate === oldId) {
+        openedProject.activeTemplate = newId;
+      }
 
       // rename all bindings+components
       for (const id of template.components) {
