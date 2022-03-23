@@ -44,10 +44,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
       mapper({ tabId, config }: ActionPayloads.PrepareImportFromOnline) {
-        return {
-          tabId,
-          callData: { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall
-        };
+        const callData: PrepareImportFromOnlineCoreProjectCall = { operation: 'prepare-import-from-online', config };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -56,10 +54,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
       mapper({ tabId, config }: ActionPayloads.PrepareImportFromProject) {
-        return {
-          tabId,
-          callData: { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall
-        };
+        const callData: PrepareImportFromProjectCoreProjectCall = { operation: 'prepare-import-from-project', config };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
         return { changes: serviceResult.changes, serverData: serviceResult.serverData };
@@ -68,10 +64,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
       mapper({ tabId, serverData, selection }: ActionPayloads.ApplyBulkUpdates) {
-        return {
-          tabId,
-          callData: { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject
-        };
+        const callData: ApplyBulkUpdatesCoreProject = { operation: 'apply-bulk-updates', selection, serverData };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: ApplyBulkUpdatesCoreProjectCallResult): BulkUpdatesStats {
         return serviceResult.stats;
@@ -80,10 +74,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.VALIDATE_PROJECT]: {
       mapper({ tabId }: ActionPayloads.ValidateProject) {
-        return {
-          tabId,
-          callData: { operation: 'validate' } as CoreProjectCall
-        };
+        const callData: CoreProjectCall = { operation: 'validate' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: ValidateCoreProjectCallResult) {
         return serviceResult.validation;
@@ -92,10 +84,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
       mapper({ tabId }: ActionPayloads.PrepareDeployToFiles) {
-        return {
-          tabId,
-          callData: { operation: 'prepare-deploy-to-files' } as CoreProjectCall
-        };
+        const callData: CoreProjectCall = { operation: 'prepare-deploy-to-files' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: PrepareDeployToFilesCoreProjectCallResult): FilesDeployData {
         const { validation, changes, serverData, files, bindingsInstanceName } = serviceResult;
@@ -105,10 +95,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
       mapper({ tabId, bindingsInstanceName, serverData }: ActionPayloads.ApplyDeployToFiles) {
-        return {
-          tabId,
-          callData: { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall
-        };
+        const callData: ApplyDeployToFilesCoreProjectCall = { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: ApplyDeployToFilesCoreProjectCallResult): FilesDeployResult {
         const { writtenFilesCount } = serviceResult;
@@ -118,10 +106,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.PREPARE_DEPLOY_TO_ONLINE]: {
       mapper({ tabId }: { tabId: string }) {
-        return {
-          tabId,
-          callData: { operation: 'prepare-deploy-to-online' } as CoreProjectCall
-        };
+        const callData: CoreProjectCall = { operation: 'prepare-deploy-to-online' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: PrepareDeployToOnlineCoreProjectCallResult): OnlineDeployData {
         const { validation, changes, serverData } = serviceResult;
@@ -131,109 +117,85 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
       mapper({ tabId, serverData }: ActionPayloads.ApplyDeployToOnline) {
-        return {
-          tabId,
-          callData: { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall
-        };
+        const callData: ApplyDeployToOnlineCoreProjectCall = { operation: 'apply-deploy-to-online', serverData };
+        return { tabId, callData };
       }
     },
 
     [ActionTypes.UPDATE_TOOLBOX]: {
       mapper({ itemType, itemId, action }: ActionPayloads.UpdateToolbox) {
         const { tabId, id } = extractIds(itemId);
-        return {
-          tabId,
-          callData: { operation: 'update-toolbox', itemType, itemId: id, action } as UpdateToolboxCoreProjectCall
-        };
+        const callData: UpdateToolboxCoreProjectCall = { operation: 'update-toolbox', itemType, itemId: id, action };
+        return { tabId, callData };
       },
     },
     [ActionTypes.SET_TEMPLATE]: {
       mapper({ tabId, templateId }: ActionPayloads.SetTemplate) {
-        return {
-          tabId,
-          callData: { operation: 'set-template', templateId } as SetTemplateCoreProjectCall
-        };
+        const callData: SetTemplateCoreProjectCall = { operation: 'set-template', templateId };
+        return { tabId, callData };
       },
     },
     [ActionTypes.RENAME_TEMPLATE]: {
       mapper({ templateId, newId }: ActionPayloads.RenameTemplate) {
         const { tabId, id } = extractIds(templateId);
-        return {
-          tabId,
-          callData: { operation: 'rename-template', templateId: id, newId } as RenameTemplateCoreProjectCall
-        };
+        const callData: RenameTemplateCoreProjectCall = { operation: 'rename-template', templateId: id, newId };
+        return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_TEMPLATE]: {
       mapper({ templateId }: ActionPayloads.ClearTemplate) {
         const { tabId, id } = extractIds(templateId);
-        return {
-          tabId,
-          callData: { operation: 'clear-template', templateId: id } as ClearTemplateCoreProjectCall
-        };
+        const callData: ClearTemplateCoreProjectCall = { operation: 'clear-template', templateId: id };
+        return { tabId, callData };
       },
     },
     [ActionTypes.SET_TEMPLATE_EXPORT]: {
       mapper({ templateId, exportType, exportId, componentId, propertyName }: ActionPayloads.SetTemplateExport) {
         const { tabId, id } = extractIds(templateId);
-        return {
-          tabId,
-          callData: { operation: 'set-template-export', templateId: id, exportType, exportId, componentId, propertyName } as SetTemplateExportCoreProjectCall
-        };
+        const callData: SetTemplateExportCoreProjectCall = { operation: 'set-template-export', templateId: id, exportType, exportId, componentId, propertyName };
+        return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_TEMPLATE_EXPORT]: {
       mapper({ templateId, exportType, exportId }: ActionPayloads.ClearTemplateExport) {
         const { tabId, id } = extractIds(templateId);
-        return {
-          tabId,
-          callData: { operation: 'clear-template-export', templateId: id, exportType, exportId } as ClearTemplateExportCoreProjectCall
-        };
+        const callData: ClearTemplateExportCoreProjectCall = { operation: 'clear-template-export', templateId: id, exportType, exportId };
+        return { tabId, callData };
       },
     },
     [ActionTypes.SET_COMPONENT]: {
       mapper({ tabId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
         const { id: pluginId } = extractIds(fullPluginId);
-        return {
-          tabId,
-          callData: { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y } as SetComponentCoreProjectCall
-        };
+        const callData: SetComponentCoreProjectCall = { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y };
+        return { tabId, callData };
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
       mapper({ componentsIds, delta }: ActionPayloads.MoveComponents) {
         const { tabId, ids } = extractIdsList(componentsIds);
-        return {
-          tabId,
-          callData: { operation: 'move-components', componentsIds: ids, delta } as MoveComponentsCoreProjectCall
-        };
+        const callData: MoveComponentsCoreProjectCall = { operation: 'move-components', componentsIds: ids, delta };
+        return { tabId, callData };
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
       mapper({ componentId, configId, configValue }: ActionPayloads.ConfigureComponent) {
         const { tabId, id } = extractIds(componentId);
-        return {
-          tabId,
-          callData: { operation: 'configure-component', componentId: id, configId, configValue } as ConfigureComponentCoreProjectCall
-        };
+        const callData: ConfigureComponentCoreProjectCall = { operation: 'configure-component', componentId: id, configId, configValue };
+        return { tabId, callData };
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
       mapper({ componentId, newId }: ActionPayloads.RenameComponent) {
         const { tabId, id } = extractIds(componentId);
-        return {
-          tabId,
-          callData: { operation: 'rename-component', componentId: id, newId } as RenameComponentCoreProjectCall
-        };
+        const callData: RenameComponentCoreProjectCall = { operation: 'rename-component', componentId: id, newId };
+        return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
       mapper({ componentsIds }: ActionPayloads.ClearComponents) {
         const { tabId, ids } = extractIdsList(componentsIds);
-        return {
-          tabId,
-          callData: { operation: 'clear-components', componentsIds: ids } as ClearComponentsCoreProjectCall
-        };
+        const callData: ClearComponentsCoreProjectCall = { operation: 'clear-components', componentsIds: ids };
+        return { tabId, callData };
       },
     },
     [ActionTypes.SET_BINDING]: {
@@ -247,19 +209,15 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
           targetComponent,
         };
         
-        return {
-          tabId,
-          callData: { operation: 'set-binding', binding: bindingData } as SetBindingCoreProjectCall
-        };
+        const callData: SetBindingCoreProjectCall = { operation: 'set-binding', binding: bindingData };
+        return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
       mapper({ bindingId }: ActionPayloads.ClearBinding) {
         const { tabId, id } = extractIds(bindingId);
-        return {
-          tabId,
-          callData: { operation: 'clear-binding', bindingId: id } as ClearBindingCoreProjectCall
-        };
+        const callData: ClearBindingCoreProjectCall = { operation: 'clear-binding', bindingId: id };
+        return { tabId, callData };
       },
     },
   }

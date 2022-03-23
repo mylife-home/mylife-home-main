@@ -419,8 +419,8 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       const { sourceComponent: sourceComponentId, targetComponent: targetComponentId, ...data } = bindingData;
       const binding = {
         id: `${openedProject.id}:${templateId || ''}:${bindingId}`,
-        sourceComponent: `${openedProject.id}:${sourceComponentId}`,
-        targetComponent: `${openedProject.id}:${targetComponentId}`,
+        sourceComponent: `${openedProject.id}:${templateId || ''}:${sourceComponentId}`,
+        targetComponent: `${openedProject.id}:${templateId || ''}:${targetComponentId}`,
         ...data
       };
 
