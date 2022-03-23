@@ -44,7 +44,6 @@ const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ classNam
     <div className={clsx(className, classes.container)}>
       <FormControl className={classes.select}>
         <Select
-          variant='outlined'
           value={activeViewId || MAIN_VIEW}
           label="Template"
           onChange={handleChange}
