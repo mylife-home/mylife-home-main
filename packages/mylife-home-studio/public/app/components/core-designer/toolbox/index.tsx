@@ -123,7 +123,7 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
       <ListItem button onClick={handleClick} className={clsx(displayClass, useClass)}>
         <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
 
-        <ListItemText primary={instance.id} />
+        <ListItemText primary={instance.instanceName} />
 
         <ListItemSecondaryAction>
           <InstanceMenuButton id={instance.id} />
