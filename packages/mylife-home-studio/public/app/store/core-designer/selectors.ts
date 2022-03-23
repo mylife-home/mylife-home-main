@@ -38,15 +38,20 @@ const getView = (state: AppState, tabId: string, templateId: string): View => {
   return templateId ? getTemplate(state, templateId) : getOpenedProject(state, tabId);
 }
 
+const getActiveView = (state: AppState, tabId: string): View => {
+  const { activeTemplate } = getOpenedProject(state, tabId);
+  return getView(state, tabId, activeTemplate);
+};
+
 export const getInstanceIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).instances;
 export const getInstance = (state: AppState, instanceId: string) => getInstancesTable(state).byId[instanceId];
 export const getPluginIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins;
 export const getPlugin = (state: AppState, pluginId: string) => getPluginsTable(state).byId[pluginId];
 export const getTemplateIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).templates;
 export const getTemplate = (state: AppState, templateId: string) => getTemplatesTable(state).byId[templateId];
-export const getComponentIds = (state: AppState, tabId: string, templateId: string) => getView(state, tabId, templateId).components;
+export const getComponentIds = (state: AppState, tabId: string) => getActiveView(state, tabId).components;
 export const getComponent = (state: AppState, componentId: string) => getComponentsTable(state).byId[componentId];
-export const getBindingIds = (state: AppState, tabId: string, templateId: string) => getView(state, tabId, templateId).bindings;
+export const getBindingIds = (state: AppState, tabId: string) => getActiveView(state, tabId).bindings;
 export const getBinding = (state: AppState, bindingId: string) => getBindingsTable(state).byId[bindingId];
 
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
@@ -94,7 +99,7 @@ function computePluginStats(state: AppState, pluginId: string, stats: { componen
   }
 }
 
-export const getNewBindingHalfList = (state: AppState, tabId: string, templateId: string, componentId: string, memberName: string) => {
+export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
   const component = getComponent(state, componentId);
   const plugin = getPlugin(state, component.plugin);
   const member = plugin.members[memberName];
@@ -104,7 +109,7 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, templateId
   const list: { componentId: string; memberName: string; }[] = [];
 
   // select all action/state with same type, and for which no binding already exist
-  for (const possibleComponentId of getComponentIds(state, tabId, templateId)) {
+  for (const possibleComponentId of getComponentIds(state, tabId)) {
     // for now avoid binding on self
     if (possibleComponentId === component.id) {
       continue;
