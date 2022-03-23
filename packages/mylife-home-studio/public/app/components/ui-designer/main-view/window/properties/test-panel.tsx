@@ -1,10 +1,10 @@
 import React, { FunctionComponent, useState, useMemo, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
-import { makeGetPluginsMap } from '../../../../../store/ui-designer/selectors';
-import { useTabSelector } from '../../../../lib/use-tab-selector';
+import { getComponentsMap, getPluginsMap } from '../../../../../store/ui-designer/selectors';
 import TestValueEditor from './test-value-editor';
 
 interface TestResult {
@@ -70,14 +70,16 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
 export default TestPanel;
 
 function useContextData(context: ControlTextContextItem[]) {
-  const getPluginsMap = useMemo(() => makeGetPluginsMap(), []);
-  const pluginsMap = useTabSelector(getPluginsMap);
+  // TODO: move that into selector on control "getControlTextContextData(state, controlId)"
+  const componentsMap = useSelector(getComponentsMap);
+  const pluginsMap = useSelector(getPluginsMap);
 
   return useMemo(() => context.map(item => {
-    const plugin = pluginsMap.get(item.componentId);
+    const component = componentsMap[item.componentId]
+    const plugin = pluginsMap[component.plugin];
     const state = plugin.members[item.componentState];
     return { ...item, valueType: state.valueType };
-  }), [context, pluginsMap]);
+  }), [context, componentsMap, pluginsMap]);
 }
 
 function useValues(context: ControlTextContextItem[]) {
