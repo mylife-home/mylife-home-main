@@ -206,6 +206,9 @@ export class Model extends ViewModel {
   constructor(public readonly data: CoreProject) {
     super();
 
+    // compatibility
+    this.data.templates = this.data.templates || {};
+
     for (const [id, pluginData] of Object.entries(data.plugins)) {
       this.registerPlugin(id, pluginData);
     }
