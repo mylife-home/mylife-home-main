@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Template, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection, View } from './types';
+import { ActionTypes, ActionPayloads, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Template, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection, View } from './types';
 import { createTable, tableAdd, tableRemove, tableRemoveAll, tableClear, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
 import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, ClearCoreTemplateNotification, CorePluginData, RenameCoreComponentNotification, RenameCoreTemplateNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification, SetCoreTemplateNotification } from '../../../../shared/project-manager';
 
@@ -48,7 +48,7 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ tabId: string; }>) => {
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<ActionPayloads.RemoveOpenedProject>) => {
     const { tabId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     tableRemoveAll(state.instances, openedProject.instances);
@@ -58,13 +58,13 @@ export default createReducer(initialState, {
     tableRemove(state.openedProjects, tabId);
   },
 
-  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ tabId: string; notifierId: string; }>) => {
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<ActionPayloads.SetNotifier>) => {
     const { tabId, notifierId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.notifierId = notifierId;
   },
 
-  [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action) => {
+  [ActionTypes.CLEAR_ALL_NOTIFIERS]: (state, action: PayloadAction<ActionPayloads.ClearAllNotifiers>) => {
     for (const openedProject of Object.values(state.openedProjects.byId)) {
       openedProject.notifierId = null;
       openedProject.activeTemplate = null;
@@ -83,27 +83,27 @@ export default createReducer(initialState, {
     tableClear(state.bindings);
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ tabId: string; update: UpdateProjectNotification; }[]>) => {
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<ActionPayloads.UpdateProject>) => {
     for (const { tabId, update } of action.payload) {
       const openedProject = state.openedProjects.byId[tabId];
       applyProjectUpdate(state, openedProject, update);
     }
   },
 
-  [ActionTypes.ACTIVATE_VIEW]: (state, action: PayloadAction<{ tabId: string; templateId: string; }>) => {
+  [ActionTypes.ACTIVATE_VIEW]: (state, action: PayloadAction<ActionPayloads.ActivateView>) => {
     const { tabId, templateId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.activeTemplate = templateId;
     openedProject.viewSelection = null;
   },
 
-  [ActionTypes.SELECT]: (state, action: PayloadAction<{ tabId: string; selection: Selection }>) => {
+  [ActionTypes.SELECT]: (state, action: PayloadAction<ActionPayloads.Select>) => {
     const { tabId, selection } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.viewSelection = selection;
   },
 
-  [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<{ tabId: string; componentId: string }>) => {
+  [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<ActionPayloads.ToggleComponentSelection>) => {
     const { tabId, componentId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     

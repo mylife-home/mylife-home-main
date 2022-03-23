@@ -276,15 +276,14 @@ function getOptionSelected(option: BindingHalf, value: BindingHalf) {
 }
 
 function useNewBinding(memberName: string) {
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const { component, plugin } = useComponentData();
   const member = plugin.members[memberName];
 
   return useCallback((newValue: BindingHalf) => {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
-    dispatch(setBinding({ tabId, binding }));
-  }, [dispatch, tabId, component.id, memberName]);
+    dispatch(setBinding({ binding }));
+  }, [dispatch, component.id, memberName]);
 }
 
 const useSeparatorStyles = makeStyles((theme) => ({

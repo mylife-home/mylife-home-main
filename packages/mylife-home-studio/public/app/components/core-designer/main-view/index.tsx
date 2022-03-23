@@ -64,7 +64,6 @@ function useConnect() {
 }
 
 function useNewBinding() {
-  const tabId = useTabPanelId();
   const theme = useCanvasTheme();
   const componentsIds = useTabSelector(getComponentIds);
   const componentsMap = useSelector(getComponentsMap);
@@ -74,6 +73,7 @@ function useNewBinding() {
   return useCallback((source: BindingSource, mousePosition: types.Position) => {
 
     // else render problem ?!?
+    // FIXME
     setTimeout(() => {
       const target = findBindingTarget(theme, mousePosition, componentsIds, componentsMap, pluginsMap);
       if (!target || !isBindingTarget(source, target)) {
@@ -81,10 +81,10 @@ function useNewBinding() {
       }
   
       const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
-      dispatch(setBinding({ tabId, binding }));
+      dispatch(setBinding({ binding }));
     }, 0);
 
-  }, [theme, componentsIds, componentsMap, pluginsMap, dispatch, tabId]);
+  }, [theme, componentsIds, componentsMap, pluginsMap, dispatch]);
 }
 
 function useMultiSelecting() {

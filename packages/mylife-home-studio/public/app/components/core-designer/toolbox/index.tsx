@@ -21,7 +21,7 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
 import { AppState } from '../../../store/types';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap } from '../../../store/core-designer/selectors';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId } from '../../../store/core-designer/selectors';
 import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
 import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
@@ -187,6 +187,7 @@ const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
 
 function useCreate(pluginId: string) {
   const tabId = useTabPanelId();
+  const templateId = useSelector((state: AppState) => getActiveTemplateId(state, tabId));
   const dispatch = useDispatch();
   const makeNewId = useMakeNewId();
   const selectComponent = useSelectComponent();
@@ -197,12 +198,12 @@ function useCreate(pluginId: string) {
     async (position: Position) =>
       fireAsync(async () => {
         const componentId = makeNewId();
-        await dispatch(setComponent({ tabId, componentId, pluginId, position }));
-        const id = `${tabId}:${componentId}`;
+        await dispatch(setComponent({ templateId, componentId, pluginId, position }));
+        const id = `${tabId}:${templateId || ''}:${componentId}`;
         await waitForComponentId(id);
         selectComponent(id);
       }),
-    [fireAsync, dispatch, tabId, pluginId, makeNewId]
+    [fireAsync, dispatch, tabId, templateId, pluginId, makeNewId]
   );
 }
 
@@ -225,6 +226,7 @@ function useMakeNewId() {
  * Wait for a component id to be present in the store
  */ 
 function useWaitForComponentId() {
+  // FIXME
   const componentIds = useTabSelector(getComponentIds);
   const set = useMemo(() => new Set(componentIds), [componentIds]);
 

@@ -164,44 +164,44 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ tabId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
-        const { id: pluginId } = extractIds(fullPluginId);
-        const callData: SetComponentCoreProjectCall = { operation: 'set-component', componentId, pluginId, x: position.x, y: position.y };
+      mapper({ templateId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
+        const { tabId, id: pluginId } = extractIds(fullPluginId);
+        const callData: SetComponentCoreProjectCall = { operation: 'set-component', templateId, componentId, pluginId, x: position.x, y: position.y };
         return { tabId, callData };
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
       mapper({ componentsIds, delta }: ActionPayloads.MoveComponents) {
-        const { tabId, ids } = extractIdsList(componentsIds);
-        const callData: MoveComponentsCoreProjectCall = { operation: 'move-components', componentsIds: ids, delta };
+        const { tabId, templateId, ids } = extractIdsListWithTemplate(componentsIds);
+        const callData: MoveComponentsCoreProjectCall = { operation: 'move-components', templateId, componentsIds: ids, delta };
         return { tabId, callData };
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
       mapper({ componentId, configId, configValue }: ActionPayloads.ConfigureComponent) {
-        const { tabId, id } = extractIds(componentId);
-        const callData: ConfigureComponentCoreProjectCall = { operation: 'configure-component', componentId: id, configId, configValue };
+        const { tabId, templateId, id } = extractIdsWithTemplate(componentId);
+        const callData: ConfigureComponentCoreProjectCall = { operation: 'configure-component', templateId, componentId: id, configId, configValue };
         return { tabId, callData };
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
       mapper({ componentId, newId }: ActionPayloads.RenameComponent) {
-        const { tabId, id } = extractIds(componentId);
-        const callData: RenameComponentCoreProjectCall = { operation: 'rename-component', componentId: id, newId };
+        const { tabId, templateId, id } = extractIdsWithTemplate(componentId);
+        const callData: RenameComponentCoreProjectCall = { operation: 'rename-component', templateId, componentId: id, newId };
         return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
       mapper({ componentsIds }: ActionPayloads.ClearComponents) {
-        const { tabId, ids } = extractIdsList(componentsIds);
-        const callData: ClearComponentsCoreProjectCall = { operation: 'clear-components', componentsIds: ids };
+        const { tabId, templateId, ids } = extractIdsListWithTemplate(componentsIds);
+        const callData: ClearComponentsCoreProjectCall = { operation: 'clear-components', templateId, componentsIds: ids };
         return { tabId, callData };
       },
     },
     [ActionTypes.SET_BINDING]: {
-      mapper({ tabId, binding }: ActionPayloads.SetBinding) {
-        const { id: sourceComponent } = extractIds(binding.sourceComponent);
-        const { id: targetComponent } = extractIds(binding.targetComponent);
+      mapper({ binding }: ActionPayloads.SetBinding) {
+        const { tabId, templateId, ids } = extractIdsListWithTemplate([binding.sourceComponent, binding.targetComponent]);
+        const [sourceComponent, targetComponent] = ids;
 
         const bindingData: CoreBindingData = {
           ...binding,
@@ -209,14 +209,14 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
           targetComponent,
         };
         
-        const callData: SetBindingCoreProjectCall = { operation: 'set-binding', binding: bindingData };
+        const callData: SetBindingCoreProjectCall = { operation: 'set-binding', templateId, binding: bindingData };
         return { tabId, callData };
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
       mapper({ bindingId }: ActionPayloads.ClearBinding) {
-        const { tabId, id } = extractIds(bindingId);
-        const callData: ClearBindingCoreProjectCall = { operation: 'clear-binding', bindingId: id };
+        const { tabId, templateId, id } = extractIdsWithTemplate(bindingId);
+        const callData: ClearBindingCoreProjectCall = { operation: 'clear-binding', templateId, bindingId: id };
         return { tabId, callData };
       },
     },
@@ -237,6 +237,15 @@ function extractIds(fullId: string): { tabId: string, id: string; } {
   };
 }
 
+function extractIdsWithTemplate(fullId: string): { tabId: string, templateId: string; id: string; } {
+  // first extract tab
+  const { tabId, id: remaining } = extractIds(fullId);
+  // then extract templateId
+  const { tabId: templateId, id } = extractIds(remaining);
+
+  return { tabId, templateId: templateId || null, id };
+}
+
 function extractIdsList(fullIds: string[]): { tabId: string, ids: string[]; } {
   const ids: string[] = [];
   let finalTabId = null;
@@ -254,4 +263,27 @@ function extractIdsList(fullIds: string[]): { tabId: string, ids: string[]; } {
   }
 
   return { tabId: finalTabId, ids };
+}
+
+function extractIdsListWithTemplate(fullIds: string[]): { tabId: string, templateId: string, ids: string[]; } {
+  const ids: string[] = [];
+  let finalTabId = null;
+  let finalTemplateId = null;
+
+  for (const fullId of fullIds) {
+    const { tabId, templateId, id } = extractIdsWithTemplate(fullId);
+
+    if (!finalTabId) {
+      finalTabId = tabId;
+      finalTemplateId = templateId;
+    } else if (tabId !== finalTabId) {
+      throw new Error(`Project id mismatch! ('${tabId}' !== '${finalTabId}')`);
+    } else if (templateId !== finalTemplateId) {
+      throw new Error(`Template id mismatch! ('${templateId}' !== '${finalTemplateId}')`);
+    }
+
+    ids.push(id);
+  }
+
+  return { tabId: finalTabId, templateId: finalTemplateId, ids };
 }

@@ -34,12 +34,14 @@ export const getOpenedProjectIdByNotifierId = (state: AppState, notifierId: stri
   return map.get(notifierId);
 };
 
+export const getActiveTemplateId = (state: AppState, tabId: string) => getOpenedProject(state, tabId).activeTemplate;
+
 const getView = (state: AppState, tabId: string, templateId: string): View => {
   return templateId ? getTemplate(state, templateId) : getOpenedProject(state, tabId);
 }
 
 const getActiveView = (state: AppState, tabId: string): View => {
-  const { activeTemplate } = getOpenedProject(state, tabId);
+  const activeTemplate = getActiveTemplateId(state, tabId);
   return getView(state, tabId, activeTemplate);
 };
 

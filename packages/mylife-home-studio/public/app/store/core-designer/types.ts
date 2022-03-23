@@ -56,7 +56,7 @@ export namespace ActionPayloads {
   export type Select = { tabId: string; selection: Selection; };
   export type ToggleComponentSelection = { tabId: string; componentId: string; };
 
-  export type SetComponent = { tabId: string; componentId: string; pluginId: string; position: Position; };
+  export type SetComponent = { templateId: string; componentId: string; pluginId: string; position: Position; }; // tabId is deduced from plugin
   export type MoveComponents = { componentsIds: string[]; delta: Position; };
   export type ConfigureComponent = { componentId: string; configId: string; configValue: any };
   export type RenameComponent = { componentId: string; newId: string };
@@ -66,7 +66,7 @@ export namespace ActionPayloads {
   export type ClearTemplate = { templateId: string; };
   export type SetTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; };
   export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
-  export type SetBinding = { tabId: string; binding: CoreBindingData; };
+  export type SetBinding = { binding: CoreBindingData; }; // tabId and templateId are deduced from components
   export type ClearBinding = { bindingId: string; };
   export type UpdateToolbox = { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' };
 }
