@@ -44,7 +44,7 @@ export const getWindow = (state: AppState, windowId: string) => getWindowsTable(
 export const getControl = (state: AppState, controlId: string) => getControlsTable(state).byId[controlId];
 
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
-const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
+export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 export const getWindowsMap = (state: AppState) => getWindowsTable(state).byId;
 export const getResourcesMap = (state: AppState) => getResourcesTable(state).byId;
 export const getControlsMap = (state: AppState) => getControlsTable(state).byId;
