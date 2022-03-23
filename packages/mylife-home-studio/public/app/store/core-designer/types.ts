@@ -63,7 +63,7 @@ export namespace ActionPayloads {
   export type ClearComponents = { componentsIds: string[]; };
   export type SetTemplate = { tabId: string; templateId: string; };
   export type RenameTemplate = { templateId: string; newId: string };
-  export type ClearTemplate = { templateId: string[]; };
+  export type ClearTemplate = { templateId: string; };
   export type SetTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; };
   export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
   export type SetBinding = { tabId: string; binding: CoreBindingData; };

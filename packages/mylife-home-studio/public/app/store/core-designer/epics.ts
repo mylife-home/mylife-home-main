@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, BulkUpdatesData, Position, BulkUpdatesStats, ImportFromOnlineConfig, ImportFromProjectConfig, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
+import { ActionTypes, ActionPayloads, BulkUpdatesData, BulkUpdatesStats, OnlineDeployData, FilesDeployData, FilesDeployResult } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentsCoreProjectCall,
@@ -43,7 +43,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
 
     [ActionTypes.PREPARE_IMPORT_FROM_ONLINE]: {
-      mapper({ tabId, config }: { tabId: string; config: ImportFromOnlineConfig}) {
+      mapper({ tabId, config }: ActionPayloads.PrepareImportFromOnline) {
         return {
           tabId,
           callData: { operation: 'prepare-import-from-online', config } as PrepareImportFromOnlineCoreProjectCall
@@ -55,7 +55,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_IMPORT_FROM_PROJECT]: {
-      mapper({ tabId, config }: { tabId: string; config: ImportFromProjectConfig}) {
+      mapper({ tabId, config }: ActionPayloads.PrepareImportFromProject) {
         return {
           tabId,
           callData: { operation: 'prepare-import-from-project', config } as PrepareImportFromProjectCoreProjectCall
@@ -67,7 +67,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_BULK_UPDATES]: {
-      mapper({ tabId, serverData, selection }: { tabId: string; serverData: unknown, selection: string[] }) {
+      mapper({ tabId, serverData, selection }: ActionPayloads.ApplyBulkUpdates) {
         return {
           tabId,
           callData: { operation: 'apply-bulk-updates', selection, serverData } as ApplyBulkUpdatesCoreProject
@@ -79,7 +79,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.VALIDATE_PROJECT]: {
-      mapper({ tabId }: { tabId: string }) {
+      mapper({ tabId }: ActionPayloads.ValidateProject) {
         return {
           tabId,
           callData: { operation: 'validate' } as CoreProjectCall
@@ -91,7 +91,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.PREPARE_DEPLOY_TO_FILES]: {
-      mapper({ tabId }: { tabId: string }) {
+      mapper({ tabId }: ActionPayloads.PrepareDeployToFiles) {
         return {
           tabId,
           callData: { operation: 'prepare-deploy-to-files' } as CoreProjectCall
@@ -104,7 +104,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_FILES]: {
-      mapper({ tabId, bindingsInstanceName, serverData }: { tabId: string; bindingsInstanceName?: string; serverData: unknown }) {
+      mapper({ tabId, bindingsInstanceName, serverData }: ActionPayloads.ApplyDeployToFiles) {
         return {
           tabId,
           callData: { operation: 'apply-deploy-to-files', serverData, bindingsInstanceName } as ApplyDeployToFilesCoreProjectCall
@@ -130,7 +130,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_DEPLOY_TO_ONLINE]: {
-      mapper({ tabId, serverData }: { tabId: string; serverData: unknown }) {
+      mapper({ tabId, serverData }: ActionPayloads.ApplyDeployToOnline) {
         return {
           tabId,
           callData: { operation: 'apply-deploy-to-online', serverData } as ApplyDeployToOnlineCoreProjectCall
@@ -139,7 +139,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
 
     [ActionTypes.UPDATE_TOOLBOX]: {
-      mapper({ itemType, itemId, action }: { itemType: 'instance' | 'plugin'; itemId: string; action: 'show' | 'hide' | 'delete' }) {
+      mapper({ itemType, itemId, action }: ActionPayloads.UpdateToolbox) {
         const { tabId, id } = extractIds(itemId);
         return {
           tabId,
@@ -148,7 +148,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_TEMPLATE]: {
-      mapper({ tabId, templateId }: { tabId: string; templateId: string }) {
+      mapper({ tabId, templateId }: ActionPayloads.SetTemplate) {
         return {
           tabId,
           callData: { operation: 'set-template', templateId } as SetTemplateCoreProjectCall
@@ -156,7 +156,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.RENAME_TEMPLATE]: {
-      mapper({ templateId, newId }: { templateId: string; newId: string }) {
+      mapper({ templateId, newId }: ActionPayloads.RenameTemplate) {
         const { tabId, id } = extractIds(templateId);
         return {
           tabId,
@@ -165,7 +165,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.CLEAR_TEMPLATE]: {
-      mapper({ templateId }: { templateId: string }) {
+      mapper({ templateId }: ActionPayloads.ClearTemplate) {
         const { tabId, id } = extractIds(templateId);
         return {
           tabId,
@@ -174,7 +174,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_TEMPLATE_EXPORT]: {
-      mapper({ templateId, exportType, exportId, componentId, propertyName }: { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; }) {
+      mapper({ templateId, exportType, exportId, componentId, propertyName }: ActionPayloads.SetTemplateExport) {
         const { tabId, id } = extractIds(templateId);
         return {
           tabId,
@@ -183,7 +183,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.CLEAR_TEMPLATE_EXPORT]: {
-      mapper({ templateId, exportType, exportId }: { templateId: string; exportType: 'config' | 'member'; exportId: string; }) {
+      mapper({ templateId, exportType, exportId }: ActionPayloads.ClearTemplateExport) {
         const { tabId, id } = extractIds(templateId);
         return {
           tabId,
@@ -192,7 +192,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ tabId, componentId, pluginId: fullPluginId, position }: { tabId: string; componentId: string; pluginId: string; position: Position }) {
+      mapper({ tabId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
         const { id: pluginId } = extractIds(fullPluginId);
         return {
           tabId,
@@ -201,7 +201,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.MOVE_COMPONENTS]: {
-      mapper({ componentsIds, delta }: { componentsIds: string[]; delta: Position }) {
+      mapper({ componentsIds, delta }: ActionPayloads.MoveComponents) {
         const { tabId, ids } = extractIdsList(componentsIds);
         return {
           tabId,
@@ -210,7 +210,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.CONFIGURE_COMPONENT]: {
-      mapper({ componentId, configId, configValue }: { componentId: string; configId: string; configValue: any }) {
+      mapper({ componentId, configId, configValue }: ActionPayloads.ConfigureComponent) {
         const { tabId, id } = extractIds(componentId);
         return {
           tabId,
@@ -219,7 +219,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.RENAME_COMPONENT]: {
-      mapper({ componentId, newId }: { componentId: string; newId: string }) {
+      mapper({ componentId, newId }: ActionPayloads.RenameComponent) {
         const { tabId, id } = extractIds(componentId);
         return {
           tabId,
@@ -228,7 +228,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {
-      mapper({ componentsIds }: { componentsIds: string[] }) {
+      mapper({ componentsIds }: ActionPayloads.ClearComponents) {
         const { tabId, ids } = extractIdsList(componentsIds);
         return {
           tabId,
@@ -237,7 +237,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_BINDING]: {
-      mapper({ tabId, binding }: { tabId: string; binding: CoreBindingData }) {
+      mapper({ tabId, binding }: ActionPayloads.SetBinding) {
         const { id: sourceComponent } = extractIds(binding.sourceComponent);
         const { id: targetComponent } = extractIds(binding.targetComponent);
 
@@ -254,7 +254,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.CLEAR_BINDING]: {
-      mapper({ bindingId }: { bindingId: string }) {
+      mapper({ bindingId }: ActionPayloads.ClearBinding) {
         const { tabId, id } = extractIds(bindingId);
         return {
           tabId,
