@@ -168,6 +168,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
 - nouveau mode + simple : update le state a l'avance (eg: move components) de toutes facons le server va ecraser les modifs bientot, ou faire une erreur
 - forbid id with ':'
+- create action payload types like core-designer everywhere
 
 ## ui
 
