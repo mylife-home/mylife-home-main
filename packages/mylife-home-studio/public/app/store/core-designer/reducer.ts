@@ -502,7 +502,7 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
 
   updatePluginStats(state, openedProject, plugin, true);
   tableSet(state.plugins, plugin, true);
-  arrayAdd(openedProject.plugins, plugin.id, true);
+  arraySet(openedProject.plugins, plugin.id, true);
 
   let instance = state.instances.byId[instanceId];
   if (!instance) {
