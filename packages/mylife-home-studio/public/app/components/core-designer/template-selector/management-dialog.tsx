@@ -8,14 +8,18 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
-import AddIcon from '@material-ui/icons/Add';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
 
 import { TransitionProps } from '../../dialogs/common';
 import { useTabPanelId, TabIdContext } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import DeleteButton from '../../lib/delete-button';
 import { AppState } from '../../../store/types';
 import { setTemplate } from '../../../store/core-designer/actions';
 import { getTemplateIds, getTemplate, getTemplatesMap } from '../../../store/core-designer/selectors';
@@ -41,8 +45,6 @@ const useStyles = makeStyles((theme) => ({
   dialog: {
   },
   content: {
-    //position: 'relative',
-    //padding: 0,
   },
   newButton: {
     color: theme.palette.success.main,
@@ -66,11 +68,11 @@ const ManagementDialog: FunctionComponent<ManagementDialogProps> = ({ open, hide
     <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={hideModal} classes={{ paper: classes.dialog }} scroll='paper'>
       <DialogTitle id="dialog-title">
         Templates
-        <NewTemplateButton className={classes.newButton} />
+        <NewTemplateButton />
       </DialogTitle>
     
       <DialogContent dividers classes={{ root: classes.content }}>
-        <TemplateList className={classes.list} />
+        <TemplateList />
       </DialogContent>
     
       <DialogActions>
@@ -80,7 +82,8 @@ const ManagementDialog: FunctionComponent<ManagementDialogProps> = ({ open, hide
   );
 };
 
-const NewTemplateButton: FunctionComponent<{ className?: string; }> = ({ className }) => {
+const NewTemplateButton: FunctionComponent = () => {
+  const classes = useStyles();
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const makeNewId = useMakeNewId();
@@ -91,17 +94,18 @@ const NewTemplateButton: FunctionComponent<{ className?: string; }> = ({ classNa
   }, [tabId, dispatch, makeNewId]);
 
   return (
-    <IconButton className={className} onClick={onNew}>
+    <IconButton className={classes.newButton} onClick={onNew}>
       <AddIcon />
     </IconButton>
   );
 };
 
-const TemplateList: FunctionComponent<{ className?: string; }> = ({ className }) => {
+const TemplateList: FunctionComponent = () => {
+  const classes = useStyles();
   const templateIds = useTabSelector(getTemplateIds);
 
   return (
-    <List className={className}>
+    <List disablePadding className={classes.list}>
       {templateIds.map(templateId => (
         <TemplateItem key={templateId} id={templateId} />
       ))}
@@ -112,12 +116,25 @@ const TemplateList: FunctionComponent<{ className?: string; }> = ({ className })
 const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useSelector((state: AppState) => getTemplate(state, id));
 
+  const onRename = () => console.log('rename');
+  const onDelete = () => console.log('delete');
+
   return (
     <ListItem>
       <ListItemText primary={template.templateId} />
+
+        <ListItemSecondaryAction>
+          <Tooltip title="Renommer">
+            <IconButton onClick={onRename}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+        </ListItemSecondaryAction>
     </ListItem>
   );
-}
+};
 
 function useMakeNewId() {
   const templateIds = useTabSelector(getTemplateIds);
