@@ -18,7 +18,7 @@ import { useTabPanelId, TabIdContext } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { AppState } from '../../../store/types';
 import { setTemplate } from '../../../store/core-designer/actions';
-import { getTemplateIds, getTemplate } from '../../../store/core-designer/selectors';
+import { getTemplateIds, getTemplate, getTemplatesMap } from '../../../store/core-designer/selectors';
 
 export type DialogResult = { status: 'ok' | 'cancel'; format?: string };
 
@@ -120,10 +120,10 @@ const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
 
 function useMakeNewId() {
   const templateIds = useTabSelector(getTemplateIds);
-  console.log(templateIds)
+  const templatesMap = useSelector(getTemplatesMap);
   
   return useCallback(() => {
-    const set = new Set(templateIds);
+    const set = new Set(templateIds.map(id => templatesMap[id].templateId));
 
     for (let i = 1; ; ++i) {
       const candidate = `new-${i}`;

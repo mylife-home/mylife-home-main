@@ -56,6 +56,7 @@ export const getComponent = (state: AppState, componentId: string) => getCompone
 export const getBindingIds = (state: AppState, tabId: string) => getActiveView(state, tabId).bindings;
 export const getBinding = (state: AppState, bindingId: string) => getBindingsTable(state).byId[bindingId];
 
+export const getTemplatesMap = (state: AppState) => getTemplatesTable(state).byId;
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 
