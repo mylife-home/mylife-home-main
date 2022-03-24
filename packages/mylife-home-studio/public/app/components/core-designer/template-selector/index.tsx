@@ -12,6 +12,7 @@ import { useTabPanelId } from '../../lib/tab-panel';
 import { AppState } from '../../../store/types';
 import { activateView } from '../../../store/core-designer/actions';
 import { getTemplateIds, getTemplate, getActiveTemplateId } from '../../../store/core-designer/selectors';
+import { useManagementDialog } from './management-dialog';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -33,6 +34,7 @@ const MAIN_VIEW = 'main';
 const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
   const { templateIds, activeViewId, activateView } = useConnect();
+  const showManagementDialog = useManagementDialog();
 
   const handleChange = (e: React.ChangeEvent<{ value: string; }>) => {
     const { value } = e.target;
@@ -56,7 +58,7 @@ const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ classNam
         </Select>
       </FormControl>
 
-      <IconButton className={classes.config}>
+      <IconButton className={classes.config} onClick={showManagementDialog}>
         <SettingsIcon />
       </IconButton>
     </div>
