@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,7 +11,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { useTabPanelId } from '../../lib/tab-panel';
 import { AppState } from '../../../store/types';
 import { activateView } from '../../../store/core-designer/actions';
-import { getTemplateIds, getTemplate, getActiveTemplateId } from '../../../store/core-designer/selectors';
+import { getTemplateIds, getTemplatesMap, getActiveTemplateId } from '../../../store/core-designer/selectors';
 import { useManagementDialog } from './management-dialog';
 
 const useStyles = makeStyles((theme) => ({
@@ -33,12 +33,13 @@ const MAIN_VIEW = 'main';
 
 const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
-  const { templateIds, activeViewId, activateView } = useConnect();
+  const { templates, activeViewId, activateView } = useConnect();
   const showManagementDialog = useManagementDialog();
 
   const handleChange = (e: React.ChangeEvent<{ value: string; }>) => {
     const { value } = e.target;
     const viewId = value === MAIN_VIEW ? null : value;
+    console.log('VIEW ID', viewId);
     activateView(viewId);
   };
 
@@ -52,8 +53,8 @@ const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ classNam
         >
           <MenuItem value={MAIN_VIEW}>{`<Vue principale>`}</MenuItem>
 
-          {templateIds.map(id => (
-            <TemplateItem key={id} id={id} />
+          {templates.map(({ id, templateId: label }) => (
+            <MenuItem key={id} value={id}>{label}</MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -67,19 +68,16 @@ const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ classNam
 
 export default TemplateSelector;
 
-const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const template = useSelector((state: AppState) => getTemplate(state, id));
-  return (
-    <MenuItem value={template.id}>{template.templateId}</MenuItem>
-  );
-};
-
 function useConnect() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
+  const templatesMap = useSelector(getTemplatesMap);
+  const templateIds = useSelector((state: AppState) => getTemplateIds(state, tabId));
+  const templates = useMemo(() => templateIds.map(id => templatesMap[id]), [templateIds, templatesMap]);
+
   return {
-    templateIds: useSelector((state: AppState) => getTemplateIds(state, tabId)),
+    templates,
     activeViewId: useSelector((state: AppState) => getActiveTemplateId(state, tabId)),
     activateView: useCallback((templateId: string) => dispatch(activateView({ tabId, templateId })), [tabId, dispatch]),
   };
