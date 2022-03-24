@@ -442,7 +442,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
       const view = getView(state, openedProject, templateId);
       tableSet(state.bindings, binding, true);
-      arrayAdd(view.bindings, binding.id, true);
+      arraySet(view.bindings, binding.id, true);
       addBinding(state, binding.sourceComponent, binding.sourceState, binding.id);
       addBinding(state, binding.targetComponent, binding.targetAction, binding.id);
       break;
@@ -589,7 +589,7 @@ function addBinding(state: CoreDesignerState, componentId: string, member: strin
     component.bindings[member] = [];
   }
 
-  arrayAdd(component.bindings[member], bindingId, true);
+  arraySet(component.bindings[member], bindingId, true);
 }
 
 function removeBinding(state: CoreDesignerState, componentId: string, member: string, bindingId: string) {
