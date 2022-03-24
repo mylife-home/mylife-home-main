@@ -164,8 +164,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_COMPONENT]: {
-      mapper({ templateId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
-        const { tabId, id: pluginId } = extractIds(fullPluginId);
+      mapper({ templateId: fullTemplateId, componentId, pluginId: fullPluginId, position }: ActionPayloads.SetComponent) {
+        const { tabId, ids } = extractIdsList([fullTemplateId, fullPluginId]);
+        const [templateId, pluginId] = ids;
         const callData: SetComponentCoreProjectCall = { operation: 'set-component', templateId, componentId, pluginId, x: position.x, y: position.y };
         return { tabId, callData };
       },

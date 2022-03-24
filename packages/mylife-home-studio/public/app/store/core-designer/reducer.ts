@@ -318,7 +318,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
         updatePluginStats(state, openedProject, plugin);
         updateInstanceStats(state, plugin.instance);
-        renameComponentSelection(openedProject, template.id, id, newId);
+        renameComponentSelection(openedProject, template.templateId, id, newId);
 
         for (const bindingId of Object.values(component.bindings).flat()) {
           const binding = state.bindings.byId[bindingId];
@@ -355,7 +355,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
         arraySet(sourceComponent.bindings[binding.sourceState], binding.id, true);
         arraySet(targetComponent.bindings[binding.targetAction], binding.id, true);
 
-        renameBindingSelection(openedProject, template.id, id, newId);
+        renameBindingSelection(openedProject, template.templateId, id, newId);
       }
 
       break;
@@ -608,7 +608,8 @@ function toggleSelection(ids: MultiSelectionIds, id: string) {
   }
 }
 
-function renameComponentSelection(openedProject: CoreOpenedProject, templateId: string, oldId: string, newId: string) {
+function renameComponentSelection(openedProject: CoreOpenedProject, partialTemplateId: string, oldId: string, newId: string) {
+  const templateId = partialTemplateId ? `${openedProject.id}:${partialTemplateId}` : null;
   if (openedProject.activeTemplate !== templateId) {
     return;
   }
@@ -625,7 +626,8 @@ function renameComponentSelection(openedProject: CoreOpenedProject, templateId: 
   }
 }
 
-function renameBindingSelection(openedProject: CoreOpenedProject, templateId: string, oldId: string, newId: string) {
+function renameBindingSelection(openedProject: CoreOpenedProject, partialTemplateId: string, oldId: string, newId: string) {
+  const templateId = partialTemplateId ? `${openedProject.id}:${partialTemplateId}` : null;
   if (openedProject.activeTemplate !== templateId) {
     return;
   }
@@ -641,7 +643,8 @@ function renameBindingSelection(openedProject: CoreOpenedProject, templateId: st
   }
 }
 
-function unselectComponent(openedProject: CoreOpenedProject, templateId: string, componentId: string) {
+function unselectComponent(openedProject: CoreOpenedProject, partialTemplateId: string, componentId: string) {
+  const templateId = partialTemplateId ? `${openedProject.id}:${partialTemplateId}` : null;
   if (openedProject.activeTemplate !== templateId) {
     return;
   }
@@ -659,7 +662,8 @@ function unselectComponent(openedProject: CoreOpenedProject, templateId: string,
   }
 }
 
-function unselectBinding(openedProject: CoreOpenedProject, templateId: string, bindingId: string) {
+function unselectBinding(openedProject: CoreOpenedProject, partialTemplateId: string, bindingId: string) {
+  const templateId = partialTemplateId ? `${openedProject.id}:${partialTemplateId}` : null;
   if (openedProject.activeTemplate !== templateId) {
     return;
   }
@@ -675,9 +679,9 @@ function unselectBinding(openedProject: CoreOpenedProject, templateId: string, b
   }
 }
 
-function getView(state: CoreDesignerState, openedProject: CoreOpenedProject, templateId: string): View {
-  if (templateId) {
-    return state.templates.byId[templateId];
+function getView(state: CoreDesignerState, openedProject: CoreOpenedProject, partialTemplateId: string): View {
+  if (partialTemplateId) {
+    return state.templates.byId[`${openedProject.id}:${partialTemplateId}`];
   } else {
     return openedProject;
   }
