@@ -84,7 +84,7 @@ const DeleteButton: FunctionComponent<DeleteButtonProps> = ({
   return (
     <>
       {button}
-      <Popper open={!!anchorEl} anchorEl={anchorEl} disablePortal={disablePortal}>
+      <Popper open={!!anchorEl} anchorEl={anchorEl} disablePortal={disablePortal} style={{ zIndex: 10000 }}>
         <ClickAwayListener onClickAway={handleClose}>
           <Paper className={classes.paper}>
             <Typography>{confirmText}</Typography>
