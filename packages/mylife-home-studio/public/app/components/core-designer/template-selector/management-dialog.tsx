@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,11 +17,14 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 
 import { TransitionProps } from '../../dialogs/common';
+import { useRenameDialog } from '../../dialogs/rename';
 import { useTabPanelId, TabIdContext } from '../../lib/tab-panel';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import DeleteButton from '../../lib/delete-button';
+import { useFireAsync } from '../../lib/use-error-handling';
 import { AppState } from '../../../store/types';
-import { setTemplate } from '../../../store/core-designer/actions';
+
+import { setTemplate, clearTemplate, renameTemplate } from '../../../store/core-designer/actions';
 import { getTemplateIds, getTemplate, getTemplatesMap } from '../../../store/core-designer/selectors';
 
 export type DialogResult = { status: 'ok' | 'cancel'; format?: string };
@@ -114,10 +117,7 @@ const TemplateList: FunctionComponent = () => {
 };
 
 const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
-  const template = useSelector((state: AppState) => getTemplate(state, id));
-
-  const onRename = () => console.log('rename');
-  const onDelete = () => console.log('delete');
+  const { template, onRename, onDelete } = useItemConnect(id);
 
   return (
     <ListItem>
@@ -135,6 +135,31 @@ const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
     </ListItem>
   );
 };
+
+function useItemConnect(id: string) {
+  const dispatch = useDispatch();
+  const fireAsync = useFireAsync();
+  const template = useSelector((state: AppState) => getTemplate(state, id));
+  const templateIds = useTabSelector(getTemplateIds);
+  const templatesMap = useSelector(getTemplatesMap);
+  const templateNames = useMemo(() => templateIds.map(id => templatesMap[id].templateId), [templateIds, templatesMap]);
+  const showRenameDialog = useRenameDialog(templateNames, template.templateId, 'Entrer le nouveau nom de template');
+
+  const onRename = useCallback(() => {
+    fireAsync(async () => {
+      const { status, newName } = await showRenameDialog();
+      if (status === 'ok') {
+        dispatch(renameTemplate({ templateId: id, newId: newName }));
+      }
+    });
+  }, [dispatch, fireAsync, showRenameDialog, id]);
+
+  const onDelete = useCallback(() => {
+    dispatch(clearTemplate({ templateId: id }));
+  }, [dispatch, id]);
+
+  return { template, onRename, onDelete };
+}
 
 function useMakeNewId() {
   const templateIds = useTabSelector(getTemplateIds);
