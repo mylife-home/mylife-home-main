@@ -39,16 +39,17 @@ export function useManagementDialog() {
 
 const useStyles = makeStyles((theme) => ({
   dialog: {
-    height: 'calc(100% - 64px)', // same than fullWidth
   },
   content: {
-    position: 'relative',
-    padding: 0,
+    //position: 'relative',
+    //padding: 0,
   },
   newButton: {
     color: theme.palette.success.main,
   },
   list: {
+    height: 200,
+    width: 500,
   }
 }), { name: 'template-management-dialog'});
 
@@ -62,7 +63,7 @@ const ManagementDialog: FunctionComponent<ManagementDialogProps> = ({ open, hide
   const classes = useStyles();
 
   return (
-    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={hideModal} maxWidth="xl" fullWidth classes={{ paper: classes.dialog }}>
+    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={hideModal} classes={{ paper: classes.dialog }} scroll='paper'>
       <DialogTitle id="dialog-title">
         Templates
         <NewTemplateButton className={classes.newButton} />
