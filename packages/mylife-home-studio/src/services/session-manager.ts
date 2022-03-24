@@ -89,7 +89,7 @@ class SessionImpl extends EventEmitter implements Session {
 export class SessionNotifier {
   constructor(readonly session: SessionImpl, readonly id: string, readonly type: string) {}
 
-  notify(data: any) {
+  notify<T = any>(data: T) {
     const message: Notification = {
       type: 'notification',
       notifierId: this.id,

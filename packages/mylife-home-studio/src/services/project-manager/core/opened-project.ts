@@ -44,7 +44,7 @@ import {
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { BindingModel, ComponentModel, Model, TemplateModel } from './model';
+import { BindingModel, ComponentModel, Model, TemplateModel, ViewModel } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
@@ -87,14 +87,29 @@ export class CoreOpenedProject extends OpenedProject {
   protected emitAllState(notifier: SessionNotifier) {
     super.emitAllState(notifier);
 
-    notifier.notify({ operation: 'set-core-plugins', plugins: this.project.plugins } as SetCorePluginsNotification);
+    notifier.notify<SetCorePluginsNotification>({ operation: 'set-core-plugins', plugins: this.project.plugins });
 
-    for (const [id, component] of Object.entries(this.project.components)) {
-      notifier.notify({ operation: 'set-core-component', id, component } as SetCoreComponentNotification);
+    const views: ViewModel[] = [this.model];
+
+    for (const id of this.model.getTemplatesIds()) {
+      const template = this.model.getTemplate(id);
+      notifier.notify<SetCoreTemplateNotification>({ operation: 'set-core-template', id: template.id, exports: template.data.exports });
+
+      views.push(template);
     }
 
-    for (const [id, binding] of Object.entries(this.project.bindings)) {
-      notifier.notify({ operation: 'set-core-binding', id, binding } as SetCoreBindingNotification);
+    for (const view of views) {
+      for (const id of view.getComponentsIds()) {
+        const component = view.getComponent(id);
+        const templateId = component.template?.id || null;
+        notifier.notify<SetCoreComponentNotification>({ operation: 'set-core-component', templateId, id: component.id, component: component.data });
+      }
+  
+      for (const id of view.getBindingsIds()) {
+        const binding = view.getBinding(id);
+        const templateId = binding.template?.id || null;
+        notifier.notify<SetCoreBindingNotification>({ operation: 'set-core-binding', templateId, id: binding.id, binding: binding.data });
+      }
     }
   }
 
