@@ -16,6 +16,7 @@ import MiniView from './mini-view';
 import MainView from './main-view';
 import SelectionPanel from './selection-panel';
 import Toolbox from './toolbox';
+import TemplateExports from './template-exports';
 import Actions from './actions';
 import { getActiveTemplateId } from '../../store/core-designer/selectors';
 
@@ -102,7 +103,7 @@ const CoreDesigner: FunctionComponent = () => {
               
               {showExports && (
                 <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.EXPORTS}>
-                  Exports
+                  <TemplateExports className={classes.tabContent} />
                 </div>
               )}
 
