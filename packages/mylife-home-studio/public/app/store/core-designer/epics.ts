@@ -150,9 +150,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       },
     },
     [ActionTypes.SET_TEMPLATE_EXPORT]: {
-      mapper({ templateId, exportType, exportId, componentId, propertyName }: ActionPayloads.SetTemplateExport) {
-        const { tabId, id } = extractIds(templateId);
-        const callData: SetTemplateExportCoreProjectCall = { operation: 'set-template-export', templateId: id, exportType, exportId, componentId, propertyName };
+      mapper({ exportType, exportId, componentId: fullComponentId, propertyName }: ActionPayloads.SetTemplateExport) {
+        const { tabId, templateId, id: componentId } = extractIdsWithTemplate(fullComponentId);
+        const callData: SetTemplateExportCoreProjectCall = { operation: 'set-template-export', templateId, exportType, exportId, componentId, propertyName };
         return { tabId, callData };
       },
     },

@@ -64,7 +64,7 @@ export namespace ActionPayloads {
   export type SetTemplate = { tabId: string; templateId: string; };
   export type RenameTemplate = { templateId: string; newId: string };
   export type ClearTemplate = { templateId: string; };
-  export type SetTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; };
+  export type SetTemplateExport = { exportType: 'config' | 'member'; exportId: string; componentId: string; propertyName: string; }; // tabId and templateId are deduced from componentId
   export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
   export type SetBinding = { binding: CoreBindingData; }; // tabId and templateId are deduced from components
   export type ClearBinding = { bindingId: string; };

@@ -1,16 +1,16 @@
-import React, { FunctionComponent, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
-import Popover from '@material-ui/core/Popover';
 import AddIcon from '@material-ui/icons/Add';
 
 import { Group, Item } from '../../lib/properties-layout';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { AppState } from '../../../store/types';
 import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
+import { setTemplateExport, clearTemplateExport } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -24,29 +24,27 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'template-exports' });
 
+// export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
+
 const TemplateExports: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const template = useActiveTemplate();
   const configIds = useMemo(() => Object.keys(template.exports.config).sort(), [template]);
   const memberIds = useMemo(() => Object.keys(template.exports.members).sort(), [template]);
+  const configList = useConfigList();
+  const memberList = useMemberList();
 
   return (
     <div className={className}>
-      <Group title={
-        <>
-          Configuration
-          <NewButton content={NewConfigPopoverContent} />
-        </>
-      }>
+      <Group title="Configuration">
         {configIds.map(id => (<ConfigItem key={id} id={id} />))}
+
+        <NewItem existingIds={configIds} propertyList={configList} exportType='config' />
       </Group>
 
-      <Group title={
-        <>
-          Membres
-          <NewButton content={NewMemberPopoverContent} />
-        </>
-      }>
-        {memberIds.map(id => (<PropertyItem key={id} id={id} />))}
+      <Group title="Membres">
+        {memberIds.map(id => (<MemberItem key={id} id={id} />))}
+
+        <NewItem existingIds={memberIds} propertyList={memberList} exportType='member' />
       </Group>
 
     </div>
@@ -71,7 +69,7 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   );
 };
 
-const PropertyItem: FunctionComponent<{ id: string; }> = ({ id }) => {
+const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useActiveTemplate();
   const member = template.exports.members[id];
   const { component, plugin } = useComponentAndPlugin(member.component);
@@ -88,87 +86,46 @@ const PropertyItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   );
 };
 
-function useActiveTemplate() {
-  const templateId = useTabSelector(getActiveTemplateId);
-  return useSelector((state: AppState) => getTemplate(state, templateId));
-}
-
-function useComponentAndPlugin(id: string) {
-  const component = useSelector((state: AppState) => getComponent(state, id));
-  const plugin = useSelector((state: AppState) => getPlugin(state, component.plugin));
-  return { component, plugin };
-}
-
-const NewButton: FunctionComponent<{content: FunctionComponent<{ onClose: () => void; }>}> = ({ content }) => {
+const NewItem: FunctionComponent<{ existingIds: string[]; propertyList: PropertyItem[]; exportType: 'config' | 'member'; }> = ({ existingIds, propertyList, exportType }) => {
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>(null);
-  const Content = content;
+  const [id, setId] = useState<string>('');
+  const [property, setProperty] = useState<PropertyItem>(null);
+  const { valid, reason } = useMemo(() => validateId(id, existingIds), [id, existingIds]);
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const dispatch = useDispatch();
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const onNewClick = useCallback(() => {
+    dispatch(setTemplateExport({ exportType, exportId: id, componentId: property.componentId, propertyName: property.propertyName }));
+    setProperty(null);
+    setId('');
+  }, [dispatch, exportType, id, property, setProperty, setId]);
 
   return (
-    <>
+    <Item title="new">
 
-      <IconButton className={classes.button} onClick={handleClick}>
+      <TextField fullWidth value={id} onChange={(e) => setId(e.target.value)} error={!!reason} helperText={reason} />
+      
+      <PropertySelector className={classes.selector} list={propertyList} value={property} onSelect={setProperty} />
+
+      <IconButton className={classes.button} onClick={onNewClick} disabled={!valid}>
         <AddIcon />
       </IconButton>
 
-      <Popover
-        open={!!anchorEl}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'center',
-          horizontal: 'left',
-        }}
-      >
-        <Content onClose={handleClose} />
-      </Popover>
-    </>
+    </Item>
   );
 };
 
-const NewConfigPopoverContent: FunctionComponent<{ onClose: () => void; }> = ({ onClose }) => {
-  const classes = useStyles();
-  const list = useConfigList();
+function validateId(value: string, existingIds: string[]): { valid: boolean, reason?: string } {
+  if (!value) {
+    return { valid: false };
+  }
 
-  const onSelect = (value: PropertyItem) => {
-    console.log('select', value);
-    onClose();
-  };
+  if (existingIds.includes(value)) {
+    return { valid: false, reason: 'Ce nom existe déjà' };
+  }
 
-  return (
-    <div className={classes.container}>
-      <PropertySelector className={classes.selector} list={list} onSelect={onSelect} />
-    </div>
-  );
-};
-
-const NewMemberPopoverContent: FunctionComponent<{ onClose: () => void; }> = ({ onClose }) => {
-  const classes = useStyles();
-  const list = useMemberList();
-
-  const onSelect = (value: PropertyItem) => {
-    console.log('select', value);
-    onClose();
-  };
-
-  return (
-    <div className={classes.container}>
-      <PropertySelector className={classes.selector} list={list} onSelect={onSelect} />
-    </div>
-  );
-};
+  return { valid: true };
+}
 
 interface PropertyItem {
   componentId: string;
@@ -176,13 +133,13 @@ interface PropertyItem {
   propertyName: string;
 }
 
-const PropertySelector: FunctionComponent<{ className?: string; list: PropertyItem[]; onSelect: (value: PropertyItem) => void; }> = ({ className, list, onSelect }) => {
+const PropertySelector: FunctionComponent<{ className?: string; list: PropertyItem[]; value: PropertyItem; onSelect: (value: PropertyItem) => void; }> = ({ className, list, value, onSelect }) => {
   const [inputValue, setInputValue] = useState('');
 
   return (
     <Autocomplete
       className={className}
-      value={null}
+      value={value}
       onChange={(event, newValue: PropertyItem) => {
         onSelect(newValue);
         setInputValue('');
@@ -218,6 +175,17 @@ function getOptionSelected(option: PropertyItem, value: PropertyItem) {
   }
 
   return option.componentId === value.componentId && option.propertyName === value.propertyName;
+}
+
+function useActiveTemplate() {
+  const templateId = useTabSelector(getActiveTemplateId);
+  return useSelector((state: AppState) => getTemplate(state, templateId));
+}
+
+function useComponentAndPlugin(id: string) {
+  const component = useSelector((state: AppState) => getComponent(state, id));
+  const plugin = useSelector((state: AppState) => getPlugin(state, component.plugin));
+  return { component, plugin };
 }
 
 function useMemberList() {
