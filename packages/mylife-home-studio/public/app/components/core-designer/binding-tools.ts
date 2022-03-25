@@ -1,12 +1,7 @@
 import * as types from '../../store/core-designer/types';
 import { BindingSource } from './main-view/binding-dnd';
 
-export interface BindingHalf {
-  componentId: string;
-  memberName: string;
-}
-
-export function createBindingData(componentId: string, memberName: string, memberType: types.MemberType, newValue: BindingHalf) {
+export function createBindingData(componentId: string, memberName: string, memberType: types.MemberType, newValue: { componentId: string; memberName: string; }) {
   switch (memberType) {
     case types.MemberType.STATE: {
       const bindingData: types.CoreBindingData = {

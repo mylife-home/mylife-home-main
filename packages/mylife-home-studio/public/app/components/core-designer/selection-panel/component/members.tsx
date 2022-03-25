@@ -14,16 +14,15 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
-import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
-import { useSelectBinding } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
+import { useSelectBinding } from '../../selection';
+import { createBindingData } from '../../binding-tools';
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
-import { getBinding, getNewBindingHalfList, getSelectedComponent, getComponentsMap } from '../../../../store/core-designer/selectors';
+import { getBinding, getNewBindingHalfList, BindingHalf, getSelectedComponent, getComponentsMap } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
-import { BindingHalf, createBindingData } from '../../binding-tools';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -246,7 +245,7 @@ const NewBindingSelector: FunctionComponent<{ className?: string; list: BindingH
         setInputValue(newInputValue);
       }}
       options={list}
-      getOptionLabel={(option: BindingHalf) => `${option.componentId}.${option.memberName}`}
+      getOptionLabel={(option: BindingHalf) => `${option.componentName}.${option.memberName}`}
       getOptionSelected={getOptionSelected}
       renderInput={(params) => (
         <TextField

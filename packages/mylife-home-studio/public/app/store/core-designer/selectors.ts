@@ -102,6 +102,12 @@ function computePluginStats(state: AppState, pluginId: string, stats: { componen
   }
 }
 
+export interface BindingHalf {
+  componentId: string;
+  componentName: string;
+  memberName: string;
+}
+
 export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
   const component = getComponent(state, componentId);
   const plugin = getPlugin(state, component.plugin);
@@ -109,7 +115,7 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
 
   const possiblePluginMembers = buildPossibleMembers(state, tabId, getBindingOtherHalfType(member.memberType), member.valueType);
 
-  const list: { componentId: string; memberName: string; }[] = [];
+  const list: BindingHalf[] = [];
 
   // select all action/state with same type, and for which no binding already exist
   for (const possibleComponentId of getComponentIds(state, tabId)) {
@@ -131,7 +137,11 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
         continue;
       }
 
-      list.push({ componentId: possibleComponent.id, memberName: possibleMember });
+      list.push({
+        componentId: possibleComponent.id,
+        componentName: possibleComponent.componentId,
+        memberName: possibleMember
+      });
     }
   }
 
