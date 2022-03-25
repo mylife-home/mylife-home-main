@@ -104,7 +104,7 @@ const MemberTitle: FunctionComponent<{ memberType: types.MemberType; name: strin
 }
 
 function getMemberIcon(memberType: types.MemberType) {
-  switch(memberType) {
+  switch (memberType) {
     case types.MemberType.STATE:
       return StateIcon;
     case types.MemberType.ACTION:
