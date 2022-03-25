@@ -9,6 +9,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { StateIcon, ActionIcon } from '../../lib/icons';
 import { Group, Item } from '../../lib/properties-layout';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import DeleteButton from '../../lib/delete-button';
 import { AppState } from '../../../store/types';
 import { MemberType } from '../../../store/core-designer/types';
 import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
@@ -25,8 +26,6 @@ const useStyles = makeStyles((theme) => ({
     width: 300
   }
 }), { name: 'template-exports' });
-
-// export type ClearTemplateExport = { templateId: string; exportType: 'config' | 'member'; exportId: string };
 
 const TemplateExports: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const template = useActiveTemplate();
@@ -60,6 +59,9 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const config = template.exports.config[id];
   const { component, plugin } = useComponentAndPlugin(config.component);
   const configMeta = plugin.config[config.configName];
+  
+    // TODO: check usage
+    const clear = useClearExport('config', id);
 
   const description = configMeta.description ? `${configMeta.description} (${configMeta.valueType})` : configMeta.valueType;
 
@@ -67,6 +69,7 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
     <Item title={id}>
       {`${component.componentId}.${config.configName}`}
       {description}
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
     </Item>
   );
 };
@@ -77,6 +80,9 @@ const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const { component, plugin } = useComponentAndPlugin(member.component);
   const memberMeta = plugin.members[member.member];
 
+  // TODO: check usage
+  const clear = useClearExport('member', id);
+
   const MemberIcon = getMemberIcon(memberMeta.memberType);
   const description = memberMeta.description ? `${memberMeta.description} (${memberMeta.valueType})` : memberMeta.valueType;
 
@@ -85,6 +91,7 @@ const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
       <MemberIcon />
       {`${component.componentId}.${member.member}`}
       {description}
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
     </Item>
   );
 };
@@ -103,7 +110,6 @@ const NewItem: FunctionComponent<{ existingIds: string[]; propertyList: Property
   const [id, setId] = useState<string>('');
   const [property, setProperty] = useState<PropertyItem>(null);
   const { valid, reason } = useMemo(() => validateId(id, existingIds), [id, existingIds]);
-
   const dispatch = useDispatch();
 
   const onNewClick = useCallback(() => {
@@ -198,6 +204,15 @@ function useComponentAndPlugin(id: string) {
   const component = useSelector((state: AppState) => getComponent(state, id));
   const plugin = useSelector((state: AppState) => getPlugin(state, component.plugin));
   return { component, plugin };
+}
+
+function useClearExport(exportType: 'config' | 'member', exportId: string) {
+  const templateId = useTabSelector(getActiveTemplateId);
+  const dispatch = useDispatch();
+
+  return useCallback(() => {
+    dispatch(clearTemplateExport({ templateId, exportType, exportId }))
+  }, [dispatch, templateId, exportType, exportId]);
 }
 
 function useMemberList() {
