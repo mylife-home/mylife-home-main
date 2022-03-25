@@ -6,9 +6,11 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import AddIcon from '@material-ui/icons/Add';
 
+import { StateIcon, ActionIcon } from '../../lib/icons';
 import { Group, Item } from '../../lib/properties-layout';
 import { useTabSelector } from '../../lib/use-tab-selector';
 import { AppState } from '../../../store/types';
+import { MemberType } from '../../../store/core-designer/types';
 import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
 import { setTemplateExport, clearTemplateExport } from '../../../store/core-designer/actions';
 
@@ -59,12 +61,12 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const { component, plugin } = useComponentAndPlugin(config.component);
   const configMeta = plugin.config[config.configName];
 
+  const description = configMeta.description ? `${configMeta.description} (${configMeta.valueType})` : configMeta.valueType;
+
   return (
     <Item title={id}>
-      {component.componentId}
-      {config.configName}
-      {configMeta.description}
-      {configMeta.valueType}
+      {`${component.componentId}.${config.configName}`}
+      {description}
     </Item>
   );
 };
@@ -75,16 +77,26 @@ const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const { component, plugin } = useComponentAndPlugin(member.component);
   const memberMeta = plugin.members[member.member];
 
+  const MemberIcon = getMemberIcon(memberMeta.memberType);
+  const description = memberMeta.description ? `${memberMeta.description} (${memberMeta.valueType})` : memberMeta.valueType;
+
   return (
     <Item title={id}>
-      {component.componentId}
-      {member.member}
-      {memberMeta.description}
-      {memberMeta.memberType}
-      {memberMeta.valueType}
+      <MemberIcon />
+      {`${component.componentId}.${member.member}`}
+      {description}
     </Item>
   );
 };
+
+function getMemberIcon(memberType: MemberType) {
+  switch (memberType) {
+    case MemberType.STATE:
+      return StateIcon;
+    case MemberType.ACTION:
+      return ActionIcon;
+  }
+}
 
 const NewItem: FunctionComponent<{ existingIds: string[]; propertyList: PropertyItem[]; exportType: 'config' | 'member'; }> = ({ existingIds, propertyList, exportType }) => {
   const classes = useStyles();
