@@ -6,8 +6,9 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 
 import DeleteButton from '../../../lib/delete-button';
+import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useFireAsync } from '../../../lib/use-error-handling';
+import { useFireAsync, useReportError } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
 import { computeCenter, computeComponentRect } from '../../drawing/shapes';
 import CenterButton from '../center-button';
@@ -15,7 +16,7 @@ import { useRenameDialog } from '../../../dialogs/rename';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponentIds, getComponent, getPlugin, getSelectedComponent } from '../../../../store/core-designer/selectors';
+import { getComponentIds, getComponent, getPlugin, getSelectedComponent, makeGetExportedComponentIds } from '../../../../store/core-designer/selectors';
 import { clearComponents, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -66,15 +67,23 @@ function useActionsConnect() {
   const component = useSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
   const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
+  const getExportedComponentIds = useMemo(() => makeGetExportedComponentIds(), []);
+  const exportedComponentIds = useTabSelector(getExportedComponentIds);
+  const onError = useReportError();
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
-      dispatch(clearComponents({ componentsIds: [componentId] }));
+      if (exportedComponentIds.includes(componentId)) {
+        const err = new Error('Le composant est exporté et ne peut pas être supprimé.');
+        onError(err);
+      } else {
+        dispatch(clearComponents({ componentsIds: [componentId] }));
+      }
     },
     rename: (newId: string) => {
       dispatch(renameComponent({ componentId, newId }));
     },
-  }), [tabId, dispatch, componentId]);
+  }), [tabId, dispatch, componentId, exportedComponentIds, onError]);
 
   return { componentIds, component, plugin, clear, rename };
 }

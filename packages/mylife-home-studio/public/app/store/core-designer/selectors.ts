@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { MemberType, ComponentsSelection, BindingSelection, View } from './types';
+import { MemberType, ComponentsSelection, BindingSelection, View, Template } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
@@ -193,11 +193,6 @@ function makeBindingId(memberType: MemberType, componentId: string, memberName: 
   }
 }
 
-export const getActiveTemplate = (state: AppState, tabId: string) => {
-  const project = getOpenedProject(state, tabId);
-  return project.activeTemplate;
-};
-
 export const getSelection = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.viewSelection;
@@ -246,3 +241,29 @@ export const getSelectedBinding = (state: AppState, tabId: string) => {
 export const isBindingSelected = (state: AppState, tabId: string, bindingId: string) => {
   return getSelectedBinding(state, tabId) === bindingId;
 };
+
+const getActiveTemplate = (state: AppState, tabId: string) => {
+  const templateId = getActiveTemplateId(state, tabId);
+  return getTemplate(state, templateId);
+};
+
+export function makeGetExportedComponentIds() {
+  return createSelector(
+    getActiveTemplate,
+    (template: Template) => {
+      const ids: string[] = [];
+      
+      if (template) {
+        for (const configExport of Object.values(template.exports.config)) {
+          ids.push(configExport.component);
+        }
+    
+        for (const memberExport of Object.values(template.exports.members)) {
+          ids.push(memberExport.component);
+        }
+      }
+  
+      return ids;
+    }
+  );
+}

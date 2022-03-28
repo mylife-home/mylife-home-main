@@ -5,13 +5,14 @@ import Link from '@material-ui/core/Link';
 
 import DeleteButton from '../../lib/delete-button';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { useReportError } from '../../lib/use-error-handling';
+import { Group, Item } from '../../lib/properties-layout';
 import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
 import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
-import { Group, Item } from '../../lib/properties-layout';
 
-import { getComponentsMap, getPluginsMap, getSelectedComponentsArray } from '../../../store/core-designer/selectors';
+import { getComponentsMap, getPluginsMap, getSelectedComponentsArray, makeGetExportedComponentIds } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -51,9 +52,20 @@ export default Multiple;
 
 function useActionsConnect(componentsIds: string[]) {
   const dispatch = useDispatch();
+  const getExportedComponentIds = useMemo(() => makeGetExportedComponentIds(), []);
+  const exportedComponentIds = useTabSelector(getExportedComponentIds);
+  const componentsMap = useSelector(getComponentsMap);
+  const onError = useReportError();
 
   const clearAll = useCallback(() => {
-    dispatch(clearComponents({ componentsIds }));
+    const exportedDeleted = componentsIds.filter(componentId => exportedComponentIds.includes(componentId));
+    if (exportedDeleted.length > 0) {
+      const ids = exportedDeleted.map(id => `'${componentsMap[id].componentId}'`).join(', ');
+      const err = new Error(`Les composants suivants sont exportés et ne peuvent pas être supprimés : ${ids}.`);
+      onError(err);
+    } else {
+      dispatch(clearComponents({ componentsIds }));
+    }
   }, [dispatch, componentsIds]);
 
   return { clearAll };
