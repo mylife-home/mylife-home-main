@@ -1,9 +1,13 @@
 import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import clsx from 'clsx';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Tooltip from '@material-ui/core/Tooltip';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import AddIcon from '@material-ui/icons/Add';
 
 import { StateIcon, ActionIcon } from '../../lib/icons';
@@ -19,11 +23,21 @@ const useStyles = makeStyles((theme) => ({
   button: {
     color: theme.palette.success.main,
   },
-  container: {
-    padding: theme.spacing(2),
+  target: {
+    marginLeft: theme.spacing(1),
+    flex: 1,
   },
-  selector: {
-    width: 300
+  targetLabel: {
+    display: 'flex',
+  },
+  titleIcon: {
+    marginRight: theme.spacing(1),
+  },
+  targetText: {
+    flex: 1
+  },
+  targetType: {
+
   }
 }), { name: 'template-exports' });
 
@@ -59,16 +73,15 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const config = template.exports.config[id];
   const { component, plugin } = useComponentAndPlugin(config.component);
   const configMeta = plugin.config[config.configName];
-  const clear = useClearExport('config', id);
-
-  const description = configMeta.description ? `${configMeta.description} (${configMeta.valueType})` : configMeta.valueType;
 
   return (
-    <Item title={id}>
-      {`${component.componentId}.${config.configName}`}
-      {description}
-      <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
-    </Item>
+    <ExportItem
+      id={id}
+      description={configMeta.description}
+      text={`${component.componentId}.${config.configName}`}
+      type={configMeta.valueType}
+      exportType='config'
+    />
   );
 };
 
@@ -77,18 +90,17 @@ const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const member = template.exports.members[id];
   const { component, plugin } = useComponentAndPlugin(member.component);
   const memberMeta = plugin.members[member.member];
-  const clear = useClearExport('member', id);
-
   const MemberIcon = getMemberIcon(memberMeta.memberType);
-  const description = memberMeta.description ? `${memberMeta.description} (${memberMeta.valueType})` : memberMeta.valueType;
 
   return (
-    <Item title={id}>
-      <MemberIcon />
-      {`${component.componentId}.${member.member}`}
-      {description}
-      <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
-    </Item>
+    <ExportItem
+      id={id}
+      description={memberMeta.description}
+      icon={MemberIcon}
+      text={`${component.componentId}.${member.member}`}
+      type={memberMeta.valueType}
+      exportType='member'
+    />
   );
 };
 
@@ -100,6 +112,35 @@ function getMemberIcon(memberType: MemberType) {
       return ActionIcon;
   }
 }
+
+const ExportItem: FunctionComponent<{ id: string; description: string; icon?: typeof SvgIcon; text: string; type: string; exportType: 'config' | 'member'; }> = ({ id, description, icon, text, type, exportType }) => {
+  const classes = useStyles();
+  const Icon = icon;
+  const clear = useClearExport(exportType, id);
+
+  return (
+    <Item title={
+      <>
+        {Icon && <Icon className={classes.titleIcon} />}
+        {id}
+      </>
+    }>
+      <Tooltip title={description || ''}>
+        <div className={clsx(classes.target, classes.targetLabel)}>
+          <Typography className={classes.targetText}>
+            {text}
+          </Typography>
+
+          <Typography variant="overline" className={classes.targetType}>
+            {type}
+          </Typography>
+        </div>
+      </Tooltip>
+
+      <DeleteButton icon tooltip="Supprimer" onConfirmed={clear} />
+    </Item>
+  );
+};
 
 const NewItem: FunctionComponent<{ existingIds: string[]; propertyList: PropertyItem[]; exportType: 'config' | 'member'; }> = ({ existingIds, propertyList, exportType }) => {
   const classes = useStyles();
@@ -115,13 +156,11 @@ const NewItem: FunctionComponent<{ existingIds: string[]; propertyList: Property
   }, [dispatch, exportType, id, property, setProperty, setId]);
 
   return (
-    <Item title="new">
-
-      <TextField fullWidth value={id} onChange={(e) => setId(e.target.value)} error={!!reason} helperText={reason} />
+    <Item title={<TextField fullWidth value={id} onChange={(e) => setId(e.target.value)} error={!!reason} helperText={reason} />} noTitleTypography>
       
-      <PropertySelector className={classes.selector} list={propertyList} value={property} onSelect={setProperty} />
+      <PropertySelector className={classes.target} list={propertyList} value={property} onSelect={setProperty} />
 
-      <IconButton className={classes.button} onClick={onNewClick} disabled={!valid}>
+      <IconButton className={classes.button} onClick={onNewClick} disabled={!valid || !id}>
         <AddIcon />
       </IconButton>
 
