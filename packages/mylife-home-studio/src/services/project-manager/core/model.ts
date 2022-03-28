@@ -486,6 +486,38 @@ export class TemplateModel extends ViewModel {
       throw new Error(`Invalid export type: '${exportType}'`);
     }
   }
+
+  renameComponent(id: string, newId: string) {
+    super.renameComponent(id, newId);
+
+    for (const configExport of Object.values(this.data.exports.config)) {
+      if (configExport.component === id) {
+        configExport.component = newId;
+      }
+    }
+
+    for (const memberExport of Object.values(this.data.exports.members)) {
+      if (memberExport.component === id) {
+        memberExport.component = newId;
+      }
+    }
+  }
+
+  hasExportWithComponentId(id: string) {
+    for (const configExport of Object.values(this.data.exports.config)) {
+      if (configExport.component === id) {
+        return true;
+      }
+    }
+
+    for (const memberExport of Object.values(this.data.exports.members)) {
+      if (memberExport.component === id) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 export class InstanceModel {
@@ -734,6 +766,12 @@ export class ComponentModel {
   configure(configId: string, configValue: any) {
     this.plugin.validateConfigValue(configId, configValue);
     this.data.config[configId] = configValue;
+  }
+
+  checkDelete() {
+    if (this.template?.hasExportWithComponentId(this.id)) {
+      throw new Error(`Cannot delete component '${this.id}' because it is used in template exports`);
+    }
   }
 
   registerBinding(binding: BindingModel) {

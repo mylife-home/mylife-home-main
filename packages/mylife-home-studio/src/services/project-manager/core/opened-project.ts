@@ -418,6 +418,12 @@ export class CoreOpenedProject extends OpenedProject {
   private clearComponents({ templateId, componentsIds }: ClearComponentsCoreProjectCall) {
     this.executeUpdate(() => {
       const view = this.model.getTemplateOrSelf(templateId);
+
+      for (const componentId of componentsIds) {
+        const component = view.getComponent(componentId);
+        component.checkDelete();
+      }
+
       for (const componentId of componentsIds) {
         const component = view.getComponent(componentId);
         for (const binding of component.getAllBindings()) {
