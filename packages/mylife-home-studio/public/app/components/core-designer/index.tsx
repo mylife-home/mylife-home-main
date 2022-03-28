@@ -66,6 +66,12 @@ const CoreDesigner: FunctionComponent = () => {
     setSideBarTab(SideBarTabValues.SELECTION);
   }, [activeViewId]);
 
+  // Note: the useEffect will be applied AFTERWARD, so the tabs will be in an inconsistent state when we go from template/exports to main view
+  let activeTab = sideBarTab;
+  if (activeTab === SideBarTabValues.EXPORTS && !showExports) {
+    activeTab = SideBarTabValues.SELECTION;
+  }
+
   return (
     <CanvasThemeProvider>
       <ViewInfoProvider>
@@ -85,7 +91,7 @@ const CoreDesigner: FunctionComponent = () => {
 
               <Divider />
 
-              <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
+              <Tabs value={activeTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
                 <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
                 <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
                 {showExports && (
