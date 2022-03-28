@@ -408,6 +408,10 @@ export class CoreOpenedProject extends OpenedProject {
       for (const binding of component.getAllBindings()) {
         this.notifyAllSetBinding(binding);
       }
+
+      if (view instanceof TemplateModel && view.hasExportWithComponentId(newId)) {
+        this.notifyAllSetTemplate(view);
+      }
     });
   }
 
