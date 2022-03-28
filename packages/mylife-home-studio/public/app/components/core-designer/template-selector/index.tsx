@@ -39,7 +39,6 @@ const TemplateSelector: FunctionComponent<{ className?: string; }> = ({ classNam
   const handleChange = (e: React.ChangeEvent<{ value: string; }>) => {
     const { value } = e.target;
     const viewId = value === MAIN_VIEW ? null : value;
-    console.log('VIEW ID', viewId);
     activateView(viewId);
   };
 
