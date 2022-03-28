@@ -59,9 +59,7 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const config = template.exports.config[id];
   const { component, plugin } = useComponentAndPlugin(config.component);
   const configMeta = plugin.config[config.configName];
-  
-    // TODO: check usage
-    const clear = useClearExport('config', id);
+  const clear = useClearExport('config', id);
 
   const description = configMeta.description ? `${configMeta.description} (${configMeta.valueType})` : configMeta.valueType;
 
@@ -79,8 +77,6 @@ const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const member = template.exports.members[id];
   const { component, plugin } = useComponentAndPlugin(member.component);
   const memberMeta = plugin.members[member.member];
-
-  // TODO: check usage
   const clear = useClearExport('member', id);
 
   const MemberIcon = getMemberIcon(memberMeta.memberType);
@@ -211,6 +207,9 @@ function useClearExport(exportType: 'config' | 'member', exportId: string) {
   const dispatch = useDispatch();
 
   return useCallback(() => {
+
+    // TODO: check usage
+
     dispatch(clearTemplateExport({ templateId, exportType, exportId }))
   }, [dispatch, templateId, exportType, exportId]);
 }
