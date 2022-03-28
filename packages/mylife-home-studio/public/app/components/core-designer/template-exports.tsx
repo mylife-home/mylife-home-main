@@ -10,14 +10,14 @@ import Tooltip from '@material-ui/core/Tooltip';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import AddIcon from '@material-ui/icons/Add';
 
-import { StateIcon, ActionIcon } from '../../lib/icons';
-import { Group, Item } from '../../lib/properties-layout';
-import { useTabSelector } from '../../lib/use-tab-selector';
-import DeleteButton from '../../lib/delete-button';
-import { AppState } from '../../../store/types';
-import { MemberType } from '../../../store/core-designer/types';
-import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
-import { setTemplateExport, clearTemplateExport } from '../../../store/core-designer/actions';
+import { StateIcon, ActionIcon } from '../lib/icons';
+import { Group, Item } from '../lib/properties-layout';
+import { useTabSelector } from '../lib/use-tab-selector';
+import DeleteButton from '../lib/delete-button';
+import { AppState } from '../../store/types';
+import { MemberType } from '../../store/core-designer/types';
+import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../store/core-designer/selectors';
+import { setTemplateExport, clearTemplateExport } from '../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
   button: {
