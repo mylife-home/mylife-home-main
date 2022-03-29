@@ -57,16 +57,16 @@ export interface CoreTemplateMemberExport {
 
 export type CoreBindingData = Mutable<BindingConfig>;
 
-export type ComponentDefinitionType = 'plugin' | 'template';
+export type CoreComponentDefinitionType = 'plugin' | 'template';
 
-export interface ComponentDefinition {
-  type: ComponentDefinitionType;
+export interface CoreComponentDefinition {
+  type: CoreComponentDefinitionType;
   // plugin points to plugin instanceName:module.name
   id: string;
 }
 
 export interface CoreComponentData extends Omit<Component, 'id' | 'plugin'> {
-  definition: ComponentDefinition;
+  definition: CoreComponentDefinition;
   position: { x: number; y: number; };
   config: { [name: string]: any; };
   external: boolean;
@@ -444,7 +444,7 @@ export interface SetComponentCoreProjectCall extends CoreProjectCall {
   operation: 'set-component';
   templateId: string;
   componentId: string;
-  pluginId: string;
+  definition: CoreComponentDefinition;
   x: number;
   y: number;
 }
