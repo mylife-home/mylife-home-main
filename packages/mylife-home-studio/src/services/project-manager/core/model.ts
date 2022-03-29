@@ -1,6 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { ConfigItem, ConfigType, MemberType, Plugin } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay, CoreView, CoreTemplate } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay, CoreView, CoreTemplate, CoreComponentDefinition } from '../../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
@@ -75,7 +75,7 @@ export abstract class ViewModel {
     return component;
   }
 
-  setComponent(componentId: string, pluginId: string, x: number, y: number) {
+  setComponent(componentId: string, definition: CoreComponentDefinition, x: number, y: number) {
     if (this.hasComponent(componentId)) {
       throw new Error(`Component id already exists: '${componentId}'`);
     }

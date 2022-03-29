@@ -362,10 +362,10 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private setComponent({ templateId, componentId, pluginId, x, y }: SetComponentCoreProjectCall) {
+  private setComponent({ templateId, componentId, definition, x, y }: SetComponentCoreProjectCall) {
     this.executeUpdate(() => {
       const view = this.model.getTemplateOrSelf(templateId);
-      const component = view.setComponent(componentId, pluginId, x, y);
+      const component = view.setComponent(componentId, definition, x, y);
       this.notifyAllSetComponent(component);
     });
   }
