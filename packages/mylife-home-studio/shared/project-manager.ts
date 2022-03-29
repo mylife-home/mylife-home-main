@@ -117,8 +117,9 @@ export interface UiProjectInfo extends ProjectInfo {
 
 export interface CoreProjectInfo extends ProjectInfo {
   instancesCount: number;
-  componentsCounts: { [usage in PluginUsage]: number };
   pluginsCount: number;
+  templatesCount: number;
+  componentsCounts: { [usage in PluginUsage]: number };
   bindingsCount: number;
 }
 
