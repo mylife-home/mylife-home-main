@@ -1,7 +1,7 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
 import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
-import { ComponentModel, Model, PluginModel } from './model';
+import { ComponentModel, ProjectModel, PluginModel } from './model';
 import { Services } from '../..';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
@@ -73,7 +73,7 @@ function ensureOnlinePlugin(plugins: Map<string, PluginImport>, instanceName: st
   return pluginImport;
 }
 
-export function loadProjectData(model: Model, config: ImportFromProjectConfig): ImportData {
+export function loadProjectData(model: ProjectModel, config: ImportFromProjectConfig): ImportData {
   const plugins = new Map<string, PluginImport>();
   const components: ComponentImport[] = [];
 
@@ -106,7 +106,7 @@ export function loadProjectData(model: Model, config: ImportFromProjectConfig): 
   return { plugins: Array.from(plugins.values()), components };
 }
 
-function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: Model, id: string): PluginImport {
+function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: ProjectModel, id: string): PluginImport {
   const existing = plugins.get(id);
   if (existing) {
     return existing;
@@ -163,7 +163,7 @@ interface ComponentDeleteImpact extends Impact {
   componentId: string;
 }
 
-export function prepareChanges(imports: ImportData, model: Model) {
+export function prepareChanges(imports: ImportData, model: ProjectModel) {
   const pluginsChanges = preparePluginUpdates(imports, model);
   const componentsChanges = prepareComponentUpdates(imports, model);
 
@@ -177,7 +177,7 @@ export function prepareChanges(imports: ImportData, model: Model) {
   return { changes, serverData };
 }
 
-function preparePluginUpdates(imports: ImportData, model: Model): coreImportData.PluginChange[] {
+function preparePluginUpdates(imports: ImportData, model: ProjectModel): coreImportData.PluginChange[] {
   const changes: coreImportData.PluginChange[] = [];
 
   for (const pluginImport of imports.plugins) {
@@ -259,7 +259,7 @@ export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plu
   }
 }
 
-function prepareComponentUpdates(imports: ImportData, model: Model): coreImportData.ComponentChange[] {
+function prepareComponentUpdates(imports: ImportData, model: ProjectModel): coreImportData.ComponentChange[] {
   const changes: coreImportData.ComponentChange[] = [];
 
   // A project is supposed to deploy full instances only.
@@ -457,7 +457,7 @@ function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value
   return changes;
 }
 
-function lookupPluginsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.PluginChange[]) {
+function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.PluginChange[]) {
   for (const change of changes.filter(change => change.changeType === 'delete')) {
     const plugin = model.getPlugin(change.id);
     const bindingsIds = new Set<string>();
@@ -554,7 +554,7 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
   return false;
 }
 
-function lookupComponentsChangesImpacts(imports: ImportData, model: Model, changes: coreImportData.ComponentChange[]) {
+function lookupComponentsChangesImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.ComponentChange[]) {
   for (const change of changes.filter(change => change.changeType === 'delete')) {
     const component = model.getComponent(change.id);
     change.impacts = {
@@ -574,7 +574,7 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: Model, chang
   }
 }
 
-function lookupDependencies(imports: ImportData, model: Model, changes: coreImportData.ObjectChange[]) {
+function lookupDependencies(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const pluginsChangesKeyById = new Map<string, string>();
 
   for (const change of changes.filter(change => change.objectType === 'plugin')) {

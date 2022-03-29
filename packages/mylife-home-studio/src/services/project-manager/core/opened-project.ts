@@ -44,7 +44,7 @@ import {
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { BindingModel, ComponentModel, Model, TemplateModel, ViewModel } from './model';
+import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
@@ -53,7 +53,7 @@ import { validate } from './validation';
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
 export class CoreOpenedProject extends OpenedProject {
-  private model: Model;
+  private model: ProjectModel;
   private project: CoreProject;
 
   constructor(private readonly owner: CoreProjects, name: string) {
@@ -63,7 +63,7 @@ export class CoreOpenedProject extends OpenedProject {
 
   protected reloadModel() {
     this.project = this.owner.getProject(this.name);
-    this.model = new Model(this.project);
+    this.model = new ProjectModel(this.project);
   }
 
   getComponentsIds() {

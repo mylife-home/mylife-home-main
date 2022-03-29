@@ -2,7 +2,7 @@ import { logger } from 'mylife-home-common';
 import { ChangeType, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { BindingModel, ComponentModel, Model } from './model';
+import { BindingModel, ComponentModel, ProjectModel } from './model';
 import { validate, hasError } from './validation';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
@@ -11,7 +11,7 @@ interface DeployToFilesServerData {
   guessedBindingsInstanceName: string;
 }
 
-export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
+export function prepareToFiles(model: ProjectModel): PrepareDeployToFilesCoreProjectCallResult {
   const validation = validate(model, { onlineSeverity: 'warning', checkBindingApi: false });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
@@ -44,7 +44,7 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   return { validation, bindingsInstanceName, files, changes, serverData };
 }
 
-function findBindingInstance(model: Model, usedInstancesNames: string[]) {
+function findBindingInstance(model: ProjectModel, usedInstancesNames: string[]) {
   // If there are bindings and only one instance, then use instance as binder, else we need to ask to user for it.
   // Note: this is a different behavior than online deployment
   const bindingsInstanceName = {
@@ -69,7 +69,7 @@ function createFileName(instanceName: string) {
   return `${instanceName}-store.json`;
 }
 
-export async function applyToFiles(model: Model, bindingsInstanceName: string, serverData: unknown) {
+export async function applyToFiles(model: ProjectModel, bindingsInstanceName: string, serverData: unknown) {
   const { guessedBindingsInstanceName } = serverData as DeployToFilesServerData;
   if (guessedBindingsInstanceName) {
     bindingsInstanceName = guessedBindingsInstanceName;
@@ -146,7 +146,7 @@ interface OnlineTask {
   objectId: string;
 }
 
-export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
+export async function prepareToOnline(model: ProjectModel): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
   const validation = validate(model, { onlineSeverity: 'error', checkBindingApi: true });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
@@ -269,7 +269,7 @@ function areComponentsEqual(componentModel: ComponentModel, componentOnline: Com
   return true;
 }
 
-export async function applyToOnline(model: Model, serverData: unknown) {
+export async function applyToOnline(model: ProjectModel, serverData: unknown) {
   const { tasks } = serverData as DeployToOnlineServerData;
   
   log.info('Deploying to online');
@@ -290,7 +290,7 @@ export async function applyToOnline(model: Model, serverData: unknown) {
   log.info('Deployed to online');
 }
 
-async function executeOnlineTask(model: Model, task: OnlineTask) {
+async function executeOnlineTask(model: ProjectModel, task: OnlineTask) {
   const onlineService = Services.instance.online;
 
   switch (task.objectType) {
@@ -324,7 +324,7 @@ async function executeOnlineTask(model: Model, task: OnlineTask) {
   log.info(`Executed task '${task.changeType}' '${task.objectType}' '${task.objectId}' on instance '${task?.instanceName}'`);
 }
 
-function createComponentConfig(model: Model, id: string): ComponentConfig {
+function createComponentConfig(model: ProjectModel, id: string): ComponentConfig {
   const componentModel = model.getComponent(id);
   const pluginData = componentModel.plugin.data;
   return {
