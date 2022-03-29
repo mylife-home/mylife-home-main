@@ -6,8 +6,8 @@ import { PluginModel } from './plugin';
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
 export class InstanceModel {
-  public readonly usage = new Map<string, ComponentModel>();
-  public readonly plugins = new Map<string, PluginModel>();
+  private readonly usage = new Map<string, ComponentModel>();
+  private readonly plugins = new Map<string, PluginModel>();
 
   constructor(public readonly instanceName: string) { }
 
@@ -19,15 +19,15 @@ export class InstanceModel {
     this.plugins.delete(id);
   }
 
-  registerComponent(component: ComponentModel) {
+  registerUsage(component: ComponentModel) {
     this.usage.set(component.id, component);
   }
 
-  unregisterComponent(id: string) {
+  unregisterUsage(id: string) {
     this.usage.delete(id);
   }
 
-  get hasComponents() {
+  get used() {
     return this.usage.size > 0;
   }
 

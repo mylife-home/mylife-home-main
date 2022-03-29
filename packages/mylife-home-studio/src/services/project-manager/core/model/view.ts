@@ -40,8 +40,8 @@ export abstract class ViewModel {
     const component = new ComponentModel(instance, plugin, this.template, id, componentData);
 
     this.components.set(component.id, component);
-    plugin.registerComponent(component);
-    instance.registerComponent(component);
+    plugin.registerUsage(component);
+    instance.registerUsage(component);
 
     return component;
   }
@@ -109,15 +109,15 @@ export abstract class ViewModel {
     const instance = component.instance;
 
     this.components.delete(component.id);
-    plugin.unregisterComponent(component.id);
-    instance.unregisterComponent(component.id);
+    plugin.unregisterUsage(component.id);
+    instance.unregisterUsage(component.id);
     delete this.data.components[component.id];
 
     component.rename(newId);
 
     this.components.set(component.id, component);
-    plugin.registerComponent(component);
-    instance.registerComponent(component);
+    plugin.registerUsage(component);
+    instance.registerUsage(component);
     this.data.components[component.id] = component.data;
 
     for (const binding of component.getAllBindings()) {
@@ -136,8 +136,8 @@ export abstract class ViewModel {
     const instance = component.instance;
 
     this.components.delete(component.id);
-    plugin.unregisterComponent(component.id);
-    instance.unregisterComponent(component.id);
+    plugin.unregisterUsage(component.id);
+    instance.unregisterUsage(component.id);
 
     delete this.data.components[component.id];
   }

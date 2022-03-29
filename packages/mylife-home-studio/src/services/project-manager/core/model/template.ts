@@ -22,6 +22,18 @@ export class TemplateModel extends ViewModel {
     this._id = newId;
   }
 
+  registerUsage(component: ComponentModel) {
+    this.usage.set(component.id, component);
+  }
+
+  unregisterUsage(id: string) {
+    this.usage.delete(id);
+  }
+
+  get used() {
+    return this.usage.size > 0;
+  }
+
   setExport(exportType: 'config' | 'member', exportId: string, componentId: string, propertyName: string) {
     switch (exportType) {
 

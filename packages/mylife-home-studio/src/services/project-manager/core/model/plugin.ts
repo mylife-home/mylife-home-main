@@ -7,7 +7,7 @@ import { InstanceModel } from './instance';
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
 export class PluginModel {
-  public readonly usage = new Map<string, ComponentModel>();
+  private readonly usage = new Map<string, ComponentModel>();
 
   constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) { }
 
@@ -23,11 +23,11 @@ export class PluginModel {
     return this._id;
   }
 
-  registerComponent(component: ComponentModel) {
+  registerUsage(component: ComponentModel) {
     this.usage.set(component.id, component);
   }
 
-  unregisterComponent(id: string) {
+  unregisterUsage(id: string) {
     this.usage.delete(id);
   }
 
