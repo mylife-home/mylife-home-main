@@ -65,10 +65,12 @@ export interface CoreComponentDefinition {
   id: string;
 }
 
+export type CoreComponentConfiguration = { [name: string]: any; };
+
 export interface CoreComponentData extends Omit<Component, 'id' | 'plugin'> {
   definition: CoreComponentDefinition;
   position: { x: number; y: number; };
-  config: { [name: string]: any; };
+  config: CoreComponentConfiguration;
   external: boolean;
 }
 
