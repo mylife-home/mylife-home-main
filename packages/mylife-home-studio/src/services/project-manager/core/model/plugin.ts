@@ -1,6 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { ConfigType, MemberType } from '../../../../../shared/component-model';
-import { CorePluginData, CoreToolboxDisplay } from '../../../../../shared/project-manager';
+import { CoreComponentConfiguration, CorePluginData, CoreToolboxDisplay } from '../../../../../shared/project-manager';
 import { ComponentDefinitionModel, ComponentModel } from './component';
 import { InstanceModel } from './instance';
 
@@ -37,61 +37,57 @@ export class PluginModel implements ComponentDefinitionModel {
     return this.usage.size > 0;
   }
 
-  getMemberValueType(name: string, type: MemberType) {
+  getMember(name: string) {
     const member = this.data.members[name];
-    if (!member || member.memberType !== type) {
+    if (!member) {
+      throw new Error(`Member '${name}' does not exist on plugin '${this.id}'`);
+    }
+
+    return member;
+  }
+
+  getMemberValueType(name: string, type: MemberType) {
+    const member = this.getMember(name);
+
+    if (member.memberType !== type) {
       throw new Error(`Member '${name}' of type '${type}' does not exist on plugin '${this.id}'`);
     }
 
     return member.valueType;
   }
 
-  getMemberType(memberName: string): MemberType {
-    const member = this.data.members[memberName];
-    if (!member) {
-      throw new Error(`Member '${name}' does not exist on plugin '${this.id}'`);
-    }
-    
+  getMemberType(memberName: string) {
+    const member = this.getMember(memberName);
     return member.memberType;
   }
 
   ensureMember(name: string) {
-    const member = this.data.members[name];
-    if (!member) {
-      throw new Error(`Member '${name}' does not exist on plugin '${this.id}'`);
-    }
+    this.getMember(name);
   }
 
-  updateDisplay(wantedDisplay: CoreToolboxDisplay) {
-    if (this.data.toolboxDisplay === wantedDisplay) {
-      return false;
-    }
+  createConfigTemplateValue(configId: string) {
+    const { valueType } = this.data.config[configId];
+    switch (valueType) {
+      case ConfigType.STRING:
+        return '';
 
-    this.data.toolboxDisplay = wantedDisplay;
-    return true;
-  }
+      case ConfigType.BOOL:
+        return false;
+
+      case ConfigType.INTEGER:
+      case ConfigType.FLOAT:
+        return 0;
+
+      default:
+        throw new Error(`Unsupported config type: '${valueType}'`);
+    }
+}
 
   createConfigTemplate() {
-    const template: { [name: string]: any; } = {};
+    const template: CoreComponentConfiguration = {};
 
-    for (const [name, { valueType }] of Object.entries(this.data.config)) {
-      switch (valueType) {
-        case ConfigType.STRING:
-          template[name] = '';
-          break;
-
-        case ConfigType.BOOL:
-          template[name] = false;
-          break;
-
-        case ConfigType.INTEGER:
-        case ConfigType.FLOAT:
-          template[name] = 0;
-          break;
-
-        default:
-          throw new Error(`Unsupported config type: '${valueType}'`);
-      }
+    for (const configId of Object.keys(this.data.config)) {
+      template[configId] = this.createConfigTemplateValue(configId);
     }
 
     return template;
@@ -138,5 +134,14 @@ export class PluginModel implements ComponentDefinitionModel {
         }
         break;
     }
+  }
+
+  updateDisplay(wantedDisplay: CoreToolboxDisplay) {
+    if (this.data.toolboxDisplay === wantedDisplay) {
+      return false;
+    }
+
+    this.data.toolboxDisplay = wantedDisplay;
+    return true;
   }
 }

@@ -1,5 +1,5 @@
 import { logger } from 'mylife-home-common';
-import { MemberType } from '../../../../../shared/component-model';
+import { ConfigItem, Member, MemberType } from '../../../../../shared/component-model';
 import { CoreComponentConfiguration, CoreComponentData } from '../../../../../shared/project-manager';
 import { BindingModel } from './binding';
 import { PluginModel } from './plugin';
@@ -8,11 +8,14 @@ import { TemplateModel } from './template';
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
 export interface ComponentDefinitionModel {
-  validateConfigValue(configId: string, configValue: any): void;
-  ensureConfig(configName: string): void;
+  getMember(name: string): Member;
   ensureMember(memberName: string): void;
   getMemberType(memberName: string): MemberType;
   getMemberValueType(name: string, type: MemberType): string;
+  
+  ensureConfig(configName: string): void;
+  validateConfigValue(configId: string, configValue: any): void;
+  createConfigTemplateValue(configId: string): any;
   createConfigTemplate(): CoreComponentConfiguration;
 
   registerUsage(component: ComponentModel): void;
