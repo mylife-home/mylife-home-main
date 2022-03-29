@@ -406,7 +406,7 @@ export class Model extends ViewModel {
     }
 
     const componentData: CoreComponentData = {
-      plugin: pluginId,
+      definition: { type: 'plugin', id: pluginId},
       position: { x: 1, y: 1 },
       config,
       external,
@@ -726,7 +726,7 @@ export class ComponentModel {
     this._template = template;
   }
 
-  executeImport(plugin: PluginModel, data: Omit<CoreComponentData, 'plugin' | 'position'>) {
+  executeImport(plugin: PluginModel, data: Omit<CoreComponentData, 'definition' | 'position'>) {
     // keep its position
     const { position } = this.data;
 
@@ -734,7 +734,7 @@ export class ComponentModel {
       delete (this.data as any)[prop];
     }
 
-    Object.assign(this.data, data, { position, plugin: plugin.id });
+    Object.assign(this.data, data, { position, definition: { type: 'plugin', id: plugin.id } });
   }
 
   get id() {
