@@ -215,3 +215,14 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ```
 GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ```
+
+
+
+# WIP templates:
+- prevent drop used export (or force and cleanup)
+- "plugin" from template
+- do not permit to configure component of template where config is exported
+- drop (with confirm?) component configuration on export create
+- server-side project "instantiation"
+- imports between core projects (should be flat instantiated only like deploy?)
+- imports into ui project (should be flat instantiated only like deploy?)
