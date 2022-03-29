@@ -52,8 +52,6 @@ import { validate } from './validation';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
-// FIXME: add template support in import/deploy operations
-
 export class CoreOpenedProject extends OpenedProject {
   private model: Model;
   private project: CoreProject;
