@@ -57,8 +57,16 @@ export interface CoreTemplateMemberExport {
 
 export type CoreBindingData = Mutable<BindingConfig>;
 
-export interface CoreComponentData extends Omit<Component, 'id'> {
+export type ComponentDefinitionType = 'plugin' | 'template';
+
+export interface ComponentDefinition {
+  type: ComponentDefinitionType;
   // plugin points to plugin instanceName:module.name
+  id: string;
+}
+
+export interface CoreComponentData extends Omit<Component, 'id' | 'plugin'> {
+  definition: ComponentDefinition;
   position: { x: number; y: number; };
   config: { [name: string]: any; };
   external: boolean;
