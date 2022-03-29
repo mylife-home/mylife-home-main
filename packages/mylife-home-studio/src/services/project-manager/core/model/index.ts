@@ -1,6 +1,6 @@
 import { logger } from 'mylife-home-common';
-import { ConfigItem, ConfigType, MemberType, Plugin } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay, CoreView, CoreTemplate, CoreComponentDefinition } from '../../../../shared/project-manager';
+import { ConfigItem, ConfigType, MemberType, Plugin } from '../../../../../shared/component-model';
+import { CoreBindingData, CoreComponentData, CorePluginData, CoreProject, CoreToolboxDisplay, CoreView, CoreTemplate, CoreComponentDefinition } from '../../../../../shared/project-manager';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
@@ -420,6 +420,8 @@ export class Model extends ViewModel {
 }
 
 export class TemplateModel extends ViewModel {
+  private readonly usage = new Map<string, ComponentModel>();
+
   constructor(protected readonly project: Model, private _id: string, public readonly data: CoreTemplate) {
     super();
     this.init();
@@ -592,7 +594,7 @@ export class InstanceModel {
 }
 
 export class PluginModel {
-  public readonly components = new Map<string, ComponentModel>();
+  public readonly usage = new Map<string, ComponentModel>();
 
   constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) { }
 
@@ -609,15 +611,15 @@ export class PluginModel {
   }
 
   registerComponent(component: ComponentModel) {
-    this.components.set(component.id, component);
+    this.usage.set(component.id, component);
   }
 
   unregisterComponent(id: string) {
-    this.components.delete(id);
+    this.usage.delete(id);
   }
 
   get used() {
-    return this.components.size > 0;
+    return this.usage.size > 0;
   }
 
   getMemberType(name: string, type: MemberType) {
