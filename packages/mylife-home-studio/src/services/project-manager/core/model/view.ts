@@ -2,7 +2,7 @@ import { logger } from 'mylife-home-common';
 import { MemberType } from '../../../../../shared/component-model';
 import { CoreBindingData, CoreComponentData, CoreView, CoreComponentDefinition } from '../../../../../shared/project-manager';
 import { BindingModel } from './binding';
-import { ComponentModel } from './component';
+import { ComponentDefinitionModel, ComponentModel } from './component';
 import { ProjectModel } from './project';
 import { TemplateModel } from './template';
 
@@ -34,14 +34,23 @@ export abstract class ViewModel {
     }
   }
 
+  private getDefinition(data: CoreComponentDefinition): ComponentDefinitionModel {
+    switch (data.type) {
+      case 'plugin':
+        return this.project.getPlugin(data.id);
+
+      case 'template':
+        return this.project.getTemplate(data.id);
+    }
+  }
+
   protected registerComponent(id: string, componentData: CoreComponentData) {
-    const plugin = this.project.getPlugin(componentData.plugin);
-    const { instance } = plugin;
-    const component = new ComponentModel(instance, plugin, this.template, id, componentData);
+    const definition = this.getDefinition(componentData.definition);
+
+    const component = new ComponentModel(definition, this.template, id, componentData);
 
     this.components.set(component.id, component);
-    plugin.registerUsage(component);
-    instance.registerUsage(component);
+    definition.registerUsage(component);
 
     return component;
   }
@@ -84,12 +93,12 @@ export abstract class ViewModel {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
-    const plugin = this.project.getPlugin(pluginId);
+    const definitionModel = this.getDefinition(definition);
 
     const componentData: CoreComponentData = {
-      plugin: pluginId,
+      definition,
       position: { x, y },
-      config: plugin.createConfigTemplate(),
+      config: definitionModel.createConfigTemplate(),
       external: false,
     };
 
@@ -105,19 +114,16 @@ export abstract class ViewModel {
     }
 
     const component = this.components.get(id);
-    const plugin = component.plugin;
-    const instance = component.instance;
+    const { definition } = component;
 
     this.components.delete(component.id);
-    plugin.unregisterUsage(component.id);
-    instance.unregisterUsage(component.id);
+    definition.unregisterUsage(component.id);
     delete this.data.components[component.id];
 
     component.rename(newId);
 
     this.components.set(component.id, component);
-    plugin.registerUsage(component);
-    instance.registerUsage(component);
+    definition.registerUsage(component);
     this.data.components[component.id] = component.data;
 
     for (const binding of component.getAllBindings()) {
@@ -131,14 +137,10 @@ export abstract class ViewModel {
 
   clearComponent(id: string) {
     const component = this.components.get(id);
-
-    const plugin = component.plugin;
-    const instance = component.instance;
+    const { definition } = component;
 
     this.components.delete(component.id);
-    plugin.unregisterUsage(component.id);
-    instance.unregisterUsage(component.id);
-
+    definition.unregisterUsage(component.id);
     delete this.data.components[component.id];
   }
 
@@ -171,8 +173,8 @@ export abstract class ViewModel {
       throw new Error('Cannot create binding on self');
     }
 
-    const sourceType = sourceComponent.plugin.getMemberType(bindingData.sourceState, MemberType.STATE);
-    const targetType = targetComponent.plugin.getMemberType(bindingData.targetAction, MemberType.ACTION);
+    const sourceType = sourceComponent.definition.getMemberValueType(bindingData.sourceState, MemberType.STATE);
+    const targetType = targetComponent.definition.getMemberValueType(bindingData.targetAction, MemberType.ACTION);
     if (sourceType !== targetType) {
       throw new Error(`Cannot create binding from '${sourceType}' to '${targetType}'`);
     }

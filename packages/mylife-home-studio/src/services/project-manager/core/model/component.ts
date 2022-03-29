@@ -1,22 +1,33 @@
 import { logger } from 'mylife-home-common';
 import { MemberType } from '../../../../../shared/component-model';
-import { CoreComponentData } from '../../../../../shared/project-manager';
+import { CoreComponentConfiguration, CoreComponentData } from '../../../../../shared/project-manager';
 import { BindingModel } from './binding';
-import { InstanceModel } from './instance';
 import { PluginModel } from './plugin';
 import { TemplateModel } from './template';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
-export class ComponentModel {
-  private bindingsFrom = new Set<BindingModel>();
-  private bindingsTo = new Set<BindingModel>();
-  private _plugin: PluginModel;
-  private _template: TemplateModel; // null if on project directly
+export interface ComponentDefinitionModel {
+  validateConfigValue(configId: string, configValue: any): void;
+  ensureConfig(configName: string): void;
+  ensureMember(memberName: string): void;
+  getMemberType(memberName: string): MemberType;
+  getMemberValueType(name: string, type: MemberType): string;
+  createConfigTemplate(): CoreComponentConfiguration;
 
-  constructor(public readonly instance: InstanceModel, plugin: PluginModel, template: TemplateModel, private _id: string, public readonly data: CoreComponentData) {
-    this._plugin = plugin;
-    this._template = template;
+  registerUsage(component: ComponentModel): void;
+  unregisterUsage(id: string): void;
+}
+
+export class ComponentModel {
+  private readonly bindingsFrom = new Set<BindingModel>();
+  private readonly bindingsTo = new Set<BindingModel>();
+
+  constructor(
+    public readonly definition: ComponentDefinitionModel,
+    public readonly ownerTemplate: TemplateModel, // null if on project directly
+    private _id: string,
+    public readonly data: CoreComponentData) {
   }
 
   executeImport(plugin: PluginModel, data: Omit<CoreComponentData, 'definition' | 'position'>) {
@@ -33,15 +44,15 @@ export class ComponentModel {
   get id() {
     return this._id;
   }
-
-  get plugin() {
-    return this._plugin;
+/*
+  get definitionPlugin() {
+    return this.definition instanceof PluginModel ? this.definition : null;
   }
 
-  get template() {
-    return this._template;
+  get definitionTemplate() {
+    return this.definition instanceof TemplateModel ? this.definition : null;
   }
-
+*/
   rename(newId: string) {
     this._id = newId;
   }
@@ -54,12 +65,12 @@ export class ComponentModel {
   }
 
   configure(configId: string, configValue: any) {
-    this.plugin.validateConfigValue(configId, configValue);
+    this.definition.validateConfigValue(configId, configValue);
     this.data.config[configId] = configValue;
   }
 
   checkDelete() {
-    if (this.template?.hasExportWithComponentId(this.id)) {
+    if (this.ownerTemplate?.hasExportWithComponentId(this.id)) {
       throw new Error(`Cannot delete component '${this.id}' because it is used in template exports`);
     }
   }
@@ -111,7 +122,7 @@ export class ComponentModel {
   }
 
   *getAllBindingsWithMember(memberName: string) {
-    const memberType = this.plugin.data.members[memberName].memberType;
+    const memberType = this.definition.getMemberType(memberName);
 
     switch (memberType) {
       case MemberType.STATE:

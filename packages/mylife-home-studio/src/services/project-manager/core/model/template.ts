@@ -1,12 +1,12 @@
 import { logger } from 'mylife-home-common';
 import { CoreTemplate } from '../../../../../shared/project-manager';
-import { ComponentModel } from './component';
+import { ComponentDefinitionModel, ComponentModel } from './component';
 import { ViewModel } from './view';
 import { ProjectModel } from './project';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
-export class TemplateModel extends ViewModel {
+export class TemplateModel extends ViewModel implements ComponentDefinitionModel {
   private readonly usage = new Map<string, ComponentModel>();
 
   constructor(protected readonly project: ProjectModel, private _id: string, public readonly data: CoreTemplate) {
@@ -52,7 +52,7 @@ export class TemplateModel extends ViewModel {
 
   private setConfigExport(exportId: string, componentId: string, configName: string) {
     const component = this.getComponent(componentId);
-    component.plugin.ensureConfig(configName);
+    component.definition.ensureConfig(configName);
 
     const exports = this.data.exports.config;
     exports[exportId] = { component: component.id, configName };
@@ -60,7 +60,7 @@ export class TemplateModel extends ViewModel {
 
   private setMemberExport(exportId: string, componentId: string, memberName: string) {
     const component = this.getComponent(componentId);
-    component.plugin.ensureMember(memberName);
+    component.definition.ensureMember(memberName);
 
     const exports = this.data.exports.members;
     exports[exportId] = { component: component.id, member: memberName };

@@ -1,12 +1,12 @@
 import { logger } from 'mylife-home-common';
 import { ConfigType, MemberType } from '../../../../../shared/component-model';
 import { CorePluginData, CoreToolboxDisplay } from '../../../../../shared/project-manager';
-import { ComponentModel } from './component';
+import { ComponentDefinitionModel, ComponentModel } from './component';
 import { InstanceModel } from './instance';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
-export class PluginModel {
+export class PluginModel implements ComponentDefinitionModel {
   private readonly usage = new Map<string, ComponentModel>();
 
   constructor(public readonly instance: InstanceModel, private _id: string, public readonly data: CorePluginData) { }
@@ -25,23 +25,34 @@ export class PluginModel {
 
   registerUsage(component: ComponentModel) {
     this.usage.set(component.id, component);
+    this.instance.registerUsage(component);
   }
 
   unregisterUsage(id: string) {
     this.usage.delete(id);
+    this.instance.unregisterUsage(id);
   }
 
   get used() {
     return this.usage.size > 0;
   }
 
-  getMemberType(name: string, type: MemberType) {
+  getMemberValueType(name: string, type: MemberType) {
     const member = this.data.members[name];
     if (!member || member.memberType !== type) {
       throw new Error(`Member '${name}' of type '${type}' does not exist on plugin '${this.id}'`);
     }
 
     return member.valueType;
+  }
+
+  getMemberType(memberName: string): MemberType {
+    const member = this.data.members[memberName];
+    if (!member) {
+      throw new Error(`Member '${name}' does not exist on plugin '${this.id}'`);
+    }
+    
+    return member.memberType;
   }
 
   ensureMember(name: string) {
