@@ -47,15 +47,7 @@ export class ComponentModel {
   get id() {
     return this._id;
   }
-/*
-  get definitionPlugin() {
-    return this.definition instanceof PluginModel ? this.definition : null;
-  }
 
-  get definitionTemplate() {
-    return this.definition instanceof TemplateModel ? this.definition : null;
-  }
-*/
   rename(newId: string) {
     this._id = newId;
   }

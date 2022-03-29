@@ -8,10 +8,9 @@ const log = logger.createLogger('mylife:home:studio:services:project-manager:cor
 // Note: bindings have no update, then can only be created or deleted
 export class BindingModel {
   private _id: string;
-  private _template: TemplateModel; // null if on project directly
 
-  constructor(template: TemplateModel, public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
-    this._template = template;
+  // ownerTemplate: null if on project directly
+  constructor(public readonly ownerTemplate: TemplateModel, public readonly data: CoreBindingData, public readonly sourceComponent: ComponentModel, public readonly targetComponent: ComponentModel) {
     this.rebuild();
   }
 
@@ -27,10 +26,6 @@ export class BindingModel {
 
   get id() {
     return this._id;
-  }
-
-  get template() {
-    return this._template;
   }
 
   get sourceState() {

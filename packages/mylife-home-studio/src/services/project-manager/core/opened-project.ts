@@ -99,13 +99,13 @@ export class CoreOpenedProject extends OpenedProject {
     for (const view of views) {
       for (const id of view.getComponentsIds()) {
         const component = view.getComponent(id);
-        const templateId = component.template?.id || null;
+        const templateId = component.ownerTemplate?.id || null;
         notifier.notify<SetCoreComponentNotification>({ operation: 'set-core-component', templateId, id: component.id, component: component.data });
       }
   
       for (const id of view.getBindingsIds()) {
         const binding = view.getBinding(id);
-        const templateId = binding.template?.id || null;
+        const templateId = binding.ownerTemplate?.id || null;
         notifier.notify<SetCoreBindingNotification>({ operation: 'set-core-binding', templateId, id: binding.id, binding: binding.data });
       }
     }
@@ -231,7 +231,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private notifyAllSetComponent(component: ComponentModel) {
-    const templateId = component.template?.id || null;
+    const templateId = component.ownerTemplate?.id || null;
     this.notifyAll<SetCoreComponentNotification>({ operation: 'set-core-component', templateId, id: component.id, component: component.data });
   }
 
@@ -244,7 +244,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private notifyAllSetBinding(binding: BindingModel) {
-    const templateId = binding.template?.id || null;
+    const templateId = binding.ownerTemplate?.id || null;
     this.notifyAll<SetCoreBindingNotification>({ operation: 'set-core-binding', templateId, id: binding.id, binding: binding.data });
   }
 
