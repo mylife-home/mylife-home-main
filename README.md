@@ -226,3 +226,4 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 - server-side project "instantiation"
 - imports between core projects (should be flat instantiated only like deploy?)
 - imports into ui project (should be flat instantiated only like deploy?)
+- remove v1 imports
