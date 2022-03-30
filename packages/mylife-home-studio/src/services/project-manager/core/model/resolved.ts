@@ -17,6 +17,7 @@ export interface PluginView {
   readonly instance: InstanceView;
   readonly id: string;
   readonly data: CorePluginData;
+  validateConfigValue(configId: string, configValue: any): void;
 }
 
 export interface InstanceView {

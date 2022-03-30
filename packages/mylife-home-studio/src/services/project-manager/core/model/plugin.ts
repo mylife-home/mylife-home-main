@@ -42,7 +42,7 @@ export class PluginModel implements ComponentDefinitionModel {
       yield component;
     }
   }
-  
+
   getMember(name: string) {
     const member = this.data.members[name];
     if (!member) {
@@ -114,32 +114,7 @@ export class PluginModel implements ComponentDefinitionModel {
 
   validateConfigValue(configId: string, configValue: any) {
     const valueType = this.getConfigType(configId);
-
-    switch (valueType) {
-      case ConfigType.STRING:
-        if (typeof configValue !== 'string') {
-          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a string but got '${JSON.stringify(configValue)}'.`);
-        }
-        break;
-
-      case ConfigType.BOOL:
-        if (typeof configValue !== 'boolean') {
-          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a bool but got '${JSON.stringify(configValue)}'.`);
-        }
-        break;
-
-      case ConfigType.INTEGER:
-        if (!Number.isInteger(configValue)) {
-          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be an integer but got '${JSON.stringify(configValue)}'.`);
-        }
-        break;
-
-      case ConfigType.FLOAT:
-        if (typeof configValue !== 'number') {
-          throw new Error(`Expected config ${configId}' on plugin '${this.id}' to be a float but got '${JSON.stringify(configValue)}'.`);
-        }
-        break;
-    }
+    PluginModel.validateConfigValueByType(this.id, configId, valueType, configValue);
   }
 
   updateDisplay(wantedDisplay: CoreToolboxDisplay) {
@@ -149,5 +124,34 @@ export class PluginModel implements ComponentDefinitionModel {
 
     this.data.toolboxDisplay = wantedDisplay;
     return true;
+  }
+
+  // used by PluginView also
+  static validateConfigValueByType(pluginId: string, configId: string, valueType: string, configValue: any) {
+    switch (valueType) {
+      case ConfigType.STRING:
+        if (typeof configValue !== 'string') {
+          throw new Error(`Expected config ${configId}' on plugin '${pluginId}' to be a string but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.BOOL:
+        if (typeof configValue !== 'boolean') {
+          throw new Error(`Expected config ${configId}' on plugin '${pluginId}' to be a bool but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.INTEGER:
+        if (!Number.isInteger(configValue)) {
+          throw new Error(`Expected config ${configId}' on plugin '${pluginId}' to be an integer but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+
+      case ConfigType.FLOAT:
+        if (typeof configValue !== 'number') {
+          throw new Error(`Expected config ${configId}' on plugin '${pluginId}' to be a float but got '${JSON.stringify(configValue)}'.`);
+        }
+        break;
+    }
   }
 }

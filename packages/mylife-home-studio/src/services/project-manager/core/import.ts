@@ -3,7 +3,7 @@ import { pick, clone } from '../../../utils/object-utils';
 import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
 import { ComponentModel, ProjectModel, PluginModel, TemplateModel } from './model';
 import { Services } from '../..';
-import { ResolvedProjectView } from './model/resolved';
+import { PluginView, ResolvedProjectView } from './model/resolved';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
@@ -239,7 +239,7 @@ function preparePluginUpdates(imports: ImportData, model: ProjectModel): coreImp
 }
 
 // used by deploy validation
-export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel, plugin: components.metadata.NetPlugin) {
+export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel | PluginView, plugin: components.metadata.NetPlugin) {
   const config = lookupObjectChanges(pluginModel?.data?.config, plugin?.config, configEqualityComparer, typeChangeFormatter);
   const members = lookupObjectChanges(pluginModel?.data?.members, plugin?.members, memberEqualityComparer, typeChangeFormatter);
   return { config, members };

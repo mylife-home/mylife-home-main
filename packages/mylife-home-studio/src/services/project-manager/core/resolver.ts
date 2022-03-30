@@ -134,6 +134,11 @@ export class PluginViewImpl implements PluginView {
     readonly data: CorePluginData
   ) {
   }
+
+  validateConfigValue(configId: string, configValue: any) {
+    const valueType = this.data.config[configId].valueType;
+    PluginModel.validateConfigValueByType(this.id, configId, valueType, configValue);
+  }
 }
 
 export class InstanceViewImpl implements InstanceView {

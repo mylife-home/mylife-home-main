@@ -96,6 +96,8 @@ export abstract class ViewModel {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
+    // TODO: validate recursion
+
     const definitionModel = this.getDefinition(definition);
 
     const componentData: CoreComponentData = {

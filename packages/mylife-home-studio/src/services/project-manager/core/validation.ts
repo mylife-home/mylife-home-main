@@ -26,7 +26,7 @@ function validatePluginChanges(project: ResolvedProjectView, severity: coreValid
 
   for (const componentId of project.getComponentsIds()) {
     const component = project.getComponent(componentId);
-    if (component.data.external) {
+    if (component.external) {
       continue;
     }
 
@@ -42,17 +42,17 @@ function validatePluginChanges(project: ResolvedProjectView, severity: coreValid
 
   const onlineService = Services.instance.online;
 
-  for (const [pluginModel, impacts] of usedPlugins.entries()) {
-    const onlinePlugin = onlineService.findPlugin(pluginModel.instance.instanceName, `${pluginModel.data.module}.${pluginModel.data.name}`);
+  for (const [pluginView, impacts] of usedPlugins.entries()) {
+    const onlinePlugin = onlineService.findPlugin(pluginView.instance.instanceName, `${pluginView.data.module}.${pluginView.data.name}`);
     if (!onlinePlugin) {
-      validation.push(newPluginChangedValidationError(pluginModel, impacts, 'delete', severity));
+      validation.push(newPluginChangedValidationError(pluginView, impacts, 'delete', severity));
       continue;
     }
 
     const plugin = components.metadata.encodePlugin(onlinePlugin);
-    const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
+    const changes = buildPluginMembersAndConfigChanges(pluginView, plugin);
     if (!isObjectEmpty(changes.config) || !isObjectEmpty(changes.members)) {
-      const error = newPluginChangedValidationError(pluginModel, impacts, 'update', severity);
+      const error = newPluginChangedValidationError(pluginView, impacts, 'update', severity);
       error.config = changes.config;
       error.members = changes.members;
       validation.push(error);
@@ -60,13 +60,13 @@ function validatePluginChanges(project: ResolvedProjectView, severity: coreValid
   }
 }
 
-function newPluginChangedValidationError(pluginModel: PluginView, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
+function newPluginChangedValidationError(pluginView: PluginView, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
   return {
     type: 'plugin-changed',
     severity,
-    instanceName: pluginModel.instance.instanceName,
-    module: pluginModel.data.module,
-    name: pluginModel.data.name,
+    instanceName: pluginView.instance.instanceName,
+    module: pluginView.data.module,
+    name: pluginView.data.name,
     changeType,
     config: null,
     members: null,
@@ -78,15 +78,15 @@ function validateExistingComponents(project: ResolvedProjectView, severity: core
   const onlineService = Services.instance.online;
 
   for (const componentId of project.getComponentsIds()) {
-    const componentModel = project.getComponent(componentId);
+    const componentView = project.getComponent(componentId);
     const componentOnline = onlineService.findComponentData(componentId);
 
-    if (!componentOnline || componentModel.instance.instanceName === componentOnline.instanceName) {
+    if (!componentOnline || componentView.plugin.instance.instanceName === componentOnline.instanceName) {
       continue;
     }
 
     const onlinePlugin = componentOnline.component.plugin;
-    const modelPlugindata = componentModel.plugin.data;
+    const modelPlugindata = componentView.plugin.data;
 
     const item: coreValidation.ExistingComponentId = {
       type: 'existing-component-id',
@@ -98,7 +98,7 @@ function validateExistingComponents(project: ResolvedProjectView, severity: core
         name: onlinePlugin.name,
       },
       project: {
-        instanceName: componentModel.instance.instanceName,
+        instanceName: componentView.plugin.instance.instanceName,
         module: modelPlugindata.module,
         name: modelPlugindata.name,
       }
@@ -112,58 +112,58 @@ function validateExternalComponents(project: ResolvedProjectView, severity: core
   const onlineService = Services.instance.online;
 
   for (const componentId of project.getComponentsIds()) {
-    const componentModel = project.getComponent(componentId);
-    if (!componentModel.data.external) {
+    const componentView = project.getComponent(componentId);
+    if (!componentView.external) {
       continue;
     }
 
-    const componentOnline = onlineService.findComponentData(componentModel.id);
+    const componentOnline = onlineService.findComponentData(componentView.id);
     if (!componentOnline) {
-      validation.push(newBadExternalComponent(componentModel, null, 'warning'));
+      validation.push(newBadExternalComponent(componentView, null, 'warning'));
       continue;
     }
 
-    if (isSamePlugin(componentModel, componentOnline)) {
+    if (isSamePlugin(componentView, componentOnline)) {
       continue;
     }
 
     // only info if plugins are compatible
-    const finalSeverity = arePluginsCompatible(componentModel, componentOnline) ? 'info' : severity;
-    validation.push(newBadExternalComponent(componentModel, componentOnline, finalSeverity));
+    const finalSeverity = arePluginsCompatible(componentView, componentOnline) ? 'info' : severity;
+    validation.push(newBadExternalComponent(componentView, componentOnline, finalSeverity));
   }
 }
 
-function isSamePlugin(componentModel: ComponentView, componentOnline: components.ComponentData) {
-  if (componentModel.instance.instanceName !== componentOnline.instanceName) {
+function isSamePlugin(componentView: ComponentView, componentOnline: components.ComponentData) {
+  if (componentView.plugin.instance.instanceName !== componentOnline.instanceName) {
     return false;
   }
 
-  const pluginModelData = componentModel.plugin.data;
+  const pluginViewData = componentView.plugin.data;
   const pluginOnline = componentOnline.component.plugin;
-  return pluginModelData.module === pluginOnline.module
-      && pluginModelData.name === pluginOnline.name
-      && pluginModelData.version === pluginOnline.version;
+  return pluginViewData.module === pluginOnline.module
+      && pluginViewData.name === pluginOnline.name
+      && pluginViewData.version === pluginOnline.version;
 }
 
-function arePluginsCompatible(componentModel: ComponentView, componentOnline: components.ComponentData) {
-  const pluginModel = componentModel.plugin;
+function arePluginsCompatible(componentView: ComponentView, componentOnline: components.ComponentData) {
+  const pluginView = componentView.plugin;
   const pluginOnline = componentOnline.component.plugin;
 
   const plugin = components.metadata.encodePlugin(pluginOnline);
-  const changes = buildPluginMembersAndConfigChanges(pluginModel, plugin);
+  const changes = buildPluginMembersAndConfigChanges(pluginView, plugin);
   return isObjectEmpty(changes.members);
 }
 
-function newBadExternalComponent(componentModel: ComponentView, componentOnline: components.ComponentData, severity: coreValidation.Severity): coreValidation.BadExternalComponent {
+function newBadExternalComponent(componentView: ComponentView, componentOnline: components.ComponentData, severity: coreValidation.Severity): coreValidation.BadExternalComponent {
   return {
     type: 'bad-external-component',
     severity,
-    componentId: componentModel.id,
+    componentId: componentView.id,
     project: {
-      instanceName: componentModel.instance.instanceName,
-      module: componentModel.plugin.data.module,
-      name: componentModel.plugin.data.name,
-      version: componentModel.plugin.data.version,
+      instanceName: componentView.plugin.instance.instanceName,
+      module: componentView.plugin.data.module,
+      name: componentView.plugin.data.name,
+      version: componentView.plugin.data.version,
     },
     existing: componentOnline ? {
       instanceName: componentOnline.instanceName,
@@ -194,11 +194,11 @@ function newInvalidBindingApi(instanceNames: string[]): coreValidation.InvalidBi
 function validateComponentConfigs(project: ResolvedProjectView, validation: coreValidation.Item[]) {
   for (const componentId of project.getComponentsIds()) {
     const component = project.getComponent(componentId);
-    if (component.data.external) {
+    if (component.external) {
       continue;
     }
 
-    const componentConfig = component.data.config;
+    const componentConfig = component.config;
     const pluginConfig = component.plugin.data.config;
 
     const errors: { [key: string]: string } = {};
@@ -210,7 +210,7 @@ function validateComponentConfigs(project: ResolvedProjectView, validation: core
     }
 
     for (const configId of Object.keys(pluginConfig)) {
-      const value = component.data.config[configId];
+      const value = component.config[configId];
 
       try {
         component.plugin.validateConfigValue(configId, value);
@@ -227,7 +227,7 @@ function validateComponentConfigs(project: ResolvedProjectView, validation: core
       type: 'component-bad-config',
       severity: 'error',
       componentId,
-      instanceName: component.instance.instanceName,
+      instanceName: component.plugin.instance.instanceName,
       module: component.plugin.data.module,
       name: component.plugin.data.name,
       config: errors,
