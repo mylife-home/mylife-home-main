@@ -301,7 +301,7 @@ function prepareComponentUpdates(imports: ImportData, model: ProjectModel): core
     }
 
     const instanceModel = model.getInstance(instanceName);
-    for (const componentModel of instanceModel.components.values()) {
+    for (const componentModel of instanceModel.getAllUsage()) {
       if (!set.has(componentModel.id)) {
         remove(componentModel);
       }

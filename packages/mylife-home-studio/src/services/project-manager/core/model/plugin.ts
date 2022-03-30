@@ -37,6 +37,12 @@ export class PluginModel implements ComponentDefinitionModel {
     return this.usage.size > 0;
   }
 
+  *getAllUsage() {
+    for (const component of this.usage.values()) {
+      yield component;
+    }
+  }
+  
   getMember(name: string) {
     const member = this.data.members[name];
     if (!member) {

@@ -39,6 +39,12 @@ export class InstanceModel {
     return this.usage.has(id);
   }
 
+  *getAllUsage() {
+    for (const component of this.usage.values()) {
+      yield component;
+    }
+  }
+  
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
     const pluginIds = [];
 

@@ -20,6 +20,7 @@ export interface ComponentDefinitionModel {
 
   registerUsage(component: ComponentModel): void;
   unregisterUsage(id: string): void;
+  getAllUsage(): Generator<ComponentModel>;
 }
 
 export class ComponentModel {

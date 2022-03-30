@@ -35,6 +35,12 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     return this.usage.size > 0;
   }
 
+  *getAllUsage() {
+    for (const component of this.usage.values()) {
+      yield component;
+    }
+  }
+  
   setExport(exportType: 'config' | 'member', exportId: string, componentId: string, propertyName: string) {
     switch (exportType) {
 
