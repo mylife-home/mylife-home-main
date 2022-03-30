@@ -3,6 +3,7 @@ import { pick, clone } from '../../../utils/object-utils';
 import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
 import { ComponentModel, ProjectModel, PluginModel } from './model';
 import { Services } from '../..';
+import { ResolvedProjectView } from './model/resolved';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
@@ -73,32 +74,32 @@ function ensureOnlinePlugin(plugins: Map<string, PluginImport>, instanceName: st
   return pluginImport;
 }
 
-export function loadProjectData(model: ProjectModel, config: ImportFromProjectConfig): ImportData {
+export function loadProjectData(view: ResolvedProjectView, config: ImportFromProjectConfig): ImportData {
   const plugins = new Map<string, PluginImport>();
   const components: ComponentImport[] = [];
 
   if (config.importPlugins) {
-    for (const id of model.getPluginsIds()) {
-      ensureProjectPlugin(plugins, model, id);
+    for (const id of view.getPluginsIds()) {
+      ensureProjectPlugin(plugins, view, id);
     }
   }
 
   if (config.importComponents) {
     const external = config.importComponents === 'external';
 
-    for (const id of model.getComponentsIds()) {
-      const componentModel = model.getComponent(id);
-      if (componentModel.data.external) {
+    for (const id of view.getComponentsIds()) {
+      const componentView = view.getComponent(id);
+      if (componentView.external) {
         continue;
       }
 
-      ensureProjectPlugin(plugins, model, componentModel.data.plugin);
+      ensureProjectPlugin(plugins, view, componentView.plugin.id);
 
       components.push({
-        id: componentModel.id,
-        pluginId: componentModel.plugin.id,
+        id: componentView.id,
+        pluginId: componentView.plugin.id,
         external,
-        config: external ? null : clone(componentModel.data.config)
+        config: external ? null : clone(componentView.config)
       });
     }
   }
@@ -106,21 +107,21 @@ export function loadProjectData(model: ProjectModel, config: ImportFromProjectCo
   return { plugins: Array.from(plugins.values()), components };
 }
 
-function ensureProjectPlugin(plugins: Map<string, PluginImport>, model: ProjectModel, id: string): PluginImport {
+function ensureProjectPlugin(plugins: Map<string, PluginImport>, view: ResolvedProjectView, id: string): PluginImport {
   const existing = plugins.get(id);
   if (existing) {
     return existing;
   }
 
-  const pluginModel = model.getPlugin(id);
+  const pluginView = view.getPlugin(id);
 
   const pluginImport: PluginImport = {
-    id: pluginModel.id,
-    instanceName: pluginModel.data.instanceName,
+    id: pluginView.id,
+    instanceName: pluginView.instance.instanceName,
     plugin: {
-      ...pick(pluginModel.data, 'name', 'module', 'usage', 'version', 'description'),
-      members: clone(pluginModel.data.members),
-      config: clone(pluginModel.data.config),
+      ...pick(pluginView.data, 'name', 'module', 'usage', 'version', 'description'),
+      members: clone(pluginView.data.members),
+      config: clone(pluginView.data.config),
     }
   };
 
