@@ -8,6 +8,9 @@ import { TemplateModel } from './template';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
+/**
+ * Common base of template and project
+ */
 export abstract class ViewModel {
   private readonly components = new Map<string, ComponentModel>();
   private readonly bindings = new Map<string, BindingModel>();
