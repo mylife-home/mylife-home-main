@@ -223,7 +223,10 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 - "plugin" from template
 - do not permit to configure component of template where config is exported
 - drop (with confirm?) component configuration on export create
-- server-side project "instantiation"
-- imports between core projects (should be flat instantiated only like deploy?)
-- imports into ui project (should be flat instantiated only like deploy?)
 - remove v1 imports
+
+- TESTS
+  - deploy files
+  - deploy online
+  - imports between core projects
+  - imports into ui project
