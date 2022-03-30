@@ -35,23 +35,8 @@ export class InstanceModel {
     return this.plugins.size > 0;
   }
 
-  hasNonExternalComponents() {
-    for (const component of this.usage.values()) {
-      if (!component.data.external) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   hasComponent(id: string) {
     return this.usage.has(id);
-  }
-
-  hasNonExternalComponent(id: string) {
-    const component = this.usage.get(id);
-    return !!component && !component.data.external;
   }
 
   updateAllPluginsDisplay(wantedDisplay: CoreToolboxDisplay) {
