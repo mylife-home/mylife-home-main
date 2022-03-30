@@ -12,13 +12,7 @@ interface DeployToFilesServerData {
   guessedBindingsInstanceName: string;
 }
 
-export function prepareToFiles(project: ResolvedProjectView): PrepareDeployToFilesCoreProjectCallResult {
-  const validation = validate(project, { onlineSeverity: 'warning', checkBindingApi: false });
-  if (hasError(validation)) {
-    // Validation errors, cannot go further.
-    return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
-  }
-
+export function prepareToFiles(project: ResolvedProjectView) {
   const usedInstancesNamesSet = new Set<string>();
   const changes: DeployChanges = { bindings: [], components: [] };
 
@@ -43,7 +37,7 @@ export function prepareToFiles(project: ResolvedProjectView): PrepareDeployToFil
   const files = usedInstancesNames.map(createFileName);
   const serverData: DeployToFilesServerData = { guessedBindingsInstanceName: bindingsInstanceName.actual };
 
-  return { validation, bindingsInstanceName, files, changes, serverData };
+  return { bindingsInstanceName, files, changes, serverData };
 }
 
 function findBindingInstance(project: ResolvedProjectView, usedInstancesNames: string[]) {
@@ -154,13 +148,7 @@ interface OnlineTask {
   objectId: string;
 }
 
-export async function prepareToOnline(project: ResolvedProjectView): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-  const validation = validate(project, { onlineSeverity: 'error', checkBindingApi: true });
-  if (hasError(validation)) {
-    // Validation errors, cannot go further.
-    return { validation, changes: null, serverData: null };
-  }
-
+export async function prepareToOnline(project: ResolvedProjectView) {
   const bindingsDelete: OnlineTask[] = [];
   const bindingsAdd: OnlineTask[] = [];
   const componentsDelete: OnlineTask[] = [];
@@ -234,7 +222,7 @@ export async function prepareToOnline(project: ResolvedProjectView): Promise<Pre
 
   const tasks = [...bindingsDelete, ...componentsDelete, ...componentsAdd, ...bindingsAdd];
   const serverData: DeployToOnlineServerData = { tasks };
-  return { validation, changes, serverData };
+  return { changes, serverData };
 }
 
 function areComponentsEqual(componentView: ComponentView, componentOnline: ComponentConfig) {

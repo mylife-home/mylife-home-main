@@ -48,7 +48,7 @@ import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel } 
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
-import { validate } from './validation';
+import { validate, hasError } from './validation';
 import { ResolvedProjectView } from './model/resolved';
 import { resolveProject } from './resolver';
 
@@ -503,7 +503,13 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {
-    return prepareToFiles(this.view);
+    const validation = validate(this.model, { onlineSeverity: 'warning', checkBindingApi: false });
+    if (hasError(validation)) {
+      // Validation errors, cannot go further.
+      return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
+    }
+  
+    return { validation, ... prepareToFiles(this.view) };
   }
 
   private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall): Promise<ApplyDeployToFilesCoreProjectCallResult> {
@@ -512,7 +518,13 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private async prepareDeployToOnline(): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-    return await prepareToOnline(this.view);
+    const validation = validate(this.model, { onlineSeverity: 'error', checkBindingApi: true });
+    if (hasError(validation)) {
+      // Validation errors, cannot go further.
+      return { validation, changes: null, serverData: null };
+    }
+  
+    return { validation, ... await prepareToOnline(this.view) };
   }
 
   private async applyDeployToOnline({ serverData }: ApplyDeployToOnlineCoreProjectCall) {
