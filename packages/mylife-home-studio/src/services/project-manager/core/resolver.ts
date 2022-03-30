@@ -41,7 +41,7 @@ export function resolveProject(projectModel: ProjectModel): ResolvedProjectView 
 
       projectView.components.set(componentView.id, componentView);
       pluginView.usage.set(componentView.id, componentView);
-      pluginView.instance.usage.set(componentView.id, componentView);
+      (pluginView.instance as InstanceViewImpl).usage.set(componentView.id, componentView);
 
       continue;
     }

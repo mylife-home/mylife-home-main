@@ -503,20 +503,20 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {
-    return prepareToFiles(this.model);
+    return prepareToFiles(this.view);
   }
 
   private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall): Promise<ApplyDeployToFilesCoreProjectCallResult> {
-    const writtenFilesCount = await applyToFiles(this.model, bindingsInstanceName, serverData);
+    const writtenFilesCount = await applyToFiles(this.view, bindingsInstanceName, serverData);
     return { writtenFilesCount };
   }
 
   private async prepareDeployToOnline(): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-    return await prepareToOnline(this.model);
+    return await prepareToOnline(this.view);
   }
 
   private async applyDeployToOnline({ serverData }: ApplyDeployToOnlineCoreProjectCall) {
-    await applyToOnline(this.model, serverData);
+    await applyToOnline(this.view, serverData);
   }
 
 }
