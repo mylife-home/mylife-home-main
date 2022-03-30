@@ -49,12 +49,15 @@ import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
 import { validate } from './validation';
+import { ResolvedProjectView } from './model/resolved';
+import { resolveProject } from './resolver';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');
 
 export class CoreOpenedProject extends OpenedProject {
   private model: ProjectModel;
   private project: CoreProject;
+  private _cachedResolved: ResolvedProjectView;
 
   constructor(private readonly owner: CoreProjects, name: string) {
     super('core', name);
@@ -64,22 +67,15 @@ export class CoreOpenedProject extends OpenedProject {
   protected reloadModel() {
     this.project = this.owner.getProject(this.name);
     this.model = new ProjectModel(this.project);
+    this._cachedResolved = null;
   }
 
-  getComponentsIds() {
-    return this.model.getComponentsIds();
-  }
+  get view() {
+    if (!this._cachedResolved) {
+      this._cachedResolved = resolveProject(this.model);
+    }
 
-  getComponentModel(id: string) {
-    return this.model.getComponent(id);
-  }
-
-  getPluginsIds() {
-    return this.model.getPluginsIds();
-  }
-
-  getPluginModel(id: string) {
-    return this.model.getPlugin(id);
+    return this._cachedResolved;
   }
 
   protected emitAllState(notifier: SessionNotifier) {
@@ -199,6 +195,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private executeUpdate<TResult>(updater: () => TResult) {
+    this._cachedResolved = null;
     return this.owner.update(this.name, updater);
   }
 
@@ -454,7 +451,7 @@ export class CoreOpenedProject extends OpenedProject {
   private prepareImportFromProject({ config }: PrepareImportFromProjectCoreProjectCall) {
     const imports = Services.instance.projectManager.executeOnProject('core', config.projectId, project => {
       const coreProject = project as CoreOpenedProject;
-      return loadProjectData(coreProject.model, config);
+      return loadProjectData(coreProject.view, config);
     });
 
     return this.prepareBulkUpdates(imports);
