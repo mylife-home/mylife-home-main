@@ -468,7 +468,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject): ApplyBulkUpdatesCoreProjectCallResult {
-    // FIXME: add templates support
+    // Note: we do not import into templates, so all components are on project directly
     const api = {
       clearPlugin: (pluginId: string) => {
         this.model.deletePlugin(pluginId);

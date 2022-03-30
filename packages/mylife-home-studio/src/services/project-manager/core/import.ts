@@ -1,7 +1,7 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
 import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
-import { ComponentModel, ProjectModel, PluginModel } from './model';
+import { ComponentModel, ProjectModel, PluginModel, TemplateModel } from './model';
 import { Services } from '../..';
 import { ResolvedProjectView } from './model/resolved';
 
@@ -322,9 +322,9 @@ function prepareComponentUpdates(imports: ImportData, model: ProjectModel): core
   function update(componentModel: ComponentModel, componentImport: ComponentImport) {
     const id = componentModel.id;
     // Note: instanceName may have changed.
-    const change = newComponentChange(`component-set:${id}`, id, componentModel.instance.instanceName, 'update');
+    const change = newComponentChange(`component-set:${id}`, id, getInstanceName(componentModel), 'update');
 
-    if (componentModel.plugin.id !== componentImport.pluginId) {
+    if (!(componentModel.definition instanceof PluginModel) || componentModel.definition.id !== componentImport.pluginId) {
       change.pluginId = componentImport.pluginId;
     }
 
@@ -339,12 +339,24 @@ function prepareComponentUpdates(imports: ImportData, model: ProjectModel): core
 
   function remove(componentModel: ComponentModel) {
     const id = componentModel.id;
-    const change = newComponentChange(`component-clear:${id}`, id, componentModel.instance.instanceName, 'delete');
+    const change = newComponentChange(`component-clear:${id}`, id, getInstanceName(componentModel), 'delete');
     changes.push(change);
   }
 
   function configChangeFormatter(name: string, type: coreImportData.ChangeType, valueModel: any, valueImport: any) {
     return { type, value: valueImport };
+  }
+
+  function getInstanceName(componentModel: ComponentModel) {
+    if (componentModel.definition instanceof PluginModel) {
+      return componentModel.definition.instance.instanceName;
+    }
+
+    if (componentModel.definition instanceof TemplateModel) {
+      return '<Templates>';
+    }
+
+    throw new Error('Unsupported definition type');
   }
 }
 
@@ -394,7 +406,8 @@ function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
 
 function areComponentsEqual(componentModel: ComponentModel, componentImport: ComponentImport) {
   const baseEqual = componentModel.id === componentImport.id
-    && componentModel.plugin.id === componentImport.pluginId
+    && componentModel.definition instanceof PluginModel
+    && componentModel.definition.id === componentImport.pluginId
     && componentModel.data.external === componentImport.external
     && !!componentModel.data.config === !!componentImport.config;
 
@@ -462,14 +475,14 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
   for (const change of changes.filter(change => change.changeType === 'delete')) {
     const plugin = model.getPlugin(change.id);
     const bindingsIds = new Set<string>();
-    for (const component of plugin.components.values()) {
+    for (const component of plugin.getAllUsage()) {
       for (const binding of component.getAllBindings()) {
         bindingsIds.add(binding.id);
       }
     }
 
     change.impacts = {
-      components: Array.from(plugin.components.keys()),
+      components: getAllUsageId(plugin),
       bindings: Array.from(bindingsIds)
     };
   }
@@ -480,12 +493,12 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
 
     let componentsImpact: string[] = [];
     if (hasConfigChanges(modelPlugin, importPlugin, change)) {
-      componentsImpact = Array.from(modelPlugin.components.keys());
+      componentsImpact = getAllUsageId(modelPlugin);
     }
 
     const membersNames = getMembersChanges(modelPlugin, importPlugin, change);
     const bindingsIds = new Set<string>();
-    for (const component of modelPlugin.components.values()) {
+    for (const component of modelPlugin.getAllUsage()) {
       for (const memberName of membersNames) {
         for (const binding of component.getAllBindingsWithMember(memberName)) {
           bindingsIds.add(binding.id);
@@ -498,6 +511,10 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
       bindings: Array.from(bindingsIds)
     };
   }
+}
+
+function getAllUsageId(plugin: PluginModel) {
+  return Array.from(plugin.getAllUsage()).map(componentModel => componentModel.id);
 }
 
 function getMembersChanges(modelPlugin: PluginModel, importPlugin: PluginImport, change: coreImportData.PluginChange) {
