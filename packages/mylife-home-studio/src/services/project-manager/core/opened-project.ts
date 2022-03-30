@@ -48,7 +48,7 @@ import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel } 
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
-import { validate, hasError } from './validation';
+import { validate } from './validation';
 import { ResolvedProjectView } from './model/resolved';
 import { resolveProject } from './resolver';
 
@@ -498,18 +498,12 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private validate(): ValidateCoreProjectCallResult {
-    const validation = validate(this.model, { onlineSeverity: 'error', checkBindingApi: true });
+    const validation = validate(this.view, { onlineSeverity: 'error', checkBindingApi: true });
     return { validation };
   }
 
   private prepareDeployToFiles(): PrepareDeployToFilesCoreProjectCallResult {
-    const validation = validate(this.model, { onlineSeverity: 'warning', checkBindingApi: false });
-    if (hasError(validation)) {
-      // Validation errors, cannot go further.
-      return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
-    }
-  
-    return { validation, ... prepareToFiles(this.view) };
+    return prepareToFiles(this.view);
   }
 
   private async applyDeployToFiles({ bindingsInstanceName, serverData }: ApplyDeployToFilesCoreProjectCall): Promise<ApplyDeployToFilesCoreProjectCallResult> {
@@ -518,13 +512,7 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private async prepareDeployToOnline(): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-    const validation = validate(this.model, { onlineSeverity: 'error', checkBindingApi: true });
-    if (hasError(validation)) {
-      // Validation errors, cannot go further.
-      return { validation, changes: null, serverData: null };
-    }
-  
-    return { validation, ... await prepareToOnline(this.view) };
+    return await prepareToOnline(this.view);
   }
 
   private async applyDeployToOnline({ serverData }: ApplyDeployToOnlineCoreProjectCall) {

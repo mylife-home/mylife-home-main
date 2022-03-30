@@ -1,10 +1,10 @@
 import { components } from 'mylife-home-common';
 import { ChangeType, coreValidation } from '../../../../shared/project-manager';
 import { Services } from '../..';
-import { ComponentModel, ProjectModel, PluginModel } from './model';
+import { ComponentView, ResolvedProjectView, PluginView } from './model/resolved';
 import { buildPluginMembersAndConfigChanges } from './import';
 
-export function validate(project: ProjectModel, { onlineSeverity, checkBindingApi }: { onlineSeverity: coreValidation.Severity; checkBindingApi: boolean }): coreValidation.Item[] {
+export function validate(project: ResolvedProjectView, { onlineSeverity, checkBindingApi }: { onlineSeverity: coreValidation.Severity; checkBindingApi: boolean }): coreValidation.Item[] {
   const validation: coreValidation.Item[] = [];
   validatePluginChanges(project, onlineSeverity, validation);
   validateExistingComponents(project, onlineSeverity, validation);
@@ -21,8 +21,8 @@ export function validate(project: ProjectModel, { onlineSeverity, checkBindingAp
   return validation;
 }
 
-function validatePluginChanges(project: ProjectModel, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
-  const usedPlugins = new Map<PluginModel, string[]>();
+function validatePluginChanges(project: ResolvedProjectView, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
+  const usedPlugins = new Map<PluginView, string[]>();
 
   for (const componentId of project.getComponentsIds()) {
     const component = project.getComponent(componentId);
@@ -60,7 +60,7 @@ function validatePluginChanges(project: ProjectModel, severity: coreValidation.S
   }
 }
 
-function newPluginChangedValidationError(pluginModel: PluginModel, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
+function newPluginChangedValidationError(pluginModel: PluginView, impacts: string[], changeType: ChangeType, severity: coreValidation.Severity): coreValidation.PluginChanged {
   return {
     type: 'plugin-changed',
     severity,
@@ -74,7 +74,7 @@ function newPluginChangedValidationError(pluginModel: PluginModel, impacts: stri
   };
 }
 
-function validateExistingComponents(project: ProjectModel, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
+function validateExistingComponents(project: ResolvedProjectView, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
   const onlineService = Services.instance.online;
 
   for (const componentId of project.getComponentsIds()) {
@@ -108,7 +108,7 @@ function validateExistingComponents(project: ProjectModel, severity: coreValidat
   }
 }
 
-function validateExternalComponents(project: ProjectModel, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
+function validateExternalComponents(project: ResolvedProjectView, severity: coreValidation.Severity, validation: coreValidation.Item[]) {
   const onlineService = Services.instance.online;
 
   for (const componentId of project.getComponentsIds()) {
@@ -133,7 +133,7 @@ function validateExternalComponents(project: ProjectModel, severity: coreValidat
   }
 }
 
-function isSamePlugin(componentModel: ComponentModel, componentOnline: components.ComponentData) {
+function isSamePlugin(componentModel: ComponentView, componentOnline: components.ComponentData) {
   if (componentModel.instance.instanceName !== componentOnline.instanceName) {
     return false;
   }
@@ -145,7 +145,7 @@ function isSamePlugin(componentModel: ComponentModel, componentOnline: component
       && pluginModelData.version === pluginOnline.version;
 }
 
-function arePluginsCompatible(componentModel: ComponentModel, componentOnline: components.ComponentData) {
+function arePluginsCompatible(componentModel: ComponentView, componentOnline: components.ComponentData) {
   const pluginModel = componentModel.plugin;
   const pluginOnline = componentOnline.component.plugin;
 
@@ -154,7 +154,7 @@ function arePluginsCompatible(componentModel: ComponentModel, componentOnline: c
   return isObjectEmpty(changes.members);
 }
 
-function newBadExternalComponent(componentModel: ComponentModel, componentOnline: components.ComponentData, severity: coreValidation.Severity): coreValidation.BadExternalComponent {
+function newBadExternalComponent(componentModel: ComponentView, componentOnline: components.ComponentData, severity: coreValidation.Severity): coreValidation.BadExternalComponent {
   return {
     type: 'bad-external-component',
     severity,
@@ -174,7 +174,7 @@ function newBadExternalComponent(componentModel: ComponentModel, componentOnline
   };
 }
 
-function validateBindingApi(project: ProjectModel, validation: coreValidation.Item[]) {
+function validateBindingApi(project: ResolvedProjectView, validation: coreValidation.Item[]) {
   if (project.hasBindings()) {
     const bindingsInstances = Services.instance.online.getInstancesByCapability('bindings-api');
     if (bindingsInstances.length !== 1) {
@@ -191,7 +191,7 @@ function newInvalidBindingApi(instanceNames: string[]): coreValidation.InvalidBi
   };
 }
 
-function validateComponentConfigs(project: ProjectModel, validation: coreValidation.Item[]) {
+function validateComponentConfigs(project: ResolvedProjectView, validation: coreValidation.Item[]) {
   for (const componentId of project.getComponentsIds()) {
     const component = project.getComponent(componentId);
     if (component.data.external) {
@@ -237,7 +237,7 @@ function validateComponentConfigs(project: ProjectModel, validation: coreValidat
   }
 }
 
-function validateBindingsConsistency(project: ProjectModel, validation: coreValidation.Item[]) {
+function validateBindingsConsistency(project: ResolvedProjectView, validation: coreValidation.Item[]) {
   for (const bindingId of project.getBindingsIds()) {
     const bindingModel = project.getBinding(bindingId);
     const sourceType = bindingModel.sourceComponent.plugin.data.members[bindingModel.sourceState]?.valueType;
