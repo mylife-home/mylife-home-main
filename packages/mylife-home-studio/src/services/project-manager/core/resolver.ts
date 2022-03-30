@@ -40,7 +40,8 @@ export function resolveProject(projectModel: ProjectModel): ResolvedProjectView 
       const componentView = new ComponentViewImpl(componentId, pluginView, config, external);
 
       projectView.components.set(componentView.id, componentView);
-      pluginView.components.set(componentView.id, componentView);
+      pluginView.usage.set(componentView.id, componentView);
+      pluginView.instance.usage.set(componentView.id, componentView);
 
       continue;
     }
@@ -75,12 +76,20 @@ export class ResolvedProjectViewImpl implements ResolvedProjectView {
   readonly components = new Map<string, ComponentViewImpl>();
   readonly bindings = new Map<string, BindingViewImpl>();
 
+  getInstancesNames() {
+    return Array.from(this.instances.keys());
+  }
+
+  getInstance(instanceName: string) {
+    return checkExist(this.instances.get(instanceName));
+  }
+
   getPluginsIds() {
     return Array.from(this.plugins.keys());
   }
 
   getPlugin(id: string) {
-    return this.plugins.get(id);
+    return checkExist(this.plugins.get(id));
   }
 
   getComponentsIds() {
@@ -88,12 +97,36 @@ export class ResolvedProjectViewImpl implements ResolvedProjectView {
   }
   
   getComponent(id: string) {
-    return this.components.get(id);
+    return checkExist(this.components.get(id));
+  }
+
+  getBindingsIds() {
+    return Array.from(this.bindings.keys());
+  }
+  
+  getBinding(id: string) {
+    return checkExist(this.bindings.get(id));
+  }
+
+  hasBindings() {
+    return this.bindings.size > 0;
+  }
+
+  hasBinding(id: string) {
+    return !!this.bindings.get(id);
   }
 }
 
+function checkExist<T>(value: T) {
+  if (value) {
+    return value;
+  }
+
+  throw new Error('Object not found');
+}
+
 export class PluginViewImpl implements PluginView {
-  readonly components = new Map<string, ComponentViewImpl>();
+  readonly usage = new Map<string, ComponentViewImpl>();
 
   constructor(
     readonly instance: InstanceView,
@@ -105,8 +138,32 @@ export class PluginViewImpl implements PluginView {
 
 export class InstanceViewImpl implements InstanceView {
   readonly plugins = new Map<string, PluginViewImpl>();
+  readonly usage = new Map<string, ComponentViewImpl>();
 
   constructor(readonly instanceName: string) {
+  }
+
+  hasNonExternalComponents() {
+    for (const component of this.usage.values()) {
+      if (!component.external) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  hasNonExternalComponent(id: string) {
+    const component = this.usage.get(id);
+    return !!component && !component.external;
+  }
+
+  *getAllNonExternalComponents() {
+    for (const component of this.usage.values()) {
+      if (!component.external) {
+        yield component;
+      }
+    }
   }
 }
 

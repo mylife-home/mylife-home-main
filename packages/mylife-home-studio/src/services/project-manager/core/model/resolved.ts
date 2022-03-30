@@ -1,10 +1,16 @@
 import { CoreComponentConfiguration, CorePluginData } from '../../../../../shared/project-manager';
 
 export interface ResolvedProjectView {
-  getComponentsIds(): string[];
-  getComponent(id: string): ComponentView;
+  getInstancesNames(): string[];
+  getInstance(instanceName: string): InstanceView;
   getPluginsIds(): string[];
   getPlugin(id: string): PluginView;
+  getComponentsIds(): string[];
+  getComponent(id: string): ComponentView;
+  getBindingsIds(): string[];
+  getBinding(id: string): BindingView;
+  hasBindings(): boolean;
+  hasBinding(id: string): boolean;
 }
 
 export interface PluginView {
@@ -15,6 +21,10 @@ export interface PluginView {
 
 export interface InstanceView {
   readonly instanceName: string;
+
+  hasNonExternalComponents(): boolean;
+  hasNonExternalComponent(componentId: string): boolean;
+  getAllNonExternalComponents(): Generator<ComponentView>;
 }
 
 export interface ComponentView {
