@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { Member, MemberType, ConfigItem, ComponentsSelection, BindingSelection, View, Template, ComponentDefinition, Plugin, TemplateMemberExport, TemplateConfigExport } from './types';
+import { Member, MemberType, ConfigItem, ComponentsSelection, BindingSelection, View, Template, ComponentDefinition, Plugin, TemplateMemberExport, TemplateConfigExport, ComponentDefinitionProperties } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
@@ -69,15 +69,6 @@ export const getDefinitionObject = (state: AppState, definition: ComponentDefini
     default:
       throw new Error(`Unsupported definition type: '${definition.type}'.`);
   }
-}
-
-export interface ComponentDefinitionProperties {
-  readonly stateIds: string[];
-  readonly actionIds: string[];
-  readonly configIds: string[];
-
-  readonly members: { [name: string]: Member };
-  readonly config: { [name: string]: ConfigItem; };
 }
 
 export function makeGetComponentDefinitionProperties() {

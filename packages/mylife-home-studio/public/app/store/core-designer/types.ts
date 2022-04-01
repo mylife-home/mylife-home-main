@@ -158,6 +158,15 @@ export interface View {
   bindings: string[];
 }
 
+export interface ComponentDefinitionProperties {
+  readonly stateIds: string[];
+  readonly actionIds: string[];
+  readonly configIds: string[];
+
+  readonly members: { [name: string]: Member };
+  readonly config: { [name: string]: ConfigItem; };
+}
+
 export interface BulkUpdatesData {
   changes: coreImportData.ObjectChange[];
   serverData: unknown;
