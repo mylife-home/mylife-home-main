@@ -140,8 +140,8 @@ export interface BindingHalf {
 
 export const getNewBindingHalfList = (state: AppState, tabId: string, componentId: string, memberName: string) => {
   const component = getComponent(state, componentId);
-  const plugin = getPlugin(state, component.plugin);
-  const member = plugin.members[memberName];
+  const definition = getComponentDefinitionProperties(component.definition, buildComponentDefinitionResolverMaps(state));
+  const member = definition.members[memberName];
 
   const possiblePluginMembers = buildPossibleMembers(state, tabId, getBindingOtherHalfType(member.memberType), member.valueType);
 
@@ -155,7 +155,8 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
     }
 
     const possibleComponent = getComponent(state, possibleComponentId);
-    const possiblePlugin = possiblePluginMembers.get(possibleComponent.plugin);
+    const defId = makeDefId(possibleComponent.definition);
+    const possiblePlugin = possiblePluginMembers.get(defId);
     if (!possiblePlugin) {
       continue;
     }
@@ -178,27 +179,41 @@ export const getNewBindingHalfList = (state: AppState, tabId: string, componentI
   return list;
 };
 
-function buildPossibleMembers(state: AppState, tabId: string, memberType: MemberType, valueType: string) {
-  const possiblePluginMembers = new Map<string, Set<string>>();
+function makeDefId(definition: ComponentDefinition) {
+  return `${definition.type}:${definition.id}`;
+}
 
-  for (const pluginId of getPluginIds(state, tabId)) {
-    const plugin = getPlugin(state, pluginId);
-    for (const [memberName, member] of Object.entries(plugin.members)) {
+function buildPossibleMembers(state: AppState, tabId: string, memberType: MemberType, valueType: string) {
+  const possibleDefinitionMembers = new Map<string, Set<string>>();
+
+  const maps = buildComponentDefinitionResolverMaps(state);
+
+  const definitions: ComponentDefinition[] = [
+    ...getPluginIds(state, tabId).map(id => ({ type: 'plugin', id })),
+    ...getTemplateIds(state, tabId).map(id => ({ type: 'template', id })),
+  ];
+  
+
+  for (const defRef of definitions) {
+    const definition = getComponentDefinitionProperties(defRef, maps);
+    for (const [memberName, member] of Object.entries(definition.members)) {
       if (member.memberType !== memberType || member.valueType !== valueType) {
         continue;
       }
 
-      let possiblePlugin = possiblePluginMembers.get(plugin.id);
-      if (!possiblePlugin) {
-        possiblePlugin = new Set<string>();
-        possiblePluginMembers.set(plugin.id, possiblePlugin);
+      const defId = makeDefId(defRef);
+
+      let possibleDefinition = possibleDefinitionMembers.get(defId);
+      if (!possibleDefinition) {
+        possibleDefinition = new Set<string>();
+        possibleDefinitionMembers.set(defId, possibleDefinition);
       }
 
-      possiblePlugin.add(memberName);
+      possibleDefinition.add(memberName);
     }
   }
 
-  return possiblePluginMembers;
+  return possibleDefinitionMembers;
 }
 
 function getBindingOtherHalfType(memberType: MemberType) {
