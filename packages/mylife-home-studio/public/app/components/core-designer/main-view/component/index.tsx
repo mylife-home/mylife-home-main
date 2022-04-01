@@ -109,7 +109,6 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   const { isRectVisible } = useViewPortVisibility();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const properties = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
-  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, properties.instance), [properties.instance]));
   const bindingDndInfo = useBindingDndInfo();
 
   const stateItems = useMemo(() => buildMembers(componentId, properties, properties.stateIds), [componentId, properties]);

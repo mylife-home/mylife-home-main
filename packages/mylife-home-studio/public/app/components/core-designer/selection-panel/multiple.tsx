@@ -12,7 +12,7 @@ import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shap
 import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
 
-import { getComponentsMap, getPluginsMap, getSelectedComponentsArray, makeGetExportedComponentIds } from '../../../store/core-designer/selectors';
+import { getComponentsMap, getSelectedComponentsArray, makeGetExportedComponentIds, getComponentDefinitionPropertiesGetter } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -74,16 +74,16 @@ function useActionsConnect(componentsIds: string[]) {
 function useCenterPosition(componentsIds: string[]) {
   const theme = useCanvasTheme();
   const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
+  const getComponentDefinitionProperties = useSelector(getComponentDefinitionPropertiesGetter);
 
   return useMemo(() => {
     const rects = componentsIds.map(id => {
       const component = componentsMap[id];
-      const plugin = pluginsMap[component.plugin];
-      return computeComponentRect(theme, component, plugin);
+      const definition = getComponentDefinitionProperties(component.definition);
+      return computeComponentRect(theme, component, definition);
     });
 
     return computeCenter(mergeRects(rects));
 
-  }, [theme, componentsIds, componentsMap, pluginsMap]);
+  }, [theme, componentsIds, componentsMap, getComponentDefinitionProperties]);
 }
