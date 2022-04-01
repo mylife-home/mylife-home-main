@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { MemberType, ComponentsSelection, BindingSelection, View, Template } from './types';
+import { Member, MemberType, ConfigItem, ComponentsSelection, BindingSelection, View, Template, ComponentDefinition, Plugin, TemplateMemberExport, TemplateConfigExport } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
@@ -59,6 +59,121 @@ export const getBinding = (state: AppState, bindingId: string) => getBindingsTab
 export const getTemplatesMap = (state: AppState) => getTemplatesTable(state).byId;
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
+
+export const getDefinitionObject = (state: AppState, definition: ComponentDefinition) => {
+  switch (definition.type) {
+    case 'plugin':
+      return getPlugin(state, definition.id);
+    case 'template':
+      return getTemplate(state, definition.id);
+    default:
+      throw new Error(`Unsupported definition type: '${definition.type}'.`);
+  }
+}
+
+export interface ComponentDefinitionProperties {
+  readonly stateIds: string[];
+  readonly actionIds: string[];
+  readonly configIds: string[];
+
+  readonly members: { [name: string]: Member };
+  readonly config: { [name: string]: ConfigItem; };
+}
+
+export function makeGetComponentDefinitionProperties() {
+  return createSelector(
+    getDefinitionObject,
+    (state: AppState, definition: ComponentDefinition) => definition.type,
+    getTemplatesMap,
+    getComponentsMap,
+    getPluginsMap,
+    (object, type, templates, components, plugins) => {
+      const properties: ComponentDefinitionProperties = {
+        stateIds: [],
+        actionIds: [],
+        configIds: [],
+        members: {},
+        config: {}
+      };
+
+      switch(type) {
+        case 'plugin': {
+          const plugin = object as Plugin;
+
+          const { members, config } = plugin;
+          Object.assign(properties, { members, config });
+
+          break;
+        }
+
+        case 'template': {
+          const template = object as Template;
+
+          for (const [id, configExport] of Object.entries(template.exports.config)) {
+            properties.config[id] = resolveTemplateConfigItem(configExport);
+          }
+
+          for (const [id, memberExport] of Object.entries(template.exports.members)) {
+            properties.members[id] = resolveTemplateMember(memberExport);
+          }
+
+          break;
+        }
+      }
+
+      for (const [name, { memberType }] of Object.entries(properties.members)) {
+        switch (memberType) {
+          case MemberType.STATE:
+            properties.stateIds.push(name);
+            break;
+          case MemberType.ACTION:
+            properties.actionIds.push(name);
+            break;
+        }
+      }
+    
+      for (const name of Object.keys(properties.config)) {
+        properties.configIds.push(name);
+      }
+    
+      properties.stateIds.sort();
+      properties.actionIds.sort();
+      properties.configIds.sort();
+    
+      return properties;
+
+      function resolveTemplateConfigItem(configExport: TemplateConfigExport): ConfigItem {
+        const { definition } = components[configExport.component];
+        switch (definition.type) {
+          case 'plugin': {
+            const plugin = plugins[definition.id];
+            return plugin.config[configExport.configName];
+          }
+
+          case 'template': {
+            const template = templates[definition.id];
+            return resolveTemplateConfigItem(template.exports.config[configExport.configName]);
+          }
+        }
+      }
+
+      function resolveTemplateMember(memberExport: TemplateMemberExport): Member {
+        const { definition } = components[memberExport.component];
+        switch (definition.type) {
+          case 'plugin': {
+            const plugin = plugins[definition.id];
+            return plugin.members[memberExport.member];
+          }
+
+          case 'template': {
+            const template = templates[definition.id];
+            return resolveTemplateMember(template.exports.members[memberExport.member]);
+          }
+        }
+      }
+    }
+  );
+};
 
 export const getInstanceStats = (state: AppState, instanceId: string) => {
   const instance = getInstance(state, instanceId);
