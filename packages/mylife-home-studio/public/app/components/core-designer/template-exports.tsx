@@ -16,7 +16,7 @@ import { useTabSelector } from '../lib/use-tab-selector';
 import DeleteButton from '../lib/delete-button';
 import { AppState } from '../../store/types';
 import { MemberType } from '../../store/core-designer/types';
-import { getActiveTemplateId, getComponentIds, getTemplate, getComponent, getPlugin, getComponentsMap, getPluginsMap } from '../../store/core-designer/selectors';
+import { getActiveTemplateId, getTemplate, getComponent, getPlugin, PropertyItem, getTemplateCandidateConfigExports, getTemplateCandidateMemberExports, getTemplateConfigItem, getTemplateMemberItem } from '../../store/core-designer/selectors';
 import { setTemplateExport, clearTemplateExport } from '../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -45,8 +45,8 @@ const TemplateExports: FunctionComponent<{ className?: string; }> = ({ className
   const template = useActiveTemplate();
   const configIds = useMemo(() => Object.keys(template.exports.config).sort(), [template]);
   const memberIds = useMemo(() => Object.keys(template.exports.members).sort(), [template]);
-  const configList = useConfigList();
-  const memberList = useMemberList();
+  const configList = useSelector((state: AppState) => getTemplateCandidateConfigExports(state, template.id));
+  const memberList = useSelector((state: AppState) => getTemplateCandidateMemberExports(state, template.id));
 
   return (
     <div className={className}>
@@ -70,15 +70,15 @@ export default TemplateExports;
 
 const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useActiveTemplate();
-  const config = template.exports.config[id];
-  const { component, plugin } = useComponentAndPlugin(config.component);
-  const configMeta = plugin.config[config.configName];
+  const configItem = template.exports.config[id];
+  const component = useSelector((state: AppState) => getComponent(state, id));
+  const configMeta = useSelector((state: AppState) => getTemplateConfigItem(state, template.id, id));
 
   return (
     <ExportItem
       id={id}
       description={configMeta.description}
-      text={`${component.componentId}.${config.configName}`}
+      text={`${component.componentId}.${configItem.configName}`}
       type={configMeta.valueType}
       exportType='config'
     />
@@ -88,8 +88,8 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
 const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useActiveTemplate();
   const member = template.exports.members[id];
-  const { component, plugin } = useComponentAndPlugin(member.component);
-  const memberMeta = plugin.members[member.member];
+  const component = useSelector((state: AppState) => getComponent(state, id));
+  const memberMeta = useSelector((state: AppState) => getTemplateMemberItem(state, template.id, id));
   const MemberIcon = getMemberIcon(memberMeta.memberType);
 
   return (
@@ -180,12 +180,6 @@ function validateId(value: string, existingIds: string[]): { valid: boolean, rea
   return { valid: true };
 }
 
-interface PropertyItem {
-  componentId: string;
-  componentName: string;
-  propertyName: string;
-}
-
 const PropertySelector: FunctionComponent<{ className?: string; list: PropertyItem[]; value: PropertyItem; onSelect: (value: PropertyItem) => void; }> = ({ className, list, value, onSelect }) => {
   const [inputValue, setInputValue] = useState('');
 
@@ -235,12 +229,6 @@ function useActiveTemplate() {
   return useSelector((state: AppState) => getTemplate(state, templateId));
 }
 
-function useComponentAndPlugin(id: string) {
-  const component = useSelector((state: AppState) => getComponent(state, id));
-  const plugin = useSelector((state: AppState) => getPlugin(state, component.plugin));
-  return { component, plugin };
-}
-
 function useClearExport(exportType: 'config' | 'member', exportId: string) {
   const templateId = useTabSelector(getActiveTemplateId);
   const dispatch = useDispatch();
@@ -251,54 +239,4 @@ function useClearExport(exportType: 'config' | 'member', exportId: string) {
 
     dispatch(clearTemplateExport({ templateId, exportType, exportId }))
   }, [dispatch, templateId, exportType, exportId]);
-}
-
-function useMemberList() {
-  const componentsIds = useTabSelector(getComponentIds);
-  const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
-
-  return useMemo(() => {
-    const list: PropertyItem[] = [];
-
-    for (const componentId of componentsIds) {
-      const component = componentsMap[componentId];
-      const plugin = pluginsMap[component.plugin];
-  
-      for (const memberId of [...plugin.stateIds, ...plugin.actionIds]) {
-        list.push({
-          componentId: component.id,
-          componentName: component.componentId,
-          propertyName: memberId
-        });
-      }
-    }
-  
-    return list;
-  }, [componentsIds, componentsMap, pluginsMap]);
-}
-
-function useConfigList() {
-  const componentsIds = useTabSelector(getComponentIds);
-  const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
-
-  return useMemo(() => {
-    const list: PropertyItem[] = [];
-
-    for (const componentId of componentsIds) {
-      const component = componentsMap[componentId];
-      const plugin = pluginsMap[component.plugin];
-  
-      for (const configId of plugin.configIds) {
-        list.push({
-          componentId: component.id,
-          componentName: component.componentId,
-          propertyName: configId
-        });
-      }
-    }
-  
-    return list;
-  }, [componentsIds, componentsMap, pluginsMap]);
 }

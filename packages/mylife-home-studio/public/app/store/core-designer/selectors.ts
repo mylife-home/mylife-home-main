@@ -298,21 +298,20 @@ export function makeGetExportedComponentIds() {
   );
 }
 
-export function makeGetComponentDefinitionProperties() {
-  return createSelector(
-    (state: AppState, definition: ComponentDefinition) => definition.id, // make it stable
-    (state: AppState, definition: ComponentDefinition) => definition.type,
-    getTemplatesMap,
-    getComponentsMap,
-    getPluginsMap,
-    (id, type, templates, components, plugins) => getComponentDefinitionProperties({ id, type }, { templates, components, plugins })
-  );
-};
-
 interface ComponentDefinitionResolverMaps {
   components: ById<Component>;
   plugins: ById<Plugin>;
   templates: ById<Template>;
+}
+
+function buildComponentDefinitionResolverMaps(state: AppState) {
+  const maps: ComponentDefinitionResolverMaps = {
+    templates: getTemplatesMap(state),
+    components: getComponentsMap(state),
+    plugins: getPluginsMap(state),
+  };
+
+  return maps;
 }
 
 function getComponentDefinitionProperties(definition: ComponentDefinition, maps: ComponentDefinitionResolverMaps) {
@@ -369,7 +368,6 @@ function getComponentDefinitionProperties(definition: ComponentDefinition, maps:
   properties.configIds.sort();
 
   return properties;
-
 }
 
 function resolveTemplateConfigItem(maps: ComponentDefinitionResolverMaps, configExport: TemplateConfigExport): ConfigItem {
@@ -400,4 +398,81 @@ function resolveTemplateMember(maps: ComponentDefinitionResolverMaps, memberExpo
       return resolveTemplateMember(maps, template.exports.members[memberExport.member]);
     }
   }
+}
+
+export function makeGetComponentDefinitionProperties() {
+  return createSelector(
+    (state: AppState, definition: ComponentDefinition) => definition.id, // make it stable
+    (state: AppState, definition: ComponentDefinition) => definition.type,
+    getTemplatesMap,
+    getComponentsMap,
+    getPluginsMap,
+    (id, type, templates, components, plugins) => getComponentDefinitionProperties({ id, type }, { templates, components, plugins })
+  );
+};
+
+export interface PropertyItem {
+  componentId: string;
+  componentName: string;
+  propertyName: string;
+}
+
+export const getTemplateCandidateMemberExports = (state: AppState, templateId: string) => {
+  const maps = buildComponentDefinitionResolverMaps(state);
+  const template = getTemplate(state, templateId);
+  
+  const list: PropertyItem[] = [];
+
+  for (const componentId of template.components) {
+    const component = maps.components[componentId];
+    const properties = getComponentDefinitionProperties(component.definition, maps);
+
+    for (const memberId of [...properties.stateIds, ...properties.actionIds]) {
+      list.push({
+        componentId: component.id,
+        componentName: component.componentId,
+        propertyName: memberId
+      });
+    }
+  }
+
+  return list;
+};
+
+export const getTemplateCandidateConfigExports = (state: AppState, templateId: string) => {
+  const maps = buildComponentDefinitionResolverMaps(state);
+  const template = getTemplate(state, templateId);
+  
+  const list: PropertyItem[] = [];
+
+  for (const componentId of template.components) {
+    const component = maps.components[componentId];
+    const properties = getComponentDefinitionProperties(component.definition, maps);
+
+    for (const configId of properties.configIds) {
+      list.push({
+        componentId: component.id,
+        componentName: component.componentId,
+        propertyName: configId
+      });
+    }
+  }
+
+  return list;
+};
+
+export const getTemplateConfigItem = (state: AppState, templateId: string, configId: string) => {
+  const maps = buildComponentDefinitionResolverMaps(state);
+  const template = getTemplate(state, templateId);
+
+  const configExport = template.exports.config[configId];
+  return resolveTemplateConfigItem(maps, configExport);
+}
+
+export const getTemplateMemberItem = (state: AppState, templateId: string, memberId: string) => {
+  const maps = buildComponentDefinitionResolverMaps(state);
+  const template = getTemplate(state, templateId);
+
+  const memberExport = template.exports.members[memberId];
+  return resolveTemplateMember(maps, memberExport);
 }
