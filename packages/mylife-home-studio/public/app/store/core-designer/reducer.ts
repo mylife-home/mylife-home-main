@@ -461,9 +461,6 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
   const pluginBaseData: Omit<Plugin, 'id' | 'usageComponents'> = {
     ...data,
     instance: instanceId,
-    stateIds: [],
-    actionIds: [],
-    configIds: [],
   };
 
   let plugin = state.plugins.byId[id];
@@ -483,25 +480,6 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
   }
 
   arraySet(instance.plugins, plugin.id, true);
-
-  for (const [name, { memberType }] of Object.entries(plugin.members)) {
-    switch (memberType) {
-      case MemberType.STATE:
-        plugin.stateIds.push(name);
-        break;
-      case MemberType.ACTION:
-        plugin.actionIds.push(name);
-        break;
-    }
-  }
-
-  for (const name of Object.keys(plugin.config)) {
-    plugin.configIds.push(name);
-  }
-
-  plugin.stateIds.sort();
-  plugin.actionIds.sort();
-  plugin.configIds.sort();
 }
 
 function registerComponentOnDefinition(state: CoreDesignerState,openedProject: CoreOpenedProject, component: Component) {

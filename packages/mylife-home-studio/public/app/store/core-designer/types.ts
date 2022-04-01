@@ -90,11 +90,6 @@ export interface Instance {
 export interface Plugin extends Omit<CorePluginData, 'instanceName'> {
   id: string;
   instance: string; // instance ID
-  
-  stateIds: string[]; // ordered alphabetically
-  actionIds: string[]; // ordered alphabetically
-  configIds: string[]; // ordered alphabetically
-
   usageComponents: string[]; // components using this plugin
 }
 
