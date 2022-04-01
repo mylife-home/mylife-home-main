@@ -157,13 +157,6 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
         setPlugin(state, openedProject, pluginId, pluginData);
       }
 
-      // sort filled instances
-      for (const id of openedProject.instances) {
-        const instance = state.instances.byId[id];
-        updateInstanceStats(state, id);
-        instance.plugins.sort();
-      }
-
       break;
     }
 
@@ -172,19 +165,12 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       const id = `${openedProject.id}:${pluginId}`;
       const plugin = state.plugins.byId[id];
       plugin.toolboxDisplay = display;
-
-      updateInstanceStats(state, plugin.instance);
-
       break;
     }
 
     case 'set-core-plugin': {
       const { id: pluginId, plugin: pluginData } = update as SetCorePluginNotification;
-      const id = `${openedProject.id}:${pluginId}`;
-      const { instance } = setPlugin(state, openedProject, id, pluginData);
-
-      updateInstanceStats(state, instance.id);
-      instance.plugins.sort();
+      setPlugin(state, openedProject, pluginId, pluginData);
       
       break;
     }
@@ -194,7 +180,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       const id = `${openedProject.id}:${pluginId}`;
       const plugin = state.plugins.byId[id];
 
-      if (plugin.use !== 'unused') {
+      if (plugin.usageComponents.length > 0) {
         throw new Error(`Receive notification to delete plugin '${id}' which is used!`);
       }
 
@@ -205,9 +191,8 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       tableRemove(state.plugins, id);
 
       if (instance.plugins.length === 0) {
+        arrayRemove(openedProject.instances, instance.id);
         tableRemove(state.instances, instance.id);
-      } else {
-        updateInstanceStats(state, instance.id);
       }
 
       break;
@@ -226,7 +211,6 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
           components: [],
           bindings: [],
           exports: { config: {}, members: {} },
-          use: 'unused',
           usageComponents: [],
         };
 
@@ -464,18 +448,41 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
 function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, pluginId: string, pluginData: CorePluginData) {
   const id = `${openedProject.id}:${pluginId}`;
+
   const { instanceName, ...data } = pluginData;
   const instanceId = `${openedProject.id}:${instanceName}`;
-  const plugin: Plugin = {
-    id,
+  let instance = state.instances.byId[instanceId];
+  if (!instance) {
+    instance = { id: instanceId, instanceName, plugins: [] };
+    tableSet(state.instances, instance, true);
+    arrayAdd(openedProject.instances, instance.id, true);
+  }
+
+  const pluginBaseData: Omit<Plugin, 'id' | 'usageComponents'> = {
     ...data,
     instance: instanceId,
     stateIds: [],
     actionIds: [],
     configIds: [],
-    use: 'unused',
-    usageComponents: [],
   };
+
+  let plugin = state.plugins.byId[id];
+
+  if (!plugin) {
+    plugin = {
+      id,
+      usageComponents: [],
+      ...pluginBaseData
+    }
+
+    tableSet(state.plugins, plugin, true);
+    arraySet(openedProject.plugins, plugin.id, true);
+  } else {
+    // keep existing id + usageComponents, overwrite other
+    Object.assign(plugin, pluginBaseData);
+  }
+
+  arraySet(instance.plugins, plugin.id, true);
 
   for (const [name, { memberType }] of Object.entries(plugin.members)) {
     switch (memberType) {
@@ -495,97 +502,6 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
   plugin.stateIds.sort();
   plugin.actionIds.sort();
   plugin.configIds.sort();
-
-  updatePluginStats(state, openedProject, plugin, true);
-  tableSet(state.plugins, plugin, true);
-  arraySet(openedProject.plugins, plugin.id, true);
-
-  let instance = state.instances.byId[instanceId];
-  if (!instance) {
-    instance = { id: instanceId, instanceName, plugins: [], use: 'unused', hasShown: false, hasHidden: false };
-    tableSet(state.instances, instance, true);
-    arrayAdd(openedProject.instances, instance.id, true);
-  }
-
-  arraySet(instance.plugins, plugin.id, true);
-
-  return { plugin, instance };
-}
-
-function updateTemplateStats(state: CoreDesignerState, openedProject: CoreOpenedProject, template: Template, rebuildComponentList = false) {
-  updateComponentDefinitionStats(state, openedProject, template, 'template', rebuildComponentList);
-}
-
-function updatePluginStats(state: CoreDesignerState, openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
-  updateComponentDefinitionStats(state, openedProject, plugin, 'plugin', rebuildComponentList);
-}
-
-function updateComponentDefinitionStats(state: CoreDesignerState, openedProject: CoreOpenedProject, definition: ComponentDefinition, type: CoreComponentDefinitionType, rebuildComponentList = false) {
-
-  if (rebuildComponentList) {
-    const components: string[] = [];
-
-    const views: View[] = [openedProject, ...openedProject.templates.map(templateId => state.templates.byId[templateId])];
-    for (const view of views) {
-      for (const componentId of view.components) {
-        const component = state.components.byId[componentId];
-        if (component.definition.type === type && component.definition.id === definition.id) {
-          components.push(componentId);
-        }
-      }
-    }
-
-    components.sort();
-
-    definition.usageComponents = components;
-  }
-
-  definition.use = 'unused';
-
-  for (const componentId of definition.usageComponents) {
-    const component = state.components.byId[componentId];
-
-    if (component.external) {
-      definition.use = 'external';
-      continue;
-    }
-
-    definition.use = 'used';
-    break;
-  }
-}
-
-function updateInstanceStats(state: CoreDesignerState, id: string) {
-  const instance = state.instances.byId[id];
-  instance.use = 'unused';
-  instance.hasShown = false;
-  instance.hasHidden = false;
-
-  for (const pluginId of instance.plugins) {
-    const plugin = state.plugins.byId[pluginId];
-
-    switch (plugin.toolboxDisplay) {
-      case 'show':
-        instance.hasShown = true;
-        break;
-
-      case 'hide':
-        instance.hasHidden = true;
-        break;
-    }
-
-    switch (plugin.use) {
-      case 'used':
-        instance.use = 'used';
-        break;
-
-      case 'external':
-        if (instance.use === 'unused') {
-          instance.use = 'external';
-        }
-        break;
-    }
-  }
 }
 
 function registerComponentOnDefinition(state: CoreDesignerState,openedProject: CoreOpenedProject, component: Component) {
@@ -594,17 +510,12 @@ function registerComponentOnDefinition(state: CoreDesignerState,openedProject: C
     case 'plugin': {
       const plugin = state.plugins.byId[definition.id];
       arraySet(plugin.usageComponents, id, true);
-      updatePluginStats(state, openedProject, plugin);
-      updateInstanceStats(state, plugin.instance);
-
       break;
     }
 
     case 'template': {
       const template = state.templates.byId[definition.id];
       arraySet(template.usageComponents, id, true);
-      updateTemplateStats(state, openedProject, template);
-
       break;
     }
   }
@@ -616,17 +527,12 @@ function unregisterComponentFromDefinition(state: CoreDesignerState,openedProjec
     case 'plugin': {
       const plugin = state.plugins.byId[definition.id];
       arrayRemove(plugin.usageComponents, id);
-      updatePluginStats(state, openedProject, plugin);
-      updateInstanceStats(state, plugin.instance);
-    
       break;
     }
 
     case 'template': {
       const template = state.templates.byId[definition.id];
       arrayRemove(template.usageComponents, id);
-      updateTemplateStats(state, openedProject, template);
-
       break;
     }
   }

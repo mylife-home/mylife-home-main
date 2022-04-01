@@ -91,7 +91,7 @@ export const getPluginStats = (state: AppState, pluginId: string) => {
 function computePluginStats(state: AppState, pluginId: string, stats: { components: number; externalComponents: number; }) {
   const plugin = getPlugin(state, pluginId);
 
-  for (const componentId of plugin.components) {
+  for (const componentId of plugin.usageComponents) {
     const component = getComponent(state, componentId);
 
     if (component.external) {
