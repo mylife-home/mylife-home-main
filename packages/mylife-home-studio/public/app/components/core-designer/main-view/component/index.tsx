@@ -18,7 +18,7 @@ import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } 
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin, getInstance, isComponentSelected } from '../../../../store/core-designer/selectors';
+import { getComponent, getPlugin, getInstance, isComponentSelected, makeGetComponentDefinitionProperties, getTemplate } from '../../../../store/core-designer/selectors';
 
 export interface ComponentProps {
   componentId: string;
@@ -81,11 +81,12 @@ const SelectedComponent: FunctionComponent<ComponentProps> = ({ componentId }) =
 
 const ComponentSelectionMark: FunctionComponent<{componentId: string; position?: types.Position;}> = ({ componentId, position }) => {
   const theme = useCanvasTheme();
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
+  const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
 
   const movedComponent = { ...component, position: position || component.position };
-  const rect = computeComponentRect(theme, movedComponent, plugin);
+  const rect = computeComponentRect(theme, movedComponent, definition);
 
   return (
     <Border
@@ -104,24 +105,26 @@ interface ComponentLayoutProps {
 
 const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId, position }) => {
   const theme = useCanvasTheme();
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const { isRectVisible } = useViewPortVisibility();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
-  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, plugin.instance), [plugin.instance]));
+  const properties = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
+  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, properties.instance), [properties.instance]));
   const bindingDndInfo = useBindingDndInfo();
 
-  const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
-  const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
-  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, plugin), [component.external, component.config, plugin]);
+  const stateItems = useMemo(() => buildMembers(componentId, properties, properties.stateIds), [componentId, properties]);
+  const actionItems = useMemo(() => buildMembers(componentId, properties, properties.actionIds), [componentId, properties]);
+  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, properties), [component.external, component.config, properties]);
 
   const movedComponent = { ...component, position: position || component.position };
-  const rect = computeComponentRect(theme, movedComponent, plugin);
+  const rect = computeComponentRect(theme, movedComponent, properties);
 
   if (!isRectVisible(rect)) {
     return null;
   }
 
   const yIndex = createIndexManager();
+  yIndex.next(); // for title
 
   return (
     <>
@@ -130,10 +133,7 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
 
         <Title text={component.componentId} />
 
-        <BorderGroup yIndex={yIndex.peek()}>
-          <Property yIndex={yIndex.next()} icon='instance' primary={instance.instanceName} primaryItalic />
-          <Property yIndex={yIndex.next()} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
-        </BorderGroup>
+        <DefinitionLayout yIndex={yIndex.add(2)} definition={component.definition} />
 
         <BorderGroup yIndex={yIndex.peek()}>
           {configItems.map((item, index) => (
@@ -173,7 +173,43 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
 
       </Group>
     </>
+  );
+};
 
+const DefinitionLayout: FunctionComponent<{ definition: types.ComponentDefinition, yIndex: number; }> = ({ definition, yIndex }) => {
+  switch (definition.type) {
+    case 'plugin':
+      return (
+        <PluginLayout yIndex={yIndex} id={definition.id} />
+      );
+
+    case 'template':
+      return (
+        <TemplateLayout yIndex={yIndex} id={definition.id} />
+      );
+  }
+};
+
+const PluginLayout: FunctionComponent<{ id: string; yIndex: number; }> = ({ id, yIndex }) => {
+  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
+  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, properties.instance), [properties.instance]));
+
+  return (
+    <BorderGroup yIndex={yIndex}>
+      <Property yIndex={yIndex} icon='instance' primary={instance.instanceName} primaryItalic />
+      <Property yIndex={yIndex + 1} icon='plugin' primary={`${plugin.module}.${plugin.name}`} primaryItalic />
+    </BorderGroup>
+  );
+};
+
+const TemplateLayout: FunctionComponent<{ id: string; yIndex: number; }> = ({ id, yIndex }) => {
+  const template = useSafeSelector(useCallback((state: AppState) => getTemplate(state, id), [id]));
+
+  return (
+    <BorderGroup yIndex={yIndex}>
+      <Property yIndex={yIndex} icon='template' primary={'<Templates>'} primaryItalic />
+      <Property yIndex={yIndex + 1} icon='template' primary={template.templateId} primaryItalic />
+    </BorderGroup>
   );
 };
 
@@ -184,18 +220,19 @@ interface ComponentHitProps extends ComponentLayoutProps {
 
 const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, position, onDragMove, onDragEnd }) => {
   const theme = useCanvasTheme();
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const { isRectVisible } = useViewPortVisibility();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
+  const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
   const onDrag = useBindingDraggable();
   const selectComponent = useSelectComponent();
   const toggleComponent = useToggleComponent();
   const select = useCallback(() => selectComponent(componentId), [selectComponent, componentId]);
   const toggle = useCallback(() => toggleComponent(componentId), [toggleComponent, componentId]);
 
-  const stateItems = useMemo(() => buildMembers(componentId, plugin, plugin.stateIds), [componentId, plugin]);
-  const actionItems = useMemo(() => buildMembers(componentId, plugin, plugin.actionIds), [componentId, plugin]);
-  const configItemsCount = useMemo(() => component.external ? 0 : plugin.configIds.length, [component.external, plugin]);
+  const stateItems = useMemo(() => buildMembers(componentId, definition, definition.stateIds), [componentId, definition]);
+  const actionItems = useMemo(() => buildMembers(componentId, definition, definition.actionIds), [componentId, definition]);
+  const configItemsCount = useMemo(() => component.external ? 0 : definition.configIds.length, [component.external, definition]);
 
   const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
     const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey;
@@ -207,7 +244,7 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   }, [toggle, select]);
 
   const movedComponent = { ...component, position: position || component.position };
-  const rect = computeComponentRect(theme, movedComponent, plugin);
+  const rect = computeComponentRect(theme, movedComponent, definition);
 
   if (!isRectVisible(rect)) {
     return null;
@@ -283,26 +320,30 @@ const PropertyHit: FunctionComponent<PropertyHitProps> = ({ yIndex, bindingSourc
 }
 
 function createIndexManager() {
-  let index = 0; // start at 1 for Title
+  let index = 0;
 
   return { 
-    next: () => ++index, 
-    peek: () =>  index + 1,
-    add: (count: number) => index += count,
+    next: () => index++,
+    peek: () => index,
+    add: (count: number) => {
+      const actual = index;
+      index += count;
+      return actual;
+    }
   };
 }
 
-function buildMembers(componentId: string, plugin: types.Plugin, ids: string[]) {
+function buildMembers(componentId: string, properties: types.ComponentDefinitionProperties, ids: string[]) {
   return ids.map(id => {
-    const member = plugin.members[id];
+    const member = properties.members[id];
     const bindingSource: BindingSource =  { componentId, memberName: id, memberType: member.memberType, valueType: member.valueType };
     return { id, secondary: parseType(member.valueType).typeId, bindingSource };
   });
 }
 
-function buildConfig(config: { [name: string]: any }, plugin: types.Plugin) {
-  return plugin.configIds.map(id => {
-    const type = plugin.config[id].valueType;
+function buildConfig(config: { [name: string]: any }, properties: types.ComponentDefinitionProperties) {
+  return properties.configIds.map(id => {
+    const type = properties.config[id].valueType;
     const value = config[id];
     return { id, secondary: renderConfigValue(type, value) };
   });
