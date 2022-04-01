@@ -1,8 +1,8 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { ActionTypes as TabsActionTypes, NewTabAction, TabType, UpdateTabAction } from '../tabs/types';
-import { ActionTypes, ActionPayloads, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Template, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection, View } from './types';
+import { ActionTypes, ActionPayloads, CoreDesignerState, DesignerTabActionData, CoreOpenedProject, UpdateProjectNotification, SetNameProjectNotification, Plugin, Template, Component, Binding, MemberType, Instance, Selection, MultiSelectionIds, ComponentsSelection, BindingSelection, View, ComponentDefinition } from './types';
 import { createTable, tableAdd, tableRemove, tableRemoveAll, tableClear, tableSet, arrayAdd, arrayRemove, arraySet } from '../common/reducer-tools';
-import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, ClearCoreTemplateNotification, CorePluginData, RenameCoreComponentNotification, RenameCoreTemplateNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification, SetCoreTemplateNotification } from '../../../../shared/project-manager';
+import { ClearCoreBindingNotification, ClearCoreComponentNotification, ClearCorePluginNotification, ClearCoreTemplateNotification, CoreComponentDefinitionType, CorePluginData, RenameCoreComponentNotification, RenameCoreTemplateNotification, SetCoreBindingNotification, SetCoreComponentNotification, SetCorePluginNotification, SetCorePluginsNotification, SetCorePluginToolboxDisplayNotification, SetCoreTemplateNotification } from '../../../../shared/project-manager';
 
 const initialState: CoreDesignerState = {
   openedProjects: createTable<CoreOpenedProject>(),
@@ -225,7 +225,9 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
           templateId,
           components: [],
           bindings: [],
-          exports: { config: {}, members: {} }
+          exports: { config: {}, members: {} },
+          use: 'unused',
+          usageComponents: [],
         };
 
         tableSet(state.templates, template, true);
@@ -303,21 +305,18 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       // rename all bindings+components
       for (const id of template.components) {
         const component = state.components.byId[id];
-        const plugin = state.plugins.byId[component.plugin];
         const newId = `${openedProject.id}:${newTemplateId}:${component.componentId}`;
 
         tableRemove(state.components, id);
         arrayRemove(template.components, component.id);
-        arrayRemove(plugin.components, component.id);
+        unregisterComponentFromDefinition(state, openedProject, component);
 
         component.id = newId;
 
         tableSet(state.components, component, true);
-        arrayAdd(plugin.components, component.id, true);
+        registerComponentOnDefinition(state, openedProject, component);
         arrayAdd(template.components, component.id, true);
 
-        updatePluginStats(state, openedProject, plugin);
-        updateInstanceStats(state, plugin.instance);
         renameComponentSelection(openedProject, template.templateId, id, newId);
 
         for (const bindingId of Object.values(component.bindings).flat()) {
@@ -362,17 +361,20 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
     }
 
     case 'set-core-component': {
-      const { templateId, id: componentId, component } = update as SetCoreComponentNotification;
+      const { templateId, id: componentId, component: componentData } = update as SetCoreComponentNotification;
       const id = `${openedProject.id}:${templateId || ''}:${componentId}`;
-      const pluginId = `${openedProject.id}:${component.plugin}`;
-      tableSet(state.components, { ...component, id, componentId, bindings: {}, plugin: pluginId }, true);
+
+      const definition = {
+        id: `${openedProject.id}:${componentData.definition.id}`,
+        type: componentData.definition.type
+      };
+
+      const component = { ...componentData, id, componentId, bindings: {}, definition };
+      tableSet(state.components, component, true);
 
       const view = getView(state, openedProject, templateId);
-      const plugin = state.plugins.byId[pluginId];
       arraySet(view.components, id, true);
-      arraySet(plugin.components, id, true);
-      updatePluginStats(state, openedProject, plugin);
-      updateInstanceStats(state, plugin.instance);
+      registerComponentOnDefinition(state, openedProject, component);
 
       // This can be a component update, so also reindex its bindings
       for (const bindingId of view.bindings) {
@@ -393,14 +395,11 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       const { templateId, id: componentId } = update as ClearCoreComponentNotification;
       const id = `${openedProject.id}:${templateId || ''}:${componentId}`;
       const component = state.components.byId[id];
-      const plugin = state.plugins.byId[component.plugin];
-
+      
       const view = getView(state, openedProject, templateId);
-      arrayRemove(plugin.components, id);
       arrayRemove(view.components, id);
+      unregisterComponentFromDefinition(state, openedProject, component);
       tableRemove(state.components, id);
-      updatePluginStats(state, openedProject, plugin);
-      updateInstanceStats(state, plugin.instance);
       unselectComponent(openedProject, templateId, id);
       break;
     }
@@ -410,22 +409,19 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
       const id = `${openedProject.id}:${templateId || ''}:${componentId}`;
       const newId = `${openedProject.id}:${templateId || ''}:${newComponentId}`;
       const component = state.components.byId[id];
-      const plugin = state.plugins.byId[component.plugin];
 
       const view = getView(state, openedProject, templateId);
       tableRemove(state.components, id);
       arrayRemove(view.components, component.id);
-      arrayRemove(plugin.components, component.id);
+      unregisterComponentFromDefinition(state, openedProject, component);
 
       component.id = newId;
       component.componentId = newComponentId;
 
       tableSet(state.components, component, true);
-      arrayAdd(plugin.components, component.id, true);
+      registerComponentOnDefinition(state, openedProject, component);
       arrayAdd(view.components, component.id, true);
 
-      updatePluginStats(state, openedProject, plugin);
-      updateInstanceStats(state, plugin.instance);
       renameComponentSelection(openedProject, templateId, id, newId);
       break;
     }
@@ -478,7 +474,7 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
     actionIds: [],
     configIds: [],
     use: 'unused',
-    components: [],
+    usageComponents: [],
   };
 
   for (const [name, { memberType }] of Object.entries(plugin.members)) {
@@ -516,7 +512,16 @@ function setPlugin(state: CoreDesignerState, openedProject: CoreOpenedProject, p
   return { plugin, instance };
 }
 
+function updateTemplateStats(state: CoreDesignerState, openedProject: CoreOpenedProject, template: Template, rebuildComponentList = false) {
+  updateComponentDefinitionStats(state, openedProject, template, 'template', rebuildComponentList);
+}
+
 function updatePluginStats(state: CoreDesignerState, openedProject: CoreOpenedProject, plugin: Plugin, rebuildComponentList = false) {
+  updateComponentDefinitionStats(state, openedProject, plugin, 'plugin', rebuildComponentList);
+}
+
+function updateComponentDefinitionStats(state: CoreDesignerState, openedProject: CoreOpenedProject, definition: ComponentDefinition, type: CoreComponentDefinitionType, rebuildComponentList = false) {
+
   if (rebuildComponentList) {
     const components: string[] = [];
 
@@ -524,7 +529,7 @@ function updatePluginStats(state: CoreDesignerState, openedProject: CoreOpenedPr
     for (const view of views) {
       for (const componentId of view.components) {
         const component = state.components.byId[componentId];
-        if (component.plugin === plugin.id) {
+        if (component.definition.type === type && component.definition.id === definition.id) {
           components.push(componentId);
         }
       }
@@ -532,20 +537,20 @@ function updatePluginStats(state: CoreDesignerState, openedProject: CoreOpenedPr
 
     components.sort();
 
-    plugin.components = components;
+    definition.usageComponents = components;
   }
 
-  plugin.use = 'unused';
+  definition.use = 'unused';
 
-  for (const componentId of plugin.components) {
+  for (const componentId of definition.usageComponents) {
     const component = state.components.byId[componentId];
 
     if (component.external) {
-      plugin.use = 'external';
+      definition.use = 'external';
       continue;
     }
 
-    plugin.use = 'used';
+    definition.use = 'used';
     break;
   }
 }
@@ -579,6 +584,50 @@ function updateInstanceStats(state: CoreDesignerState, id: string) {
           instance.use = 'external';
         }
         break;
+    }
+  }
+}
+
+function registerComponentOnDefinition(state: CoreDesignerState,openedProject: CoreOpenedProject, component: Component) {
+  const { id, definition } = component;
+  switch (definition.type) {
+    case 'plugin': {
+      const plugin = state.plugins.byId[definition.id];
+      arraySet(plugin.usageComponents, id, true);
+      updatePluginStats(state, openedProject, plugin);
+      updateInstanceStats(state, plugin.instance);
+
+      break;
+    }
+
+    case 'template': {
+      const template = state.templates.byId[definition.id];
+      arraySet(template.usageComponents, id, true);
+      updateTemplateStats(state, openedProject, template);
+
+      break;
+    }
+  }
+}
+
+function unregisterComponentFromDefinition(state: CoreDesignerState,openedProject: CoreOpenedProject, component: Component) {
+  const { id, definition } = component;
+  switch (definition.type) {
+    case 'plugin': {
+      const plugin = state.plugins.byId[definition.id];
+      arrayRemove(plugin.usageComponents, id);
+      updatePluginStats(state, openedProject, plugin);
+      updateInstanceStats(state, plugin.instance);
+    
+      break;
+    }
+
+    case 'template': {
+      const template = state.templates.byId[definition.id];
+      arrayRemove(template.usageComponents, id);
+      updateTemplateStats(state, openedProject, template);
+
+      break;
     }
   }
 }

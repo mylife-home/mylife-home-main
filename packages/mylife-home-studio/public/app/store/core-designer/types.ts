@@ -89,16 +89,19 @@ export interface Instance {
   hasHidden: boolean;
 }
 
-export interface Plugin extends Omit<CorePluginData, 'instanceName'> {
+export interface ComponentDefinition {
+  id: string;
+  use: PluginUse;
+  usageComponents: string[];
+}
+
+export interface Plugin extends Omit<CorePluginData, 'instanceName'>, ComponentDefinition {
   id: string;
   instance: string; // instance ID
   
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
-
-  use: PluginUse;
-  components: string[];
 }
 
 export interface Binding extends CoreBindingData {
@@ -144,7 +147,7 @@ export interface CoreOpenedProject extends OpenedProjectBase, View {
   viewSelection: Selection; // selection on the view
 }
 
-export interface Template extends View {
+export interface Template extends View, ComponentDefinition {
   id: string;
   templateId: string;
   exports: TemplateExports;
