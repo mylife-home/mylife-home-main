@@ -1,5 +1,5 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport, UpdateProjectNotification } from '../../../../shared/project-manager';
+import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport, UpdateProjectNotification, CoreComponentDefinition } from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -56,7 +56,7 @@ export namespace ActionPayloads {
   export type Select = { tabId: string; selection: Selection; };
   export type ToggleComponentSelection = { tabId: string; componentId: string; };
 
-  export type SetComponent = { templateId: string; componentId: string; pluginId: string; position: Position; }; // tabId is deduced from plugin
+  export type SetComponent = { templateId: string; componentId: string; definition: ComponentDefinition; position: Position; }; // tabId is deduced from plugin
   export type MoveComponents = { componentsIds: string[]; delta: Position; };
   export type ConfigureComponent = { componentId: string; configId: string; configValue: any };
   export type RenameComponent = { componentId: string; newId: string };
@@ -79,29 +79,23 @@ export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, Con
 
 export type PluginUse = 'unused' | 'external' | 'used';
 
+export type ComponentDefinition = CoreComponentDefinition;
+
 export interface Instance {
   id: string;
   instanceName: string;
   plugins: string[];
-
-  use: PluginUse;
-  hasShown: boolean;
-  hasHidden: boolean;
 }
 
-export interface ComponentDefinition {
-  id: string;
-  use: PluginUse;
-  usageComponents: string[];
-}
-
-export interface Plugin extends Omit<CorePluginData, 'instanceName'>, ComponentDefinition {
+export interface Plugin extends Omit<CorePluginData, 'instanceName'> {
   id: string;
   instance: string; // instance ID
   
   stateIds: string[]; // ordered alphabetically
   actionIds: string[]; // ordered alphabetically
   configIds: string[]; // ordered alphabetically
+
+  usageComponents: string[]; // components using this plugin
 }
 
 export interface Binding extends CoreBindingData {
@@ -147,10 +141,12 @@ export interface CoreOpenedProject extends OpenedProjectBase, View {
   viewSelection: Selection; // selection on the view
 }
 
-export interface Template extends View, ComponentDefinition {
+export interface Template extends View {
   id: string;
   templateId: string;
   exports: TemplateExports;
+
+  usageComponents: string[]; // components using this template
 }
 
 export interface CoreDesignerState {
