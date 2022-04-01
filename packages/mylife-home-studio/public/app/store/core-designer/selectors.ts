@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { AppState } from '../types';
-import { Member, MemberType, ConfigItem, ComponentsSelection, BindingSelection, View, Template, ComponentDefinition, Plugin, TemplateMemberExport, TemplateConfigExport, ComponentDefinitionProperties } from './types';
+import { Member, MemberType, ConfigItem, ComponentsSelection, BindingSelection, View, Template, ComponentDefinition, Plugin, TemplateMemberExport, TemplateConfigExport, ComponentDefinitionProperties, ComponentDefinitionStats, InstanceStats } from './types';
 
 const getCoreDesigner = (state: AppState) => state.coreDesigner;
 const getOpenedProjects = (state: AppState) => getCoreDesigner(state).openedProjects;
@@ -169,33 +169,48 @@ export function makeGetComponentDefinitionProperties() {
 export const getInstanceStats = (state: AppState, instanceId: string) => {
   const instance = getInstance(state, instanceId);
 
-  const stats = {
+  const stats: InstanceStats = {
+    use: 'unused',
     plugins: 0,
     components: 0,
     externalComponents: 0,
+    hasHidden: false,
+    hasShown: false,
   };
 
   for (const pluginId of instance.plugins) {
     ++stats.plugins;
-    computePluginStats(state, pluginId, stats);
+    
+    const { components, externalComponents } = getPluginStats(state, pluginId);
+    stats.components += components;
+    stats.externalComponents += externalComponents;
+
+    const plugin = getPlugin(state, pluginId);
+
+    switch (plugin.toolboxDisplay) {
+      case 'show':
+        stats.hasShown = true;
+        break;
+
+      case 'hide':
+        stats.hasHidden = true;
+        break;
+    }
   }
+
+  updateUse(stats);
 
   return stats;
 };
 
 export const getPluginStats = (state: AppState, pluginId: string) => {
-  const stats = {
+  const plugin = getPlugin(state, pluginId);
+
+  const stats: ComponentDefinitionStats = {
+    use: 'unused',
     components: 0,
     externalComponents: 0,
   };
-
-  computePluginStats(state, pluginId, stats);
-
-  return stats;
-};
-
-function computePluginStats(state: AppState, pluginId: string, stats: { components: number; externalComponents: number; }) {
-  const plugin = getPlugin(state, pluginId);
 
   for (const componentId of plugin.usageComponents) {
     const component = getComponent(state, componentId);
@@ -205,6 +220,20 @@ function computePluginStats(state: AppState, pluginId: string, stats: { componen
     } else {
       ++stats.components;
     }
+  }
+
+  updateUse(stats);
+
+  return stats;
+};
+
+function updateUse(stats: ComponentDefinitionStats) {
+  if (stats.components > 0) {
+    stats.use = 'used';
+  } else if (stats.externalComponents > 0) {
+    stats.use = 'external';
+  } else {
+    stats.use = 'unused';
   }
 }
 

@@ -77,7 +77,19 @@ export type TemplateMemberExport = CoreTemplateMemberExport;
 
 export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges, UpdateProjectNotification };
 
-export type PluginUse = 'unused' | 'external' | 'used';
+export type Use = 'unused' | 'external' | 'used';
+
+export interface ComponentDefinitionStats {
+  use: Use;
+  components: 0;
+  externalComponents: 0;
+}
+
+export interface InstanceStats extends ComponentDefinitionStats {
+  plugins: number;
+  hasHidden: boolean;
+  hasShown: boolean;
+}
 
 export type ComponentDefinition = CoreComponentDefinition;
 
