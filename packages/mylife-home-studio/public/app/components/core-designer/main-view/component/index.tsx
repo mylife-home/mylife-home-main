@@ -192,7 +192,7 @@ const DefinitionLayout: FunctionComponent<{ definition: types.ComponentDefinitio
 
 const PluginLayout: FunctionComponent<{ id: string; yIndex: number; }> = ({ id, yIndex }) => {
   const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
-  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, properties.instance), [properties.instance]));
+  const instance = useSafeSelector(useCallback((state: AppState) => getInstance(state, plugin.instance), [plugin.instance]));
 
   return (
     <BorderGroup yIndex={yIndex}>
