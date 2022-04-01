@@ -10,7 +10,7 @@ import { AppState } from '../../../../store/types';
 import { getInstance } from '../../../../store/core-designer/selectors';
 
 const Component: FunctionComponent<{ className?: string; }> = ({ className }) => {
-  const { component, plugin } = useComponentData();
+  const { component, definition } = useComponentData();
   const instance = useSelector(useCallback((state: AppState) => getInstance(state, plugin.instance), [plugin.instance]));
 
   return (

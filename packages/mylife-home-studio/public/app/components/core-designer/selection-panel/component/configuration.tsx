@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 }), { name: 'properties-component-configuration' });
 
 const Configuration: FunctionComponent = () => {
-  const { component, plugin } = useComponentData();
+  const { component, definition } = useComponentData();
   const configure = useConfigure();
 
   if(component.external) {
@@ -30,8 +30,8 @@ const Configuration: FunctionComponent = () => {
 
   return (
     <Group title="Configuration" collapse>
-      {plugin.configIds.map((id => {
-        const configItem = plugin.config[id];
+      {definition.configIds.map((id => {
+        const configItem = definition.config[id];
         const configValue = component.config[id];
 
         return (
