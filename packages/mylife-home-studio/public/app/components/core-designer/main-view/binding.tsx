@@ -14,7 +14,7 @@ import { useComponentData } from '../component-move';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getBinding, getComponent, getPlugin, isComponentSelected, isBindingSelected } from '../../../store/core-designer/selectors';
+import { getBinding, getComponent, isComponentSelected, isBindingSelected, makeGetComponentDefinitionProperties } from '../../../store/core-designer/selectors';
 
 export interface BindingProps {
   bindingId: string;
@@ -38,10 +38,10 @@ export default Binding;
 
 const MovableBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
-  const { component: sourceComponent, plugin: sourcePlugin } = useComponentData(binding.sourceComponent);
-  const { component: targetComponent, plugin: targetPlugin } = useComponentData(binding.targetComponent);
+  const { component: sourceComponent, definition: sourceDefinition } = useComponentData(binding.sourceComponent);
+  const { component: targetComponent, definition: targetDefinition } = useComponentData(binding.targetComponent);
 
-  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
+  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition);
 
   return (
     <BindingLayout bindingId={bindingId} sourceAnchor={sourceAnchor} targetAnchor={targetAnchor} />
@@ -50,12 +50,14 @@ const MovableBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
 
 const FixedBinding: FunctionComponent<BindingProps> = ({ bindingId }) => {
   const binding = useSafeSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
+  const getSourceComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const sourceComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, binding.sourceComponent), [binding.sourceComponent]));
-  const sourcePlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, sourceComponent.plugin), [sourceComponent.plugin]));
+  const sourceDefinition = useSafeSelector(useCallback((state: AppState) => getSourceComponentDefinitionProperties(state, sourceComponent.definition), [sourceComponent.definition]));
+  const getTargetComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const targetComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, binding.targetComponent), [binding.targetComponent]));
-  const targetPlugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, targetComponent.plugin), [targetComponent.plugin]));
+  const targetDefinition = useSafeSelector(useCallback((state: AppState) => getTargetComponentDefinitionProperties(state, targetComponent.definition), [targetComponent.definition]));
 
-  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
+  const { sourceAnchor, targetAnchor } = useAnchors(binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition);
 
   return (
     <BindingLayout bindingId={bindingId} sourceAnchor={sourceAnchor} targetAnchor={targetAnchor} />
@@ -91,11 +93,11 @@ const BindingLayout: FunctionComponent<{ bindingId: string; sourceAnchor: Point;
   );
 };
 
-function useAnchors(binding: types.Binding, sourceComponent: types.Component, sourcePlugin: types.Plugin, targetComponent: types.Component, targetPlugin: types.Plugin) {
+function useAnchors(binding: types.Binding, sourceComponent: types.Component, sourceDefinition: types.ComponentDefinitionProperties, targetComponent: types.Component, targetDefinition: types.ComponentDefinitionProperties) {
   const theme = useCanvasTheme();
 
   return useMemo(
-    () => computeBindingAnchors(theme, binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin),
+    () => computeBindingAnchors(theme, binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition),
     [
       theme,
       sourceComponent.position.x,
