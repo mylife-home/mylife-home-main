@@ -411,6 +411,16 @@ export function makeGetComponentDefinitionProperties() {
   );
 };
 
+/**
+ * Create a getter, which lifecycle is based on state change
+ */
+export const getComponentDefinitionPropertiesGetter = createSelector(
+  getTemplatesMap,
+  getComponentsMap,
+  getPluginsMap,
+  (templates, components, plugins) => (definition: ComponentDefinition) => getComponentDefinitionProperties(definition, { templates, components, plugins })
+);
+
 export interface PropertyItem {
   componentId: string;
   componentName: string;

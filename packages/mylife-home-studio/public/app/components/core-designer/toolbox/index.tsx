@@ -21,8 +21,8 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
 import { AppState } from '../../../store/types';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId } from '../../../store/core-designer/selectors';
-import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
+import { Plugin, CoreToolboxDisplay, Position, ComponentDefinition } from '../../../store/core-designer/types';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
 import { setComponent } from '../../../store/core-designer/actions';
 import { InstanceMenuButton, PluginMenuButton } from './menus';
 import { useSelectComponent } from '../selection';
@@ -96,16 +96,17 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const instance = useSelector(useCallback((state: AppState) => getInstance(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getInstanceStats(state, id), [id]));
 
   switch (display) {
     case 'show':
-      if (!instance.hasShown) {
+      if (!stats.hasShown) {
         return null;
       }
       break;
 
     case 'hide':
-      if (!instance.hasHidden) {
+      if (!stats.hasHidden) {
         return null;
       }
       break;
@@ -116,7 +117,7 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
   };
 
   const displayClass = display === 'show' ? null : classes.indent1;
-  const useClass = instance.use === 'used' ? null : classes[instance.use];
+  const useClass = stats.use === 'used' ? null : classes[stats.use];
 
   return (
     <>
@@ -144,18 +145,20 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
 const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
   const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getPluginStats(state, id), [id]));
+  const definition: ComponentDefinition = useMemo(() => ({ type: 'plugin', id }), [id]);
 
   if (display !== plugin.toolboxDisplay) {
     return null;
   }
 
   const displayClass = display === 'show' ? classes.indent1 : classes.indent2;
-  const useClass = plugin.use === 'used' ? null : classes[plugin.use];
+  const useClass = stats.use === 'used' ? null : classes[stats.use];
 
   return (
     <ListItem className={clsx(displayClass, useClass)}>
       <ListItemIcon>
-        <DragButton id={id} />
+        <DragButton definition={definition} />
       </ListItemIcon>
 
       <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
@@ -171,10 +174,10 @@ function pluginDisplay(plugin: Plugin) {
   return `${plugin.module}.${plugin.name}`;
 }
 
-const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
+const DragButton: FunctionComponent<{ definition: ComponentDefinition }> = ({ definition }) => {
   const classes = useStyles();
-  const create = useCreate(id);
-  const { ref } = useCreatable(id, create);
+  const create = useCreate(definition);
+  const { ref } = useCreatable(definition, create);
 
   return (
     <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
@@ -185,7 +188,7 @@ const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-function useCreate(pluginId: string) {
+function useCreate(definition: ComponentDefinition) {
   const tabId = useTabPanelId();
   const templateId = useSelector((state: AppState) => getActiveTemplateId(state, tabId));
   const dispatch = useDispatch();
@@ -198,12 +201,12 @@ function useCreate(pluginId: string) {
     async (position: Position) =>
       fireAsync(async () => {
         const componentId = makeNewId();
-        await dispatch(setComponent({ templateId, componentId, pluginId, position }));
+        await dispatch(setComponent({ templateId, componentId, definition, position }));
         const id = `${tabId}:${templateId || ''}:${componentId}`;
         await waitForComponentId(id);
         selectComponent(id);
       }),
-    [fireAsync, dispatch, tabId, templateId, pluginId, makeNewId]
+    [fireAsync, dispatch, tabId, templateId, definition, makeNewId]
   );
 }
 
