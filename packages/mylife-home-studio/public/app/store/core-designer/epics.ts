@@ -5,7 +5,7 @@ import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, ActionPayloads, BulkUpdatesData, BulkUpdatesStats, OnlineDeployData, FilesDeployData, FilesDeployResult, ComponentDefinitionRef } from './types';
+import { ActionTypes, ActionPayloads, BulkUpdatesData, BulkUpdatesStats, OnlineDeployData, FilesDeployData, FilesDeployResult, ComponentDefinition } from './types';
 import {
   UpdateToolboxCoreProjectCall,
   MoveComponentsCoreProjectCall,
@@ -167,7 +167,7 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ templateId: fullTemplateId, componentId, definition: fullDefinition, position }: ActionPayloads.SetComponent) {
         const { tabId, id } = extractIds(fullDefinition.id);
         const templateId = fullTemplateId && extractIds(fullTemplateId).id;
-        const definition: ComponentDefinitionRef = { type: fullDefinition.type, id };
+        const definition: ComponentDefinition = { type: fullDefinition.type, id };
         const callData: SetComponentCoreProjectCall = { operation: 'set-component', templateId, componentId, definition, x: position.x, y: position.y };
         return { tabId, callData };
       },
