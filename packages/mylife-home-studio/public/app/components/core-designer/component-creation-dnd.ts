@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useDrop, useDrag } from 'react-dnd';
 import { useSelector } from 'react-redux';
 
@@ -7,8 +7,8 @@ import { useCursorPositionConverter } from './drawing/viewport-manips';
 import { useCanvasTheme } from './drawing/theme';
 import { Point } from './drawing/types';
 import { AppState } from '../../store/types';
-import { getPlugin } from '../../store/core-designer/selectors';
-import { Component, Position } from '../../store/core-designer/types';
+import { getPlugin, makeGetComponentDefinitionProperties } from '../../store/core-designer/selectors';
+import { Component, ComponentDefinition, Position } from '../../store/core-designer/types';
 import { computeComponentRect, lockSelectionPosition, posToGrid } from './drawing/shapes';
 
 const ItemType = Symbol('dnd-canvas-create');
@@ -29,8 +29,8 @@ export function useDroppable(stage: Konva.Stage) {
   return ref;
 }
 
-export function useCreatable(pluginId: string, onCreate: (position: Position) => void) {
-  const newComponentPosition = useNewComponentPosition(pluginId);
+export function useCreatable(definition: ComponentDefinition, onCreate: (position: Position) => void) {
+  const newComponentPosition = useNewComponentPosition(definition);
 
   const [, ref, preview] = useDrag({
     item: { type: ItemType },
@@ -50,9 +50,10 @@ export function useCreatable(pluginId: string, onCreate: (position: Position) =>
   return { ref };
 }
 
-function useNewComponentPosition(pluginId: string) {
+function useNewComponentPosition(definition: ComponentDefinition) {
   const theme = useCanvasTheme();
-  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, pluginId), [pluginId]));
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
+  const properties = useSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, definition), [definition]));
 
   return useCallback((userPos: Point) => {
     // Create fake component to get its rect
@@ -63,18 +64,18 @@ function useNewComponentPosition(pluginId: string) {
       bindings: null,
       config: {}, 
       position: { x: 0, y: 0 },
-      plugin: plugin.id
+      definition
     };
 
     // needed to compute rect
-    for (const id of plugin.configIds) {
+    for (const id of properties.configIds) {
       fakeComponent.config[id] = null;
     }
 
     const position = posToGrid(userPos);
-    const rect = computeComponentRect(theme, fakeComponent, plugin);
+    const rect = computeComponentRect(theme, fakeComponent, properties);
     const lockedPos = lockSelectionPosition(rect, position);
 
     return lockedPos;
-  }, [theme, plugin]);
+  }, [theme, properties]);
 }

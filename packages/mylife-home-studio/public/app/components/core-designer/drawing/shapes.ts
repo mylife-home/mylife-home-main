@@ -2,14 +2,14 @@ import { CanvasTheme } from './theme';
 import { Rectangle, Point } from './types';
 import { GRID_STEP_SIZE, LAYER_SIZE } from './defs';
 
-import { Component, Plugin, Binding } from '../../../store/core-designer/types';
+import { Component, Binding, ComponentDefinitionProperties } from '../../../store/core-designer/types';
 
 const TITLE_COUNT = 3; // component id + instance + plugin
 
-export function computeComponentRect(theme: CanvasTheme, component: Component, plugin: Plugin): Rectangle {
-  const configCount = component.external ? 0 :  plugin.configIds.length;
-  const stateCount = plugin.stateIds.length;
-  const actionCount = plugin.actionIds.length;
+export function computeComponentRect(theme: CanvasTheme, component: Component, properties: ComponentDefinitionProperties): Rectangle {
+  const configCount = component.external ? 0 :  properties.configIds.length;
+  const stateCount = properties.stateIds.length;
+  const actionCount = properties.actionIds.length;
   const itemCount = TITLE_COUNT + stateCount + actionCount + configCount;
 
   return {
@@ -20,8 +20,8 @@ export function computeComponentRect(theme: CanvasTheme, component: Component, p
   };
 }
 
-export function computeMemberRect(theme: CanvasTheme, component: Component, plugin: Plugin, memberName: string) {
-  const propIndex = getPropIndex(component, plugin, memberName);
+export function computeMemberRect(theme: CanvasTheme, component: Component, properties: ComponentDefinitionProperties, memberName: string) {
+  const propIndex = getPropIndex(component, properties, memberName);
   
   return {
     x: component.position.x * GRID_STEP_SIZE,
@@ -31,11 +31,11 @@ export function computeMemberRect(theme: CanvasTheme, component: Component, plug
   };
 }
 
-export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourcePlugin: Plugin, targetComponent: Component, targetPlugin: Plugin) {
-  const sourceHeaderCount = TITLE_COUNT + (sourceComponent.external ? 0 : sourcePlugin.configIds.length);
-  const targetHeaderCount = TITLE_COUNT + (targetComponent.external ? 0 : targetPlugin.configIds.length);
-  const sourcePropIndex = sourceHeaderCount + sourcePlugin.stateIds.findIndex(value => value === binding.sourceState);
-  const targetPropIndex = targetHeaderCount + targetPlugin.stateIds.length + targetPlugin.actionIds.findIndex(value => value === binding.targetAction);
+export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sourceComponent: Component, sourceProperties: ComponentDefinitionProperties, targetComponent: Component, targetProperties: ComponentDefinitionProperties) {
+  const sourceHeaderCount = TITLE_COUNT + (sourceComponent.external ? 0 : sourceProperties.configIds.length);
+  const targetHeaderCount = TITLE_COUNT + (targetComponent.external ? 0 : targetProperties.configIds.length);
+  const sourcePropIndex = sourceHeaderCount + sourceProperties.stateIds.findIndex(value => value === binding.sourceState);
+  const targetPropIndex = targetHeaderCount + targetProperties.stateIds.length + targetProperties.actionIds.findIndex(value => value === binding.targetAction);
 
   const sourceAnchors = makeAnchors(sourceComponent, sourcePropIndex, theme);
   const targetAnchors = makeAnchors(targetComponent, targetPropIndex, theme);
@@ -58,8 +58,8 @@ export function computeBindingAnchors(theme: CanvasTheme, binding: Binding, sour
   return { sourceAnchor, targetAnchor };
 }
 
-export function computeBindingDndAnchor(theme: CanvasTheme, component: Component, plugin: Plugin, memberName: string, mousePosition: Point) {
-  const propIndex = getPropIndex(component, plugin, memberName);
+export function computeBindingDndAnchor(theme: CanvasTheme, component: Component, properties: ComponentDefinitionProperties, memberName: string, mousePosition: Point) {
+  const propIndex = getPropIndex(component, properties, memberName);
   const sourceAnchors = makeAnchors(component, propIndex, theme);
 
   let minDistance = Infinity;
@@ -76,12 +76,12 @@ export function computeBindingDndAnchor(theme: CanvasTheme, component: Component
   return anchor;
 }
 
-function getPropIndex(component: Component, plugin: Plugin, memberName: string) {
-  const headerCount = TITLE_COUNT + (component.external ? 0 :  plugin.configIds.length);
+function getPropIndex(component: Component, properties: ComponentDefinitionProperties, memberName: string) {
+  const headerCount = TITLE_COUNT + (component.external ? 0 :  properties.configIds.length);
 
-  let propIndex = plugin.stateIds.findIndex(value => value === memberName);
+  let propIndex = properties.stateIds.findIndex(value => value === memberName);
   if (propIndex === -1) {
-    propIndex = plugin.stateIds.length + plugin.actionIds.findIndex(value => value === memberName);
+    propIndex = properties.stateIds.length + properties.actionIds.findIndex(value => value === memberName);
   }
 
   propIndex += headerCount;
