@@ -31,15 +31,15 @@ const useStyles = makeStyles((theme) => ({
 }), { name: 'properties-component-members' });
 
 const Members: FunctionComponent = () => {
-  const { plugin } = useComponentData();
+  const { definition } = useComponentData();
 
   return (
     <Group title="Membres" collapse>
-      {plugin.stateIds.map(id => 
+      {definition.stateIds.map(id => 
         <Member key={id} name={id} />
       )}
 
-      {plugin.actionIds.map(id => 
+      {definition.actionIds.map(id => 
         <Member key={id} name={id} />
       )}
     </Group>
@@ -50,8 +50,8 @@ export default Members;
 
 const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const classes = useStyles();
-  const { component, plugin } = useComponentData();
-  const member = plugin.members[name];
+  const { component, definition } = useComponentData();
+  const member = definition.members[name];
   const bindings = component.bindings[name];
   
   return (
@@ -276,8 +276,8 @@ function getOptionSelected(option: BindingHalf, value: BindingHalf) {
 
 function useNewBinding(memberName: string) {
   const dispatch = useDispatch();
-  const { component, plugin } = useComponentData();
-  const member = plugin.members[memberName];
+  const { component, definition } = useComponentData();
+  const member = definition.members[memberName];
 
   return useCallback((newValue: BindingHalf) => {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
