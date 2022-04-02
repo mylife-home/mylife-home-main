@@ -2,6 +2,7 @@ import React, { FunctionComponent, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Checkbox from '@material-ui/core/Checkbox';
+import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
@@ -63,6 +64,10 @@ interface EditorProps {
 }
 
 const Editor: FunctionComponent<EditorProps> = (props) => {
+  if (props.value === undefined) {
+    return <ExportedEditor {...props} />;
+  }
+
   const type = props.item.valueType;
   switch(type) {
     case ConfigType.STRING:
@@ -78,6 +83,18 @@ const Editor: FunctionComponent<EditorProps> = (props) => {
   }
 };
 
+const ExportedEditor: FunctionComponent<EditorProps> = ({ item }) => {
+  const classes = useStyles();
+  return (
+    <TextField
+      className={classes.editor}
+      disabled
+      helperText={getHelperText(item)}
+      value={'<exporté>'}
+    />
+  );
+};
+
 const StringEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
@@ -88,7 +105,6 @@ const StringEditor: FunctionComponent<EditorProps> = ({ item, value, onChange })
       onChange={onChange}
     />
   );
-
 };
 
 const BoolEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
