@@ -1,5 +1,5 @@
 import { logger } from 'mylife-home-common';
-import { ConfigItem, Member, MemberType } from '../../../../../shared/component-model';
+import { Member, MemberType } from '../../../../../shared/component-model';
 import { CoreComponentConfiguration, CoreComponentData } from '../../../../../shared/project-manager';
 import { BindingModel } from './binding';
 import { PluginModel } from './plugin';
