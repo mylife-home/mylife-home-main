@@ -22,9 +22,9 @@ import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
 import { AppState } from '../../../store/types';
 import { Plugin, CoreToolboxDisplay, Position, ComponentDefinition } from '../../../store/core-designer/types';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId, getInstanceStats, getPluginStats, getTemplate, getTemplateStats, getUsableTemplates } from '../../../store/core-designer/selectors';
 import { setComponent } from '../../../store/core-designer/actions';
-import { InstanceMenuButton, PluginMenuButton } from './menus';
+import { InstanceMenuButton, PluginMenuButton, TemplateMenuButton } from './menus';
 import { useSelectComponent } from '../selection';
 
 const useStyles = makeStyles((theme) => ({
@@ -56,6 +56,8 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <List className={clsx(className, classes.list)}>
+      <Templates />
+
       {instances.map((id) => (
         <Instance key={id} id={id} display="show" />
       ))}
@@ -91,6 +93,60 @@ const Hidden: FunctionComponent = ({ children }) => {
     </>
   );
 };
+
+const Templates: FunctionComponent = () => {
+  const [open, setOpen] = useState(true);
+  const ids = useTabSelector(getUsableTemplates);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  if (!ids.length) {
+    // No template
+    return null;
+  }
+
+  return (
+    <>
+      <ListItem button onClick={handleClick}>
+        <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+
+        <ListItemText primary='Templates' />
+      </ListItem>
+
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {ids.map((id) => (
+            <Template key={id} id={id} />
+          ))}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+const Template: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const template = useSelector(useCallback((state: AppState) => getTemplate(state, id), [id]));
+  const definition: ComponentDefinition = useMemo(() => ({ type: 'template', id }), [id]);
+  const stats = useSelector(useCallback((state: AppState) => getTemplateStats(state, id), [id]));
+
+  return (
+    <ListItem className={clsx(classes.indent1, stats.use === 'unused' && classes.unused)}>
+      <ListItemIcon>
+        <DragButton definition={definition} />
+      </ListItemIcon>
+
+      <ListItemText primary={template.templateId} />
+
+      <ListItemSecondaryAction>
+        <TemplateMenuButton id={template.id} />
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+
+}
 
 const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
@@ -161,7 +217,7 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
         <DragButton definition={definition} />
       </ListItemIcon>
 
-      <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
+      <ListItemText primary={`${plugin.module}.${plugin.name}`} secondary={plugin.description} />
 
       <ListItemSecondaryAction>
         <PluginMenuButton id={plugin.id} />
@@ -169,10 +225,6 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
     </ListItem>
   );
 };
-
-function pluginDisplay(plugin: Plugin) {
-  return `${plugin.module}.${plugin.name}`;
-}
 
 const DragButton: FunctionComponent<{ definition: ComponentDefinition }> = ({ definition }) => {
   const classes = useStyles();

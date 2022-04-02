@@ -100,14 +100,22 @@ export const getInstanceStats = (state: AppState, instanceId: string) => {
 
 export const getPluginStats = (state: AppState, pluginId: string) => {
   const plugin = getPlugin(state, pluginId);
+  return getComponentDefinitionStats(state, plugin.usageComponents);
+}
 
+export const getTemplateStats = (state: AppState, templateId: string) => {
+  const template = getTemplate(state, templateId);
+  return getComponentDefinitionStats(state, template.usageComponents);
+}
+
+function getComponentDefinitionStats(state: AppState, usageComponents: string[]) {
   const stats: ComponentDefinitionStats = {
     use: 'unused',
     components: 0,
     externalComponents: 0,
   };
 
-  for (const componentId of plugin.usageComponents) {
+  for (const componentId of usageComponents) {
     const component = getComponent(state, componentId);
 
     if (component.external) {
@@ -500,4 +508,31 @@ export const getTemplateMemberItem = (state: AppState, templateId: string, membe
 
   const memberExport = template.exports.members[memberId];
   return resolveTemplateMember(maps, memberExport);
+}
+
+export const getUsableTemplates = (state: AppState, tabId: string) => {
+  const activeTemplate = getActiveTemplateId(state, tabId);
+  const usage = new Set<string>();
+  if (activeTemplate) {
+    fillTemplateUsage(state, activeTemplate, usage);
+  }
+
+  return getTemplateIds(state, tabId).filter(id => !usage.has(id));
+}
+
+function fillTemplateUsage(state: AppState, templateId: string, usage: Set<string>) {
+  if (usage.has(templateId)) {
+    return;
+  }
+
+  usage.add(templateId);
+
+  const template = getTemplate(state, templateId);
+
+  for (const componentId of template.usageComponents) {
+    const component = getComponent(state, componentId);
+    if (component.definition.type === 'template') {
+      fillTemplateUsage(state, component.definition.id, usage);
+    }
+  }
 }
