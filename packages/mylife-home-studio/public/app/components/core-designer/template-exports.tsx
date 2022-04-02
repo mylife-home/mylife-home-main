@@ -71,7 +71,7 @@ export default TemplateExports;
 const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useActiveTemplate();
   const configItem = template.exports.config[id];
-  const component = useSelector((state: AppState) => getComponent(state, id));
+  const component = useSelector((state: AppState) => getComponent(state, configItem.component));
   const configMeta = useSelector((state: AppState) => getTemplateConfigItem(state, template.id, id));
 
   return (
@@ -88,7 +88,7 @@ const ConfigItem: FunctionComponent<{ id: string; }> = ({ id }) => {
 const MemberItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const template = useActiveTemplate();
   const member = template.exports.members[id];
-  const component = useSelector((state: AppState) => getComponent(state, id));
+  const component = useSelector((state: AppState) => getComponent(state, member.component));
   const memberMeta = useSelector((state: AppState) => getTemplateMemberItem(state, template.id, id));
   const MemberIcon = getMemberIcon(memberMeta.memberType);
 
