@@ -347,13 +347,14 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
     case 'set-core-component': {
       const { templateId, id: componentId, component: componentData } = update as SetCoreComponentNotification;
       const id = `${openedProject.id}:${templateId || ''}:${componentId}`;
+      const fullTemplateId = templateId && `${openedProject.id}:${templateId}`;
 
       const definition = {
         id: `${openedProject.id}:${componentData.definition.id}`,
         type: componentData.definition.type
       };
 
-      const component = { ...componentData, id, componentId, bindings: {}, definition };
+      const component: Component = { ...componentData, id, templateId: fullTemplateId, componentId, bindings: {}, definition };
       tableSet(state.components, component, true);
 
       const view = getView(state, openedProject, templateId);
@@ -413,7 +414,7 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
     case 'set-core-binding': {
       const { templateId, id: bindingId, binding: bindingData } = update as SetCoreBindingNotification;
       const { sourceComponent: sourceComponentId, targetComponent: targetComponentId, ...data } = bindingData;
-      const binding = {
+      const binding: Binding = {
         id: `${openedProject.id}:${templateId || ''}:${bindingId}`,
         sourceComponent: `${openedProject.id}:${templateId || ''}:${sourceComponentId}`,
         targetComponent: `${openedProject.id}:${templateId || ''}:${targetComponentId}`,

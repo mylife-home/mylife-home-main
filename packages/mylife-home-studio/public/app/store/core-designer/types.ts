@@ -118,6 +118,7 @@ export interface Position {
 export interface Component extends CoreComponentData {
   // plugin points to store plugin id: `projectId:instanceName:module.name`
   id: string;
+  templateId: string; // null if main view
   componentId: string;
   bindings: { [memberName: string]: string[]; };
 }

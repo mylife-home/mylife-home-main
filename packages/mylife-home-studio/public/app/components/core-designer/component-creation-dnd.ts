@@ -59,6 +59,7 @@ function useNewComponentPosition(definition: ComponentDefinition) {
     // Create fake component to get its rect
     const fakeComponent: Component = {
       id: null,
+      templateId: null,
       componentId: null,
       external: false,
       bindings: null,
