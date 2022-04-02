@@ -67,11 +67,6 @@ function useNewComponentPosition(definition: ComponentDefinition) {
       definition
     };
 
-    // needed to compute rect
-    for (const id of properties.configIds) {
-      fakeComponent.config[id] = null;
-    }
-
     const position = posToGrid(userPos);
     const rect = computeComponentRect(theme, fakeComponent, properties);
     const lockedPos = lockSelectionPosition(rect, position);
