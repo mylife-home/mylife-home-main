@@ -1,8 +1,7 @@
 import { logger } from 'mylife-home-common';
 import { ConfigType, MemberType } from '../../../../../shared/component-model';
 import { CoreComponentConfiguration, CorePluginData, CoreToolboxDisplay } from '../../../../../shared/project-manager';
-import { ComponentDefinitionModel, ComponentModel } from './component';
-import { InstanceModel } from './instance';
+import { ComponentDefinitionModel, ComponentModel, InstanceModel } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 

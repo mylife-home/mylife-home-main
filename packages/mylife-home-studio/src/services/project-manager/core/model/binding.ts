@@ -1,7 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { CoreBindingData } from '../../../../../shared/project-manager';
-import { ComponentModel } from './component';
-import { TemplateModel } from './template';
+import { ComponentModel, TemplateModel } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 

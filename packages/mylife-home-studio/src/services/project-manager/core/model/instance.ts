@@ -1,7 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { CoreToolboxDisplay } from '../../../../../shared/project-manager';
-import { ComponentModel } from './component';
-import { PluginModel } from './plugin';
+import { ComponentModel, PluginModel } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
