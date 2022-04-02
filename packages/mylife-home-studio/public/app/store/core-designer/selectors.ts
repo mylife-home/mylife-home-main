@@ -531,8 +531,8 @@ function fillTemplateUsage(state: AppState, templateId: string, usage: Set<strin
 
   for (const componentId of template.usageComponents) {
     const component = getComponent(state, componentId);
-    if (component.definition.type === 'template') {
-      fillTemplateUsage(state, component.definition.id, usage);
+    if (component.templateId) {
+      fillTemplateUsage(state, component.templateId, usage);
     }
   }
 }
