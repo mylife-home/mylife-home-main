@@ -44,12 +44,11 @@ import {
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
-import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel } from './model';
+import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel, ResolvedProjectView } from './model';
 import { Services } from '../..';
 import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
 import { validate } from './validation';
-import { ResolvedProjectView } from './model/resolved';
 import { resolveProject } from './resolver';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:opened-project');

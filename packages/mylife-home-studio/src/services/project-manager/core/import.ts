@@ -1,9 +1,8 @@
 import { logger, components } from 'mylife-home-common';
 import { pick, clone } from '../../../utils/object-utils';
 import { ImportFromOnlineConfig, ImportFromProjectConfig, coreImportData, BulkUpdatesStats } from '../../../../shared/project-manager';
-import { ComponentModel, ProjectModel, PluginModel, TemplateModel } from './model';
+import { ComponentModel, ProjectModel, PluginModel, TemplateModel, PluginView, ResolvedProjectView } from './model';
 import { Services } from '../..';
-import { PluginView, ResolvedProjectView } from './model/resolved';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 

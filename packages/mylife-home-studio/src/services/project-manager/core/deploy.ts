@@ -2,9 +2,8 @@ import { logger } from 'mylife-home-common';
 import { ChangeType, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { BindingModel } from './model';
+import { BindingModel, ResolvedProjectView, ComponentView } from './model';
 import { validate, hasError } from './validation';
-import { ResolvedProjectView, ComponentView } from './model/resolved';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
 

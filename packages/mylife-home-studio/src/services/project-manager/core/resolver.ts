@@ -1,14 +1,6 @@
 import { logger } from 'mylife-home-common';
-import { ConfigItem, Plugin } from '../../../../shared/component-model';
-import { CoreComponentConfiguration, CoreComponentData, CorePluginData, CoreProject, CoreTemplate } from '../../../../shared/project-manager';
-import { BindingModel } from './model/binding';
-import { ComponentModel } from './model/component';
-import { InstanceModel } from './model/instance';
-import { BindingView, ComponentView, InstanceView, PluginView, ResolvedProjectView } from './model/resolved';
-import { PluginModel } from './model/plugin';
-import { ProjectModel } from './model/project';
-import { TemplateModel } from './model/template';
-import { ViewModel } from './model/view';
+import { CoreComponentConfiguration, CorePluginData } from '../../../../shared/project-manager';
+import { BindingModel, PluginModel, ProjectModel, TemplateModel, BindingView, ComponentView, InstanceView, PluginView, ResolvedProjectView } from './model';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:resolver');
 

@@ -1,7 +1,8 @@
-export { BindingModel } from './binding';
-export { ComponentModel } from './component';
-export { InstanceModel } from './instance';
-export { PluginModel } from './plugin';
-export { ProjectModel } from './project';
-export { TemplateModel } from './template';
-export { ViewModel } from './view';
+export * from './view';
+export * from './project';
+export * from './template';
+export * from './instance';
+export * from './plugin';
+export * from './component';
+export * from './binding';
+export * from './resolved';

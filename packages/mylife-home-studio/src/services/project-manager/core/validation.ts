@@ -1,7 +1,7 @@
 import { components } from 'mylife-home-common';
 import { ChangeType, coreValidation } from '../../../../shared/project-manager';
 import { Services } from '../..';
-import { ComponentView, ResolvedProjectView, PluginView } from './model/resolved';
+import { ComponentView, ResolvedProjectView, PluginView } from './model';
 import { buildPluginMembersAndConfigChanges } from './import';
 
 export function validate(project: ResolvedProjectView, { onlineSeverity, checkBindingApi }: { onlineSeverity: coreValidation.Severity; checkBindingApi: boolean }): coreValidation.Item[] {
