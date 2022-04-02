@@ -1,4 +1,4 @@
-import React, { FunctionComponent, Children, useMemo } from 'react';
+import React, { FunctionComponent, Children } from 'react';
 
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { useCanvasTheme } from '../../drawing/theme';

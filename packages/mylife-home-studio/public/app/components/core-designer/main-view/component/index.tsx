@@ -2,6 +2,7 @@ import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { parseType } from '../../../lib/member-types';
+import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useSelectComponent, useToggleComponent } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
@@ -18,7 +19,8 @@ import { BindingSource, DragEventType, useBindingDndInfo, useBindingDraggable } 
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponent, getPlugin, getInstance, isComponentSelected, makeGetComponentDefinitionProperties, getTemplate } from '../../../../store/core-designer/selectors';
+import { getComponent, getPlugin, getInstance, isComponentSelected, makeGetComponentDefinitionProperties, getTemplate, getActiveTemplate } from '../../../../store/core-designer/selectors';
+import { ComponentConfiguration, Template } from '../../../../store/core-designer/types';
 
 export interface ComponentProps {
   componentId: string;
@@ -109,11 +111,12 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   const { isRectVisible } = useViewPortVisibility();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const properties = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
+  const template = useTabSelector(getActiveTemplate);
   const bindingDndInfo = useBindingDndInfo();
 
-  const stateItems = useMemo(() => buildMembers(componentId, properties, properties.stateIds), [componentId, properties]);
-  const actionItems = useMemo(() => buildMembers(componentId, properties, properties.actionIds), [componentId, properties]);
-  const configItems = useMemo(() => component.external ? [] : buildConfig(component.config, properties), [component.external, component.config, properties]);
+  const stateItems = useMemo(() => buildMembers(template, componentId, properties, properties.stateIds), [componentId, properties]);
+  const actionItems = useMemo(() => buildMembers(template, componentId, properties, properties.actionIds), [componentId, properties]);
+  const configItems = useMemo(() => component.external ? [] : buildConfig(template, componentId, properties, component.config), [component.external, component.config, properties]);
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, properties);
@@ -223,14 +226,15 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const { isRectVisible } = useViewPortVisibility();
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
+  const template = useTabSelector(getActiveTemplate);
   const onDrag = useBindingDraggable();
   const selectComponent = useSelectComponent();
   const toggleComponent = useToggleComponent();
   const select = useCallback(() => selectComponent(componentId), [selectComponent, componentId]);
   const toggle = useCallback(() => toggleComponent(componentId), [toggleComponent, componentId]);
 
-  const stateItems = useMemo(() => buildMembers(componentId, definition, definition.stateIds), [componentId, definition]);
-  const actionItems = useMemo(() => buildMembers(componentId, definition, definition.actionIds), [componentId, definition]);
+  const stateItems = useMemo(() => buildMembers(template, componentId, definition, definition.stateIds), [componentId, definition]);
+  const actionItems = useMemo(() => buildMembers(template, componentId, definition, definition.actionIds), [componentId, definition]);
   const configItemsCount = useMemo(() => component.external ? 0 : definition.configIds.length, [component.external, definition]);
 
   const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -332,22 +336,30 @@ function createIndexManager() {
   };
 }
 
-function buildMembers(componentId: string, properties: types.ComponentDefinitionProperties, ids: string[]) {
+function buildMembers(template: Template, componentId: string, properties: types.ComponentDefinitionProperties, ids: string[]) {
   return ids.map(id => {
+    const exported = !!template && !!Object.values(template.exports.members).find(item => item.component === componentId && item.member === id);
     const member = properties.members[id];
     const bindingSource: BindingSource =  { componentId, memberName: id, memberType: member.memberType, valueType: member.valueType };
-    return { id, secondary: parseType(member.valueType).typeId, bindingSource };
+    return { id, exported, secondary: parseType(member.valueType).typeId, bindingSource };
   });
 }
 
-function buildConfig(config: { [name: string]: any }, properties: types.ComponentDefinitionProperties) {
+function buildConfig(template: Template, componentId: string, properties: types.ComponentDefinitionProperties, config: ComponentConfiguration) {
   return properties.configIds.map(id => {
+    const exported = !!template && !!Object.values(template.exports.config).find(item => item.component === componentId && item.configName === id);
     const type = properties.config[id].valueType;
     const value = config[id];
-    return { id, secondary: renderConfigValue(type, value) };
+    return { id, exported, secondary: renderConfigValue(type, value, exported) };
   });
 }
 
-function renderConfigValue(type: types.ConfigType, value: any) {
-  return value == null ? '<missing>' : value.toString();
+function renderConfigValue(type: types.ConfigType, value: any, exported: boolean) {
+  if (exported) {
+    return '';
+  } else if (value == null) {
+    return '<missing>'
+  } else {
+    return value.toString();
+  }
 }

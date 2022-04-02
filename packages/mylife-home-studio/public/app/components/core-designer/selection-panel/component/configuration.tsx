@@ -9,11 +9,12 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
 import { useTabPanelId } from '../../../lib/tab-panel';
+import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useComponentData } from './common';
 import { AppState } from '../../../../store/types';
-import { ConfigItem, ConfigType } from '../../../../store/core-designer/types';
+import { ConfigItem, ConfigType, Template } from '../../../../store/core-designer/types';
 import { configureComponent } from '../../../../store/core-designer/actions';
-import { getSelectedComponent } from '../../../../store/core-designer/selectors';
+import { getSelectedComponent, getActiveTemplate } from '../../../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   editor: {
@@ -23,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Configuration: FunctionComponent = () => {
   const { component, definition } = useComponentData();
+  const template = useTabSelector(getActiveTemplate);
   const configure = useConfigure();
 
   if(component.external) {
@@ -37,7 +39,7 @@ const Configuration: FunctionComponent = () => {
 
         return (
           <Item key={id} title={id}>
-            <Editor item={configItem} value={configValue} onChange={(value) => configure(id, value)} />
+            <Editor item={configItem} value={configValue} onChange={(value) => configure(id, value)} exported={isExported(template, component.id, id)} />
           </Item>
         );
       }))}
@@ -58,13 +60,14 @@ function useConfigure() {
 }
 
 interface EditorProps {
+  exported: boolean;
   item: ConfigItem;
   value: any;
   onChange: (value: any) => void;
 }
 
 const Editor: FunctionComponent<EditorProps> = (props) => {
-  if (props.value === undefined) {
+  if (props.exported) {
     return <ExportedEditor {...props} />;
   }
 
@@ -155,4 +158,9 @@ function formatNumber(value: number) {
 function parseNumber(value: string, type: 'float' | 'int') {
   const number = type === 'float' ? parseFloat(value) : parseInt(value, 10);
   return isNaN(number) ? 0 : number;
+}
+
+function isExported(template: Template, componentId: string, configId: string) {
+  console.log(template && template.exports.config, componentId, configId)
+  return !!template && !!Object.values(template.exports.config).find(item => item.component === componentId && item.configName === configId);
 }

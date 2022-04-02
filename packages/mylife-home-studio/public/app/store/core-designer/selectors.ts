@@ -295,7 +295,7 @@ export const isBindingSelected = (state: AppState, tabId: string, bindingId: str
   return getSelectedBinding(state, tabId) === bindingId;
 };
 
-const getActiveTemplate = (state: AppState, tabId: string) => {
+export const getActiveTemplate = (state: AppState, tabId: string) => {
   const templateId = getActiveTemplateId(state, tabId);
   return getTemplate(state, templateId);
 };
