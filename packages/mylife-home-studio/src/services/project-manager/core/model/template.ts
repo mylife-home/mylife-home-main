@@ -10,7 +10,10 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
 
   constructor(protected readonly project: ProjectModel, private _id: string, public readonly data: CoreTemplate) {
     super();
-    this.init();
+  }
+
+  init() {
+    super.init();
   }
 
   get id() {

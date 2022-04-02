@@ -26,6 +26,11 @@ export class ProjectModel extends ViewModel {
     }
 
     super.init();
+
+    // Need to do this once all templates has been added, else one template which depends on another may have issues loading
+    for (const template of this.templates.values()) {
+      template.init();
+    }
   }
 
   private getOrCreateInstance(instanceName: string) {
@@ -149,6 +154,7 @@ export class ProjectModel extends ViewModel {
 
     const template = this.registerTemplate(templateId, templateData);
     this.data.templates[template.id] = template.data;
+    template.init();
 
     return template;
   }
