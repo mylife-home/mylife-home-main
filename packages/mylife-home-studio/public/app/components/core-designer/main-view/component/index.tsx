@@ -349,5 +349,5 @@ function buildConfig(config: { [name: string]: any }, properties: types.Componen
 }
 
 function renderConfigValue(type: types.ConfigType, value: any) {
-  return value === undefined ? '<exporté>' : value.toString();
+  return value == null ? '<missing>' : value.toString();
 }
