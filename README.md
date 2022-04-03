@@ -227,10 +227,17 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 => config set to undefined when exported
 set to undefined on export
 set to default on unexport
-afficher de manière spéciale (autre couleur ? les members/config exportés)
+afficher de manière spéciale (autre couleur comme external ? les members/config exportés)
 
 - TESTS
   - deploy files
   - deploy online
   - imports between core projects
   - imports into ui project
+
+Notes:
+Permettre des ids non templates dans un template
+Par contre on ne peut l'instancier qu'une fois
+Ça peut servir pour splitter la main view (eg: capteurs fenêtre alarme)
+
+Donc le check de doublons doit être vérifié a la création de composant (ou rename dans un template si on enlève le {{id}} du nom)
