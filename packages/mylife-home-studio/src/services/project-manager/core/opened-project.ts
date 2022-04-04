@@ -343,16 +343,24 @@ export class CoreOpenedProject extends OpenedProject {
   private setTemplateExport({ templateId, exportType, exportId, componentId, propertyName }: SetTemplateExportCoreProjectCall) {
     this.executeUpdate(() => {
       const template = this.model.getTemplate(templateId);
-      template.setExport(exportType, exportId, componentId, propertyName);
+      const { updatedComponents } = template.setExport(exportType, exportId, componentId, propertyName);
+
       this.notifyAllSetTemplate(template);
+      for (const component of updatedComponents) {
+        this.notifyAllSetComponent(component);
+      }
     });
   }
 
   private clearTemplateExport({ templateId, exportType, exportId }: ClearTemplateExportCoreProjectCall) {
     this.executeUpdate(() => {
       const template = this.model.getTemplate(templateId);
-      template.clearExport(exportType, exportId);
+      const { updatedComponents } = template.clearExport(exportType, exportId);
+      
       this.notifyAllSetTemplate(template);
+      for (const component of updatedComponents) {
+        this.notifyAllSetComponent(component);
+      }
     });
   }
 

@@ -220,8 +220,8 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 
 # WIP templates:
 - prevent drop used export (or force and cleanup)
-- drop (with confirm?) component configuration on export create
 - remove v1 imports
+- forbid to drop component used in exports
 
 => config set to undefined when exported
 set to undefined on export

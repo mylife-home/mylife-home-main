@@ -46,12 +46,10 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     switch (exportType) {
 
     case 'config': 
-      this.setConfigExport(exportId, componentId, propertyName);
-      break;
+      return this.setConfigExport(exportId, componentId, propertyName);
 
     case 'member':
-      this.setMemberExport(exportId, componentId, propertyName);
-      break;
+      return this.setMemberExport(exportId, componentId, propertyName);
 
     default:
       throw new Error(`Invalid export type: '${exportType}'`);
@@ -59,11 +57,36 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
   }
 
   private setConfigExport(exportId: string, componentId: string, configName: string) {
+    const updatedComponents = new Set<ComponentModel>();
+    
     const component = this.getComponent(componentId);
     component.definition.ensureConfig(configName);
 
     const exports = this.data.exports.config;
+
+    // check that the config item is not exported twice
+    for (const [id, item] of Object.entries(exports)) {
+      if (id === exportId) {
+        continue;
+      }
+
+      if (item.component === componentId && item.configName === configName) {
+        throw new Error(`Config item '${configName}' of component '${componentId}' is already exported as '${id}'.`);
+      }
+    }
+
+    const existing = exports[exportId];
+    if (existing) {
+      const oldComponent = this.getComponent(existing.component);
+      oldComponent.unexportConfig(existing.configName);
+      updatedComponents.add(oldComponent);
+    }
+
     exports[exportId] = { component: component.id, configName };
+    component.exportConfig(configName);
+    updatedComponents.add(component);
+
+    return { updatedComponents: Array.from(updatedComponents) };
   }
 
   private setMemberExport(exportId: string, componentId: string, memberName: string) {
@@ -72,12 +95,22 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
 
     const exports = this.data.exports.members;
     exports[exportId] = { component: component.id, member: memberName };
+
+    const updatedComponents: ComponentModel[] = [];
+    return { updatedComponents };
   }
 
   clearExport(exportType: 'config' | 'member', exportId: string) {
+    const updatedComponents = new Set<ComponentModel>();
+
     switch (exportType) {
     case 'config': {
       const exports = this.data.exports.config;
+      const configExport = exports[exportId];
+      const component = this.getComponent(exports[exportId].component);
+      component.unexportConfig(configExport.configName);
+      updatedComponents.add(component);
+
       delete exports[exportId];
       break;
     }
@@ -91,6 +124,8 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     default:
       throw new Error(`Invalid export type: '${exportType}'`);
     }
+
+    return { updatedComponents: Array.from(updatedComponents) };
   }
 
   renameComponent(id: string, newId: string) {

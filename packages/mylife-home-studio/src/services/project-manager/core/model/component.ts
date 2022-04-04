@@ -59,8 +59,20 @@ export class ComponentModel {
   }
 
   configure(configId: string, configValue: any) {
+    if (this.data.config[configId] === undefined) {
+      throw new Error(`Cannot configure exported item '${configId}'.`);
+    }
+
     this.definition.validateConfigValue(configId, configValue);
     this.data.config[configId] = configValue;
+  }
+
+  exportConfig(configId: string) {
+    delete this.data.config[configId];
+  }
+
+  unexportConfig(configId: string) {
+    this.data.config[configId] = this.definition.createConfigTemplateValue(configId);
   }
 
   checkDelete() {
