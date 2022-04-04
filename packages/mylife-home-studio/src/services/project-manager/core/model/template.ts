@@ -41,6 +41,23 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
       yield component;
     }
   }
+
+  clearComponent(id: string) {
+    // first check that it is not used in export
+    for (const [exportId, configExport] of Object.entries(this.data.exports.config)) {
+      if (configExport.component === id) {
+        throw new Error(`Cannot delete component '${id}' because it is used in template config export '${exportId}'.`);
+      }
+    }
+
+    for (const [exportId, memberExport] of Object.entries(this.data.exports.members)) {
+      if (memberExport.component === id) {
+        throw new Error(`Cannot delete component '${id}' because it is used in template member export '${exportId}'.`);
+      }
+    }
+
+    return super.clearComponent(id);
+  }
   
   setExport(exportType: 'config' | 'member', exportId: string, componentId: string, propertyName: string) {
     switch (exportType) {
