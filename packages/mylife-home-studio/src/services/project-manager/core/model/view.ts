@@ -71,6 +71,10 @@ export abstract class ViewModel {
     return Array.from(this.components.keys());
   }
 
+  hasComponents() {
+    return this.components.size > 0;
+  }
+
   hasComponent(id: string) {
     return this.components.has(id);
   }
