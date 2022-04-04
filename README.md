@@ -227,7 +227,6 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 => config set to undefined when exported
 set to undefined on export
 set to default on unexport
-afficher de manière spéciale (autre couleur comme external ? les members/config exportés)
 
 - TESTS
   - deploy files
