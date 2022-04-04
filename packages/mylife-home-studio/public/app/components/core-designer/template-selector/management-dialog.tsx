@@ -118,6 +118,7 @@ const TemplateList: FunctionComponent = () => {
 
 const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const { template, onRename, onDelete } = useItemConnect(id);
+  const canDelete = template.usageComponents.length === 0;
 
   return (
     <ListItem>
@@ -130,7 +131,7 @@ const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
             </IconButton>
           </Tooltip>
 
-          <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} />
+          <DeleteButton icon tooltip="Supprimer" onConfirmed={onDelete} disabled={!canDelete} />
         </ListItemSecondaryAction>
     </ListItem>
   );
