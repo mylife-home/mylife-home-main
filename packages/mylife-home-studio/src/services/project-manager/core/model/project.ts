@@ -367,8 +367,14 @@ export namespace namingDryRun {
     private instantiateComponents(chain: ComponentNamingInfo[], component: Component) {
       const info: ComponentNamingInfo = {
         componentId: component.id,
-        definition: component.ref?.definition || null,
+        definition: null
       };
+
+      if (component.ref) {
+        info.definition = component.ref.definition;
+      } else if (component.type?.ref instanceof TemplateModel) {
+        info.definition = component.type.ref;
+      }
   
       const newChain = [...chain, info];
   
