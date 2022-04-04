@@ -221,9 +221,11 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 # WIP templates:
 - prevent drop used export (or force and cleanup)
 - remove v1 imports
+- update plugins (config/member changes when used in template and exported)
 
 
 - TESTS
+  - import plugins
   - deploy files
   - deploy online
   - imports between core projects
