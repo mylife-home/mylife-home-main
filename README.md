@@ -220,8 +220,9 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 
 # WIP templates:
 - prevent drop used export (or force and cleanup)
-- remove v1 imports
 - update plugins (config/member changes when used in template and exported)
+- implement components using template instantiation in views
+- remove v1 imports
 
 
 - TESTS
@@ -230,10 +231,3 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
   - deploy online
   - imports between core projects
   - imports into ui project
-
-Notes:
-Permettre des ids non templates dans un template
-Par contre on ne peut l'instancier qu'une fois
-Ça peut servir pour splitter la main view (eg: capteurs fenêtre alarme)
-
-Donc le check de doublons doit être vérifié a la création de composant (ou rename dans un template si on enlève le {{id}} du nom)
