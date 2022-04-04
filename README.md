@@ -223,9 +223,6 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 - remove v1 imports
 - forbid to drop component used in exports
 
-=> config set to undefined when exported
-set to undefined on export
-set to default on unexport
 
 - TESTS
   - deploy files
