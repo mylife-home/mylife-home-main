@@ -141,7 +141,7 @@ export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComp
       result.plugins[pluginView.id] = plugin;
     }
   }
-console.log(result);
+
   return result;
 }
 
