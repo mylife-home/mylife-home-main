@@ -97,9 +97,11 @@ export abstract class ViewModel {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
-    // TODO: validate recursion
-
     const definitionModel = this.getDefinition(definition);
+
+    const dryRun = this.project.buildNamingDryRunEngine();
+    dryRun.setComponent(this, componentId, definitionModel);
+    dryRun.validate();
 
     const componentData: CoreComponentData = {
       definition,
@@ -120,6 +122,11 @@ export abstract class ViewModel {
     }
 
     const component = this.components.get(id);
+
+    const dryRun = this.project.buildNamingDryRunEngine();
+    dryRun.renameComponent(component, newId);
+    dryRun.validate();
+
     const { definition } = component;
 
     this.components.delete(component.id);

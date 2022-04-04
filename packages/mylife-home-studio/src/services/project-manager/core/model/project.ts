@@ -1,7 +1,7 @@
 import { logger } from 'mylife-home-common';
 import { ConfigItem, Plugin } from '../../../../../shared/component-model';
 import { CoreComponentData, CorePluginData, CoreProject, CoreTemplate } from '../../../../../shared/project-manager';
-import { InstanceModel, PluginModel, TemplateModel, ViewModel } from '.';
+import { ComponentDefinitionModel, ComponentModel, InstanceModel, PluginModel, TemplateModel, ViewModel } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
@@ -236,5 +236,166 @@ export class ProjectModel extends ViewModel {
     this.data.components[component.id] = component.data;
 
     return component;
+  }
+
+  buildNamingDryRunEngine() {
+    return new namingDryRun.Engine(this);
+  }
+}
+
+export namespace namingDryRun {
+
+  interface View {
+    ref: ViewModel;
+    children: Component[];
+  }
+
+  interface Component {
+    ref: ComponentModel; // or null if not yet created
+    id: string; // may be changed to test renaming
+    type: View; // or plugin, but we don't care here (hence null)
+  }
+
+  interface ComponentNamingInfo {
+    componentId: string;
+    definition: ComponentDefinitionModel;
+  }
+
+  interface GeneratedComponentIdInfo {
+    owners: { chain: ComponentNamingInfo[] }[];
+  }
+
+  export class Engine {
+    private readonly views = new Map<ViewModel, View>();
+    private readonly components = new Map<ComponentModel, Component>();
+
+    // used from generateComponentIds and children
+    private map: Map<string, GeneratedComponentIdInfo>;
+
+    constructor(private readonly projectModel: ProjectModel) {
+      this.generateView(projectModel);
+    }
+
+    private generateView(viewModel: ViewModel) {
+      const view: View = {
+        ref: viewModel,
+        children: []
+      };
+  
+      this.views.set(viewModel, view);
+  
+      for (const componentId of viewModel.getComponentsIds()) {
+        const component = viewModel.getComponent(componentId);
+        view.children.push(this.generateComponent(component));
+      }
+  
+      return view;
+    }
+  
+    private generateComponent(componentModel: ComponentModel) {
+      const component: Component = {
+        ref: componentModel,
+        id: componentModel.id,
+        type: null
+      };
+
+      this.components.set(componentModel, component);
+  
+      if (componentModel.definition instanceof TemplateModel) {
+        component.type = this.generateView(componentModel.definition);
+      }
+  
+      return component;
+    }
+
+    renameComponent(componentModel: ComponentModel, newId: string) {
+      const component = this.components.get(componentModel);
+      component.id = newId;
+    }
+
+    setComponent(ownerView: ViewModel, id: string, definition: ComponentDefinitionModel) {
+      const owner = this.views.get(ownerView);
+      const type = definition instanceof TemplateModel ? this.views.get(definition) : null;
+      owner.children.push({ id, ref: null, type });
+    }
+
+    validate() {
+      const ids = this.generateComponentIds();
+
+      const message: string[] = [];
+
+      for (const [id, info] of ids.entries()) {
+        if (info.owners.length < 2) {
+          continue;
+        }
+
+        message.push(`- id duplicate: ${id}`);
+
+        for (const { chain } of info.owners) {
+          const parts = [];
+          
+          for (const item of chain) {
+            let part = item.componentId;
+
+            if (item.definition instanceof TemplateModel || item.definition instanceof PluginModel) {
+              part += ` (${item.definition.id})`;
+            }
+
+            parts.push(part);
+          }
+
+          message.push('  - ' + parts.join(' -> '));
+        }
+      }
+
+      if (message.length) {
+        throw new Error(`The operation would generate the following id duplicates:\n${message.join('\n')}`);
+      }
+    }
+
+    private generateComponentIds() {
+      this.map = new Map<string, GeneratedComponentIdInfo>();
+
+      const project = this.views.get(this.projectModel);
+      for (const component of project.children) {
+        this.instantiateComponents([], component);
+      }
+  
+      return this.map;
+    }
+  
+    private instantiateComponents(chain: ComponentNamingInfo[], component: Component) {
+      const info: ComponentNamingInfo = {
+        componentId: component.id,
+        definition: component.ref?.definition || null,
+      };
+  
+      const newChain = [...chain, info];
+  
+      const view = component.type;
+      if (!view) {
+        this.addToMap(newChain);
+        return;
+      }
+  
+      for (const component of view.children) {
+        this.instantiateComponents(newChain, component);
+      }
+    }
+  
+    private addToMap(chain: ComponentNamingInfo[]) {
+      let id = '';
+      for (const item of chain) {
+        id = item.componentId.replace('{{id}}', id);
+      }
+  
+      let item = this.map.get(id);
+      if (!item) {
+        item = { owners: [] };
+        this.map.set(id, item);
+      }
+  
+      item.owners.push({ chain });
+    }
   }
 }
