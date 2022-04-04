@@ -1,6 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { MemberType } from '../../../../../shared/component-model';
-import { CoreComponentConfiguration, CoreTemplate } from '../../../../../shared/project-manager';
+import { CoreComponentConfiguration, CoreComponentDefinition, CoreTemplate } from '../../../../../shared/project-manager';
 import { ComponentDefinitionModel, ComponentModel, ViewModel, ProjectModel } from '.';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
@@ -40,6 +40,28 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     for (const component of this.usage.values()) {
       yield component;
     }
+  }
+
+  *getRecursiveTemplateUsage(): Generator<TemplateModel> {
+    for (const component of this.getAllUsage()) {
+      if (component.ownerTemplate) {
+        yield component.ownerTemplate;
+
+        for (const child of component.ownerTemplate.getRecursiveTemplateUsage()) {
+          yield child;
+        }
+      }
+    }
+  }
+
+  setComponent(componentId: string, definition: CoreComponentDefinition, x: number, y: number) {
+    // check for circular dependency
+    const usageTemplates = new Set(Array.from(this.getRecursiveTemplateUsage()).map(template => template.id));
+    if (definition.type === 'template' && usageTemplates.has(definition.id)) {
+      throw new Error(`Cannot create component using template '${definition.id}' because it could create a circular dependency.`);
+    }
+
+    return super.setComponent(componentId, definition, x, y);
   }
 
   clearComponent(id: string) {
