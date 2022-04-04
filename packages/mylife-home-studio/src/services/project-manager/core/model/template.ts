@@ -125,6 +125,12 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     component.exportConfig(configName);
     updatedComponents.add(component);
 
+    // add config on each usage
+    for (const component of this.getAllUsage()) {
+      component.addConfig(exportId);
+      updatedComponents.add(component);
+    }
+
     return { updatedComponents: Array.from(updatedComponents) };
   }
 

@@ -75,6 +75,14 @@ export class ComponentModel {
     this.data.config[configId] = this.definition.createConfigTemplateValue(configId);
   }
 
+  /**
+   * Called when a new config is exported on template
+   * @param configId
+   */
+  addConfig(configId: string) {
+    this.data.config[configId] = this.definition.createConfigTemplateValue(configId);
+  }
+
   checkDelete() {
     if (this.ownerTemplate?.hasExportWithComponentId(this.id)) {
       throw new Error(`Cannot delete component '${this.id}' because it is used in template exports`);
