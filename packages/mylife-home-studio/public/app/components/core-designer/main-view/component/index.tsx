@@ -114,9 +114,9 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
   const template = useTabSelector(getActiveTemplate);
   const bindingDndInfo = useBindingDndInfo();
 
-  const stateItems = useMemo(() => buildMembers(template, componentId, properties, properties.stateIds), [componentId, properties]);
-  const actionItems = useMemo(() => buildMembers(template, componentId, properties, properties.actionIds), [componentId, properties]);
-  const configItems = useMemo(() => component.external ? [] : buildConfig(template, componentId, properties, component.config), [component.external, component.config, properties]);
+  const stateItems = useMemo(() => buildMembers(template, componentId, properties, properties.stateIds), [template, componentId, properties]);
+  const actionItems = useMemo(() => buildMembers(template, componentId, properties, properties.actionIds), [template, componentId, properties]);
+  const configItems = useMemo(() => component.external ? [] : buildConfig(template, componentId, properties, component.config), [template, component.external, component.config, properties]);
 
   const movedComponent = { ...component, position: position || component.position };
   const rect = computeComponentRect(theme, movedComponent, properties);
@@ -139,7 +139,15 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
 
         <BorderGroup yIndex={yIndex.peek()}>
           {configItems.map((item, index) => (
-            <Property key={index} yIndex={yIndex.next()} icon='config' primary={item.id} secondary={item.secondary} split='middle' />
+            <Property
+              key={index}
+              yIndex={yIndex.next()}
+              exported={item.exported}
+              icon='config'
+              primary={item.id}
+              secondary={item.secondary}
+              split='middle'
+            />
           ))}
         </BorderGroup>
 
@@ -147,8 +155,9 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
           {stateItems.map((item, index) => (
             <Property
               key={index}
-              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
+              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
+              exported={item.exported}
               icon='state'
               primary={item.id}
               secondary={item.secondary}
@@ -162,8 +171,9 @@ const ComponentLayout: FunctionComponent<ComponentLayoutProps> = ({ componentId,
           {actionItems.map((item, index) => (
             <Property
               key={index}
-              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
               yIndex={yIndex.next()}
+              highlight={bindingDndInfo && isBindingTarget(bindingDndInfo.source, item.bindingSource)}
+              exported={item.exported}
               icon='action'
               primary={item.id}
               secondary={item.secondary}
@@ -233,8 +243,8 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const select = useCallback(() => selectComponent(componentId), [selectComponent, componentId]);
   const toggle = useCallback(() => toggleComponent(componentId), [toggleComponent, componentId]);
 
-  const stateItems = useMemo(() => buildMembers(template, componentId, definition, definition.stateIds), [componentId, definition]);
-  const actionItems = useMemo(() => buildMembers(template, componentId, definition, definition.actionIds), [componentId, definition]);
+  const stateItems = useMemo(() => buildMembers(template, componentId, definition, definition.stateIds), [template, componentId, definition]);
+  const actionItems = useMemo(() => buildMembers(template, componentId, definition, definition.actionIds), [template, componentId, definition]);
   const configItemsCount = useMemo(() => component.external ? 0 : definition.configIds.length, [component.external, definition]);
 
   const mouseDownHandler = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {

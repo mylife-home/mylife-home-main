@@ -32,9 +32,10 @@ export interface PropertyProps {
   secondaryItalic?: boolean;
   split?: 'middle' | 'right';
   highlight?: boolean;
+  exported?: boolean;
 }
 
-export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, icon, primary, primaryItalic = false, secondary, secondaryItalic = false, split, highlight }) => {
+export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, icon, primary, primaryItalic = false, secondary, secondaryItalic = false, split, highlight, exported }) => {
   const theme = useCanvasTheme();
 
   const xBase = theme.component.paddingLeft;
@@ -76,13 +77,21 @@ export const Property: FunctionComponent<PropertyProps> = ({ yIndex, onDrag, ico
     };
   };
 
+  let specialColor: string;
+
+  if (highlight) {
+    specialColor = theme.component.highlightColor;
+  } else if (exported) {
+    specialColor = theme.component.exportedColor;
+  }
+
   return (
     <Group
       x={0} y={yBase} width={theme.component.width} height={theme.component.boxHeight}
       draggable={!!onDrag} onDragStart={createDragEventHandler('start')} onDragMove={createDragEventHandler('move')} onDragEnd={createDragEventHandler('end')}
     >
-      {highlight && (
-        <Rect x={0} y={0} width={theme.component.width} height={theme.component.boxHeight} fill={theme.component.highlightColor} />
+      {specialColor && (
+        <Rect x={0} y={0} width={theme.component.width} height={theme.component.boxHeight} fill={specialColor} />
       )}
 
       <Icon x={xBase} y={((theme.component.boxHeight - (theme.fontSize)) / 2)} size={theme.fontSize} image={icon} />

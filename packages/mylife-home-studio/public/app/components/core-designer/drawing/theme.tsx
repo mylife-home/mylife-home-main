@@ -2,6 +2,7 @@ import React, { FunctionComponent, createContext, useContext, useMemo } from 're
 import { Theme as MuiTheme, useTheme as useMuiTheme, darken } from '@material-ui/core';
 import { fade } from '@material-ui/core/styles';
 import orange from '@material-ui/core/colors/orange';
+import teal from '@material-ui/core/colors/teal';
 import { GRID_STEP_SIZE } from './defs';
 
 export interface CanvasTheme {
@@ -23,6 +24,7 @@ export interface CanvasTheme {
     width: number;
     secondaryWidth: number;
     highlightColor: string;
+    exportedColor: string;
   };
 
   binding: {
@@ -68,6 +70,7 @@ function buildCanvasTheme(muiTheme: MuiTheme) : CanvasTheme {
       width: GRID_STEP_SIZE * 10,
       secondaryWidth: 40,
       highlightColor: darken(muiTheme.palette.background.paper, 0.3),
+      exportedColor: fade(teal[300], 0.2),
     },
 
     binding: {
