@@ -161,6 +161,5 @@ function parseNumber(value: string, type: 'float' | 'int') {
 }
 
 function isExported(template: Template, componentId: string, configId: string) {
-  console.log(template && template.exports.config, componentId, configId)
   return !!template && !!Object.values(template.exports.config).find(item => item.component === componentId && item.configName === configId);
 }
