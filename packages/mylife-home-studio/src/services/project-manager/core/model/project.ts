@@ -277,6 +277,11 @@ export namespace namingDryRun {
     }
 
     private generateView(viewModel: ViewModel) {
+      const existing = this.views.get(viewModel);
+      if (existing) {
+        return existing;
+      }
+
       const view: View = {
         ref: viewModel,
         children: []
@@ -293,6 +298,11 @@ export namespace namingDryRun {
     }
   
     private generateComponent(componentModel: ComponentModel) {
+      const existing = this.components.get(componentModel);
+      if (existing) {
+        return existing;
+      }
+
       const component: Component = {
         ref: componentModel,
         id: componentModel.id,
@@ -360,7 +370,7 @@ export namespace namingDryRun {
       for (const component of project.children) {
         this.instantiateComponents([], component);
       }
-  
+
       return this.map;
     }
   
