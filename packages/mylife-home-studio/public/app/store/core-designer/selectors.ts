@@ -478,11 +478,22 @@ export const getTemplateCandidateConfigExports = (state: AppState, templateId: s
   
   const list: PropertyItem[] = [];
 
+  const existings = new Set<string>();
+  for (const item of Object.values(template.exports.config)) {
+    existings.add(`${item.component}:${item.configName}`);
+  }
+
   for (const componentId of template.components) {
     const component = maps.components[componentId];
     const properties = getComponentDefinitionProperties(component.definition, maps);
 
     for (const configId of properties.configIds) {
+      // Do not allow to export a config twice
+      const candidate  =`${component.id}:${configId}`;
+      if (existings.has(candidate)) {
+        continue;
+      }
+
       list.push({
         componentId: component.id,
         componentName: component.componentId,
