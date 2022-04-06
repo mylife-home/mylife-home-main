@@ -230,3 +230,17 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
   - deploy online
   - imports between core projects (plugins & components)
   - imports into ui project
+
+=>
+- import component with id that would overwrite template instantation (eg: id = new1-child1)
+- import plugin prop update inside template
+- import plugin prop delete inside template
+- import plugin config update inside template
+- import plugin config delete inside template
+- import plugin prop update inside template (with binding)
+- import plugin prop delete inside template (with binding)
+- import plugin prop update inside template (which is exported)
+- import plugin prop delete inside template (which is exported)
+- import plugin config update inside template (which is exported)
+- import plugin config delete inside template (which is exported)
+- import plugin prop/config update/delete which is exported, used in a template which export it again
