@@ -233,6 +233,8 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 
 =>
 - import component with id that would overwrite template instantation (eg: id = new1-child1)
+- import plugin config update should update component
+- import plugin config delete should update component
 - import plugin prop update inside template
 - import plugin prop delete inside template
 - import plugin config update inside template
