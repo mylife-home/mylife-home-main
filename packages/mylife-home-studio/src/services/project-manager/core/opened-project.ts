@@ -46,7 +46,7 @@ import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel, ResolvedProjectView } from './model';
 import { Services } from '../..';
-import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData } from './import';
+import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, computeImpacts, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
 import { validate } from './validation';
 import { resolveProject } from './resolver';
@@ -470,7 +470,8 @@ export class CoreOpenedProject extends OpenedProject {
   }
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdatesCoreProjectCallResult {
-    const { changes, serverData } = prepareChanges(imports, this.model);
+    const changes = prepareChanges(imports, this.model);
+    const serverData = computeImpacts(imports, this.model, changes);
     return { changes, serverData };
   }
 

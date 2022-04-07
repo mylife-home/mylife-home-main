@@ -1,10 +1,10 @@
-import { logger, components } from 'mylife-home-common';
-import { pick } from '../../../../utils/object-utils';
+import { logger } from 'mylife-home-common';
 import { coreImportData, BulkUpdatesStats } from '../../../../../shared/project-manager';
-import { ComponentModel, ProjectModel, PluginModel, TemplateModel, PluginView } from '../model';
+import { ProjectModel, PluginModel, TemplateModel } from '../model';
 import { ImportData, PluginImport, ComponentImport } from './load';
 
 export * from './load';
+export * from './diff';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
@@ -52,327 +52,42 @@ interface ComponentConfigImpact extends Impact {
   configId: string;
 }
 
-export function prepareChanges(imports: ImportData, model: ProjectModel) {
-  const pluginsChanges = preparePluginUpdates(imports, model);
-  const componentsChanges = prepareComponentUpdates(imports, model);
+export function computeImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
+  const pluginsChanges = changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[];
+  const componentsChanges = changes.filter(change => change.objectType === 'component') as coreImportData.ComponentChange[];
 
   lookupPluginsChangesImpacts(imports, model, pluginsChanges);
   lookupComponentsChangesImpacts(imports, model, componentsChanges);
 
-  const changes = [ ...pluginsChanges, ...componentsChanges];
-  lookupDependencies(imports, model, changes);
-  const serverData = prepareServerData(imports, changes);
-
-  return { changes, serverData };
+  return prepareServerData(imports, changes);
 }
 
-function preparePluginUpdates(imports: ImportData, model: ProjectModel): coreImportData.PluginChange[] {
-  const changes: coreImportData.PluginChange[] = [];
-
-  for (const pluginImport of imports.plugins) {
-    const id = pluginImport.id;
-
-    if (!model.hasPlugin(id)) {
-      add(pluginImport);
-    } else {
-      const pluginModel = model.getPlugin(id);
-      if (!arePluginsEqual(pluginModel, pluginImport)) {
-        update(pluginModel, pluginImport);
-      }
-    }
-  }
-
-  const pluginsImportsIds = new Set(imports.plugins.map(pluginImport => pluginImport.id));
-  for (const id of model.getPluginsIds()) {
-    if (!pluginsImportsIds.has(id)) {
-      const pluginModel = model.getPlugin(id);
-      remove(pluginModel);
-    }
-  }
-
-  return changes;
-
-  function add(pluginImport: PluginImport) {
-    const id = pluginImport.id;
-    const change = newPluginChange(`plugin-set:${id}`, id, pluginImport.instanceName, 'add', { version: { before: null, after: pluginImport.plugin.version } });
-
-    change.usage = pluginImport.plugin.usage;
-    const objectChanges = buildPluginMembersAndConfigChanges(null, pluginImport.plugin);
-    change.config = objectChanges.config;
-    change.members = objectChanges.members;
-
-    changes.push(change);
-  }
-
-  function update(pluginModel: PluginModel, pluginImport: PluginImport) {
-    const id = pluginModel.id;
-    const change = newPluginChange(`plugin-set:${id}`, id, pluginModel.instance.instanceName, 'update', { version: { before: pluginModel.data.version, after: pluginImport.plugin.version } });
-
-    if (pluginModel.data.usage !== pluginImport.plugin.usage) {
-      change.usage = pluginImport.plugin.usage;
-    }
-
-    const objectChanges = buildPluginMembersAndConfigChanges(pluginModel, pluginImport.plugin);
-    change.config = objectChanges.config;
-    change.members = objectChanges.members;
-
-    changes.push(change);
-  }
-
-  function remove(pluginModel: PluginModel) {
-    const id = pluginModel.id;
-    const change = newPluginChange(`plugin-clear:${id}`, id, pluginModel.instance.instanceName, 'delete', { version: { before: pluginModel.data.version, after: null } });
-    changes.push(change);
-  }
-}
-
-// used by deploy validation
-export function buildPluginMembersAndConfigChanges(pluginModel: PluginModel | PluginView, plugin: components.metadata.NetPlugin) {
-  const config = lookupObjectChanges(pluginModel?.data?.config, plugin?.config, configEqualityComparer, typeChangeFormatter);
-  const members = lookupObjectChanges(pluginModel?.data?.members, plugin?.members, memberEqualityComparer, typeChangeFormatter);
-  return { config, members };
-
-  function memberEqualityComparer(memberModel: components.metadata.NetMember, memberImport: components.metadata.NetMember) {
-    return memberModel.memberType === memberImport.memberType
-      && memberModel.valueType === memberImport.valueType
-      && memberModel.description === memberImport.description;
-  }
-
-  function configEqualityComparer(configModel: components.metadata.ConfigItem, configImport: components.metadata.ConfigItem) {
-    return configModel.valueType === configImport.valueType
-      && configModel.description === configImport.description;
-  }
-
-  function typeChangeFormatter(name: string, type: coreImportData.ChangeType) {
-    return type;
-  }
-}
-
-function prepareComponentUpdates(imports: ImportData, model: ProjectModel): coreImportData.ComponentChange[] {
-  const changes: coreImportData.ComponentChange[] = [];
-
-  // A project is supposed to deploy full instances only.
-  // So we can consider each instance with components on imported project, and deduce a list of deleted components per instance
-  const pluginImportsInstances = new Map<string, string>();
-  for (const pluginImport of imports.plugins) {
-    pluginImportsInstances.set(pluginImport.id, pluginImport.instanceName);
-  }
-
-  const componentsImportsByInstanceName = new Map<string, Set<string>>();
-  for (const componentImport of imports.components) {
-    const instanceName = pluginImportsInstances.get(componentImport.pluginId);
-    let set = componentsImportsByInstanceName.get(instanceName);
-    if (!set) {
-      set = new Set();
-      componentsImportsByInstanceName.set(instanceName, set);
-    }
-
-    set.add(componentImport.id);
-  }
-
-  for (const componentImport of imports.components) {
-    const id = componentImport.id;
-    if (!model.hasComponent(id)) {
-      const instanceName = pluginImportsInstances.get(componentImport.pluginId);
-      add(componentImport, instanceName);
-    } else {
-      const componentModel = model.getComponent(id);
-      if (!areComponentsEqual(componentModel, componentImport)) {
-        update(componentModel, componentImport);
-      }
-    }
-  }
-
-  for (const [instanceName, set] of componentsImportsByInstanceName.entries()) {
-    if (!model.hasInstance(instanceName)) {
-      continue;
-    }
-
-    const instanceModel = model.getInstance(instanceName);
-    for (const componentModel of instanceModel.getAllUsage()) {
-      if (!set.has(componentModel.id)) {
-        remove(componentModel);
-      }
-    }
-  }
-
-  return changes;
-
-  function add(componentImport: ComponentImport, instanceName: string) {
-    const id = componentImport.id;
-    const change = newComponentChange(`component-set:${id}`, id, instanceName, 'add', pick(componentImport, 'pluginId', 'external'));
-
-    change.config = lookupObjectChanges(null, componentImport.config, Object.is, configChangeFormatter);
-
-    changes.push(change);
-  }
-
-  function update(componentModel: ComponentModel, componentImport: ComponentImport) {
-    const id = componentModel.id;
-    // Note: instanceName may have changed.
-    const change = newComponentChange(`component-set:${id}`, id, getInstanceName(componentModel), 'update');
-
-    if (!(componentModel.definition instanceof PluginModel) || componentModel.definition.id !== componentImport.pluginId) {
-      change.pluginId = componentImport.pluginId;
-    }
-
-    if (componentModel.data.external !== componentImport.external) {
-      change.external = componentImport.external;
-    }
-
-    change.config = lookupObjectChanges(componentModel.data.config, componentImport.config, Object.is, configChangeFormatter);
-
-    changes.push(change);
-  }
-
-  function remove(componentModel: ComponentModel) {
-    const id = componentModel.id;
-    const change = newComponentChange(`component-clear:${id}`, id, getInstanceName(componentModel), 'delete');
-    changes.push(change);
-  }
-
-  function configChangeFormatter(name: string, type: coreImportData.ChangeType, valueModel: any, valueImport: any) {
-    return { type, value: valueImport };
-  }
-
-  function getInstanceName(componentModel: ComponentModel) {
-    if (componentModel.definition instanceof PluginModel) {
-      return componentModel.definition.instance.instanceName;
-    }
-
-    if (componentModel.definition instanceof TemplateModel) {
-      return '<Templates>';
-    }
-
-    throw new Error('Unsupported definition type');
-  }
-}
-
-function newPluginChange(key: string, id: string, instanceName: string, changeType: coreImportData.ChangeType, props: Partial<coreImportData.PluginChange> = {}) {
-  const change: coreImportData.PluginChange = {
-    key,
-    id,
-    instanceName,
-    changeType,
-    objectType: 'plugin',
-    dependencies: [],
-    version: { before: null, after: null },
-    usage: null,
-    config: {},
-    members: {},
-    impacts: null,
-    ...props
-  };
-
-  return change;
-}
-
-function newComponentChange(key: string, id: string, instanceName: string, changeType: coreImportData.ChangeType, props: Partial<coreImportData.ComponentChange> = {}) {
-  const change: coreImportData.ComponentChange = {
-    key,
-    id, 
-    instanceName,
-    changeType,
-    objectType: 'component',
-    dependencies: [],
-    config: {},
-    external: null,
-    pluginId: null,
-    impacts: null,
-    ...props
-  };
-
-  return change;
-}
-
-function arePluginsEqual(pluginModel: PluginModel, pluginImport: PluginImport) {
-  return pluginModel.instance.instanceName === pluginImport.instanceName
-    && pluginModel.data.module === pluginImport.plugin.module
-    && pluginModel.data.name === pluginImport.plugin.name
-    && pluginModel.data.version === pluginImport.plugin.version;
-}
-
-function areComponentsEqual(componentModel: ComponentModel, componentImport: ComponentImport) {
-  const baseEqual = componentModel.id === componentImport.id
-    && componentModel.definition instanceof PluginModel
-    && componentModel.definition.id === componentImport.pluginId
-    && componentModel.data.external === componentImport.external
-    && !!componentModel.data.config === !!componentImport.config;
-
-  if (!baseEqual) {
-    return false;
-  }
-
-  // compare config
-  if (!componentModel.data.config) {
-    // no config
-    return true;
-  }
-
-  const configModel = componentModel.data.config;
-  const configImport = componentImport.config;
-
-  const modelKeys = Object.keys(configModel);
-  const configKeys = Object.keys(configImport);
-  if (modelKeys.length !== configKeys.length) {
-    return false;
-  }
-
-  for (const [key, valueModel] of Object.entries(configModel)) {
-    if (!configImport.hasOwnProperty(key)) {
-      return false;
-    }
-
-    const valueImport = configImport[key];
-
-    if (!Object.is(valueModel, valueImport)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-function lookupObjectChanges<Value, Change>(objectModel: { [name: string]: Value; }, objectImport: { [name: string]: Value; }, equalityComparer: (valueModel: Value, valueImport: Value) => boolean, changesFormatter: (name: string, type: coreImportData.ChangeType, valueModel: Value, valueImport: Value) => Change) {
-  const changes: { [name: string]: Change; } = {};
-
-  const safeObjectModel = objectModel || {};
-  const safeObjectImport = objectImport || {};
-  for (const [name, valueImport] of Object.entries(safeObjectImport)) {
-    if (!safeObjectModel.hasOwnProperty(name)) {
-      changes[name] = changesFormatter(name, 'add', null, valueImport);
-    } else {
-      const valueModel = safeObjectModel[name];
-      const valueImport = safeObjectImport[name];
-      if (!equalityComparer(valueModel, valueImport)) {
-        changes[name] = changesFormatter(name, 'update', valueModel, valueImport);
-      }
-    }
-  }
-
-  for (const [name, valueModel] of Object.entries(safeObjectModel)) {
-    if (!safeObjectImport.hasOwnProperty(name)) {
-      changes[name] = changesFormatter(name, 'delete', valueModel, null);
-    }
-  }
-
-  return changes;
-}
-
+// TODO: templates exports
 function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.PluginChange[]) {
   for (const change of changes.filter(change => change.changeType === 'delete')) {
     const plugin = model.getPlugin(change.id);
-    const bindingsIds = new Set<string>();
-    for (const component of plugin.getAllUsage()) {
-      for (const binding of component.getAllBindings()) {
-        bindingsIds.add(binding.id);
-      }
-    }
 
     change.impacts = {
-      components: getAllUsageId(plugin),
-      bindings: Array.from(bindingsIds)
+      templates: [],
+      components: [],
+      bindings: []
     };
+
+    const templatesIds = new Set<string>();
+    const bindingsIds = new Map<string, coreImportData.BindingId>();
+    for (const component of plugin.getAllUsage()) {
+      const template = component.ownerTemplate;
+      
+      if (template && hasComponentTemplateImpact(template, component.id)) {
+        templatesIds.add(template.id);
+      }
+
+      const templateId = template?.id ?? null;
+
+      for (const binding of component.getAllBindings()) {
+        bindingsIds.set(`${templateId}:${binding.id}`, { templateId, bindingId: binding.id });
+      }
+    }
   }
 
   for (const change of changes.filter(change => change.changeType === 'update')) {
@@ -399,6 +114,52 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
       bindings: Array.from(bindingsIds)
     };
   }
+}
+
+function hasComponentTemplateImpact(templateModel: TemplateModel, componentId: string) {
+  const exports = templateModel.data.exports;
+
+  for (const item of Object.values(exports.config)) {
+    if (item.component === componentId) {
+      return true;
+    }
+  }
+
+  for (const item of Object.values(exports.members)) {
+    if (item.component === componentId) {
+      return true;
+    }
+  }
+
+  return false;
+
+}
+
+function hasPropertyTemplateImpact(templateModel: TemplateModel, componentId: string, propertyType: 'config' | 'member', propertyId: string) {
+  const exports = templateModel.data.exports;
+  switch (propertyType) {
+    case 'config': {
+      for (const item of Object.values(exports.config)) {
+        if (item.component === componentId && item.configName === propertyId) {
+          return true;
+        }
+      }
+
+      break;
+    }
+
+    case 'member': {
+      for (const item of Object.values(exports.members)) {
+        if (item.component === componentId && item.member === propertyId) {
+          return true;
+        }
+      }
+
+      break;
+    }
+  }
+
+  return false;
 }
 
 function getAllUsageId(plugin: PluginModel) {
@@ -474,22 +235,26 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: ProjectModel
   }
 
   for (const change of changes.filter(change => change.changeType === 'delete')) {
-    const component = model.getComponent(change.id);
-    change.impacts = {
-      bindings: Array.from(component.getAllBindingsIds())
-    };
+    addBindingsImpact(model, change);
   }
 
   for (const change of changes.filter(change => change.changeType === 'update')) {
     // only impacts on plugin change
     // TODO: could also only lookup for properties that actually changed
     if (change.pluginId) {
-      const component = model.getComponent(change.id);
-      change.impacts = {
-        bindings: Array.from(component.getAllBindingsIds())
-      };
+      addBindingsImpact(model, change);
     }
   }
+}
+
+function addBindingsImpact(model: ProjectModel, change: coreImportData.ComponentChange) {
+  const component = model.getComponent(change.id);
+  const bindingIds = Array.from(component.getAllBindingsIds());
+  change.impacts = {
+    templates: [],
+    // component is on project, so binding is also on project directly
+    bindings: bindingIds.map(bindingId => ({ templateId: null, bindingId }))
+  };
 }
 
 function lookupDependencies(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
@@ -580,24 +345,24 @@ function prepareServerData(imports: ImportData, changes: coreImportData.ObjectCh
     updates.push(update);
   }
 
-  function buildBindingImpacts(update: Update, change: { impacts: { bindings: string[]; }; }) {
+  function buildBindingImpacts(update: Update, change: { impacts: { bindings: coreImportData.BindingId[]; }; }) {
     if (!change.impacts) {
       return;
     }
 
-    for (const bindingId of change.impacts.bindings) {
-      const impact: BindingDeleteImpact = { type: 'binding-delete', bindingId };
+    for (const { templateId, bindingId } of change.impacts.bindings) {
+      const impact: BindingDeleteImpact = { type: 'binding-delete', templateId, bindingId };
       update.impacts.push(impact);
     }
   }
 
-  function buildComponentImpacts(update: Update, change: { impacts: { components: string[]; }; }) {
+  function buildComponentImpacts(update: Update, change: { impacts: { components: coreImportData.ComponentId[]; }; }) {
     if (!change.impacts) {
       return;
     }
 
-    for (const componentId of change.impacts.components) {
-      const impact: ComponentDeleteImpact = { type: 'component-delete', componentId };
+    for (const { templateId, componentId } of change.impacts.components) {
+      const impact: ComponentDeleteImpact = { type: 'component-delete', templateId, componentId };
       update.impacts.push(impact);
     }
   }
