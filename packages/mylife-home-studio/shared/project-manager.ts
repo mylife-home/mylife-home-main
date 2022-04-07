@@ -495,7 +495,7 @@ export interface ClearBindingCoreProjectCall extends CoreProjectCall {
 export namespace coreImportData {
 
   export type ChangeType = 'add' | 'update' | 'delete';
-  export type ObjectType = 'component' | 'plugin';
+  export type ObjectType = 'component' | 'plugin' | 'template';
   
   export interface ObjectChange {
     key: string; // for selection
@@ -504,30 +504,64 @@ export namespace coreImportData {
     changeType: ChangeType;
     objectType: ObjectType;
     dependencies: string[]; // components changes may depends on plugins changes
+    impacts: Impact[];
   }
-    
+
   export interface PluginChange extends ObjectChange {
     objectType: 'plugin';
 
-    version: { before: string; after: string; },
+    version: { before: string; after: string; };
     usage: PluginUsage; // or null if no change
-    config: { [name: string]: ChangeType; },
-    members: { [name: string]: ChangeType; },
-    impacts: {
-      components: string[], // components will lose their configuration or plugin update, or be deleted on plugin delete
-      bindings: string[], // bindings will be deleted
-    };
+    config: { [name: string]: ChangeType; };
+    members: { [name: string]: ChangeType; };
   }
-    
+
+  /**
+   * @note component changes are always on project directly, not inside templates
+   */
   export interface ComponentChange extends ObjectChange {
     objectType: 'component';
 
     config: { [name: string]: { type: ChangeType; value: any; }; };
     external: boolean; // or null if no change
     pluginId: string; // or null if no change
-    impacts: {
-      bindings: string[], // bindings will be deleted
-    };
+  }
+
+  /**
+   * @note used on exports removes, to apply the impact analysis on the changes
+   */
+   export interface TemplateChange extends ObjectChange {
+    objectType: 'template';
+
+    configExportDeletes: string[];
+    memberExportDeletes: string[];
+  }
+
+  export interface Impact {
+    type: 'binding-delete' | 'component-delete' | 'component-config' | 'template-export';
+    templateId: string;
+  }
+
+  export interface BindingDeleteImpact extends Impact {
+    type: 'binding-delete';
+    bindingId: string;
+  }
+
+  export interface ComponentDeleteImpact extends Impact {
+    type: 'component-delete';
+    componentId: string;
+  }
+
+  export interface ComponentConfigImpact extends Impact {
+    type: 'component-config';
+    componentId: string;
+    config: { [name: string]: ChangeType; }; // update = reset
+  }
+
+  export interface TemplateExportImpact extends Impact {
+    type: 'template-export';
+    configExportDeletes: string[];
+    memberExportDeletes: string[];
   }
 }
 
