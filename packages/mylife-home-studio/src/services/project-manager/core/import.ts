@@ -572,6 +572,18 @@ function hasConfigChanges(modelPlugin: PluginModel, importPlugin: PluginImport, 
 }
 
 function lookupComponentsChangesImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.ComponentChange[]) {
+  // on add, make sure we don't overwrite template instantiation. If it's the case, let's give up
+  for (const change of changes.filter(change => change.changeType === 'add')) {
+    if (model.hasComponent(change.id)) {
+      // will be an update
+      continue;
+    }
+
+    const dryRun = this.project.buildNamingDryRunEngine();
+    dryRun.setComponent(this, change.id, null);
+    dryRun.validate();
+  }
+
   for (const change of changes.filter(change => change.changeType === 'delete')) {
     const component = model.getComponent(change.id);
     change.impacts = {
