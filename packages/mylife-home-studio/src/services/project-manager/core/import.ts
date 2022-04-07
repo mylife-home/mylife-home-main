@@ -716,10 +716,11 @@ function prepareServerData(imports: ImportData, changes: coreImportData.ObjectCh
 
 export interface UpdateApi {
   clearPlugin: (id: string) => void;
-  clearComponent: (id: string) => void;
-  clearBinding: (id: string) => void;
+  clearComponent: (templateId: string, id: string) => void;
+  clearBinding: (templateId: string, id: string) => void;
   setPlugin: (plugin: PluginImport) => void;
   setComponent: (component: ComponentImport) => void;
+  updateComponentConfig: (templateId: string, componentId: string, configId: string, type: 'clear' | 'reset') => void;
 }
 
 export function applyChanges(serverData: UpdateServerData, selection: Set<string>, api: UpdateApi) {
