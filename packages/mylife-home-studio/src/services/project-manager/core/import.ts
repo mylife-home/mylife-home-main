@@ -150,17 +150,26 @@ interface ComponentSetUpdate extends Update {
 }
 
 interface Impact {
-  type: 'binding-delete' | 'component-delete';
+  type: 'binding-delete' | 'component-delete' | 'component-config-clear' | 'component-config-reset';
 }
 
 interface BindingDeleteImpact extends Impact {
   type: 'binding-delete';
+  templateId: string;
   bindingId: string;
 }
 
 interface ComponentDeleteImpact extends Impact {
   type: 'component-delete';
+  templateId: string;
   componentId: string;
+}
+
+interface ComponentConfigImpact extends Impact {
+  type: 'component-config-clear' | 'component-config-reset';
+  templateId: string;
+  componentId: string;
+  configId: string;
 }
 
 export function prepareChanges(imports: ImportData, model: ProjectModel) {
