@@ -747,10 +747,14 @@ export function applyChanges(serverData: UpdateServerData, selection: Set<string
     }
 
     for (const impact of update.impacts) {
-      applyImpact(impact, api, stats);
+      applyPrevImpact(impact, api, stats);
     }
 
     applyUpdate(update, api, stats);
+
+    for (const impact of update.impacts) {
+      applyNextImpact(impact, api, stats);
+    }
   }
 
   log.info(`Updated (${stats.plugins} plugins, ${stats.components} components, ${stats.bindings} bindings)`);
@@ -758,20 +762,47 @@ export function applyChanges(serverData: UpdateServerData, selection: Set<string
   return stats;
 }
 
-function applyImpact(impact: Impact, api: UpdateApi, stats: BulkUpdatesStats) {
+function applyPrevImpact(impact: Impact, api: UpdateApi, stats: BulkUpdatesStats) {
   switch (impact.type) {
     case 'binding-delete': {
       const typedImpact = impact as BindingDeleteImpact;
-      log.debug(`Impact: delete plugin '${typedImpact.bindingId}'`);
-      api.clearBinding(typedImpact.bindingId);
+      log.debug(`Impact: delete binding '${typedImpact.bindingId}' (template='${typedImpact.templateId}')`);
+      api.clearBinding(typedImpact.templateId, typedImpact.bindingId);
       ++stats.bindings;
       break;
     }
 
     case 'component-delete': {
       const typedImpact = impact as ComponentDeleteImpact;
-      log.debug(`Impact: delete component '${typedImpact.componentId}'`);
-      api.clearComponent(typedImpact.componentId);
+      log.debug(`Impact: delete component '${typedImpact.componentId}' (template='${typedImpact.templateId}')`);
+      api.clearComponent(typedImpact.templateId, typedImpact.componentId);
+      ++stats.components;
+      break;
+    }
+
+    case 'component-config-clear':
+    case 'component-config-reset':
+      // will be applied after
+      break;
+
+    default:
+      throw new Error(`Unsupported impact type: '${impact.type}'`);
+  }
+}
+
+function applyNextImpact(impact: Impact, api: UpdateApi, stats: BulkUpdatesStats) {
+  switch (impact.type) {
+    case 'binding-delete':
+    case 'component-delete':
+      // applied before
+      break;
+
+    case 'component-config-clear':
+    case 'component-config-reset': {
+      const type = impact.type === 'component-config-clear' ? 'clear' : 'reset';
+      const typedImpact = impact as ComponentConfigImpact;
+      log.debug(`Impact: config component '${type}' -> '${typedImpact.componentId}' - '${typedImpact.configId}' (template='${typedImpact.templateId}')`);
+      api.updateComponentConfig(typedImpact.templateId, typedImpact.componentId, typedImpact.configId, type);
       ++stats.components;
       break;
     }
@@ -792,7 +823,7 @@ function applyUpdate(update: Update, api: UpdateApi, stats: BulkUpdatesStats) {
 
     case 'component-clear': {
       log.debug(`Update: delete component '${update.id}'`);
-      api.clearComponent(update.id);
+      api.clearComponent(null, update.id); // always directly on project
       ++stats.components;
       break;
     }
