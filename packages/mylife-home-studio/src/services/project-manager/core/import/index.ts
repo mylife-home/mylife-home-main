@@ -2,7 +2,7 @@ import { logger, components } from 'mylife-home-common';
 import { pick } from '../../../../utils/object-utils';
 import { coreImportData, BulkUpdatesStats } from '../../../../../shared/project-manager';
 import { ComponentModel, ProjectModel, PluginModel, TemplateModel, PluginView } from '../model';
-import { PluginImport, ComponentImport } from './load';
+import { ImportData, PluginImport, ComponentImport } from './load';
 
 export * from './load';
 
