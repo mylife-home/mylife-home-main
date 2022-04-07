@@ -89,6 +89,16 @@ export class ComponentModel {
     }
   }
 
+  importClearConfig(configId: string) {
+    // Checks made already
+    delete this.data.config[configId];
+  }
+
+  importResetConfig(configId: string) {
+    // Checks made already
+    this.data.config[configId] = this.definition.createConfigTemplateValue(configId);
+  }
+
   registerBinding(binding: BindingModel) {
     if (binding.sourceComponent === this) {
       this.bindingsFrom.add(binding);
