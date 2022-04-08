@@ -499,8 +499,7 @@ export namespace coreImportData {
   
   export interface ObjectChange {
     key: string; // for selection
-    id: string; // component/plugin id
-    instanceName: string;
+    id: string; // component/plugin/template id
     changeType: ChangeType;
     objectType: ObjectType;
     dependencies: string[]; // components changes may depends on plugins changes
@@ -509,6 +508,7 @@ export namespace coreImportData {
 
   export interface PluginChange extends ObjectChange {
     objectType: 'plugin';
+    instanceName: string;
 
     version: { before: string; after: string; };
     usage: PluginUsage; // or null if no change
@@ -521,6 +521,7 @@ export namespace coreImportData {
    */
   export interface ComponentChange extends ObjectChange {
     objectType: 'component';
+    instanceName: string;
 
     config: { [name: string]: { type: ChangeType; value: any; }; };
     external: boolean; // or null if no change
@@ -533,8 +534,9 @@ export namespace coreImportData {
    export interface TemplateChange extends ObjectChange {
     objectType: 'template';
 
-    configExportDeletes: string[];
-    memberExportDeletes: string[];
+    // templates changes are only export deletion
+    exportType: 'config' | 'member';
+    exportId: string;
   }
 
   export interface Impact {
