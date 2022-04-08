@@ -173,6 +173,26 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     return { updatedComponents: Array.from(updatedComponents) };
   }
 
+  // Note: checks done already
+  importClearExport(exportType: 'config' | 'member', exportId: string) {
+    switch (exportType) {
+      case 'config': {
+        const exports = this.data.exports.config;
+        delete exports[exportId];
+        break;
+      }
+  
+      case 'member': {
+        const exports = this.data.exports.members;
+        delete exports[exportId];
+        break;
+      }
+  
+      default:
+        throw new Error(`Invalid export type: '${exportType}'`);
+    }
+  }
+
   renameComponent(id: string, newId: string) {
     super.renameComponent(id, newId);
 
