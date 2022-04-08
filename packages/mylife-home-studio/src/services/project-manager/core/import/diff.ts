@@ -4,8 +4,6 @@ import { coreImportData } from '../../../../../shared/project-manager';
 import { ComponentModel, ProjectModel, PluginModel, TemplateModel, PluginView } from '../model';
 import { ImportData, PluginImport, ComponentImport } from './load';
 
-export * from './load';
-
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
 export function prepareChanges(imports: ImportData, model: ProjectModel) {

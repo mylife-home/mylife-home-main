@@ -1,10 +1,10 @@
 import { logger } from 'mylife-home-common';
 import { coreImportData, BulkUpdatesStats } from '../../../../../shared/project-manager';
 import { ProjectModel, PluginModel, TemplateModel } from '../model';
-import { ImportData, PluginImport, ComponentImport } from './load';
+import { ImportData, PluginImport, ComponentImport, loadOnlineData, loadProjectData } from './load';
+import { prepareChanges } from './diff';
 
-export * from './load';
-export * from './diff';
+export { ImportData, PluginImport, ComponentImport, loadOnlineData, loadProjectData, prepareChanges };
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
