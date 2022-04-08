@@ -13,10 +13,11 @@ export interface UpdateServerData {
 }
 
 interface Update {
-  type: 'plugin-set' | 'plugin-clear' | 'component-set' | 'component-clear';
+  objectChangeKeys: string[];
   id: string;
-  impacts: Impact[];
   dependencies: string[];
+
+  type: 'plugin-set' | 'plugin-clear' | 'component-set' | 'component-clear' | 'component-reset-config' | 'component-clear-config' | 'binding-clear' | 'template-clear-export';
 }
 
 interface PluginSetUpdate extends Update {
@@ -24,35 +25,43 @@ interface PluginSetUpdate extends Update {
   plugin: PluginImport;
 }
 
+interface PluginClearUpdate extends Update {
+  type: 'plugin-clear';
+  pluginId: string;
+}
+
 interface ComponentSetUpdate extends Update {
   type: 'component-set';
   component: ComponentImport;
 }
 
-interface Impact {
-  type: 'binding-delete' | 'component-delete' | 'component-config-clear' | 'component-config-reset';
-}
-
-interface BindingDeleteImpact extends Impact {
-  type: 'binding-delete';
-  templateId: string;
-  bindingId: string;
-}
-
-interface ComponentDeleteImpact extends Impact {
-  type: 'component-delete';
+interface ComponentClearUpdate extends Update {
+  type: 'component-clear';
   templateId: string;
   componentId: string;
 }
 
-interface ComponentConfigImpact extends Impact {
-  type: 'component-config-clear' | 'component-config-reset';
+interface ComponentConfigUpdate extends Update {
+  type: 'component-reset-config' | 'component-clear-config';
   templateId: string;
   componentId: string;
   configId: string;
 }
 
-export function computeImpacts(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
+interface BindingClearUpdate extends Update {
+  type: 'binding-clear';
+  templateId: string;
+  bindingId: string;
+}
+
+interface TemplateClearExportsUpdate extends Update {
+  type: 'template-clear-export';
+  templateId: string;
+  exportType: 'config' | 'member';
+  exportId: string;
+}
+
+export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const pluginsChanges = changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[];
   const componentsChanges = changes.filter(change => change.objectType === 'component') as coreImportData.ComponentChange[];
 
@@ -115,6 +124,43 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
     };
   }
 }
+
+/*
+
+  clearExport(exportType: 'config' | 'member', exportId: string) {
+    const updatedComponents = new Set<ComponentModel>();
+
+    switch (exportType) {
+    case 'config': {
+      const exports = this.data.exports.config;
+      const configExport = exports[exportId];
+      const component = this.getComponent(exports[exportId].component);
+      component.unexportConfig(configExport.configName);
+      updatedComponents.add(component);
+
+      delete exports[exportId];
+
+      // FIXME: consequences
+
+      break;
+    }
+
+    case 'member': {
+      const exports = this.data.exports.members;
+      delete exports[exportId];
+
+      // FIXME: consequences
+
+      break;
+    }
+
+    default:
+      throw new Error(`Invalid export type: '${exportType}'`);
+    }
+
+    return { updatedComponents: Array.from(updatedComponents) };
+  }
+*/
 
 function hasComponentTemplateImpact(templateModel: TemplateModel, componentId: string) {
   const exports = templateModel.data.exports;
