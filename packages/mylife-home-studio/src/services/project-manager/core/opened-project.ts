@@ -40,13 +40,14 @@ import {
   SetCoreTemplateNotification,
   ClearCoreTemplateNotification,
   RenameCoreTemplateNotification,
+  coreImportData,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel, ResolvedProjectView } from './model';
 import { Services } from '../..';
-import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, computeImpacts, UpdateServerData } from './import';
+import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, computeOperations, UpdateServerData } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
 import { validate } from './validation';
 import { resolveProject } from './resolver';
@@ -129,8 +130,7 @@ export class CoreOpenedProject extends OpenedProject {
         break;
 
       case 'clear-template-export':
-        this.clearTemplateExport(callData as ClearTemplateExportCoreProjectCall);
-        break;
+        return this.clearTemplateExport(callData as ClearTemplateExportCoreProjectCall);
     
       case 'set-component':
         this.setComponent(callData as SetComponentCoreProjectCall);
@@ -352,16 +352,23 @@ export class CoreOpenedProject extends OpenedProject {
     });
   }
 
-  private clearTemplateExport({ templateId, exportType, exportId }: ClearTemplateExportCoreProjectCall) {
-    this.executeUpdate(() => {
-      const template = this.model.getTemplate(templateId);
-      const { updatedComponents } = template.clearExport(exportType, exportId);
-      
-      this.notifyAllSetTemplate(template);
-      for (const component of updatedComponents) {
-        this.notifyAllSetComponent(component);
-      }
-    });
+  private clearTemplateExport({ templateId, exportType, exportId }: ClearTemplateExportCoreProjectCall): PrepareBulkUpdatesCoreProjectCallResult {
+    // this is a prepare like imports
+    const change: coreImportData.TemplateChange = {
+      key: 'update-template', // there is only one object change anyway
+      id: templateId,
+      changeType: 'update',
+      objectType: 'template',
+      dependencies: [],
+      impacts: null,
+      exportType,
+      exportId
+    };
+
+    const changes: coreImportData.ObjectChange[] = [change];
+    const imports: ImportData = { plugins: [], components: []};
+    const serverData = computeOperations(imports, this.model, changes);
+    return { changes, serverData };
   }
 
   private setComponent({ templateId, componentId, definition, x, y }: SetComponentCoreProjectCall) {
@@ -471,7 +478,7 @@ export class CoreOpenedProject extends OpenedProject {
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdatesCoreProjectCallResult {
     const changes = prepareChanges(imports, this.model);
-    const serverData = computeImpacts(imports, this.model, changes);
+    const serverData = computeOperations(imports, this.model, changes);
     return { changes, serverData };
   }
 
