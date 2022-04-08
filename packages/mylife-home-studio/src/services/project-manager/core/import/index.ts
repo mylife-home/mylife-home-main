@@ -1,6 +1,6 @@
 import { logger } from 'mylife-home-common';
 import { coreImportData, BulkUpdatesStats } from '../../../../../shared/project-manager';
-import { ProjectModel, PluginModel, TemplateModel } from '../model';
+import { ProjectModel, PluginModel, TemplateModel, BindingModel, ComponentModel } from '../model';
 import { ImportData, PluginImport, ComponentImport, loadOnlineData, loadProjectData } from './load';
 import { prepareChanges } from './diff';
 
@@ -59,6 +59,172 @@ interface TemplateClearExportsUpdate extends Update {
   templateId: string;
   exportType: 'config' | 'member';
   exportId: string;
+}
+
+type UpdateCreation<TUpdate> = Omit<TUpdate, 'id' | 'objectChangeKeys'>;
+
+class ComputeContext {
+  readonly updates = new Map<string, Update>();
+  currentObjectChangeKey: string;
+
+  constructor(readonly imports: ImportData, readonly model: ProjectModel) {
+  }
+
+  ensureUpdate(id: string, creator: () => UpdateCreation<Update>) {
+    let update = this.updates.get(id);
+    if (!update) {
+      update = { ...creator(), id, objectChangeKeys: [] };
+      this.updates.set(id, update);
+    }
+
+    this.addObjectKey(id);
+
+    return id;
+  }
+
+  private addObjectKey(updateId: string) {
+    const update = this.updates.get(updateId);
+
+    if (!update.objectChangeKeys.includes(this.currentObjectChangeKey)) {
+      update.objectChangeKeys.push(this.currentObjectChangeKey);
+
+      for (const dependency of update.dependencies) {
+        this.addObjectKey(dependency);
+      }
+    }
+  }
+}
+
+export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
+  const context = new ComputeContext(imports, model);
+
+  for (const change of changes) {
+    const fullChangeType = `${change.objectType}.${change.changeType}`;
+    context.currentObjectChangeKey = change.key;
+
+    switch (fullChangeType) {
+      case 'component.add':
+      case 'component.update':
+        computeComponentSet(context, change as coreImportData.ComponentChange);
+        break;
+
+      case 'component.delete': {
+        const component = model.getComponent(change.id);
+        computeComponentDelete(context, component);
+        break;
+      }
+
+      case 'plugin.add':
+      case 'plugin.update':
+
+      case 'plugin.delete': {
+        const plugin = model.getPlugin(change.id);
+        computePluginDelete(context, plugin);
+        break;
+      }
+
+      case 'template.update':
+
+      case 'template.add':
+      case 'template.delete':
+      default:
+        throw new Error(`Change type '${change.changeType}' on object type '${change.objectType}' is not supported.`);
+    }
+  }
+}
+
+function computeComponentSet(context: ComputeContext, change: coreImportData.ComponentChange) {
+  // check that it will not overwrite a template instantiation. If so, there is nothing to do, fail instantly
+  if (context.model.hasComponent(change.id)) {
+    // will be an update
+  } else {
+    const dryRun = context.model.buildNamingDryRunEngine();
+    dryRun.setComponent(context.model, change.id, null);
+    dryRun.validate();
+  }
+
+  // TODO: add plugin update deps
+  // TODO: add component set
+}
+
+
+function computeComponentDelete(context: ComputeContext, component: ComponentModel) {
+  const updateId = `component-clear:${component.ownerTemplate?.id || ''}:${component.id}`;
+
+  return context.ensureUpdate(updateId, () => {
+    const update: UpdateCreation<ComponentClearUpdate> = {
+      type: 'component-clear',
+      templateId: component.ownerTemplate?.id || null,
+      componentId: component.id,
+      dependencies: []
+    };
+
+    const componentModel = context.model.getComponent(update.componentId);
+    for (const binding of componentModel.getAllBindings()) {
+      update.dependencies.push(computeBindingDelete(context, binding));
+    }
+
+    if (component.ownerTemplate) {
+      const template = component.ownerTemplate;
+
+      for (const [id, item] of Object.entries(template.data.exports.config)) {
+        if (item.component === component.id) {
+          update.dependencies.push(computeTemplateExportDelete(context, template, 'config', id));
+        }
+      }
+
+      for (const [id, item] of Object.entries(template.data.exports.members)) {
+        if (item.component === component.id) {
+          update.dependencies.push(computeTemplateExportDelete(context, template, 'member', id));
+        }
+      }
+    }
+
+    return update;
+  });
+}
+
+function computeBindingDelete(context: ComputeContext, binding: BindingModel) {
+  const updateId = `binding-clear:${binding.ownerTemplate?.id || ''}:${binding.id}`;
+
+  return context.ensureUpdate(updateId, () => {
+
+    const update: UpdateCreation<BindingClearUpdate> = {
+      type: 'binding-clear',
+      templateId: binding.ownerTemplate?.id || null,
+      bindingId: binding.id,
+      dependencies: []
+    };
+
+    return update;
+  });
+}
+
+function computePluginDelete(context: ComputeContext, plugin: PluginModel) {
+  const updateId = `plugin-clear:${plugin.id}`;
+
+  return context.ensureUpdate(updateId, () => {
+
+    const update: UpdateCreation<PluginClearUpdate> = {
+      type: 'plugin-clear',
+      pluginId: plugin.id,
+      dependencies: []
+    };
+
+    for (const component of plugin.getAllUsage()) {
+      update.dependencies.push(computeComponentDelete(context, component));
+    }
+
+    return update;
+  });
+}
+
+function computeTemplateExportDelete(context: ComputeContext, template: TemplateModel, exportType: 'config' | 'member', exportId: string) {
+  const updateId = `template-clear-export:${template.id}:${exportType}:${exportId}`;
+
+  // TODO
+
+  return updateId;
 }
 
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
@@ -275,7 +441,7 @@ function lookupComponentsChangesImpacts(imports: ImportData, model: ProjectModel
       continue;
     }
 
-    const dryRun = this.project.buildNamingDryRunEngine();
+    const dryRun = model.buildNamingDryRunEngine();
     dryRun.setComponent(this, change.id, null);
     dryRun.validate();
   }
