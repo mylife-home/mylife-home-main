@@ -369,12 +369,14 @@ function prepareServerData(imports: ImportData, changes: coreImportData.ObjectCh
 }
 
 export interface UpdateApi {
-  clearPlugin: (id: string) => void;
-  clearComponent: (templateId: string, id: string) => void;
-  clearBinding: (templateId: string, id: string) => void;
   setPlugin: (plugin: PluginImport) => void;
+  clearPlugin: (pluginId: string) => void;
   setComponent: (component: ComponentImport) => void;
-  updateComponentConfig: (templateId: string, componentId: string, configId: string, type: 'clear' | 'reset') => void;
+  resetComponentConfig: (templateId: string, componentId: string, configId: string) => void;
+  clearComponentConfig: (templateId: string, componentId: string, configId: string) => void;
+  clearComponent: (templateId: string, componentId: string) => void;
+  clearBinding: (templateId: string, bindingId: string) => void;
+  clearTemplateExport: (templateId: string, exportType: 'config' | 'member', exportId: string) => void;
 }
 
 export function applyChanges(serverData: UpdateServerData, selection: Set<string>, api: UpdateApi) {

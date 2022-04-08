@@ -477,42 +477,40 @@ export class CoreOpenedProject extends OpenedProject {
 
   private applyBulkUpdates({ selection, serverData }: ApplyBulkUpdatesCoreProject): ApplyBulkUpdatesCoreProjectCallResult {
     const api = {
-      clearPlugin: (pluginId: string) => {
-        this.model.deletePlugin(pluginId);
-        this.notifyAllClearPlugin(pluginId);
-      },
-      clearComponent: (templateId: string, componentId: string) => {
-        this.model.getTemplateOrSelf(templateId).clearComponent(componentId);
-        this.notifyAllClearComponent(templateId, componentId);
-      },
-      clearBinding: (templateId: string, bindingId: string) => {
-        this.model.getTemplateOrSelf(templateId).clearBinding(bindingId);
-        this.notifyAllClearBinding(templateId, bindingId);
-      },
       setPlugin: ({ instanceName, plugin }: PluginImport) => {
         const pluginModel = this.model.importPlugin(instanceName, plugin);
         this.notifyAllSetPlugin(pluginModel.id);
+      },
+      clearPlugin: (pluginId: string) => {
+        this.model.deletePlugin(pluginId);
+        this.notifyAllClearPlugin(pluginId);
       },
       setComponent: ({ id, pluginId, external, config }: ComponentImport) => {
         const componentModel = this.model.importComponent(id, pluginId, external, config);
         this.notifyAllSetComponent(componentModel);
       },
-      updateComponentConfig: (templateId: string, componentId: string, configId: string, type: 'clear' | 'reset') => {
+      clearComponent: (templateId: string, componentId: string) => {
+        this.model.getTemplateOrSelf(templateId).clearComponent(componentId);
+        this.notifyAllClearComponent(templateId, componentId);
+      },
+      resetComponentConfig: (templateId: string, componentId: string, configId: string) => {
         const componentModel = this.model.getTemplateOrSelf(templateId).getComponent(componentId);
-        switch (type) {
-          case 'clear':
-            componentModel.importClearConfig(configId);
-            break;
-
-          case 'reset':
-            componentModel.importResetConfig(configId);
-            break;
-
-          default:
-            throw new Error(`Unhandled config update type: '${type}'`);
-        }
-
+        componentModel.importResetConfig(configId);
         this.notifyAllSetComponent(componentModel);
+      },
+      clearComponentConfig: (templateId: string, componentId: string, configId: string) => {
+        const componentModel = this.model.getTemplateOrSelf(templateId).getComponent(componentId);
+        componentModel.importClearConfig(configId);
+        this.notifyAllSetComponent(componentModel);
+      },
+      clearBinding: (templateId: string, bindingId: string) => {
+        this.model.getTemplateOrSelf(templateId).clearBinding(bindingId);
+        this.notifyAllClearBinding(templateId, bindingId);
+      },
+      clearTemplateExport: (templateId: string, exportType: 'config' | 'member', exportId: string) => {
+        const templateModel = this.model.getTemplate(templateId);
+        templateModel.importClearExport(exportType, exportId);
+        this.notifyAllSetTemplate(templateModel);
       },
     };
 
