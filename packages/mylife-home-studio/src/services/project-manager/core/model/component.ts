@@ -67,6 +67,10 @@ export class ComponentModel {
     this.data.config[configId] = configValue;
   }
 
+  exportConfig(configId: string) {
+    delete this.data.config[configId];
+  }
+
   /**
    * Called when a new config is exported on template
    * @param configId

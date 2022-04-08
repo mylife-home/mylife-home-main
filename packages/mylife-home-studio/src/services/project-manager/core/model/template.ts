@@ -116,9 +116,7 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
 
     const existing = exports[exportId];
     if (existing) {
-      const oldComponent = this.getComponent(existing.component);
-      oldComponent.unexportConfig(existing.configName);
-      updatedComponents.add(oldComponent);
+      throw new Error('Cannot update config export');
     }
 
     exports[exportId] = { component: component.id, configName };
@@ -139,6 +137,13 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     component.definition.ensureMember(memberName);
 
     const exports = this.data.exports.members;
+
+
+    const existing = exports[exportId];
+    if (existing) {
+      throw new Error('Cannot update member export');
+    }
+
     exports[exportId] = { component: component.id, member: memberName };
 
     const updatedComponents: ComponentModel[] = [];
