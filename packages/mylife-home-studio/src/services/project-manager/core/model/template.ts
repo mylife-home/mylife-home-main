@@ -203,6 +203,16 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     return false;
   }
 
+  findConfigExported(componentId: string, configId: string) {
+    for (const [exportId, configExport] of Object.entries(this.data.exports.config)) {
+      if (configExport.component === componentId && configExport.configName === configId) {
+        return exportId;
+      }
+    }
+
+    return null;
+  }
+
   private getDefinitionConfig(configId: string) {
     const configItem = this.data.exports.config[configId];
     if (!configItem) {
