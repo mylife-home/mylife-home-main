@@ -61,8 +61,6 @@ interface TemplateClearExportsUpdate extends Update {
   exportId: string;
 }
 
-type UpdateCreation<TUpdate> = Omit<TUpdate, 'id' | 'objectChangeKeys'>;
-
 class ComputeContext {
   readonly updates = new Map<string, Update>();
   currentObjectChangeKey: string;
@@ -70,10 +68,12 @@ class ComputeContext {
   constructor(readonly model: ProjectModel) {
   }
 
-  ensureUpdate(id: string, creator: () => UpdateCreation<Update>) {
+  ensureUpdate<TUpdate extends Update>(id: string, creator: (builder: UpdateBuilder<TUpdate>) => void) {
     let update = this.updates.get(id);
     if (!update) {
-      update = { ...creator(), id, objectChangeKeys: [] };
+      const builder = new UpdateBuilder<TUpdate>(id);
+      creator(builder);
+      update = builder.build();
       this.updates.set(id, update);
     }
 
@@ -92,6 +92,36 @@ class ComputeContext {
         this.addObjectKey(dependency);
       }
     }
+  }
+}
+
+class UpdateBuilder<TUpdate extends Update> {
+  private update: TUpdate;
+
+  constructor(private readonly id: string) {
+  }
+
+  init(update: Omit<TUpdate, 'id' | 'objectChangeKeys' | 'dependencies'>) {
+    this.update = {
+      ...update,
+      id: this.id,
+      objectChangeKeys: [],
+      dependencies: []
+    } as TUpdate;
+  }
+
+  addDependency(updateId: string) {
+    this.update.dependencies.push(updateId);
+  }
+
+  addDependencies(updateIds: string[]) {
+    for (const updateId of updateIds) {
+      this.addDependency(updateId);
+    }
+  }
+
+  build() {
+    return this.update;
   }
 }
 
@@ -147,13 +177,12 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
 function computePluginSet(context: ComputeContext, importData: PluginImport, change: coreImportData.PluginChange) {
   const updateId = `plugin-set:${importData.id}`;
   
-  return context.ensureUpdate(updateId, () => {
+  return context.ensureUpdate<PluginSetUpdate>(updateId, (builder) => {
 
-    const update: UpdateCreation<PluginSetUpdate> = {
+    builder.init({
       type: 'plugin-set',
       plugin: importData,
-      dependencies: []
-    };
+    });
 
     if (change.changeType === 'update') {
       const plugin = context.model.getPlugin(change.id);
@@ -164,14 +193,14 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
           case 'add':
           case 'update':
             for (const component of components) {
-              update.dependencies.push(computeComponentResetConfig(context, component, id));
+              builder.addDependency(computeComponentResetConfig(context, component, id));
             }
 
             break;
 
           case 'delete':
             for (const component of components) {
-              update.dependencies.push(computeComponentClearConfig(context, component, id));
+              builder.addDependency(computeComponentClearConfig(context, component, id));
             }
 
             break;
@@ -186,7 +215,7 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
             const newMember = importData.plugin.members[id];
             if (actualMember.memberType !== newMember.memberType || actualMember.valueType !== newMember.valueType) {
               for (const component of components) {
-                update.dependencies.push(computeComponentClearMember(context, component, id));
+                builder.addDependency(computeComponentClearMember(context, component, id));
               }
             }
             break;
@@ -194,34 +223,29 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
             
           case 'delete':
             for (const component of components) {
-              update.dependencies.push(computeComponentClearMember(context, component, id));
+              builder.addDependency(computeComponentClearMember(context, component, id));
             }
 
             break;
         }
       }
     }
-
-    return update;
   });
 }
 
 function computePluginDelete(context: ComputeContext, plugin: PluginModel) {
   const updateId = `plugin-clear:${plugin.id}`;
 
-  return context.ensureUpdate(updateId, () => {
+  return context.ensureUpdate<PluginClearUpdate>(updateId, (builder) => {
 
-    const update: UpdateCreation<PluginClearUpdate> = {
+    builder.init({
       type: 'plugin-clear',
       pluginId: plugin.id,
-      dependencies: []
-    };
+    });
 
     for (const component of plugin.getAllUsage()) {
-      update.dependencies.push(computeComponentDelete(context, component));
+      builder.addDependency(computeComponentDelete(context, component));
     }
-
-    return update;
   });
 }
 
@@ -237,27 +261,44 @@ function computeComponentSet(context: ComputeContext, importData: ComponentImpor
 
   const updateId = `component-set::${importData.id}`;
 
-  return context.ensureUpdate(updateId, () => {
+  return context.ensureUpdate<ComponentSetUpdate>(updateId, (builder) => {
 
-    const update: UpdateCreation<ComponentSetUpdate> = {
+    builder.init({
       type: 'component-set',
       component: importData,
-      dependencies: []
-    };
+    });
 
     // TODO: ensure that plugin set is also selected if it exists
-
-    return update;
   });
 }
 
 function computeComponentClearConfig(context: ComputeContext, component: ComponentModel, configId: string) {
-  // TODO
-  return 'TODO';
+  const updateId = `component-clear-config:${component.ownerTemplate?.id || ''}:${component.id}:${configId}`;
+
+  return context.ensureUpdate<ComponentConfigUpdate>(updateId, (builder) => {
+
+    builder.init({
+      type: 'component-clear-config',
+      templateId: component.ownerTemplate?.id || null,
+      componentId: component.id,
+      configId,
+    });
+
+    if (component.ownerTemplate) {
+      const template = component.ownerTemplate;
+
+      for (const [id, item] of Object.entries(template.data.exports.config)) {
+        if (item.component === component.id && item.configName === configId) {
+          builder.addDependency(computeTemplateExportDelete(context, template, 'config', id));
+        }
+      }
+    }
+  });
 }
 
 function computeComponentResetConfig(context: ComputeContext, component: ComponentModel, configId: string) {
   // TODO
+  // + check template exports
   return 'TODO';
 }
 
@@ -270,17 +311,16 @@ function computeComponentClearMember(context: ComputeContext, component: Compone
 function computeComponentDelete(context: ComputeContext, component: ComponentModel) {
   const updateId = `component-clear:${component.ownerTemplate?.id || ''}:${component.id}`;
 
-  return context.ensureUpdate(updateId, () => {
-    const update: UpdateCreation<ComponentClearUpdate> = {
+  return context.ensureUpdate<ComponentClearUpdate>(updateId, (builder) => {
+
+    builder.init({
       type: 'component-clear',
       templateId: component.ownerTemplate?.id || null,
       componentId: component.id,
-      dependencies: []
-    };
+    });
 
-    const componentModel = context.model.getComponent(update.componentId);
-    for (const binding of componentModel.getAllBindings()) {
-      update.dependencies.push(computeBindingDelete(context, binding));
+    for (const binding of component.getAllBindings()) {
+      builder.addDependency(computeBindingDelete(context, binding));
     }
 
     if (component.ownerTemplate) {
@@ -288,43 +328,62 @@ function computeComponentDelete(context: ComputeContext, component: ComponentMod
 
       for (const [id, item] of Object.entries(template.data.exports.config)) {
         if (item.component === component.id) {
-          update.dependencies.push(computeTemplateExportDelete(context, template, 'config', id));
+          builder.addDependency(computeTemplateExportDelete(context, template, 'config', id));
         }
       }
 
       for (const [id, item] of Object.entries(template.data.exports.members)) {
         if (item.component === component.id) {
-          update.dependencies.push(computeTemplateExportDelete(context, template, 'member', id));
+          builder.addDependency(computeTemplateExportDelete(context, template, 'member', id));
         }
       }
     }
-
-    return update;
   });
 }
 
 function computeBindingDelete(context: ComputeContext, binding: BindingModel) {
   const updateId = `binding-clear:${binding.ownerTemplate?.id || ''}:${binding.id}`;
 
-  return context.ensureUpdate(updateId, () => {
+  return context.ensureUpdate<BindingClearUpdate>(updateId, (builder) => {
 
-    const update: UpdateCreation<BindingClearUpdate> = {
+    builder.init({
       type: 'binding-clear',
       templateId: binding.ownerTemplate?.id || null,
       bindingId: binding.id,
-      dependencies: []
-    };
-
-    return update;
+    });
   });
 }
 
 function computeTemplateExportDelete(context: ComputeContext, template: TemplateModel, exportType: 'config' | 'member', exportId: string) {
   const updateId = `template-clear-export:${template.id}:${exportType}:${exportId}`;
 
-  // TODO
+  return context.ensureUpdate<TemplateClearExportsUpdate>(updateId, (builder) => {
 
-  return updateId;
+    builder.init({
+      type: 'template-clear-export',
+      templateId: template.id,
+      exportType,
+      exportId,
+    });
+
+    const components = Array.from(template.getAllUsage());
+
+    switch (exportType) {
+      case 'config':
+        for (const component of components) {
+          builder.addDependency(computeComponentClearConfig(context, component, exportId));
+        }
+
+        break;
+
+      case 'member':
+        for (const component of components) {
+          builder.addDependency(computeComponentClearMember(context, component, exportId));
+        }
+
+        break;
+    }
+  });
 }
 
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
