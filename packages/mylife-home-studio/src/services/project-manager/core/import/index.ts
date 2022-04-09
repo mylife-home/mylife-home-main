@@ -62,7 +62,7 @@ interface TemplateClearExportsUpdate extends Update {
 }
 
 class ComputeContext {
-  readonly updates = new Map<string, Update>();
+  private readonly updates = new Map<string, Update>();
   currentObjectChangeKey: string;
 
   constructor(readonly model: ProjectModel) {
@@ -92,6 +92,18 @@ class ComputeContext {
         this.addObjectKey(dependency);
       }
     }
+  }
+  
+  copyObjectChangeKey(sourceKey: string, targetKey: string) {
+    for (const update of this.updates.values()) {
+      if (update.objectChangeKeys.includes(sourceKey) && !update.objectChangeKeys.includes(targetKey)) {
+        update.objectChangeKeys.push(targetKey);
+      }
+    }
+  }
+
+  build() {
+    return Array.from(this.updates.values());
   }
 }
 
@@ -135,10 +147,17 @@ class DependenciesBuilder {
   }
 }
 
-
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const context = new ComputeContext(model);
 
+  computeUpdates(context, imports, changes);
+  applyObjectDependencies(context, changes);
+  computeObjectImpacts(context, changes);
+
+  return context.build();
+}
+
+function computeUpdates(context: ComputeContext, imports: ImportData, changes: coreImportData.ObjectChange[]) {
   for (const change of changes) {
     const fullChangeType = `${change.objectType}.${change.changeType}`;
     context.currentObjectChangeKey = change.key;
@@ -152,7 +171,7 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
       }
 
       case 'component.delete': {
-        const component = model.getComponent(change.id);
+        const component = context.model.getComponent(change.id);
         computeComponentDelete(context, component);
         break;
       }
@@ -165,14 +184,14 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
       }
 
       case 'plugin.delete': {
-        const plugin = model.getPlugin(change.id);
+        const plugin = context.model.getPlugin(change.id);
         computePluginDelete(context, plugin);
         break;
       }
 
       case 'template.update': {
         // this is the root operation, so on config unexport we must reset component config
-        const template = model.getTemplate(change.id);
+        const template = context.model.getTemplate(change.id);
         const typedChange = change as coreImportData.TemplateChange;
 
         if (typedChange.exportType === 'config') {
@@ -288,8 +307,6 @@ function computeComponentSet(context: ComputeContext, importData: ComponentImpor
       type: 'component-set',
       component: importData,
     });
-
-    // TODO: ensure that plugin set is also selected if it exists
   })];
 }
 
@@ -451,44 +468,23 @@ function computeTemplateExportDelete(context: ComputeContext, template: Template
   })];
 }
 
-/*
+function applyObjectDependencies(context: ComputeContext, changes: coreImportData.ObjectChange[]) {
+  // 2nd pass: also select on objectChangeKeys objectChange dependencies
+  // eg: on component set, also select plugin set
 
-  clearExport(exportType: 'config' | 'member', exportId: string) {
-    const updatedComponents = new Set<ComponentModel>();
-
-    switch (exportType) {
-    case 'config': {
-      const exports = this.data.exports.config;
-      const configExport = exports[exportId];
-      const component = this.getComponent(exports[exportId].component);
-      component.unexportConfig(configExport.configName);
-      updatedComponents.add(component);
-
-      delete exports[exportId];
-
-      // FIXME: consequences
-
-      break;
+  for (const change of changes) {
+    for (const sourceKey of change.dependencies) {
+      context.copyObjectChangeKey(sourceKey, change.key);
     }
-
-    case 'member': {
-      const exports = this.data.exports.members;
-      delete exports[exportId];
-
-      // FIXME: consequences
-
-      break;
-    }
-
-    default:
-      throw new Error(`Invalid export type: '${exportType}'`);
-    }
-
-    return { updatedComponents: Array.from(updatedComponents) };
   }
-*/
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
 
+function computeObjectImpacts(context: ComputeContext, changes: coreImportData.ObjectChange[]) {
+  // TODO
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const pluginsChanges = changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[];
   const componentsChanges = changes.filter(change => change.objectType === 'component') as coreImportData.ComponentChange[];
@@ -805,7 +801,7 @@ function prepareServerData(imports: ImportData, changes: coreImportData.ObjectCh
     }
   }
 }
-
+*/
 export interface UpdateApi {
   setPlugin: (plugin: PluginImport) => void;
   clearPlugin: (pluginId: string) => void;
