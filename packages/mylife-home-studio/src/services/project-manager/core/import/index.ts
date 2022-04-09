@@ -171,8 +171,18 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
       }
 
       case 'template.update': {
+        // this is the root operation, so on config unexport we must reset component config
         const template = model.getTemplate(change.id);
         const typedChange = change as coreImportData.TemplateChange;
+
+        if (typedChange.exportType === 'config') {
+          const { component: componentId, configName } = template.data.exports.config[typedChange.exportId];
+          const component = template.getComponent(componentId);
+          // No check, else reset will be applied on template usage.
+          // This is not what we want, we want direct update because we will remove export
+          computeComponentResetConfigUnsafe(context, component, configName);
+        }
+
         computeTemplateExportDelete(context, template, typedChange.exportType, typedChange.exportId);
         break;
       }
@@ -324,6 +334,11 @@ function computeComponentResetConfig(context: ComputeContext, component: Compone
     }
   }
 
+  return (computeComponentResetConfigUnsafe(context, component, configId);
+}
+
+// Only create the reset, without checks
+function computeComponentResetConfigUnsafe(context: ComputeContext, component: ComponentModel, configId: string) {
   const updateId = `component-reset-config:${component.ownerTemplate?.id || ''}:${component.id}:${configId}`;
 
   return [context.ensureUpdate<ComponentConfigUpdate>(updateId, (builder) => {
@@ -336,8 +351,6 @@ function computeComponentResetConfig(context: ComputeContext, component: Compone
     });
   })];
 }
-
-
 
 function computeComponentClearMember(context: ComputeContext, component: ComponentModel, memberName: string) {
   // not directly an update, but can lead to updates on bindings/templates
@@ -438,6 +451,42 @@ function computeTemplateExportDelete(context: ComputeContext, template: Template
   })];
 }
 
+/*
+
+  clearExport(exportType: 'config' | 'member', exportId: string) {
+    const updatedComponents = new Set<ComponentModel>();
+
+    switch (exportType) {
+    case 'config': {
+      const exports = this.data.exports.config;
+      const configExport = exports[exportId];
+      const component = this.getComponent(exports[exportId].component);
+      component.unexportConfig(configExport.configName);
+      updatedComponents.add(component);
+
+      delete exports[exportId];
+
+      // FIXME: consequences
+
+      break;
+    }
+
+    case 'member': {
+      const exports = this.data.exports.members;
+      delete exports[exportId];
+
+      // FIXME: consequences
+
+      break;
+    }
+
+    default:
+      throw new Error(`Invalid export type: '${exportType}'`);
+    }
+
+    return { updatedComponents: Array.from(updatedComponents) };
+  }
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
@@ -504,42 +553,6 @@ function lookupPluginsChangesImpacts(imports: ImportData, model: ProjectModel, c
   }
 }
 
-/*
-
-  clearExport(exportType: 'config' | 'member', exportId: string) {
-    const updatedComponents = new Set<ComponentModel>();
-
-    switch (exportType) {
-    case 'config': {
-      const exports = this.data.exports.config;
-      const configExport = exports[exportId];
-      const component = this.getComponent(exports[exportId].component);
-      component.unexportConfig(configExport.configName);
-      updatedComponents.add(component);
-
-      delete exports[exportId];
-
-      // FIXME: consequences
-
-      break;
-    }
-
-    case 'member': {
-      const exports = this.data.exports.members;
-      delete exports[exportId];
-
-      // FIXME: consequences
-
-      break;
-    }
-
-    default:
-      throw new Error(`Invalid export type: '${exportType}'`);
-    }
-
-    return { updatedComponents: Array.from(updatedComponents) };
-  }
-*/
 
 function hasComponentTemplateImpact(templateModel: TemplateModel, componentId: string) {
   const exports = templateModel.data.exports;
@@ -920,6 +933,8 @@ function applyUpdate(update: Update, api: UpdateApi, stats: BulkUpdatesStats) {
       throw new Error(`Unsupported update type: '${update.type}'`);
   }
 }
+
+// TODO: apply this logic again
 
 function shouldApply(update: Update, selection: Set<string>) {
   const dependency = update.dependencies[0];
