@@ -110,13 +110,9 @@ class UpdateBuilder<TUpdate extends Update> {
     } as TUpdate;
   }
 
-  addDependency(updateId: string) {
-    this.update.dependencies.push(updateId);
-  }
-
   addDependencies(updateIds: string[]) {
     for (const updateId of updateIds) {
-      this.addDependency(updateId);
+      this.update.dependencies.push(updateId);
     }
   }
 
@@ -124,6 +120,21 @@ class UpdateBuilder<TUpdate extends Update> {
     return this.update;
   }
 }
+
+class DependenciesBuilder {
+  private readonly dependencies: string[];
+
+  addDependencies(updateIds: string[]) {
+    for (const updateId of updateIds) {
+      this.dependencies.push(updateId);
+    }
+  }
+
+  build() {
+    return this.dependencies;
+  }
+}
+
 
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const context = new ComputeContext(model);
@@ -177,7 +188,7 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
 function computePluginSet(context: ComputeContext, importData: PluginImport, change: coreImportData.PluginChange) {
   const updateId = `plugin-set:${importData.id}`;
   
-  return context.ensureUpdate<PluginSetUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<PluginSetUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'plugin-set',
@@ -193,14 +204,14 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
           case 'add':
           case 'update':
             for (const component of components) {
-              builder.addDependency(computeComponentResetConfig(context, component, id));
+              builder.addDependencies(computeComponentResetConfig(context, component, id));
             }
 
             break;
 
           case 'delete':
             for (const component of components) {
-              builder.addDependency(computeComponentClearConfig(context, component, id));
+              builder.addDependencies(computeComponentClearConfig(context, component, id));
             }
 
             break;
@@ -215,7 +226,7 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
             const newMember = importData.plugin.members[id];
             if (actualMember.memberType !== newMember.memberType || actualMember.valueType !== newMember.valueType) {
               for (const component of components) {
-                builder.addDependency(computeComponentClearMember(context, component, id));
+                builder.addDependencies(computeComponentClearMember(context, component, id));
               }
             }
             break;
@@ -223,20 +234,20 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
             
           case 'delete':
             for (const component of components) {
-              builder.addDependency(computeComponentClearMember(context, component, id));
+              builder.addDependencies(computeComponentClearMember(context, component, id));
             }
 
             break;
         }
       }
     }
-  });
+  })];
 }
 
 function computePluginDelete(context: ComputeContext, plugin: PluginModel) {
   const updateId = `plugin-clear:${plugin.id}`;
 
-  return context.ensureUpdate<PluginClearUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<PluginClearUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'plugin-clear',
@@ -244,9 +255,9 @@ function computePluginDelete(context: ComputeContext, plugin: PluginModel) {
     });
 
     for (const component of plugin.getAllUsage()) {
-      builder.addDependency(computeComponentDelete(context, component));
+      builder.addDependencies(computeComponentDelete(context, component));
     }
-  });
+  })];
 }
 
 function computeComponentSet(context: ComputeContext, importData: ComponentImport) {
@@ -261,7 +272,7 @@ function computeComponentSet(context: ComputeContext, importData: ComponentImpor
 
   const updateId = `component-set::${importData.id}`;
 
-  return context.ensureUpdate<ComponentSetUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<ComponentSetUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'component-set',
@@ -269,13 +280,13 @@ function computeComponentSet(context: ComputeContext, importData: ComponentImpor
     });
 
     // TODO: ensure that plugin set is also selected if it exists
-  });
+  })];
 }
 
 function computeComponentClearConfig(context: ComputeContext, component: ComponentModel, configId: string) {
   const updateId = `component-clear-config:${component.ownerTemplate?.id || ''}:${component.id}:${configId}`;
 
-  return context.ensureUpdate<ComponentConfigUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<ComponentConfigUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'component-clear-config',
@@ -289,29 +300,70 @@ function computeComponentClearConfig(context: ComputeContext, component: Compone
 
       for (const [id, item] of Object.entries(template.data.exports.config)) {
         if (item.component === component.id && item.configName === configId) {
-          builder.addDependency(computeTemplateExportDelete(context, template, 'config', id));
+          builder.addDependencies(computeTemplateExportDelete(context, template, 'config', id));
         }
       }
     }
-  });
+  })];
 }
 
 function computeComponentResetConfig(context: ComputeContext, component: ComponentModel, configId: string) {
-  // TODO
-  // + check template exports
-  return 'TODO';
+  // if component config is exported, then there no component reset, but template usage reset
+  if (component.ownerTemplate) {
+    const template = component.ownerTemplate;
+    const templateConfigId = template.findConfigExported(component.id, configId);
+    if (templateConfigId) {
+      // in fact reset all components config that uses this template
+      const dependencies = new DependenciesBuilder();
+
+      for (const component of template.getAllUsage()) {
+        dependencies.addDependencies(computeComponentResetConfig(context, component, templateConfigId));
+      }
+
+      return dependencies.build();
+    }
+  }
+
+  const updateId = `component-reset-config:${component.ownerTemplate?.id || ''}:${component.id}:${configId}`;
+
+  return [context.ensureUpdate<ComponentConfigUpdate>(updateId, (builder) => {
+
+    builder.init({
+      type: 'component-reset-config',
+      templateId: component.ownerTemplate?.id || null,
+      componentId: component.id,
+      configId,
+    });
+  })];
 }
+
+
 
 function computeComponentClearMember(context: ComputeContext, component: ComponentModel, memberName: string) {
   // not directly an update, but can lead to updates on bindings/templates
-  // TODO
-  return 'TODO';
+  const dependencies = new DependenciesBuilder();
+
+  for (const binding of component.getAllBindingsWithMember(memberName)) {
+    dependencies.addDependencies(computeBindingDelete(context, binding));
+  }
+
+  if (component.ownerTemplate) {
+    const template = component.ownerTemplate;
+
+    for (const [id, item] of Object.entries(template.data.exports.members)) {
+      if (item.component === component.id && item.member === memberName) {
+        dependencies.addDependencies(computeTemplateExportDelete(context, template, 'member', id));
+      }
+    }
+  }
+
+  return dependencies.build();
 }
 
 function computeComponentDelete(context: ComputeContext, component: ComponentModel) {
   const updateId = `component-clear:${component.ownerTemplate?.id || ''}:${component.id}`;
 
-  return context.ensureUpdate<ComponentClearUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<ComponentClearUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'component-clear',
@@ -320,7 +372,7 @@ function computeComponentDelete(context: ComputeContext, component: ComponentMod
     });
 
     for (const binding of component.getAllBindings()) {
-      builder.addDependency(computeBindingDelete(context, binding));
+      builder.addDependencies(computeBindingDelete(context, binding));
     }
 
     if (component.ownerTemplate) {
@@ -328,36 +380,36 @@ function computeComponentDelete(context: ComputeContext, component: ComponentMod
 
       for (const [id, item] of Object.entries(template.data.exports.config)) {
         if (item.component === component.id) {
-          builder.addDependency(computeTemplateExportDelete(context, template, 'config', id));
+          builder.addDependencies(computeTemplateExportDelete(context, template, 'config', id));
         }
       }
 
       for (const [id, item] of Object.entries(template.data.exports.members)) {
         if (item.component === component.id) {
-          builder.addDependency(computeTemplateExportDelete(context, template, 'member', id));
+          builder.addDependencies(computeTemplateExportDelete(context, template, 'member', id));
         }
       }
     }
-  });
+  })];
 }
 
 function computeBindingDelete(context: ComputeContext, binding: BindingModel) {
   const updateId = `binding-clear:${binding.ownerTemplate?.id || ''}:${binding.id}`;
 
-  return context.ensureUpdate<BindingClearUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<BindingClearUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'binding-clear',
       templateId: binding.ownerTemplate?.id || null,
       bindingId: binding.id,
     });
-  });
+  })];
 }
 
 function computeTemplateExportDelete(context: ComputeContext, template: TemplateModel, exportType: 'config' | 'member', exportId: string) {
   const updateId = `template-clear-export:${template.id}:${exportType}:${exportId}`;
 
-  return context.ensureUpdate<TemplateClearExportsUpdate>(updateId, (builder) => {
+  return [context.ensureUpdate<TemplateClearExportsUpdate>(updateId, (builder) => {
 
     builder.init({
       type: 'template-clear-export',
@@ -371,20 +423,22 @@ function computeTemplateExportDelete(context: ComputeContext, template: Template
     switch (exportType) {
       case 'config':
         for (const component of components) {
-          builder.addDependency(computeComponentClearConfig(context, component, exportId));
+          builder.addDependencies(computeComponentClearConfig(context, component, exportId));
         }
 
         break;
 
       case 'member':
         for (const component of components) {
-          builder.addDependency(computeComponentClearMember(context, component, exportId));
+          builder.addDependencies(computeComponentClearMember(context, component, exportId));
         }
 
         break;
     }
-  });
+  })];
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function computeOperations(imports: ImportData, model: ProjectModel, changes: coreImportData.ObjectChange[]) {
   const pluginsChanges = changes.filter(change => change.objectType === 'plugin') as coreImportData.PluginChange[];
