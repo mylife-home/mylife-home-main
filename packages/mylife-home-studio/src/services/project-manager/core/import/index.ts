@@ -102,6 +102,14 @@ class ComputeContext {
     }
   }
 
+  *getAllObjectUpdates(changeKey: string) {
+    for (const update of this.updates.values()) {
+      if (update.objectChangeKeys.includes(changeKey) {
+        yield update;
+      }
+    }
+  }
+
   build() {
     return Array.from(this.updates.values());
   }
@@ -151,8 +159,8 @@ export function computeOperations(imports: ImportData, model: ProjectModel, chan
   const context = new ComputeContext(model);
 
   computeUpdates(context, imports, changes);
-  applyObjectDependencies(context, changes);
   computeObjectImpacts(context, changes);
+  applyObjectDependencies(context, changes);
 
   return context.build();
 }
@@ -479,8 +487,152 @@ function applyObjectDependencies(context: ComputeContext, changes: coreImportDat
   }
 }
 
+class ImpactsBuilder {
+  private readonly impacts = new Map<string, coreImportData.Impact>();
+
+  constructor(private readonly change: coreImportData.ObjectChange) {
+  }
+
+  add(update: Update) {
+    switch (update.type) {
+      case 'plugin-set': {
+        const { plugin } = update as PluginSetUpdate;
+        this.ensureRootUpdate(update, ['add', 'update'], 'plugin', plugin.id);
+        break;
+      }
+
+      case 'plugin-clear': {
+        const { pluginId } = update as PluginClearUpdate;
+        this.ensureRootUpdate(update, 'delete', 'plugin', pluginId);
+        break;
+      }
+  
+      case 'component-set': {
+        const { component } = update as ComponentSetUpdate;
+        this.ensureRootUpdate(update, ['add', 'update'], 'component', component.id);
+        break;
+      }
+
+      case 'component-clear': {
+        const { templateId, componentId } = update as ComponentClearUpdate;
+        this.ensureRootUpdate(update, 'delete', 'component', componentId, !templateId);
+        break;
+      }
+
+      case 'component-reset-config':
+      case 'component-clear-config':
+        this.addComponentConfig(update as ComponentConfigUpdate);
+        break;
+
+      case 'binding-clear':
+        this.addBindingClear(update as BindingClearUpdate);
+        break;
+
+      case 'template-clear-export':
+        this.addTemplateClearExport(update as TemplateClearExportsUpdate);
+        break;
+
+      default:
+        throw new Error(`Unexpected update type: '${update.type}'`);
+    }
+  }
+
+  private addComponentConfig({ type, templateId, componentId, configId }: ComponentConfigUpdate) {
+    const id = `component-config::${templateId || ''}:${componentId}`;
+    const impact = this.ensureImpact<coreImportData.ComponentConfigImpact>(id, () => ({
+      type: 'component-config',
+      templateId,
+      componentId,
+      config: {}
+    }));
+
+    switch (type) {
+      case 'component-clear-config':
+        impact.config[configId] = 'delete';
+        break;
+
+      case 'component-reset-config':
+        impact.config[configId] = 'update';
+        break;
+    }
+  }
+
+  private addBindingClear({ templateId, bindingId }: BindingClearUpdate) {
+    const id = `binding-delete:${templateId || ''}:${bindingId}`;
+    this.ensureImpact<coreImportData.BindingDeleteImpact>(id, () => ({
+      type: 'binding-delete',
+      templateId,
+      bindingId,
+    }));
+  }
+
+  private addTemplateClearExport({ templateId, exportType, exportId }: TemplateClearExportsUpdate) {
+    const id = `template-export:${templateId}`;
+
+    const impact = this.ensureImpact<coreImportData.TemplateExportImpact>(id, () => ({
+      type: 'template-export',
+      templateId,
+      configExportDeletes: [],
+      memberExportDeletes: []
+    }));
+
+    let list: string[] = null;
+
+    switch (exportType) {
+      case 'config':
+        list = impact.configExportDeletes;
+        break;
+
+      case 'member':
+        list = impact.memberExportDeletes;
+        break;
+    }
+
+    if (!list.includes(exportId)) {
+      list.push(exportId);
+    }
+  }
+
+  private ensureRootUpdate(update: Update, changeTypes: coreImportData.ChangeType | coreImportData.ChangeType[], objectType: coreImportData.ObjectType, changeId: string, additionalConditions = true) {
+    if (!Array.isArray(changeTypes)) {
+      changeTypes = [changeTypes];
+    }
+
+    // Check that this is the root update
+    if (changeTypes.includes(this.change.changeType) && this.change.objectType === objectType && this.change.id === changeId && additionalConditions) {
+      return;
+    }
+
+    // else this is unexpected
+    throw new Error(`Unexpected update found on change computation: ${JSON.stringify(update)}`);
+  }
+
+  private ensureImpact<TImpact extends coreImportData.Impact>(id: string, creator: () => TImpact) {
+    let impact = this.impacts.get(id) as TImpact;
+    if (impact) {
+      return impact;
+    }
+
+    impact = creator();
+    this.impacts.set(id, impact);
+    return impact;
+  }
+
+  build() {
+    return Array.from(this.impacts.values());
+  }
+}
+
 function computeObjectImpacts(context: ComputeContext, changes: coreImportData.ObjectChange[]) {
-  // TODO
+  for (const change of changes) {
+    const builder = new ImpactsBuilder(change);
+
+    for (const update of context.getAllObjectUpdates(change.key)) {
+      builder.add(update);
+    }
+
+    change.impacts = builder.build();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
