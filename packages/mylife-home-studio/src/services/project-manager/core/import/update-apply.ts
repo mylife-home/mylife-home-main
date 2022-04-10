@@ -23,8 +23,8 @@ export function applyUpdates(serverData: UpdateServerData, selection: Set<string
   const stats: BulkUpdatesStats = {
     plugins: 0,
     components: 0,
+    templates: 0,
     bindings: 0,
-    // TODO: templates
   };
 
   log.info('Starting update');
@@ -45,7 +45,7 @@ export function applyUpdates(serverData: UpdateServerData, selection: Set<string
     }
   }
 
-  log.info(`Updated (${stats.plugins} plugins, ${stats.components} components, ${stats.bindings} bindings)`);
+  log.info(`Updated (${stats.plugins} plugins, ${stats.components} components, ${stats.templates} templates, ${stats.bindings} bindings)`);
 
   return stats;
 }

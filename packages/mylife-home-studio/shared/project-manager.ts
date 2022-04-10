@@ -604,6 +604,7 @@ export interface ApplyBulkUpdatesCoreProject extends CoreProjectCall {
 export interface BulkUpdatesStats {
   plugins: number;
   components: number;
+  templates: number;
   bindings: number;
 }
 
