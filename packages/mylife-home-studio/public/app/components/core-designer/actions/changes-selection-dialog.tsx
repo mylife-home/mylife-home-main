@@ -539,7 +539,7 @@ const ChangeImpacts: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) 
   return (
     <>
       {impacts.map((impact, index) => {
-        const title = impact.templateId ? `Impact sur template '${impact.templateId}'` : 'Impact';
+        const title = impact.templateId ? `Impact sur le template '${impact.templateId}'` : 'Impact';
         switch (impact.type) {
           case 'binding-delete': {
             const { bindingId } = impact as coreImportData.BindingDeleteImpact;
