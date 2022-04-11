@@ -493,12 +493,14 @@ export class CoreOpenedProject extends OpenedProject {
         this.notifyAllClearPlugin(pluginId);
       },
       setComponent: ({ id, pluginId, external, config }: ComponentImport) => {
+        // always directly on project
         const componentModel = this.model.importComponent(id, pluginId, external, config);
         this.notifyAllSetComponent(componentModel);
       },
-      clearComponent: (templateId: string, componentId: string) => {
-        this.model.getTemplateOrSelf(templateId).clearComponent(componentId);
-        this.notifyAllClearComponent(templateId, componentId);
+      clearComponent: (componentId: string) => {
+        // always directly on project
+        this.model.clearComponent(componentId);
+        this.notifyAllClearComponent(null, componentId);
       },
       resetComponentConfig: (templateId: string, componentId: string, configId: string) => {
         const componentModel = this.model.getTemplateOrSelf(templateId).getComponent(componentId);
