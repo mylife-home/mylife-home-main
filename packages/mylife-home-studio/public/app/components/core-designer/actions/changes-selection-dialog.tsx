@@ -727,7 +727,8 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
   function objectTypeNodeComparer(key1: string, key2: string) {
     const objectTypeOrdering = {
       plugin: 1,
-      component: 2
+      template: 2,
+      component: 3,
     };
   
     const node1 = model.nodes[key1] as ObjectTypeNode;
