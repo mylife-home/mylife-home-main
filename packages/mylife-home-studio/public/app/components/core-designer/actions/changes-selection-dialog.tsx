@@ -432,18 +432,7 @@ const PluginChangeItem: FunctionComponent<{ indent: number; node: string; }> = (
         return <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>;
       })}
 
-      <Typography>
-        {JSON.stringify(change.impacts)}
-      </Typography>
-{/*
-      {(change.impacts?.components || []).map((componentId) => {
-        <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>;
-      })}
-
-      {(change.impacts?.bindings || []).map((bindingId) => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
-      })}
-*/}
+      <ChangeImpacts node={nodeKey} />
     </ChangeItem>
   );
 };
@@ -477,19 +466,26 @@ const TemplateChangeItem: FunctionComponent<{ indent: number; node: string; }> =
   const disabled = disabledSet[node.change];
   const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
 
+  let exportTitle: string;
+  switch (change.exportType) {
+    case 'config':
+      exportTitle = `Suppression d'export de configuration`;
+      break;
+
+    case 'member':
+      exportTitle = `Suppression d'export de membre`;
+      break;
+
+    default:
+      throw new Error(`Unsupported export type: '${change.exportType}'`);
+  }
+
   return (
     <ChangeItem indent={indent} title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
-      {JSON.stringify(change)}
+      <ChangeDetailLine>{`${exportTitle} : ${change.exportId}`}</ChangeDetailLine>
 
-      <Typography>
-        {JSON.stringify(change.impacts)}
-      </Typography>
-{/*
-      {(change.impacts?.bindings || []).map((bindingId) => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
-      })}
-*/}
-      </ChangeItem>
+      <ChangeImpacts node={nodeKey} />
+    </ChangeItem>
   );
 };
 
@@ -527,19 +523,30 @@ const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> 
       })}
 
       {change.external != null && <ChangeDetailLine>{`Changement flag 'externe' : ${change.external}`}</ChangeDetailLine>}
-
       {change.pluginId != null && <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>}
 
-      <Typography>
-        {JSON.stringify(change.impacts)}
-      </Typography>
+      <ChangeImpacts node={nodeKey} />
+    </ChangeItem>
+  );
+};
+
+const ChangeImpacts: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const { impacts } = model.changes[node.change];
+
+  return (
+    <Typography>
+      {JSON.stringify(impacts)}
+    </Typography>
+  );
 {/*
       {(change.impacts?.bindings || []).map((bindingId) => {
         <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
       })}
 */}
-      </ChangeItem>
-  );
+
 };
 
 interface ChangeItemProps {
