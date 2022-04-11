@@ -87,7 +87,7 @@ class UpdateBuilder<TUpdate extends Update> {
 }
 
 class DependenciesBuilder {
-  private readonly dependencies: string[];
+  private readonly dependencies: string[] = [];
 
   addDependencies(updateIds: string[]) {
     for (const updateId of updateIds) {
