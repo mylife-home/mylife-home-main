@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo, useEffect, createContext, useContext } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo, createContext, useContext } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -537,16 +537,62 @@ const ChangeImpacts: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) 
   const { impacts } = model.changes[node.change];
 
   return (
-    <Typography>
-      {JSON.stringify(impacts)}
-    </Typography>
-  );
-{/*
-      {(change.impacts?.bindings || []).map((bindingId) => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
-      })}
-*/}
+    <>
+      {impacts.map((impact, index) => {
+        const title = impact.templateId ? `Impact sur template '${impact.templateId}'` : 'Impact';
+        switch (impact.type) {
+          case 'binding-delete': {
+            const { bindingId } = impact as coreImportData.BindingDeleteImpact;
+            // Note: should use proper way but componentIds are wrong, so whole id is wrong
+            const [sourceComponentId, sourceState, targetComponentId, targetState] = bindingId.split(':');
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression du binding ${sourceComponentId}.${sourceState} -> ${targetComponentId}.${targetState}`}</ChangeDetailLine>
+            );
+          }
 
+          case 'component-delete': {
+            const { componentId } = impact as coreImportData.ComponentDeleteImpact;
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression du composant ${componentId}`}</ChangeDetailLine>
+            );
+          }
+
+          case 'component-config': {
+            const { componentId, config } = impact as coreImportData.ComponentConfigImpact;
+            const parts = Object.entries(config).map(([id, type]) => {
+              switch (type) {
+                case 'update':
+                  return `'${id}' -> RAZ`;
+                case 'delete':
+                  return `'${id}' -> suppression`;
+                default: 
+                  throw new Error(`Unhandled change type: '${type}'`);
+              }               
+            });
+
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Modification de configuration sur le composant '${componentId}' : ${parts.join(', ')}`}</ChangeDetailLine>
+            );
+          }
+
+          case 'template-export': {
+            const { configExportDeletes, memberExportDeletes } = impact as coreImportData.TemplateExportImpact;
+            const parts = [
+              ...configExportDeletes.map(item => `configuration '${item}'`),
+              ...memberExportDeletes.map(item => `membre '${item}'`),
+            ];
+
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression des exports ${parts.join(', ')}`}</ChangeDetailLine>
+            );
+          }
+
+          default: 
+            throw new Error(`Unhandled impact type: '${impact.type}'`);
+        }
+      })}
+    </>
+  );
 };
 
 interface ChangeItemProps {
