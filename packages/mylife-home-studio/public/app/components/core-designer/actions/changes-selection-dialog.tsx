@@ -252,6 +252,7 @@ export function useShowChangesDialog() {
   return useCallback(
     (changes: coreImportData.ObjectChange[]) =>
       new Promise<ChangesDialogResult>((resolve) => {
+        console.log('CHANGES', changes);
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
@@ -300,8 +301,12 @@ const TreeNode: FunctionComponent<{ indent: number; node: string }> = ({ indent,
     switch (change.objectType) {
       case 'plugin':
         return (<PluginChangeItem indent={indent} node={nodeKey} />);
+      case 'template':
+        return (<TemplateChangeItem indent={indent} node={nodeKey} />);
       case 'component':
         return (<ComponentChangeItem indent={indent} node={nodeKey} />);
+      default:
+        throw new Error(`Unknown object type: '${change.objectType}'`);
     }
   } else {
     const itemStats = stats[nodeKey];
@@ -427,6 +432,10 @@ const PluginChangeItem: FunctionComponent<{ indent: number; node: string; }> = (
         return <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>;
       })}
 
+      <Typography>
+        {JSON.stringify(change.impacts)}
+      </Typography>
+{/*
       {(change.impacts?.components || []).map((componentId) => {
         <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>;
       })}
@@ -434,6 +443,7 @@ const PluginChangeItem: FunctionComponent<{ indent: number; node: string; }> = (
       {(change.impacts?.bindings || []).map((bindingId) => {
         <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
       })}
+*/}
     </ChangeItem>
   );
 };
@@ -457,6 +467,31 @@ function formatVersion({ before, after }: { before: string; after: string }) {
 
   return null;
 }
+
+const TemplateChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model, selection, disabledSet, setSelected } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const change = model.changes[node.change] as coreImportData.TemplateChange;
+  const selected = selection[node.change];
+  const disabled = disabledSet[node.change];
+  const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
+
+  return (
+    <ChangeItem indent={indent} title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
+      {JSON.stringify(change)}
+
+      <Typography>
+        {JSON.stringify(change.impacts)}
+      </Typography>
+{/*
+      {(change.impacts?.bindings || []).map((bindingId) => {
+        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
+      })}
+*/}
+      </ChangeItem>
+  );
+};
 
 const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
@@ -495,10 +530,15 @@ const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> 
 
       {change.pluginId != null && <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>}
 
+      <Typography>
+        {JSON.stringify(change.impacts)}
+      </Typography>
+{/*
       {(change.impacts?.bindings || []).map((bindingId) => {
         <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
       })}
-    </ChangeItem>
+*/}
+      </ChangeItem>
   );
 };
 
@@ -618,7 +658,9 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
   addRootNode('objectTypes');
 
   for (const change of changes) {
-    const { key, instanceName, objectType, changeType } = change;
+    const { key, /*instanceName,*/ objectType, changeType } = change;
+    // TODO
+    const instanceName = 'TODO instance name';
     model.changes[key] = change;
 
     addNodeChain('instances-objectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
