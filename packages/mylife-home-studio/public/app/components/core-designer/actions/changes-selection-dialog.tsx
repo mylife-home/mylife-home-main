@@ -583,7 +583,7 @@ const ChangeImpacts: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) 
             ];
 
             return (
-              <ChangeDetailLine key={index} highlight>{`${title} : Suppression des exports ${parts.join(', ')}`}</ChangeDetailLine>
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression des exports : ${parts.join(', ')}`}</ChangeDetailLine>
             );
           }
 
