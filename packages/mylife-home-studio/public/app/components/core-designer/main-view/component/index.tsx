@@ -264,7 +264,7 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   }
 
   const yIndex = createIndexManager();
-  yIndex.add(configItemsCount + 2); // 2 => instance + plugin
+  yIndex.add(configItemsCount + 3); // 3 => title + instance + plugin
 
   return (
     <Group
@@ -312,6 +312,7 @@ const PropertyHit: FunctionComponent<PropertyHitProps> = ({ yIndex, bindingSourc
 
   const createDragEventHandler = (type: DragEventType) => {
     return (e: Konva.KonvaEventObject<DragEvent>) => {
+      console.log(type, bindingSource)
       e.cancelBubble = true;
       propertyOnDrag(type, { x: e.evt.x, y: e.evt.y });
     };
