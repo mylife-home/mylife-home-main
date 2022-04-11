@@ -535,6 +535,10 @@ class ImpactsBuilder {
   }
 
   private addComponentClear({ templateId, componentId }: ComponentClearUpdate) {
+    if (!templateId && this.isRootUpdate('delete', 'component', componentId)) {
+      return;
+    }
+
     const id = `component-delete:${templateId || ''}:${componentId}`;
     this.ensureImpact<coreImportData.ComponentDeleteImpact>(id, () => ({
       type: 'component-delete',
@@ -553,6 +557,10 @@ class ImpactsBuilder {
   }
 
   private addTemplateClearExport({ templateId, exportType, exportId }: TemplateClearExportsUpdate) {
+    if (this.isRootUpdate('update', 'template', templateId)) {
+      return;
+    }
+
     const id = `template-export:${templateId}`;
 
     const impact = this.ensureImpact<coreImportData.TemplateExportImpact>(id, () => ({
@@ -579,18 +587,18 @@ class ImpactsBuilder {
     }
   }
 
-  private ensureRootUpdate(update: Update, changeTypes: coreImportData.ChangeType | coreImportData.ChangeType[], objectType: coreImportData.ObjectType, changeId: string, additionalConditions = true) {
+  private isRootUpdate(changeTypes: coreImportData.ChangeType | coreImportData.ChangeType[], objectType: coreImportData.ObjectType, changeId: string) {
     if (!Array.isArray(changeTypes)) {
       changeTypes = [changeTypes];
     }
 
-    // Check that this is the root update
-    if (changeTypes.includes(this.change.changeType) && this.change.objectType === objectType && this.change.id === changeId && additionalConditions) {
-      return;
-    }
+    return changeTypes.includes(this.change.changeType) && this.change.objectType === objectType && this.change.id === changeId;
+  }
 
-    // else this is unexpected
-    throw new Error(`Unexpected update found on change computation: ${JSON.stringify(update)}`);
+  private ensureRootUpdate(update: Update, changeTypes: coreImportData.ChangeType | coreImportData.ChangeType[], objectType: coreImportData.ObjectType, changeId: string) {
+    if (!this.isRootUpdate(changeTypes, objectType, changeId)) {
+      throw new Error(`Unexpected update found on change computation: ${JSON.stringify(update)}`);
+    }
   }
 
   private ensureImpact<TImpact extends coreImportData.Impact>(id: string, creator: () => TImpact) {
