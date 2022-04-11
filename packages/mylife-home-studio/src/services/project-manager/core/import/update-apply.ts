@@ -11,7 +11,7 @@ export interface UpdateApi {
   setComponent: (component: ComponentImport) => void; // always directly on project
   resetComponentConfig: (templateId: string, componentId: string, configId: string) => void;
   clearComponentConfig: (templateId: string, componentId: string, configId: string) => void;
-  clearComponent: (tcomponentId: string) => void; // always directly on project
+  clearComponent: (templateId: string, componentId: string) => void;
   clearBinding: (templateId: string, bindingId: string) => void;
   clearTemplateExport: (templateId: string, exportType: 'config' | 'member', exportId: string) => void;
 }
@@ -76,27 +76,16 @@ class ApplyContext {
   }
 }
 
-/*
-updates cn be applied in this order:
-'binding-clear' => no deps
-'component-clear' => always root update
-'plugin-set' => before component-set
-'component-set' => before plugin-clear, in case of pluginId update
-'plugin-clear'
-'template-clear-export' => no checks on exports data
-'component-clear-config' => no checks on config data
-'component-reset-config' => use template recursion to get config type, must be applied after template/plugin updates
-*/
-
+// updates cn be applied in this order:
 const ORDER: readonly Update['type'][] = [
-  'binding-clear',
-  'component-clear',
-  'plugin-set',
-  'component-set',
-  'plugin-clear',
-  'template-clear-export',
-  'component-clear-config',
-  'component-reset-config',
+  'binding-clear', // no deps
+  'plugin-set', // before component-set
+  'component-set', // before plugin-clear, in case of pluginId update
+  'template-clear-export', // no checks on exports data
+  'component-clear-config', // no checks on config data
+  'component-reset-config', // use template recursion to get config type, must be applied after template/plugin updates
+  'component-clear', // can be used in template exports, must be after component config in case of both
+  'plugin-clear', // after component clear
 ];
 
 export function applyUpdates(serverData: UpdateServerData, selection: Set<string>, api: UpdateApi) {
@@ -164,9 +153,9 @@ function applyUpdate(context: ApplyContext, update: Update) {
     }
 
     case 'component-clear': {
-      const { componentId } = update as ComponentClearUpdate;
-      log.debug(`Update: delete component '${componentId}'`);
-      context.api.clearComponent(componentId); // always directly on project
+      const { templateId, componentId } = update as ComponentClearUpdate;
+      log.debug(`Update: delete component '${componentId}' (template='${templateId}')`);
+      context.api.clearComponent(templateId, componentId); // always directly on project
       context.statsAddComponent(null, componentId);
       context.markComponentUpdated(componentId);
 

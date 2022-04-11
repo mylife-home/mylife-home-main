@@ -492,8 +492,7 @@ class ImpactsBuilder {
       }
 
       case 'component-clear': {
-        const { templateId, componentId } = update as ComponentClearUpdate;
-        this.ensureRootUpdate(update, 'delete', 'component', componentId, !templateId);
+        this.addComponentClear(update as ComponentClearUpdate);
         break;
       }
 
@@ -533,6 +532,15 @@ class ImpactsBuilder {
         impact.config[configId] = 'update';
         break;
     }
+  }
+
+  private addComponentClear({ templateId, componentId }: ComponentClearUpdate) {
+    const id = `component-delete:${templateId || ''}:${componentId}`;
+    this.ensureImpact<coreImportData.ComponentDeleteImpact>(id, () => ({
+      type: 'component-delete',
+      templateId,
+      componentId,
+    }));
   }
 
   private addBindingClear({ templateId, bindingId }: BindingClearUpdate) {
