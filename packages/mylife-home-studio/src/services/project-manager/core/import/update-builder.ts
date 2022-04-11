@@ -209,7 +209,7 @@ function computePluginSet(context: ComputeContext, importData: PluginImport, cha
             const newMember = importData.plugin.members[id];
             if (actualMember.memberType !== newMember.memberType || actualMember.valueType !== newMember.valueType) {
               for (const component of components) {
-                builder.addDependencies(computeComponentClearMember(context, component, id));
+                builder.addDependencies(computeComponentUpdateMember(context, component, id));
               }
             }
             break;
@@ -323,6 +323,27 @@ function computeComponentResetConfigUnsafe(context: ComputeContext, component: C
   })];
 }
 
+function computeComponentUpdateMember(context: ComputeContext, component: ComponentModel, memberName: string) {
+  // not directly an update, but can lead to updates on bindings/templates
+  const dependencies = new DependenciesBuilder();
+
+  for (const binding of component.getAllBindingsWithMember(memberName)) {
+    dependencies.addDependencies(computeBindingDelete(context, binding));
+  }
+
+  if (component.ownerTemplate) {
+    const template = component.ownerTemplate;
+
+    for (const [id, item] of Object.entries(template.data.exports.members)) {
+      if (item.component === component.id && item.member === memberName) {
+        dependencies.addDependencies(computeTemplateUpdateMemberExport(context, template, id));
+      }
+    }
+  }
+
+  return dependencies.build();
+}
+
 function computeComponentClearMember(context: ComputeContext, component: ComponentModel, memberName: string) {
   // not directly an update, but can lead to updates on bindings/templates
   const dependencies = new DependenciesBuilder();
@@ -420,6 +441,17 @@ function computeTemplateExportDelete(context: ComputeContext, template: Template
         break;
     }
   })];
+}
+
+function computeTemplateUpdateMemberExport(context: ComputeContext, template: TemplateModel, exportId: string) {
+  // not directly an update, but can lead to updates on bindings/templates
+  const dependencies = new DependenciesBuilder();
+
+  for (const component of template.getAllUsage()) {
+    dependencies.addDependencies(computeComponentUpdateMember(context, component, exportId));
+  }
+
+  return dependencies.build();
 }
 
 function applyObjectDependencies(context: ComputeContext, changes: coreImportData.ObjectChange[]) {
