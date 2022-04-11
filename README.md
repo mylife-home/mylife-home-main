@@ -226,24 +226,24 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 
 
 - TESTS
-  - import plugins
-  - deploy files => OK
+  - OK import plugins
+    - OK import component with id that would overwrite template instantation (eg: id = new1-child1)
+    - OK import plugin config update should update component
+    - OK import plugin config delete should update component
+    - OK import plugin prop update inside template
+    - OK import plugin prop delete inside template
+    - OK import plugin config update inside template
+    - OK import plugin config delete inside template
+    - OK import plugin prop update inside template (with binding)
+    - OK import plugin prop delete inside template (with binding)
+    - OK import plugin prop update inside template (which is exported)
+    - OK import plugin prop delete inside template (which is exported)
+    - OK import plugin config update inside template (which is exported)
+    - OK import plugin config delete inside template (which is exported)
+    - OK import plugin prop/config update/delete which is exported, used in a template which export it again
+  - OK deploy files
   - deploy online
   - imports between core projects (plugins & components)
   - imports into ui project
 
-=>
-- import component with id that would overwrite template instantation (eg: id = new1-child1)
-- import plugin config update should update component
-- import plugin config delete should update component
-- import plugin prop update inside template
-- import plugin prop delete inside template
-- import plugin config update inside template
-- import plugin config delete inside template
-- import plugin prop update inside template (with binding)
-- import plugin prop delete inside template (with binding)
-- import plugin prop update inside template (which is exported)
-- import plugin prop delete inside template (which is exported)
-- import plugin config update inside template (which is exported)
-- import plugin config delete inside template (which is exported)
-- import plugin prop/config update/delete which is exported, used in a template which export it again
+BUG: binding with DnD starts at wrong position
