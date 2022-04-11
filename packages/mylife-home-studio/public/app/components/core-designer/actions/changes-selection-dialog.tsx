@@ -658,9 +658,8 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
   addRootNode('objectTypes');
 
   for (const change of changes) {
-    const { key, /*instanceName,*/ objectType, changeType } = change;
-    // TODO
-    const instanceName = 'TODO instance name';
+    const { key, objectType, changeType } = change;
+    const instanceName = getInstanceName(change);
     model.changes[key] = change;
 
     addNodeChain('instances-objectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
@@ -882,6 +881,22 @@ function formatSelection(selection: SelectionSet) {
   }
 
   return values;
+}
+
+function getInstanceName(change: coreImportData.ObjectChange) {
+  switch (change.objectType) {
+    case 'component':
+      return (change as coreImportData.ComponentChange).instanceName;
+
+    case 'plugin':
+      return (change as coreImportData.PluginChange).instanceName;
+    
+    case 'template':
+      return `(Pas d'instance)`;
+
+    default:
+      throw new Error(`Unsupported object type: '${change.objectType}'`);
+  }
 }
 
 function formatStats(stats: StatsItem) {
