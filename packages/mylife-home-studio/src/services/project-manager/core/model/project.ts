@@ -274,6 +274,13 @@ export namespace namingDryRun {
 
     constructor(private readonly projectModel: ProjectModel) {
       this.generateView(projectModel);
+
+      for (const templateId of projectModel.getTemplatesIds()) {
+        const templateModel = projectModel.getTemplate(templateId);
+        // In case view is unused, it will not be generated as dependency,
+        // but we may call setComponent/renameComponent on it.
+        this.generateView(templateModel); 
+      }
     }
 
     private generateView(viewModel: ViewModel) {
