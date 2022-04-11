@@ -245,5 +245,3 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
   - deploy online
   - imports between core projects (plugins & components)
   - imports into ui project
-
-BUG: binding with DnD starts at wrong position
