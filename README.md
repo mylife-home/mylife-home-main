@@ -240,6 +240,13 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
     - OK import plugin config update inside template (which is exported)
     - OK import plugin config delete inside template (which is exported)
     - OK import plugin prop/config update/delete which is exported, used in a template which export it again
+  - import components
+    - add component
+    - update component
+    - delete component
+    - add component with plugin change
+    - update component with plugin change
+    - OK add component that would overwrite template
   - OK deploy files
   - deploy online
   - imports between core projects (plugins & components)
