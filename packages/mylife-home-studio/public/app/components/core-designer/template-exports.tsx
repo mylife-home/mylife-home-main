@@ -16,8 +16,9 @@ import { useTabSelector } from '../lib/use-tab-selector';
 import DeleteButton from '../lib/delete-button';
 import { AppState } from '../../store/types';
 import { MemberType } from '../../store/core-designer/types';
-import { getActiveTemplateId, getTemplate, getComponent, getPlugin, PropertyItem, getTemplateCandidateConfigExports, getTemplateCandidateMemberExports, getTemplateConfigItem, getTemplateMemberItem } from '../../store/core-designer/selectors';
-import { setTemplateExport, clearTemplateExport } from '../../store/core-designer/actions';
+import { getActiveTemplateId, getTemplate, getComponent, PropertyItem, getTemplateCandidateConfigExports, getTemplateCandidateMemberExports, getTemplateConfigItem, getTemplateMemberItem } from '../../store/core-designer/selectors';
+import { setTemplateExport } from '../../store/core-designer/actions';
+import { useClearTemplateExport } from './actions/behaviors';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -116,7 +117,7 @@ function getMemberIcon(memberType: MemberType) {
 const ExportItem: FunctionComponent<{ id: string; description: string; icon?: typeof SvgIcon; text: string; type: string; exportType: 'config' | 'member'; }> = ({ id, description, icon, text, type, exportType }) => {
   const classes = useStyles();
   const Icon = icon;
-  const clear = useClearExport(exportType, id);
+  const clear = useClearTemplateExport(exportType, id);
 
   return (
     <Item title={
@@ -227,16 +228,4 @@ function getOptionSelected(option: PropertyItem, value: PropertyItem) {
 function useActiveTemplate() {
   const templateId = useTabSelector(getActiveTemplateId);
   return useSelector((state: AppState) => getTemplate(state, templateId));
-}
-
-function useClearExport(exportType: 'config' | 'member', exportId: string) {
-  const templateId = useTabSelector(getActiveTemplateId);
-  const dispatch = useDispatch();
-
-  return useCallback(() => {
-
-    // TODO: check usage
-
-    dispatch(clearTemplateExport({ templateId, exportType, exportId }))
-  }, [dispatch, templateId, exportType, exportId]);
 }

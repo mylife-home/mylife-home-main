@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { useTabPanelId } from '../../lib/tab-panel';
+import { useTabSelector } from '../../lib/use-tab-selector';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useBusy } from '../../dialogs/busy';
@@ -10,8 +11,9 @@ import { AsyncDispatch } from '../../../store/types';
 import { BulkUpdatesData, BulkUpdatesStats, coreValidation, FilesDeployData, OnlineDeployData, FilesDeployResult } from '../../../store/core-designer/types';
 import { 
   prepareImportFromProject, prepareImportFromOnline, applyBulkUpdates, 
-  prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject
+  prepareDeployToFiles, applyDeployToFiles, prepareDeployToOnline, applyDeployToOnline, validateProject, clearTemplateExport
 } from '../../../store/core-designer/actions';
+import { getActiveTemplateId } from '../../../store/core-designer/selectors';
 import { useImportFromProjectSelectionDialog, useImportFromOnlineSelectionDialog } from './import-selection-dialog';
 import { useShowValidationDialog } from './validation-dialog';
 import { useShowDhowDeployToFilesDialog } from './deploy-to-files-dialog';
@@ -55,6 +57,20 @@ export function useImportFromOnline() {
       await executeBulkUpdate(bulkUpdatesData);
     });
   }, [fireAsync, dispatch, showImportFromOnlineSelectionDialog, executeBulkUpdate]);
+}
+
+export function useClearTemplateExport(exportType: 'config' | 'member', exportId: string) {
+  const fireAsync = useFireAsync();
+  const dispatch = useDispatch();
+  const templateId = useTabSelector(getActiveTemplateId);
+  const executeBulkUpdate = useExecuteRefresh();
+
+  return useCallback(() => {
+    fireAsync(async () => {
+      const bulkUpdatesData = await (dispatch as AsyncDispatch<BulkUpdatesData>)(clearTemplateExport({ templateId, exportType, exportId }));
+      await executeBulkUpdate(bulkUpdatesData);
+    });
+  }, [fireAsync, dispatch, executeBulkUpdate, templateId, exportType, exportId]);
 }
 
 function useExecuteRefresh() {

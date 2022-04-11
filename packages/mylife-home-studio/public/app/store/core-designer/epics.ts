@@ -162,6 +162,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         const callData: ClearTemplateExportCoreProjectCall = { operation: 'clear-template-export', templateId: id, exportType, exportId };
         return { tabId, callData };
       },
+      resultMapper(serviceResult: PrepareBulkUpdatesCoreProjectCallResult): BulkUpdatesData {
+        return { changes: serviceResult.changes, serverData: serviceResult.serverData };
+      },
     },
     [ActionTypes.SET_COMPONENT]: {
       mapper({ templateId: fullTemplateId, componentId, definition: fullDefinition, position }: ActionPayloads.SetComponent) {
