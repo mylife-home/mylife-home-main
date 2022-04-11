@@ -84,6 +84,7 @@ function useExecuteRefresh() {
 function formatRefreshNotification(stats: BulkUpdatesStats) {
   let pluginsText = null;
   let componentsText = null;
+  let templatesText = null;
   let bindingsText = null;
 
   if (stats.plugins === 1) {
@@ -98,14 +99,20 @@ function formatRefreshNotification(stats: BulkUpdatesStats) {
     componentsText = `${stats.components} composants`;
   }
 
+  if (stats.templates === 1) {
+    templatesText = `${stats.templates} template`;
+  } else if (stats.templates > 1) {
+    templatesText = `${stats.templates} templates`;
+  }
+
   if (stats.bindings === 1) {
     bindingsText = `${stats.bindings} binding`;
   } else if (stats.bindings > 1) {
     bindingsText = `${stats.bindings} bindings`;
   }
 
-  const list = [pluginsText, componentsText, bindingsText].filter(item => item).join(', ');
-  const total = stats.plugins + stats.components + stats.bindings;
+  const list = [pluginsText, componentsText, templatesText, bindingsText].filter(item => item).join(', ');
+  const total = stats.plugins + stats.components + stats.templates + stats.bindings;
   return total > 1 ? `${list} ont été mis à jour` : `${list} a été mis à jour`;
 }
 
