@@ -176,18 +176,11 @@ export class ProjectModel extends ViewModel {
 
   clearTemplate(id: string) {
     const template = this.templates.get(id);
-    if (template.hasComponents()) {
+    if (template.used) {
       throw new Error(`Cannot delete template '${id}' because it is used.`);
     }
 
-    for (const componentId of template.getComponentsIds()) {
-      template.clearComponent(componentId);
-    }
-
-    for (const bindingId of template.getBindingsIds()) {
-      template.clearBinding(bindingId);
-    }
-
+    template.deleteContents();
     this.templates.delete(template.id);
     delete this.data.templates[template.id];
   }

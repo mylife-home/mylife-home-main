@@ -250,6 +250,12 @@ function applyProjectUpdate(state: CoreDesignerState, openedProject: CoreOpenedP
 
       const template = state.templates.byId[id];
 
+      // clear plugins links
+      for (const componentId of template.components) {
+        const component = state.components.byId[componentId];
+        unregisterComponentFromDefinition(state, openedProject, component);
+      }
+
       // remove all bindings+components
       // Note: we don't care about links, all will be dropped
       tableRemoveAll(state.components, template.components);

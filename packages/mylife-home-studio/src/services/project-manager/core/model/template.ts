@@ -95,6 +95,18 @@ export class TemplateModel extends ViewModel implements ComponentDefinitionModel
     }
   }
 
+  // Called by project on deletion
+  deleteContents() {
+    for (const componentId of this.getComponentsIds()) {
+      // Do not do checks on exports as all will be deleted together
+      super.clearComponent(componentId);
+    }
+
+    for (const bindingId of this.getBindingsIds()) {
+      this.clearBinding(bindingId);
+    }
+  }
+
   private setConfigExport(exportId: string, componentId: string, configName: string) {
     const updatedComponents = new Set<ComponentModel>();
     
