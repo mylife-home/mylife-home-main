@@ -222,8 +222,6 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 
 
 # WIP templates:
-- prevent drop used export (or force and cleanup)
-
 - TESTS
   - OK import plugins
     - OK import component with id that would overwrite template instantation (eg: id = new1-child1)
@@ -241,7 +239,7 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
     - OK import plugin config delete inside template (which is exported)
     - OK import plugin prop/config update/delete which is exported, used in a template which export it again
     - OK import plugin delete which is used on templates
-  - import components
+  - OK import components
     - OK add component
     - OK update component
     - OK delete component
