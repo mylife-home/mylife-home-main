@@ -17,6 +17,7 @@ export const prepareDeployToOnline = createAsyncAction<ActionPayloads.PrepareDep
 export const applyDeployToOnline = createAsyncAction<ActionPayloads.ApplyDeployToOnline>(ActionTypes.APPLY_DEPLOY_TO_ONLINE);
 export const activateView = createAction<ActionPayloads.ActivateView>(ActionTypes.ACTIVATE_VIEW);
 export const select = createAction<ActionPayloads.Select>(ActionTypes.SELECT);
+export const selectComponent = createAction<ActionPayloads.SelectComponent>(ActionTypes.SELECT_COMPONENT);
 export const toggleComponentSelection = createAction<ActionPayloads.ToggleComponentSelection>(ActionTypes.TOGGLE_COMPONENT_SELECTION);
 
 export const setComponent = createAsyncAction<ActionPayloads.SetComponent>(ActionTypes.SET_COMPONENT);

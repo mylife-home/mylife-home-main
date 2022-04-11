@@ -34,6 +34,7 @@ export const enum ActionTypes {
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
   ACTIVATE_VIEW = 'core-designer/activate-view',
   SELECT = 'core-designer/select',
+  SELECT_COMPONENT = 'core-designer/select-component',
   TOGGLE_COMPONENT_SELECTION = 'core-designer/toggle-compomnent-selection',
 }
 
@@ -54,6 +55,7 @@ export namespace ActionPayloads {
   export type ApplyDeployToOnline = { tabId: string; serverData: unknown; };
   export type ActivateView = { tabId: string; templateId: string; };
   export type Select = { tabId: string; selection: Selection; };
+  export type SelectComponent = { tabId: string; componentId: string; };
   export type ToggleComponentSelection = { tabId: string; componentId: string; };
 
   export type SetComponent = { templateId: string; componentId: string; definition: ComponentDefinition; position: Position; }; // tabId is deduced from plugin

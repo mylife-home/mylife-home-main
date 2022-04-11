@@ -103,6 +103,18 @@ export default createReducer(initialState, {
     openedProject.viewSelection = selection;
   },
 
+  [ActionTypes.SELECT_COMPONENT]: (state, action: PayloadAction<ActionPayloads.SelectComponent>) => {
+    const { tabId, componentId } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
+
+    if (openedProject.viewSelection?.type === 'components' && (openedProject.viewSelection as ComponentsSelection).ids[componentId]) {
+      // if already selected do nothing
+    } else {
+      const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
+      openedProject.viewSelection = newSelection;
+    }
+  },
+
   [ActionTypes.TOGGLE_COMPONENT_SELECTION]: (state, action: PayloadAction<ActionPayloads.ToggleComponentSelection>) => {
     const { tabId, componentId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];

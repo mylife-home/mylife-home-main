@@ -5,7 +5,7 @@ import { useTabPanelId } from '../lib/tab-panel';
 import { AppState } from '../../store/types';
 import { Selection, BindingSelection, MultiSelectionIds, ComponentsSelection } from '../../store/core-designer/types';
 import { getSelection } from '../../store/core-designer/selectors';
-import { select, toggleComponentSelection } from '../../store/core-designer/actions';
+import { select, toggleComponentSelection, selectComponent } from '../../store/core-designer/actions';
 
 function useSelection() {
   const tabId = useTabPanelId();
@@ -15,18 +15,15 @@ function useSelection() {
     selection: useSelector((state: AppState) => getSelection(state, tabId)),
     ...useMemo(() => ({
       select: (selection: Selection) => dispatch(select({ tabId, selection })),
+      selectComponent: (componentId: string) => dispatch(selectComponent({ tabId, componentId })),
       toggleComponentSelection: (componentId: string) => dispatch(toggleComponentSelection({ tabId, componentId })),
     }), [tabId, dispatch])
   };
 }
 
 export function useSelectComponent() {
-  const { select } = useSelection();
-
-  return useCallback((componentId: string) => {
-    const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
-    select(newSelection);
-  }, [select]);
+  const { selectComponent } = useSelection();
+  return selectComponent;
 }
 
 export function useToggleComponent() {
