@@ -2,7 +2,7 @@ import { logger } from 'mylife-home-common';
 import { coreImportData } from '../../../../../shared/project-manager';
 import { ProjectModel, PluginModel, TemplateModel, BindingModel, ComponentModel } from '../model';
 import { ImportData, PluginImport, ComponentImport } from './load';
-import { Update, PluginSetUpdate, PluginClearUpdate, ComponentSetUpdate, ComponentClearUpdate, ComponentConfigUpdate, BindingClearUpdate, TemplateClearExportsUpdate } from './update-types';
+import { Update, PluginSetUpdate, PluginClearUpdate, ComponentSetUpdate, ComponentClearUpdate, ComponentConfigUpdate, BindingClearUpdate, TemplateClearExportsUpdate, UpdateServerData } from './update-types';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:import');
 
@@ -49,7 +49,7 @@ class ComputeContext {
 
   *getAllObjectUpdates(changeKey: string) {
     for (const update of this.updates.values()) {
-      if (update.objectChangeKeys.includes(changeKey) {
+      if (update.objectChangeKeys.includes(changeKey)) {
         yield update;
       }
     }
@@ -107,7 +107,8 @@ export function buildUpdates(imports: ImportData, model: ProjectModel, changes: 
   computeObjectImpacts(context, changes);
   applyObjectDependencies(context, changes);
 
-  return context.build();
+  const serverData: UpdateServerData = { updates: context.build() };
+  return serverData;
 }
 
 function computeUpdates(context: ComputeContext, imports: ImportData, changes: coreImportData.ObjectChange[]) {
@@ -304,7 +305,7 @@ function computeComponentResetConfig(context: ComputeContext, component: Compone
     }
   }
 
-  return (computeComponentResetConfigUnsafe(context, component, configId);
+  return computeComponentResetConfigUnsafe(context, component, configId);
 }
 
 // Only create the reset, without checks

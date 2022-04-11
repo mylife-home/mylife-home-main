@@ -47,7 +47,7 @@ import { OpenedProject } from '../opened-project';
 import { CoreProjects } from './projects';
 import { BindingModel, ComponentModel, ProjectModel, TemplateModel, ViewModel, ResolvedProjectView } from './model';
 import { Services } from '../..';
-import { applyChanges, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, computeOperations, UpdateServerData } from './import';
+import { applyUpdates, ComponentImport, ImportData, loadOnlineData, loadProjectData, PluginImport, prepareChanges, UpdateServerData, buildUpdates } from './import';
 import { applyToFiles, applyToOnline, prepareToFiles, prepareToOnline } from './deploy';
 import { validate } from './validation';
 import { resolveProject } from './resolver';
@@ -367,7 +367,7 @@ export class CoreOpenedProject extends OpenedProject {
 
     const changes: coreImportData.ObjectChange[] = [change];
     const imports: ImportData = { plugins: [], components: []};
-    const serverData = computeOperations(imports, this.model, changes);
+    const serverData = buildUpdates(imports, this.model, changes);
     return { changes, serverData };
   }
 
@@ -478,7 +478,7 @@ export class CoreOpenedProject extends OpenedProject {
 
   private prepareBulkUpdates(imports: ImportData): PrepareBulkUpdatesCoreProjectCallResult {
     const changes = prepareChanges(imports, this.model);
-    const serverData = computeOperations(imports, this.model, changes);
+    const serverData = buildUpdates(imports, this.model, changes);
     return { changes, serverData };
   }
 
@@ -523,7 +523,7 @@ export class CoreOpenedProject extends OpenedProject {
       },
     };
 
-    const stats = this.executeUpdate(() => applyChanges(serverData as UpdateServerData, new Set(selection), api));
+    const stats = this.executeUpdate(() => applyUpdates(serverData as UpdateServerData, new Set(selection), api));
 
     return { stats };
   }
