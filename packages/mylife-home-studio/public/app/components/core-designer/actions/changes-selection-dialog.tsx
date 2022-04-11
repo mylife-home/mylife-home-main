@@ -659,7 +659,7 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
 
   for (const change of changes) {
     const { key, objectType, changeType } = change;
-    const instanceName = getInstanceName(change);
+    const instanceName = getChangeInstanceName(change);
     model.changes[key] = change;
 
     addNodeChain('instances-objectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
@@ -883,7 +883,7 @@ function formatSelection(selection: SelectionSet) {
   return values;
 }
 
-function getInstanceName(change: coreImportData.ObjectChange) {
+function getChangeInstanceName(change: coreImportData.ObjectChange) {
   switch (change.objectType) {
     case 'component':
       return (change as coreImportData.ComponentChange).instanceName;
