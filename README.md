@@ -128,6 +128,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
+  - pouvoir selectionner un ensemble de composants (avec bindings entre eux) et les "déplacer" dans un template
   - templates
     - multiple components with template id (with config)
     - bindings between components in the template
