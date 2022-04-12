@@ -126,11 +126,13 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - remove v1 imports
   - templates
+  - forbid id with ':'
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
   - remove v1 imports
   - pouvoir selectionner un ensemble de composants (avec bindings entre eux) et les "déplacer" dans un template
+  - forbid id with ':'
 - git
   - v1:
     - seules operations :
@@ -146,6 +148,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
       - selection staging + commit (vision diff)
       - gestion des conflits ?
 - deploy
+  - forbid id with ':'
   - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 - logs
@@ -159,7 +162,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
 - nouveau mode + simple : update le state a l'avance (eg: move components) de toutes facons le server va ecraser les modifs bientot, ou faire une erreur
-- forbid id with ':'
 - create action payload types like core-designer everywhere
 
 ## ui
