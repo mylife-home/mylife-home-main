@@ -8,13 +8,19 @@
 ## Dev build/watch/docker testing images
 - cd packages/mylife-home-packager
 - gulp build:dev:core --all-plugins
+- gulp docker:build:core-testing
 - gulp build:dev:ui
+- gulp docker:build:ui-testing
 - gulp build:dev:studio
 - gulp build:dev:collector
+- gulp docker:build:studio-testing
+- gulp docker:build:collector-testing
 
 _cf package.json npm scripts for docker action_
 
 _cf gulp.conf/index.ts for gulp script: dev build, watch, docker testing images_
+
+_si pb de GC node: gulp <target> --max_old_space_size=4096_
 
 ## Release build
 - bump: lerna version (or manually)
