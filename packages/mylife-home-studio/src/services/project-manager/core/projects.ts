@@ -1,7 +1,6 @@
 import { PluginUsage } from '../../../../shared/component-model';
 import { CoreComponentDefinition, CoreProject, CoreProjectInfo } from '../../../../shared/project-manager';
 import { Store } from '../store';
-import { convertCoreProject, coreV1 } from './converter';
 import { CoreOpenedProject } from './opened-project';
 
 export class CoreProjects extends Store<CoreProject> {
@@ -14,12 +13,6 @@ export class CoreProjects extends Store<CoreProject> {
       templates: {},
     };
 
-    this.create(name, project);
-    return name;
-  }
-
-  importV1(projectV1: coreV1.Project) {
-    const { name, project } = convertCoreProject(projectV1);
     this.create(name, project);
     return name;
   }

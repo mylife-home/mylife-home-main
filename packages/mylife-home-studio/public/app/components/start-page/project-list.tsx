@@ -34,7 +34,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type CreateNewCallback = (id: string) => void;
-type ImportV1Callback = (content: string) => void;
 type DeleteCallback = (id: string) => void;
 type RenameCallback = (id: string, newId: string) => void;
 type DuplicateCallback = (id: string, newId: string) => void;
@@ -55,14 +54,13 @@ export interface ProjectListProps {
   title: string;
   ids: string[];
   onCreateNew: CreateNewCallback;
-  onImportV1: ImportV1Callback;
   onDelete: DeleteCallback;
   onRename: RenameCallback;
   onDuplicate: DuplicateCallback;
   onOpen: OpenCallback;
 }
 
-export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onImportV1, onDelete, onRename, onDuplicate, onOpen, children }) => {
+export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, title, ids, onCreateNew, onDelete, onRename, onDuplicate, onOpen, children }) => {
   const layoutClasses = useLayoutStyles();
   const classes = useStyles();
   const contextProps = useMemo(() => ({ ids, onDelete, onRename, onDuplicate, onOpen }), [ids, onDelete, onRename, onDuplicate, onOpen]);
@@ -72,7 +70,6 @@ export const ProjectList: FunctionComponent<ProjectListProps> = ({ className, ti
       <Section title={title} />
 
       <CreateNewLink ids={ids} onCreateNew={onCreateNew} />
-      <ImportV1Link onImportV1={onImportV1} />
 
       <List className={clsx(classes.list, layoutClasses.item, layoutClasses.fullHeight)}>
         <ListContext.Provider value={contextProps}>{children}</ListContext.Provider>
@@ -102,26 +99,6 @@ export const ProjectItem: FunctionComponent<ProjectItemProps> = ({ id, info }) =
         <DeleteButton icon tooltip="Supprimer" onConfirmed={handleDelete} />
       </ListItemSecondaryAction>
     </ListItem>
-  );
-};
-
-const ImportV1Link: FunctionComponent<{ onImportV1: ImportV1Callback }> = ({ onImportV1 }) => {
-  const inputRef = useRef<HTMLInputElement>();
-  const fireAsync = useFireAsync();
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files[0];
-    fireAsync(async () => {
-      const content = await file.text();
-      onImportV1(content);
-    });
-  };
-
-  return (
-    <>
-      <input ref={inputRef} type="file" hidden onChange={handleUpload} />
-      <ItemLink text="Importer un projet v1" onClick={() => inputRef.current.click()} />
-    </>
   );
 };
 

@@ -1,6 +1,5 @@
 import { UiProject, UiProjectInfo } from '../../../../shared/project-manager';
 import { DefinitionResource } from '../../../../shared/ui-model';
-import { convertUiProject, uiV1 } from './converter';
 import { Store } from '../store';
 import { UiOpenedProject } from './opened-project';
 
@@ -11,12 +10,6 @@ export class UiProjects extends Store<UiProject> {
       componentData: { components: [], plugins: {} },
     };
 
-    this.create(name, project);
-    return name;
-  }
-
-  importV1(projectV1: uiV1.Project) {
-    const { name, project } = convertUiProject(projectV1);
     this.create(name, project);
     return name;
   }

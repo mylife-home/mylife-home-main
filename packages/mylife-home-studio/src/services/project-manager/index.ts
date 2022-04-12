@@ -36,7 +36,6 @@ export class ProjectManager implements Service {
     Services.instance.sessionManager.registerServiceHandler('project-manager/start-notify-list', this.startNotifyList);
     Services.instance.sessionManager.registerServiceHandler('project-manager/stop-notify-list', this.stopNotifyList);
 
-    Services.instance.sessionManager.registerServiceHandler('project-manager/import-v1', this.importV1Project);
     Services.instance.sessionManager.registerServiceHandler('project-manager/create-new', this.createNewProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/duplicate', this.duplicateProject);
     Services.instance.sessionManager.registerServiceHandler('project-manager/rename', this.renameProject);
@@ -68,20 +67,6 @@ export class ProjectManager implements Service {
         return this.uiProjects;
     }
   }
-
-  private readonly importV1Project = async (session: Session, { type, content }: { type: ProjectType; content: string; }) => {
-    switch (type) {
-      case 'core': {
-        const createdId = await this.coreProjects.importV1(JSON.parse(content));
-        return { type, createdId };
-      }
-
-      case 'ui': {
-        const createdId = await this.uiProjects.importV1(JSON.parse(content));
-        return { type, createdId };
-      }
-    }
-  };
 
   private readonly createNewProject = async (session: Session, { type, id }: { type: ProjectType; id: string; }) => {
     const store = this.getStoreByType(type);

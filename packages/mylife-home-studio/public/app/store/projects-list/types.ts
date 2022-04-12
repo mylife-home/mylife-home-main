@@ -7,7 +7,6 @@ export const enum ActionTypes {
   CLEAR_NOTIFICATION = 'projects-list/clear-notification',
   PUSH_UPDATES = 'projects-list/push-updates',
 
-  IMPORT_V1 = 'projects-list/import-v1',
   CREATE_NEW = 'projects-list/create-new',
   DUPLICATE = 'projects-list/duplicate',
   RENAME = 'projects-list/rename',

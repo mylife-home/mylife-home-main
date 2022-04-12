@@ -5,13 +5,12 @@ import humanize from 'humanize-plus';
 import { useAction } from '../lib/use-actions';
 import { AppState } from '../../store/types';
 import { getUiProjectsIds, getUiProjectInfo } from '../../store/projects-list/selectors';
-import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
+import { createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import { newUiDesignerTab } from '../../store/tabs/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const UiProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
   const ids = useSelector(getUiProjectsIds);
-  const importV1 = useAction(importV1Project);
   const createNew = useAction(createNewProject);
   const duplicate = useAction(duplicateProject);
   const rename = useAction(renameProject);
@@ -24,7 +23,6 @@ const UiProjectList: FunctionComponent<{ className?: string }> = ({ className })
       title="Designers UI"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'ui', id })}
-      onImportV1={(content) => importV1({ type: 'ui', content })}
       onDuplicate={(id, newId) => duplicate({ type: 'ui', id, newId })}
       onRename={(id, newId) => rename({ type: 'ui', id, newId })}
       onDelete={(id) => doDelete({ type: 'ui', id })}

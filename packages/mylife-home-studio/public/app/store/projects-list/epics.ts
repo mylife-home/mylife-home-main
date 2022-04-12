@@ -21,13 +21,12 @@ const notifierEpic = createNotifierEpic({
   parseUpdate: parseUpdate,
 });
 
-const importV1ProjectEpic = createSocketCallEpic(ActionTypes.IMPORT_V1, 'project-manager/import-v1', undefined, map(openCreatedProject));
 const createNewProjectEpic = createSocketCallEpic(ActionTypes.CREATE_NEW, 'project-manager/create-new', undefined, map(openCreatedProject));
 const duplicateProjectEpic = createSocketCallEpic(ActionTypes.DUPLICATE, 'project-manager/duplicate', undefined, map(openCreatedProject));
 const renameProjectEpic = createSocketCallEpic(ActionTypes.RENAME, 'project-manager/rename');
 const deleteProjectEpic = createSocketCallEpic(ActionTypes.DELETE, 'project-manager/delete');
 
-export default combineEpics(notifierEpic, importV1ProjectEpic, createNewProjectEpic, duplicateProjectEpic, renameProjectEpic, deleteProjectEpic);
+export default combineEpics(notifierEpic, createNewProjectEpic, duplicateProjectEpic, renameProjectEpic, deleteProjectEpic);
 
 function openCreatedProject({ type, createdId: projectId }: { type: ProjectType; createdId: string; }) {
   switch (type) {

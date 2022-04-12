@@ -4,14 +4,13 @@ import { useSelector } from 'react-redux';
 import { useAction } from '../lib/use-actions';
 import { AppState } from '../../store/types';
 import { getCoreProjectsIds, getCoreProjectInfo } from '../../store/projects-list/selectors';
-import { importV1Project, createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
+import { createNewProject, duplicateProject, renameProject, deleteProject } from '../../store/projects-list/actions';
 import * as types from '../../store/projects-list/types';
 import { newCoreDesignerTab } from '../../store/tabs/actions';
 import { ProjectList, ProjectItem } from './project-list';
 
 const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className }) => {
   const ids = useSelector(getCoreProjectsIds);
-  const importV1 = useAction(importV1Project);
   const createNew = useAction(createNewProject);
   const duplicate = useAction(duplicateProject);
   const rename = useAction(renameProject);
@@ -24,7 +23,6 @@ const CoreProjectList: FunctionComponent<{ className?: string }> = ({ className 
       title="Designers Core"
       ids={ids}
       onCreateNew={(id) => createNew({ type: 'core', id })}
-      onImportV1={(content) => importV1({ type: 'core', content })}
       onDuplicate={(id, newId) => duplicate({ type: 'core', id, newId })}
       onRename={(id, newId) => rename({ type: 'core', id, newId })}
       onDelete={(id) => doDelete({ type: 'core', id })}
