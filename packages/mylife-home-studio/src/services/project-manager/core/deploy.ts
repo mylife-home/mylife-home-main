@@ -2,7 +2,7 @@ import { logger } from 'mylife-home-common';
 import { ChangeType, DeployChanges, PrepareDeployToFilesCoreProjectCallResult, PrepareDeployToOnlineCoreProjectCallResult } from '../../../../shared/project-manager';
 import { StoreItem, StoreItemType, ComponentConfig, BindingConfig } from '../../../../shared/core-model';
 import { Services } from '../..';
-import { BindingModel, ComponentModel, Model } from './model';
+import { BindingModel, ResolvedProjectView, ComponentView } from './model';
 import { validate, hasError } from './validation';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:deploy');
@@ -11,8 +11,8 @@ interface DeployToFilesServerData {
   guessedBindingsInstanceName: string;
 }
 
-export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCallResult {
-  const validation = validate(model, { onlineSeverity: 'warning', checkBindingApi: false });
+export function prepareToFiles(project: ResolvedProjectView): PrepareDeployToFilesCoreProjectCallResult {
+  const validation = validate(project, { onlineSeverity: 'warning', checkBindingApi: false });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
     return { validation, bindingsInstanceName: null, files: null, changes: null, serverData: null };
@@ -21,20 +21,21 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   const usedInstancesNamesSet = new Set<string>();
   const changes: DeployChanges = { bindings: [], components: [] };
 
-  for (const componentId of model.getComponentsIds()) {
-    const componentModel = model.getComponent(componentId);
-    if (componentModel.data.external) {
+  for (const componentId of project.getComponentsIds()) {
+    const componentView = project.getComponent(componentId);
+    if (componentView.external) {
       continue;
     }
-    const { instanceName } = componentModel.instance;
+
+    const { instanceName } = componentView.plugin.instance;
     changes.components.push({ type: 'add', componentId, instanceName });
     usedInstancesNamesSet.add(instanceName);
   }
 
   const usedInstancesNames = Array.from(usedInstancesNamesSet);
-  const bindingsInstanceName = findBindingInstance(model, usedInstancesNames);
+  const bindingsInstanceName = findBindingInstance(project, usedInstancesNames);
   
-  for (const bindingId of model.getBindingsIds()) {
+  for (const bindingId of project.getBindingsIds()) {
     changes.bindings.push({ instanceName: bindingsInstanceName.actual, type: 'add', bindingId });
   }
 
@@ -44,7 +45,7 @@ export function prepareToFiles(model: Model): PrepareDeployToFilesCoreProjectCal
   return { validation, bindingsInstanceName, files, changes, serverData };
 }
 
-function findBindingInstance(model: Model, usedInstancesNames: string[]) {
+function findBindingInstance(project: ResolvedProjectView, usedInstancesNames: string[]) {
   // If there are bindings and only one instance, then use instance as binder, else we need to ask to user for it.
   // Note: this is a different behavior than online deployment
   const bindingsInstanceName = {
@@ -52,7 +53,7 @@ function findBindingInstance(model: Model, usedInstancesNames: string[]) {
     needed: false
   };
 
-  if (!model.hasBindings()) {
+  if (!project.hasBindings()) {
     return bindingsInstanceName;
   }
 
@@ -69,7 +70,7 @@ function createFileName(instanceName: string) {
   return `${instanceName}-store.json`;
 }
 
-export async function applyToFiles(model: Model, bindingsInstanceName: string, serverData: unknown) {
+export async function applyToFiles(project: ResolvedProjectView, bindingsInstanceName: string, serverData: unknown) {
   const { guessedBindingsInstanceName } = serverData as DeployToFilesServerData;
   if (guessedBindingsInstanceName) {
     bindingsInstanceName = guessedBindingsInstanceName;
@@ -77,32 +78,38 @@ export async function applyToFiles(model: Model, bindingsInstanceName: string, s
 
   const storeItemsPerInstance = new Map<string, StoreItem[]>();
 
-  for (const bindingId of model.getBindingsIds()) {
+  for (const bindingId of project.getBindingsIds()) {
     if (!bindingsInstanceName) {
       throw new Error('Missing bindingsInstanceName');
     }
 
-    const bindingModel = model.getBinding(bindingId);
-    const bindingConfig: BindingConfig = bindingModel.data; // CoreBindingData is mutable version of BindingConfig 
+    const bindingView = project.getBinding(bindingId);
+    const bindingConfig: BindingConfig = {
+      sourceComponent: bindingView.sourceComponent.id,
+      sourceState: bindingView.sourceState,
+      targetComponent: bindingView.targetComponent.id,
+      targetAction: bindingView.targetAction
+    };
+
     addStoreItem(bindingsInstanceName, StoreItemType.BINDING, bindingConfig);
   }
 
-  for (const componentId of model.getComponentsIds()) {
-    const componentModel = model.getComponent(componentId);
-    if (componentModel.data.external) {
+  for (const componentId of project.getComponentsIds()) {
+    const componentView = project.getComponent(componentId);
+    if (componentView.external) {
       continue;
     }
 
-    const pluginData = componentModel.plugin.data;
+    const pluginData = componentView.plugin.data;
     const pluginId = `${pluginData.module}.${pluginData.name}`;
 
     const componentConfig: ComponentConfig = {
-      id: componentModel.id,
+      id: componentView.id,
       plugin: pluginId,
-      config: componentModel.data.config
+      config: componentView.config
     };
 
-    addStoreItem(componentModel.instance.instanceName, StoreItemType.COMPONENT, componentConfig);
+    addStoreItem(componentView.plugin.instance.instanceName, StoreItemType.COMPONENT, componentConfig);
   }
 
   function addStoreItem(instanceName: string, type: StoreItemType, config: ComponentConfig | BindingConfig) {
@@ -146,8 +153,8 @@ interface OnlineTask {
   objectId: string;
 }
 
-export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
-  const validation = validate(model, { onlineSeverity: 'error', checkBindingApi: true });
+export async function prepareToOnline(project: ResolvedProjectView): Promise<PrepareDeployToOnlineCoreProjectCallResult> {
+  const validation = validate(project, { onlineSeverity: 'error', checkBindingApi: true });
   if (hasError(validation)) {
     // Validation errors, cannot go further.
     return { validation, changes: null, serverData: null };
@@ -160,7 +167,7 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   const changes: DeployChanges = { bindings: [], components: [] };
   const onlineService = Services.instance.online;
 
-  if (model.hasBindings()) {
+  if (project.hasBindings()) {
     // Note: there is one instance, this is checked at validation stage
     const [instanceName] = Services.instance.online.getInstancesByCapability('bindings-api');
 
@@ -170,13 +177,13 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
     }
 
     for (const bindingId of onlineBindings.keys()) {
-      if (!model.hasBinding(bindingId)) {
+      if (!project.hasBinding(bindingId)) {
         changes.bindings.push({ instanceName, type: 'delete', bindingId });
         bindingsDelete.push({ instanceName, changeType: 'delete', objectType: 'binding', objectId: bindingId });
       }
     }
 
-    for (const bindingId of model.getBindingsIds()) {
+    for (const bindingId of project.getBindingsIds()) {
       if(!onlineBindings.has(bindingId)) {
         changes.bindings.push({ instanceName, type: 'add', bindingId });
         bindingsAdd.push({ instanceName, changeType: 'add', objectType: 'binding', objectId: bindingId });
@@ -185,8 +192,8 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   }
 
   // une instance est toujours déployée entièrement avec un seul projet, les composants externes sont ignorés
-  for (const instanceName of model.getInstancesNames()) {
-    const instance = model.getInstance(instanceName);
+  for (const instanceName of project.getInstancesNames()) {
+    const instance = project.getInstance(instanceName);
     if (!instance.hasNonExternalComponents()) {
       continue;
     }
@@ -203,12 +210,8 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
       }
     }
 
-    for (const componentModel of instance.components.values()) {
-      if (componentModel.data.external) {
-        continue;
-      }
-
-      const componentId = componentModel.id;
+    for (const componentView of instance.getAllNonExternalComponents()) {
+      const componentId = componentView.id;
       const onlineComponent = onlineComponents.get(componentId);
       if (!onlineComponent) {
         // create only
@@ -217,7 +220,7 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
         continue;
       }
 
-      if (areComponentsEqual(componentModel, onlineComponent)) {
+      if (areComponentsEqual(componentView, onlineComponent)) {
         continue;
       }
 
@@ -233,19 +236,19 @@ export async function prepareToOnline(model: Model): Promise<PrepareDeployToOnli
   return { validation, changes, serverData };
 }
 
-function areComponentsEqual(componentModel: ComponentModel, componentOnline: ComponentConfig) {
-  const modelPluginData = componentModel.plugin.data;
+function areComponentsEqual(componentView: ComponentView, componentOnline: ComponentConfig) {
+  const modelPluginData = componentView.plugin.data;
   const modelPluginId = `${modelPluginData.module}.${modelPluginData.name}`;
-  const baseEqual = componentModel.id === componentOnline.id
+  const baseEqual = componentView.id === componentOnline.id
     && modelPluginId === componentOnline.plugin
-    && !!componentModel.data.config === !!componentOnline.config;
+    && !!componentView.config === !!componentOnline.config;
 
   if (!baseEqual) {
     return false;
   }
 
   // compare config
-  const configModel = componentModel.data.config;
+  const configModel = componentView.config;
   const configOnline = componentOnline.config;
 
   const modelKeys = Object.keys(configModel);
@@ -269,7 +272,7 @@ function areComponentsEqual(componentModel: ComponentModel, componentOnline: Com
   return true;
 }
 
-export async function applyToOnline(model: Model, serverData: unknown) {
+export async function applyToOnline(project: ResolvedProjectView, serverData: unknown) {
   const { tasks } = serverData as DeployToOnlineServerData;
   
   log.info('Deploying to online');
@@ -278,7 +281,7 @@ export async function applyToOnline(model: Model, serverData: unknown) {
 
   for (const task of tasks) {
     instancesNames.add(task.instanceName);
-    await executeOnlineTask(model, task);
+    await executeOnlineTask(project, task);
   }
 
   const onlineService = Services.instance.online;
@@ -290,7 +293,7 @@ export async function applyToOnline(model: Model, serverData: unknown) {
   log.info('Deployed to online');
 }
 
-async function executeOnlineTask(model: Model, task: OnlineTask) {
+async function executeOnlineTask(project: ResolvedProjectView, task: OnlineTask) {
   const onlineService = Services.instance.online;
 
   switch (task.objectType) {
@@ -310,7 +313,7 @@ async function executeOnlineTask(model: Model, task: OnlineTask) {
     case 'component':
       switch(task.changeType) {
         case 'add':
-          await onlineService.coreAddComponent(task.instanceName, createComponentConfig(model, task.objectId));
+          await onlineService.coreAddComponent(task.instanceName, createComponentConfig(project, task.objectId));
           log.info(`Component '${task.objectId}' added on instance '${task.instanceName}'`);
           break;
         case 'delete':
@@ -324,13 +327,13 @@ async function executeOnlineTask(model: Model, task: OnlineTask) {
   log.info(`Executed task '${task.changeType}' '${task.objectType}' '${task.objectId}' on instance '${task?.instanceName}'`);
 }
 
-function createComponentConfig(model: Model, id: string): ComponentConfig {
-  const componentModel = model.getComponent(id);
-  const pluginData = componentModel.plugin.data;
+function createComponentConfig(project: ResolvedProjectView, id: string): ComponentConfig {
+  const componentView = project.getComponent(id);
+  const pluginData = componentView.plugin.data;
   return {
     id,
     plugin: `${pluginData.module}.${pluginData.name}`,
-    config: componentModel.data.config
+    config: componentView.config
   };
 }
 

@@ -234,12 +234,12 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'rename-ui-window': {
       const { id: windowId, newId: newResourceId } = update as RenameUiWindowNotification;
-      const id = `${openedProject.id}:${windowId}`;
+      const oldId = `${openedProject.id}:${windowId}`;
       const newId = `${openedProject.id}:${newResourceId}`;
 
-      const window = state.windows.byId[id];
-      tableRemove(state.windows, id);
-      arrayRemove(openedProject.windows, id);
+      const window = state.windows.byId[oldId];
+      tableRemove(state.windows, oldId);
+      arrayRemove(openedProject.windows, oldId);
 
       window.id = newId;
       window.windowId = newResourceId;
@@ -247,8 +247,18 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       tableSet(state.windows, window, true);
       arraySet(openedProject.windows, window.id, true);
 
-      if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
+      if (openedProject.selection.type === 'window' && openedProject.selection.id === oldId) {
         openedProject.selection.id = newId;
+      }
+
+      for (const [index, oldId] of window.controls.entries()) {
+        const control = state.controls.byId[oldId];
+
+        tableRemove(state.controls, oldId);
+        const newId = control.id = `${window.id}:${control.controlId}`;
+        tableSet(state.controls, control, true);
+
+        window.controls[index] = newId;
       }
 
       break;

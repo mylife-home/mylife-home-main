@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 export interface DeleteButtonProps {
   icon?: boolean;
   text?: string;
+  disabled?: boolean;
   tooltip?: string;
   confirmText?: string;
   onConfirmed: () => void;
@@ -42,6 +43,7 @@ export interface DeleteButtonProps {
 const DeleteButton: FunctionComponent<DeleteButtonProps> = ({
   icon = false,
   text = null,
+  disabled = false,
   tooltip = null,
   confirmText = 'Etes-vous sûr ?',
   onConfirmed,
@@ -64,11 +66,11 @@ const DeleteButton: FunctionComponent<DeleteButtonProps> = ({
   const isTooltipOpen = tooltipOpen && !anchorEl; // do not show tooltip when popup is shown
 
   let button = text ? (
-    <Button variant="contained" className={clsx(classes.button, className)} onClick={handleButtonClick} startIcon={icon ? <DeleteIcon /> : null}>
+    <Button variant="contained" disabled={disabled} className={clsx(classes.button, className)} onClick={handleButtonClick} startIcon={icon ? <DeleteIcon /> : null}>
       {text}
     </Button>
   ) : (
-    <IconButton className={clsx(classes.iconButton, className)} onClick={handleButtonClick}>
+    <IconButton disabled={disabled} className={clsx(classes.iconButton, className)} onClick={handleButtonClick}>
       <DeleteIcon />
     </IconButton>
   );
@@ -84,7 +86,7 @@ const DeleteButton: FunctionComponent<DeleteButtonProps> = ({
   return (
     <>
       {button}
-      <Popper open={!!anchorEl} anchorEl={anchorEl} disablePortal={disablePortal}>
+      <Popper open={!!anchorEl} anchorEl={anchorEl} disablePortal={disablePortal} style={{ zIndex: 10000 }}>
         <ClickAwayListener onClickAway={handleClose}>
           <Paper className={classes.paper}>
             <Typography>{confirmText}</Typography>

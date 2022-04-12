@@ -45,6 +45,7 @@ const CoreProjectItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const formattedInfo = useMemo(() => [
     `${info.instancesCount} instances`,
     `${info.pluginsCount} plugins`,
+    `${info.templatesCount} templates`,
     `${getComponentsCount(info)} componsants`,
     `${info.bindingsCount} bindings`,
   ], [info]);

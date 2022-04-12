@@ -15,7 +15,7 @@ export const DialogText: FunctionComponent<{ value?: string; }> = ({ value }) =>
     <>
       {lines.map((line, index) => (
         <Typography gutterBottom key={`${index}-${line}`}>
-          {line}
+          {line.replace(/ /g, '\u00a0')}
         </Typography>
       ))}
     </>

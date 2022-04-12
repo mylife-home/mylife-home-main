@@ -1,4 +1,6 @@
+export type ById<T> = { [id: string]: T; };
+
 export interface Table<T> {
-  byId: { [id: string]: T; };
+  byId: ById<T>;
   allIds: string[];
 }

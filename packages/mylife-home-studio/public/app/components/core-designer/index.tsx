@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
@@ -9,18 +9,24 @@ import { ComponentMoveProvider } from './component-move';
 import { ViewInfoProvider } from './drawing/view-info';
 import { CanvasThemeProvider } from './drawing/theme';
 import SplitPane from '../lib/split-pane';
+import { useTabSelector } from '../lib/use-tab-selector';
+import TemplateSelector from './template-selector';
 import ZoomSlider from './zoom-slider';
 import MiniView from './mini-view';
 import MainView from './main-view';
 import SelectionPanel from './selection-panel';
 import Toolbox from './toolbox';
+import TemplateExports from './template-exports';
 import Actions from './actions';
+import { getActiveTemplateId } from '../../store/core-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   sideBar: {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
+  },
+  templateSelector: {
   },
   miniViewContainer: {
     marginTop: theme.spacing(3),
@@ -45,12 +51,26 @@ const useStyles = makeStyles((theme) => ({
 
 const enum SideBarTabValues {
   SELECTION = 'selection',
-  TOOLBOX = 'toolbox'
+  TOOLBOX = 'toolbox',
+  EXPORTS = 'exports',
 };
 
 const CoreDesigner: FunctionComponent = () => {
   const classes = useStyles();
-  const [sideBarTab, setSideBarTab] = useState('selection');
+  const [sideBarTab, setSideBarTab] = useState(SideBarTabValues.SELECTION);
+  const activeViewId = useTabSelector(getActiveTemplateId);
+  const showExports = !!activeViewId;
+
+  // On view change reset selected tab
+  useEffect(() => {
+    setSideBarTab(SideBarTabValues.SELECTION);
+  }, [activeViewId]);
+
+  // Note: the useEffect will be applied AFTERWARD, so the tabs will be in an inconsistent state when we go from template/exports to main view
+  let activeTab = sideBarTab;
+  if (activeTab === SideBarTabValues.EXPORTS && !showExports) {
+    activeTab = SideBarTabValues.SELECTION;
+  }
 
   return (
     <CanvasThemeProvider>
@@ -60,6 +80,10 @@ const CoreDesigner: FunctionComponent = () => {
 
             <div className={classes.sideBar}>
 
+              <TemplateSelector className={classes.templateSelector} />
+
+              <Divider />
+
               <div className={classes.miniViewContainer}>
                 <MiniView />
                 <ZoomSlider />
@@ -67,9 +91,12 @@ const CoreDesigner: FunctionComponent = () => {
 
               <Divider />
 
-              <Tabs value={sideBarTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
+              <Tabs value={activeTab} onChange={(e, value) => setSideBarTab(value)} textColor='primary' indicatorColor='primary' variant='fullWidth'>
                 <Tab classes={{root: classes.tab }} label='Sélection' value={SideBarTabValues.SELECTION} />
                 <Tab classes={{root: classes.tab }} label='Boîte à outils' value={SideBarTabValues.TOOLBOX} />
+                {showExports && (
+                  <Tab classes={{root: classes.tab }} label='Exports' value={SideBarTabValues.EXPORTS} />
+                )}
               </Tabs>
 
               <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.SELECTION}>
@@ -79,6 +106,12 @@ const CoreDesigner: FunctionComponent = () => {
               <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.TOOLBOX}>
                 <Toolbox className={classes.tabContent} />
               </div>
+              
+              {showExports && (
+                <div className={classes.tabPanel} role='tabpanel' hidden={sideBarTab !== SideBarTabValues.EXPORTS}>
+                  <TemplateExports className={classes.tabContent} />
+                </div>
+              )}
 
               <Divider />
 

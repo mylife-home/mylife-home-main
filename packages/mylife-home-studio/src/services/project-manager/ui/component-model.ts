@@ -113,35 +113,35 @@ export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComp
     plugins: {},
   };
 
-  for (const id of project.getComponentsIds()) {
-    const componentModel = project.getComponentModel(id);
-    const pluginModel = componentModel.plugin;
+  for (const id of project.view.getComponentsIds()) {
+    const componentView = project.view.getComponent(id);
+    const pluginView = componentView.plugin;
 
-    if (pluginModel.data.usage !== PluginUsage.UI) {
+    if (pluginView.data.usage !== PluginUsage.UI) {
       continue;
     }
 
-    const component = { id: componentModel.id, plugin: pluginModel.id };
+    const component = { id: componentView.id, plugin: pluginView.id };
     result.components.push(component);
 
-    if (!result.plugins[pluginModel.id]) {
+    if (!result.plugins[pluginView.id]) {
       const plugin: UiPluginData = {
-        instanceName: pluginModel.instance.instanceName,
-        module: pluginModel.data.module,
-        name: pluginModel.data.name,
-        version: pluginModel.data.version,
-        description: pluginModel.data.description,
+        instanceName: pluginView.instance.instanceName,
+        module: pluginView.data.module,
+        name: pluginView.data.name,
+        version: pluginView.data.version,
+        description: pluginView.data.description,
         members: {}
       };
 
-      for (const [id, member] of Object.entries(pluginModel.data.members)) {
+      for (const [id, member] of Object.entries(pluginView.data.members)) {
         plugin.members[id] = { ...member };
       }
 
-      result.plugins[pluginModel.id] = plugin;
+      result.plugins[pluginView.id] = plugin;
     }
   }
-console.log(result);
+
   return result;
 }
 

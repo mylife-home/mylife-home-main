@@ -1,5 +1,5 @@
 import { PluginUsage } from '../../../../shared/component-model';
-import { CoreProject, CoreProjectInfo } from '../../../../shared/project-manager';
+import { CoreComponentDefinition, CoreProject, CoreProjectInfo } from '../../../../shared/project-manager';
 import { Store } from '../store';
 import { convertCoreProject, coreV1 } from './converter';
 import { CoreOpenedProject } from './opened-project';
@@ -11,6 +11,7 @@ export class CoreProjects extends Store<CoreProject> {
       components: {},
       plugins: {},
       bindings: {},
+      templates: {},
     };
 
     this.create(name, project);
@@ -25,12 +26,30 @@ export class CoreProjects extends Store<CoreProject> {
 
   getProjectInfo(name: string): CoreProjectInfo {
     const project = this.getProject(name);
-    return {
+
+    const info: CoreProjectInfo = {
       instancesCount: new Set(Object.values(project.plugins).map(plugin => plugin.instanceName)).size,
-      componentsCounts: getComponentsCounts(project),
       pluginsCount: Object.keys(project.plugins).length,
-      bindingsCount: Object.keys(project.bindings).length,
+      templatesCount: Object.keys(project.templates).length,
+      componentsCounts: {
+        [PluginUsage.SENSOR]: 0,
+        [PluginUsage.ACTUATOR]: 0,
+        [PluginUsage.LOGIC]: 0,
+        [PluginUsage.UI]: 0,
+      },
+      bindingsCount: 0
     };
+
+    for (const { components, bindings } of [project, ...Object.values(project.templates)]) {
+      info.bindingsCount += Object.keys(bindings).length;
+
+      for (const component of Object.values(components)) {
+        const usage = getComponentUsage(project, component.definition);
+        ++info.componentsCounts[usage];
+      }
+    }
+
+    return info;
   }
 
   openProject(name: string) {
@@ -38,25 +57,12 @@ export class CoreProjects extends Store<CoreProject> {
   }
 }
 
-function getComponentsCounts(project: CoreProject) {
-  const counts: { [usage in PluginUsage]: number } = {
-    [PluginUsage.SENSOR]: 0,
-    [PluginUsage.ACTUATOR]: 0,
-    [PluginUsage.LOGIC]: 0,
-    [PluginUsage.UI]: 0,
-  };
-
-  for (const id of  Object.keys(project.components)) {
-    const usage = getComponentUsage(project, id);
-    ++counts[usage];
+function getComponentUsage(project: CoreProject, definition: CoreComponentDefinition) {
+  switch (definition.type) {
+    case 'plugin':
+      return project.plugins[definition.id].usage;
+    case 'template':
+      return PluginUsage.LOGIC;
   }
-
-  return counts;
-}
-
-function getComponentUsage(project: CoreProject, id: string) {
-  const component = project.components[id];
-  const plugin = project.plugins[component.plugin];
-  return plugin.usage;
 }
 

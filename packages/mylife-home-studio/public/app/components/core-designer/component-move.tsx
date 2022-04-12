@@ -8,7 +8,7 @@ import { Rectangle } from './drawing/types';
 import { useTabSelector } from '../lib/use-tab-selector';
 
 import { AppState } from '../../store/types';
-import { getComponent, getPlugin, getComponentsMap, getPluginsMap, getSelectedComponents } from '../../store/core-designer/selectors';
+import { getComponent, getComponentsMap, getSelectedComponents, makeGetComponentDefinitionProperties, getComponentDefinitionPropertiesGetter } from '../../store/core-designer/selectors';
 import { moveComponents } from '../../store/core-designer/actions';
 import * as types from '../../store/core-designer/types';
 
@@ -53,8 +53,9 @@ export const ComponentMoveProvider: FunctionComponent = ({ children }) => {
 };
 
 export function useComponentData(componentId: string) {
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, storeComponent.plugin), [storeComponent.plugin]));
+  const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, storeComponent.definition), [storeComponent.definition]));
 
   const context = useContext(ComponentMoveContext);
 
@@ -72,7 +73,7 @@ export function useComponentData(componentId: string) {
   return {
     position,
     component,
-    plugin, 
+    definition, 
   };
 }
 
@@ -80,9 +81,8 @@ export function useMovableComponent(componentId: string) {
   const theme = useCanvasTheme();
   const dispatch = useDispatch();
   const storeComponent = useSafeSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, storeComponent.plugin), [storeComponent.plugin]));
   const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
+  const getComponentDefinitionProperties = useSelector(getComponentDefinitionPropertiesGetter);
   
   const context = useContext(ComponentMoveContext);
 
@@ -97,8 +97,8 @@ export function useMovableComponent(componentId: string) {
 
       const rects = Object.keys(context.componentsIds).map(id => {
         const component = componentsMap[id];
-        const plugin = pluginsMap[component.plugin];
-        const rect = computeComponentRect(theme, component, plugin);
+        const definition = getComponentDefinitionProperties(component.definition);
+        const rect = computeComponentRect(theme, component, definition);
 
         if (id === componentId) {
           currentComponentRect = rect;
@@ -118,7 +118,7 @@ export function useMovableComponent(componentId: string) {
       const delta = subPositions(componentPosition, storeComponent.position);
       context.move(delta);
     },
-    [dispatch, componentId, context, storeComponent?.position, plugin, componentsMap, pluginsMap]
+    [dispatch, componentId, context, storeComponent?.position, componentsMap, getComponentDefinitionProperties]
   );
 
   const moveEnd = useCallback(

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useMemo, useEffect, createContext, useContext } from 'react';
+import React, { FunctionComponent, useCallback, useState, useMemo, createContext, useContext } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -252,6 +252,7 @@ export function useShowChangesDialog() {
   return useCallback(
     (changes: coreImportData.ObjectChange[]) =>
       new Promise<ChangesDialogResult>((resolve) => {
+        console.log('CHANGES', changes);
         setChanges(changes);
         setOnResult(() => resolve); // else useState think resolve is a state updater
 
@@ -300,8 +301,12 @@ const TreeNode: FunctionComponent<{ indent: number; node: string }> = ({ indent,
     switch (change.objectType) {
       case 'plugin':
         return (<PluginChangeItem indent={indent} node={nodeKey} />);
+      case 'template':
+        return (<TemplateChangeItem indent={indent} node={nodeKey} />);
       case 'component':
         return (<ComponentChangeItem indent={indent} node={nodeKey} />);
+      default:
+        throw new Error(`Unknown object type: '${change.objectType}'`);
     }
   } else {
     const itemStats = stats[nodeKey];
@@ -427,13 +432,7 @@ const PluginChangeItem: FunctionComponent<{ indent: number; node: string; }> = (
         return <ChangeDetailLine key={configName}>{`${changeType} : ${configName}`}</ChangeDetailLine>;
       })}
 
-      {(change.impacts?.components || []).map((componentId) => {
-        <ChangeDetailLine key={componentId} highlight>{`Impact : Suppression du composant ${componentId}`}</ChangeDetailLine>;
-      })}
-
-      {(change.impacts?.bindings || []).map((bindingId) => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
-      })}
+      <ChangeImpacts node={nodeKey} />
     </ChangeItem>
   );
 };
@@ -457,6 +456,38 @@ function formatVersion({ before, after }: { before: string; after: string }) {
 
   return null;
 }
+
+const TemplateChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model, selection, disabledSet, setSelected } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const change = model.changes[node.change] as coreImportData.TemplateChange;
+  const selected = selection[node.change];
+  const disabled = disabledSet[node.change];
+  const onSetSelected = (value: boolean) => setSelected(nodeKey, value);
+
+  let exportTitle: string;
+  switch (change.exportType) {
+    case 'config':
+      exportTitle = `Suppression d'export de configuration`;
+      break;
+
+    case 'member':
+      exportTitle = `Suppression d'export de membre`;
+      break;
+
+    default:
+      throw new Error(`Unsupported export type: '${change.exportType}'`);
+  }
+
+  return (
+    <ChangeItem indent={indent} title={change.id} disabled={disabled} selected={selected} onSetSelected={onSetSelected}>
+      <ChangeDetailLine>{`${exportTitle} : ${change.exportId}`}</ChangeDetailLine>
+
+      <ChangeImpacts node={nodeKey} />
+    </ChangeItem>
+  );
+};
 
 const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> = ({ indent, node: nodeKey }) => {
   const treeContext = useContext(TreeContext);
@@ -492,13 +523,75 @@ const ComponentChangeItem: FunctionComponent<{ indent: number; node: string; }> 
       })}
 
       {change.external != null && <ChangeDetailLine>{`Changement flag 'externe' : ${change.external}`}</ChangeDetailLine>}
-
       {change.pluginId != null && <ChangeDetailLine>{`Changement de plugin : ${change.pluginId}`}</ChangeDetailLine>}
 
-      {(change.impacts?.bindings || []).map((bindingId) => {
-        <ChangeDetailLine key={bindingId} highlight>{`Impact : Suppression du binding ${bindingId}`}</ChangeDetailLine>;
-      })}
+      <ChangeImpacts node={nodeKey} />
     </ChangeItem>
+  );
+};
+
+const ChangeImpacts: FunctionComponent<{ node: string; }> = ({ node: nodeKey }) => {
+  const treeContext = useContext(TreeContext);
+  const { model } = treeContext;
+  const node = model.nodes[nodeKey] as ChangeNode;
+  const { impacts } = model.changes[node.change];
+
+  return (
+    <>
+      {impacts.map((impact, index) => {
+        const title = impact.templateId ? `Impact sur le template '${impact.templateId}'` : 'Impact';
+        switch (impact.type) {
+          case 'binding-delete': {
+            const { bindingId } = impact as coreImportData.BindingDeleteImpact;
+            // Note: should use proper way but componentIds are wrong, so whole id is wrong
+            const [sourceComponentId, sourceState, targetComponentId, targetState] = bindingId.split(':');
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression du binding ${sourceComponentId}.${sourceState} -> ${targetComponentId}.${targetState}`}</ChangeDetailLine>
+            );
+          }
+
+          case 'component-delete': {
+            const { componentId } = impact as coreImportData.ComponentDeleteImpact;
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression du composant ${componentId}`}</ChangeDetailLine>
+            );
+          }
+
+          case 'component-config': {
+            const { componentId, config } = impact as coreImportData.ComponentConfigImpact;
+            const parts = Object.entries(config).map(([id, type]) => {
+              switch (type) {
+                case 'update':
+                  return `'${id}' -> RAZ`;
+                case 'delete':
+                  return `'${id}' -> suppression`;
+                default: 
+                  throw new Error(`Unhandled change type: '${type}'`);
+              }               
+            });
+
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Modification de configuration sur le composant '${componentId}' : ${parts.join(', ')}`}</ChangeDetailLine>
+            );
+          }
+
+          case 'template-export': {
+            const { configExportDeletes, memberExportDeletes } = impact as coreImportData.TemplateExportImpact;
+            const parts = [
+              ...configExportDeletes.map(item => `configuration '${item}'`),
+              ...memberExportDeletes.map(item => `membre '${item}'`),
+            ];
+
+            return (
+              <ChangeDetailLine key={index} highlight>{`${title} : Suppression des exports : ${parts.join(', ')}`}</ChangeDetailLine>
+            );
+          }
+
+          default: 
+            throw new Error(`Unhandled impact type: '${impact.type}'`);
+        }
+      })}
+    </>
   );
 };
 
@@ -618,7 +711,8 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
   addRootNode('objectTypes');
 
   for (const change of changes) {
-    const { key, instanceName, objectType, changeType } = change;
+    const { key, objectType, changeType } = change;
+    const instanceName = getChangeInstanceName(change);
     model.changes[key] = change;
 
     addNodeChain('instances-objectTypes', instanceNode(instanceName), objectTypeNode(objectType), changeTypeNode(changeType), changeNode(key));
@@ -727,7 +821,8 @@ function buildDataModel(changes: coreImportData.ObjectChange[]) {
   function objectTypeNodeComparer(key1: string, key2: string) {
     const objectTypeOrdering = {
       plugin: 1,
-      component: 2
+      template: 2,
+      component: 3,
     };
   
     const node1 = model.nodes[key1] as ObjectTypeNode;
@@ -839,6 +934,22 @@ function formatSelection(selection: SelectionSet) {
   }
 
   return values;
+}
+
+function getChangeInstanceName(change: coreImportData.ObjectChange) {
+  switch (change.objectType) {
+    case 'component':
+      return (change as coreImportData.ComponentChange).instanceName;
+
+    case 'plugin':
+      return (change as coreImportData.PluginChange).instanceName;
+    
+    case 'template':
+      return `(Pas d'instance)`;
+
+    default:
+      throw new Error(`Unsupported object type: '${change.objectType}'`);
+  }
 }
 
 function formatStats(stats: StatsItem) {

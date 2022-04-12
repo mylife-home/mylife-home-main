@@ -10,7 +10,6 @@ import { Title, SectionDivider, SectionTitle, NameValue } from './layout';
 
 const State: FunctionComponent<{ id: string }> = ({ id }) => {
   const state = useSelector((state: AppState) => getState(state, id));
-  console.log(state);
   const component = useSelector((appState: AppState) => getComponent(appState, state.component));
   const plugin = useSelector((appState: AppState) => getPlugin(appState, component.plugin));
   const member = plugin.members[state.name];

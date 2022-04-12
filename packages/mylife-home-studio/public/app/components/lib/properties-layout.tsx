@@ -42,15 +42,17 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'properties-layout' });
 
-export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = ({ title, collapse, children }) => {
+export const Group: FunctionComponent<{ title: ReactNode; collapse?: boolean; noTitleTypography?: boolean }> = ({ title, collapse, noTitleTypography = false, children }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
+
+  const titleNode = noTitleTypography ? title : (<Typography variant="h6">{title}</Typography>);
 
   if(collapse) {
     return (
       <div className={classes.group}>
         <div className={classes.collapsibleTitle}>
-          <Typography variant="h6">{title}</Typography>
+          {titleNode}
           <IconButton onClick={() => setOpen(value => !value)}>
             {open ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
@@ -64,7 +66,7 @@ export const Group: FunctionComponent<{ title: string; collapse?: boolean; }> = 
   } else {
     return (
       <div className={classes.group}>
-        <Typography variant="h6">{title}</Typography>
+        {titleNode}
         {children}
       </div>
     );

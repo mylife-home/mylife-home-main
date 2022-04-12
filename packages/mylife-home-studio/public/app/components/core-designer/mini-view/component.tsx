@@ -17,9 +17,9 @@ const Component: FunctionComponent<ComponentProps> = ({ componentId }) => {
   const theme = useCanvasTheme();
   const tabId = useTabPanelId();
 
-  const { component, plugin } = useComponentData(componentId);
+  const { component, definition } = useComponentData(componentId);
   const selected = useSelector(useCallback((state: AppState) => isComponentSelected(state, tabId, componentId), [tabId, componentId]));
-  const rect = computeComponentRect(theme, component, plugin);
+  const rect = computeComponentRect(theme, component, definition);
   const componentColor = component.external ? theme.borderColorExternal : theme.borderColor;
 
   return (

@@ -124,21 +124,13 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
+  - remove v1 imports
   - templates
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
-  - templates
-    - multiple components with template id (with config)
-    - bindings between components in the template
-    - config settings
-    - exports (explicit to avoid pollution):
-      - state/action (with possible renaming)
-      - config (with possible renaming)
-    - then, on use, a template is seen as a plugin, which can be instantiated into a component
-    - notes:
-      - take care on plugin refresh
-      - a template can use another template, take care of circular dependencies
+  - remove v1 imports
+  - pouvoir selectionner un ensemble de composants (avec bindings entre eux) et les "déplacer" dans un template
 - git
   - v1:
     - seules operations :
@@ -168,6 +160,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
 - nouveau mode + simple : update le state a l'avance (eg: move components) de toutes facons le server va ecraser les modifs bientot, ou faire une erreur
 - forbid id with ':'
+- create action payload types like core-designer everywhere
 
 ## ui
 

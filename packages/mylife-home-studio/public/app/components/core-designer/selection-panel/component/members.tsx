@@ -14,16 +14,15 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 import { useTabSelector } from '../../../lib/use-tab-selector';
-import { useTabPanelId } from '../../../lib/tab-panel';
 import { StateIcon, ActionIcon } from '../../../lib/icons';
-import { useSelectBinding } from '../../selection';
 import { Group, Item } from '../../../lib/properties-layout';
+import { useSelectBinding } from '../../selection';
+import { createBindingData } from '../../binding-tools';
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
 import { setBinding } from '../../../../store/core-designer/actions';
-import { getBinding, getNewBindingHalfList, getSelectedComponent, getComponentsMap } from '../../../../store/core-designer/selectors';
+import { getBinding, getNewBindingHalfList, BindingHalf, getSelectedComponent, getComponentsMap } from '../../../../store/core-designer/selectors';
 import { useComponentData } from './common';
-import { BindingHalf, createBindingData } from '../../binding-tools';
 
 const useStyles = makeStyles((theme) => ({
   newButton: {
@@ -32,15 +31,15 @@ const useStyles = makeStyles((theme) => ({
 }), { name: 'properties-component-members' });
 
 const Members: FunctionComponent = () => {
-  const { plugin } = useComponentData();
+  const { definition } = useComponentData();
 
   return (
     <Group title="Membres" collapse>
-      {plugin.stateIds.map(id => 
+      {definition.stateIds.map(id => 
         <Member key={id} name={id} />
       )}
 
-      {plugin.actionIds.map(id => 
+      {definition.actionIds.map(id => 
         <Member key={id} name={id} />
       )}
     </Group>
@@ -51,8 +50,8 @@ export default Members;
 
 const Member: FunctionComponent<{ name: string }> = ({ name }) => {
   const classes = useStyles();
-  const { component, plugin } = useComponentData();
-  const member = plugin.members[name];
+  const { component, definition } = useComponentData();
+  const member = definition.members[name];
   const bindings = component.bindings[name];
   
   return (
@@ -105,7 +104,7 @@ const MemberTitle: FunctionComponent<{ memberType: types.MemberType; name: strin
 }
 
 function getMemberIcon(memberType: types.MemberType) {
-  switch(memberType) {
+  switch (memberType) {
     case types.MemberType.STATE:
       return StateIcon;
     case types.MemberType.ACTION:
@@ -246,7 +245,7 @@ const NewBindingSelector: FunctionComponent<{ className?: string; list: BindingH
         setInputValue(newInputValue);
       }}
       options={list}
-      getOptionLabel={(option: BindingHalf) => `${option.componentId}.${option.memberName}`}
+      getOptionLabel={(option: BindingHalf) => `${option.componentName}.${option.memberName}`}
       getOptionSelected={getOptionSelected}
       renderInput={(params) => (
         <TextField
@@ -276,15 +275,14 @@ function getOptionSelected(option: BindingHalf, value: BindingHalf) {
 }
 
 function useNewBinding(memberName: string) {
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
-  const { component, plugin } = useComponentData();
-  const member = plugin.members[memberName];
+  const { component, definition } = useComponentData();
+  const member = definition.members[memberName];
 
   return useCallback((newValue: BindingHalf) => {
     const binding = createBindingData(component.id, memberName, member.memberType, newValue);
-    dispatch(setBinding({ tabId, binding }));
-  }, [dispatch, tabId, component.id, memberName]);
+    dispatch(setBinding({ binding }));
+  }, [dispatch, component.id, memberName]);
 }
 
 const useSeparatorStyles = makeStyles((theme) => ({

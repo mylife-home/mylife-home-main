@@ -21,10 +21,10 @@ import { useFireAsync } from '../../lib/use-error-handling';
 import { Deferred } from '../../lib/deferred';
 import { useCreatable } from '../component-creation-dnd';
 import { AppState } from '../../../store/types';
-import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap } from '../../../store/core-designer/selectors';
-import { Plugin, CoreToolboxDisplay, Position } from '../../../store/core-designer/types';
+import { Plugin, CoreToolboxDisplay, Position, ComponentDefinition } from '../../../store/core-designer/types';
+import { getInstanceIds, getInstance, getPlugin, getComponentIds, getComponentsMap, getActiveTemplateId, getInstanceStats, getPluginStats, getTemplate, getTemplateStats, getUsableTemplates } from '../../../store/core-designer/selectors';
 import { setComponent } from '../../../store/core-designer/actions';
-import { InstanceMenuButton, PluginMenuButton } from './menus';
+import { InstanceMenuButton, PluginMenuButton, TemplateMenuButton } from './menus';
 import { useSelectComponent } from '../selection';
 
 const useStyles = makeStyles((theme) => ({
@@ -56,6 +56,8 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <List className={clsx(className, classes.list)}>
+      <Templates />
+
       {instances.map((id) => (
         <Instance key={id} id={id} display="show" />
       ))}
@@ -92,20 +94,75 @@ const Hidden: FunctionComponent = ({ children }) => {
   );
 };
 
+const Templates: FunctionComponent = () => {
+  const [open, setOpen] = useState(true);
+  const ids = useTabSelector(getUsableTemplates);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  if (!ids.length) {
+    // No template
+    return null;
+  }
+
+  return (
+    <>
+      <ListItem button onClick={handleClick}>
+        <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
+
+        <ListItemText primary='Templates' />
+      </ListItem>
+
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          {ids.map((id) => (
+            <Template key={id} id={id} />
+          ))}
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+const Template: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const template = useSelector(useCallback((state: AppState) => getTemplate(state, id), [id]));
+  const definition: ComponentDefinition = useMemo(() => ({ type: 'template', id }), [id]);
+  const stats = useSelector(useCallback((state: AppState) => getTemplateStats(state, id), [id]));
+
+  return (
+    <ListItem className={clsx(classes.indent1, stats.use === 'unused' && classes.unused)}>
+      <ListItemIcon>
+        <DragButton definition={definition} />
+      </ListItemIcon>
+
+      <ListItemText primary={template.templateId} />
+
+      <ListItemSecondaryAction>
+        <TemplateMenuButton id={template.id} />
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+
+}
+
 const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const instance = useSelector(useCallback((state: AppState) => getInstance(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getInstanceStats(state, id), [id]));
 
   switch (display) {
     case 'show':
-      if (!instance.hasShown) {
+      if (!stats.hasShown) {
         return null;
       }
       break;
 
     case 'hide':
-      if (!instance.hasHidden) {
+      if (!stats.hasHidden) {
         return null;
       }
       break;
@@ -116,14 +173,14 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
   };
 
   const displayClass = display === 'show' ? null : classes.indent1;
-  const useClass = instance.use === 'used' ? null : classes[instance.use];
+  const useClass = stats.use === 'used' ? null : classes[stats.use];
 
   return (
     <>
       <ListItem button onClick={handleClick} className={clsx(displayClass, useClass)}>
         <ListItemIcon>{open ? <ExpandLess /> : <ExpandMore />}</ListItemIcon>
 
-        <ListItemText primary={instance.id} />
+        <ListItemText primary={instance.instanceName} />
 
         <ListItemSecondaryAction>
           <InstanceMenuButton id={instance.id} />
@@ -144,21 +201,23 @@ const Instance: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> =
 const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = ({ id, display }) => {
   const classes = useStyles();
   const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, id), [id]));
+  const stats = useSelector(useCallback((state: AppState) => getPluginStats(state, id), [id]));
+  const definition: ComponentDefinition = useMemo(() => ({ type: 'plugin', id }), [id]);
 
   if (display !== plugin.toolboxDisplay) {
     return null;
   }
 
   const displayClass = display === 'show' ? classes.indent1 : classes.indent2;
-  const useClass = plugin.use === 'used' ? null : classes[plugin.use];
+  const useClass = stats.use === 'used' ? null : classes[stats.use];
 
   return (
     <ListItem className={clsx(displayClass, useClass)}>
       <ListItemIcon>
-        <DragButton id={id} />
+        <DragButton definition={definition} />
       </ListItemIcon>
 
-      <ListItemText primary={pluginDisplay(plugin)} secondary={plugin.description} />
+      <ListItemText primary={`${plugin.module}.${plugin.name}`} secondary={plugin.description} />
 
       <ListItemSecondaryAction>
         <PluginMenuButton id={plugin.id} />
@@ -167,14 +226,10 @@ const Plugin: FunctionComponent<{ id: string; display: CoreToolboxDisplay }> = (
   );
 };
 
-function pluginDisplay(plugin: Plugin) {
-  return `${plugin.module}.${plugin.name}`;
-}
-
-const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
+const DragButton: FunctionComponent<{ definition: ComponentDefinition }> = ({ definition }) => {
   const classes = useStyles();
-  const create = useCreate(id);
-  const { ref } = useCreatable(id, create);
+  const create = useCreate(definition);
+  const { ref } = useCreatable(definition, create);
 
   return (
     <Tooltip title="Drag and drop sur le canvas pour ajouter un composant">
@@ -185,8 +240,9 @@ const DragButton: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-function useCreate(pluginId: string) {
+function useCreate(definition: ComponentDefinition) {
   const tabId = useTabPanelId();
+  const templateId = useSelector((state: AppState) => getActiveTemplateId(state, tabId));
   const dispatch = useDispatch();
   const makeNewId = useMakeNewId();
   const selectComponent = useSelectComponent();
@@ -197,12 +253,12 @@ function useCreate(pluginId: string) {
     async (position: Position) =>
       fireAsync(async () => {
         const componentId = makeNewId();
-        await dispatch(setComponent({ tabId, componentId, pluginId, position }));
-        const id = `${tabId}:${componentId}`;
+        await dispatch(setComponent({ templateId, componentId, definition, position }));
+        const id = `${tabId}:${templateId || ''}:${componentId}`;
         await waitForComponentId(id);
         selectComponent(id);
       }),
-    [fireAsync, dispatch, tabId, pluginId, makeNewId]
+    [fireAsync, dispatch, tabId, templateId, definition, makeNewId]
   );
 }
 
@@ -225,6 +281,7 @@ function useMakeNewId() {
  * Wait for a component id to be present in the store
  */ 
 function useWaitForComponentId() {
+  // FIXME
   const componentIds = useTabSelector(getComponentIds);
   const set = useMemo(() => new Set(componentIds), [componentIds]);
 

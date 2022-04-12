@@ -6,8 +6,9 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 
 import DeleteButton from '../../../lib/delete-button';
+import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useFireAsync } from '../../../lib/use-error-handling';
+import { useFireAsync, useReportError } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
 import { computeCenter, computeComponentRect } from '../../drawing/shapes';
 import CenterButton from '../center-button';
@@ -15,7 +16,7 @@ import { useRenameDialog } from '../../../dialogs/rename';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponentIds, getComponent, getPlugin, getSelectedComponent } from '../../../../store/core-designer/selectors';
+import { getComponentIds, getComponent, getSelectedComponent, makeGetExportedComponentIds, makeGetComponentDefinitionProperties } from '../../../../store/core-designer/selectors';
 import { clearComponents, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -28,8 +29,8 @@ const useStyles = makeStyles((theme) => ({
 
 const Actions: FunctionComponent = () => {
   const classes = useStyles();
-  const { componentIds, component, plugin, clear, rename } = useActionsConnect();
-  const componentCenterPosition = useCenterComponent(component, plugin);
+  const { componentIds, component, definition, clear, rename } = useActionsConnect();
+  const componentCenterPosition = useCenterComponent(component, definition);
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(componentIds, component.componentId, 'Entrer un nom de composant');
   
@@ -64,25 +65,34 @@ function useActionsConnect() {
   const dispatch = useDispatch();
 
   const component = useSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
-  const plugin = useSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
+  const definition = useSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
   const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
+  const getExportedComponentIds = useMemo(() => makeGetExportedComponentIds(), []);
+  const exportedComponentIds = useTabSelector(getExportedComponentIds);
+  const onError = useReportError();
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {
-      dispatch(clearComponents({ componentsIds: [componentId] }));
+      if (exportedComponentIds.includes(componentId)) {
+        const err = new Error('Le composant est exporté et ne peut pas être supprimé.');
+        onError(err);
+      } else {
+        dispatch(clearComponents({ componentsIds: [componentId] }));
+      }
     },
     rename: (newId: string) => {
       dispatch(renameComponent({ componentId, newId }));
     },
-  }), [tabId, dispatch, componentId]);
+  }), [tabId, dispatch, componentId, exportedComponentIds, onError]);
 
-  return { componentIds, component, plugin, clear, rename };
+  return { componentIds, component, definition, clear, rename };
 }
 
-function useCenterComponent(component: types.Component, plugin: types.Plugin) {
+function useCenterComponent(component: types.Component, definition: types.ComponentDefinitionProperties) {
   const theme = useCanvasTheme();
   return useMemo(() => {
-    const rect = computeComponentRect(theme, component, plugin);
+    const rect = computeComponentRect(theme, component, definition);
     return computeCenter(rect);
   }, [theme, component]);
 }

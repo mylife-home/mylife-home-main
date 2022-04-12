@@ -14,7 +14,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { AppState } from '../../../store/types';
-import { getInstance, getPlugin, getInstanceStats, getPluginStats } from '../../../store/core-designer/selectors';
+import { getPlugin, getInstanceStats, getPluginStats, getTemplateStats } from '../../../store/core-designer/selectors';
 import { updateToolbox } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -25,14 +25,13 @@ const useStyles = makeStyles((theme) => ({
 
 export const InstanceMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
-  const instance = useSelector(useCallback((state: AppState) => getInstance(state, id), [id]));
   const stats = useSelector(useCallback((state: AppState) => getInstanceStats(state, id), [id]));
   const updateToolbox = useToolboxUpdateAction('instance', id);
 
   return (
     <ButtonMenu>
-      {instance.hasHidden && <ActionItem onClick={() => updateToolbox('show')} icon={VisibilityIcon} title="Montrer tous les plugins" />}
-      {instance.hasShown && <ActionItem onClick={() => updateToolbox('hide')} icon={VisibilityOffIcon} title="Cacher tous les plugins" />}
+      {stats.hasHidden && <ActionItem onClick={() => updateToolbox('show')} icon={VisibilityIcon} title="Montrer tous les plugins" />}
+      {stats.hasShown && <ActionItem onClick={() => updateToolbox('hide')} icon={VisibilityOffIcon} title="Cacher tous les plugins" />}
       <ActionItem onClick={() => updateToolbox('delete')} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer tous les plugins inutilisés" />
       <Stats
         items={[
@@ -55,7 +54,22 @@ export const PluginMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
     <ButtonMenu>
       {plugin.toolboxDisplay === 'show' && <ActionItem onClick={() => updateToolbox('hide')} icon={VisibilityOffIcon} title="Cacher" />}
       {plugin.toolboxDisplay === 'hide' && <ActionItem onClick={() => updateToolbox('show')} icon={VisibilityIcon} title="Montrer" />}
-      {plugin.use === 'unused' && <ActionItem onClick={() => updateToolbox('delete')} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer" />}
+      {stats.use === 'unused' && <ActionItem onClick={() => updateToolbox('delete')} icon={DeleteIcon} iconClassName={classes.deleteIcon} title="Supprimer" />}
+      <Stats
+        items={[
+          { count: stats.components, singular: 'composant', plural: 'composants' },
+          { count: stats.externalComponents, singular: 'composant externe', plural: 'composants externes' },
+        ]}
+      />
+    </ButtonMenu>
+  );
+};
+
+export const TemplateMenuButton: FunctionComponent<{ id: string }> = ({ id }) => {
+  const stats = useSelector(useCallback((state: AppState) => getTemplateStats(state, id), [id]));
+
+  return (
+    <ButtonMenu>
       <Stats
         items={[
           { count: stats.components, singular: 'composant', plural: 'composants' },

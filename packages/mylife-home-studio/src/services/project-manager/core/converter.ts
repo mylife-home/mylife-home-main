@@ -11,7 +11,8 @@ export function convertCoreProject(input: coreV1.Project): { name: string, proje
   const project: CoreProject = {
     plugins: {},
     components: {},
-    bindings: {}
+    bindings: {},
+    templates: {},
   };
 
   for (const toolboxItem of input.Toolbox) {
@@ -38,7 +39,7 @@ export function convertCoreProject(input: coreV1.Project): { name: string, proje
   // on vpanel project, mark all hw components as external
   if (isVPanelProject(project)) {
     for (const component of Object.values(project.components)) {
-      const plugin = project.plugins[component.plugin];
+      const plugin = project.plugins[component.definition.id]; // always plugin
       if (plugin.usage !== PluginUsage.LOGIC && plugin.usage !== PluginUsage.UI) {
         component.external = true;
         component.config = null;
@@ -51,7 +52,7 @@ export function convertCoreProject(input: coreV1.Project): { name: string, proje
 
 function isVPanelProject(project: CoreProject) {
   for (const component of Object.values(project.components)) {
-    const plugin = project.plugins[component.plugin];
+    const plugin = project.plugins[component.definition.id]; // always plugin
     if (plugin.usage === PluginUsage.LOGIC) {
       return true;
     }
@@ -199,7 +200,7 @@ function convertComponent(input: coreV1.ComponentContainer, pluginMap: { [id: st
   const plugin = pluginMap[pluginId];
 
   const component: CoreComponentData = {
-    plugin: pluginId,
+    definition: { type: 'plugin', id: pluginId },
     position: convertPosition(inputComponent.designer),
     config: convertConfig(inputComponent.config, plugin),
     external: false,

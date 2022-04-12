@@ -42,10 +42,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
   callMappers: {
     [ActionTypes.VALIDATE_PROJECT]: {
       mapper({ tabId }: { tabId: string }) {
-        return {
-          tabId,
-          callData: { operation: 'validate' } as UiProjectCall
-        };
+        const callData: UiProjectCall = { operation: 'validate' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: ValidateUiProjectCallResult) {
         return serviceResult.errors;
@@ -54,10 +52,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.REFRESH_COMPONENTS_FROM_ONLINE]: {
       mapper({ tabId }: { tabId: string }) {
-        return {
-          tabId,
-          callData: { operation: 'refresh-components-from-online' } as UiProjectCall
-        };
+        const callData: UiProjectCall = { operation: 'refresh-components-from-online' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: RefreshComponentsUiProjectCallResult) {
         return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
@@ -66,10 +62,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT]: {
       mapper({ tabId, projectId }: { tabId: string; projectId: string }) {
-        return {
-          tabId,
-          callData: { operation: 'refresh-components-from-project', projectId } as RefreshComponentsFromProjectUiProjectCall
-        };
+        const callData: RefreshComponentsFromProjectUiProjectCall = { operation: 'refresh-components-from-project', projectId };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: RefreshComponentsUiProjectCallResult) {
         return { breakingOperations: serviceResult.breakingOperations, serverData: serviceResult.serverData };
@@ -78,19 +72,15 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
     [ActionTypes.APPLY_REFRESH_COMPONENTS]: {
       mapper({ tabId, serverData }: { tabId: string; serverData: unknown }) {
-        return {
-          tabId,
-          callData: { operation: 'apply-refresh-components', serverData } as ApplyRefreshComponentsUiProjectCall
-        };
+        const callData: ApplyRefreshComponentsUiProjectCall = { operation: 'apply-refresh-components', serverData };
+        return { tabId, callData };
       }
     },
 
     [ActionTypes.DEPLOY_PROJECT]: {
       mapper({ tabId }: { tabId: string }) {
-        return {
-          tabId,
-          callData: { operation: 'deploy' } as UiProjectCall
-        };
+        const callData: UiProjectCall = { operation: 'deploy' };
+        return { tabId, callData };
       },
       resultMapper(serviceResult: DeployUiProjectCallResult) {
         return { validationErrors: serviceResult.validationErrors, deployError: serviceResult.deployError };
@@ -101,10 +91,8 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ tabId, defaultWindow }: { tabId: string; defaultWindow: DefaultWindow }) {
         const desktop = extractNullableId(defaultWindow.desktop, tabId);
         const mobile = extractNullableId(defaultWindow.mobile, tabId);
-        return {
-          tabId,
-          callData: { operation: 'set-default-window', defaultWindow: { desktop, mobile } } as SetDefaultWindowUiProjectCall
-        };
+        const callData: SetDefaultWindowUiProjectCall = { operation: 'set-default-window', defaultWindow: { desktop, mobile } };
+        return { tabId, callData };
       },
     },
 
@@ -112,30 +100,24 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
       mapper({ tabId, resource }: { tabId: string; resource: UiResource }) {
         const { resourceId, ...definition } = resource;
         definition.id = resourceId;
-        return {
-          tabId,
-          callData: { operation: 'set-resource', resource: definition } as SetResourceUiProjectCall
-        };
+        const callData: SetResourceUiProjectCall = { operation: 'set-resource', resource: definition };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.CLEAR_RESOURCE]: {
       mapper({ resourceId }: { resourceId: string }) {
         const { tabId, id } = extractIds(resourceId);
-        return {
-          tabId,
-          callData: { operation: 'clear-resource', id } as ClearResourceUiProjectCall
-        };
+        const callData: ClearResourceUiProjectCall = { operation: 'clear-resource', id };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.RENAME_RESOURCE]: {
       mapper({ resourceId, newId }: { resourceId: string; newId: string }) {
         const { tabId, id } = extractIds(resourceId);
-        return {
-          tabId,
-          callData: { operation: 'rename-resource', id, newId } as RenameResourceUiProjectCall
-        };
+        const callData: RenameResourceUiProjectCall = { operation: 'rename-resource', id, newId };
+        return { tabId, callData };
       },
     },
 
@@ -146,40 +128,32 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         definition.id = windowId;
         definition.backgroundResource = extractNullableId(definition.backgroundResource, tabId);
 
-        return {
-          tabId,
-          callData: { operation: 'set-window', window: definition } as SetWindowUiProjectCall
-        };
+        const callData: SetWindowUiProjectCall = { operation: 'set-window', window: definition };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.CLEAR_WINDOW]: {
       mapper({ windowId }: { windowId: string }) {
         const { tabId, id } = extractIds(windowId);
-        return {
-          tabId,
-          callData: { operation: 'clear-window', id } as ClearWindowUiProjectCall
-        };
+        const callData: ClearWindowUiProjectCall = { operation: 'clear-window', id };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.RENAME_WINDOW]: {
       mapper({ windowId, newId }: { windowId: string; newId: string }) {
         const { tabId, id } = extractIds(windowId);
-        return {
-          tabId,
-          callData: { operation: 'rename-window', id, newId } as RenameWindowUiProjectCall
-        };
+        const callData: RenameWindowUiProjectCall = { operation: 'rename-window', id, newId };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.CLONE_WINDOW]: {
       mapper({ windowId, newId }: { windowId: string; newId: string }) {
         const { tabId, id } = extractIds(windowId);
-        return {
-          tabId,
-          callData: { operation: 'clone-window', id, newId } as CloneWindowUiProjectCall
-        };
+        const callData: CloneWindowUiProjectCall = { operation: 'clone-window', id, newId };
+        return { tabId, callData };
       },
     },
 
@@ -188,34 +162,29 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         const { controlId, ...definition } = control;
         definition.id = controlId;
 
-        return {
-          tabId,
-          callData: { 
-            operation: 'set-control', 
-            windowId: extractNullableId(windowId, tabId),
-            control: adaptControlLinks(definition, tabId)
-          } as SetControlUiProjectCall
+        const callData: SetControlUiProjectCall = { 
+          operation: 'set-control', 
+          windowId: extractNullableId(windowId, tabId),
+          control: adaptControlLinks(definition, tabId)
         };
+
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.CLEAR_CONTROL]: {
       mapper({ controlId }: { controlId: string }) {
         const { tabId, windowId, id } = extractControlIds(controlId);
-        return {
-          tabId,
-          callData: { operation: 'clear-control', windowId, id } as ClearControlUiProjectCall
-        };
+        const callData: ClearControlUiProjectCall = { operation: 'clear-control', windowId, id };
+        return { tabId, callData };
       },
     },
 
     [ActionTypes.RENAME_CONTROL]: {
       mapper({ controlId, newId }: { controlId: string; newId: string }) {
         const { tabId, windowId, id } = extractControlIds(controlId);
-        return {
-          tabId,
-          callData: { operation: 'rename-control', windowId, id, newId } as RenameControlUiProjectCall
-        };
+        const callData: RenameControlUiProjectCall = { operation: 'rename-control', windowId, id, newId };
+        return { tabId, callData };
       },
     },
   }

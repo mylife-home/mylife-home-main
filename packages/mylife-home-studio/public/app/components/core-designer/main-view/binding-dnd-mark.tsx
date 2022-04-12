@@ -1,6 +1,6 @@
-import React, { FunctionComponent, useCallback } from 'react';
+import React, { FunctionComponent, useCallback, useMemo } from 'react';
 import { AppState } from '../../../store/types';
-import { getComponent, getPlugin } from '../../../store/core-designer/selectors';
+import { getComponent, makeGetComponentDefinitionProperties } from '../../../store/core-designer/selectors';
 import { MemberType } from '../../../store/core-designer/types';
 
 import { Point } from '../drawing/types';
@@ -20,9 +20,10 @@ export default BindingDndMark;
 const Mark: FunctionComponent = () => {
   const theme = useCanvasTheme();
   const { source, mousePosition } = useBindingDndInfo();
+  const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const component = useSafeSelector(useCallback((state: AppState) => getComponent(state, source.componentId), [source.componentId]));
-  const plugin = useSafeSelector(useCallback((state: AppState) => getPlugin(state, component.plugin), [component.plugin]));
-  const anchor = computeBindingDndAnchor(theme, component, plugin, source.memberName, mousePosition);
+  const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
+  const anchor = computeBindingDndAnchor(theme, component, definition, source.memberName, mousePosition);
   const color = theme.bindingDndMarkColor;
 
   let from: Point;

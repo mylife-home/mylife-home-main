@@ -17,7 +17,7 @@ import { computeComponentRect, computeMemberRect } from '../drawing/shapes';
 import { createBindingData, isBindingTarget } from '../binding-tools';
 
 import { AppState } from '../../../store/types';
-import { getComponentIds, getBindingIds, getComponentsMap, getPluginsMap } from '../../../store/core-designer/selectors';
+import { getComponentIds, getBindingIds, getComponentsMap, getComponentDefinitionPropertiesGetter } from '../../../store/core-designer/selectors';
 import * as types from '../../../store/core-designer/types';
 import { setBinding } from '../../../store/core-designer/actions';
 
@@ -64,27 +64,27 @@ function useConnect() {
 }
 
 function useNewBinding() {
-  const tabId = useTabPanelId();
   const theme = useCanvasTheme();
   const componentsIds = useTabSelector(getComponentIds);
   const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
+  const getComponentDefinitionProperties = useSelector(getComponentDefinitionPropertiesGetter);
   const dispatch = useDispatch();
 
   return useCallback((source: BindingSource, mousePosition: types.Position) => {
 
     // else render problem ?!?
+    // FIXME
     setTimeout(() => {
-      const target = findBindingTarget(theme, mousePosition, componentsIds, componentsMap, pluginsMap);
+      const target = findBindingTarget(theme, mousePosition, componentsIds, componentsMap, getComponentDefinitionProperties);
       if (!target || !isBindingTarget(source, target)) {
         return;
       }
   
       const binding = createBindingData(source.componentId, source.memberName, source.memberType, target);
-      dispatch(setBinding({ tabId, binding }));
+      dispatch(setBinding({ binding }));
     }, 0);
 
-  }, [theme, componentsIds, componentsMap, pluginsMap, dispatch, tabId]);
+  }, [theme, componentsIds, componentsMap, getComponentDefinitionProperties, dispatch]);
 }
 
 function useMultiSelecting() {
@@ -95,7 +95,7 @@ function useMultiSelecting() {
   const theme = useCanvasTheme();
   const componentsIds = useTabSelector(getComponentIds);
   const componentsMap = useSelector(getComponentsMap);
-  const pluginsMap = useSelector(getPluginsMap);
+  const getComponentDefinitionProperties = useSelector(getComponentDefinitionPropertiesGetter);
 
   const selectingRect = useMemo(() => {
     if (!start || !move) {
@@ -125,29 +125,29 @@ function useMultiSelecting() {
         setStart(null);
         setMove(null);
 
-        const ids = findComponentsInRect(theme, selectingRect, componentsIds, componentsMap, pluginsMap);
+        const ids = findComponentsInRect(theme, selectingRect, componentsIds, componentsMap, getComponentDefinitionProperties);
         selectComponents(ids);
         break;
       }
     }
-  }, [setStart, setMove, selectingRect, theme, componentsIds, componentsMap, pluginsMap, selectComponents]);
+  }, [setStart, setMove, selectingRect, theme, componentsIds, componentsMap, getComponentDefinitionProperties, selectComponents]);
 
   return { selectingRect, onMetaDrag };
 }
 
 // TODO: need model cleanup
-function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, componentsIds: string[], componentsMap: { [id: string]: types.Component }, pluginsMap: { [id: string]: types.Plugin }): BindingSource {
+function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, componentsIds: string[], componentsMap: { [id: string]: types.Component }, getComponentDefinitionProperties: (definition: types.ComponentDefinition) => types.ComponentDefinitionProperties): BindingSource {
   for (const componentId of componentsIds) {
     const component = componentsMap[componentId];
-    const plugin = pluginsMap[component.plugin];
+    const definition = getComponentDefinitionProperties(component.definition);
 
-    const componentRect = computeComponentRect(theme, component, plugin);
+    const componentRect = computeComponentRect(theme, component, definition);
     if (!isInRect(mousePosition, componentRect)) {
       continue;
     }
 
-    for (const [memberName, member] of Object.entries(plugin.members)) {
-      const memberRect = computeMemberRect(theme, component, plugin, memberName);
+    for (const [memberName, member] of Object.entries(definition.members)) {
+      const memberRect = computeMemberRect(theme, component, definition, memberName);
       if (isInRect(mousePosition, memberRect)) {
         return { componentId: component.id, memberName, memberType: member.memberType, valueType: member.valueType };
       }
@@ -159,14 +159,14 @@ function findBindingTarget(theme: CanvasTheme, mousePosition: types.Position, co
 }
 
 // TODO: need model cleanup
-function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, componentsIds: string[], componentsMap: { [id: string]: types.Component }, pluginsMap: { [id: string]: types.Plugin }) {
+function findComponentsInRect(theme: CanvasTheme, selectingRect: Rectangle, componentsIds: string[], componentsMap: { [id: string]: types.Component }, getComponentDefinitionProperties: (definition: types.ComponentDefinition) => types.ComponentDefinitionProperties) {
   const ids: string[] = [];
 
   for (const componentId of componentsIds) {
     const component = componentsMap[componentId];
-    const plugin = pluginsMap[component.plugin];
+    const definition = getComponentDefinitionProperties(component.definition);
     
-    const componentRect = computeComponentRect(theme, component, plugin);
+    const componentRect = computeComponentRect(theme, component, definition);
     if (isRectInRect(componentRect, selectingRect)) {
       ids.push(component.id);
     }

@@ -15,7 +15,7 @@ import { Group, Item } from '../../lib/properties-layout';
 
 import { AppState } from '../../../store/types';
 import * as types from '../../../store/core-designer/types';
-import { getComponent, getPlugin, getBinding, getSelectedBinding } from '../../../store/core-designer/selectors';
+import { getComponent, getBinding, getSelectedBinding, makeGetComponentDefinitionProperties } from '../../../store/core-designer/selectors';
 import { clearBinding } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,10 +29,10 @@ const useStyles = makeStyles((theme) => ({
 const Binding: FunctionComponent<{ className?: string; }> = ({ className }) => {
   const classes = useStyles();
   const selectComponent = useSelectComponent();
-  const { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear } = useConnect();
-  const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
+  const { binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition, clear } = useConnect();
+  const centerBindingPosition = useCenterBinding(binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition);
 
-  const type = sourcePlugin.members[binding.sourceState].valueType;
+  const type = sourceDefinition.members[binding.sourceState].valueType;
   const handleSelectSource = () => selectComponent(binding.sourceComponent);
   const handleSelectTarget = () => selectComponent(binding.targetComponent);
 
@@ -67,23 +67,25 @@ function useConnect() {
   const bindingId = useSelector(useCallback((state: AppState) => getSelectedBinding(state, tabId), [tabId]));
 
   const binding = useSelector(useCallback((state: AppState) => getBinding(state, bindingId), [bindingId]));
+  const getSourceComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
+  const getTargetComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const sourceComponent = useSelector(useCallback((state: AppState) => getComponent(state, binding.sourceComponent), [binding.sourceComponent]));
   const targetComponent = useSelector(useCallback((state: AppState) => getComponent(state, binding.targetComponent), [binding.targetComponent]));
-  const sourcePlugin = useSelector(useCallback((state: AppState) => getPlugin(state, sourceComponent.plugin), [sourceComponent.plugin]));
-  const targetPlugin = useSelector(useCallback((state: AppState) => getPlugin(state, targetComponent.plugin), [targetComponent.plugin]));
+  const sourceDefinition = useSelector(useCallback((state: AppState) => getSourceComponentDefinitionProperties(state, sourceComponent.definition), [sourceComponent.definition]));
+  const targetDefinition = useSelector(useCallback((state: AppState) => getTargetComponentDefinitionProperties(state, targetComponent.definition), [targetComponent.definition]));
 
   const clear = useCallback(() => {
     dispatch(clearBinding({ bindingId }));
   }, [dispatch, bindingId]);
 
-  return { binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin, clear };
+  return { binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition, clear };
 }
 
-function useCenterBinding(binding: types.Binding, sourceComponent: types.Component, sourcePlugin: types.Plugin, targetComponent: types.Component, targetPlugin: types.Plugin) {
+function useCenterBinding(binding: types.Binding, sourceComponent: types.Component, sourceDefinition: types.ComponentDefinitionProperties, targetComponent: types.Component, targetDefinition: types.ComponentDefinitionProperties) {
   const theme = useCanvasTheme();
 
   return useMemo(() => {
-    const { sourceAnchor, targetAnchor } = computeBindingAnchors(theme, binding, sourceComponent, sourcePlugin, targetComponent, targetPlugin);
+    const { sourceAnchor, targetAnchor } = computeBindingAnchors(theme, binding, sourceComponent, sourceDefinition, targetComponent, targetDefinition);
     return computeCenter(sourceAnchor, targetAnchor);
   }, [theme, binding, sourceComponent, targetComponent]);
 }
