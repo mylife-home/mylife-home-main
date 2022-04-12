@@ -188,6 +188,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+  - BUG DnD creation de binding:
+    - on doit d'abord cliquer pour selectionner le composant avant de pouvoir drag depuis un membre, c est dommage
+    - apres zoom/scroll, l'arivee de la fleche du DnD est petee
 
 ## core
 
