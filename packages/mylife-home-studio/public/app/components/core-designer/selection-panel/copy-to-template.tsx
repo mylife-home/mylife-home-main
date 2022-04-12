@@ -71,9 +71,10 @@ const useTemplateSelectorStyles = makeStyles((theme) => ({
 const TemplateSelectorPopoverContent: FunctionComponent<{ componentsIds: string[]; onClose: () => void; }> = ({ componentsIds, onClose }) => {
   const classes = useTemplateSelectorStyles();
   const list = useTabSelector((state, tabId) => getTemplateIds(state, tabId));
+  const copyToTemplate = useCopyToTemplate();
 
-  const onSelect = (value: string) => {
-    console.log('TODO');
+  const onSelect = (templateId: string) => {
+    copyToTemplate(componentsIds, templateId);
     onClose();
   };
 
@@ -93,7 +94,7 @@ const TemplateSelector: FunctionComponent<{ className?: string; list: string[]; 
       className={className}
       value={null}
       onChange={(event, newValue: string) => {
-        console.log('TODO', newValue);
+        onSelect(newValue);
         setInputValue('');
       }}
       inputValue={inputValue}
@@ -118,3 +119,10 @@ const TemplateSelector: FunctionComponent<{ className?: string; list: string[]; 
 };
 
 export default CopyToTemplateButton;
+
+function useCopyToTemplate() {
+  return useCallback((componentsIds: string[], templateId: string) => {
+    // find bindings
+    // ensure all ids are free
+  }, []);
+}
