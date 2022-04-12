@@ -2,6 +2,7 @@ import { logger } from 'mylife-home-common';
 import { ConfigItem, Plugin } from '../../../../../shared/component-model';
 import { CoreComponentData, CorePluginData, CoreProject, CoreTemplate } from '../../../../../shared/project-manager';
 import { ComponentDefinitionModel, ComponentModel, InstanceModel, PluginModel, TemplateModel, ViewModel } from '.';
+import { validateId } from './id-validator';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
@@ -143,6 +144,8 @@ export class ProjectModel extends ViewModel {
       throw new Error(`Template id already exists: '${templateId}'`);
     }
 
+    validateId(templateId);
+
     const templateData: CoreTemplate = {
       components: {},
       bindings: {},
@@ -163,6 +166,8 @@ export class ProjectModel extends ViewModel {
     if (this.hasTemplate(newId)) {
       throw new Error(`Template id already exists: '${newId}'`);
     }
+
+    validateId(newId);
 
     const template = this.templates.get(id);
     this.templates.delete(id);

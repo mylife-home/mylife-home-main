@@ -2,6 +2,7 @@ import { logger } from 'mylife-home-common';
 import { MemberType } from '../../../../../shared/component-model';
 import { CoreBindingData, CoreComponentData, CoreView, CoreComponentDefinition } from '../../../../../shared/project-manager';
 import { ComponentDefinitionModel, ComponentModel, BindingModel, TemplateModel, ProjectModel } from '.';
+import { validateId } from './id-validator';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:core:model');
 
@@ -97,6 +98,8 @@ export abstract class ViewModel {
       throw new Error(`Component id already exists: '${componentId}'`);
     }
 
+    validateId(componentId);
+
     const definitionModel = this.getDefinition(definition);
 
     const dryRun = this.project.buildNamingDryRunEngine();
@@ -120,6 +123,8 @@ export abstract class ViewModel {
     if (this.hasComponent(newId)) {
       throw new Error(`Component id already exists: '${newId}'`);
     }
+
+    validateId(newId);
 
     const component = this.components.get(id);
 
