@@ -91,7 +91,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - notes:
     - take care on plugin refresh
     - a template can use another template, take care of circular dependencies
-    
+
 #### core-designer toolbox
 
  - objectifs:
@@ -143,7 +143,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - ne pas crasher si un projet n'est pas valide
   - remove v1 imports
   - pouvoir selectionner un ensemble de composants (avec bindings entre eux) et les "déplacer" dans un template
-  - forbid id with ':'
 - git
   - v1:
     - seules operations :
