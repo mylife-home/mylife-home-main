@@ -63,7 +63,7 @@ export const BindingDndProvider: FunctionComponent<{ stage: Konva.Stage, onDrop:
       default:
         throw new Error(`Unknown event type: '${type}'`);
     }
-  }), [setValue, onDrop]);
+  }), [setValue, onDrop, convertCursorPosition]);
 
   const contextProps = useMemo(() => ({ value, onDrag }), [value, onDrag]);
 

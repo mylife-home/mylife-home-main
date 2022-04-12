@@ -140,6 +140,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
+  - on doit d'abord cliquer pour selectionner le composant avant de pouvoir drag depuis un membre, c est dommage
 - git
   - v1:
     - seules operations :
@@ -187,9 +188,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
-  - BUG DnD creation de binding:
-    - on doit d'abord cliquer pour selectionner le composant avant de pouvoir drag depuis un membre, c est dommage
-    - apres zoom/scroll, l'arrivee de la fleche du DnD est petee
 
 ## core
 
