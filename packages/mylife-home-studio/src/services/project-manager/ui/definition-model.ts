@@ -56,6 +56,7 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
 
   // push at the end of array, or replace if id exists
   set(itemData: TData) {
+    this.checkNewId(itemData.id);
     const item = new this.ModelFactory(itemData);
     const mapItem = this.map.get(item.id);
 
@@ -85,6 +86,7 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
   }
 
   rename(id: string, newId: string) {
+    this.checkNewId(newId);
     const mapItem = this.map.get(id);
     if (!mapItem) {
       return false;
@@ -94,6 +96,16 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
     mapItem.item.id = newId;
     this.map.set(newId, mapItem);
     return true;
+  }
+
+  private checkNewId(id: string) {
+    if (this.hasId(id)) {
+      throw new Error(`Id '${id}' already exists`);
+    }
+
+    if (id.includes(':')) {
+      throw new Error(`Id '${id}' contains forbidden character ':'`);
+    }
   }
 }
 
