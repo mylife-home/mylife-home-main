@@ -218,35 +218,3 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ```
 GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ```
-
-
-
-# WIP templates:
-- TESTS
-  - OK import plugins
-    - OK import component with id that would overwrite template instantation (eg: id = new1-child1)
-    - OK import plugin config update should update component
-    - OK import plugin config delete should update component
-    - OK import plugin prop update inside template
-    - OK import plugin prop delete inside template
-    - OK import plugin config update inside template
-    - OK import plugin config delete inside template
-    - OK import plugin prop update inside template (with binding)
-    - OK import plugin prop delete inside template (with binding)
-    - OK import plugin prop update inside template (which is exported)
-    - OK import plugin prop delete inside template (which is exported)
-    - OK import plugin config update inside template (which is exported)
-    - OK import plugin config delete inside template (which is exported)
-    - OK import plugin prop/config update/delete which is exported, used in a template which export it again
-    - OK import plugin delete which is used on templates
-  - OK import components
-    - OK add component
-    - OK update component
-    - OK delete component
-    - OK add component with plugin change
-    - OK update component with plugin change
-    - OK add component that would overwrite template
-  - OK deploy files
-  - OK imports between core projects (plugins & components)
-  - OK imports into ui project
-  - deploy online
