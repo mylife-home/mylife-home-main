@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { parseType } from '../../../lib/member-types';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useTabPanelId } from '../../../lib/tab-panel';
-import { useSelectComponent, useToggleComponent } from '../../selection';
+import { useAddComponentToSelection, useToggleComponent } from '../../selection';
 import { Konva, Rect, Group } from '../../drawing/konva';
 import { Point } from '../../drawing/types';
 import { useCanvasTheme } from '../../drawing/theme';
@@ -238,7 +238,7 @@ const ComponentHit: FunctionComponent<ComponentHitProps> = ({ componentId, posit
   const definition = useSafeSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
   const template = useTabSelector(getActiveTemplate);
   const onDrag = useBindingDraggable();
-  const selectComponent = useSelectComponent();
+  const selectComponent = useAddComponentToSelection();
   const toggleComponent = useToggleComponent();
   const select = useCallback(() => selectComponent(componentId), [selectComponent, componentId]);
   const toggle = useCallback(() => toggleComponent(componentId), [toggleComponent, componentId]);

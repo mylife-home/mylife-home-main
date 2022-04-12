@@ -21,9 +21,18 @@ function useSelection() {
   };
 }
 
-export function useSelectComponent() {
+export function useAddComponentToSelection() {
   const { selectComponent } = useSelection();
   return selectComponent;
+}
+
+export function useSelectComponent() {
+  const { select } = useSelection();
+
+  return useCallback((componentId: string) => {
+    const newSelection: ComponentsSelection = { type: 'components', ids: { [componentId]: true } };
+    select(newSelection);
+  }, [select]);
 }
 
 export function useToggleComponent() {
