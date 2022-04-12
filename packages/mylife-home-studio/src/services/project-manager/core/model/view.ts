@@ -119,6 +119,13 @@ export abstract class ViewModel {
     return component;
   }
 
+  private unsafeSetComponent(componentId: string, componentData: CoreComponentData) {
+    const component = this.registerComponent(componentId, componentData);
+    this.data.components[component.id] = component.data;
+
+    return component;
+  }
+
   renameComponent(id: string, newId: string) {
     if (this.hasComponent(newId)) {
       throw new Error(`Component id already exists: '${newId}'`);
@@ -160,6 +167,74 @@ export abstract class ViewModel {
     this.components.delete(component.id);
     definition.unregisterUsage(component.id);
     delete this.data.components[component.id];
+  }
+
+  copyTo(componentsIds: string[], targetView: ViewModel) {
+    if (this === targetView) {
+      throw new Error('Cannot copy on self');
+    }
+
+    // fill source
+    const components = new Set(componentsIds.map(id => this.getComponent(id)));
+    const bindings = new Set<BindingModel>();
+
+    // find all bindings between selected components
+    for (const component of components) {
+      for (const binding of component.getAllBindings()) {
+        if (components.has(binding.sourceComponent) && components.has(binding.targetComponent)) {
+          bindings.add(binding);
+        } 
+      }
+    }
+
+    // sanity checks
+    const dryRun = this.project.buildNamingDryRunEngine();
+
+    for (const component of components) {
+      if (component.data.external) {
+        throw new Error('Cannot copy external components');
+      }
+
+      if (component.definition instanceof TemplateModel) {
+        throw new Error('Cannot copy template components for now');
+      }
+
+      dryRun.setComponent(targetView, `{{id}}-${component.id}`, component.definition);
+    }
+
+    dryRun.validate();
+
+    // map of source -> target
+    const componentsLinks = new Map<ComponentModel, ComponentModel>();
+    const bindingsLinks = new Map<BindingModel, BindingModel>();
+
+    for (const sourceComponent of components) {
+      const data: CoreComponentData = {
+        definition: { ...sourceComponent.data.definition },
+        position: { ...sourceComponent.data.position },
+        config: { ...sourceComponent.data.config },
+        external: false
+      };
+
+      const targetComponent = targetView.unsafeSetComponent(`{{id}}-${sourceComponent.id}`, data);
+      componentsLinks.set(sourceComponent, targetComponent);
+    }
+
+    for (const sourceBinding of bindings) {
+      const targetBinding = targetView.setBinding({
+        sourceComponent: componentsLinks.get(sourceBinding.sourceComponent).id,
+        sourceState: sourceBinding.sourceState,
+        targetComponent: componentsLinks.get(sourceBinding.targetComponent).id,
+        targetAction: sourceBinding.targetAction,
+      });
+      
+      bindingsLinks.set(sourceBinding, targetBinding);
+    }
+
+    return {
+      components: Array.from(componentsLinks.values()),
+      bindings: Array.from(bindingsLinks.values()),
+    };
   }
 
   hasBindings() {

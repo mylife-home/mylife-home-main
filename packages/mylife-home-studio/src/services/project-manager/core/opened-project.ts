@@ -4,6 +4,9 @@ import {
   ApplyBulkUpdatesCoreProject,
   ClearBindingCoreProjectCall,
   ClearComponentsCoreProjectCall,
+  CopyComponentsToTemplateCoreProjectCall,
+  CopyComponentsCoreProjectCallResult,
+  CopyComponentsStats,
   ClearCoreBindingNotification,
   ClearCoreComponentNotification,
   SetCorePluginNotification,
@@ -151,6 +154,9 @@ export class CoreOpenedProject extends OpenedProject {
       case 'clear-components':
         this.clearComponents(callData as ClearComponentsCoreProjectCall);
         break;
+
+      case 'copy-components-to-template':
+        return this.copyComponentsToTemplate(callData as CopyComponentsToTemplateCoreProjectCall);
 
       case 'set-binding':
         this.setBinding(callData as SetBindingCoreProjectCall);
@@ -443,6 +449,29 @@ export class CoreOpenedProject extends OpenedProject {
         view.clearComponent(componentId);
         this.notifyAllClearComponent(templateId, componentId);
       }
+    });
+  }
+
+  private copyComponentsToTemplate({ templateId, componentsIds, targetTemplateId }: CopyComponentsToTemplateCoreProjectCall): CopyComponentsCoreProjectCallResult {
+    return this.executeUpdate(() => {
+      const view = this.model.getTemplateOrSelf(templateId);
+      const targetView = this.model.getTemplateOrSelf(targetTemplateId);
+      const { components, bindings } = view.copyTo(componentsIds, targetView);
+
+      for (const component of components) {
+        this.notifyAllSetComponent(component);
+      }
+
+      for (const binding of bindings) {
+        this.notifyAllSetBinding(binding);
+      }
+
+      const stats: CopyComponentsStats = {
+        components: components.length,
+        bindings: bindings.length,
+      }
+
+      return { stats };
     });
   }
 
