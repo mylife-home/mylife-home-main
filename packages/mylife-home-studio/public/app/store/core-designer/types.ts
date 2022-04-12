@@ -29,6 +29,7 @@ export const enum ActionTypes {
   CONFIGURE_COMPONENT = 'core-designer/configure-component',
   RENAME_COMPONENT = 'core-designer/rename-component',
   CLEAR_COMPONENTS = 'core-designer/clear-components',
+  COPY_COMPONENTS_TO_TEMPLATE = 'core-designer/copy-components-to-template',
   SET_BINDING = 'core-designer/set-binding',
   CLEAR_BINDING = 'core-designer/clear-binding',
   UPDATE_TOOLBOX = 'core-designer/update-toolbox',
@@ -63,6 +64,7 @@ export namespace ActionPayloads {
   export type ConfigureComponent = { componentId: string; configId: string; configValue: any };
   export type RenameComponent = { componentId: string; newId: string };
   export type ClearComponents = { componentsIds: string[]; };
+  export type CopyComponentsToTemplate = { componentsIds: string[]; templateId: string; };
   export type SetTemplate = { tabId: string; templateId: string; };
   export type RenameTemplate = { templateId: string; newId: string };
   export type ClearTemplate = { templateId: string; };

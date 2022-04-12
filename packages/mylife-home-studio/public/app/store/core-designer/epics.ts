@@ -33,6 +33,9 @@ import {
   ClearTemplateCoreProjectCall,
   SetTemplateExportCoreProjectCall,
   ClearTemplateExportCoreProjectCall,
+  CopyComponentsToTemplateCoreProjectCall,
+  CopyComponentsCoreProjectCallResult,
+  CopyComponentsStats,
 } from '../../../../shared/project-manager';
 
 const openedProjectManagementEpic = createOpendProjectManagementEpic({
@@ -194,6 +197,17 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         const { tabId, templateId, id } = extractIdsWithTemplate(componentId);
         const callData: RenameComponentCoreProjectCall = { operation: 'rename-component', templateId, componentId: id, newId };
         return { tabId, callData };
+      },
+    },
+    [ActionTypes.COPY_COMPONENTS_TO_TEMPLATE]: {
+      mapper({ componentsIds, templateId: fullTemplateId }: ActionPayloads.CopyComponentsToTemplate) {
+        const { tabId, templateId, ids } = extractIdsListWithTemplate(componentsIds);
+        const targetTemplateId = extractIds(fullTemplateId).id;
+        const callData: CopyComponentsToTemplateCoreProjectCall = { operation: 'copy-components-to-template', templateId, componentsIds: ids, targetTemplateId };
+        return { tabId, callData };
+      },
+      resultMapper(serviceResult: CopyComponentsCoreProjectCallResult): CopyComponentsStats {
+        return serviceResult.stats;
       },
     },
     [ActionTypes.CLEAR_COMPONENTS]: {

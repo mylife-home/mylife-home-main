@@ -397,7 +397,7 @@ export interface RenameControlUiProjectCall extends UiProjectCall {
 export interface CoreProjectCall {
   operation: 'update-toolbox'
   | 'set-template' | 'clear-template' | 'rename-template' | 'set-template-export' | 'clear-template-export'
-  | 'set-component'| 'move-components' | 'configure-component' | 'rename-component' | 'clear-components'
+  | 'set-component'| 'move-components' | 'configure-component' | 'rename-component' | 'clear-components' | 'copy-components-to-template'
   | 'set-binding' | 'clear-binding'
   | 'prepare-import-from-online' | 'prepare-import-from-project' | 'apply-bulk-updates'
   | 'validate'
@@ -479,6 +479,22 @@ export interface ClearComponentsCoreProjectCall extends CoreProjectCall {
   templateId: string;
   componentsIds: string[];
 }
+
+export interface CopyComponentsToTemplateCoreProjectCall extends CoreProjectCall {
+  operation: 'copy-components-to-template';
+  templateId: string;
+  componentsIds: string[];
+  targetTemplateId: string;
+}
+
+export interface CopyComponentsStats {
+  components: number;
+  bindings: number;
+}
+
+export interface CopyComponentsCoreProjectCallResult extends ProjectCallResult {
+  stats: CopyComponentsStats;
+};
 
 export interface SetBindingCoreProjectCall extends CoreProjectCall {
   operation: 'set-binding';
