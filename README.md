@@ -194,8 +194,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## collector
 
-- logs
-- changements de status (+online/offline)
+- visualisation
 
 # Notes
 
