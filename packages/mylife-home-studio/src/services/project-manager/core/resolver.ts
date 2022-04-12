@@ -128,7 +128,7 @@ function buildBindings(projectView: ResolvedProjectViewImpl, viewModel: ViewMode
     const sourceHalf = builders[bindingModel.sourceComponent.id].getMemberData(bindingModel.sourceState);
     const targetHalf = builders[bindingModel.targetComponent.id].getMemberData(bindingModel.targetAction);
 
-    const bindingView = new BindingViewImpl(sourceHalf.component, sourceHalf.memberName, targetHalf.component, bindingModel.targetAction);
+    const bindingView = new BindingViewImpl(sourceHalf.component, sourceHalf.memberName, targetHalf.component, targetHalf.memberName);
     projectView.bindings.set(bindingView.id, bindingView);
     sourceHalf.component.bindingsFrom.add(bindingView);
     targetHalf.component.bindingsTo.add(bindingView);
