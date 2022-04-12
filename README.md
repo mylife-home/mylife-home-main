@@ -73,14 +73,25 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ### Archi
 
- - Keep:
-   - Deploy (tâche pour faire image + livraison ssh)
-   - Studio Deploy components/bindings (diff core vs hw + livraison au diff de composants, avec sélection possible)
- - Add/Improve:
-   - améliorer les scripts de build de packages/kernel modules alpine (cross build in docker sans rpi si possible)
-   - pouvoir importer une config de composants d'un projet vers les tâches de build
-   - pouvoir publier la sortie de packager vers la plateforme de Deploy
-
+- Keep:
+  - Deploy (tâche pour faire image + livraison ssh)
+  - Studio Deploy components/bindings (diff core vs hw + livraison au diff de composants, avec sélection possible)
+- Add/Improve:
+  - améliorer les scripts de build de packages/kernel modules alpine (cross build in docker sans rpi si possible)
+  - pouvoir importer une config de composants d'un projet vers les tâches de build
+  - pouvoir publier la sortie de packager vers la plateforme de Deploy
+- templates
+  - multiple components with template id (with config)
+  - bindings between components in the template
+  - config settings
+  - exports (explicit to avoid pollution):
+    - state/action (with possible renaming)
+    - config (with possible renaming)
+  - then, on use, a template is seen as a plugin, which can be instantiated into a component
+  - notes:
+    - take care on plugin refresh
+    - a template can use another template, take care of circular dependencies
+    
 #### core-designer toolbox
 
  - objectifs:
