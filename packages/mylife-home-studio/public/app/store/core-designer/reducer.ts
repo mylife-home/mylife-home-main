@@ -90,6 +90,20 @@ export default createReducer(initialState, {
     }
   },
 
+  // Apply this change right away to improve designer UX
+  // => do not move back at original pos and wait for server update
+  // Note that server update will apply anyway
+  [ActionTypes.MOVE_COMPONENTS]: (state, action: PayloadAction<ActionPayloads.MoveComponents>) => {
+    const { componentsIds, delta } = action.payload;
+    for (const componentId of componentsIds) {
+      const component = state.components.byId[componentId];
+      component.position = {
+        x: component.position.x + delta.x,
+        y: component.position.y + delta.y,
+      };
+    }
+  },
+
   [ActionTypes.ACTIVATE_VIEW]: (state, action: PayloadAction<ActionPayloads.ActivateView>) => {
     const { tabId, templateId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];

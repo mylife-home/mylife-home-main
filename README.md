@@ -135,6 +135,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
+  - on DnD (move/resize) apply updates directly (and apply them again on server update) to have smooth UX
   - templates
 - core-designer
   - deploy en ligne: ajouter un progress
@@ -160,7 +161,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 - logs
   - pouvoir c/c des logs
-- nouveau modele de modif/enregistrement
+- nouveau modele de modif/enregistrement (si pas OK avec MAJ direct de state sur certaines actions)
   - liste de pending changes a coté de "requetes en cours"
   - deploy: modele par recipe
   - appliquer les modifications sur un "overlay" du modele
@@ -168,7 +169,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on debounce l emission des pending changes au serveur
   - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
   - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
-- nouveau mode + simple : update le state a l'avance (eg: move components) de toutes facons le server va ecraser les modifs bientot, ou faire une erreur
 - create action payload types like core-designer everywhere
 
 ## ui
