@@ -12,6 +12,7 @@ import { useFireAsync, useReportError } from '../../../lib/use-error-handling';
 import { useCanvasTheme } from '../../drawing/theme';
 import { computeCenter, computeComponentRect } from '../../drawing/shapes';
 import CenterButton from '../center-button';
+import CopyToTemplateButton from '../copy-to-template';
 import { useRenameDialog } from '../../../dialogs/rename';
 
 import { AppState } from '../../../../store/types';
@@ -33,6 +34,7 @@ const Actions: FunctionComponent = () => {
   const componentCenterPosition = useCenterComponent(component, definition);
   const fireAsync = useFireAsync();
   const showRenameDialog = useRenameDialog(componentIds, component.componentId, 'Entrer un nom de composant');
+  const copyComponentsIds = useMemo(() => ([component.id]), [component.id]);
   
   const onRename = () =>
     fireAsync(async () => {
@@ -45,6 +47,7 @@ const Actions: FunctionComponent = () => {
   return (
     <div className={classes.container}>
       <CenterButton position={componentCenterPosition} />
+      <CopyToTemplateButton componentsIds={copyComponentsIds} />
 
       <Tooltip title="Renommer">
         <IconButton onClick={onRename}>

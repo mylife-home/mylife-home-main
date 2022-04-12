@@ -11,6 +11,7 @@ import { useCanvasTheme } from '../drawing/theme';
 import { computeComponentRect, mergeRects, computeCenter } from '../drawing/shapes';
 import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
+import CopyToTemplateButton from './copy-to-template';
 
 import { getComponentsMap, getSelectedComponentsArray, makeGetExportedComponentIds, getComponentDefinitionPropertiesGetter } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
@@ -35,6 +36,7 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
       <Group title="Sélection multiple">
         <div className={classes.actions}>
           <CenterButton position={centerPosition} />
+          <CopyToTemplateButton componentsIds={componentsIds} />
           <DeleteButton icon tooltip="Supprimer tous les composants" confirmText="Êtes-vous sûr de vouloir supprimer tous les composants ?" onConfirmed={clearAll} />
         </div>
 
