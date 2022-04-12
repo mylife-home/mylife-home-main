@@ -46,9 +46,11 @@ const CopyToTemplateButton: FunctionComponent<CopyToTemplateButtonProps> = ({ co
   return (
     <>
       <Tooltip title="Copier les composants sélectionnés dans un template">
-        <IconButton onClick={handleClick} disabled={disabled}>
-          <FileCopyIcon />
-        </IconButton>
+        <span>
+          <IconButton onClick={handleClick} disabled={disabled}>
+            <FileCopyIcon />
+          </IconButton>
+        </span>
       </Tooltip>
 
       <Popover

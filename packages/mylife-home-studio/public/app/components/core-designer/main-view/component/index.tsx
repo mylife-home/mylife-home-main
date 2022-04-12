@@ -312,7 +312,6 @@ const PropertyHit: FunctionComponent<PropertyHitProps> = ({ yIndex, bindingSourc
 
   const createDragEventHandler = (type: DragEventType) => {
     return (e: Konva.KonvaEventObject<DragEvent>) => {
-      console.log(type, bindingSource)
       e.cancelBubble = true;
       propertyOnDrag(type, { x: e.evt.x, y: e.evt.y });
     };
