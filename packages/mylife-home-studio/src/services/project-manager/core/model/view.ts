@@ -191,15 +191,17 @@ export abstract class ViewModel {
     const dryRun = this.project.buildNamingDryRunEngine();
 
     for (const component of components) {
+      const targetId = `{{id}}-${component.id}`;
+
       if (component.data.external) {
         throw new Error('Cannot copy external components');
-      }
-
-      if (component.definition instanceof TemplateModel) {
+      } else if (component.definition instanceof TemplateModel) {
         throw new Error('Cannot copy template components for now');
+      } else if (targetView.hasComponent(targetId)) {
+        throw new Error(`Component with id '${targetId}' does already exist on target view`);
       }
 
-      dryRun.setComponent(targetView, `{{id}}-${component.id}`, component.definition);
+      dryRun.setComponent(targetView, targetId, component.definition);
     }
 
     dryRun.validate();
