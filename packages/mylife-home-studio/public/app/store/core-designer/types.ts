@@ -1,5 +1,8 @@
 import { PluginUsage, Member, ConfigItem, MemberType, ConfigType } from '../../../../shared/component-model';
-import { CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport, UpdateProjectNotification, CoreComponentDefinition, CoreComponentDefinitionType, CoreComponentConfiguration } from '../../../../shared/project-manager';
+import { 
+  CoreBindingData, CoreComponentData, coreImportData, CorePluginData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, DeployChanges, 
+  CoreTemplateExports, CoreTemplateConfigExport, CoreTemplateMemberExport, UpdateProjectNotification, CoreComponentDefinition, CoreComponentDefinitionType, CoreComponentConfiguration, CopyComponentsStats
+} from '../../../../shared/project-manager';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -81,7 +84,7 @@ export type TemplateMemberExport = CoreTemplateMemberExport;
 
 export type ComponentConfiguration = CoreComponentConfiguration;
 
-export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges, UpdateProjectNotification };
+export { DesignerTabActionData, PluginUsage, Member, ConfigItem, MemberType, ConfigType, CoreBindingData, ImportFromOnlineConfig, ImportFromProjectConfig, BulkUpdatesStats, coreValidation, coreImportData, DeployChanges, UpdateProjectNotification, CopyComponentsStats };
 
 export type Use = 'unused' | 'external' | 'used';
 

@@ -8,8 +8,13 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 
+import { useFireAsync } from '../../lib/use-error-handling';
 import { useTabSelector } from '../../lib/use-tab-selector';
+import { useSnackbar } from '../../dialogs/snackbar';
+import { AsyncDispatch } from '../../../store/types';
+import { CopyComponentsStats } from '../../../store/core-designer/types';
 import { getComponentsMap, getTemplatesMap, getTemplateIds } from '../../../store/core-designer/selectors';
+import { copyComponentsToTemplate } from '../../../store/core-designer/actions';
 
 interface CopyToTemplateButtonProps {
   componentsIds: string[];
@@ -121,8 +126,24 @@ const TemplateSelector: FunctionComponent<{ className?: string; list: string[]; 
 export default CopyToTemplateButton;
 
 function useCopyToTemplate() {
+  const dispatch = useDispatch<AsyncDispatch<CopyComponentsStats>>();
+  const fireAsync = useFireAsync();
+  const { enqueueSnackbar } = useSnackbar();
   return useCallback((componentsIds: string[], templateId: string) => {
-    // find bindings
-    // ensure all ids are free
-  }, []);
+
+    fireAsync(async () => {
+      const stats = await dispatch(copyComponentsToTemplate({ componentsIds, templateId }));
+      enqueueSnackbar(formatStats(stats), { variant: 'success' });
+    });
+  }, [dispatch, fireAsync, enqueueSnackbar]);
+}
+
+function formatStats(stats: CopyComponentsStats) {
+  let message = stats.components > 1 ? `${stats.components} composants créés` : `${stats.components} composant créé`;
+
+  if (stats.bindings) {
+    message += stats.bindings > 1 ? `, ${stats.bindings} bindings créés` : `, ${stats.bindings} binding créé`;
+  }
+
+  return message;
 }

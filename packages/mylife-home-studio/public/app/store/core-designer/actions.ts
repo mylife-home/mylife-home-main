@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAsyncAction } from '../common/async-action';
-import { ActionTypes, ActionPayloads, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, FilesDeployResult } from './types';
+import { ActionTypes, ActionPayloads, OnlineDeployData, FilesDeployData, BulkUpdatesData, BulkUpdatesStats, FilesDeployResult, CopyComponentsStats } from './types';
 
 export const setNotifier = createAction<ActionPayloads.SetNotifier>(ActionTypes.SET_NOTIFIER);
 export const clearAllNotifiers = createAction<ActionPayloads.ClearAllNotifiers>(ActionTypes.CLEAR_ALL_NOTIFIERS);
@@ -25,7 +25,7 @@ export const moveComponents = createAsyncAction<ActionPayloads.MoveComponents>(A
 export const configureComponent = createAsyncAction<ActionPayloads.ConfigureComponent>(ActionTypes.CONFIGURE_COMPONENT);
 export const renameComponent = createAsyncAction<ActionPayloads.RenameComponent>(ActionTypes.RENAME_COMPONENT); // Note: newId is new componentId only, not full id
 export const clearComponents = createAsyncAction<ActionPayloads.ClearComponents>(ActionTypes.CLEAR_COMPONENTS);
-export const copyComponentsToTemplate = createAsyncAction<ActionPayloads.CopyComponentsToTemplate>(ActionTypes.COPY_COMPONENTS_TO_TEMPLATE);
+export const copyComponentsToTemplate = createAsyncAction<ActionPayloads.CopyComponentsToTemplate, CopyComponentsStats>(ActionTypes.COPY_COMPONENTS_TO_TEMPLATE);
 export const setTemplate = createAsyncAction<ActionPayloads.SetTemplate>(ActionTypes.SET_TEMPLATE);
 export const renameTemplate = createAsyncAction<ActionPayloads.RenameTemplate>(ActionTypes.RENAME_TEMPLATE); // Note: newId is new templateId only, not full id
 export const clearTemplate = createAsyncAction<ActionPayloads.ClearTemplate>(ActionTypes.CLEAR_TEMPLATE);
