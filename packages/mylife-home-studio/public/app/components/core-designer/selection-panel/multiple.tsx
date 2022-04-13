@@ -13,7 +13,8 @@ import { useSelectComponent } from '../selection';
 import CenterButton from './center-button';
 import CopyToTemplateButton from './copy-to-template';
 
-import { getComponentsMap, getSelectedComponentsArray, makeGetExportedComponentIds, getComponentDefinitionPropertiesGetter } from '../../../store/core-designer/selectors';
+import { AppState } from '../../../store/types';
+import { getComponentsMap, getSelectedComponentsArray, getComponent, makeGetExportedComponentIds, getComponentDefinitionPropertiesGetter } from '../../../store/core-designer/selectors';
 import { clearComponents } from '../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +30,6 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
   const componentsIds = useTabSelector(getSelectedComponentsArray);
   const { clearAll } = useActionsConnect(componentsIds);
   const centerPosition = useCenterPosition(componentsIds);
-  const selectComponent = useSelectComponent();
 
   return (
     <div className={className}>
@@ -42,7 +42,7 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 
         <Item title="Composants" multiline>
           {componentsIds.map(id => (
-            <Link key={id} variant="body1" color="textPrimary" href="#" onClick={() => selectComponent(id)}>{id}</Link>
+            <ComponentLink key={id} id={id} />
           ))}
         </Item>
       </Group>
@@ -51,6 +51,15 @@ const Multiple: FunctionComponent<{ className?: string; }> = ({ className }) => 
 };
 
 export default Multiple;
+
+const ComponentLink: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { componentId } = useSelector((state: AppState) => getComponent(state, id));
+  const selectComponent = useSelectComponent();
+
+  return (
+    <Link variant="body1" color="textPrimary" href="#" onClick={() => selectComponent(id)}>{componentId}</Link>
+  );
+}
 
 function useActionsConnect(componentsIds: string[]) {
   const dispatch = useDispatch();
