@@ -149,7 +149,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - may need to bind on several components
       - define template actions/members of certain value types to bind (as "template imports" ?)
       - at template use, provide bindings
-      - can we ease bindings with pattern on components bindings ? eg "{{id}}-set0.value", "{{id}}-set20.value", ... in template then only provide id at instantiaion ?
+      - ease bindings with pattern on components binding
+        - template can provide a pattern like "{{id}}-set0.value", "{{id}}-set20.value" to bind its exports
+        - at template use, one can provide an id and auto-fill all (or part of) bindings at once.
+        - This is only a filling helper, and validation is the same than for manual binding settings
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
