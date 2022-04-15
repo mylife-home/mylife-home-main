@@ -143,6 +143,13 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - on DnD (move/resize) apply updates directly (and apply them again on server update) to have smooth UX
   - templates
+    - need custom controls (VR/light "all" panel)
+    - need custom windows (single VR management, later light dimmer)
+    - may be fully static
+    - may need to bind on several components
+      - define template actions/members of certain value types to bind (as "template imports" ?)
+      - at template use, provide bindings
+      - can we ease bindings with pattern on components bindings ? eg "{{id}}-set0.value", "{{id}}-set20.value", ... in template then only provide id at instantiaion ?
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
@@ -179,13 +186,18 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## ui
 
- - faire CSS à la main
- - button: feedback sur l'état du bouton
-   - color1 par défaut
-   - color2 = click court en cours
-   - si appui + long changement vers color3  : click long en cours, on peut relacher
-   - color4: en attente reste séquence (eg double click)
-   - rajouter un feedback pour dire que action primary ou secondary est executée
+- faire CSS à la main
+- button: feedback sur l'état du bouton
+  - color1 par défaut
+  - color2 = click court en cours
+  - si appui + long changement vers color3  : click long en cours, on peut relacher
+  - color4: en attente reste séquence (eg double click)
+  - rajouter un feedback pour dire que action primary ou secondary est executée
+- add title to window (to display in popup)
+- styles
+  - add custom css classes
+  - permit to add them to controls statically => use it for "RDC" "R1" etc
+  - add custom functions like text controls but which returns boolean to add a class or not
 
 # TODO
 
