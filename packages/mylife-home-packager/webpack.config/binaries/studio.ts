@@ -14,6 +14,11 @@ export const bin = (context: Context) => prepareServerConfiguration(context, {
           return true;
         }
 
+        // ignore native dependency (loaded from ssh2/lib/protocol/constants.js which has try logic to ignore it)
+        if (resource === '../build/Release/cpufeatures.node') {
+          return true;
+        }
+
         return false;
       }
     })
