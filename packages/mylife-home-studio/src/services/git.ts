@@ -4,7 +4,7 @@ import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { GitStatus, GitStatusNotification, DEFAULT_STATUS } from '../../shared/git';
+import { GitStatus, GitChangedFeatures, GitStatusNotification, DEFAULT_STATUS } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
 
@@ -121,8 +121,7 @@ export class Git implements Service {
   private updateStatusModel(files: FileStatusResult[]) {
     const changedFeatures = this.buildChangedFeatures(files);
 
-    // TODO: is this stable?
-    if (JSON.stringify(changedFeatures) === JSON.stringify(this.status.changedFeatures)) {
+    if (areSameChangedFeatures(changedFeatures, this.status.changedFeatures)) {
       // No change since last update
       return;
     }
@@ -133,7 +132,7 @@ export class Git implements Service {
 
   private buildChangedFeatures(files: FileStatusResult[]) {
     const rootPath = Services.instance.pathManager.root;
-    const changedFeatures: GitStatus['changedFeatures'] = {};
+    const changedFeatures: GitChangedFeatures = {};
 
     // Build new changedFeatures
     for (const file of files) {
@@ -157,6 +156,40 @@ export class Git implements Service {
     return changedFeatures;
   }
 }
+
+function areSameChangedFeatures(changedFeatures1: GitChangedFeatures, changedFeatures2: GitChangedFeatures) {
+  const keys1 = Object.keys(changedFeatures1).sort();
+  const keys2 = Object.keys(changedFeatures2).sort();
+
+  if (!areSameSortedArray(keys1, keys2)) {
+    return false;
+  }
+
+  for (const key of keys1) {
+    const changes1 = changedFeatures1[key];
+    const changes2 = changedFeatures2[key];
+    if (!areSameSortedArray(changes1, changes2)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function areSameSortedArray(array1: string[], array2: string[]) {
+  if (array1.length !== array2.length) {
+    return false;
+  }
+
+  for (const [index, value] of array1.entries()) {
+    if (array2[index] !== value) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 
 class Debounce {
   private handler: NodeJS.Timeout = null;
