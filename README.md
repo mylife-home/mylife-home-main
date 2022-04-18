@@ -216,6 +216,19 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
+- plugin timer:
+  - scheduler:
+    - 1 sortie boolean type trigger
+    - Config cron-like
+    - 1 entrée "disabled" boolean
+    - 1 sortie string qui explique le cron de config => https://www.npmjs.com/package/cronstrue
+    - 1 sortie integer "temps en XXX avant le prochain trigger" => https://www.npmjs.com/package/cron-parser
+    - engine: https://www.npmjs.com/package/cron
+    - note: voir si on peut pas n'utiliser qu'un seul moteur de cron au lieu de 3 ?
+    - tests : https://crontab.guru/
+  - trigger-report
+    - 1 entrée "trigger"
+    - 1 sortie integer "temps en XXX depuis le dernier trigger" (null après reboot)
 
 ## collector
 
