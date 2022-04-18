@@ -1,7 +1,6 @@
 import { registerPluginVersion } from 'mylife-home-core';
 
 import './step-relay';
-import './timer';
 
 // converters
 import './binary-to-percent';
