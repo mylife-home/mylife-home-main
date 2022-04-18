@@ -33,7 +33,7 @@ export default abstract class Program<Value> {
 
   protected abstract parseOutputValue(value: string): Value;
   protected abstract setOutput(name: OutputKey, value: Value): void;
-  protected abstract setProgress(value: number): void;
+  protected abstract setProgress(percent: number, progressTime: number): void;
   protected abstract setRunning(value: boolean): void;
 
   private parse() {
@@ -88,13 +88,13 @@ export default abstract class Program<Value> {
 
     if (this.totalWait === 0) {
       // no wait in the program -> no time, no progress
-      this.setProgress(0);
+      this.setProgress(0, 0);
       return;
     }
 
     const progressTime = Number(process.hrtime.bigint() - this.startTime) / 1e6;
-    const progress = Math.round((progressTime / this.totalWait) * 100);
-    this.setProgress(progress);
+    const percent = Math.round((progressTime / this.totalWait) * 100);
+    this.setProgress(percent, progressTime / 1000);
 
     this.currentProgressTimer = setTimeout(() => this.executeProgress(), PROGRESS_TIMER);
   }
@@ -129,13 +129,18 @@ export default abstract class Program<Value> {
     this.currentProgressTimer = null;
     this.currentStepIndex = -1;
     this.startTime = null;
-    this.setProgress(0);
+    this.setProgress(0, 0);
     this.setRunning(false);
   }
 
   get running() {
     const currentStep = this.steps[this.currentStepIndex];
     return !!currentStep;
+  }
+
+  // in seconds
+  get totalTime() {
+    return this.totalWait / 1000;
   }
 };
 

@@ -21,8 +21,9 @@ class PercentProgram extends Program<number> {
     this.owner[name] = value;
   }
 
-  protected setProgress(value: number) {
-    this.owner.progress = value;
+  protected setProgressTime(percent: number, progressTime: number) {
+    this.owner.progressTime = progressTime;
+    this.owner.progress = percent;
   }
 
   protected setRunning(value: boolean) {
@@ -49,9 +50,17 @@ export class SmartTimerPercent {
     this.cancelProgram.setup();
 
     this.initProgram.run();
+
+    this.totalTime = this.triggerProgram.totalTime;
   }
 
-  @m.state({ type: new m.Range(0, 100) })
+  @m.state({ type: new m.Float(), description: 'Temps total du programme, en secondes' })
+  totalTime: number = 0;
+
+  @m.state({ type: new m.Float(), description: 'Temps écoulé du programme, en secondes' })
+  progressTime: number = 0;
+
+  @m.state({ type: new m.Range(0, 100), description: 'Pourcentage du programme accompli' })
   progress: number = 0;
 
   @m.state
