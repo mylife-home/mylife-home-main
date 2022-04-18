@@ -216,11 +216,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
-- cleanup:
-  - supprimer plugins-irc, driver-arduino-irc
-- plugins
-  - supprimer logic-base:timer
-  - rajouter total time + progress time sur logic-timers
 
 ## collector
 
