@@ -36,14 +36,12 @@ export const projects = {
     plugins: {
       // note: should infer that from packager/package.json dependencies
       'driver-absoluta': buildCorePluginProjectConfiguration('driver-absoluta'),
-      'driver-arduino-irc': buildCorePluginProjectConfiguration('driver-arduino-irc'),
       'driver-broadlink': buildCorePluginProjectConfiguration('driver-broadlink'),
       'driver-lirc': buildCorePluginProjectConfiguration('driver-lirc'),
       'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
       'driver-sensors': buildCorePluginProjectConfiguration('driver-sensors'),
       'driver-sysfs': buildCorePluginProjectConfiguration('driver-sysfs', { nativeModules: ['epoll/build/Release/epoll.node'] }),
       'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
-      'irc': buildCorePluginProjectConfiguration('irc'),
       'logic-base': buildCorePluginProjectConfiguration('logic-base'),
       'logic-colors': buildCorePluginProjectConfiguration('logic-colors'),
       'logic-selectors': buildCorePluginProjectConfiguration('logic-selectors'),
