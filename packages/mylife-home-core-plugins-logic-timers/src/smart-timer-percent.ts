@@ -21,7 +21,7 @@ class PercentProgram extends Program<number> {
     this.owner[name] = value;
   }
 
-  protected setProgressTime(percent: number, progressTime: number) {
+  protected setProgress(percent: number, progressTime: number) {
     this.owner.progressTime = progressTime;
     this.owner.progress = percent;
   }

@@ -24,7 +24,7 @@ class BinaryProgram extends Program<boolean> {
     this.owner[name] = value;
   }
 
-  protected setProgressTime(percent: number, progressTime: number) {
+  protected setProgress(percent: number, progressTime: number) {
     this.owner.progressTime = progressTime;
     this.owner.progress = percent;
   }
