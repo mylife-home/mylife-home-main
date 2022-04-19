@@ -18,38 +18,36 @@ export class Scheduler {
     try {
       this.schedule = cronstrue.toString(config.cron, { locale: 'fr' });
       this.job = new CronJob(config.cron, this.onTick);
-      this.nextDate = this.job.nextDate().valueOf();
+      this.refreshNextDate();
 
-      this.changeJobState(true);
+      log.debug('Scheduler starting job');
+      this.job.start();
     } catch(err) {
       log.error(err, 'Error initializing scheduler');
     }
   }
 
   private readonly onTick = () => {
-    this.trigger = true;
-    this.trigger = false;
-
-    log.debug('Scheduler trigger');
-
-    this.nextDate = this.job.nextDate().valueOf();
-  };
-
-  private changeJobState(value: boolean) {
-    log.debug(`Scheduler changing job state to '${value}'`);
-
-    if (value) {
-      this.job.start();
+    if (this.enabled) {
+      this.trigger = true;
+      this.trigger = false;
+  
+      log.debug('Scheduler trigger');
     } else {
-      this.job.stop();
+      log.debug('Skipping scheduler trigger (disabled)');
     }
 
-    this.enabled = this.job.running;
+    this.refreshNextDate();
+  };
+
+  private refreshNextDate() {
+    this.nextDate = this.job.nextDate().valueOf();
   }
 
   @m.action({ description: 'Permet de désactiver le scheduler. Le trigger reste alors à "false"' })
   disable(arg: boolean) {
-    this.changeJobState(!arg);
+    this.enabled = !arg;
+    log.debug(`Scheduler changed job state to '${this.enabled}'`);
   }
 
   @m.state
@@ -65,7 +63,8 @@ export class Scheduler {
   nextDate: number = null;
 
   destroy() {
-    this.changeJobState(false);
+    log.debug('Scheduler stopping job');
+    this.job.stop();
   }
 };
 
