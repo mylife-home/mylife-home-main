@@ -202,7 +202,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - add custom css classes
   - permit to add them to controls statically => use it for "RDC" "R1" etc
   - add custom functions like text controls but which returns boolean to add a class or not
-- static text (no format)
+- static text (no format) + render it wysiwyg
 
 # TODO
 
