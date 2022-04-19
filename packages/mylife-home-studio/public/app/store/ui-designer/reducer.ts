@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, DefaultWindow, Selection } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -229,6 +229,11 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
       tableRemove(state.windows, id);
       arrayRemove(openedProject.windows, id);
+
+      if (openedProject.selection.type === 'window' && openedProject.selection.id === id) {
+        openedProject.selection = DEFAULT_SELECTION;
+      }
+
       break;
     }
 

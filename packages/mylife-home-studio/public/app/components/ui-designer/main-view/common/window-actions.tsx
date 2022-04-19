@@ -124,7 +124,7 @@ function useWindowsConnect() {
   const newWindow = useCallback(
     (id: string) => {
       const newWindow = createNewWindow();
-      newWindow.id = id;
+      newWindow.windowId = id;
       dispatch(setWindow({ tabId, window: newWindow }));
     },
     [dispatch, tabId]
