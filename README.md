@@ -12,8 +12,8 @@
 - gulp build:dev:ui
 - gulp docker:build:ui-testing
 - gulp build:dev:studio
-- gulp build:dev:collector
 - gulp docker:build:studio-testing
+- gulp build:dev:collector
 - gulp docker:build:collector-testing
 
 _cf package.json npm scripts for docker action_
