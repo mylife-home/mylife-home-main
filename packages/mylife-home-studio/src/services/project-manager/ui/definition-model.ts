@@ -170,7 +170,13 @@ export class WindowModel {
   }
 
   setControl(control: Control) {
-    return this.controls.set(control);
+    const controlModel = this.controls.findById(control.id);
+    if (controlModel) {
+      controlModel.update(control);
+      return controlModel;
+    } else {
+      return this.controls.set(control);
+    }
   }
 
   clearControl(controlId: string) {
@@ -275,6 +281,11 @@ export class ControlModel {
 
   set id(value: string) {
     this.data.id = value;
+  }
+
+  update(control: Omit<Control, 'id'>) {
+    const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
+    Object.assign(this.data, { style, height, width, x, y, display, text, primaryAction, secondaryAction });
   }
 
  /**
