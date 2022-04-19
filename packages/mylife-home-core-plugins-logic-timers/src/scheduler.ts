@@ -60,11 +60,12 @@ export class Scheduler {
   schedule: string = '';
 
   @m.state({ type: new m.Float(), description: 'Timestamp JS avant le prochain déclenchement' })
-  nextDate: number = null;
+  nextDate: number = 0;
 
   destroy() {
     log.debug('Scheduler stopping job');
-    this.job.stop();
+
+    this.job?.stop();
   }
 };
 
