@@ -210,9 +210,13 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - ui designer:
   - UI display resources: bug affichage
+  - designer control de type text: saisie des id de context inutilisable (need debounce)
 - core designer:
+  - config de type string: saisie inutilisable (need debounce)
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+  - rename component:
+    - existing ids is not properly filled
 
 ## core
 
