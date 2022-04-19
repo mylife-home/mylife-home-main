@@ -51,7 +51,7 @@ export class Scheduler {
   }
 
   @m.state
-  enabled: boolean = false;
+  enabled: boolean = true;
 
   @m.state({ description: 'Sortie du sheduler' })
   trigger: boolean = false;
