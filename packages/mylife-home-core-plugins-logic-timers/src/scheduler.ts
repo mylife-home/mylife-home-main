@@ -57,7 +57,7 @@ export class Scheduler {
   trigger: boolean = false;
 
   @m.state({ description: 'Description du planning dans un format lisible pour un humain' })
-  schedule: string = null;
+  schedule: string = '';
 
   @m.state({ type: new m.Float(), description: 'Timestamp JS avant le prochain déclenchement' })
   nextDate: number = null;
