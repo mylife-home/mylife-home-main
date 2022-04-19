@@ -16,7 +16,7 @@ export class Scheduler {
 
   constructor(config: { cron: string; }) {
     try {
-      this.schedule = cronstrue.toString(config.cron, { locale: 'fr' });
+      this.schedule = cronstrue.toString(config.cron, { locale: 'fr', monthStartIndexZero: true, use24HourTimeFormat: true, dayOfWeekStartIndexZero: true });
       this.job = new CronJob(config.cron, this.onTick);
       this.refreshNextDate();
 
