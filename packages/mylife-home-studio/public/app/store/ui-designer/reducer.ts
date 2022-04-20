@@ -102,6 +102,38 @@ export default createReducer(initialState, {
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.selection = selection;
   },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
+  [ActionTypes.SET_WINDOW]: (state, action: PayloadAction<{ tabId: string; window: UiWindow; }>) => {
+    const { tabId, window } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
+    const existing = state.windows.byId[window.id];
+    
+    // only apply immediatly changes to existing window, ignore new as there is no UX valuable improvement
+    if (!existing) {
+      return;
+    }
+
+    const windowData = prepareWindowData(openedProject, window, { adaptIds: false });
+    Object.assign(existing, windowData);
+  },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
+  [ActionTypes.SET_CONTROL]: (state, action: PayloadAction<{ tabId: string; windowId: string; control: UiControl; }>) => {
+    const { tabId, control } = action.payload;
+    const openedProject = state.openedProjects.byId[tabId];
+    const existing = state.controls.byId[control.id];
+
+    // only apply immediatly changes to existing window, ignore new as there is no UX valuable improvement
+    if (!existing) {
+      return;
+    }
+
+    const controlData = prepareControlData(openedProject, control, { adaptIds: false });
+    Object.assign(existing, controlData);
+  },
 });
 
 function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProject, update: UpdateProjectNotification) {
@@ -185,7 +217,7 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'set-ui-window': {
       const { window: windowData } = update as SetUiWindowNotification;
-      const { id: windowId, backgroundResource, controls, ...data } = windowData;
+      const { id: windowId, controls } = windowData;
 
       const id = `${openedProject.id}:${windowId}`;
 
@@ -196,12 +228,11 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
       const controlIds = controls.map(controlData => {
         const control: UiControl = {
-          ...controlData,
           id: `${openedProject.id}:${windowId}:${controlData.id}`,
           controlId: controlData.id,
+          ... prepareControlData(openedProject, controlData, { adaptIds: true })
         };
 
-        adaptControlLinks(openedProject, control);
         tableSet(state.controls, control, true);
 
         return control.id;
@@ -210,9 +241,8 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       const window: UiWindow = {
         id: `${openedProject.id}:${windowId}`,
         windowId,
-        backgroundResource: makeNullableId(openedProject, backgroundResource),
         controls: controlIds,
-        ...data
+        ...prepareWindowData(openedProject, windowData, { adaptIds: true }),
       };
 
       tableSet(state.windows, window, true);
@@ -307,50 +337,69 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
   openedProject.components.sort();
 }
 
-function makeNullableId(openedProject: UiOpenedProject, id: string) {
-  return id ? `${openedProject.id}:${id}` : id;
+function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls'>, { adaptIds }: { adaptIds: boolean }) {
+  const { style, height, width, backgroundResource } = window;
+
+  return {
+    style, height, width,
+    backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
+  };
 }
 
-function adaptControlLinks(openedProject: UiOpenedProject, control: UiControl) {
+function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {
+  const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
+
+  const controlData = { style, height, width, x, y, display, text, primaryAction, secondaryAction };
+
   for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
-    if (!control[aid]) {
+    if (!controlData[aid]) {
       continue;
     }
 
-    if (control[aid].window) {
-      control[aid] = { 
-        ... control[aid],
+    if (controlData[aid].window) {
+      controlData[aid] = { 
+        ... controlData[aid],
         window: {
-          ... control[aid].window,
-          id: makeNullableId(openedProject, control[aid].window.id)
+          ... controlData[aid].window,
+          id: prepareNullableId(openedProject, controlData[aid].window.id, { adaptIds })
         },
       };
     }
     
-    if (control[aid].component) {
-      control[aid] = { 
-        ... control[aid],
+    if (controlData[aid].component) {
+      controlData[aid] = { 
+        ... controlData[aid],
         component: {
-          ... control[aid].component,
-          id: makeNullableId(openedProject, control[aid].component.id)
+          ... controlData[aid].component,
+          id: prepareNullableId(openedProject, controlData[aid].component.id, { adaptIds })
         },
       };
     }
   }
 
-  if (control.display) {
-    control.display = {
-      ...control.display,
-      componentId: makeNullableId(openedProject, control.display.componentId),
-      defaultResource: makeNullableId(openedProject, control.display.defaultResource),
-      map: control.display.map.map(({ resource, ...item }) => ({ ...item, resource: makeNullableId(openedProject, resource) }))
+  if (controlData.display) {
+    controlData.display = {
+      ...controlData.display,
+      componentId: prepareNullableId(openedProject, controlData.display.componentId, { adaptIds }),
+      defaultResource: prepareNullableId(openedProject, controlData.display.defaultResource, { adaptIds }),
+      map: controlData.display.map.map(({ resource, ...item }) => ({ ...item, resource: prepareNullableId(openedProject, resource, { adaptIds }) }))
     };
   }
 
-  if (control.text) {
-    control.text = {
-      ...control.text,
-      context: control.text.context.map(({ componentId, ...item }) => ({ ...item, componentId: makeNullableId(openedProject, componentId) }))
+  if (controlData.text) {
+    controlData.text = {
+      ...controlData.text,
+      context: controlData.text.context.map(({ componentId, ...item }) => ({ ...item, componentId: prepareNullableId(openedProject, componentId, { adaptIds }) }))
     };
   }
+
+  return controlData;
+}
+
+function prepareNullableId(openedProject: UiOpenedProject, id: string, { adaptIds }: { adaptIds: boolean }) {
+  return adaptIds ? makeNullableId(openedProject, id) : id;
+}
+
+function makeNullableId(openedProject: UiOpenedProject, id: string) {
+  return id ? `${openedProject.id}:${id}` : id;
 }
