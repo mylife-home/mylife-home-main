@@ -109,7 +109,7 @@ export class Session extends EventEmitter {
     });
 
     this.heartbeat.on('ping', () => {
-      log.debug(`Session send ping '${this.id}')`);
+      log.debug(`Session '${this.id}' send ping`);
       this.socket.ping();
     });
   }
