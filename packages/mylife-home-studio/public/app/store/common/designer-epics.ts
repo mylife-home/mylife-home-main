@@ -166,7 +166,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     }
 
     const keyBuilder = (action: PayloadAction<TActionPayload>) => debounce(action.payload);
-    return debouceTimeWithKey(5000, keyBuilder);
+    return debouceTimeWithKey(3000, keyBuilder);
   }
 
   function createActionFromUpdates(updates: { tabId: string; update: UpdateProjectNotification }[]) {
