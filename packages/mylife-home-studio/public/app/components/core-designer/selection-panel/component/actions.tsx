@@ -17,7 +17,7 @@ import { useRenameDialog } from '../../../dialogs/rename';
 
 import { AppState } from '../../../../store/types';
 import * as types from '../../../../store/core-designer/types';
-import { getComponentIds, getComponent, getSelectedComponent, makeGetExportedComponentIds, makeGetComponentDefinitionProperties } from '../../../../store/core-designer/selectors';
+import { getComponentIds, getComponentsMap, getComponent, getSelectedComponent, makeGetExportedComponentIds, makeGetComponentDefinitionProperties } from '../../../../store/core-designer/selectors';
 import { clearComponents, renameComponent } from '../../../../store/core-designer/actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -70,10 +70,13 @@ function useActionsConnect() {
   const component = useSelector(useCallback((state: AppState) => getComponent(state, componentId), [componentId]));
   const getComponentDefinitionProperties = useMemo(() => makeGetComponentDefinitionProperties(), []);
   const definition = useSelector(useCallback((state: AppState) => getComponentDefinitionProperties(state, component.definition), [component.definition]));
-  const componentIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
+  const componentFullIds = useSelector(useCallback((state: AppState) => getComponentIds(state, tabId), [tabId]));
+  const componentsMap = useSelector(getComponentsMap);
+  const componentIds = useMemo(() => componentFullIds.map(id => componentsMap[id].componentId), [componentFullIds, componentsMap]);
   const getExportedComponentIds = useMemo(() => makeGetExportedComponentIds(), []);
   const exportedComponentIds = useTabSelector(getExportedComponentIds);
   const onError = useReportError();
+
 
   const { clear, rename } = useMemo(() => ({
     clear: () => {

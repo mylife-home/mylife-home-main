@@ -208,8 +208,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - config de type string: saisie inutilisable (need debounce)
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
-  - rename component:
-    - existing ids is not properly filled
 
 ## core
 
