@@ -176,6 +176,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - forbid id with ':'
   - move selection data to redux store (and avoid useResetSelectionIfNull components)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
+  - update immediat du store, et debounce au niveau des epics comme designers
 - logs
   - pouvoir c/c des logs
 - create action payload types like core-designer everywhere
