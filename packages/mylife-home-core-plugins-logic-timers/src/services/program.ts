@@ -27,8 +27,8 @@ export default abstract class Program<Value> {
   }
 
   setup() {
-    this.reset();
     this.parse();
+    this.reset();
   }
 
   protected abstract parseOutputValue(value: string): Value;
@@ -37,15 +37,20 @@ export default abstract class Program<Value> {
   protected abstract setRunning(value: boolean): void;
 
   private parse() {
-    this.steps = this.source.split(/(?:\|| )+/).map(part => {
-      const items = part.split('-');
-      if (items.length !== 2) {
-        throw new Error(`Invalid program: Invalid step: '${part}'`);
-      }
+    try {
+      this.steps = this.source.split(/(?:\|| )+/).map(part => {
+        const items = part.split('-');
+        if (items.length !== 2) {
+          throw new Error(`Invalid program: Invalid step: '${part}'`);
+        }
 
-      const [op, arg] = items;
-      return this.createStep(op, arg);
-    });
+        const [op, arg] = items;
+        return this.createStep(op, arg);
+      });
+    } catch(err) {
+      log.error(err, 'Invalid program. Will fallback to empty program.');
+      this.steps = [];
+    }
 
     this.totalWait = this.steps
       .filter(step => step instanceof WaitStep)
