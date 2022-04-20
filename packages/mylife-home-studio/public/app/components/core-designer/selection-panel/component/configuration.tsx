@@ -6,7 +6,6 @@ import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 
-import DebouncedTextField from '../../../lib/debounced-text-field';
 import { Group, Item } from '../../../lib/properties-layout';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useTabSelector } from '../../../lib/use-tab-selector';
@@ -101,11 +100,11 @@ const ExportedEditor: FunctionComponent<EditorProps> = ({ item }) => {
 const StringEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <DebouncedTextField
+    <TextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange(e.target.value)}
     />
   );
 };
@@ -123,11 +122,11 @@ const BoolEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) =
 const IntegerEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <DebouncedTextField
+    <TextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={formatNumber(value)}
-      onChange={(value) => onChange(parseNumber(value, 'int'))}
+      onChange={(e) => onChange(parseNumber(e.target.value, 'int'))}
       type="number"
       inputProps={{ step: 1 }}
     />
@@ -137,11 +136,11 @@ const IntegerEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }
 const FloatEditor: FunctionComponent<EditorProps> = ({ item, value, onChange }) => {
   const classes = useStyles();
   return (
-    <DebouncedTextField
+    <TextField
       className={classes.editor}
       helperText={getHelperText(item)}
       value={formatNumber(value)}
-      onChange={(value) => onChange(parseNumber(value, 'float'))}
+      onChange={(e) => onChange(parseNumber(e.target.value, 'float'))}
       type="number"
     />
   );
