@@ -191,6 +191,9 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         const callData: ConfigureComponentCoreProjectCall = { operation: 'configure-component', templateId, componentId: id, configId, configValue };
         return { tabId, callData };
       },
+      debounce({ componentId, configId }: ActionPayloads.ConfigureComponent) {
+        return `${componentId}:${configId}`;
+      }
     },
     [ActionTypes.RENAME_COMPONENT]: {
       mapper({ componentId, newId }: ActionPayloads.RenameComponent) {

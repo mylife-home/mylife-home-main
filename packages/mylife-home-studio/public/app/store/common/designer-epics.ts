@@ -1,10 +1,10 @@
 import { Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { from, Observable } from 'rxjs';
+import { from, Observable, identity } from 'rxjs';
 import { concatMap, filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, Epic, ofType, StateObservable } from 'redux-observable';
 
-import { bufferDebounceTime, filterFromState, filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { bufferDebounceTime, debouceTimeWithKey, filterFromState, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
 import { socket } from '../common/rx-socket';
@@ -42,6 +42,7 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   callMappers: { [actionType: string]: {
     mapper: (payload: any) => MapperResult;
     resultMapper?: (payload: ProjectCallResult) => unknown;
+    debounce?: (payload: any) => string; // key builder for debouncing
   } }
 }
 
@@ -127,8 +128,8 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
 
   const calls: Epic[] = [];
 
-  for (const [actionType, { mapper, resultMapper }] of Object.entries(callMappers)) {
-    calls.push(createProjectCallEpic(actionType, mapper, resultMapper));
+  for (const [actionType, { mapper, resultMapper, debounce }] of Object.entries(callMappers)) {
+    calls.push(createProjectCallEpic(actionType, mapper, resultMapper, debounce));
   }
 
   return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...calls);
@@ -140,10 +141,16 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     );
   }
 
-  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(actionType: TActionType, mapper: (payload: TActionPayload) => MapperResult, resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any) {
+  function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(
+    actionType: TActionType,
+    mapper: (payload: TActionPayload) => MapperResult,
+    resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any,
+    debounce: (payload: TActionPayload) => string
+  ) {
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
+        createDebouncer(debounce), // note: if we close the project while 
         withLatestFrom(state$),
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
           const { tabId, callData } = mapper(action.payload);
@@ -151,6 +158,15 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
           return callProjectCall(notifierId, callData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
         })
       );
+  }
+
+  function createDebouncer<TActionPayload>(debounce: (payload: TActionPayload) => string) {
+    if (!debounce) {
+      return identity;
+    }
+
+    const keyBuilder = (action: PayloadAction<TActionPayload>) => debounce(action.payload);
+    return debouceTimeWithKey(5000, keyBuilder);
   }
 
   function createActionFromUpdates(updates: { tabId: string; update: UpdateProjectNotification }[]) {
