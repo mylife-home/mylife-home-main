@@ -178,14 +178,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
 - logs
   - pouvoir c/c des logs
-- nouveau modele de modif/enregistrement (si pas OK avec MAJ direct de state sur certaines actions)
-  - liste de pending changes a coté de "requetes en cours"
-  - deploy: modele par recipe
-  - appliquer les modifications sur un "overlay" du modele
-  - la vue affichée est toujours la superposition du modele et de l overlay
-  - on debounce l emission des pending changes au serveur
-  - quand on recoit un update du serveur, on l'applique et on regarde si des pending changes s'en vont
-  - si des pending changes restent plus de 10 secs, c'est une erreur. On l'affiche dans une notification si la vue n'est plus affichée, ou dans un popup si la vue est encore affichée
 - create action payload types like core-designer everywhere
 
 ## ui
