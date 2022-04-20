@@ -109,11 +109,12 @@ export default abstract class Program<Value> {
       }
 
       this.setRunning(true);
+      log.debug(`Running step index ${this.currentStepIndex}`);
       const done = () => this.executeStep();
       step.execute(done);
 
     } catch (err) {
-      log.error(err, `Error running step index ${this.currentStepIndex}`, this.currentStepIndex);
+      log.error(err, `Error running step index ${this.currentStepIndex}`);
       this.reset();
     }
   }
@@ -125,10 +126,15 @@ export default abstract class Program<Value> {
   }
 
   private reset() {
+    const currentStep = this.steps[this.currentStepIndex];
+    currentStep.interrupt();
+    this.currentStepIndex = -1;
+
     clearTimeout(this.currentProgressTimer);
     this.currentProgressTimer = null;
-    this.currentStepIndex = -1;
+    
     this.startTime = null;
+
     this.setProgress(0, 0);
     this.setRunning(false);
   }
@@ -177,6 +183,8 @@ class WaitStep extends Step {
   }
 
   execute(done: Done) {
+    log.debug(`Execute WaitStep: sleep '${this.delay}' ms`);
+
     const onTimeout = () => {
       this.timer = null;
       done();
@@ -186,6 +194,7 @@ class WaitStep extends Step {
   }
 
   interrupt() {
+    log.debug('Interrupt WaitStep');
     clearTimeout(this.timer);
     this.timer = null;
   }
@@ -197,6 +206,7 @@ class SetOutputStep<Value> extends Step {
   }
 
   execute(done: Done) {
+    log.debug(`Execute SetOutputStep: set '${this.output}' to '${this.value}'`);
     this.setOutput(this.output, this.value);
     done();
   }
@@ -212,6 +222,7 @@ class SetAllOutputsStep<Value> extends Step {
   }
 
   execute(done: Done) {
+    log.debug(`Execute SetAllOutputsStep: set all outputs to '${this.value}'`);
     for (const output of OUTPUTS.values()) {
       this.setOutput(output, this.value);
     }
