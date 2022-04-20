@@ -211,6 +211,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - ui designer:
   - UI display resources: bug affichage
   - designer control de type text: saisie des id de context inutilisable (need debounce)
+  - pareil pour saisie de positions/tailles a la main
 - core designer:
   - config de type string: saisie inutilisable (need debounce)
   - deploy:
