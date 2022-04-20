@@ -104,6 +104,14 @@ export default createReducer(initialState, {
     }
   },
 
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
+  [ActionTypes.CONFIGURE_COMPONENT]: (state, action: PayloadAction<ActionPayloads.ConfigureComponent>) => {
+    const { componentId, configId, configValue } = action.payload;
+    const component = state.components.byId[componentId];
+    component.config[configId] = configValue;
+  },
+
   [ActionTypes.ACTIVATE_VIEW]: (state, action: PayloadAction<ActionPayloads.ActivateView>) => {
     const { tabId, templateId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
