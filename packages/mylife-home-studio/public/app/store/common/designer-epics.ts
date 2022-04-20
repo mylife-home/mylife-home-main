@@ -150,7 +150,7 @@ export function createOpendProjectManagementEpic<TOpenedProject extends OpenedPr
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
-        createDebouncer(debounce), // note: if we close the project while 
+        createDebouncer(debounce), // TODO: if we close the project while debouncing, change will be lost
         withLatestFrom(state$),
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
           const { tabId, callData } = mapper(action.payload);
