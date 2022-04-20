@@ -205,7 +205,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - designer control de type text: saisie des id de context inutilisable (need debounce)
   - pareil pour saisie de positions/tailles a la main
 - core designer:
-  - config de type string: saisie inutilisable (need debounce)
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 
