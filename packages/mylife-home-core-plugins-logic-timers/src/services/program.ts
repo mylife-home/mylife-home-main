@@ -127,7 +127,7 @@ export default abstract class Program<Value> {
 
   private reset() {
     const currentStep = this.steps[this.currentStepIndex];
-    currentStep.interrupt();
+    currentStep?.interrupt();
     this.currentStepIndex = -1;
 
     clearTimeout(this.currentProgressTimer);
