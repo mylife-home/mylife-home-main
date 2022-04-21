@@ -155,7 +155,11 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
           const { tabId, callData } = mapper(action.payload);
           const { notifierId } = getOpenedProject(state, tabId);
-          return callProjectCall(notifierId, callData).pipe(map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }), ignoreElements(), handleError());
+          return callProjectCall(notifierId, callData).pipe(
+            map((serviceResult: ProjectCallResult) => { action.payload.resolve(resultMapper(serviceResult)); }),
+            ignoreElements(),
+            handleError()
+          );
         })
       );
   }
