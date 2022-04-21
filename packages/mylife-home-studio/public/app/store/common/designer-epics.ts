@@ -46,7 +46,7 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   } }
 }
 
-export function createOpendProjectManagementEpic<TOpenedProject extends OpenedProjectBase>({
+export function createProjectManagementEpic<TOpenedProject extends OpenedProjectBase>({
   projectType,
   tabType,
   hasOpenedProjects,

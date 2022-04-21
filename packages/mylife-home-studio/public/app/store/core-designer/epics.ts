@@ -1,6 +1,4 @@
-import { combineEpics } from 'redux-observable';
-
-import { createOpendProjectManagementEpic } from '../common/designer-epics';
+import { createProjectManagementEpic } from '../common/designer-epics';
 import { TabType } from '../tabs/types';
 import { updateCoreDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
@@ -38,7 +36,7 @@ import {
   CopyComponentsStats,
 } from '../../../../shared/project-manager';
 
-const openedProjectManagementEpic = createOpendProjectManagementEpic({
+export default createProjectManagementEpic({
   projectType: 'core',
   tabType: TabType.CORE_DESIGNER,
   setNotifier, clearAllNotifiers, removeOpenedProject, updateProject, updateTab: updateCoreDesignerTab,
@@ -244,8 +242,6 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
   }
 });
-
-export default combineEpics(openedProjectManagementEpic);
 
 function extractIds(fullId: string): { tabId: string, id: string; } {
   const sepPos = fullId.indexOf(':');

@@ -1,6 +1,4 @@
-import { combineEpics } from 'redux-observable';
-
-import { createOpendProjectManagementEpic } from '../common/designer-epics';
+import { createProjectManagementEpic } from '../common/designer-epics';
 import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
@@ -27,7 +25,7 @@ import {
 } from '../../../../shared/project-manager';
 import { Control } from '../../../../shared/ui-model';
 
-const openedProjectManagementEpic = createOpendProjectManagementEpic({
+export default createProjectManagementEpic({
   projectType: 'ui',
   tabType: TabType.UI_DESIGNER,
   setNotifier,
@@ -131,6 +129,10 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
         const callData: SetWindowUiProjectCall = { operation: 'set-window', window: definition };
         return { tabId, callData };
       },
+      debounce({ tabId, window }: { tabId: string; window: UiWindow }) {
+        // TODO: only debounce if not existing
+        return `${tabId}:${window.windowId}`;
+      },
     },
 
     [ActionTypes.CLEAR_WINDOW]: {
@@ -170,7 +172,13 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
 
         return { tabId, callData };
       },
+      debounce({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
+        // TODO: only debounce if not existing
+        return `${windowId}:${control.controlId}`;
+      },
     },
+
+    // => ADD UPDATE_CONTROL, UPDATE_WINDOW or debounce only existing => add state
 
     [ActionTypes.CLEAR_CONTROL]: {
       mapper({ controlId }: { controlId: string }) {
@@ -189,8 +197,6 @@ const openedProjectManagementEpic = createOpendProjectManagementEpic({
     },
   }
 });
-
-export default combineEpics(openedProjectManagementEpic);
 
 function extractIds(fullId: string): { tabId: string; id: string; } {
   const sepPos = fullId.indexOf(':');
