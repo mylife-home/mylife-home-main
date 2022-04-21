@@ -200,11 +200,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## studio
 
-- designer-common: fix debounce => stop debouncing when another action is dispatched on tab + async actions are broken on debounce (action dropped => promise never fullfilled/rejected)
 - ui designer:
   - UI display resources: bug affichage
-  - designer control de type text: saisie des id de context inutilisable (need debounce)
-  - pareil pour saisie de positions/tailles a la main
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
