@@ -141,7 +141,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
-  - on DnD (move/resize) apply updates directly (and apply them again on server update) to have smooth UX
   - templates
     - need custom controls (VR/light "all" panel)
     - need custom windows (single VR management, later light dimmer)
@@ -179,7 +178,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - update immediat du store, et debounce au niveau des epics comme designers
 - logs
   - pouvoir c/c des logs
-- create action payload types like core-designer everywhere
+- create action payload types like core-designer/ui-designer everywhere
 
 ## ui
 
@@ -201,6 +200,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## studio
 
+- designer-common: fix debounce => stop debouncing when another action is dispatched on tab + async actions are broken on debounce (action dropped => promise never fullfilled/rejected)
 - ui designer:
   - UI display resources: bug affichage
   - designer control de type text: saisie des id de context inutilisable (need debounce)

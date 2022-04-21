@@ -1,10 +1,10 @@
 import { Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { from, Observable, identity } from 'rxjs';
-import { concatMap, filter, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
+import { from, Observable } from 'rxjs';
+import { concatMap, filter, groupBy, ignoreElements, map, mergeMap, withLatestFrom } from 'rxjs/operators';
 import { combineEpics, Epic, ofType, StateObservable } from 'redux-observable';
 
-import { bufferDebounceTime, debouceTimeWithKey, filterFromState, filterNotification, handleError, withSelector } from '../common/rx-operators';
+import { bufferDebounceTime, debounceTimeKey, filterFromState, filterNotification, handleError, withSelector } from '../common/rx-operators';
 import { AppState } from '../types';
 import { ActionTypes as TabActionTypes, NewTabAction, TabIdAction, TabType } from '../tabs/types';
 import { socket } from '../common/rx-socket';
@@ -128,11 +128,41 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
 
   const calls: Epic[] = [];
 
-  for (const [actionType, { mapper, resultMapper, debounce }] of Object.entries(callMappers)) {
-    calls.push(createProjectCallEpic(actionType, mapper, resultMapper, debounce));
+  for (const [actionType, { mapper, resultMapper }] of Object.entries(callMappers)) {
+    calls.push(createProjectCallEpic(actionType, mapper, resultMapper));
   }
 
-  return combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...calls);
+  const epics = combineEpics(openProjectEpic, closeProjectEpic, onlineEpic, offlineEpic, fetchEpic, ...calls);
+
+  return function debounceManager(action$: Observable<Action>, state$: StateObservable<AppState>) {
+    const debounced$ = action$.pipe(
+      map(action => ({ action, data: buildActionData(action) })),
+      groupBy(actionWithData => actionWithData.data.tabId),
+      mergeMap(group => group.pipe(debounceTimeKey(actionWithData => actionWithData.data.debounceKey, 3000))),
+      map(actionWithData => actionWithData.action)
+    );
+
+    return epics(debounced$, state$);
+  }
+
+  function buildActionData(action: Action) {
+    if (action.type === TabActionTypes.CLOSE) {
+      return { tabId: (action as PayloadAction<TabIdAction>).payload.id, debounceKey: null };
+    }
+
+    const callMapper = callMappers[action.type];
+    if (!callMapper) {
+      return { tabId: null, debounceKey: null};
+    }
+
+    const { tabId } = callMapper.mapper((action as PayloadAction).payload);
+    if (!callMapper.debounce) {
+      return { tabId, debounceKey: null };
+    }
+
+    const debounceKey = callMapper.debounce((action as PayloadAction).payload);
+    return { tabId, debounceKey: `${action.type}$${debounceKey}` };
+  }
 
   function openProject(tabId: string, projectId: string) {
     return openProjectCall(projectType, projectId).pipe(
@@ -144,13 +174,11 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
   function createProjectCallEpic<TActionType, TActionResult = any, TActionPayload extends { id: string } & DeferredPayload<TActionResult> = any>(
     actionType: TActionType,
     mapper: (payload: TActionPayload) => MapperResult,
-    resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any,
-    debounce: (payload: TActionPayload) => string
+    resultMapper: (serviceResult: ProjectCallResult) => TActionResult = (serviceResult) => serviceResult as any
   ) {
     return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
       action$.pipe(
         ofType(actionType),
-        createDebouncer(debounce), // TODO: if we close the project while debouncing, change will be lost
         withLatestFrom(state$),
         mergeMap(([action, state]: [action: PayloadAction<TActionPayload>, state: AppState]) => {
           const { tabId, callData } = mapper(action.payload);
@@ -162,15 +190,6 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
           );
         })
       );
-  }
-
-  function createDebouncer<TActionPayload>(debounce: (payload: TActionPayload) => string) {
-    if (!debounce) {
-      return identity;
-    }
-
-    const keyBuilder = (action: PayloadAction<TActionPayload>) => debounce(action.payload);
-    return debouceTimeWithKey(3000, keyBuilder);
   }
 
   function createActionFromUpdates(updates: { tabId: string; update: UpdateProjectNotification }[]) {
