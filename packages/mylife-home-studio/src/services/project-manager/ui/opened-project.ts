@@ -10,14 +10,12 @@ import {
   ClearUiResourceNotification,
   RenameResourceUiProjectCall,
   RenameUiResourceNotification,
-  SetWindowUiProjectCall,
   SetUiWindowNotification,
   ClearWindowUiProjectCall,
   ClearUiWindowNotification,
   RenameWindowUiProjectCall,
   RenameUiWindowNotification,
   CloneWindowUiProjectCall,
-  SetControlUiProjectCall,
   ClearControlUiProjectCall,
   RenameControlUiProjectCall,
   SetUiComponentDataNotification,
@@ -28,6 +26,11 @@ import {
   ApplyRefreshComponentsUiProjectCall,
   UiComponentData,
   DeployUiProjectCallResult,
+  NewWindowUiProjectCall,
+  SetWindowPropertiesUiProjectCall,
+  NewControlUiProjectCall,
+  SetControlPropertiesUiProjectCall,
+  CloneControlUiProjectCall,
 } from '../../../../shared/project-manager';
 import { Window, DefinitionResource } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
@@ -35,7 +38,7 @@ import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
-import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage } from './definition-model';
+import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow } from './definition-model';
 import { clone } from '../../../utils/object-utils';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
@@ -110,8 +113,8 @@ export class UiOpenedProject extends OpenedProject {
         this.renameResource(callData as RenameResourceUiProjectCall);
         break;
 
-      case 'set-window':
-        this.setWindow(callData as SetWindowUiProjectCall);
+      case 'new-window':
+        this.newWindow(callData as NewWindowUiProjectCall);
         break;
 
       case 'clear-window':
@@ -126,8 +129,12 @@ export class UiOpenedProject extends OpenedProject {
         this.cloneWindow(callData as CloneWindowUiProjectCall);
         break;
   
-      case 'set-control':
-        this.setControl(callData as SetControlUiProjectCall);
+      case 'set-window-properties':
+        this.setWindowProperties(callData as SetWindowPropertiesUiProjectCall);
+        break;
+
+      case 'new-control':
+        this.newControl(callData as NewControlUiProjectCall);
         break;
 
       case 'clear-control':
@@ -138,6 +145,14 @@ export class UiOpenedProject extends OpenedProject {
         this.renameControl(callData as RenameControlUiProjectCall);
         break;
         
+      case 'clone-control':
+        this.cloneControl(callData as CloneControlUiProjectCall);
+        break;
+  
+      case 'set-control-properties':
+        this.setControlProperties(callData as SetControlPropertiesUiProjectCall);
+        break;
+
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -202,16 +217,9 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setWindow({ window }: SetWindowUiProjectCall) {
+  private newWindow({ id }: NewWindowUiProjectCall) {
     this.executeUpdate(() => {
-      let model = this.windows.findById(window.id);
-      if (model) {
-        model.update(window);
-      } else {
-        // init new model with no control
-        model = this.windows.set({ ...window, controls: [] });
-      }
-
+      const model = newWindow(this.windows, id);
       this.notifyAllWindow(model);
     });
   }
@@ -260,10 +268,18 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setControl({ windowId, control }: SetControlUiProjectCall) {
+  private setWindowProperties({ id, properties }: SetWindowPropertiesUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(id);
+      windowModel.update(properties);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private newControl({ windowId, id, x, y }: NewControlUiProjectCall) {
     this.executeUpdate(() => {
       const windowModel = this.windows.getById(windowId);
-      windowModel.setControl(control);
+      windowModel.newControl(id, x, y);
       this.notifyAllWindow(windowModel);
     });
   }
@@ -280,6 +296,23 @@ export class UiOpenedProject extends OpenedProject {
     this.executeUpdate(() => {
       const windowModel = this.windows.getById(windowId);
       windowModel.renameControl(id, newId);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private cloneControl({ windowId, id, newId }: CloneControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      windowModel.cloneControl(id, newId);
+      this.notifyAllWindow(windowModel);
+    });
+  }
+
+  private setControlProperties({ windowId, id, properties }: SetControlPropertiesUiProjectCall) {
+    this.executeUpdate(() => {
+      const windowModel = this.windows.getById(windowId);
+      const controlModel = windowModel.getControl(id);
+      controlModel.update(properties);
       this.notifyAllWindow(windowModel);
     });
   }

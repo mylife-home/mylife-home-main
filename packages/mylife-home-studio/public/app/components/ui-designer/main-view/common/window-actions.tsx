@@ -12,12 +12,10 @@ import DeleteButton from '../../../lib/delete-button';
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useFireAsync } from '../../../lib/use-error-handling';
-import { clone } from '../../../lib/clone';
 import { useInputDialog } from '../../../dialogs/input';
 import { AppState } from '../../../../store/types';
-import { setWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
+import { newWindow, cloneWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
 import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
-import { createNewWindow } from './templates';
 import { useRemoveUsageConfirmDialog } from './remove-usage-confirm-dialog';
 
 const useStyles = makeStyles((theme) => ({
@@ -121,16 +119,14 @@ function useWindowsConnect() {
   const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
-  const newWindow = useCallback(
-    (id: string) => {
-      const newWindow = createNewWindow();
-      newWindow.windowId = id;
-      dispatch(setWindow({ tabId, window: newWindow }));
-    },
-    [dispatch, tabId]
-  );
-
-  return { newWindow };
+  return {
+    newWindow: useCallback(
+      (newId: string) => {
+        dispatch(newWindow({ tabId, newId }));
+      },
+      [dispatch, tabId]
+    )
+  };
 }
 
 function useWindowConnect(id: string) {
@@ -143,9 +139,7 @@ function useWindowConnect(id: string) {
   const callbacks = useMemo(
     () => ({
       duplicate: (newId: string) => {
-        const newWindow = clone(window);
-        newWindow.windowId = newId;
-        dispatch(setWindow({ tabId, window: newWindow }));
+        dispatch(cloneWindow({ windowId: id, newId }));
       },
       rename: (newId: string) => {
         dispatch(renameWindow({ windowId: id, newId }));
@@ -154,7 +148,7 @@ function useWindowConnect(id: string) {
         dispatch(clearWindow({ windowId: id }));
       },
     }),
-    [dispatch, tabId, id]
+    [dispatch, id]
   );
 
   return { ...callbacks, usage, window };

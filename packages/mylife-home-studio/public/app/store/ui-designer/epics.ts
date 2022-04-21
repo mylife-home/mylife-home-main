@@ -3,7 +3,7 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl } from './types';
+import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl, ActionPayloads } from './types';
 import {
   UiProjectCall,
   ClearResourceUiProjectCall,
@@ -15,15 +15,19 @@ import {
   CloneWindowUiProjectCall,
   SetDefaultWindowUiProjectCall,
   SetResourceUiProjectCall,
-  SetWindowUiProjectCall,
-  SetControlUiProjectCall,
   ValidateUiProjectCallResult,
   RefreshComponentsFromProjectUiProjectCall,
   ApplyRefreshComponentsUiProjectCall,
   RefreshComponentsUiProjectCallResult,
   DeployUiProjectCallResult,
+  NewControlUiProjectCall,
+  CloneControlUiProjectCall,
+  SetControlPropertiesUiProjectCall,
+  NewWindowUiProjectCall,
+  SetWindowPropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
-import { Control } from '../../../../shared/ui-model';
+
+type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
 
 export default createProjectManagementEpic({
   projectType: 'ui',
@@ -39,7 +43,7 @@ export default createProjectManagementEpic({
   getOpenedProjectIdByNotifierId,
   callMappers: {
     [ActionTypes.VALIDATE_PROJECT]: {
-      mapper({ tabId }: { tabId: string }) {
+      mapper({ tabId }: ActionPayloads.ValidateProject) {
         const callData: UiProjectCall = { operation: 'validate' };
         return { tabId, callData };
       },
@@ -49,7 +53,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.REFRESH_COMPONENTS_FROM_ONLINE]: {
-      mapper({ tabId }: { tabId: string }) {
+      mapper({ tabId }: ActionPayloads.RefreshComponentsFromOnline) {
         const callData: UiProjectCall = { operation: 'refresh-components-from-online' };
         return { tabId, callData };
       },
@@ -59,7 +63,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.REFRESH_COMPONENTS_FROM_PROJECT]: {
-      mapper({ tabId, projectId }: { tabId: string; projectId: string }) {
+      mapper({ tabId, projectId }: ActionPayloads.RefreshComponentsFromProject) {
         const callData: RefreshComponentsFromProjectUiProjectCall = { operation: 'refresh-components-from-project', projectId };
         return { tabId, callData };
       },
@@ -69,14 +73,14 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.APPLY_REFRESH_COMPONENTS]: {
-      mapper({ tabId, serverData }: { tabId: string; serverData: unknown }) {
+      mapper({ tabId, serverData }: ActionPayloads.ApplyRefreshComponents) {
         const callData: ApplyRefreshComponentsUiProjectCall = { operation: 'apply-refresh-components', serverData };
         return { tabId, callData };
       }
     },
 
     [ActionTypes.DEPLOY_PROJECT]: {
-      mapper({ tabId }: { tabId: string }) {
+      mapper({ tabId }: ActionPayloads.DeployProject) {
         const callData: UiProjectCall = { operation: 'deploy' };
         return { tabId, callData };
       },
@@ -86,7 +90,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.SET_DEFAULT_WINDOW]: {
-      mapper({ tabId, defaultWindow }: { tabId: string; defaultWindow: DefaultWindow }) {
+      mapper({ tabId, defaultWindow }: ActionPayloads.SetDefaultWindow) {
         const desktop = extractNullableId(defaultWindow.desktop, tabId);
         const mobile = extractNullableId(defaultWindow.mobile, tabId);
         const callData: SetDefaultWindowUiProjectCall = { operation: 'set-default-window', defaultWindow: { desktop, mobile } };
@@ -95,7 +99,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.SET_RESOURCE]: {
-      mapper({ tabId, resource }: { tabId: string; resource: UiResource }) {
+      mapper({ tabId, resource }: ActionPayloads.SetResource) {
         const { resourceId, ...definition } = resource;
         definition.id = resourceId;
         const callData: SetResourceUiProjectCall = { operation: 'set-resource', resource: definition };
@@ -104,7 +108,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.CLEAR_RESOURCE]: {
-      mapper({ resourceId }: { resourceId: string }) {
+      mapper({ resourceId }: ActionPayloads.ClearResource) {
         const { tabId, id } = extractIds(resourceId);
         const callData: ClearResourceUiProjectCall = { operation: 'clear-resource', id };
         return { tabId, callData };
@@ -112,31 +116,22 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.RENAME_RESOURCE]: {
-      mapper({ resourceId, newId }: { resourceId: string; newId: string }) {
+      mapper({ resourceId, newId }: ActionPayloads.RenameResource) {
         const { tabId, id } = extractIds(resourceId);
         const callData: RenameResourceUiProjectCall = { operation: 'rename-resource', id, newId };
         return { tabId, callData };
       },
     },
-
-    [ActionTypes.SET_WINDOW]: {
-      mapper({ tabId, window }: { tabId: string; window: UiWindow }) {
-        const { windowId, controls, ...definition } = window;
-        
-        definition.id = windowId;
-        definition.backgroundResource = extractNullableId(definition.backgroundResource, tabId);
-
-        const callData: SetWindowUiProjectCall = { operation: 'set-window', window: definition };
+    
+    [ActionTypes.NEW_WINDOW]: {
+      mapper({ tabId, newId }: ActionPayloads.NewWindow) {
+        const callData: NewWindowUiProjectCall = { operation: 'new-window', id: newId };
         return { tabId, callData };
-      },
-      debounce({ tabId, window }: { tabId: string; window: UiWindow }) {
-        // TODO: only debounce if not existing
-        return `${tabId}:${window.windowId}`;
       },
     },
 
     [ActionTypes.CLEAR_WINDOW]: {
-      mapper({ windowId }: { windowId: string }) {
+      mapper({ windowId }: ActionPayloads.ClearWindow) {
         const { tabId, id } = extractIds(windowId);
         const callData: ClearWindowUiProjectCall = { operation: 'clear-window', id };
         return { tabId, callData };
@@ -144,7 +139,7 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.RENAME_WINDOW]: {
-      mapper({ windowId, newId }: { windowId: string; newId: string }) {
+      mapper({ windowId, newId }: ActionPayloads.RenameWindow) {
         const { tabId, id } = extractIds(windowId);
         const callData: RenameWindowUiProjectCall = { operation: 'rename-window', id, newId };
         return { tabId, callData };
@@ -159,29 +154,33 @@ export default createProjectManagementEpic({
       },
     },
 
-    [ActionTypes.SET_CONTROL]: {
-      mapper({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
-        const { controlId, ...definition } = control;
-        definition.id = controlId;
+    [ActionTypes.SET_WINDOW_PROPERTIES]: {
+      mapper({ windowId, properties }: ActionPayloads.SetWindowProperties) {
+        const { tabId, id } = extractIds(windowId);
 
-        const callData: SetControlUiProjectCall = { 
-          operation: 'set-control', 
-          windowId: extractNullableId(windowId, tabId),
-          control: adaptControlLinks(definition, tabId)
-        };
+        const fixedProps = { ... properties };
+        if (fixedProps.backgroundResource) {
+          fixedProps.backgroundResource = extractNullableId(fixedProps.backgroundResource, tabId);
+        }
 
+        const callData: SetWindowPropertiesUiProjectCall = { operation: 'set-window-properties', id, properties: fixedProps };
         return { tabId, callData };
       },
-      debounce({ tabId, windowId, control }: { tabId: string; windowId: string; control: UiControl }) {
-        // TODO: only debounce if not existing
-        return `${windowId}:${control.controlId}`;
+      debounce({ windowId }: ActionPayloads.SetWindowProperties) {
+        return windowId;
       },
     },
 
-    // => ADD UPDATE_CONTROL, UPDATE_WINDOW or debounce only existing => add state
+    [ActionTypes.NEW_CONTROL]: {
+      mapper({ windowId, newId, x, y }: ActionPayloads.NewControl) {
+        const { tabId, id } = extractIds(windowId);
+        const callData: NewControlUiProjectCall = { operation: 'new-control', windowId: id, id: newId, x, y };
+        return { tabId, callData };
+      },
+    },
 
     [ActionTypes.CLEAR_CONTROL]: {
-      mapper({ controlId }: { controlId: string }) {
+      mapper({ controlId }: ActionPayloads.ClearControl) {
         const { tabId, windowId, id } = extractControlIds(controlId);
         const callData: ClearControlUiProjectCall = { operation: 'clear-control', windowId, id };
         return { tabId, callData };
@@ -189,10 +188,32 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.RENAME_CONTROL]: {
-      mapper({ controlId, newId }: { controlId: string; newId: string }) {
+      mapper({ controlId, newId }: ActionPayloads.RenameControl) {
         const { tabId, windowId, id } = extractControlIds(controlId);
         const callData: RenameControlUiProjectCall = { operation: 'rename-control', windowId, id, newId };
         return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLONE_CONTROL]: {
+      mapper({ controlId, newId }: ActionPayloads.CloneControl) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+        const callData: CloneControlUiProjectCall = { operation: 'clone-control', windowId, id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.SET_CONTROL_PROPERTIES]: {
+      mapper({ controlId, properties }: ActionPayloads.SetControlProperties) {
+        const { tabId, windowId, id } = extractControlIds(controlId);
+
+        const fixedProps = adaptControlLinks(properties, tabId);
+
+        const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', windowId, id, properties: fixedProps };
+        return { tabId, callData };
+      },
+      debounce({ controlId }: ActionPayloads.SetControlProperties) {
+        return controlId;
       },
     },
   }
@@ -232,7 +253,7 @@ function extractControlIds(fullId: string): { tabId: string; windowId: string; i
   return { tabId, windowId, id };
 }
 
-function adaptControlLinks(input: Control, tabId: string): Control {
+function adaptControlLinks(input: ControlProperties, tabId: string): ControlProperties {
   const control = { ... input };
 
   for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {

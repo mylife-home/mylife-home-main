@@ -3,13 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { useTabPanelId } from '../../../lib/tab-panel';
 import { makeUniqueId } from '../../../lib/make-unique-id';
-import { clone } from '../../../lib/clone';
 import { AppState } from '../../../../store/types';
-import { setWindow, setControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
+import { setWindowProperties, newControl, setControlProperties, cloneControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
 import { getControl, getWindow, getControlsMap } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
-import { createNewControl } from '../common/templates';
-import { Position, Size } from './canvas/types';
+import { Position } from './canvas/types';
 
 interface ContextProps {
   windowId: string;
@@ -51,13 +49,11 @@ export function useGetExistingControlNames() {
 export function useWindowState() {
   const { windowId, selection, setSelection } = useContext(Context);
   const window = useSelector((state: AppState) => getWindow(state, windowId));
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
 
-  const update = useCallback((props: Partial<UiWindow>) => {
-    const newWindow = { ... window, ... props };
-    dispatch(setWindow({ tabId, window: newWindow }));
-  }, [dispatch, tabId, window]);
+  const update = useCallback((properties: Partial<Omit<UiWindow, 'id' | 'windowId' | 'controls'>>) => {
+    dispatch(setWindowProperties({ windowId, properties }));
+  }, [dispatch, windowId]);
 
   const selected = selection === null;
   const select = useCallback(() => setSelection(null), [setSelection]);
@@ -68,34 +64,26 @@ export function useWindowState() {
 export function useControlState(id: string) {
   const { windowId, selection, setSelection } = useContext(Context);
   const control = useSelector((state: AppState) => getControl(state, id));
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const getExistingControlNames = useGetExistingControlNames();
 
-  const update = useCallback((props: Partial<UiControl>) => {
-    const newControl = { ...control, ...props };
-    dispatch(setControl({ tabId, windowId, control: newControl }));
-  }, [dispatch, tabId, windowId, control]);
+  const update = useCallback((properties: Partial<Omit<UiControl, 'id' | 'controlId'>>) => {
+    dispatch(setControlProperties({ controlId: id, properties }));
+  }, [dispatch, id]);
 
   const duplicate = useCallback(() => {
     const existingNames = getExistingControlNames();
-    const newControl = clone(control);
-    newControl.controlId = makeUniqueId(existingNames, control.controlId);
-    newControl.id = `${windowId}:${newControl.controlId}`;
-    newControl.x = control.x +10;
-    newControl.y = control.y +10;
-
-    dispatch(setControl({ tabId, windowId, control: newControl }));
-
-    setSelection(newControl.id);
-    
-  }, [dispatch, tabId, windowId, control, getExistingControlNames]);
+    const newId = makeUniqueId(existingNames, control.controlId);
+    dispatch(cloneControl({ controlId: id, newId }));
+    const newFullId = `${windowId}:${newId}`;
+    setSelection(newFullId);
+  }, [dispatch, windowId, id, control.controlId, getExistingControlNames]);
 
   const rename = useCallback((newId: string) => {
     dispatch(renameControl({ controlId: id, newId }));
     const newFullId = `${windowId}:${newId}`;
     setSelection(newFullId);
-  }, [dispatch, tabId, windowId, id, setSelection]);
+  }, [dispatch, windowId, id, setSelection]);
 
   const remove = useCallback(() => {
     dispatch(clearControl({ controlId: id }));
@@ -120,25 +108,18 @@ export function useSelection() {
 
 export function useCreateControl() {
   const { windowId, setSelection } = useContext(Context);
-  const tabId = useTabPanelId();
   const dispatch = useDispatch();
   const getExistingControlNames = useGetExistingControlNames();
   
-  return useCallback((position: Position, size: Size) => {
+  return useCallback((position: Position) => {
     const existingNames = getExistingControlNames();
-    const newControl = createNewControl();
-    newControl.controlId = makeUniqueId(existingNames, 'new-control');
-    newControl.id = `${windowId}:${newControl.controlId}`;
-    newControl.x = position.x;
-    newControl.y = position.y;
-    newControl.width = size.width;
-    newControl.height = size.height;
+    const newId = makeUniqueId(existingNames, 'new-control');
+    const { x, y } = position;
 
-    dispatch(setControl({ tabId, windowId, control: newControl }));
-
-    setSelection(newControl.id);
-    
-  }, [dispatch, tabId, windowId, getExistingControlNames]);
+    dispatch(newControl({ windowId, newId, x, y }));
+    const newFullId = `${windowId}:${newId}`;
+    setSelection(newFullId);
+  }, [dispatch, windowId, getExistingControlNames]);
 }
 
 export function useSelectableControlList() {

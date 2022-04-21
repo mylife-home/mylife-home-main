@@ -2,16 +2,6 @@ import { Action, ControlDisplay, ControlDisplayMapItem, ControlText, ControlText
 import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
 import { clone } from '../../../lib/clone';
 
-const WINDOW_TEMPLATE: UiWindow = {
-  id: null,
-  windowId: null,
-  style: null,
-  height: 500,
-  width: 500,
-  backgroundResource: null,
-  controls: []
-};
-
 const CONTROL_DISPLAY_TEMPLATE: ControlDisplay = {
   componentId: null,
   componentState: null,
@@ -67,13 +57,6 @@ const CONTROL_ACTION_WINDOW_TEMPLATE: Action = {
     popup: false,
   },
 };
-
-/**
- * Note: window will miss id
- */
-export function createNewWindow() {
-  return clone(WINDOW_TEMPLATE);
-}
 
 /**
  * Note: control will miss id, x, y

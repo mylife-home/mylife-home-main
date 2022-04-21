@@ -282,8 +282,8 @@ export interface ProjectCallResult {
 export interface UiProjectCall {
   operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window'
   | 'set-resource' | 'clear-resource' | 'rename-resource'
-  | 'set-window' | 'clear-window' | 'rename-window' | 'clone-window'
-  | 'set-control' | 'clear-control' | 'rename-control';
+  | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
+  | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties';
 }
 
 export interface UiValidationError {
@@ -349,9 +349,9 @@ export interface RenameResourceUiProjectCall extends UiProjectCall {
   newId: string;
 }
 
-export interface SetWindowUiProjectCall extends UiProjectCall {
-  operation: 'set-window';
-  window: Omit<Window, 'controls'>;
+export interface NewWindowUiProjectCall extends UiProjectCall {
+  operation: 'new-window';
+  id: string;
 }
 
 export interface ClearWindowUiProjectCall extends UiProjectCall {
@@ -371,10 +371,18 @@ export interface CloneWindowUiProjectCall extends UiProjectCall {
   newId: string;
 }
 
-export interface SetControlUiProjectCall extends UiProjectCall {
-  operation: 'set-control';
+export interface SetWindowPropertiesUiProjectCall extends UiProjectCall {
+  operation: 'set-window-properties';
+  id: string;
+  properties: Partial<Omit<Window, 'id' | 'controls'>>;
+}
+
+export interface NewControlUiProjectCall extends UiProjectCall {
+  operation: 'new-control';
   windowId: string;
-  control: Control;
+  id: string;
+  x: number;
+  y: number;
 }
 
 export interface ClearControlUiProjectCall extends UiProjectCall {
@@ -388,6 +396,20 @@ export interface RenameControlUiProjectCall extends UiProjectCall {
   windowId: string;
   id: string;
   newId: string;
+}
+
+export interface CloneControlUiProjectCall extends UiProjectCall {
+  operation: 'clone-control';
+  windowId: string;
+  id: string;
+  newId: string;
+}
+
+export interface SetControlPropertiesUiProjectCall extends UiProjectCall {
+  operation: 'set-control-properties';
+  windowId: string;
+  id: string;
+  properties: Partial<Omit<Control, 'id'>>;
 }
 
 /**

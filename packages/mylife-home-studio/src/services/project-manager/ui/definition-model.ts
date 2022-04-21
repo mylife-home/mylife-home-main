@@ -1,8 +1,37 @@
 import { components } from 'mylife-home-common';
 import { UiValidationError, UiElementPath } from '../../../../shared/project-manager';
-import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem } from '../../../../shared/ui-model';
+import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
+import { clone } from '../../../utils/object-utils';
+
+const WINDOW_TEMPLATE: Window = {
+  id: null,
+  style: null,
+  height: 500,
+  width: 500,
+  backgroundResource: null,
+  controls: []
+};
+
+const CONTROL_TEMPLATE: Control = {
+  id: null,
+  x: null,
+  y: null,
+
+  style: null,
+  height: 50,
+  width: 50,
+  display: {
+    componentId: null,
+    componentState: null,
+    defaultResource: null,
+    map: [],
+  },
+  text: null,
+  primaryAction: null,
+  secondaryAction: null,
+};
 
 export interface ComponentUsage {
   componentId: string;
@@ -164,19 +193,29 @@ export class WindowModel {
     this.data.id = value;
   }
 
-  update(window: Omit<Window, 'id' | 'controls'>) {
-    const { style, backgroundResource, height, width } = window;
-    Object.assign(this.data, { style, backgroundResource, height, width });
+  update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
+    const data = pickIfDefined(properties, 'style', 'backgroundResource', 'height', 'width');
+    Object.assign(this.data, data);
   }
 
-  setControl(control: Control) {
-    const controlModel = this.controls.findById(control.id);
-    if (controlModel) {
-      controlModel.update(control);
-      return controlModel;
-    } else {
-      return this.controls.set(control);
-    }
+  newControl(controlId: string, x: number, y: number) {
+    const newControl = clone(CONTROL_TEMPLATE) as Mutable<Control>;
+    newControl.id = controlId;
+    newControl.x = x;
+    newControl.y = y;
+
+    return this.controls.set(newControl);
+  }
+
+  cloneControl(controlId: string, newId: string) {
+    const source = this.controls.getById(controlId);
+
+    const newControl = clone(source.data);
+    newControl.id = newId;
+    newControl.x += 10;
+    newControl.y += 10;
+
+    return this.controls.set(newControl);
   }
 
   clearControl(controlId: string) {
@@ -185,6 +224,10 @@ export class WindowModel {
 
   renameControl(id: string, newId: string) {
     return this.controls.rename(id, newId);
+  }
+
+  getControl(controlId: string) {
+    return this.controls.getById(controlId);
   }
 
   /**
@@ -283,9 +326,9 @@ export class ControlModel {
     this.data.id = value;
   }
 
-  update(control: Omit<Control, 'id'>) {
-    const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
-    Object.assign(this.data, { style, height, width, x, y, display, text, primaryAction, secondaryAction });
+  update(properties: Partial<Omit<Control, 'id'>>) {
+    const data = pickIfDefined(properties, 'style', 'height', 'width', 'x', 'y', 'display', 'text', 'primaryAction', 'secondaryAction');
+    Object.assign(this.data, data);
   }
 
  /**
@@ -685,4 +728,23 @@ export class ValidationContext {
 
     return actualValueType;
   }
+}
+
+export function newWindow(windows: CollectionModel<Mutable<Window>, WindowModel>, id: string) {
+  const newWindow = clone(WINDOW_TEMPLATE) as Mutable<Window>;
+  newWindow.id = id;
+
+  return windows.set(newWindow);
+}
+
+function pickIfDefined<T>(obj: Partial<T>, ...props: (keyof T)[]): Partial<T> {
+  const dest: Partial<T> = {};
+
+  for (const prop of props) {
+    if (prop in obj) {
+      dest[prop] = obj[prop];
+    }
+  }
+
+  return dest;
 }

@@ -14,7 +14,7 @@ import {
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection, ActionPayloads } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -61,13 +61,13 @@ export default createReducer(initialState, {
     }
   },
 
-  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<{ tabId: string; }>) => {
+  [ActionTypes.REMOVE_OPENED_PROJECT]: (state, action: PayloadAction<ActionPayloads.RemoveOpenedProject>) => {
     const { tabId } = action.payload;
 
     tableRemove(state.openedProjects, tabId);
   },
 
-  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<{ tabId: string; notifierId: string; }>) => {
+  [ActionTypes.SET_NOTIFIER]: (state, action: PayloadAction<ActionPayloads.SetNotifier>) => {
     const { tabId, notifierId } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.notifierId = notifierId;
@@ -90,14 +90,14 @@ export default createReducer(initialState, {
     tableClear(state.windows);
   },
 
-  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<{ tabId: string; update: UpdateProjectNotification; }[]>) => {
+  [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<ActionPayloads.UpdateProject>) => {
     for (const { tabId, update } of action.payload) {
       const openedProject = state.openedProjects.byId[tabId];
       applyProjectUpdate(state, openedProject, update);
     }
   },
 
-  [ActionTypes.SELECT]: (state, action: PayloadAction<{ tabId: string; selection: Selection }>) => {
+  [ActionTypes.SELECT]: (state, action: PayloadAction<ActionPayloads.Select>) => {
     const { tabId, selection } = action.payload;
     const openedProject = state.openedProjects.byId[tabId];
     openedProject.selection = selection;
@@ -105,34 +105,18 @@ export default createReducer(initialState, {
 
   // Apply this change right away to improve designer UX, and debounce server update requests
   // Note that server update will apply anyway
-  [ActionTypes.SET_WINDOW]: (state, action: PayloadAction<{ tabId: string; window: UiWindow; }>) => {
-    const { tabId, window } = action.payload;
-    const openedProject = state.openedProjects.byId[tabId];
-    const existing = state.windows.byId[window.id];
-    
-    // only apply immediatly changes to existing window, ignore new as there is no UX valuable improvement
-    if (!existing) {
-      return;
-    }
-
-    const windowData = prepareWindowData(openedProject, window, { adaptIds: false });
-    Object.assign(existing, windowData);
+  [ActionTypes.SET_WINDOW_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetWindowProperties>) => {
+    const { windowId, properties } = action.payload;
+    const window = state.windows.byId[windowId];
+    Object.assign(window, properties);
   },
 
   // Apply this change right away to improve designer UX, and debounce server update requests
   // Note that server update will apply anyway
-  [ActionTypes.SET_CONTROL]: (state, action: PayloadAction<{ tabId: string; windowId: string; control: UiControl; }>) => {
-    const { tabId, control } = action.payload;
-    const openedProject = state.openedProjects.byId[tabId];
-    const existing = state.controls.byId[control.id];
-
-    // only apply immediatly changes to existing window, ignore new as there is no UX valuable improvement
-    if (!existing) {
-      return;
-    }
-
-    const controlData = prepareControlData(openedProject, control, { adaptIds: false });
-    Object.assign(existing, controlData);
+  [ActionTypes.SET_CONTROL_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetControlProperties>) => {
+    const { controlId, properties } = action.payload;
+    const control = state.controls.byId[controlId];
+    Object.assign(control, properties);
   },
 });
 

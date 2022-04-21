@@ -72,7 +72,7 @@ export function useDroppable() {
   return ref;
 }
 
-export function useCreatable(onCreate: (position: Position, size: Size) => void) {
+export function useCreatable(onCreate: (position: Position) => void) {
   const [, ref, preview] = useDrag({
     item: { type: ItemTypes.CREATE },
     end(item: CreateDragItem, monitor) {
@@ -81,7 +81,7 @@ export function useCreatable(onCreate: (position: Position, size: Size) => void)
       }
 
       const result = monitor.getDropResult() as CreateComponentData;
-      onCreate(result.newPosition, result.newSize);
+      onCreate(result.newPosition);
     }
   });
 

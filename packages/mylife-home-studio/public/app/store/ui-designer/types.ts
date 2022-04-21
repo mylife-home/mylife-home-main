@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification } from '../../../../shared/project-manager';
 import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -15,18 +15,50 @@ export const enum ActionTypes {
   REFRESH_COMPONENTS_FROM_PROJECT = 'ui-designer/refresh-components-from-project',
   APPLY_REFRESH_COMPONENTS = 'ui-designer/apply-refresh-components',
   DEPLOY_PROJECT = 'ui-designer/deploy-project',
+  SELECT = 'ui-designer/select',
   SET_DEFAULT_WINDOW = 'ui-designer/set-default-window',
   SET_RESOURCE = 'ui-designer/set-resource',
   CLEAR_RESOURCE = 'ui-designer/clear-resource',
   RENAME_RESOURCE = 'ui-designer/rename-resource',
-  SET_WINDOW = 'ui-designer/set-window',
+  NEW_WINDOW = 'ui-designer/new-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
   CLONE_WINDOW = 'ui-designer/clone-window',
-  SET_CONTROL = 'ui-designer/set-control',
+  SET_WINDOW_PROPERTIES = 'ui-designer/set-window-properties',
+  NEW_CONTROL = 'ui-designer/new-control',
   CLEAR_CONTROL = 'ui-designer/clear-control',
   RENAME_CONTROL = 'ui-designer/rename-control',
-  SELECT = 'ui-designer/select',
+  CLONE_CONTROL = 'ui-designer/clone-control',
+  SET_CONTROL_PROPERTIES = 'ui-designer/set-control-properties',
+}
+
+export namespace ActionPayloads {
+  export type SetNotifier = { tabId: string; notifierId: string; };
+  export type ClearAllNotifiers = void;
+  export type RemoveOpenedProject = { tabId: string; };
+  export type UpdateProject = { tabId: string; update: UpdateProjectNotification; }[];
+
+  export type ValidateProject = { tabId: string; };
+  export type RefreshComponentsFromOnline = { tabId: string; };
+  export type RefreshComponentsFromProject = { tabId: string; projectId: string; };
+  export type ApplyRefreshComponents = { tabId: string; serverData: unknown; };
+  export type DeployProject = { tabId: string; };
+  export type Select = { tabId: string; selection: Selection; };
+
+  export type SetDefaultWindow = { tabId: string; defaultWindow: DefaultWindow; };
+  export type SetResource = { tabId: string; resource: UiResource; };
+  export type ClearResource = { resourceId: string; };
+  export type RenameResource = { resourceId: string; newId: string; };
+  export type NewWindow = { tabId: string; newId: string; };
+  export type ClearWindow = { windowId: string; };
+  export type RenameWindow = { windowId: string; newId: string; };
+  export type CloneWindow = { windowId: string; newId: string; };
+  export type SetWindowProperties = { windowId: string; properties: Partial<Omit<UiWindow, 'id' | 'windowId' | 'controls'>>; };
+  export type NewControl = { windowId: string; newId: string; x: number; y: number; };
+  export type ClearControl = { controlId: string; };
+  export type RenameControl = { controlId: string; newId: string; };
+  export type CloneControl = { controlId: string; newId: string; };
+  export type SetControlProperties = { controlId: string; properties: Partial<Omit<UiControl, 'id' | 'controlId'>>; };
 }
 
 export { DesignerTabActionData, DefaultWindow };
