@@ -179,6 +179,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - logs
   - pouvoir c/c des logs
 - create action payload types like core-designer/ui-designer everywhere
+- async actions are broken on debounce (action dropped => promise never fullfilled/rejected)
 
 ## ui
 
