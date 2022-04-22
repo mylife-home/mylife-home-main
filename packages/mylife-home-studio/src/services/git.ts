@@ -98,8 +98,10 @@ export class Git implements Service {
     try {
       const status = await this.git.status();
       const branch = status.current;
-      const changedFeatures = this.buildChangedFeatures(status.files);
-      this.updateModel({ branch, changedFeatures });
+      const { files, ahead, behind } = status;
+
+      const changedFeatures = this.buildChangedFeatures(files);
+      this.updateModel({ branch, changedFeatures, ahead, behind });
     } catch (err) {
       log.error(err, 'Error while updating status');
       this.updateModel(DEFAULT_STATUS);
