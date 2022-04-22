@@ -1,4 +1,5 @@
 import path from 'path';
+import util from 'util';
 import simpleGit, { FileStatusResult, SimpleGit } from 'simple-git';
 import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
@@ -13,8 +14,8 @@ interface Config {
 }
 
 export class Git implements Service {
-  private readonly intervalUpdater: Interval;
-  private readonly statusUpdater: Debounce;
+  private readonly fetchTimer: Interval;
+  private readonly statusDebouncer: Debounce;
   private readonly notifiers = new SessionNotifierManager('git/notifiers', 'git/status');
   private readonly featuresPaths: { featureName: string, path: string; }[] = [];
   private status = DEFAULT_STATUS;
@@ -24,33 +25,34 @@ export class Git implements Service {
     const config = tools.getConfigItem<Config>('git');
     this.status.appUrl = config.appUrl;
 
-    this.intervalUpdater = new Interval(6000, this.intervalUpdate);
-    this.statusUpdater = new Debounce(100, this.updateStatus);
+    this.fetchTimer = new Interval(6000, this.gitFetch);
+    this.statusDebouncer = new Debounce(100, this.gitStatus);
   }
 
   async init() {
     const rootPath = Services.instance.pathManager.root;
     this.git = simpleGit({ baseDir: rootPath, maxConcurrentProcesses: 1, timeout: { block: 5000 } });
 
-    this.intervalUpdater.init();
-    this.statusUpdater.init();
+    this.fetchTimer.init();
+    this.statusDebouncer.init();
     this.notifiers.init();
 
     Services.instance.sessionManager.registerServiceHandler('git/start-notify', this.startNotify);
     Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
 
     // Initial setup
-    this.statusUpdater.call();
-    this.updateStatus();
+    this.gitFetch();
   }
 
   async terminate() {
-    this.intervalUpdater.terminate();
-    this.statusUpdater.terminate();
+    this.fetchTimer.terminate();
+    this.statusDebouncer.terminate();
   }
 
+  // API provided for other services
+
   notifyFileUpdate() {
-    this.statusUpdater.call();
+    this.statusDebouncer.call();
   }
 
   registerPathFeature(featureName: string, ...paths: string[]) {
@@ -62,6 +64,8 @@ export class Git implements Service {
       this.featuresPaths.push({ featureName, path: fullPath });
     }
   }
+
+  // Notification API
 
   private readonly startNotify = async (session: Session) => {
     const notifier = this.notifiers.createNotifier(session);
@@ -78,57 +82,29 @@ export class Git implements Service {
     this.notifiers.removeNotifier(session, notifierId);
   };
 
-  private updateModel(update: Partial<GitStatus>) {
-    this.status = { ...this.status, ...update };
-    const notification: GitStatusNotification = { status: this.status };
-    this.notifiers.notifyAll(notification);
-  }
+  // ---
 
-  private readonly intervalUpdate = async () => {
-    // we need to do that too because in case of git commit we have no file change
-    this.notifyFileUpdate();
-
+  private readonly gitFetch = async () => {
     try {
-      const summary = await this.git.branch();
-      const branch = summary.current;
-      this.updateBranchModel(branch);
+      await this.git.fetch();
+      this.statusDebouncer.call();
     } catch (err) {
-      log.error(err, 'Error while updating branch');
+      log.error(err, 'Error while fetching');
       this.updateModel({ branch: DEFAULT_STATUS.branch });
     }
   };
 
-  private updateBranchModel(branch: string) {
-    if (this.status.branch === branch) {
-      // No change since last update
-      return;
-    }
-
-    log.info(`Setting branch to '${branch}'`);
-    this.updateModel({ branch });
-  }
-
-  private readonly updateStatus = async () => {
+  private readonly gitStatus = async () => {
     try {
       const status = await this.git.status();
-      this.updateStatusModel(status.files);
+      const branch = status.current;
+      const changedFeatures = this.buildChangedFeatures(status.files);
+      this.updateModel({ branch, changedFeatures });
     } catch (err) {
       log.error(err, 'Error while updating status');
-      this.updateModel({ changedFeatures: {} });
+      this.updateModel(DEFAULT_STATUS);
     }
   };
-
-  private updateStatusModel(files: FileStatusResult[]) {
-    const changedFeatures = this.buildChangedFeatures(files);
-
-    if (areSameChangedFeatures(changedFeatures, this.status.changedFeatures)) {
-      // No change since last update
-      return;
-    }
-
-    log.info(`Setting changed features to ${JSON.stringify(changedFeatures)}`);
-    this.updateModel({ changedFeatures });
-  }
 
   private buildChangedFeatures(files: FileStatusResult[]) {
     const rootPath = Services.instance.pathManager.root;
@@ -155,41 +131,29 @@ export class Git implements Service {
 
     return changedFeatures;
   }
-}
 
-function areSameChangedFeatures(changedFeatures1: GitChangedFeatures, changedFeatures2: GitChangedFeatures) {
-  const keys1 = Object.keys(changedFeatures1).sort();
-  const keys2 = Object.keys(changedFeatures2).sort();
+  private updateModel(update: Partial<GitStatus>) {
+    if (!this.isChange(update)) {
+      return;
+    }
 
-  if (!areSameSortedArray(keys1, keys2)) {
+    log.info(`Updating model with ${JSON.stringify(update)}`);
+
+    this.status = { ...this.status, ...update };
+    const notification: GitStatusNotification = { status: this.status };
+    this.notifiers.notifyAll(notification);
+  }
+
+  private isChange(update: Partial<GitStatus>) {
+    for (const [key, value] of Object.entries(update)) {
+      if (!util.isDeepStrictEqual(this.status[key as keyof GitStatus], value)) {
+        return true;
+      }
+    }
+
     return false;
   }
-
-  for (const key of keys1) {
-    const changes1 = changedFeatures1[key];
-    const changes2 = changedFeatures2[key];
-    if (!areSameSortedArray(changes1, changes2)) {
-      return false;
-    }
-  }
-
-  return true;
 }
-
-function areSameSortedArray(array1: string[], array2: string[]) {
-  if (array1.length !== array2.length) {
-    return false;
-  }
-
-  for (const [index, value] of array1.entries()) {
-    if (array2[index] !== value) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 
 class Debounce {
   private handler: NodeJS.Timeout = null;
