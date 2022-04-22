@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Toolbar from '@material-ui/core/Toolbar';
 import Popover from '@material-ui/core/Popover';
+import Button from '@material-ui/core/Button';
 
 const STATUS_HEIGHT = 24;
 
@@ -35,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
   popoverPaper: {
     padding: theme.spacing(1),
   },
+  button: {
+    textTransform: 'none',
+  }
 }));
 
 const StatusBar: FunctionComponent<{ className?: string }> = ({ className, children }) => {
@@ -90,5 +94,14 @@ export const StatusItemWithPopover: FunctionComponent<React.HTMLAttributes<HTMLD
         {popover}
       </Popover>
     </>
+  );
+};
+
+export const StatusButton: FunctionComponent<{ onClick?: () => void; }> = ({ onClick, children }) => {
+  const classes = useStyles();
+  return (
+    <Button color="inherit" onClick={onClick} className={classes.button}>
+      {children}
+    </Button>
   );
 };
