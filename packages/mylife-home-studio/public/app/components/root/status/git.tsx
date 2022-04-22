@@ -13,8 +13,11 @@ import { useShowGitDialog } from './git-dialog';
 
 const useStyles = makeStyles((theme) => ({
   gitIcon: {
-    padding:  theme.spacing(0.5),
+    padding: theme.spacing(0.5),
     marginRight: theme.spacing(1)
+  },
+  commitsButtonSeparator: {
+    width: theme.spacing(2)
   }
 }));
 
@@ -42,8 +45,14 @@ const Git: FunctionComponent = () => {
       {showCommitsCount && (
         <StatusButton>
           <CachedIcon />
+
+          <div className={classes.commitsButtonSeparator} />
+
           <Typography>{`${behind}`}</Typography>
           <ArrowDownwardIcon />
+
+          <div className={classes.commitsButtonSeparator} />
+
           <Typography>{`${ahead}`}</Typography>
           <ArrowUpwardIcon />
         </StatusButton>
