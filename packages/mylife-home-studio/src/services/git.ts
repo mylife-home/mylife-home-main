@@ -16,6 +16,7 @@ interface Config {
 export class Git implements Service {
   private readonly fetchTimer: Interval;
   private readonly statusDebouncer: Debounce;
+  private readonly refreshSingleRun: SingleRun;
   private readonly notifiers = new SessionNotifierManager('git/notifiers', 'git/status');
   private readonly featuresPaths: { featureName: string, path: string; }[] = [];
   private status = DEFAULT_STATUS;
@@ -27,11 +28,12 @@ export class Git implements Service {
 
     this.fetchTimer = new Interval(6000, this.gitFetch);
     this.statusDebouncer = new Debounce(100, this.gitStatus);
+    this.refreshSingleRun = new SingleRun(this.gitRefresh);
   }
 
   async init() {
     const rootPath = Services.instance.pathManager.root;
-    this.git = simpleGit({ baseDir: rootPath, maxConcurrentProcesses: 1, timeout: { block: 5000 } });
+    this.git = simpleGit({ baseDir: rootPath, maxConcurrentProcesses: 1, timeout: { block: 20000 } });
 
     this.fetchTimer.init();
     this.statusDebouncer.init();
@@ -84,7 +86,7 @@ export class Git implements Service {
   };
 
   private readonly refresh = async (session: Session) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await this.refreshSingleRun.call();
   };
 
   // ---
@@ -95,7 +97,6 @@ export class Git implements Service {
       this.statusDebouncer.call();
     } catch (err) {
       log.error(err, 'Error while fetching');
-      this.updateModel({ branch: DEFAULT_STATUS.branch });
     }
   };
 
@@ -160,6 +161,19 @@ export class Git implements Service {
 
     return false;
   }
+
+  private readonly gitRefresh = async () => {
+    const { ahead, behind } = this.status;
+    if (behind) {
+      await this.git.pull();
+    } else if (ahead) {
+      await this.git.push();
+    } else {
+      await this.git.fetch();
+    }
+
+    this.statusDebouncer.call();
+  };
 }
 
 class Debounce {
@@ -201,5 +215,28 @@ class Interval {
 
   terminate() {
     clearInterval(this.handler);
+  }
+}
+
+class SingleRun<T = void> {
+  private pending: Promise<T>;
+
+  constructor(private readonly callback: () => Promise<T>) {
+  }
+
+  async call() {
+    const owner = !this.pending;
+
+    if (owner) {
+      this.pending = this.callback();
+    }
+
+    try {
+      return await this.pending;
+    } finally {
+      if (owner) {
+        this.pending = null;
+      }
+    }
   }
 }
