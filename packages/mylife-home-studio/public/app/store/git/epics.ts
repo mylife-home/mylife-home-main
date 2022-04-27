@@ -1,10 +1,12 @@
+import { combineEpics } from 'redux-observable';
 import { GitStatusNotification } from '../../../../shared/git';
+import { createSocketCallEpic } from '../common/call-epic';
 import { createNotifierEpic } from '../common/notifier-epic';
 import { setNotification, clearNotification, setStatus } from './actions';
 import { getNotifierId } from './selectors';
-import { GitStatus } from './types';
+import { ActionTypes, GitStatus } from './types';
 
-export default createNotifierEpic({
+const notifierEpic = createNotifierEpic({
   notificationType: 'git/status',
   startNotifierService: 'git/start-notify',
   stopNotifierService: 'git/stop-notify',
@@ -15,6 +17,10 @@ export default createNotifierEpic({
   applyUpdates,
   parseUpdate,
 });
+
+const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
+
+export default combineEpics(notifierEpic, refreshEpic);
 
 function applyUpdates(updates: GitStatus[]) {
   // Only the last one is relevant anyway
