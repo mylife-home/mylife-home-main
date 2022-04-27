@@ -12,6 +12,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import ErrorIcon from '@material-ui/icons/Error';
 import WarningIcon from '@material-ui/icons/Warning';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
@@ -25,9 +26,6 @@ export function useShowGitDialog() {
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
-      const appUrl = useSelector(getGitAppUrl);
-      // const classes = useStyles();
-
       const close = () => {
         hideModal();
         onResult();
@@ -45,10 +43,7 @@ export function useShowGitDialog() {
         <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="lg" fullWidth onKeyDown={handleKeyDown}>
           <DialogTitle id="dialog-title">Git</DialogTitle>
     
-          <DialogContent dividers>
-            <DialogText value={'TODO'} />
-            <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">GitConvex</Link>
-          </DialogContent>
+          <GitDialogContent />
     
           <DialogActions>
             <Button color="primary" onClick={close}>
@@ -72,10 +67,7 @@ export function useShowGitDialog() {
   );
 }
 
-/*
-
-
-const gitPopoverStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(3),
     display: 'flex',
@@ -91,32 +83,37 @@ const gitPopoverStyles = makeStyles((theme) => ({
   }
 }));
 
-const GitPopopver: FunctionComponent = () => {
-  const classes = gitPopoverStyles();
+const GitDialogContent: FunctionComponent = () => {
+  const classes = useStyles();
+  const appUrl = useSelector(getGitAppUrl);
   const changedFeatures = useSelector(getGitChangedFeatures);
   const changedFiles = useSelector(getGitChangedFiles);
 
   return (
-    <div className={classes.container}>
-      {changedFeatures.map(feature => {
-        const files = changedFiles[feature];
-        return (
-          <React.Fragment key={feature}>
-            <Grid item xs={12}>
-              <Typography className={classes.feature} variant="h6">{feature}</Typography>
-            </Grid>
-
-            {files.map(file => (
-              <Grid key={file} item xs={12}>
-                <Typography className={classes.file}>{file}</Typography>
+    <DialogContent dividers>
+      <div className={classes.container}>
+        {changedFeatures.map(feature => {
+          const files = changedFiles[feature];
+          return (
+            <React.Fragment key={feature}>
+              <Grid item xs={12}>
+                <Typography className={classes.feature} variant="h6">{feature}</Typography>
               </Grid>
-            ))}
-          </React.Fragment>        
-        );
-      })}
 
-    </div>
+              {files.map(file => (
+                <Grid key={file} item xs={12}>
+                  <Typography className={classes.file}>{file}</Typography>
+                </Grid>
+              ))}
+            </React.Fragment>        
+          );
+        })}
+
+      </div>
+
+      <DialogText value={'TODO'} />
+
+      <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">GitConvex</Link>
+    </DialogContent>
   );
 };
-
-*/
