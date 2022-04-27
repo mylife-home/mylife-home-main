@@ -26,10 +26,10 @@ const notifierEpic = createNotifierEpic({
 });
 
 const setRecipeEpic = createSocketCallEpic(ActionTypes.SET_RECIPE, 'deploy/set-recipe');
-const clearRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/clear-recipe', (id: string) => ({ id }));
+const clearRecipeEpic = createSocketCallEpic(ActionTypes.CLEAR_RECIPE, 'deploy/clear-recipe');
 const pinRecipeEpic = createSocketCallEpic(ActionTypes.PIN_RECIPE, 'deploy/pin-recipe');
-const startRecipeEpic = createSocketCallEpic(ActionTypes.START_RECIPE, 'deploy/start-recipe', (id: string) => ({ id }));
-const deleteFileEpic = createSocketCallEpic(ActionTypes.DELETE_FILE, 'deploy/delete-file', (id: string) => ({ id }));
+const startRecipeEpic = createSocketCallEpic(ActionTypes.START_RECIPE, 'deploy/start-recipe');
+const deleteFileEpic = createSocketCallEpic(ActionTypes.DELETE_FILE, 'deploy/delete-file');
 const renameFileEpic = createSocketCallEpic(ActionTypes.RENAME_FILE, 'deploy/rename-file');
   
 const uploadFilesEpic = (action$: Observable<Action>, state$: StateObservable<AppState>) =>
@@ -43,7 +43,7 @@ const downloadFileEpic = (action$: Observable<Action>, state$: StateObservable<A
   action$.pipe(
     ofType(ActionTypes.DOWNLOAD_FILE),
     withLatestFrom(state$),
-    map(([action, state]: [PayloadAction<string>, AppState]) => getFile(state, action.payload)),
+    map(([action, state]: [PayloadAction<{ id: string }>, AppState]) => getFile(state, action.payload.id)),
     // cannot handle concurrent downloads
     concatMap((file: FileInfo) => downloadFile(file.id, file.size).pipe(
       map(fileProgress => downloadFileProgress(fileProgress.doneSize))

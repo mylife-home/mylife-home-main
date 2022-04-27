@@ -166,8 +166,8 @@ function useRowActions(id: string) {
   const dispatch = useDispatch();
   return useMemo(
     () => ({
-      downloadFile: () => dispatch(downloadFile(id)),
-      deleteFile: () => dispatch(deleteFile(id)),
+      downloadFile: () => dispatch(downloadFile({ id })),
+      deleteFile: () => dispatch(deleteFile({ id })),
       renameFile: (newId: string) => dispatch(renameFile({ id, newId })),
     }),
     [dispatch, id]

@@ -78,9 +78,9 @@ function useRecipeConnect(id: string) {
     setRecipe: useAction(setRecipe),
     ...useMemo(
       () => ({
-        clear: () => dispatch(clearRecipe(id)),
+        clear: () => dispatch(clearRecipe({ id })),
         pin: (value: boolean) => dispatch(pinRecipe({ id, value })),
-        start: () => dispatch(startRecipe(id)),
+        start: () => dispatch(startRecipe({ id })),
       }),
       [dispatch, id]
     ),

@@ -36,7 +36,7 @@ const Recipes: FunctionComponent = () => {
           title={id}
           icon={RecipeIcon}
           onClick={() => select({ type: 'recipe', id })}
-          secondary={{ tooltip: 'Démarrer la recette', icon: StartIcon, onClick: () => startRecipe(id) }}
+          secondary={{ tooltip: 'Démarrer la recette', icon: StartIcon, onClick: () => startRecipe({ id }) }}
         />
       ))}
     </>
