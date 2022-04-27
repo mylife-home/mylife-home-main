@@ -1,5 +1,6 @@
-import React, { FunctionComponent } from 'react';
-import { useSelector } from 'react-redux';
+import React, { FunctionComponent, useState } from 'react';
+import clsx from 'clsx';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import SvgIcon from '@material-ui/core/SvgIcon';
@@ -7,7 +8,10 @@ import CachedIcon from '@material-ui/icons/Cached';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
+import { AsyncDispatch } from '../../../store/types';
+import { refresh } from '../../../store/git/actions';
 import { getGitBranch, getGitChangedFeatures, getGitCommitsCount } from '../../../store/git/selectors';
+import { useFireAsync } from '../../lib/use-error-handling';
 import { StatusItem, StatusButton } from '../../lib/status-bar';
 import { useShowGitDialog } from './git-dialog';
 
@@ -18,6 +22,12 @@ const useStyles = makeStyles((theme) => ({
   },
   commitsButtonSeparator: {
     width: theme.spacing(2)
+  },
+  '@keyframes rotate': {
+    to: { transform: 'rotate(360deg)' }
+  },
+  refreshing: {
+    animation: '$rotate 1.5s linear infinite'
   }
 }));
 
@@ -25,10 +35,7 @@ const Git: FunctionComponent = () => {
   const classes = useStyles();
   const branch = useSelector(getGitBranch);
   const changedFeatures = useSelector(getGitChangedFeatures);
-  const { ahead, behind } = useSelector(getGitCommitsCount);
   const showGitDialog = useShowGitDialog();
-
-  const showCommitsCount = !!ahead || !!behind;
 
   let text = branch;
   if(changedFeatures.length > 0) {
@@ -42,21 +49,7 @@ const Git: FunctionComponent = () => {
         <Typography>{text}</Typography>
       </StatusButton>
 
-      {showCommitsCount && (
-        <StatusButton>
-          <CachedIcon />
-
-          <div className={classes.commitsButtonSeparator} />
-
-          <Typography>{`${behind}`}</Typography>
-          <ArrowDownwardIcon />
-
-          <div className={classes.commitsButtonSeparator} />
-
-          <Typography>{`${ahead}`}</Typography>
-          <ArrowUpwardIcon />
-        </StatusButton>
-      )}
+      <GitRefreshButton />
     </StatusItem>
   );
 };
@@ -80,3 +73,48 @@ function createSvgIcon(path: any, displayName: string): typeof SvgIcon {
   Component.displayName = `${displayName}Icon`;
   return React.memo(React.forwardRef(Component));
 }
+
+const GitRefreshButton: FunctionComponent = () => {
+  const classes = useStyles();
+  const { ahead, behind } = useSelector(getGitCommitsCount);
+  const [refreshing, setRefreshing] = useState(false);
+  const fireAsync = useFireAsync();
+  const dispatch = useDispatch<AsyncDispatch>();
+
+  const showCommitsCount = !!ahead || !!behind;
+
+  const handleRefresh = () => {
+    if (refreshing) {
+      return;
+    }
+
+    fireAsync(async () => {
+      setRefreshing(true);
+      try {
+        await dispatch(refresh());
+      } finally {
+        setRefreshing(false);
+      }
+    });
+  };
+
+  return (
+    <StatusButton onClick={handleRefresh}>
+      <CachedIcon className={clsx({ [classes.refreshing]: refreshing })} />
+
+      {showCommitsCount && (
+        <>
+          <div className={classes.commitsButtonSeparator} />
+
+          <Typography>{`${behind}`}</Typography>
+          <ArrowDownwardIcon />
+
+          <div className={classes.commitsButtonSeparator} />
+
+          <Typography>{`${ahead}`}</Typography>
+          <ArrowUpwardIcon />
+        </>
+      )}
+    </StatusButton>
+  );
+};
