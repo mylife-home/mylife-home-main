@@ -1,6 +1,6 @@
-import React, { FunctionComponent, useCallback, useState, useMemo } from 'react';
+import React, { FunctionComponent, useCallback, useState, useEffect, useMemo, createContext, useContext } from 'react';
 import { useModal } from 'react-modal-hook';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -19,7 +19,11 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Link from '@material-ui/core/Link';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
-import { getGitBranch, getGitAppUrl, getGitChangedFeatures, getGitChangedFiles, getGitCommitsCount } from '../../../store/git/selectors';
+import { AsyncDispatch } from '../../../store/types';
+import { diff } from '../../../store/git/actions';
+import { getGitBranch, getGitAppUrl, getGitChangedFeatures } from '../../../store/git/selectors';
+import { GitDiff, GitDiffFile } from '../../../store/git/types';
+import { useFireAsync } from '../../lib/use-error-handling';
 
 export function useShowGitDialog() {
   const [onResult, setOnResult] = useState<() => void>();
@@ -67,6 +71,79 @@ export function useShowGitDialog() {
   );
 }
 
+const GitDialogContent: FunctionComponent = () => {
+  return (
+    <GitContextProvider>
+      <DialogContent dividers>
+        <FeatureList />
+
+        <GitAppLink />
+      </DialogContent>
+    </GitContextProvider>
+  );
+};
+
+interface GitDiffFeature {
+  featureName: string;
+  files: GitDiffFile[];
+}
+
+interface ContextProps {
+  changedFeatures: GitDiffFeature[];
+}
+
+const Context = createContext<ContextProps>(null);
+
+const GitContextProvider: FunctionComponent = ({ children }) => {
+  const changedFeatures = useSelector(getGitChangedFeatures);
+  const dispatch = useDispatch<AsyncDispatch<GitDiff>>();
+  const fireAsync = useFireAsync();
+  const [gitDiff, setGitDiff] = useState<GitDiff>(null);
+
+  // Load diff on show
+  useEffect(() => {
+    fireAsync(async () => {
+      const value = await dispatch(diff());
+      setGitDiff(value);
+    });
+  }, []);
+  
+  const context = useMemo(() => {
+    const map = new Map<string, GitDiffFeature>();
+
+    console.log(changedFeatures);
+
+    for (const featureName of changedFeatures || []) {
+      map.set(featureName, { featureName, files: [] });
+    }
+
+    for (const file of gitDiff?.files || []) {
+      const feature = map.get(file.feature);
+      feature.files.push(file);
+    }
+
+    const features = Array.from(map.values());
+
+    for (const feature of features) {
+      sortBy(feature.files, file => (file.to || file.from));
+    }
+
+    sortBy(features, feature => feature.featureName);
+
+    const result: ContextProps = {
+      changedFeatures: features
+    };
+
+    return result;
+  }, [changedFeatures, gitDiff]);
+
+  return (
+    <Context.Provider value={context}>
+      {children}
+    </Context.Provider>
+  );
+};
+
 const useStyles = makeStyles((theme) => ({
   container: {
     margin: theme.spacing(3),
@@ -83,37 +160,36 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const GitDialogContent: FunctionComponent = () => {
+const FeatureList: FunctionComponent = () => {
   const classes = useStyles();
-  const appUrl = useSelector(getGitAppUrl);
-  const changedFeatures = useSelector(getGitChangedFeatures);
-  const changedFiles = useSelector(getGitChangedFiles);
+  const { changedFeatures } = useContext(Context);
 
   return (
-    <DialogContent dividers>
-      <div className={classes.container}>
-        {changedFeatures.map(feature => {
-          const files = changedFiles[feature];
-          return (
-            <React.Fragment key={feature}>
-              <Grid item xs={12}>
-                <Typography className={classes.feature} variant="h6">{feature}</Typography>
-              </Grid>
-
-              {files.map(file => (
-                <Grid key={file} item xs={12}>
-                  <Typography className={classes.file}>{file}</Typography>
-                </Grid>
-              ))}
-            </React.Fragment>        
-          );
-        })}
-
-      </div>
-
-      <DialogText value={'TODO'} />
-
-      <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">GitConvex</Link>
-    </DialogContent>
+    <DialogText value={JSON.stringify(changedFeatures)} />
   );
 };
+
+// const FeatureItem: FunctionComponent
+
+const GitAppLink: FunctionComponent = () => {
+  const appUrl = useSelector(getGitAppUrl);
+
+  return (
+    <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">GitConvex</Link>
+  );
+};
+
+function sortBy<T, U>(array: T[], accessor: (value: T) => U) {
+  return array.sort((a, b) => {
+    const va = accessor(a);
+    const vb = accessor(b);
+    
+    if (va < vb) {
+      return -1;
+    } else if (va > vb) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+}
