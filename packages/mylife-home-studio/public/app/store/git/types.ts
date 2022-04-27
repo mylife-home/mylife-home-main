@@ -1,4 +1,4 @@
-import { GitStatus, GitDiff, DEFAULT_STATUS } from '../../../../shared/git';
+import { GitStatus, GitDiff, GitDiffFile, diff, DEFAULT_STATUS } from '../../../../shared/git';
 
 export const enum ActionTypes {
   SET_NOTIFICATION = 'git/set-notification',
@@ -8,7 +8,7 @@ export const enum ActionTypes {
   DIFF = 'git/diff'
 }
 
-export { GitStatus, GitDiff, DEFAULT_STATUS };
+export { GitStatus, GitDiff, GitDiffFile, diff, DEFAULT_STATUS };
 
 export interface GitState {
   notifierId: string;
