@@ -39,6 +39,7 @@ export class Git implements Service {
 
     Services.instance.sessionManager.registerServiceHandler('git/start-notify', this.startNotify);
     Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
+    Services.instance.sessionManager.registerServiceHandler('git/refresh', this.refresh);
 
     // Initial setup
     this.gitFetch();
@@ -65,7 +66,7 @@ export class Git implements Service {
     }
   }
 
-  // Notification API
+  // Client API
 
   private readonly startNotify = async (session: Session) => {
     const notifier = this.notifiers.createNotifier(session);
@@ -80,6 +81,10 @@ export class Git implements Service {
 
   private readonly stopNotify = async (session: Session, { notifierId }: { notifierId: string; }) => {
     this.notifiers.removeNotifier(session, notifierId);
+  };
+
+  private readonly refresh = async (session: Session) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
   };
 
   // ---
