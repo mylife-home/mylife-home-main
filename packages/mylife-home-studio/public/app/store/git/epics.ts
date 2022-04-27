@@ -19,8 +19,9 @@ const notifierEpic = createNotifierEpic({
 });
 
 const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
+const diffEpic = createSocketCallEpic(ActionTypes.DIFF, 'git/diff');
 
-export default combineEpics(notifierEpic, refreshEpic);
+export default combineEpics(notifierEpic, refreshEpic, diffEpic);
 
 function applyUpdates(updates: GitStatus[]) {
   // Only the last one is relevant anyway

@@ -1,11 +1,12 @@
 import path from 'path';
 import util from 'util';
 import simpleGit, { FileStatusResult, SimpleGit } from 'simple-git';
+import parseDiff from 'parse-diff';
 import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { GitStatus, GitChangedFeatures, GitStatusNotification, DEFAULT_STATUS } from '../../shared/git';
+import { GitStatus, GitStatusNotification, DEFAULT_STATUS, GitDiff, GitDiffFile } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
 
@@ -42,6 +43,7 @@ export class Git implements Service {
     Services.instance.sessionManager.registerServiceHandler('git/start-notify', this.startNotify);
     Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
     Services.instance.sessionManager.registerServiceHandler('git/refresh', this.refresh);
+    Services.instance.sessionManager.registerServiceHandler('git/diff', this.diff);
 
     // Initial setup
     this.gitFetch();
@@ -89,6 +91,18 @@ export class Git implements Service {
     await this.refreshSingleRun.call();
   };
 
+  private readonly diff = async(session: Session) => {
+    const files = parseDiff(await this.git.diff()) as GitDiffFile[];
+
+    // add featureName
+    for (const file of files) {
+      const filePath = file.from || file.to;
+      file.feature = this.findFeature(filePath);
+    }
+
+    return { files } as GitDiff;
+  };
+
   // ---
 
   private readonly gitFetch = async () => {
@@ -115,29 +129,32 @@ export class Git implements Service {
   };
 
   private buildChangedFeatures(files: FileStatusResult[]) {
-    const rootPath = Services.instance.pathManager.root;
-    const changedFeatures: GitChangedFeatures = {};
+    const changedFeatures = new Set<string>();
 
     // Build new changedFeatures
     for (const file of files) {
-      const filePath = path.join(rootPath, file.path);
+      const featureName = this.findFeature(file.path);
 
-      for (const { featureName, path: featurePath } of this.featuresPaths) {
-        if (!filePath.startsWith(featurePath)) {
-          continue;
-        }
-
-        changedFeatures[featureName] = changedFeatures[featureName] || [];
-        changedFeatures[featureName].push(path.relative(featurePath, filePath));
+      if (featureName) {
+        changedFeatures.add(featureName);
       }
     }
 
     // Consistency
-    for (const list of Object.values(changedFeatures)) {
-      list.sort();
+    return Array.from(changedFeatures).sort();
+  }
+
+  private findFeature(filePath: string) {
+    const rootPath = Services.instance.pathManager.root;
+    const absPath = path.join(rootPath, filePath);
+
+    for (const { featureName, path: featurePath } of this.featuresPaths) {
+      if (absPath.startsWith(featurePath)) {
+        return featureName;
+      }
     }
 
-    return changedFeatures;
+    return null;
   }
 
   private updateModel(update: Partial<GitStatus>) {
