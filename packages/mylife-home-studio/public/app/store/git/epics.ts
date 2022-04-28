@@ -1,10 +1,12 @@
 import { combineEpics } from 'redux-observable';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { GitStatusNotification } from '../../../../shared/git';
 import { createSocketCallEpic } from '../common/call-epic';
 import { createNotifierEpic } from '../common/notifier-epic';
-import { setNotification, clearNotification, setStatus } from './actions';
+import { setNotification, clearNotification, setStatus, gitDiffDataSet } from './actions';
 import { getNotifierId } from './selectors';
-import { ActionTypes, GitStatus } from './types';
+import { ActionTypes, GitStatus, GitDiff } from './types';
 
 const notifierEpic = createNotifierEpic({
   notificationType: 'git/status',
@@ -19,7 +21,7 @@ const notifierEpic = createNotifierEpic({
 });
 
 const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
-const diffEpic = createSocketCallEpic(ActionTypes.DIFF, 'git/diff');
+const diffEpic = createSocketCallEpic<ActionTypes, GitDiff>(ActionTypes.DIFF, 'git/diff', undefined, undefined, gitDiffResultProcessor());
 
 export default combineEpics(notifierEpic, refreshEpic, diffEpic);
 
@@ -31,4 +33,10 @@ function applyUpdates(updates: GitStatus[]) {
 
 function parseUpdate(update: GitStatusNotification): GitStatus {
   return update.status;
+}
+
+function gitDiffResultProcessor() {
+  return ($source: Observable<GitDiff>) => $source.pipe(
+    map((result: GitDiff) => gitDiffDataSet(result))
+  );
 }

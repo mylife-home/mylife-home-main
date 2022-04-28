@@ -12,17 +12,16 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import ErrorIcon from '@material-ui/icons/Error';
-import WarningIcon from '@material-ui/icons/Warning';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import Link from '@material-ui/core/Link';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { AsyncDispatch } from '../../../store/types';
-import { diff } from '../../../store/git/actions';
-import { getGitBranch, getGitAppUrl, getGitChangedFeatures } from '../../../store/git/selectors';
-import { GitDiff, GitDiffFile } from '../../../store/git/types';
+import { gitDiff } from '../../../store/git/actions';
+import { getGitAppUrl, getGitChangedFeatures } from '../../../store/git/selectors';
+import { GitDiff, diff } from '../../../store/git/types';
 import { useFireAsync } from '../../lib/use-error-handling';
 
 export function useShowGitDialog() {
@@ -83,13 +82,20 @@ const GitDialogContent: FunctionComponent = () => {
   );
 };
 
-interface GitDiffFeature {
-  featureName: string;
-  files: GitDiffFile[];
+interface Feature {
+  name: string;
+  files: string[];
+}
+
+interface File extends Omit<diff.File, 'feature'> {
+  id: string;
+  name: string;
 }
 
 interface ContextProps {
-  changedFeatures: GitDiffFeature[];
+  featureList: string[];
+  features: { [name: string]: Feature };
+  files: { [id: string]: File };
 }
 
 const Context = createContext<ContextProps>(null);
@@ -98,44 +104,46 @@ const GitContextProvider: FunctionComponent = ({ children }) => {
   const changedFeatures = useSelector(getGitChangedFeatures);
   const dispatch = useDispatch<AsyncDispatch<GitDiff>>();
   const fireAsync = useFireAsync();
-  const [gitDiff, setGitDiff] = useState<GitDiff>(null);
+  const [rawDiff, setRawDiff] = useState<GitDiff>(null);
 
   // Load diff on show
   useEffect(() => {
     fireAsync(async () => {
-      const value = await dispatch(diff());
-      setGitDiff(value);
+      const value = await dispatch(gitDiff());
+      setRawDiff(value);
     });
   }, []);
   
   const context = useMemo(() => {
-    const map = new Map<string, GitDiffFeature>();
-
-    console.log(changedFeatures);
-
-    for (const featureName of changedFeatures || []) {
-      map.set(featureName, { featureName, files: [] });
-    }
-
-    for (const file of gitDiff?.files || []) {
-      const feature = map.get(file.feature);
-      feature.files.push(file);
-    }
-
-    const features = Array.from(map.values());
-
-    for (const feature of features) {
-      sortBy(feature.files, file => (file.to || file.from));
-    }
-
-    sortBy(features, feature => feature.featureName);
-
     const result: ContextProps = {
-      changedFeatures: features
+      featureList: [],
+      features: {},
+      files: {}
     };
 
+    for (const name of Array.from(changedFeatures || []).sort()) {
+      result.featureList.push(name);
+      result.features[name] = { name, files: [] };
+    }
+
+    for (const file of rawDiff?.files || []) {
+      const id = file.to || file.from;
+      const { feature: featureName, ...props } = file;
+      const parts = id.split('/');
+      const name = parts[parts.length - 1];
+      const newFile = { id, name, ...props };
+
+      const feature = result.features[featureName];
+      result.files[id] = newFile;
+      feature.files.push(id);
+    }
+
+    for (const feature of Object.values(result.features)) {
+      feature.files.sort();
+    }
+
     return result;
-  }, [changedFeatures, gitDiff]);
+  }, [changedFeatures, rawDiff]);
 
   return (
     <Context.Provider value={context}>
@@ -145,31 +153,95 @@ const GitContextProvider: FunctionComponent = ({ children }) => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    margin: theme.spacing(3),
-    display: 'flex',
-    flexDirection: 'column',
+  list: {
+    height: '50vh',
+    overflowY: 'auto',
+    border: `1px solid ${theme.palette.divider}`,
   },
-  feature: {
-    '& > :not(:first-child)': {
-      marginTop: theme.spacing(1),
-    }
+  indent0: {
+    paddingLeft: theme.spacing(4),
   },
-  file: {
-    marginLeft: theme.spacing(2),
-  }
+  indent1: {
+    paddingLeft: theme.spacing(8),
+  },
+  indent2: {
+    paddingLeft: theme.spacing(12),
+  },
 }));
 
 const FeatureList: FunctionComponent = () => {
   const classes = useStyles();
-  const { changedFeatures } = useContext(Context);
+  const { featureList } = useContext(Context);
 
   return (
-    <DialogText value={JSON.stringify(changedFeatures)} />
+    <List className={classes.list}>
+      {featureList.map(name => (
+        <FeatureItem key={name} name={name} />
+      ))}
+    </List>
   );
 };
 
-// const FeatureItem: FunctionComponent
+const FeatureItem: FunctionComponent<{ name: string }> = ({ name }) => {
+  const { features } = useContext(Context);
+  const feature = features[name];
+
+  return (
+    <>
+      <ListItemWithChildren title={feature.name} indent={0}>
+        <List component="div">
+          {feature.files.map(id => (
+            <FileItem key={id} id={id} />
+          ))}
+        </List>
+      </ListItemWithChildren>
+    </>
+  );
+};
+
+const FileItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { files } = useContext(Context);
+  const file = files[id];
+
+  return (
+    <>
+      <ListItemWithChildren title={file.name} indent={1}>
+        {file.chunks.map((chunk, index) => (
+          <ChunkView key={index} chunk={chunk} />
+        ))}
+      </ListItemWithChildren>
+    </>
+  );
+};
+
+const ChunkView: FunctionComponent<{ chunk: diff.Chunk }> = ({ chunk }) => {
+  return <>{JSON.stringify(chunk)}</>;
+}
+
+const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2 }> = ({ title, indent, children }) => {
+  const [open, setOpen] = useState(true);
+  const indentClass = useIndentClass(indent);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <>
+      <ListItem button onClick={handleClick} className={indentClass}>
+        <ListItemIcon>
+          {open ? <ExpandMore /> : <NavigateNextIcon />}
+        </ListItemIcon>
+
+        <ListItemText primary={title} />
+      </ListItem>
+
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        {children}
+      </Collapse>
+    </>
+  );
+}
 
 const GitAppLink: FunctionComponent = () => {
   const appUrl = useSelector(getGitAppUrl);
@@ -179,17 +251,18 @@ const GitAppLink: FunctionComponent = () => {
   );
 };
 
-function sortBy<T, U>(array: T[], accessor: (value: T) => U) {
-  return array.sort((a, b) => {
-    const va = accessor(a);
-    const vb = accessor(b);
-    
-    if (va < vb) {
-      return -1;
-    } else if (va > vb) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+function useIndentClass(indent: 0 | 1 | 2) {
+  const classes = useStyles();
+
+  switch (indent) {
+    case 0:
+      return classes.indent0;
+    case 1:
+      return classes.indent1;
+    case 2:
+      return classes.indent2;
+    default:
+      console.error('Unsupported indent', indent);
+      return null;
+  }
 }

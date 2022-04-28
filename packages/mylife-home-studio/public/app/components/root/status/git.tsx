@@ -9,7 +9,7 @@ import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import { AsyncDispatch } from '../../../store/types';
-import { refresh } from '../../../store/git/actions';
+import { gitRefresh } from '../../../store/git/actions';
 import { getGitBranch, getGitChangedFeatures, getGitCommitsCount } from '../../../store/git/selectors';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { StatusItem, StatusButton } from '../../lib/status-bar';
@@ -91,7 +91,7 @@ const GitRefreshButton: FunctionComponent = () => {
     fireAsync(async () => {
       setRefreshing(true);
       try {
-        await dispatch(refresh());
+        await dispatch(gitRefresh());
       } finally {
         setRefreshing(false);
       }
