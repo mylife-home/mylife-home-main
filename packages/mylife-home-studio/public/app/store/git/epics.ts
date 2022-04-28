@@ -23,7 +23,7 @@ const notifierEpic = createNotifierEpic({
 });
 
 const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
-const commitEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/commit', gitCommitMapper);
+const commitEpic = createSocketCallEpic(ActionTypes.COMMIT, 'git/commit', gitCommitMapper);
 const diffEpic = createSocketCallEpic<ActionTypes, GitDiff>(ActionTypes.DIFF, 'git/diff', undefined, undefined, gitDiffResultProcessor());
 
 export default combineEpics(notifierEpic, refreshEpic, commitEpic, diffEpic);
