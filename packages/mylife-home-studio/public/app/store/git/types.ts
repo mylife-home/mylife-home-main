@@ -9,6 +9,16 @@ export const enum ActionTypes {
   DIFF = 'git/diff',
   DIFF_DATA_SET = 'git/diff-data-set',
   DIFF_DATA_CLEAR = 'git/diff-data-clear',
+  DIFF_STAGE = 'git/diff-stage',
+}
+
+export namespace ActionPayloads {
+  export type SetNotification = string;
+  export type ClearNotification = void;
+  export type SetStatus = GitStatus;
+  export type GitDiffDataSet = GitDiff;
+  export type GitDiffDataClear = void;
+  export type GitDiffStage = { fileId: string; stage: boolean };
 }
 
 export { GitStatus, GitDiff, GitDiffFile, diff, DEFAULT_STATUS };
@@ -22,6 +32,7 @@ export interface File extends Omit<diff.File, 'chunks'> {
   id: string;
   name: string;
   chunks: string[];
+  staged: boolean;
 }
 
 export interface Chunk extends diff.Chunk {

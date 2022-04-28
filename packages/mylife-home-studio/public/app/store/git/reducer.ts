@@ -1,6 +1,6 @@
 import { createReducer, PayloadAction } from '@reduxjs/toolkit';
 import { arrayAdd, createTable, tableClear, tableSet } from '../common/reducer-tools';
-import { GitState, ActionTypes, GitStatus, DEFAULT_STATUS, GitDiff, Feature, File, Chunk, GitDiffFile, diff } from './types';
+import { ActionTypes, ActionPayloads, GitState, GitStatus, DEFAULT_STATUS, GitDiff, Feature, File, Chunk, GitDiffFile, diff } from './types';
 
 const initialState: GitState = {
   notifierId: null,
@@ -11,7 +11,7 @@ const initialState: GitState = {
 };
 
 export default createReducer(initialState, {
-  [ActionTypes.SET_NOTIFICATION]: (state, action: PayloadAction<string>) => {
+  [ActionTypes.SET_NOTIFICATION]: (state, action: PayloadAction<ActionPayloads.SetNotification>) => {
     state.notifierId = action.payload;
   },
 
@@ -20,11 +20,11 @@ export default createReducer(initialState, {
     state.status = DEFAULT_STATUS;
   },
 
-  [ActionTypes.SET_STATUS]: (state, action: PayloadAction<GitStatus>) => {
+  [ActionTypes.SET_STATUS]: (state, action: PayloadAction<ActionPayloads.SetStatus>) => {
     state.status = action.payload;
   },
 
-  [ActionTypes.DIFF_DATA_SET]: (state, action: PayloadAction<GitDiff>) => {
+  [ActionTypes.DIFF_DATA_SET]: (state, action: PayloadAction<ActionPayloads.GitDiffDataSet>) => {
     for (const id of state.status.changedFeatures) {
       const feature: Feature = { id, files: [] };
       tableSet(state.features, feature, true);
@@ -42,6 +42,12 @@ export default createReducer(initialState, {
     tableClear(state.files);
     tableClear(state.chunks);
   },
+
+  [ActionTypes.DIFF_STAGE]: (state, action: PayloadAction<ActionPayloads.GitDiffStage>) => {
+    const { fileId, stage } = action.payload;
+    const file = state.files.byId[fileId];
+    file.staged = stage;
+  },
 });
 
 function createFile(state: GitState, file: GitDiffFile) {
@@ -49,7 +55,7 @@ function createFile(state: GitState, file: GitDiffFile) {
   const { feature, chunks, ...props } = file;
   const parts = fileId.split('/');
   const name = parts[parts.length - 1];
-  const newFile: File = { id: fileId, name, chunks: [], ...props };
+  const newFile: File = { id: fileId, name, chunks: [], staged: false, ...props };
   tableSet(state.files, newFile);
 
   for (const [index, chunk] of chunks.entries()) {
