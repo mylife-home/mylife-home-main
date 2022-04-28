@@ -17,6 +17,11 @@ export const getGitDiffFeature = (state: AppState, id: string) => getGitDiffFeat
 export const getGitDiffFile = (state: AppState, id: string) => getGitDiffFilesTable(state).byId[id];
 export const getGitDiffChunk = (state: AppState, id: string) => getGit(state).chunks.byId[id];
 
+export const hasGitDiffStaging = createSelector(
+  getGitDiffFilesTable,
+  (files) => Object.values(files.byId).some(file => file.staged)
+);
+
 export function makeGetGitStagingFeatures() {
   return createSelector(
     getGitDiffFeaturesTable,

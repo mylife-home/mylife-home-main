@@ -6,6 +6,7 @@ export const enum ActionTypes {
   CLEAR_NOTIFICATION = 'git/clear-notification',
   SET_STATUS = 'git/set-status',
   REFRESH = 'git/refresh',
+  COMMIT = 'git/commit',
   DIFF = 'git/diff',
   DIFF_DATA_SET = 'git/diff-data-set',
   DIFF_DATA_CLEAR = 'git/diff-data-clear',
@@ -16,6 +17,7 @@ export namespace ActionPayloads {
   export type SetNotification = string;
   export type ClearNotification = void;
   export type SetStatus = GitStatus;
+  export type GitCommit = { message: string };
   export type GitDiffDataSet = GitDiff;
   export type GitDiffDataClear = void;
   export type GitDiffStage = { type: 'feature' | 'file' | 'all'; id?: string; stage: boolean };
