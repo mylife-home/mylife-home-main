@@ -159,7 +159,7 @@ const CommitPanel: FunctionComponent = () => {
         fullWidth
       />
 
-      <Button onClick={commit} disabled={!hasStaging || working}>
+      <Button onClick={commit} disabled={working || !hasStaging || !message}>
         {working ? '...' : 'Commit'}
       </Button>
     </div>
