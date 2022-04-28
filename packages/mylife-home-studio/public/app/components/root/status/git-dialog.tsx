@@ -12,7 +12,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
@@ -21,12 +20,11 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 
-import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
+import { TransitionProps } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
 import { gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
-import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, getGitDiffChunk } from '../../../store/git/selectors';
-import { GitDiff, diff } from '../../../store/git/types';
-import { useFireAsync } from '../../lib/use-error-handling';
+import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile } from '../../../store/git/selectors';
+import DiffView from './git-diff-view';
 
 export function useShowGitDialog() {
   const [onResult, setOnResult] = useState<() => void>();
@@ -166,18 +164,10 @@ const FileItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, sta
 
   return (
     <ListItemWithChildren title={file.name} indent={2} initialOpened={false} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
-      {file.chunks.map(chunkId => (
-        <ChunkView key={chunkId} chunkId={chunkId} />
-      ))}
+      <DiffView chunks={file.chunks} />
     </ListItemWithChildren>
   );
 };
-
-const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
-  const chunk = useSelector((store: AppState) => getGitDiffChunk(store, chunkId));
-
-  return <>{JSON.stringify(chunk)}</>;
-}
 
 const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean; onClick: () => void; iconButtonType: 'add' | 'remove' }> = ({ title, indent, initialOpened, onClick, iconButtonType, children }) => {
   const [open, setOpen] = useState(initialOpened);
