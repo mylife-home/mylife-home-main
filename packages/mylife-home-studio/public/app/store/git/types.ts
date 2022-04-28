@@ -18,7 +18,7 @@ export namespace ActionPayloads {
   export type SetStatus = GitStatus;
   export type GitDiffDataSet = GitDiff;
   export type GitDiffDataClear = void;
-  export type GitDiffStage = { fileId: string; stage: boolean };
+  export type GitDiffStage = { type: 'feature' | 'file' | 'all'; id?: string; stage: boolean };
 }
 
 export { GitStatus, GitDiff, GitDiffFile, diff, DEFAULT_STATUS };

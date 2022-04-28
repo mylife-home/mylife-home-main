@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useCallback, useState, useEffect, useMemo, createContext, useContext } from 'react';
+import React, { FunctionComponent, useCallback, useState, useEffect, useMemo } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
@@ -19,8 +19,8 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
-import { gitDiff, gitDiffDataClear } from '../../../store/git/actions';
-import { getGitAppUrl, getGitDiffFeatures, getGitDiffFeature, getGitDiffFile, getGitDiffChunk } from '../../../store/git/selectors';
+import { gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
+import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, getGitDiffChunk } from '../../../store/git/selectors';
 import { GitDiff, diff } from '../../../store/git/types';
 import { useFireAsync } from '../../lib/use-error-handling';
 
@@ -110,30 +110,47 @@ const useStyles = makeStyles((theme) => ({
 
 const FeatureList: FunctionComponent = () => {
   const classes = useStyles();
-  const list = useSelector(getGitDiffFeatures);
 
   return (
     <List className={classes.list}>
-      {list.map(name => (
-        <FeatureItem key={name} name={name} />
-      ))}
+      <ChangesItem staged={true} />
+      <ChangesItem staged={false} />
     </List>
   );
 };
 
-const FeatureItem: FunctionComponent<{ name: string }> = ({ name }) => {
-  const feature = useSelector((store: AppState) => getGitDiffFeature(store, name));
+const ChangesItem: FunctionComponent<{ staged: boolean; }> = ({ staged }) => {
+  const getFeatures = useMemo(() => makeGetGitStagingFeatures(), []);
+  const features = useSelector((state: AppState) => getFeatures(state, staged));
+
+  if (features.length === 0) {
+    return null;
+  }
 
   return (
-    <>
-      <ListItemWithChildren title={feature.id} indent={0}>
-        <List component="div">
-          {feature.files.map(id => (
-            <FileItem key={id} id={id} />
-          ))}
-        </List>
-      </ListItemWithChildren>
-    </>
+    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true}>
+      <List component="div">
+        {features.map(id => (
+          <FeatureItem key={id} id={id} staged={staged} />
+        ))}
+      </List>
+    </ListItemWithChildren>
+  );
+};
+
+const FeatureItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, staged }) => {
+  const feature = useSelector((store: AppState) => getGitDiffFeature(store, id));
+  const getFiles = useMemo(() => makeGetGitStagingFiles(), []);
+  const files = useSelector((state: AppState) => getFiles(state, id, staged));
+  
+  return (
+    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true}>
+      <List component="div">
+        {files.map(id => (
+          <FileItem key={id} id={id} />
+        ))}
+      </List>
+    </ListItemWithChildren>
   );
 };
 
@@ -141,13 +158,11 @@ const FileItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const file = useSelector((store: AppState) => getGitDiffFile(store, id));
 
   return (
-    <>
-      <ListItemWithChildren title={file.name} indent={1}>
-        {file.chunks.map(chunkId => (
-          <ChunkView key={chunkId} chunkId={chunkId} />
-        ))}
-      </ListItemWithChildren>
-    </>
+    <ListItemWithChildren title={file.name} indent={2} initialOpened={false}>
+      {file.chunks.map(chunkId => (
+        <ChunkView key={chunkId} chunkId={chunkId} />
+      ))}
+    </ListItemWithChildren>
   );
 };
 
@@ -157,8 +172,8 @@ const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
   return <>{JSON.stringify(chunk)}</>;
 }
 
-const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2 }> = ({ title, indent, children }) => {
-  const [open, setOpen] = useState(true);
+const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean }> = ({ title, indent, initialOpened, children }) => {
+  const [open, setOpen] = useState(initialOpened);
   const indentClass = useIndentClass(indent);
 
   const handleClick = () => {

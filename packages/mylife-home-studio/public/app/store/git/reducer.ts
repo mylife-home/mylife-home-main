@@ -44,9 +44,34 @@ export default createReducer(initialState, {
   },
 
   [ActionTypes.DIFF_STAGE]: (state, action: PayloadAction<ActionPayloads.GitDiffStage>) => {
-    const { fileId, stage } = action.payload;
-    const file = state.files.byId[fileId];
-    file.staged = stage;
+    const { type, id, stage } = action.payload;
+
+    switch (type) {
+      case 'all': {
+        for (const file of Object.values(state.files.byId)) {
+          file.staged = stage;
+        }
+
+        break;
+      }
+
+      case 'feature': {
+        const feature = state.features.byId[id];
+        for (const fileId of feature.files) {
+          const file = state.files.byId[fileId];
+          file.staged = stage;
+        }
+
+        break;
+      }
+
+      case 'file': {
+        const file = state.files.byId[id];
+        file.staged = stage;
+
+        break;
+      }
+    }
   },
 });
 
