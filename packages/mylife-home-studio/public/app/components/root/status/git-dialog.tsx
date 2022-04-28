@@ -153,9 +153,10 @@ const CommitPanel: FunctionComponent = () => {
   return (
     <div className={classes.commitPanel}>
       <TextField
-        helperText={'Message du commit'}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        disabled={working}
+        helperText={'Message du commit'}
         fullWidth
       />
 
