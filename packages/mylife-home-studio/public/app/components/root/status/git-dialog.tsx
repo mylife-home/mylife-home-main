@@ -11,6 +11,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Collapse from '@material-ui/core/Collapse';
@@ -122,13 +123,14 @@ const FeatureList: FunctionComponent = () => {
 const ChangesItem: FunctionComponent<{ staged: boolean; }> = ({ staged }) => {
   const getFeatures = useMemo(() => makeGetGitStagingFeatures(), []);
   const features = useSelector((state: AppState) => getFeatures(state, staged));
+  const stage = useStage(!staged, 'all');
 
   if (features.length === 0) {
     return null;
   }
 
   return (
-    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true}>
+    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true} onClick={stage}>
       <List component="div">
         {features.map(id => (
           <FeatureItem key={id} id={id} staged={staged} />
@@ -142,23 +144,25 @@ const FeatureItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, 
   const feature = useSelector((store: AppState) => getGitDiffFeature(store, id));
   const getFiles = useMemo(() => makeGetGitStagingFiles(), []);
   const files = useSelector((state: AppState) => getFiles(state, id, staged));
+  const stage = useStage(!staged, 'feature', id);
   
   return (
-    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true}>
+    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true} onClick={stage}>
       <List component="div">
         {files.map(id => (
-          <FileItem key={id} id={id} />
+          <FileItem key={id} id={id} staged={staged} />
         ))}
       </List>
     </ListItemWithChildren>
   );
 };
 
-const FileItem: FunctionComponent<{ id: string }> = ({ id }) => {
+const FileItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, staged }) => {
   const file = useSelector((store: AppState) => getGitDiffFile(store, id));
+  const stage = useStage(!staged, 'file', id);
 
   return (
-    <ListItemWithChildren title={file.name} indent={2} initialOpened={false}>
+    <ListItemWithChildren title={file.name} indent={2} initialOpened={false} onClick={stage}>
       {file.chunks.map(chunkId => (
         <ChunkView key={chunkId} chunkId={chunkId} />
       ))}
@@ -172,7 +176,7 @@ const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
   return <>{JSON.stringify(chunk)}</>;
 }
 
-const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean }> = ({ title, indent, initialOpened, children }) => {
+const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean; onClick: () => void; }> = ({ title, indent, initialOpened, onClick, children }) => {
   const [open, setOpen] = useState(initialOpened);
   const indentClass = useIndentClass(indent);
 
@@ -188,6 +192,10 @@ const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2
         </ListItemIcon>
 
         <ListItemText primary={title} />
+
+        <ListItemSecondaryAction>
+          <Button onClick={onClick}>XX</Button>
+        </ListItemSecondaryAction>
       </ListItem>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
@@ -219,4 +227,12 @@ function useIndentClass(indent: 0 | 1 | 2) {
       console.error('Unsupported indent', indent);
       return null;
   }
+}
+
+function useStage(stage: boolean, type: 'feature' | 'file' | 'all', id?: string) {
+  const dispatch = useDispatch();
+
+  return useCallback(() => {
+    dispatch(gitDiffStage({ type, id, stage }));
+  }, [dispatch, type, id]);
 }
