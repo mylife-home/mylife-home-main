@@ -15,8 +15,11 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
 import { AppState } from '../../../store/types';
@@ -130,7 +133,7 @@ const ChangesItem: FunctionComponent<{ staged: boolean; }> = ({ staged }) => {
   }
 
   return (
-    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true} onClick={stage}>
+    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
       <List component="div">
         {features.map(id => (
           <FeatureItem key={id} id={id} staged={staged} />
@@ -147,7 +150,7 @@ const FeatureItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, 
   const stage = useStage(!staged, 'feature', id);
   
   return (
-    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true} onClick={stage}>
+    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
       <List component="div">
         {files.map(id => (
           <FileItem key={id} id={id} staged={staged} />
@@ -162,7 +165,7 @@ const FileItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, sta
   const stage = useStage(!staged, 'file', id);
 
   return (
-    <ListItemWithChildren title={file.name} indent={2} initialOpened={false} onClick={stage}>
+    <ListItemWithChildren title={file.name} indent={2} initialOpened={false} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
       {file.chunks.map(chunkId => (
         <ChunkView key={chunkId} chunkId={chunkId} />
       ))}
@@ -176,9 +179,10 @@ const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
   return <>{JSON.stringify(chunk)}</>;
 }
 
-const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean; onClick: () => void; }> = ({ title, indent, initialOpened, onClick, children }) => {
+const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean; onClick: () => void; iconButtonType: 'add' | 'remove' }> = ({ title, indent, initialOpened, onClick, iconButtonType, children }) => {
   const [open, setOpen] = useState(initialOpened);
   const indentClass = useIndentClass(indent);
+  const Icon = getIconButton(iconButtonType);
 
   const handleClick = () => {
     setOpen(!open);
@@ -194,7 +198,9 @@ const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2
         <ListItemText primary={title} />
 
         <ListItemSecondaryAction>
-          <Button onClick={onClick}>XX</Button>
+          <IconButton onClick={onClick}>
+            <Icon />
+          </IconButton>
         </ListItemSecondaryAction>
       </ListItem>
 
@@ -203,6 +209,17 @@ const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2
       </Collapse>
     </>
   );
+}
+
+function getIconButton(iconButtonType: 'add' | 'remove') {
+  switch (iconButtonType) {
+    case 'add':
+      return AddIcon;
+    case 'remove':
+      return RemoveIcon;
+    default:
+      throw new Error(`Unknown icon button type: '${iconButtonType}'`);
+  }
 }
 
 const GitAppLink: FunctionComponent = () => {
