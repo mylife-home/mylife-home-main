@@ -18,9 +18,9 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 import { TransitionProps, DialogText, DialogSeparator } from '../../dialogs/common';
-import { AsyncDispatch } from '../../../store/types';
-import { gitDiff } from '../../../store/git/actions';
-import { getGitAppUrl, getGitChangedFeatures } from '../../../store/git/selectors';
+import { AppState } from '../../../store/types';
+import { gitDiff, gitDiffDataClear } from '../../../store/git/actions';
+import { getGitAppUrl, getGitDiffFeatures, getGitDiffFeature, getGitDiffFile, getGitDiffChunk } from '../../../store/git/selectors';
 import { GitDiff, diff } from '../../../store/git/types';
 import { useFireAsync } from '../../lib/use-error-handling';
 
@@ -71,84 +71,23 @@ export function useShowGitDialog() {
 }
 
 const GitDialogContent: FunctionComponent = () => {
-  return (
-    <GitContextProvider>
-      <DialogContent dividers>
-        <FeatureList />
+  const dispatch = useDispatch();
 
-        <GitAppLink />
-      </DialogContent>
-    </GitContextProvider>
-  );
-};
-
-interface Feature {
-  name: string;
-  files: string[];
-}
-
-interface File extends Omit<diff.File, 'feature'> {
-  id: string;
-  name: string;
-}
-
-interface ContextProps {
-  featureList: string[];
-  features: { [name: string]: Feature };
-  files: { [id: string]: File };
-}
-
-const Context = createContext<ContextProps>(null);
-
-const GitContextProvider: FunctionComponent = ({ children }) => {
-  const changedFeatures = useSelector(getGitChangedFeatures);
-  const dispatch = useDispatch<AsyncDispatch<GitDiff>>();
-  const fireAsync = useFireAsync();
-  const [rawDiff, setRawDiff] = useState<GitDiff>(null);
-
-  // Load diff on show
+  // Load diff on show, clear on hide
   useEffect(() => {
-    fireAsync(async () => {
-      const value = await dispatch(gitDiff());
-      setRawDiff(value);
-    });
-  }, []);
-  
-  const context = useMemo(() => {
-    const result: ContextProps = {
-      featureList: [],
-      features: {},
-      files: {}
+    dispatch(gitDiff());
+
+    return () => {
+      dispatch(gitDiffDataClear());
     };
-
-    for (const name of Array.from(changedFeatures || []).sort()) {
-      result.featureList.push(name);
-      result.features[name] = { name, files: [] };
-    }
-
-    for (const file of rawDiff?.files || []) {
-      const id = file.to || file.from;
-      const { feature: featureName, ...props } = file;
-      const parts = id.split('/');
-      const name = parts[parts.length - 1];
-      const newFile = { id, name, ...props };
-
-      const feature = result.features[featureName];
-      result.files[id] = newFile;
-      feature.files.push(id);
-    }
-
-    for (const feature of Object.values(result.features)) {
-      feature.files.sort();
-    }
-
-    return result;
-  }, [changedFeatures, rawDiff]);
+  }, []);
 
   return (
-    <Context.Provider value={context}>
-      {children}
-    </Context.Provider>
+    <DialogContent dividers>
+      <FeatureList />
+
+      <GitAppLink />
+    </DialogContent>
   );
 };
 
@@ -171,11 +110,11 @@ const useStyles = makeStyles((theme) => ({
 
 const FeatureList: FunctionComponent = () => {
   const classes = useStyles();
-  const { featureList } = useContext(Context);
+  const list = useSelector(getGitDiffFeatures);
 
   return (
     <List className={classes.list}>
-      {featureList.map(name => (
+      {list.map(name => (
         <FeatureItem key={name} name={name} />
       ))}
     </List>
@@ -183,12 +122,11 @@ const FeatureList: FunctionComponent = () => {
 };
 
 const FeatureItem: FunctionComponent<{ name: string }> = ({ name }) => {
-  const { features } = useContext(Context);
-  const feature = features[name];
+  const feature = useSelector((store: AppState) => getGitDiffFeature(store, name));
 
   return (
     <>
-      <ListItemWithChildren title={feature.name} indent={0}>
+      <ListItemWithChildren title={feature.id} indent={0}>
         <List component="div">
           {feature.files.map(id => (
             <FileItem key={id} id={id} />
@@ -200,21 +138,22 @@ const FeatureItem: FunctionComponent<{ name: string }> = ({ name }) => {
 };
 
 const FileItem: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { files } = useContext(Context);
-  const file = files[id];
+  const file = useSelector((store: AppState) => getGitDiffFile(store, id));
 
   return (
     <>
       <ListItemWithChildren title={file.name} indent={1}>
-        {file.chunks.map((chunk, index) => (
-          <ChunkView key={index} chunk={chunk} />
+        {file.chunks.map(chunkId => (
+          <ChunkView key={chunkId} chunkId={chunkId} />
         ))}
       </ListItemWithChildren>
     </>
   );
 };
 
-const ChunkView: FunctionComponent<{ chunk: diff.Chunk }> = ({ chunk }) => {
+const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
+  const chunk = useSelector((store: AppState) => getGitDiffChunk(store, chunkId));
+
   return <>{JSON.stringify(chunk)}</>;
 }
 
