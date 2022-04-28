@@ -22,6 +22,11 @@ export const hasGitDiffStaging = createSelector(
   (files) => Object.values(files.byId).some(file => file.staged)
 );
 
+export const getGitDiffStagingFiles = createSelector(
+  getGitDiffFilesTable,
+  (files) => (files.allIds).filter(id => files.byId[id].staged)
+);
+
 export function makeGetGitStagingFeatures() {
   return createSelector(
     getGitDiffFeaturesTable,

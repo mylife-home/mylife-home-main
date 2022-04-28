@@ -1,7 +1,7 @@
 import { Action } from 'redux';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Observable, OperatorFunction } from 'rxjs';
-import { ignoreElements, map, mergeMap, tap } from 'rxjs/operators';
+import { ignoreElements, map, mergeMap, tap, withLatestFrom} from 'rxjs/operators';
 import { ofType, StateObservable } from 'redux-observable';
 
 import { DeferredPayload } from './async-action';
@@ -15,14 +15,15 @@ import { AppState } from '../types';
 export function createSocketCallEpic<TActionType, TServiceResult = void, TActionResult = TServiceResult, TActionPayload extends DeferredPayload<TActionResult> = any, TServicePayload extends {} = any>(
   actionType: TActionType,
   service: string,
-  mapper: (payload: TActionPayload) => TServicePayload = defaultMapper,
+  mapper: (payload: TActionPayload, state: AppState) => TServicePayload = defaultMapper,
   resultMapper: (result: TServiceResult) => TActionResult = defaultResultMapper,
   outputProcessor: OperatorFunction<TActionResult, any> = ignoreElements()
 ) {
   return (action$: Observable<Action>, state$: StateObservable<AppState>) =>
     action$.pipe(
       ofType(actionType),
-      mergeMap((action: PayloadAction<TActionPayload>) => socketCall(service, mapper(action.payload)).pipe(
+      withLatestFrom(state$),
+      mergeMap(([action, state]: [PayloadAction<TActionPayload>, AppState]) => socketCall(service, mapper(action.payload, state)).pipe(
         map(resultMapper),
         tap((result: TActionResult) => { action.payload.resolve(result); }),
         outputProcessor,
