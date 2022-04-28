@@ -7,12 +7,12 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Link from '@material-ui/core/Link';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandMore from '@material-ui/icons/ExpandMore';
@@ -21,13 +21,39 @@ import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 
 import { TransitionProps } from '../../dialogs/common';
+import { useSnackbar } from '../../dialogs/snackbar';
+import { useFireAsync } from '../../lib/use-error-handling';
 import { AppState } from '../../../store/types';
-import { gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
-import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile } from '../../../store/git/selectors';
+import { gitCommit, gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
+import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, hasGitDiffStaging } from '../../../store/git/selectors';
 import DiffView from './git-diff-view';
+
+const useStyles = makeStyles((theme) => ({
+  commitPanel: {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  list: {
+    height: '50vh',
+    overflowY: 'auto',
+    border: `1px solid ${theme.palette.divider}`,
+  },
+  indent0: {
+    paddingLeft: theme.spacing(4),
+  },
+  indent1: {
+    paddingLeft: theme.spacing(8),
+  },
+  indent2: {
+    paddingLeft: theme.spacing(12),
+  },
+}));
 
 export function useShowGitDialog() {
   const [onResult, setOnResult] = useState<() => void>();
+  const appUrl = useSelector(getGitAppUrl);
 
   const [showModal, hideModal] = useModal(
     ({ in: open, onExited }: TransitionProps) => {
@@ -44,6 +70,10 @@ export function useShowGitDialog() {
         }
       };
 
+      const openApp = () => {
+        window.open(appUrl, "_blank");
+      };
+
       return (
         <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={close} scroll="paper" maxWidth="lg" fullWidth onKeyDown={handleKeyDown}>
           <DialogTitle id="dialog-title">Git</DialogTitle>
@@ -51,6 +81,10 @@ export function useShowGitDialog() {
           <GitDialogContent />
     
           <DialogActions>
+            <Button onClick={openApp}>
+              GitConvex
+            </Button>
+
             <Button color="primary" onClick={close}>
               Fermer
             </Button>
@@ -58,7 +92,7 @@ export function useShowGitDialog() {
         </Dialog>
       );
     },
-    [onResult]
+    [onResult, appUrl]
   );
 
   return useCallback(
@@ -86,29 +120,52 @@ const GitDialogContent: FunctionComponent = () => {
 
   return (
     <DialogContent dividers>
+      <CommitPanel />
       <FeatureList />
-
-      <GitAppLink />
     </DialogContent>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
-  list: {
-    height: '50vh',
-    overflowY: 'auto',
-    border: `1px solid ${theme.palette.divider}`,
-  },
-  indent0: {
-    paddingLeft: theme.spacing(4),
-  },
-  indent1: {
-    paddingLeft: theme.spacing(8),
-  },
-  indent2: {
-    paddingLeft: theme.spacing(12),
-  },
-}));
+const CommitPanel: FunctionComponent = () => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const fireAsync = useFireAsync();
+  const { enqueueSnackbar } = useSnackbar();
+  const [message, setMessage] = useState('');
+  const [working, setWorking] = useState(false);
+  const hasStaging = useSelector(hasGitDiffStaging);
+
+  const commit = () => fireAsync(async () => {
+    setWorking(true);
+    try {
+      await dispatch(gitCommit({ message }));
+
+      await dispatch(gitDiff());
+      setMessage('');
+  
+      enqueueSnackbar('Commit effectué', { variant: 'success' });
+    } finally {
+      setWorking(false);
+    }
+  });
+
+
+  return (
+    <div className={classes.commitPanel}>
+      <TextField
+        helperText={'Message du commit'}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        fullWidth
+      />
+
+      <Button onClick={commit} disabled={!hasStaging || working}>
+        {working ? '...' : 'Commit'}
+      </Button>
+    </div>
+  );
+
+};
 
 const FeatureList: FunctionComponent = () => {
   const classes = useStyles();
@@ -211,14 +268,6 @@ function getIconButton(iconButtonType: 'add' | 'remove') {
       throw new Error(`Unknown icon button type: '${iconButtonType}'`);
   }
 }
-
-const GitAppLink: FunctionComponent = () => {
-  const appUrl = useSelector(getGitAppUrl);
-
-  return (
-    <Link href={appUrl} color="inherit" target="_blank" rel="noopener noreferrer">GitConvex</Link>
-  );
-};
 
 function useIndentClass(indent: 0 | 1 | 2) {
   const classes = useStyles();
