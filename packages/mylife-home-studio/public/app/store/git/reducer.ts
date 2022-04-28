@@ -25,6 +25,13 @@ export default createReducer(initialState, {
   },
 
   [ActionTypes.DIFF_DATA_SET]: (state, action: PayloadAction<ActionPayloads.GitDiffDataSet>) => {
+    // Try to keep staging
+    const staging = state.files.allIds.filter(id => state.files.byId[id].staged);
+
+    tableClear(state.features);
+    tableClear(state.files);
+    tableClear(state.chunks);
+
     for (const id of state.status.changedFeatures) {
       const feature: Feature = { id, files: [] };
       tableSet(state.features, feature, true);
@@ -34,6 +41,13 @@ export default createReducer(initialState, {
       const id = createFile(state, file);
       const feature = state.features.byId[file.feature];
       arrayAdd(feature.files, id, true);
+    }
+
+    for (const id of staging) {
+      const file = state.files.byId[id];
+      if (file) {
+        file.staged = true;
+      }
     }
   },
 
