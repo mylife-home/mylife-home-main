@@ -35,3 +35,8 @@ export type GitDiffFile = diff.File & { feature: string; };
 export interface GitDiff {
   files: GitDiffFile[];
 }
+
+export interface GitCommit {
+  message: string;
+  files: string[];
+}

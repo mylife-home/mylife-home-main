@@ -6,7 +6,7 @@ import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { GitStatus, GitStatusNotification, DEFAULT_STATUS, GitDiff, GitDiffFile } from '../../shared/git';
+import { GitStatus, GitStatusNotification, DEFAULT_STATUS, GitDiff, GitDiffFile, GitCommit } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
 
@@ -43,6 +43,7 @@ export class Git implements Service {
     Services.instance.sessionManager.registerServiceHandler('git/start-notify', this.startNotify);
     Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
     Services.instance.sessionManager.registerServiceHandler('git/refresh', this.refresh);
+    Services.instance.sessionManager.registerServiceHandler('git/commit', this.commit);
     Services.instance.sessionManager.registerServiceHandler('git/diff', this.diff);
 
     // Initial setup
@@ -89,6 +90,10 @@ export class Git implements Service {
 
   private readonly refresh = async (session: Session) => {
     await this.refreshSingleRun.call();
+  };
+
+  private readonly commit = async(session: Session, { message, files }: GitCommit) => {
+    await this.git.commit(message, files);
   };
 
   private readonly diff = async(session: Session) => {
