@@ -76,8 +76,8 @@ const ChunkView: FunctionComponent<{ chunkId: string }> = ({ chunkId }) => {
         <td className={clsx(classes.noStretch, classes.chunkTd)}>+++</td>
         <td className={classes.td}>{chunk.content}</td>
       </tr>
-      {chunk.changes.map(change => (
-        <Change change={change} />
+      {chunk.changes.map((change, index) => (
+        <Change key={index} change={change} />
       ))}
     </tbody>
   );
