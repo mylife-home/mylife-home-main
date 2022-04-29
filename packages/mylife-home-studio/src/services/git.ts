@@ -99,15 +99,18 @@ export class Git implements Service {
     return await this.computeDiff();
   };
 
-  private readonly restore = async(session: Session, { type, id }: { type: 'feature' | 'file', id: string }) => {
+  private readonly restore = async(session: Session, { type, id }: { type: 'all' | 'feature' | 'file', id?: string }) => {
     const path = this.getRestorePath(type, id);
     await this.git.checkout(['--', path]);
     this.statusDebouncer.call();
     return await this.computeDiff();
   };
 
-  private getRestorePath(type: 'feature' | 'file', id: string) {
+  private getRestorePath(type: 'all' | 'feature' | 'file', id?: string) {
     switch (type) {
+      case 'all':
+        return Services.instance.pathManager.root;
+
       case 'feature': {
         const feature = this.featuresPaths.find(feature => feature.featureName === id);
         return feature.path;

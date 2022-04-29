@@ -19,10 +19,10 @@ export namespace ActionPayloads {
   export type ClearNotification = void;
   export type SetStatus = GitStatus;
   export type GitCommit = { message: string };
-  export type GitRestore = { type: 'feature' | 'file', id: string; };
+  export type GitRestore = { type: 'all' | 'feature' | 'file'; id?: string; };
   export type GitDiffDataSet = GitDiff;
   export type GitDiffDataClear = void;
-  export type GitDiffStage = { type: 'feature' | 'file' | 'all'; id?: string; stage: boolean };
+  export type GitDiffStage = { type: 'all' | 'feature' | 'file'; id?: string; stage: boolean };
 }
 
 export { GitStatus, GitDiff, GitDiffFile, diff, DEFAULT_STATUS };

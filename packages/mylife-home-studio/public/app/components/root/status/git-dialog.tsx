@@ -19,12 +19,13 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
+import UndoIcon from '@material-ui/icons/Undo';
 
 import { TransitionProps } from '../../dialogs/common';
 import { useSnackbar } from '../../dialogs/snackbar';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { AppState } from '../../../store/types';
-import { gitCommit, gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
+import { gitCommit, gitRestore, gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
 import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, hasGitDiffStaging } from '../../../store/git/selectors';
 import DiffView from './git-diff-view';
 
@@ -179,13 +180,14 @@ const ChangesItem: FunctionComponent<{ staged: boolean; }> = ({ staged }) => {
   const getFeatures = useMemo(() => makeGetGitStagingFeatures(), []);
   const features = useSelector((state: AppState) => getFeatures(state, staged));
   const stage = useStage(!staged, 'all');
+  const discard = useDiscard('all');
 
   if (features.length === 0) {
     return null;
   }
 
   return (
-    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
+    <ListItemWithChildren title={staged ? 'Staging' : 'Changements'} indent={0} initialOpened={true} staged={staged} onMainClick={stage} onDiscardClick={discard}>
       <List component="div">
         {features.map(id => (
           <FeatureItem key={id} id={id} staged={staged} />
@@ -200,9 +202,10 @@ const FeatureItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, 
   const getFiles = useMemo(() => makeGetGitStagingFiles(), []);
   const files = useSelector((state: AppState) => getFiles(state, id, staged));
   const stage = useStage(!staged, 'feature', id);
+  const discard = useDiscard('feature', id);
   
   return (
-    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
+    <ListItemWithChildren title={feature.id} indent={1} initialOpened={true} staged={staged} onMainClick={stage} onDiscardClick={discard}>
       <List component="div">
         {files.map(id => (
           <FileItem key={id} id={id} staged={staged} />
@@ -215,18 +218,27 @@ const FeatureItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, 
 const FileItem: FunctionComponent<{ id: string; staged: boolean; }> = ({ id, staged }) => {
   const file = useSelector((store: AppState) => getGitDiffFile(store, id));
   const stage = useStage(!staged, 'file', id);
+  const discard = useDiscard('file', id);
 
   return (
-    <ListItemWithChildren title={file.name} indent={2} initialOpened={false} onClick={stage} iconButtonType={staged ? 'remove' : 'add'}>
+    <ListItemWithChildren title={file.name} indent={2} initialOpened={false} staged={staged} onMainClick={stage} onDiscardClick={discard}>
       <DiffView chunks={file.chunks} />
     </ListItemWithChildren>
   );
 };
 
-const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2; initialOpened: boolean; onClick: () => void; iconButtonType: 'add' | 'remove' }> = ({ title, indent, initialOpened, onClick, iconButtonType, children }) => {
+interface ListItemWithChildrenProps {
+  title: string;
+  indent: 0 | 1 | 2;
+  initialOpened: boolean;
+  staged: boolean;
+  onMainClick: () => void;
+  onDiscardClick: () => void;
+}
+
+const ListItemWithChildren: FunctionComponent<ListItemWithChildrenProps> = ({ title, indent, initialOpened, staged, onMainClick, onDiscardClick, children }) => {
   const [open, setOpen] = useState(initialOpened);
   const indentClass = useIndentClass(indent);
-  const Icon = getIconButton(iconButtonType);
 
   const handleClick = () => {
     setOpen(!open);
@@ -242,8 +254,13 @@ const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2
         <ListItemText primary={title} />
 
         <ListItemSecondaryAction>
-          <IconButton onClick={onClick}>
-            <Icon />
+          {!staged && (
+            <IconButton onClick={onDiscardClick}>
+              <UndoIcon />
+            </IconButton>
+          )}
+          <IconButton onClick={onMainClick}>
+            {staged ? <RemoveIcon /> : <AddIcon />}
           </IconButton>
         </ListItemSecondaryAction>
       </ListItem>
@@ -253,17 +270,6 @@ const ListItemWithChildren: FunctionComponent<{ title: string; indent: 0 | 1 | 2
       </Collapse>
     </>
   );
-}
-
-function getIconButton(iconButtonType: 'add' | 'remove') {
-  switch (iconButtonType) {
-    case 'add':
-      return AddIcon;
-    case 'remove':
-      return RemoveIcon;
-    default:
-      throw new Error(`Unknown icon button type: '${iconButtonType}'`);
-  }
 }
 
 function useIndentClass(indent: 0 | 1 | 2) {
@@ -288,4 +294,15 @@ function useStage(stage: boolean, type: 'feature' | 'file' | 'all', id?: string)
   return useCallback(() => {
     dispatch(gitDiffStage({ type, id, stage }));
   }, [dispatch, type, id]);
+}
+
+function useDiscard(type: 'feature' | 'file' | 'all', id?: string) {
+  const dispatch = useDispatch();
+  const fireAsync = useFireAsync();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useCallback(() => fireAsync(async () => {
+    await dispatch(gitRestore({ type, id }));
+    enqueueSnackbar('Fichiers restorés', { variant: 'success' });
+  }), [dispatch, enqueueSnackbar, fireAsync, type, id]);
 }
