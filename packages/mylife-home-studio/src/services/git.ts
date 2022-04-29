@@ -12,7 +12,7 @@ const log = logger.createLogger('mylife:home:studio:services:git');
 
 interface Config {
   appUrl: string;
-  gitEnv?: object;
+  env?: object;
 }
 
 export class Git implements Service {
@@ -37,8 +37,8 @@ export class Git implements Service {
 
     const rootPath = Services.instance.pathManager.root;
     this.git = simpleGit({ baseDir: rootPath, maxConcurrentProcesses: 1, timeout: { block: 20000 } });
-    if (config.gitEnv) {
-      this.git.env(config.gitEnv);
+    if (config.env) {
+      this.git.env(config.env);
     }
 
     this.fetchTimer.init();
