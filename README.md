@@ -158,19 +158,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on doit d'abord cliquer pour selectionner le composant avant de pouvoir drag depuis un membre, c est dommage + pareil pour move
   - recherche rapide pour plugins dans la liste
 - git
-  - v1:
-    - seules operations :
-      - pull,
-      - push (avec commit comment),
-      - git shell ??? (pour gerer les conflits eventuellement)
-    - quand shell ouvert, on arrete les checks periodiques pour éviter les pb de locks
-  - v2:
-    - use simple-git to have vscode-like basic git interface and drop gitconvex
-    - besoins:
-      - gestion de remotes => fetch, pull, push
-      - changement de branche
-      - selection staging + commit (vision diff)
-      - gestion des conflits ?
+  - drop gitconvex
+  - changement de branche
+  - commit une partie d'un fichier
+  - gestion des conflits
 - deploy
   - forbid id with ':'
   - move selection data to redux store (and avoid useResetSelectionIfNull components)
