@@ -12,6 +12,7 @@ const log = logger.createLogger('mylife:home:studio:services:git');
 
 interface Config {
   appUrl: string;
+  gitEnv?: object;
 }
 
 export class Git implements Service {
@@ -24,8 +25,6 @@ export class Git implements Service {
   private git: SimpleGit;
 
   constructor(params: BuildParams) {
-    const config = tools.getConfigItem<Config>('git');
-    this.status.appUrl = config.appUrl;
 
     this.fetchTimer = new Interval(6000, this.gitFetch);
     this.statusDebouncer = new Debounce(100, this.gitStatus);
@@ -33,8 +32,14 @@ export class Git implements Service {
   }
 
   async init() {
+    const config = tools.getConfigItem<Config>('git');
+    this.status.appUrl = config.appUrl;
+
     const rootPath = Services.instance.pathManager.root;
     this.git = simpleGit({ baseDir: rootPath, maxConcurrentProcesses: 1, timeout: { block: 20000 } });
+    if (config.gitEnv) {
+      this.git.env(config.gitEnv);
+    }
 
     this.fetchTimer.init();
     this.statusDebouncer.init();
