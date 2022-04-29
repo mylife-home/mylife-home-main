@@ -139,16 +139,12 @@ const CommitPanel: FunctionComponent = () => {
     setWorking(true);
     try {
       await dispatch(gitCommit({ message }));
-
-      await dispatch(gitDiff());
       setMessage('');
-  
       enqueueSnackbar('Commit effectué', { variant: 'success' });
     } finally {
       setWorking(false);
     }
   });
-
 
   return (
     <div className={classes.commitPanel}>

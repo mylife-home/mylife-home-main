@@ -23,10 +23,11 @@ const notifierEpic = createNotifierEpic({
 });
 
 const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
-const commitEpic = createSocketCallEpic(ActionTypes.COMMIT, 'git/commit', gitCommitMapper);
+const commitEpic = createSocketCallEpic(ActionTypes.COMMIT, 'git/commit', gitCommitMapper, undefined, gitDiffResultProcessor());
+const restoreEpic = createSocketCallEpic(ActionTypes.RESTORE, 'git/restore', undefined, undefined, gitDiffResultProcessor());
 const diffEpic = createSocketCallEpic<ActionTypes, GitDiff>(ActionTypes.DIFF, 'git/diff', undefined, undefined, gitDiffResultProcessor());
 
-export default combineEpics(notifierEpic, refreshEpic, commitEpic, diffEpic);
+export default combineEpics(notifierEpic, refreshEpic, commitEpic, restoreEpic, diffEpic);
 
 function applyUpdates(updates: GitStatus[]) {
   // Only the last one is relevant anyway
@@ -38,7 +39,7 @@ function parseUpdate(update: GitStatusNotification): GitStatus {
   return update.status;
 }
 
-function gitCommitMapper(payload: ActionPayloads.GitCommit & DeferredPayload<void>, state: AppState): GitCommit {
+function gitCommitMapper<Result>(payload: ActionPayloads.GitCommit & DeferredPayload<Result>, state: AppState): GitCommit {
   return {
     message: payload.message,
     files: getGitDiffStagingFiles(state),

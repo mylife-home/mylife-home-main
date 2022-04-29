@@ -44,6 +44,7 @@ export class Git implements Service {
     Services.instance.sessionManager.registerServiceHandler('git/stop-notify', this.stopNotify);
     Services.instance.sessionManager.registerServiceHandler('git/refresh', this.refresh);
     Services.instance.sessionManager.registerServiceHandler('git/commit', this.commit);
+    Services.instance.sessionManager.registerServiceHandler('git/restore', this.restore);
     Services.instance.sessionManager.registerServiceHandler('git/diff', this.diff);
 
     // Initial setup
@@ -94,9 +95,36 @@ export class Git implements Service {
 
   private readonly commit = async(session: Session, { message, files }: GitCommit) => {
     await this.git.commit(message, files);
+    this.statusDebouncer.call();
+    return await this.computeDiff();
   };
 
+  private readonly restore = async(session: Session, { type, id }: { type: 'feature' | 'file', id: string }) => {
+    const path = this.getRestorePath(type, id);
+    await this.git.checkout(['--', path]);
+    this.statusDebouncer.call();
+    return await this.computeDiff();
+  };
+
+  private getRestorePath(type: 'feature' | 'file', id: string) {
+    switch (type) {
+      case 'feature': {
+        const feature = this.featuresPaths.find(feature => feature.featureName === id);
+        return feature.path;
+      }
+
+      case 'file':
+        return id;
+
+      default: throw new Error(`Unsupported type: '${type}'`);
+    }
+  }
+
   private readonly diff = async(session: Session) => {
+    return await this.computeDiff();
+  };
+
+  private async computeDiff() {
     const files = parseDiff(await this.git.diff()) as GitDiffFile[];
 
     // add featureName
@@ -106,7 +134,8 @@ export class Git implements Service {
     }
 
     return { files } as GitDiff;
-  };
+  }
+
 
   // ---
 
