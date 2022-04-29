@@ -1,13 +1,13 @@
 import { combineEpics } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { GitStatusNotification, GitCommit } from '../../../../shared/git';
+import { GitStatusNotification, GitCommit, GitRestore } from '../../../../shared/git';
 import { DeferredPayload } from '../common/async-action';
 import { createSocketCallEpic } from '../common/call-epic';
 import { createNotifierEpic } from '../common/notifier-epic';
 import { AppState } from '../types';
 import { setNotification, clearNotification, setStatus, gitDiffDataSet } from './actions';
-import { getNotifierId, getGitDiffStagingFiles } from './selectors';
+import { getNotifierId, getGitDiffStagingFiles, getGitDiffDiscardFiles } from './selectors';
 import { ActionTypes, ActionPayloads, GitStatus, GitDiff } from './types';
 
 const notifierEpic = createNotifierEpic({
@@ -24,7 +24,7 @@ const notifierEpic = createNotifierEpic({
 
 const refreshEpic = createSocketCallEpic(ActionTypes.REFRESH, 'git/refresh');
 const commitEpic = createSocketCallEpic(ActionTypes.COMMIT, 'git/commit', gitCommitMapper, undefined, gitDiffResultProcessor());
-const restoreEpic = createSocketCallEpic(ActionTypes.RESTORE, 'git/restore', undefined, undefined, gitDiffResultProcessor());
+const restoreEpic = createSocketCallEpic(ActionTypes.RESTORE, 'git/restore', gitRestoreMapper, undefined, gitDiffResultProcessor());
 const diffEpic = createSocketCallEpic<ActionTypes, GitDiff>(ActionTypes.DIFF, 'git/diff', undefined, undefined, gitDiffResultProcessor());
 
 export default combineEpics(notifierEpic, refreshEpic, commitEpic, restoreEpic, diffEpic);
@@ -44,6 +44,12 @@ function gitCommitMapper<Result>(payload: ActionPayloads.GitCommit & DeferredPay
     message: payload.message,
     files: getGitDiffStagingFiles(state),
   };
+}
+
+function gitRestoreMapper<Result>(payload: ActionPayloads.GitRestore & DeferredPayload<Result>, state: AppState): GitRestore {
+  const { type, id } = payload;
+  const files = getGitDiffDiscardFiles(state, type, id);
+  return { files };
 }
 
 function gitDiffResultProcessor() {

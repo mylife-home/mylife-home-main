@@ -1,5 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
+import { Table } from '../common/types';
 import { AppState } from '../types';
+import { Feature, File } from './types';
 
 const getGit = (state: AppState) => state.git;
 export const getNotifierId = (state: AppState) => getGit(state).notifierId;
@@ -57,4 +59,40 @@ export function makeGetGitStagingFiles() {
       return file.staged === staged;
     })
   );
+}
+
+// with cache version
+export function makeGetGitDiffDiscardFiles() {
+  return createSelector(
+    getGitDiffFeaturesTable,
+    getGitDiffFilesTable,
+    (state: AppState, type: 'all' | 'feature' | 'file', id?: string) => type,
+    (state: AppState, type: 'all' | 'feature' | 'file', id?: string) => id,
+    getGitDiffDiscardFilesImpl
+  );
+}
+
+// without cache version
+export const getGitDiffDiscardFiles = (state: AppState, type: 'all' | 'feature' | 'file', id?: string) => {
+  const features = getGitDiffFeaturesTable(state);
+  const files = getGitDiffFilesTable(state);
+  return getGitDiffDiscardFilesImpl(features, files, type, id);
+}
+
+function getGitDiffDiscardFilesImpl(features: Table<Feature>, files: Table<File>, type: 'all' | 'feature' | 'file', id?: string) {
+  // Discard only unstaged
+  switch(type) {
+    case 'all': {
+      return files.allIds.filter(id => !files.byId[id].staged);
+    }
+
+    case 'feature': {
+      const feature = features.byId[id];
+      return feature.files.filter(id => !files.byId[id].staged);
+    }
+
+    case 'file': {
+      return [id];
+    }
+  }
 }

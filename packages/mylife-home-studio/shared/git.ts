@@ -40,3 +40,7 @@ export interface GitCommit {
   message: string;
   files: string[];
 }
+
+export interface GitRestore {
+  files: string[];
+}

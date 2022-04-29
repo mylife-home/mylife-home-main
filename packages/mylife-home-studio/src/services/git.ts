@@ -6,7 +6,7 @@ import { logger, tools } from 'mylife-home-common';
 import { Service, BuildParams } from './types';
 import { Services } from '.';
 import { Session, SessionNotifierManager } from './session-manager';
-import { GitStatus, GitStatusNotification, DEFAULT_STATUS, GitDiff, GitDiffFile, GitCommit } from '../../shared/git';
+import { GitStatus, GitStatusNotification, DEFAULT_STATUS, GitDiff, GitDiffFile, GitCommit, GitRestore } from '../../shared/git';
 
 const log = logger.createLogger('mylife:home:studio:services:git');
 
@@ -99,29 +99,14 @@ export class Git implements Service {
     return await this.computeDiff();
   };
 
-  private readonly restore = async(session: Session, { type, id }: { type: 'all' | 'feature' | 'file', id?: string }) => {
-    const path = this.getRestorePath(type, id);
-    await this.git.checkout(['--', path]);
+  private readonly restore = async(session: Session, { files }: GitRestore) => {
+    for (const file of files) {
+      await this.git.checkout(['--', file]);
+    }
+
     this.statusDebouncer.call();
     return await this.computeDiff();
   };
-
-  private getRestorePath(type: 'all' | 'feature' | 'file', id?: string) {
-    switch (type) {
-      case 'all':
-        return Services.instance.pathManager.root;
-
-      case 'feature': {
-        const feature = this.featuresPaths.find(feature => feature.featureName === id);
-        return feature.path;
-      }
-
-      case 'file':
-        return id;
-
-      default: throw new Error(`Unsupported type: '${type}'`);
-    }
-  }
 
   private readonly diff = async(session: Session) => {
     return await this.computeDiff();

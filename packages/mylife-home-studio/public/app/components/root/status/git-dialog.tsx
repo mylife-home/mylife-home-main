@@ -23,10 +23,11 @@ import UndoIcon from '@material-ui/icons/Undo';
 
 import { TransitionProps } from '../../dialogs/common';
 import { useSnackbar } from '../../dialogs/snackbar';
+import { useConfirmDialog } from '../../dialogs/confirm';
 import { useFireAsync } from '../../lib/use-error-handling';
 import { AppState } from '../../../store/types';
 import { gitCommit, gitRestore, gitDiff, gitDiffDataClear, gitDiffStage } from '../../../store/git/actions';
-import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, hasGitDiffStaging } from '../../../store/git/selectors';
+import { getGitAppUrl, makeGetGitStagingFeatures, makeGetGitStagingFiles, getGitDiffFeature, getGitDiffFile, hasGitDiffStaging, makeGetGitDiffDiscardFiles } from '../../../store/git/selectors';
 import DiffView from './git-diff-view';
 
 const useStyles = makeStyles((theme) => ({
@@ -299,10 +300,19 @@ function useStage(stage: boolean, type: 'feature' | 'file' | 'all', id?: string)
 function useDiscard(type: 'feature' | 'file' | 'all', id?: string) {
   const dispatch = useDispatch();
   const fireAsync = useFireAsync();
+  const showConfirm = useConfirmDialog();
   const { enqueueSnackbar } = useSnackbar();
+  const getGitDiffDiscardFiles = useMemo(() => makeGetGitDiffDiscardFiles(), []);
+  const files = useSelector((state: AppState) => getGitDiffDiscardFiles(state, type, id));
 
   return useCallback(() => fireAsync(async () => {
+    const message = 'Vous allez restorer les fichiers suivants :\n' + files.join('\n');
+    const { status } = await showConfirm({ message });
+    if (status !== 'ok') {
+      return;
+    }
+
     await dispatch(gitRestore({ type, id }));
     enqueueSnackbar('Fichiers restorés', { variant: 'success' });
-  }), [dispatch, enqueueSnackbar, fireAsync, type, id]);
+  }), [dispatch, enqueueSnackbar, fireAsync, type, id, files]);
 }
