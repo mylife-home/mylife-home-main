@@ -248,9 +248,14 @@ function computeComponentSet(context: ComputeContext, importData: ComponentImpor
   if (context.model.hasComponent(importData.id)) {
     // will be an update
   } else {
-    const dryRun = context.model.buildNamingDryRunEngine();
-    dryRun.setComponent(context.model, importData.id, null);
-    dryRun.validate();
+    try {
+      const dryRun = context.model.buildNamingDryRunEngine();
+      dryRun.setComponent(context.model, importData.id, null);
+      dryRun.validate();
+    } catch (err) {
+      log.error(err, `The component '${importData.id}' triggers duplicates error in template management. It will be ignored.`);
+      return [];
+    }
   }
 
   const updateId = `component-set::${importData.id}`;
