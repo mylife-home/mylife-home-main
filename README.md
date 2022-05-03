@@ -186,7 +186,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - add custom css classes
   - permit to add them to controls statically => use it for "RDC" "R1" etc
   - add custom functions like text controls but which returns boolean to add a class or not
-- static text (no format) + render it wysiwyg
 
 # TODO
 
@@ -194,6 +193,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - ui designer:
   - UI display resources: bug affichage
+  - controle texte : enregistrer les valeurs utilisées pour le test, comme valeur par défaut, et afficher une sortie wysiwyg (utile pour les textes statiques et meme pour tester les dynamiques)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
