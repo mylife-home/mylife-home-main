@@ -1,15 +1,17 @@
-export type Style = string;
+export type Style = string[]; // static for now
 export type Resource = string;
 
 export interface Model {
   windows: Window[];
   defaultWindow: DefaultWindow;
+  styleHash: string; // css file to fetch
 }
 
 export type DefaultWindow = { [type: string]: string; };
 
 export interface Window {
   readonly id: string;
+  readonly title: string;
   readonly style: Style;
   readonly height: number;
   readonly width: number;
