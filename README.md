@@ -186,8 +186,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - add custom css classes
   - permit to add them to controls statically => use it for "RDC" "R1" etc
   - add custom functions like text controls but which returns boolean to add a class or not
-  => https://typestyle.github.io/#/ (6kb gzipped)
-  => clsx (228B)
+  => build css on server (from model)
+  => https://stackoverflow.com/a/2099555/12023515
+  => clsx (228B) => apply classes "dynamically"
 
 # TODO
 
