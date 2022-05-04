@@ -1,4 +1,5 @@
 import React, { FunctionComponent } from 'react';
+import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import { AppState } from '../store/types';
 import { Window } from '../store/types/model';
@@ -12,7 +13,7 @@ type WindowContentProps = {
 const WindowContent: FunctionComponent<WindowContentProps> = ({ windowId }) => {
   const { window } = useConnect(windowId);
   return (
-    <div style={getStyleSize(window)} className="mylife-window-container">
+    <div style={getStyleSize(window)} className={clsx('mylife-window-container', ...window.style)}>
       <img src={getBackground(window)} />
       {window.controls.map((control) => (
         <Control

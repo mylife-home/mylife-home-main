@@ -10,6 +10,7 @@ export interface UIControl {
   readonly width: number;
   readonly left: number;
   readonly top: number;
+  readonly style: string[];
   readonly displayResource: string;
   readonly text: string;
   readonly active: boolean;
@@ -39,6 +40,7 @@ export const makeGetUIControl = (windowId: string, controlId: string): (state: A
         height: control.height,
         left: control.x,
         top: control.y,
+        style: control.style,
         displayResource: null,
         text: null,
         active: !!control.primaryAction,

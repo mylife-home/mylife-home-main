@@ -13,7 +13,7 @@ const View: FunctionComponent = () => {
   
   return (
     <>
-      <div title={main}>
+      <div>
         <WindowContent windowId={main} />
       </div>
 
