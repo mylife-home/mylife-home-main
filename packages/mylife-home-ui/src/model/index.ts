@@ -1,14 +1,18 @@
 import fs from 'fs';
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
+import jss from 'jss';
+import preset from 'jss-preset-default';
 import { logger, tools } from 'mylife-home-common';
 import { Model, Control, Window } from '../../shared/model';
-import { Definition, DefinitionResource } from './definition';
+import { Definition, DefinitionResource, DefinitionStyle } from './definition';
 
 export * as model from '../../shared/model';
 export { Definition, DefinitionResource };
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
+
+jss.setup(preset());
 
 export interface Resource {
   readonly mime: string;
@@ -28,7 +32,8 @@ const DEFAULT_DEFINITION: Definition = {
   resources: [],
   windows: [{
     id: 'default-window',
-    style: null,
+    title: 'Default window',
+    style: [],
     width: 300,
     height: 100,
     backgroundResource: null,
@@ -51,7 +56,8 @@ const DEFAULT_DEFINITION: Definition = {
   defaultWindow: {
     desktop: 'default-window',
     mobile: 'default-window',
-  }
+  },
+  styles: []
 };
 
 export declare interface ModelManager extends EventEmitter {
@@ -85,14 +91,24 @@ export class ModelManager extends EventEmitter {
 
     for (const resource of definition.resources) {
       const data = Buffer.from(resource.data, 'base64');
-      const hash = this.setResource(resource.mime, data); // for now all png
+      const hash = this.setResource(resource.mime, data);
       resourceTranslation.set(resource.id, hash);
       log.info(`Creating resource from id '${resource.id}': hash='${hash}', size='${data.length}'`);
     }
 
+    let styleHash: string;
+    {
+      const data = Buffer.from(createCss(definition.styles));
+      const hash = this.setResource('text/css', data);
+      log.info(`Creating css: hash='${hash}', size='${data.length}'`);
+
+      styleHash = hash;
+    }
+
     const model: Model = {
       windows: translateWindows(definition.windows, resourceTranslation),
-      defaultWindow: definition.defaultWindow
+      defaultWindow: definition.defaultWindow,
+      styleHash
     };
 
     const data = Buffer.from(JSON.stringify(model));
@@ -186,4 +202,15 @@ function extractRequiredComponentStates(model: Model): RequiredComponentState[] 
   }
 
   return list;
+}
+
+function createCss(styles: DefinitionStyle[]) {
+  // Note: this is weak, but we will get key from ids which must not contain duplicates
+  const sheet = jss.createStyleSheet<string>({}, { generateId: (rule) => rule.key });
+
+  for (const style of styles) {
+    sheet.addRule(style.id, style.properties);
+  }
+
+  return sheet.toString();
 }
