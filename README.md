@@ -182,8 +182,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - color4: en attente reste séquence (eg double click)
   - rajouter un feedback pour dire que action primary ou secondary est executée
 - styles
-  - add custom css classes
-  - permit to add them to controls statically => use it for "RDC" "R1" etc
   - add custom functions like text controls but which returns boolean to add a class or not
 
 # TODO
