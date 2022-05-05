@@ -6,7 +6,7 @@ import { UiOpenedProject } from './opened-project';
 export class UiProjects extends Store<UiProject> {
   createNew(name: string) {
     const project: UiProject = {
-      definition: { resources: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
+      definition: { resources: [], styles: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
       componentData: { components: [], plugins: {} },
     };
 

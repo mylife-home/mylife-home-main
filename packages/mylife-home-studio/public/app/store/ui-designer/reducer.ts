@@ -322,10 +322,10 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
 }
 
 function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls'>, { adaptIds }: { adaptIds: boolean }) {
-  const { style, height, width, backgroundResource } = window;
+  const { title, style, height, width, backgroundResource } = window;
 
   return {
-    style, height, width,
+    title, style, height, width,
     backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
   };
 }

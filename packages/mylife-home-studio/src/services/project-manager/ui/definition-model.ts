@@ -7,7 +7,8 @@ import { clone } from '../../../utils/object-utils';
 
 const WINDOW_TEMPLATE: Window = {
   id: null,
-  style: null,
+  title: 'Nouvelle fenêtre',
+  style: [],
   height: 500,
   width: 500,
   backgroundResource: null,
@@ -19,7 +20,7 @@ const CONTROL_TEMPLATE: Control = {
   x: null,
   y: null,
 
-  style: null,
+  style: [],
   height: 50,
   width: 50,
   display: {
