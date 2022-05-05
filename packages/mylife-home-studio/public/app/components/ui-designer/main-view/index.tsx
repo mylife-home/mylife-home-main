@@ -5,6 +5,7 @@ import Project from './project';
 import Windows from './windows';
 import Window from './window';
 import Resources from './resources';
+import Styles from './styles';
 import Components from './components';
 
 const Main: FunctionComponent = () => {
@@ -19,6 +20,8 @@ const Main: FunctionComponent = () => {
       return <Window id={selection.id} />;
     case 'resources':
       return <Resources />;
+    case 'styles':
+      return <Styles />;
     case 'components':
       return <Components />;
   }

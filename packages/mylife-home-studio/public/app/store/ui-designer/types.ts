@@ -97,7 +97,7 @@ export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
   controls: string[];
 }
 
-export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
+export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'styles' | 'components';
 
 export interface Selection {
   type: SelectionType;
@@ -108,6 +108,7 @@ export interface UiOpenedProject extends OpenedProjectBase {
   components: string[];
   plugins: string[];
   resources: string[];
+  styles: string[];
   windows: string[];
   defaultWindow: DefaultWindow;
   selection: Selection;
@@ -118,6 +119,7 @@ export interface UiDesignerState {
   components: Table<UiComponent>;
   plugins: Table<UiPlugin>;
   resources: Table<UiResource>;
+  styles: Table<UiStyle>;
   windows: Table<UiWindow>;
   controls: Table<UiControl>;
 }
