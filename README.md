@@ -181,7 +181,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - si appui + long changement vers color3  : click long en cours, on peut relacher
   - color4: en attente reste séquence (eg double click)
   - rajouter un feedback pour dire que action primary ou secondary est executée
-- add title to window (to display in popup)
 - styles
   - add custom css classes
   - permit to add them to controls statically => use it for "RDC" "R1" etc
