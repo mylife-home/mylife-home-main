@@ -84,17 +84,19 @@ const Styles: FunctionComponent = () => {
         </>
       }
     >
-      <List disablePadding className={classes.list}>
-        {stylesIds.map((id) => (
-          <StyleItem key={id} id={id} selected={selection === id} onSelect={() => select(id)} />
-        ))}
-      </List>
+      <div className={classes.wrapper}>
+        <List disablePadding className={classes.list}>
+          {stylesIds.map((id) => (
+            <StyleItem key={id} id={id} selected={selection === id} onSelect={() => select(id)} />
+          ))}
+        </List>
 
-      <Divider orientation="vertical" />
-      
-      {selection && (
-        <Display className={classes.display} id={selection} />
-      )}
+        <Divider orientation="vertical" />
+        
+        {selection && (
+          <Display className={classes.display} id={selection} />
+        )}
+      </div>
     </Container>
   );
 };

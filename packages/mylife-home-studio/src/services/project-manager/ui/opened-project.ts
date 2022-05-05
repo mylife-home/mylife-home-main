@@ -82,6 +82,10 @@ export class UiOpenedProject extends OpenedProject {
       notifier.notify({ operation: 'set-ui-resource', resource } as SetUiResourceNotification);
     }
 
+    for (const style of this.project.definition.styles) {
+      notifier.notify({ operation: 'set-ui-style', style } as SetUiStyleNotification);
+    }
+
     for (const window of this.project.definition.windows) {
       notifier.notify({ operation: 'set-ui-window', window } as SetUiWindowNotification);
     }
