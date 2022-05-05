@@ -210,7 +210,13 @@ export class UiOpenedProject extends OpenedProject {
 
   private setResource({ resource }: SetResourceUiProjectCall) {
     this.executeUpdate(() => {
-      this.resources.set(resource);
+      const existing = this.resources.findById(resource.id);
+      if (existing) {
+        existing.update(resource);
+      } else {
+        this.resources.set(resource);
+      }
+
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
     });
   }
@@ -243,7 +249,13 @@ export class UiOpenedProject extends OpenedProject {
 
   private setStyle({ style }: SetStyleUiProjectCall) {
     this.executeUpdate(() => {
-      this.styles.set(style);
+      const existing = this.styles.findById(style.id);
+      if (existing) {
+        existing.update(style);
+      } else {
+        this.styles.set(style);
+      }
+      
       this.notifyAll<SetUiStyleNotification>({ operation: 'set-ui-style', style });
     });
   }

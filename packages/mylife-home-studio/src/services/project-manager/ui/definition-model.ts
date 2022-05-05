@@ -693,6 +693,11 @@ export class ResourceModel {
   set id(value: string) {
     this.data.id = value;
   }
+
+  update(resource: DefinitionResource) {
+    const { mime, data } = resource;
+    Object.assign(this.data, { mime, data });
+  }
 }
 
 export class StyleModel {
@@ -705,6 +710,11 @@ export class StyleModel {
 
   set id(value: string) {
     this.data.id = value;
+  }
+
+  update(style: DefinitionStyle) {
+    const { properties } = style;
+    Object.assign(this.data, { properties });
   }
 }
 

@@ -19,23 +19,25 @@ const useStyles = makeStyles((theme) => ({
 }), { name: 'properties-code-editor'});
 
 const options: EditorConfiguration = {
-  mode: 'javascript',
+  mode: { name: 'javascript', json: true },
   theme: 'default',
   lineNumbers: true,
-}
+};
 
-const CodeEditor: FunctionComponent<{ value: string; onChange: (newValue: string) => void; }> = ({ value, onChange }) => {
+const JssEditor: FunctionComponent<{ value: string; onChange?: (newValue: string) => void; }> = ({ value, onChange }) => {
   const classes = useStyles();
+
+  const finalOptions = { ...options, readonly: !onChange};
 
   return (
     <CodeMirror
       editorDidMount={editor => { editor.setSize('100%', '100%'); }}
       className={classes.component}
-      options={options}
+      options={finalOptions}
       value={value}
-      onBeforeChange={(editor, data, value) => onChange(value)}
+      onBeforeChange={onChange && ((editor, data, value) => onChange(value))}
     />
   );
 };
 
-export default CodeEditor;
+export default JssEditor;
