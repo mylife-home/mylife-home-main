@@ -155,19 +155,25 @@ function translateWindows(windows: Window[], resourceTranslation: Map<string, st
   return windows.map(window => ({
     ...window,
     backgroundResource: translateResource(window.backgroundResource, resourceTranslation),
-    controls: translateControls(window.controls, resourceTranslation)
+    controls: translateControls(window.controls, resourceTranslation),
+    style: window.style.map(id => `user-${id}`) 
   }));
 }
 
 function translateControls(controls: Control[], resourceTranslation: Map<string, string>) {
   return controls.map(control => {
-    if (!control.display) {
-      return control;
-    }
+    let display = control.display;
 
-    const newMap = control.display.map.map((item: any) => ({ ...item, resource: translateResource(item.resource, resourceTranslation) }));
-    const newDisplay = { ...control.display, map: newMap, defaultResource: translateResource(control.display.defaultResource, resourceTranslation) };
-    return { ...control, display: newDisplay };
+    if (control.display) {
+      const map = control.display.map.map((item: any) => ({ ...item, resource: translateResource(item.resource, resourceTranslation) }));
+      display = { ...control.display, map, defaultResource: translateResource(control.display.defaultResource, resourceTranslation) };
+    }
+    
+    return { 
+      ...control, 
+      display,
+      style: control.style.map(id => `user-${id}`)
+    };
   });
 }
 
@@ -209,7 +215,8 @@ function createCss(styles: DefinitionStyle[]) {
   const sheet = jss.createStyleSheet<string>({}, { generateId: (rule) => rule.key });
 
   for (const style of styles) {
-    sheet.addRule(style.id, style.properties);
+    // avoid collision with predefined styles ids
+    sheet.addRule(`user-${style.id}`, style.properties);
   }
 
   return sheet.toString();
