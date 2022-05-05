@@ -1,9 +1,9 @@
-import React, { FunctionComponent, useCallback, useMemo } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewClose } from '../store/actions/view';
 import WindowContent from './window-content';
 import Overlay from './overlay';
-import { AppState } from '../store/types';
+import { AppState, AppThunkDispatch } from '../store/types';
 import { getWindowTitle } from '../store/selectors/model';
 
 type PopupProps = {
@@ -35,7 +35,7 @@ const Popup: FunctionComponent<PopupProps> = ({ windowId }) => {
 export default Popup;
 
 function useConnect(windowId: string) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppThunkDispatch>();
 
   const onWindowClose = useCallback(() => {
     dispatch(viewClose());
