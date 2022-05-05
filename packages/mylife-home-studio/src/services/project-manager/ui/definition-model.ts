@@ -195,7 +195,7 @@ export class WindowModel {
   }
 
   update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
-    const data = pickIfDefined(properties, 'style', 'backgroundResource', 'height', 'width');
+    const data = pickIfDefined(properties, 'title', 'style', 'backgroundResource', 'height', 'width');
     Object.assign(this.data, data);
   }
 

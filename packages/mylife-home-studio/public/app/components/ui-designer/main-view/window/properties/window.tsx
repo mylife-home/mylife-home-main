@@ -8,6 +8,7 @@ import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ResourceSelector from '../../common/resource-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import ElementPathBreadcrumbs from '../../common/element-path-breadcrumbs';
+import StringEditor from '../../common/string-editor';
 import { useWindowState } from '../window-state';
 import { useSnapValue } from '../snap';
 
@@ -29,6 +30,9 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
       <Group title={'Fenêtre'}>
         <Item title={'Identifiant'}>
           <ReadonlyStringEditor value={window.windowId} />
+        </Item>
+        <Item title={'Titre'}>
+          <StringEditor value={window.title} onChange={(value) => update({ title: value })} />
         </Item>
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={window.width} onChange={(value) => update({ width: value })} />
