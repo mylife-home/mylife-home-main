@@ -1,4 +1,4 @@
-import { Window, Control, DefaultWindow, Definition, DefinitionResource } from './ui-model';
+import { Window, Control, DefaultWindow, Definition, DefinitionResource, DefinitionStyle } from './ui-model';
 import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
@@ -131,7 +131,7 @@ export interface CoreProjectInfo extends ProjectInfo {
 
 export interface UpdateProjectNotification {
   operation: 'set-name' | 'reset'
-  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
+  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-style' | 'clear-ui-style' | 'rename-ui-style' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
   | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding' | 'set-core-template' | 'clear-core-template' | 'rename-core-template';
 }
 
@@ -170,6 +170,22 @@ export interface ClearUiResourceNotification extends UpdateProjectNotification {
 
 export interface RenameUiResourceNotification extends UpdateProjectNotification {
   operation: 'rename-ui-resource';
+  id: string;
+  newId: string;
+}
+
+export interface SetUiStyleNotification extends UpdateProjectNotification {
+  operation: 'set-ui-style';
+  style: DefinitionStyle;
+}
+
+export interface ClearUiStyleNotification extends UpdateProjectNotification {
+  operation: 'clear-ui-style';
+  id: string;
+}
+
+export interface RenameUiStyleNotification extends UpdateProjectNotification {
+  operation: 'rename-ui-style';
   id: string;
   newId: string;
 }
@@ -282,6 +298,7 @@ export interface ProjectCallResult {
 export interface UiProjectCall {
   operation: 'validate' | 'refresh-components-from-online' | 'refresh-components-from-project' | 'apply-refresh-components' | 'deploy' | 'set-default-window'
   | 'set-resource' | 'clear-resource' | 'rename-resource'
+  | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties';
 }
@@ -345,6 +362,22 @@ export interface ClearResourceUiProjectCall extends UiProjectCall {
 
 export interface RenameResourceUiProjectCall extends UiProjectCall {
   operation: 'rename-resource';
+  id: string;
+  newId: string;
+}
+
+export interface SetStyleUiProjectCall extends UiProjectCall {
+  operation: 'set-style';
+  style: DefinitionStyle;
+}
+
+export interface ClearStyleUiProjectCall extends UiProjectCall {
+  operation: 'clear-style';
+  id: string;
+}
+
+export interface RenameStyleUiProjectCall extends UiProjectCall {
+  operation: 'rename-style';
   id: string;
   newId: string;
 }
