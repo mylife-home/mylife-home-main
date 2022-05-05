@@ -39,7 +39,7 @@ const DEFAULT_DEFINITION: Definition = {
     backgroundResource: null,
     controls: [{
       id: 'default-control',
-      style: null,
+      style: [],
       x: 0,
       y: 0,
       width: 300,
