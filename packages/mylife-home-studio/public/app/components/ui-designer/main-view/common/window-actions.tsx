@@ -15,7 +15,7 @@ import { useFireAsync } from '../../../lib/use-error-handling';
 import { useInputDialog } from '../../../dialogs/input';
 import { AppState } from '../../../../store/types';
 import { newWindow, cloneWindow, clearWindow, renameWindow } from '../../../../store/ui-designer/actions';
-import { getWindowsIds, getWindow, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
+import { getWindowsIds, getWindow, getWindowsMap, makeGetWindowUsage } from '../../../../store/ui-designer/selectors';
 import { useRemoveUsageConfirmDialog } from './remove-usage-confirm-dialog';
 
 const useStyles = makeStyles((theme) => ({
@@ -157,6 +157,8 @@ function useWindowConnect(id: string) {
 function useNewNameDialog() {
   const showDialog = useInputDialog();
   const windowsIds = useTabSelector(getWindowsIds);
+  const windowsMap = useSelector(getWindowsMap);
+  const windowsNames = useMemo(() => windowsIds.map(id => windowsMap[id].windowId), [windowsIds, windowsMap]);
 
   return async (initialId: string = null) => {
     const options = {
@@ -170,7 +172,7 @@ function useNewNameDialog() {
         if (newId === initialId) {
           return;
         }
-        if (windowsIds.includes(newId)) {
+        if (windowsNames.includes(newId)) {
           return 'Ce nom existe déjà';
         }
       },
