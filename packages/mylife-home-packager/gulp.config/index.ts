@@ -246,8 +246,10 @@ export = {
 };
 
 function corePluginsListNames() {
-  const userPlugins = argv.plugins as string;
-  const allPlugins = argv.allPlugins === true;
+  // TODO: why "| Promise" ?
+  const targv = argv as { [argName: string]: unknown };
+  const userPlugins = targv.plugins as string;
+  const allPlugins = targv.allPlugins === true;
   const list = new Set(Object.keys(projects.core.plugins));
 
   if (userPlugins && allPlugins) {
