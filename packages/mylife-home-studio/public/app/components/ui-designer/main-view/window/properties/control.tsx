@@ -12,6 +12,7 @@ import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
+import StyleSelector from '../../common/style-selector';
 import { useControlState, useGetExistingControlNames } from '../window-state';
 import { useSnapValue } from '../snap';
 import PropertiesControlAppearence from './control-appearence';
@@ -91,6 +92,9 @@ const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: strin
         </Item>
         <Item title={'Longueur'}>
           <SnappedIntegerEditor snap={snap} value={control.height} onChange={(value) => update({ height: value })} />
+        </Item>
+        <Item title={'Style'} multiline>
+          <StyleSelector value={control.style} onChange={(value) => update({ style: value })} />
         </Item>
       </Group>
 
