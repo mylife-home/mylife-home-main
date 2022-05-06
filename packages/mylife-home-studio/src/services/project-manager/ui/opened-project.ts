@@ -31,14 +31,20 @@ import {
   NewControlUiProjectCall,
   SetControlPropertiesUiProjectCall,
   CloneControlUiProjectCall,
+  SetStyleUiProjectCall,
+  ClearStyleUiProjectCall,
+  RenameStyleUiProjectCall,
+  SetUiStyleNotification,
+  ClearUiStyleNotification,
+  RenameUiStyleNotification,
 } from '../../../../shared/project-manager';
-import { Window, DefinitionResource } from '../../../../shared/ui-model';
+import { Window, DefinitionResource, DefinitionStyle } from '../../../../shared/ui-model';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
-import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow } from './definition-model';
+import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel } from './definition-model';
 import { clone } from '../../../utils/object-utils';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
@@ -48,6 +54,7 @@ export class UiOpenedProject extends OpenedProject {
   private defaultWindow: DefaultWindowModel;
   private windows: CollectionModel<Mutable<Window>, WindowModel>;
   private resources: CollectionModel<Mutable<DefinitionResource>, ResourceModel>;
+  private styles: CollectionModel<Mutable<DefinitionStyle>, StyleModel>;
   private components: ComponentsModel;
 
   constructor(private readonly owner: UiProjects, name: string) {
@@ -61,6 +68,7 @@ export class UiOpenedProject extends OpenedProject {
     this.defaultWindow = new DefaultWindowModel(this.project.definition.defaultWindow);
     this.windows = new CollectionModel(this.project.definition.windows, WindowModel);
     this.resources = new CollectionModel(this.project.definition.resources, ResourceModel);
+    this.styles = new CollectionModel(this.project.definition.styles, StyleModel);
     this.components = new ComponentsModel(this.project.componentData);
   }
 
@@ -72,6 +80,10 @@ export class UiOpenedProject extends OpenedProject {
 
     for (const resource of this.project.definition.resources) {
       notifier.notify({ operation: 'set-ui-resource', resource } as SetUiResourceNotification);
+    }
+
+    for (const style of this.project.definition.styles) {
+      notifier.notify({ operation: 'set-ui-style', style } as SetUiStyleNotification);
     }
 
     for (const window of this.project.definition.windows) {
@@ -111,6 +123,18 @@ export class UiOpenedProject extends OpenedProject {
 
       case 'rename-resource':
         this.renameResource(callData as RenameResourceUiProjectCall);
+        break;
+
+      case 'set-style':
+        this.setStyle(callData as SetStyleUiProjectCall);
+        break;
+
+      case 'clear-style':
+        this.clearStyle(callData as ClearStyleUiProjectCall);
+        break;
+
+      case 'rename-style':
+        this.renameStyle(callData as RenameStyleUiProjectCall);
         break;
 
       case 'new-window':
@@ -186,7 +210,13 @@ export class UiOpenedProject extends OpenedProject {
 
   private setResource({ resource }: SetResourceUiProjectCall) {
     this.executeUpdate(() => {
-      this.resources.set(resource);
+      const existing = this.resources.findById(resource.id);
+      if (existing) {
+        existing.update(resource);
+      } else {
+        this.resources.set(resource);
+      }
+
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
     });
   }
@@ -211,6 +241,45 @@ export class UiOpenedProject extends OpenedProject {
 
       for (const window of this.windows) {
         if (window.onRenameResource(id, newId)) {
+          this.notifyAllWindow(window);
+        }
+      }
+    });
+  }
+
+  private setStyle({ style }: SetStyleUiProjectCall) {
+    this.executeUpdate(() => {
+      const existing = this.styles.findById(style.id);
+      if (existing) {
+        existing.update(style);
+      } else {
+        this.styles.set(style);
+      }
+      
+      this.notifyAll<SetUiStyleNotification>({ operation: 'set-ui-style', style });
+    });
+  }
+
+  private clearStyle({ id }: ClearStyleUiProjectCall) {
+    this.executeUpdate(() => {
+      this.styles.clear(id);
+      this.notifyAll<ClearUiStyleNotification>({ operation: 'clear-ui-style', id });
+
+      for (const window of this.windows) {
+        if (window.onClearStyle(id)) {
+          this.notifyAllWindow(window);
+        }
+      }
+    });
+  }
+
+  private renameStyle({ id, newId }: RenameStyleUiProjectCall) {
+    this.executeUpdate(() => {
+      this.styles.rename(id, newId);
+      this.notifyAll<RenameUiStyleNotification>({ operation: 'rename-ui-style', id, newId });
+
+      for (const window of this.windows) {
+        if (window.onRenameStyle(id, newId)) {
           this.notifyAllWindow(window);
         }
       }

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Actions from './actions';
-import { ProjectIcon, WindowIcon, ImageIcon, ComponentIcon } from '../lib/icons';
+import { ProjectIcon, WindowIcon, ResourceIcon, StyleIcon, ComponentIcon } from '../lib/icons';
 import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { useSelection } from './selection';
 import { useTabSelector } from '../lib/use-tab-selector';
@@ -32,6 +32,8 @@ const SideBar: FunctionComponent = () => {
         <Windows />
         <SideBarDivider />
         <Resources />
+        <SideBarDivider />
+        <Styles />
         <SideBarDivider />
         <Components />
       </SideBarList>
@@ -76,7 +78,14 @@ const WindowItem: FunctionComponent<{ id: string; }> = ({ id }) => {
 const Resources: FunctionComponent = () => {
   const { select } = useSelection();
   return (
-    <Section title="Ressources" icon={ImageIcon} onClick={() => select({ type: 'resources' })} />
+    <Section title="Ressources" icon={ResourceIcon} onClick={() => select({ type: 'resources' })} />
+  );
+};
+
+const Styles: FunctionComponent = () => {
+  const { select } = useSelection();
+  return (
+    <Section title="Styles" icon={StyleIcon} onClick={() => select({ type: 'styles' })} />
   );
 };
 

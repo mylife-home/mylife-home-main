@@ -18,7 +18,7 @@ import DeleteButton from '../../../lib/delete-button';
 import UploadButton from '../../../lib/upload-button';
 import UploadZone from '../../../lib/upload-zone';
 import { Container, Title } from '../../../lib/main-view-layout';
-import { ImageIcon } from '../../../lib/icons';
+import { ResourceIcon } from '../../../lib/icons';
 import { useTabSelector } from '../../../lib/use-tab-selector';
 import { useRenameDialog } from '../../../dialogs/rename';
 import { useFireAsync } from '../../../lib/use-error-handling';
@@ -65,7 +65,7 @@ const Resources: FunctionComponent = () => {
   const resourcesMap = useSelector(getResourcesMap);
   const resourcesNames = useMemo(() => resourcesIds.map(id => resourcesMap[id].resourceId), [resourcesIds, resourcesMap]);
   const { setResource } = useResourcesActions();
-  const [selection, select] = useSelection(resourcesIds);
+  const [selection, select] = useSelection();
   
   const onUploadFiles = (uploadFiles: File[]) =>
     fireAsync(async () => {
@@ -88,7 +88,7 @@ const Resources: FunctionComponent = () => {
     <Container
       title={
         <>
-          <Title text="Resources" icon={ImageIcon} />
+          <Title text="Resources" icon={ResourceIcon} />
   
           <Tooltip title="Ajouter des ressources (ou drag'n'drop)">
             <UploadButton className={classes.newButton} accept="image/*" multiple onUploadFiles={onUploadFiles}>
@@ -125,7 +125,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   const usage = useTabSelector((state, tabId) => getResourceUsage(state, tabId, id));
   const { setResource, renameResource, clearResource } = useResourcesActions();
   const fireAsync = useFireAsync();
-  const showRenameDialog = useRenameDialog(resources, resource.id, 'Entrer le nouveau nom de ressource');
+  const showRenameDialog = useRenameDialog(resources, resource.resourceId, 'Entrer le nouveau nom de ressource');
   const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
 
   const onRename = () =>
@@ -171,7 +171,7 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
   return (
     <ListItem button selected={selected} onClick={onSelect}>
       <ListItemIcon>
-        <ImageIcon />
+        <ResourceIcon />
       </ListItemIcon>
 
       <ListItemText primary={resource.resourceId} secondary={`${resource.mime} - ${formatBinaryLength(resource)}`} />
@@ -227,12 +227,13 @@ async function fileToResource(file: File) {
   const data = btoa(binaryString);
 
   const filename = file.name;
-  const id = filename.substring(0, filename.lastIndexOf('.')) || filename;
+  const resourceId = filename.substring(0, filename.lastIndexOf('.')) || filename;
 
-  return { id, mime: file.type, data } as UiResource;
+  return { id: null, resourceId, mime: file.type, data } as UiResource;
 }
 
-function useSelection(ids: string[]): [string, (id: string) => void] {
+function useSelection(): [string, (id: string) => void] {
+  const ids = useTabSelector(getResourcesIds);
   const [selection, select] = useState<string>(null);
   const idSet = useMemo(() => new Set(ids), [ids]);
 

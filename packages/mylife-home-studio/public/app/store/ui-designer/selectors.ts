@@ -7,6 +7,7 @@ const getOpenedProjects = (state: AppState) => getUiDesigner(state).openedProjec
 const getComponentsTable = (state: AppState) => getUiDesigner(state).components;
 const getPluginsTable = (state: AppState) => getUiDesigner(state).plugins;
 const getResourcesTable = (state: AppState) => getUiDesigner(state).resources;
+const getStylesTable = (state: AppState) => getUiDesigner(state).styles;
 const getWindowsTable = (state: AppState) => getUiDesigner(state).windows;
 const getControlsTable = (state: AppState) => getUiDesigner(state).controls;
 
@@ -39,6 +40,8 @@ export const getComponent = (state: AppState, componentId: string) => getCompone
 const getPlugin = (state: AppState, pluginId: string) => getPluginsTable(state).byId[pluginId];
 export const getResourcesIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).resources;
 export const getResource = (state: AppState, resourceId: string) => getResourcesTable(state).byId[resourceId];
+export const getStylesIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).styles;
+export const getStyle = (state: AppState, styleId: string) => getStylesTable(state).byId[styleId];
 export const getWindowsIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).windows;
 export const getWindow = (state: AppState, windowId: string) => getWindowsTable(state).byId[windowId];
 export const getControl = (state: AppState, controlId: string) => getControlsTable(state).byId[controlId];
@@ -47,6 +50,7 @@ export const getComponentsMap = (state: AppState) => getComponentsTable(state).b
 export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
 export const getWindowsMap = (state: AppState) => getWindowsTable(state).byId;
 export const getResourcesMap = (state: AppState) => getResourcesTable(state).byId;
+export const getStylesMap = (state: AppState) => getStylesTable(state).byId;
 export const getControlsMap = (state: AppState) => getControlsTable(state).byId;
 
 export const getComponentAndPlugin = (state: AppState, componentId: string) => {
@@ -179,6 +183,38 @@ export function makeGetWindowUsage() {
                 { type: 'action', id: aid },
               ]);
             }
+          }
+        }
+      }
+
+      return usage;
+    }
+  );
+};
+
+export function makeGetStyleUsage() {
+  return createSelector(
+    getOpenedProject,
+    getWindowsMap,
+    getControlsMap,
+    (state: AppState, tabId: string, styleId: string) => styleId,
+    (project, windows, controls, styleId) => {
+      const usage: Usage = [];
+
+      for (const wid of project.windows) {
+        const window = windows[wid];
+
+        if (window.style.includes(styleId)) {
+          usage.push([{ type: 'window', id: wid }]);
+        }
+
+        for (const cid of window.controls) {
+          const control = controls[cid];
+          if (control.style.includes(styleId)) {
+            usage.push([
+              { type: 'window', id: wid },
+              { type: 'control', id: cid },
+            ]);
           }
         }
       }

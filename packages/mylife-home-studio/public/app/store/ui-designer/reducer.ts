@@ -11,16 +11,20 @@ import {
   SetUiResourceNotification,
   SetUiWindowNotification,
   UpdateProjectNotification,
+  SetUiStyleNotification,
+  RenameUiStyleNotification,
+  ClearUiStyleNotification,
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection, ActionPayloads } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection, ActionPayloads, UiStyle } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
   components: createTable<UiComponent>(),
   plugins: createTable<UiPlugin>(),
   resources: createTable<UiResource>(),
+  styles: createTable<UiStyle>(),
   windows: createTable<UiWindow>(),
   controls: createTable<UiControl>(),
 };
@@ -43,6 +47,7 @@ export default createReducer(initialState, {
       components: [],
       plugins: [],
       resources: [],
+      styles: [],
       windows: [],
       selection: DEFAULT_SELECTION,
       defaultWindow: { desktop: null, mobile: null },
@@ -79,6 +84,7 @@ export default createReducer(initialState, {
       openedProject.components = [];
       openedProject.plugins = [];
       openedProject.resources = [];
+      openedProject.styles = [];
       openedProject.windows = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
@@ -87,6 +93,7 @@ export default createReducer(initialState, {
     tableClear(state.components);
     tableClear(state.plugins);
     tableClear(state.resources);
+    tableClear(state.styles);
     tableClear(state.windows);
   },
 
@@ -109,6 +116,7 @@ export default createReducer(initialState, {
     const { windowId, properties } = action.payload;
     const window = state.windows.byId[windowId];
     Object.assign(window, properties);
+    window.style.sort();
   },
 
   // Apply this change right away to improve designer UX, and debounce server update requests
@@ -117,6 +125,7 @@ export default createReducer(initialState, {
     const { controlId, properties } = action.payload;
     const control = state.controls.byId[controlId];
     Object.assign(control, properties);
+    control.style.sort();
   },
 });
 
@@ -132,11 +141,13 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       tableRemoveAll(state.components, openedProject.components);
       tableRemoveAll(state.plugins, openedProject.plugins);
       tableRemoveAll(state.resources, openedProject.resources);
+      tableRemoveAll(state.styles, openedProject.styles);
       tableRemoveAll(state.windows, openedProject.windows);
 
       openedProject.components = [];
       openedProject.plugins = [];
       openedProject.resources = [];
+      openedProject.styles = [];
       openedProject.windows = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
@@ -196,6 +207,46 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
       tableSet(state.resources, resource, true);
       arraySet(openedProject.resources, resource.id, true);
+      break;
+    }
+
+    case 'set-ui-style': {
+      const { style: styleData } = update as SetUiStyleNotification;
+      const { id: styleId, ...data } = styleData;
+
+      const style: UiStyle = {
+        id: `${openedProject.id}:${styleId}`,
+        styleId,
+        ...data
+      };
+
+      tableSet(state.styles, style, true);
+      arraySet(openedProject.styles, style.id, true);
+      break;
+    }
+
+    case 'clear-ui-style': {
+      const { id: styleId } = update as ClearUiStyleNotification;
+      const id = `${openedProject.id}:${styleId}`;
+      tableRemove(state.styles, id);
+      arrayRemove(openedProject.styles, id);
+      break;
+    }
+
+    case 'rename-ui-style': {
+      const { id: styleId, newId: newStyleId } = update as RenameUiStyleNotification;
+      const id = `${openedProject.id}:${styleId}`;
+      const newId = `${openedProject.id}:${newStyleId}`;
+
+      const style = state.styles.byId[id];
+      tableRemove(state.styles, id);
+      arrayRemove(openedProject.styles, id);
+
+      style.id = newId;
+      style.styleId = newStyleId;
+
+      tableSet(state.styles, style, true);
+      arraySet(openedProject.styles, style.id, true);
       break;
     }
 
@@ -322,10 +373,11 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
 }
 
 function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls'>, { adaptIds }: { adaptIds: boolean }) {
-  const { style, height, width, backgroundResource } = window;
+  const { title, style, height, width, backgroundResource } = window;
 
   return {
-    style, height, width,
+    title, height, width,
+    style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
     backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
   };
 }
@@ -333,7 +385,10 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
 function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {
   const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
 
-  const controlData = { style, height, width, x, y, display, text, primaryAction, secondaryAction };
+  const controlData = { 
+    height, width, x, y, display, text, primaryAction, secondaryAction,
+    style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
+  };
 
   for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
     if (!controlData[aid]) {

@@ -1,14 +1,18 @@
 import fs from 'fs';
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
+import jss from 'jss';
+import preset from 'jss-preset-default';
 import { logger, tools } from 'mylife-home-common';
 import { Model, Control, Window } from '../../shared/model';
-import { Definition, DefinitionResource } from './definition';
+import { Definition, DefinitionResource, DefinitionStyle } from './definition';
 
 export * as model from '../../shared/model';
 export { Definition, DefinitionResource };
 
 const log = logger.createLogger('mylife:home:ui:model:model-manager');
+
+jss.setup(preset());
 
 export interface Resource {
   readonly mime: string;
@@ -28,13 +32,14 @@ const DEFAULT_DEFINITION: Definition = {
   resources: [],
   windows: [{
     id: 'default-window',
-    style: null,
+    title: 'Default window',
+    style: [],
     width: 300,
     height: 100,
     backgroundResource: null,
     controls: [{
       id: 'default-control',
-      style: null,
+      style: [],
       x: 0,
       y: 0,
       width: 300,
@@ -51,7 +56,8 @@ const DEFAULT_DEFINITION: Definition = {
   defaultWindow: {
     desktop: 'default-window',
     mobile: 'default-window',
-  }
+  },
+  styles: []
 };
 
 export declare interface ModelManager extends EventEmitter {
@@ -85,14 +91,24 @@ export class ModelManager extends EventEmitter {
 
     for (const resource of definition.resources) {
       const data = Buffer.from(resource.data, 'base64');
-      const hash = this.setResource(resource.mime, data); // for now all png
+      const hash = this.setResource(resource.mime, data);
       resourceTranslation.set(resource.id, hash);
       log.info(`Creating resource from id '${resource.id}': hash='${hash}', size='${data.length}'`);
     }
 
+    let styleHash: string;
+    {
+      const data = Buffer.from(createCss(definition.styles));
+      const hash = this.setResource('text/css', data);
+      log.info(`Creating css: hash='${hash}', size='${data.length}'`);
+
+      styleHash = hash;
+    }
+
     const model: Model = {
       windows: translateWindows(definition.windows, resourceTranslation),
-      defaultWindow: definition.defaultWindow
+      defaultWindow: definition.defaultWindow,
+      styleHash
     };
 
     const data = Buffer.from(JSON.stringify(model));
@@ -139,19 +155,25 @@ function translateWindows(windows: Window[], resourceTranslation: Map<string, st
   return windows.map(window => ({
     ...window,
     backgroundResource: translateResource(window.backgroundResource, resourceTranslation),
-    controls: translateControls(window.controls, resourceTranslation)
+    controls: translateControls(window.controls, resourceTranslation),
+    style: window.style.map(id => `user-${id}`) 
   }));
 }
 
 function translateControls(controls: Control[], resourceTranslation: Map<string, string>) {
   return controls.map(control => {
-    if (!control.display) {
-      return control;
-    }
+    let display = control.display;
 
-    const newMap = control.display.map.map((item: any) => ({ ...item, resource: translateResource(item.resource, resourceTranslation) }));
-    const newDisplay = { ...control.display, map: newMap, defaultResource: translateResource(control.display.defaultResource, resourceTranslation) };
-    return { ...control, display: newDisplay };
+    if (control.display) {
+      const map = control.display.map.map((item: any) => ({ ...item, resource: translateResource(item.resource, resourceTranslation) }));
+      display = { ...control.display, map, defaultResource: translateResource(control.display.defaultResource, resourceTranslation) };
+    }
+    
+    return { 
+      ...control, 
+      display,
+      style: control.style.map(id => `user-${id}`)
+    };
   });
 }
 
@@ -186,4 +208,16 @@ function extractRequiredComponentStates(model: Model): RequiredComponentState[] 
   }
 
   return list;
+}
+
+function createCss(styles: DefinitionStyle[]) {
+  // Note: this is weak, but we will get key from ids which must not contain duplicates
+  const sheet = jss.createStyleSheet<string>({}, { generateId: (rule) => rule.key });
+
+  for (const style of styles) {
+    // avoid collision with predefined styles ids
+    sheet.addRule(`user-${style.id}`, style.properties);
+  }
+
+  return sheet.toString();
 }

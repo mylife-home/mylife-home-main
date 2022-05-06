@@ -7,6 +7,7 @@ export type Size = { width: number; height: number; };
 
 const useStyles = makeStyles((theme) => ({
   containerFit: {
+    overflow: 'hidden',
   },
   containerOriginal: {
     overflow: 'auto',

@@ -1,22 +1,24 @@
-import React, { FunctionComponent, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { FunctionComponent, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { viewClose } from '../store/actions/view';
 import WindowContent from './window-content';
 import Overlay from './overlay';
+import { AppState, AppThunkDispatch } from '../store/types';
+import { getWindowTitle } from '../store/selectors/model';
 
 type PopupProps = {
-  windowId: string
+  windowId: string;
 };
 
 const Popup: FunctionComponent<PopupProps> = ({ windowId }) => {
-  const { onWindowClose } = useConnect();
+  const { title, onWindowClose } = useConnect(windowId);
   return (
     <>
       <Overlay onClick={onWindowClose} />
       <div className='mylife-window-popup'>
-        <div className='modal-content' title={windowId}>
+        <div className='modal-content'>
           <div className='modal-header'>
-            <h4 className='modal-title'>{windowId}</h4>
+            <h4 className='modal-title'>{title}</h4>
             <button onClick={onWindowClose} className="close">
               <span>&times;</span>
             </button>
@@ -32,9 +34,14 @@ const Popup: FunctionComponent<PopupProps> = ({ windowId }) => {
 
 export default Popup;
 
-function useConnect() {
-  const dispatch = useDispatch();
-  return useMemo(() => ({
-    onWindowClose: () => dispatch(viewClose())
-  }), [dispatch]);
+function useConnect(windowId: string) {
+  const dispatch = useDispatch<AppThunkDispatch>();
+
+  const onWindowClose = useCallback(() => {
+    dispatch(viewClose());
+  }, [dispatch]);
+
+  const title = useSelector((state: AppState) => getWindowTitle(state, windowId));
+
+  return { onWindowClose, title };
 };

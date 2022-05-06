@@ -1,6 +1,6 @@
 import { Component } from '../../../../shared/component-model';
 import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification } from '../../../../shared/project-manager';
-import { Window, Control, DefaultWindow, DefinitionResource } from '../../../../shared/ui-model';
+import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -20,6 +20,9 @@ export const enum ActionTypes {
   SET_RESOURCE = 'ui-designer/set-resource',
   CLEAR_RESOURCE = 'ui-designer/clear-resource',
   RENAME_RESOURCE = 'ui-designer/rename-resource',
+  SET_STYLE = 'ui-designer/set-style',
+  CLEAR_STYLE = 'ui-designer/clear-style',
+  RENAME_STYLE = 'ui-designer/rename-style',
   NEW_WINDOW = 'ui-designer/new-window',
   CLEAR_WINDOW = 'ui-designer/clear-window',
   RENAME_WINDOW = 'ui-designer/rename-window',
@@ -49,6 +52,9 @@ export namespace ActionPayloads {
   export type SetResource = { tabId: string; resource: UiResource; };
   export type ClearResource = { resourceId: string; };
   export type RenameResource = { resourceId: string; newId: string; };
+  export type SetStyle = { tabId: string; style: UiStyle; };
+  export type ClearStyle = { styleId: string; };
+  export type RenameStyle = { styleId: string; newId: string; };
   export type NewWindow = { tabId: string; newId: string; };
   export type ClearWindow = { windowId: string; };
   export type RenameWindow = { windowId: string; newId: string; };
@@ -74,6 +80,10 @@ export interface UiResource extends Mutable<DefinitionResource> {
   resourceId: string; // id in project
 }
 
+export interface UiStyle extends Mutable<DefinitionStyle> {
+  styleId: string; // id in project
+}
+
 export interface UiControl extends Mutable<Control> {
   controlId: string; // id in window
 }
@@ -87,7 +97,7 @@ export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
   controls: string[];
 }
 
-export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'components';
+export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'styles' | 'components';
 
 export interface Selection {
   type: SelectionType;
@@ -98,6 +108,7 @@ export interface UiOpenedProject extends OpenedProjectBase {
   components: string[];
   plugins: string[];
   resources: string[];
+  styles: string[];
   windows: string[];
   defaultWindow: DefaultWindow;
   selection: Selection;
@@ -108,6 +119,7 @@ export interface UiDesignerState {
   components: Table<UiComponent>;
   plugins: Table<UiPlugin>;
   resources: Table<UiResource>;
+  styles: Table<UiStyle>;
   windows: Table<UiWindow>;
   controls: Table<UiControl>;
 }

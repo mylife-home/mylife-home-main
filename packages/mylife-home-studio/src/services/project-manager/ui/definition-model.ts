@@ -1,13 +1,14 @@
 import { components } from 'mylife-home-common';
 import { UiValidationError, UiElementPath } from '../../../../shared/project-manager';
-import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay } from '../../../../shared/ui-model';
+import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay, DefinitionStyle, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';
 
 const WINDOW_TEMPLATE: Window = {
   id: null,
-  style: null,
+  title: 'Nouvelle fenêtre',
+  style: [],
   height: 500,
   width: 500,
   backgroundResource: null,
@@ -19,7 +20,7 @@ const CONTROL_TEMPLATE: Control = {
   x: null,
   y: null,
 
-  style: null,
+  style: [],
   height: 50,
   width: 50,
   display: {
@@ -194,7 +195,12 @@ export class WindowModel {
   }
 
   update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
-    const data = pickIfDefined(properties, 'style', 'backgroundResource', 'height', 'width');
+    const data = pickIfDefined(properties, 'title', 'style', 'backgroundResource', 'height', 'width');
+
+    if (data.style) {
+      data.style.sort();
+    }
+
     Object.assign(this.data, data);
   }
 
@@ -259,6 +265,48 @@ export class WindowModel {
    */
   onClearResource(resourceId: string) {
     return this.onRenameResource(resourceId, null);
+  }
+
+  /**
+   * @param styleId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+   onRenameStyle(styleId: string, newId: string) {
+    let changed = false;
+
+    if (styleRename(this.data.style, styleId, newId)) {
+      changed = true;
+    }
+
+    for (const controlModel of this.controls) {
+      if (styleRename(controlModel.data.style, styleId, newId)) {
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
+  /**
+   * @param styleId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+   onClearStyle(styleId: string) {
+    let changed = false;
+
+    if (styleClear(this.data.style, styleId)) {
+      changed = true;
+    }
+
+    for (const controlModel of this.controls) {
+      if (styleClear(controlModel.data.style, styleId)) {
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
@@ -328,6 +376,11 @@ export class ControlModel {
 
   update(properties: Partial<Omit<Control, 'id'>>) {
     const data = pickIfDefined(properties, 'style', 'height', 'width', 'x', 'y', 'display', 'text', 'primaryAction', 'secondaryAction');
+
+    if (data.style) {
+      data.style.sort();
+    }
+
     Object.assign(this.data, data);
   }
 
@@ -640,6 +693,29 @@ export class ResourceModel {
   set id(value: string) {
     this.data.id = value;
   }
+
+  update(resource: DefinitionResource) {
+    const { mime, data } = resource;
+    Object.assign(this.data, { mime, data });
+  }
+}
+
+export class StyleModel {
+  constructor(public readonly data: Mutable<DefinitionStyle>) {
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  set id(value: string) {
+    this.data.id = value;
+  }
+
+  update(style: DefinitionStyle) {
+    const { properties } = style;
+    Object.assign(this.data, { properties });
+  }
 }
 
 /**
@@ -747,4 +823,26 @@ function pickIfDefined<T>(obj: Partial<T>, ...props: (keyof T)[]): Partial<T> {
   }
 
   return dest;
+}
+
+function styleRename(style: Style, styleId: string, newId: string) {
+  const index = style.indexOf(styleId);
+  if (index === -1) {
+    return false;
+  }
+
+  style.splice(index, 1, newId);
+  style.sort();
+
+  return true;
+}
+
+function styleClear(style: Style, styleId: string) {
+  const index = style.indexOf(styleId);
+  if (index === -1) {
+    return false;
+  }
+
+  style.splice(index, 1);
+  return true;
 }

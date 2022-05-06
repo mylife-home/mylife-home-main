@@ -30,7 +30,7 @@ export class WebServer {
   }
 
   async terminate() {
-    await new Promise<void>((resolve) => this.httpServer.destroy(resolve));
+    await new Promise<void>((resolve, reject) => this.httpServer.destroy((err) => err ? reject(err) : resolve()));
   }
 }
 
@@ -64,7 +64,8 @@ function createRepository(registry: components.Registry) {
 function createResources(model: ModelManager) {
   const router = express.Router();
 
-  router.route('/*').get((req, res) => {
+  router.route('/*').get<string[]>((req, res) => {
+    req.params
     const hash = req.params[0];
     const resoure = model.getResource(hash);
     sendResource(res, resoure);

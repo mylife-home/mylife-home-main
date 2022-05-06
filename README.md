@@ -143,7 +143,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - templates
     - need custom controls (VR/light "all" panel)
-    - need custom windows (single VR management, later light dimmer)
+    - need custom windows (single VR management, later light dimmer) <= with custom title? or custom control and one window for each? (with repeted height/width)
     - may be fully static
     - may need to bind on several components
       - define template actions/members of certain value types to bind (as "template imports" ?)
@@ -152,6 +152,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
         - template can provide a pattern like "{{id}}-set0.value", "{{id}}-set20.value" to bind its exports
         - at template use, one can provide an id and auto-fill all (or part of) bindings at once.
         - This is only a filling helper, and validation is the same than for manual binding settings
+  - text control: keep tests values in studio model, and render it wysiwyg (with real text value as output)
+  - ui styles: render it wysiwyg
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
@@ -181,21 +183,14 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - si appui + long changement vers color3  : click long en cours, on peut relacher
   - color4: en attente reste séquence (eg double click)
   - rajouter un feedback pour dire que action primary ou secondary est executée
-- add title to window (to display in popup)
 - styles
-  - add custom css classes
-  - permit to add them to controls statically => use it for "RDC" "R1" etc
   - add custom functions like text controls but which returns boolean to add a class or not
-  => build css on server (from model)
-  => https://stackoverflow.com/a/2099555/12023515
-  => clsx (228B) => apply classes "dynamically"
 
 # TODO
 
 ## studio
 
 - ui designer:
-  - UI display resources: bug affichage
   - controle texte : enregistrer les valeurs utilisées pour le test, comme valeur par défaut, et afficher une sortie wysiwyg (utile pour les textes statiques et meme pour tester les dynamiques)
 - core designer:
   - deploy:

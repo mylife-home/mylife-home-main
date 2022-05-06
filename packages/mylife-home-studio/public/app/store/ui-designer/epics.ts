@@ -25,6 +25,9 @@ import {
   SetControlPropertiesUiProjectCall,
   NewWindowUiProjectCall,
   SetWindowPropertiesUiProjectCall,
+  SetStyleUiProjectCall,
+  ClearStyleUiProjectCall,
+  RenameStyleUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -122,7 +125,32 @@ export default createProjectManagementEpic({
         return { tabId, callData };
       },
     },
-    
+
+    [ActionTypes.SET_STYLE]: {
+      mapper({ tabId, style }: ActionPayloads.SetStyle) {
+        const { styleId, ...definition } = style;
+        definition.id = styleId;
+        const callData: SetStyleUiProjectCall = { operation: 'set-style', style: definition };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_STYLE]: {
+      mapper({ styleId }: ActionPayloads.ClearStyle) {
+        const { tabId, id } = extractIds(styleId);
+        const callData: ClearStyleUiProjectCall = { operation: 'clear-style', id };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.RENAME_STYLE]: {
+      mapper({ styleId, newId }: ActionPayloads.RenameStyle) {
+        const { tabId, id } = extractIds(styleId);
+        const callData: RenameStyleUiProjectCall = { operation: 'rename-style', id, newId };
+        return { tabId, callData };
+      },
+    },
+
     [ActionTypes.NEW_WINDOW]: {
       mapper({ tabId, newId }: ActionPayloads.NewWindow) {
         const callData: NewWindowUiProjectCall = { operation: 'new-window', id: newId };
@@ -161,6 +189,10 @@ export default createProjectManagementEpic({
         const fixedProps = { ... properties };
         if (fixedProps.backgroundResource) {
           fixedProps.backgroundResource = extractNullableId(fixedProps.backgroundResource, tabId);
+        }
+
+        if (fixedProps.style) {
+          fixedProps.style = fixedProps.style.map(id => extractNullableId(id, tabId));
         }
 
         const callData: SetWindowPropertiesUiProjectCall = { operation: 'set-window-properties', id, properties: fixedProps };
@@ -208,6 +240,10 @@ export default createProjectManagementEpic({
         const { tabId, windowId, id } = extractControlIds(controlId);
 
         const fixedProps = adaptControlLinks(properties, tabId);
+
+        if (fixedProps.style) {
+          fixedProps.style = fixedProps.style.map(id => extractNullableId(id, tabId));
+        }
 
         const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', windowId, id, properties: fixedProps };
         return { tabId, callData };
