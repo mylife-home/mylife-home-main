@@ -143,7 +143,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize window cannot be smaller that larger of its control
   - templates
     - need custom controls (VR/light "all" panel)
-    - need custom windows (single VR management, later light dimmer)
+    - need custom windows (single VR management, later light dimmer) <= with custom title? or custom control and one window for each? (with repeted height/width)
     - may be fully static
     - may need to bind on several components
       - define template actions/members of certain value types to bind (as "template imports" ?)
