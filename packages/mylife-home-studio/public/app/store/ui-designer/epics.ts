@@ -191,6 +191,10 @@ export default createProjectManagementEpic({
           fixedProps.backgroundResource = extractNullableId(fixedProps.backgroundResource, tabId);
         }
 
+        if (fixedProps.style) {
+          fixedProps.style = fixedProps.style.map(id => extractNullableId(id, tabId));
+        }
+
         const callData: SetWindowPropertiesUiProjectCall = { operation: 'set-window-properties', id, properties: fixedProps };
         return { tabId, callData };
       },
@@ -236,6 +240,10 @@ export default createProjectManagementEpic({
         const { tabId, windowId, id } = extractControlIds(controlId);
 
         const fixedProps = adaptControlLinks(properties, tabId);
+
+        if (fixedProps.style) {
+          fixedProps.style = fixedProps.style.map(id => extractNullableId(id, tabId));
+        }
 
         const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', windowId, id, properties: fixedProps };
         return { tabId, callData };

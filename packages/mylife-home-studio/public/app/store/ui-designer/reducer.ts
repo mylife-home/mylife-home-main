@@ -376,7 +376,8 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
   const { title, style, height, width, backgroundResource } = window;
 
   return {
-    title, style, height, width,
+    title, height, width,
+    style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
     backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
   };
 }
@@ -384,7 +385,10 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
 function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {
   const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
 
-  const controlData = { style, height, width, x, y, display, text, primaryAction, secondaryAction };
+  const controlData = { 
+    height, width, x, y, display, text, primaryAction, secondaryAction,
+    style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
+  };
 
   for (const aid of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
     if (!controlData[aid]) {
