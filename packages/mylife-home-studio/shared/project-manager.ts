@@ -9,7 +9,6 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
  */
 
 export interface UiProject {
-  //name: string;
   definition: Definition;
   componentData: UiComponentData;
 }
