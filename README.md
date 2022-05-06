@@ -152,6 +152,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
         - template can provide a pattern like "{{id}}-set0.value", "{{id}}-set20.value" to bind its exports
         - at template use, one can provide an id and auto-fill all (or part of) bindings at once.
         - This is only a filling helper, and validation is the same than for manual binding settings
+  - text control: keep tests values in studio model, and render it wysiwyg (with real text value as output)
+  - ui styles: render it wysiwyg
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
