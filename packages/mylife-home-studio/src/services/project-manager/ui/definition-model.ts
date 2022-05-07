@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData } from '../../../../shared/project-manager';
 import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay, DefinitionStyle, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
@@ -43,25 +43,27 @@ export interface ComponentUsage {
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 interface WithId {
-  id: string;
+  readonly id: string;
+
+  setId(newId: string): void;
 }
 
 interface IdContainer {
   hasId(id: string): boolean;
 }
 
-export class CollectionModel<TData extends WithId, TModel extends WithId> implements IdContainer {
-  private readonly map = new Map<string, { item: TModel, index: number; }>();
+export class CollectionModel<TData, TModel extends WithId> implements IdContainer {
+  private readonly map = new Map<string, TModel>();
 
-  constructor(public readonly data: TData[], private readonly ModelFactory: new (data: TData) => TModel) {
-    for (const [index, itemData] of data.entries()) {
-      const item = new this.ModelFactory(itemData);
-      this.map.set(item.id, { item, index });
+  constructor(public readonly data: { [id: string]: TData }, private readonly ModelFactory: new (id: string, data: TData) => TModel) {
+    for (const [id, itemData] of Object.entries(data)) {
+      const item = new this.ModelFactory(id, itemData);
+      this.map.set(item.id, item);
     }
   }
 
   *[Symbol.iterator]() {
-    for (const { item } of this.map.values()) {
+    for (const item of this.map.values()) {
       yield item;
     }
   }
@@ -71,60 +73,55 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
   }
 
   findById(id: string) {
-    const mapItem = this.map.get(id);
-    return mapItem?.item;
+    return this.map.get(id);
   }
 
   getById(id: string) {
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       throw new Error(`Item with id '${id}' does not exist`);
-    }
-
-    return mapItem?.item;
-  }
-
-  // push at the end of array, or replace if id exists
-  set(itemData: TData) {
-    this.checkNewId(itemData.id);
-    const item = new this.ModelFactory(itemData);
-    const mapItem = this.map.get(item.id);
-
-    if (mapItem) {
-      // replace
-      mapItem.item = item;
-      this.data[mapItem.index] = itemData;
-    } else {
-      // push
-      const index = this.data.length;
-      this.data.push(itemData);
-      this.map.set(item.id, { item, index });
     }
 
     return item;
   }
 
+  set(id: string, itemData: TData) {
+    this.checkNewId(id);
+    const item = new this.ModelFactory(id, itemData);
+
+    // replace or insert
+    this.data[item.id] = itemData;
+    this.map.set(item.id, item);
+
+    return item;
+  }
+
   clear(id: string) {
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       return false;
     }
 
     this.map.delete(id);
-    this.data.splice(mapItem.index, 1);
+    delete this.data[id];
     return true;
   }
 
   rename(id: string, newId: string) {
     this.checkNewId(newId);
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       return false;
     }
 
+    item.setId(newId);
     this.map.delete(id);
-    mapItem.item.id = newId;
-    this.map.set(newId, mapItem);
+    this.map.set(newId, item);
+
+    const data = this.data[id];
+    delete this.data[id];
+    this.data[newId] = data;
+
     return true;
   }
 
@@ -182,7 +179,7 @@ export class DefaultWindowModel {
 export class WindowModel {
   private readonly controls: CollectionModel<Control, ControlModel>;
 
-  constructor(public readonly data: Mutable<Window>) {
+  constructor(public readonly data: Mutable<UiWindowData>) {
     this.controls = new CollectionModel(this.data.controls, ControlModel);
   }
 
@@ -363,7 +360,7 @@ export class WindowModel {
 }
 
 export class ControlModel {
-  constructor(public readonly data: Mutable<Control>) {
+  constructor(public readonly data: Mutable<UiControlData>) {
   }
 
   get id() {

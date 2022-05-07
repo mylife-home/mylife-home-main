@@ -43,7 +43,7 @@ import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
-import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, prepareMergeComponentData } from './component-model';
+import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
 import { Mutable, CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel } from './definition-model';
 import { clone } from '../../../utils/object-utils';
 
@@ -75,19 +75,19 @@ export class UiOpenedProject extends OpenedProject {
   protected emitAllState(notifier: SessionNotifier) {
     super.emitAllState(notifier);
 
-    notifier.notify({ operation: 'set-ui-default-window', defaultWindow: this.project.definition.defaultWindow } as SetUiDefaultWindowNotification);
-    notifier.notify({ operation: 'set-ui-component-data', componentData: this.project.componentData } as SetUiComponentDataNotification);
+    notifier.notify({ operation: 'set-ui-default-window', defaultWindow: this.project.defaultWindow } as SetUiDefaultWindowNotification);
+    notifier.notify({ operation: 'set-ui-component-data', components: this.project.components, plugins: this.project.plugins } as SetUiComponentDataNotification);
 
-    for (const resource of this.project.definition.resources) {
-      notifier.notify({ operation: 'set-ui-resource', resource } as SetUiResourceNotification);
+    for (const [id, resource] of Object.entries(this.project.resources)) {
+      notifier.notify({ operation: 'set-ui-resource', id, resource } as SetUiResourceNotification);
     }
 
-    for (const style of this.project.definition.styles) {
-      notifier.notify({ operation: 'set-ui-style', style } as SetUiStyleNotification);
+    for (const [id, style] of Object.entries(this.project.styles)) {
+      notifier.notify({ operation: 'set-ui-style', id, style } as SetUiStyleNotification);
     }
 
-    for (const window of this.project.definition.windows) {
-      notifier.notify({ operation: 'set-ui-window', window } as SetUiWindowNotification);
+    for (const [id, window] of Object.entries(this.project.windows)) {
+      notifier.notify({ operation: 'set-ui-window', id, window } as SetUiWindowNotification);
     }
   }
 
@@ -194,11 +194,11 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private notifyAllWindow(window: WindowModel) {
-    this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', window: window.data });
+    this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', id: window.id, window: window.data });
   }
 
   private notifyAllComponentData() {
-    this.notifyAll<SetUiComponentDataNotification>({ operation: 'set-ui-component-data', componentData: this.project.componentData });
+    this.notifyAll<SetUiComponentDataNotification>({ operation: 'set-ui-component-data', components: this.project.components, plugins: this.project.plugins });
   }
 
   private setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
@@ -208,13 +208,13 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setResource({ resource }: SetResourceUiProjectCall) {
+  private setResource({ id, resource }: SetResourceUiProjectCall) {
     this.executeUpdate(() => {
-      const existing = this.resources.findById(resource.id);
+      const existing = this.resources.findById(id);
       if (existing) {
         existing.update(resource);
       } else {
-        this.resources.set(resource);
+        this.resources.set(id, resource);
       }
 
       this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', resource });
@@ -247,13 +247,13 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setStyle({ style }: SetStyleUiProjectCall) {
+  private setStyle({ id, style }: SetStyleUiProjectCall) {
     this.executeUpdate(() => {
-      const existing = this.styles.findById(style.id);
+      const existing = this.styles.findById(id);
       if (existing) {
         existing.update(style);
       } else {
-        this.styles.set(style);
+        this.styles.set(id, style);
       }
       
       this.notifyAll<SetUiStyleNotification>({ operation: 'set-ui-style', style });
@@ -407,7 +407,7 @@ export class UiOpenedProject extends OpenedProject {
     return this.prepareComponentRefresh(componentData);
   }
 
-  private prepareComponentRefresh(componentData: UiComponentData) {
+  private prepareComponentRefresh(componentData: NewComponentData) {
     const usage = this.collectComponentsUsage();
     const { breakingOperations, usageToClear } = prepareMergeComponentData(this.components, usage, componentData);
     const serverData: RefreshServerData = { componentData, usageToClear };
@@ -480,6 +480,6 @@ export class UiOpenedProject extends OpenedProject {
 }
 
 interface RefreshServerData {
-  componentData: UiComponentData;
+  componentData: NewComponentData;
   usageToClear: ComponentUsage[];
 }

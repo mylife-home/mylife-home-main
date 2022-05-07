@@ -5,16 +5,40 @@ import { Services } from '../..';
 import { ComponentUsage } from './definition-model';
 import { CoreOpenedProject } from '../core/opened-project';
 
+export interface NewComponentData {
+  components: { [id: string]: UiComponentData };
+  plugins: { [id: string]: UiPluginData; };
+}
+
 export class ComponentsModel {
   private readonly map = new Map<string, ComponentModel>();
+  private readonly components: { [id: string]: UiComponentData };
+  private readonly plugins: { [id: string]: UiPluginData; };
 
-  constructor(readonly componentData: UiComponentData) {
+  constructor(componentData: NewComponentData) {
+    // Keep same objects here because we have direct model
+    this.components = componentData.components;
+    this.plugins = componentData.plugins;
+
     this.rebuild();
   }
 
-  apply(newComponentData: UiComponentData) {
-    this.componentData.components = newComponentData.components;
-    this.componentData.plugins = newComponentData.plugins;
+  apply(componentData: NewComponentData) {
+    for (const id of Object.keys(this.components)) {
+      delete this.components[id];
+    }
+
+    for (const [id, data] of Object.entries(componentData.components)) {
+      this.components[id] = data;
+    }
+
+    for (const id of Object.keys(this.plugins)) {
+      delete this.plugins[id];
+    }
+
+    for (const [id, data] of Object.entries(componentData.plugins)) {
+      this.plugins[id] = data;
+    }
 
     this.rebuild();
   }
@@ -22,9 +46,9 @@ export class ComponentsModel {
   private rebuild() {
     this.map.clear();
 
-    for (const component of this.componentData.components) {
-      const plugin = this.componentData.plugins[component.plugin];
-      const item = new ComponentModel(component, plugin);
+    for (const [id, component] of Object.entries(this.components)) {
+      const plugin = this.plugins[component.plugin];
+      const item = new ComponentModel(id, component, plugin);
       this.map.set(item.id, item);
     }
   }
@@ -50,11 +74,7 @@ export class ComponentsModel {
 }
 
 class ComponentModel {
-  constructor(private readonly component: Component, public readonly plugin: UiPluginData) {
-  }
-
-  get id() {
-    return this.component.id;
+  constructor(public readonly id: string, private readonly component: UiComponentData, public readonly plugin: UiPluginData) {
   }
 
   get pluginId() {
@@ -74,8 +94,8 @@ class ComponentModel {
 export function loadOnlineComponentData() {
   const onlineData = Services.instance.online.getComponentsData();
 
-  const componentData: UiComponentData = {
-    components: [],
+  const componentData: NewComponentData = {
+    components: {},
     plugins: {}
   };
 
@@ -98,18 +118,17 @@ export function loadOnlineComponentData() {
       };
     }
 
-    componentData.components.push({
-      id: component.id,
+    componentData.components[component.id] = {
       plugin: pluginId
-    });
+    };
   }
 
   return componentData;
 }
 
-export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComponentData {
-  const result: UiComponentData = {
-    components: [],
+export function loadCoreProjectComponentData(project: CoreOpenedProject) {
+  const componentData: NewComponentData = {
+    components: {},
     plugins: {},
   };
 
@@ -121,10 +140,7 @@ export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComp
       continue;
     }
 
-    const component = { id: componentView.id, plugin: pluginView.id };
-    result.components.push(component);
-
-    if (!result.plugins[pluginView.id]) {
+    if (!componentData.plugins[pluginView.id]) {
       const plugin: UiPluginData = {
         instanceName: pluginView.instance.instanceName,
         module: pluginView.data.module,
@@ -138,21 +154,25 @@ export function loadCoreProjectComponentData(project: CoreOpenedProject): UiComp
         plugin.members[id] = { ...member };
       }
 
-      result.plugins[pluginView.id] = plugin;
+      componentData.plugins[pluginView.id] = plugin;
     }
+
+    componentData.components[componentView.id] = {
+      plugin: pluginView.id
+    };
   }
 
-  return result;
+  return componentData;
 }
 
-export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], newComponents: UiComponentData) {
+export function prepareMergeComponentData(components: ComponentsModel, componentsUsage: ComponentUsage[], componentData: NewComponentData) {
   const usageModel = new UsageModel(components, componentsUsage);
   const usageToClear: ComponentUsage[] = [];
 
   const breakingOperations: UiBreakingOperation[] = [];
 
   // removed components
-  const newModel = new ComponentsModel(newComponents);
+  const newModel = new ComponentsModel(componentData);
   for (const actualComponent of components) {
     const usage = usageModel.findComponentUsage(actualComponent.id);
     if (!usage) {
