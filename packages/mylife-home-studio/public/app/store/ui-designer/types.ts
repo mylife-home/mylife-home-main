@@ -1,6 +1,6 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification } from '../../../../shared/project-manager';
-import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle } from '../../../../shared/ui-model';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
+import { DefaultWindow } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -69,32 +69,25 @@ export namespace ActionPayloads {
 
 export { DesignerTabActionData, DefaultWindow };
 
-type Mutable<T> = { -readonly [P in keyof T]: T[P] };
-
-export interface UiComponent extends Component {
-  // plugin points to store plugin id: `projectId:instanceName:module.name`
-  componentId: string; // id in project
-}
-
-export interface UiResource extends Mutable<DefinitionResource> {
+export interface UiResource extends UiResourceData {
+  id: string;
   resourceId: string; // id in project
 }
 
-export interface UiStyle extends Mutable<DefinitionStyle> {
+export interface UiStyle extends UiStyleData {
+  id: string;
   styleId: string; // id in project
 }
 
-export interface UiControl extends Mutable<Control> {
-  controlId: string; // id in window
-}
-
-export interface UiPlugin extends UiPluginData {
-  id: string; // id: projectId:instanceName:module.name
-}
-
-export interface UiWindow extends Omit<Mutable<Window>, 'controls'> {
+export interface UiWindow extends Omit<UiWindowData, 'controls'> {
+  id: string;
   windowId: string; // id in project
   controls: string[];
+}
+
+export interface UiControl extends UiControlData {
+  id: string;
+  controlId: string; // id in window
 }
 
 export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'styles' | 'components';
@@ -102,6 +95,15 @@ export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'st
 export interface Selection {
   type: SelectionType;
   id?: string;
+}
+
+export interface UiComponent extends Component {
+  // plugin points to store plugin id: `projectId:instanceName:module.name`
+  componentId: string; // id in project
+}
+
+export interface UiPlugin extends UiPluginData {
+  id: string; // id: projectId:instanceName:module.name
 }
 
 export interface UiOpenedProject extends OpenedProjectBase {

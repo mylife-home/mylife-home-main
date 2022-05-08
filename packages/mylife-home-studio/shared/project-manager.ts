@@ -1,4 +1,4 @@
-import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem } from './ui-model';
+import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem } from './ui-model';
 import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
@@ -37,6 +37,8 @@ export interface UiControlTextContextItemData extends ControlTextContextItem {
 }
 
 export type UiControlDisplayData = ControlDisplay;
+export type UiControlDisplayMapItemData = ControlDisplayMapItem;
+
 export type UiActionData = Action;
 
 export interface UiComponentData {

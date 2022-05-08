@@ -1,15 +1,15 @@
-import { Action, ControlDisplay, ControlDisplayMapItem, ControlText, ControlTextContextItem } from '../../../../../../shared/ui-model';
-import { UiWindow, UiControl } from '../../../../store/ui-designer/types';
+import { UiActionData, UiActionData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextContextItemData, UiControlTextData } from '../../../../../../shared/project-manager';
+import { UiControl } from '../../../../store/ui-designer/types';
 import { clone } from '../../../lib/clone';
 
-const CONTROL_DISPLAY_TEMPLATE: ControlDisplay = {
+const CONTROL_DISPLAY_TEMPLATE: UiControlDisplayData = {
   componentId: null,
   componentState: null,
   defaultResource: null,
   map: [],
 };
 
-const CONTROL_TEXT_TEMPLATE: ControlText = {
+const CONTROL_TEXT_TEMPLATE: UiControlTextData = {
   context: [],
   format: `return '';`,
 };
@@ -29,20 +29,21 @@ const CONTROL_TEMPLATE: UiControl = {
   secondaryAction: null,
 };
 
-const CONTROL_DISPLAY_MAP_ITEM_TEMPLATE: ControlDisplayMapItem = {
+const CONTROL_DISPLAY_MAP_ITEM_TEMPLATE: UiControlDisplayMapItemData = {
   min: null,
   max: null,
   value: null,
   resource: null,
 };
 
-const CONTROL_TEXT_CONTEXT_ITEM_TEMPLATE: ControlTextContextItem = {
+const CONTROL_TEXT_CONTEXT_ITEM_TEMPLATE: UiControlTextContextItemData = {
   id: null,
   componentId: null,
   componentState: null,
+  testValue: null,
 };
 
-const CONTROL_ACTION_COMPONENT_TEMPLATE: Action = {
+const CONTROL_ACTION_COMPONENT_TEMPLATE: UiActionData = {
   component: {
     id: null,
     action: null,
@@ -50,7 +51,7 @@ const CONTROL_ACTION_COMPONENT_TEMPLATE: Action = {
   window: null,
 };
 
-const CONTROL_ACTION_WINDOW_TEMPLATE: Action = {
+const CONTROL_ACTION_WINDOW_TEMPLATE: UiActionData = {
   component: null,
   window: {
     id: null,
