@@ -172,13 +172,12 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
     }
 
     case 'set-ui-resource': {
-      const { resource: resourceData } = update as SetUiResourceNotification;
-      const { id: resourceId, ...data } = resourceData;
+      const { id: resourceId, resource: resourceData } = update as SetUiResourceNotification;
 
       const resource: UiResource = {
         id: `${openedProject.id}:${resourceId}`,
         resourceId,
-        ...data
+        ...resourceData
       };
 
       tableSet(state.resources, resource, true);
@@ -212,13 +211,12 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
     }
 
     case 'set-ui-style': {
-      const { style: styleData } = update as SetUiStyleNotification;
-      const { id: styleId, ...data } = styleData;
+      const { id: styleId, style: styleData } = update as SetUiStyleNotification;
 
       const style: UiStyle = {
         id: `${openedProject.id}:${styleId}`,
         styleId,
-        ...data
+        ...styleData
       };
 
       tableSet(state.styles, style, true);
@@ -252,8 +250,8 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
     }
 
     case 'set-ui-window': {
-      const { window: windowData } = update as SetUiWindowNotification;
-      const { id: windowId, controls } = windowData;
+      const { id: windowId, window: windowData } = update as SetUiWindowNotification;
+      const { controls } = windowData;
 
       const id = `${openedProject.id}:${windowId}`;
 
@@ -262,10 +260,10 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
         tableRemoveAll(state.controls, existing.controls);
       }
 
-      const controlIds = controls.map(controlData => {
+      const controlIds = Object.entries(controls).map(([controlId, controlData]) => {
         const control: UiControl = {
-          id: `${openedProject.id}:${windowId}:${controlData.id}`,
-          controlId: controlData.id,
+          id: `${openedProject.id}:${windowId}:${controlId}`,
+          controlId,
           ... prepareControlData(openedProject, controlData, { adaptIds: true })
         };
 
