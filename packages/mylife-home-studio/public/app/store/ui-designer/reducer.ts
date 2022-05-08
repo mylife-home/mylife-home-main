@@ -14,6 +14,7 @@ import {
   SetUiStyleNotification,
   RenameUiStyleNotification,
   ClearUiStyleNotification,
+  UiPluginData,
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
@@ -156,8 +157,8 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
     }
 
     case 'set-ui-component-data': {
-      const { componentData } = update as SetUiComponentDataNotification;
-      updateComponentData(state, openedProject, componentData);
+      const { components, plugins } = update as SetUiComponentDataNotification;
+      updateComponentData(state, openedProject, components, plugins);
       break;
     }
 
@@ -339,13 +340,13 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
   }
 }
 
-function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProject, componentData: UiComponentData) {
+function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProject, components: { [id: string]: UiComponentData }, plugins: { [id: string]: UiPluginData }) {
   tableRemoveAll(state.plugins, openedProject.plugins);
   tableRemoveAll(state.components, openedProject.components);
   openedProject.plugins = [];
   openedProject.components = [];
 
-  for (const [pluginId, data] of Object.entries(componentData.plugins)) {
+  for (const [pluginId, data] of Object.entries(plugins)) {
     const id = `${openedProject.id}:${pluginId}`;
     const plugin: UiPlugin = { id, ...data };
 
@@ -353,7 +354,7 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
     arrayAdd(openedProject.plugins, plugin.id);
   }
 
-  for (const { id: componentId, plugin: pluginId, ...data } of componentData.components) {
+  for (const [componentId, { plugin: pluginId }] of Object.entries(components)) {
     const id = `${openedProject.id}:${componentId}`;
     const plugin = `${openedProject.id}:${pluginId}`;
 
@@ -361,7 +362,6 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
       id,
       componentId,
       plugin,
-      ...data
     };
 
     tableSet(state.components, component, true);
