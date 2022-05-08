@@ -48,8 +48,14 @@ import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
 import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel } from './definition-model';
 import { clone } from '../../../utils/object-utils';
+import { buildDeployDefinition } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
+
+interface RefreshServerData {
+  componentData: NewComponentData;
+  usageToClear: ComponentUsage[];
+}
 
 export class UiOpenedProject extends OpenedProject {
   private project: UiProject;
@@ -467,7 +473,7 @@ export class UiOpenedProject extends OpenedProject {
     }
 
     const [instanceName] = uiInstances;
-    const { definition } = this.project;
+    const definition = buildDeployDefinition(this.project);
 
     try {
       await Services.instance.online.uiSetDefinition(instanceName, definition);
@@ -478,9 +484,4 @@ export class UiOpenedProject extends OpenedProject {
 
     return {};
   }
-}
-
-interface RefreshServerData {
-  componentData: NewComponentData;
-  usageToClear: ComponentUsage[];
 }

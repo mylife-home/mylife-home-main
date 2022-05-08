@@ -29,7 +29,7 @@ export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
 }
 
 export interface UiControlTextData extends Omit<ControlText, 'context'> {
-  readonly context: ControlTextContextItem[];
+  readonly context: UiControlTextContextItemData[];
 }
 
 export interface UiControlTextContextItemData extends ControlTextContextItem {
