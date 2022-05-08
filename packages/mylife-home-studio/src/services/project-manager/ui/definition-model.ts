@@ -1,22 +1,20 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
 import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay, DefinitionStyle, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';
 
-const WINDOW_TEMPLATE: Window = {
-  id: null,
+const WINDOW_TEMPLATE: UiWindowData = {
   title: 'Nouvelle fenêtre',
   style: [],
   height: 500,
   width: 500,
   backgroundResource: null,
-  controls: []
+  controls: {}
 };
 
-const CONTROL_TEMPLATE: Control = {
-  id: null,
+const CONTROL_TEMPLATE: UiControlData = {
   x: null,
   y: null,
 
@@ -45,7 +43,23 @@ export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 interface WithId {
   readonly id: string;
 
-  setId(newId: string): void;
+  rename(newId: string): void;
+}
+
+class ModelBase implements WithId {
+  private _id: string;
+
+  constructor(id: string) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  rename(newId: string) {
+    this._id = newId;
+  }
 }
 
 interface IdContainer {
@@ -114,7 +128,7 @@ export class CollectionModel<TData, TModel extends WithId> implements IdContaine
       return false;
     }
 
-    item.setId(newId);
+    item.rename(newId);
     this.map.delete(id);
     this.map.set(newId, item);
 
@@ -176,19 +190,13 @@ export class DefaultWindowModel {
   }
 }
 
-export class WindowModel {
-  private readonly controls: CollectionModel<Control, ControlModel>;
+export class WindowModel extends ModelBase {
+  private readonly controls: CollectionModel<UiControlData, ControlModel>;
 
-  constructor(public readonly data: Mutable<UiWindowData>) {
+  constructor(id: string, public readonly data: UiWindowData) {
+    super(id);
+
     this.controls = new CollectionModel(this.data.controls, ControlModel);
-  }
-
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
   }
 
   update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
@@ -202,23 +210,21 @@ export class WindowModel {
   }
 
   newControl(controlId: string, x: number, y: number) {
-    const newControl = clone(CONTROL_TEMPLATE) as Mutable<Control>;
-    newControl.id = controlId;
+    const newControl = clone(CONTROL_TEMPLATE) as UiControlData;
     newControl.x = x;
     newControl.y = y;
 
-    return this.controls.set(newControl);
+    return this.controls.set(controlId, newControl);
   }
 
   cloneControl(controlId: string, newId: string) {
     const source = this.controls.getById(controlId);
 
     const newControl = clone(source.data);
-    newControl.id = newId;
     newControl.x += 10;
     newControl.y += 10;
 
-    return this.controls.set(newControl);
+    return this.controls.set(newId, newControl);
   }
 
   clearControl(controlId: string) {
@@ -359,16 +365,9 @@ export class WindowModel {
   }
 }
 
-export class ControlModel {
-  constructor(public readonly data: Mutable<UiControlData>) {
-  }
-
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
+export class ControlModel extends ModelBase {
+  constructor(id: string, public readonly data: UiControlData) {
+    super(id);
   }
 
   update(properties: Partial<Omit<Control, 'id'>>) {
@@ -679,37 +678,23 @@ export class ControlModel {
   }
 }
 
-export class ResourceModel {
-  constructor(public readonly data: Mutable<DefinitionResource>) {
+export class ResourceModel extends ModelBase {
+  constructor(id: string, public readonly data: UiResourceData) {
+    super(id);
   }
 
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
-  }
-
-  update(resource: DefinitionResource) {
+  update(resource: UiResourceData) {
     const { mime, data } = resource;
     Object.assign(this.data, { mime, data });
   }
 }
 
-export class StyleModel {
-  constructor(public readonly data: Mutable<DefinitionStyle>) {
+export class StyleModel extends ModelBase {
+  constructor(id: string, public readonly data: UiStyleData) {
+    super(id);
   }
 
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
-  }
-
-  update(style: DefinitionStyle) {
+  update(style: UiStyleData) {
     const { properties } = style;
     Object.assign(this.data, { properties });
   }
@@ -803,11 +788,9 @@ export class ValidationContext {
   }
 }
 
-export function newWindow(windows: CollectionModel<Mutable<Window>, WindowModel>, id: string) {
-  const newWindow = clone(WINDOW_TEMPLATE) as Mutable<Window>;
-  newWindow.id = id;
-
-  return windows.set(newWindow);
+export function newWindow(windows: CollectionModel<UiWindowData, WindowModel>, id: string) {
+  const newWindow = clone(WINDOW_TEMPLATE) as UiWindowData;
+  return windows.set(id, newWindow);
 }
 
 function pickIfDefined<T>(obj: Partial<T>, ...props: (keyof T)[]): Partial<T> {

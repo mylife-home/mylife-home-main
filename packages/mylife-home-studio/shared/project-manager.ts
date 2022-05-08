@@ -17,19 +17,19 @@ export interface UiProject {
   plugins: { [id: string]: UiPluginData; }; // id: instanceName:module.name
 }
 
-export type UiResourceData = Omit<DefinitionResource, 'id'>;
-export type UiStyleData = Omit<DefinitionStyle, 'id'>;
+export type UiResourceData = Omit<Mutable<DefinitionResource>, 'id'>;
+export type UiStyleData = Omit<Mutable<DefinitionStyle>, 'id'>;
 
-export interface UiWindowData extends Omit<Window, 'id' | 'controls'> {
+export interface UiWindowData extends Omit<Mutable<Window>, 'id' | 'controls'> {
   readonly controls: { [id: string]: UiControlData };
 }
 
-export interface UiControlData extends Omit<Control, 'id' | 'text'> {
+export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
   readonly text: UiControlTextData;
 }
 
 export interface UiControlTextData extends Omit<ControlText, 'context'> {
-  readonly context: ControlTextContextItem;
+  readonly context: ControlTextContextItem[];
 }
 
 export interface UiControlTextContextItemData extends ControlTextContextItem {
