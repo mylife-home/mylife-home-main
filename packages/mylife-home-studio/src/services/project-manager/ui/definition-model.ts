@@ -1,22 +1,20 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
 import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay, DefinitionStyle, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';
 
-const WINDOW_TEMPLATE: Window = {
-  id: null,
+const WINDOW_TEMPLATE: UiWindowData = {
   title: 'Nouvelle fenêtre',
   style: [],
   height: 500,
   width: 500,
   backgroundResource: null,
-  controls: []
+  controls: {}
 };
 
-const CONTROL_TEMPLATE: Control = {
-  id: null,
+const CONTROL_TEMPLATE: UiControlData = {
   x: null,
   y: null,
 
@@ -43,25 +41,43 @@ export interface ComponentUsage {
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 interface WithId {
-  id: string;
+  readonly id: string;
+
+  rename(newId: string): void;
+}
+
+class ModelBase implements WithId {
+  private _id: string;
+
+  constructor(id: string) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  rename(newId: string) {
+    this._id = newId;
+  }
 }
 
 interface IdContainer {
   hasId(id: string): boolean;
 }
 
-export class CollectionModel<TData extends WithId, TModel extends WithId> implements IdContainer {
-  private readonly map = new Map<string, { item: TModel, index: number; }>();
+export class CollectionModel<TData, TModel extends WithId> implements IdContainer {
+  private readonly map = new Map<string, TModel>();
 
-  constructor(public readonly data: TData[], private readonly ModelFactory: new (data: TData) => TModel) {
-    for (const [index, itemData] of data.entries()) {
-      const item = new this.ModelFactory(itemData);
-      this.map.set(item.id, { item, index });
+  constructor(public readonly data: { [id: string]: TData }, private readonly ModelFactory: new (id: string, data: TData) => TModel) {
+    for (const [id, itemData] of Object.entries(data)) {
+      const item = new this.ModelFactory(id, itemData);
+      this.map.set(item.id, item);
     }
   }
 
   *[Symbol.iterator]() {
-    for (const { item } of this.map.values()) {
+    for (const item of this.map.values()) {
       yield item;
     }
   }
@@ -71,60 +87,55 @@ export class CollectionModel<TData extends WithId, TModel extends WithId> implem
   }
 
   findById(id: string) {
-    const mapItem = this.map.get(id);
-    return mapItem?.item;
+    return this.map.get(id);
   }
 
   getById(id: string) {
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       throw new Error(`Item with id '${id}' does not exist`);
-    }
-
-    return mapItem?.item;
-  }
-
-  // push at the end of array, or replace if id exists
-  set(itemData: TData) {
-    this.checkNewId(itemData.id);
-    const item = new this.ModelFactory(itemData);
-    const mapItem = this.map.get(item.id);
-
-    if (mapItem) {
-      // replace
-      mapItem.item = item;
-      this.data[mapItem.index] = itemData;
-    } else {
-      // push
-      const index = this.data.length;
-      this.data.push(itemData);
-      this.map.set(item.id, { item, index });
     }
 
     return item;
   }
 
+  set(id: string, itemData: TData) {
+    this.checkNewId(id);
+    const item = new this.ModelFactory(id, itemData);
+
+    // replace or insert
+    this.data[item.id] = itemData;
+    this.map.set(item.id, item);
+
+    return item;
+  }
+
   clear(id: string) {
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       return false;
     }
 
     this.map.delete(id);
-    this.data.splice(mapItem.index, 1);
+    delete this.data[id];
     return true;
   }
 
   rename(id: string, newId: string) {
     this.checkNewId(newId);
-    const mapItem = this.map.get(id);
-    if (!mapItem) {
+    const item = this.map.get(id);
+    if (!item) {
       return false;
     }
 
+    item.rename(newId);
     this.map.delete(id);
-    mapItem.item.id = newId;
-    this.map.set(newId, mapItem);
+    this.map.set(newId, item);
+
+    const data = this.data[id];
+    delete this.data[id];
+    this.data[newId] = data;
+
     return true;
   }
 
@@ -179,19 +190,13 @@ export class DefaultWindowModel {
   }
 }
 
-export class WindowModel {
-  private readonly controls: CollectionModel<Control, ControlModel>;
+export class WindowModel extends ModelBase {
+  private readonly controls: CollectionModel<UiControlData, ControlModel>;
 
-  constructor(public readonly data: Mutable<Window>) {
+  constructor(id: string, public readonly data: UiWindowData) {
+    super(id);
+
     this.controls = new CollectionModel(this.data.controls, ControlModel);
-  }
-
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
   }
 
   update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
@@ -205,23 +210,21 @@ export class WindowModel {
   }
 
   newControl(controlId: string, x: number, y: number) {
-    const newControl = clone(CONTROL_TEMPLATE) as Mutable<Control>;
-    newControl.id = controlId;
+    const newControl = clone(CONTROL_TEMPLATE) as UiControlData;
     newControl.x = x;
     newControl.y = y;
 
-    return this.controls.set(newControl);
+    return this.controls.set(controlId, newControl);
   }
 
   cloneControl(controlId: string, newId: string) {
     const source = this.controls.getById(controlId);
 
     const newControl = clone(source.data);
-    newControl.id = newId;
     newControl.x += 10;
     newControl.y += 10;
 
-    return this.controls.set(newControl);
+    return this.controls.set(newId, newControl);
   }
 
   clearControl(controlId: string) {
@@ -362,16 +365,9 @@ export class WindowModel {
   }
 }
 
-export class ControlModel {
-  constructor(public readonly data: Mutable<Control>) {
-  }
-
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
+export class ControlModel extends ModelBase {
+  constructor(id: string, public readonly data: UiControlData) {
+    super(id);
   }
 
   update(properties: Partial<Omit<Control, 'id'>>) {
@@ -682,37 +678,23 @@ export class ControlModel {
   }
 }
 
-export class ResourceModel {
-  constructor(public readonly data: Mutable<DefinitionResource>) {
+export class ResourceModel extends ModelBase {
+  constructor(id: string, public readonly data: UiResourceData) {
+    super(id);
   }
 
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
-  }
-
-  update(resource: DefinitionResource) {
+  update(resource: UiResourceData) {
     const { mime, data } = resource;
     Object.assign(this.data, { mime, data });
   }
 }
 
-export class StyleModel {
-  constructor(public readonly data: Mutable<DefinitionStyle>) {
+export class StyleModel extends ModelBase {
+  constructor(id: string, public readonly data: UiStyleData) {
+    super(id);
   }
 
-  get id() {
-    return this.data.id;
-  }
-
-  set id(value: string) {
-    this.data.id = value;
-  }
-
-  update(style: DefinitionStyle) {
+  update(style: UiStyleData) {
     const { properties } = style;
     Object.assign(this.data, { properties });
   }
@@ -806,11 +788,9 @@ export class ValidationContext {
   }
 }
 
-export function newWindow(windows: CollectionModel<Mutable<Window>, WindowModel>, id: string) {
-  const newWindow = clone(WINDOW_TEMPLATE) as Mutable<Window>;
-  newWindow.id = id;
-
-  return windows.set(newWindow);
+export function newWindow(windows: CollectionModel<UiWindowData, WindowModel>, id: string) {
+  const newWindow = clone(WINDOW_TEMPLATE) as UiWindowData;
+  return windows.set(id, newWindow);
 }
 
 function pickIfDefined<T>(obj: Partial<T>, ...props: (keyof T)[]): Partial<T> {

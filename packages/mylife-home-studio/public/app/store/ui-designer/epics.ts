@@ -103,9 +103,8 @@ export default createProjectManagementEpic({
 
     [ActionTypes.SET_RESOURCE]: {
       mapper({ tabId, resource }: ActionPayloads.SetResource) {
-        const { resourceId, ...definition } = resource;
-        definition.id = resourceId;
-        const callData: SetResourceUiProjectCall = { operation: 'set-resource', resource: definition };
+        const { id, resourceId, ...resourceData } = resource;
+        const callData: SetResourceUiProjectCall = { operation: 'set-resource', id: resourceId, resource: resourceData };
         return { tabId, callData };
       },
     },
@@ -128,9 +127,8 @@ export default createProjectManagementEpic({
 
     [ActionTypes.SET_STYLE]: {
       mapper({ tabId, style }: ActionPayloads.SetStyle) {
-        const { styleId, ...definition } = style;
-        definition.id = styleId;
-        const callData: SetStyleUiProjectCall = { operation: 'set-style', style: definition };
+        const { id, styleId, ...styleData } = style;
+        const callData: SetStyleUiProjectCall = { operation: 'set-style', id: styleId, style: styleData };
         return { tabId, callData };
       },
     },

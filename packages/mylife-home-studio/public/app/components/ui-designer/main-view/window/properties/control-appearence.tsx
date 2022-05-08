@@ -11,11 +11,10 @@ import CodeIcon from '@material-ui/icons/Code';
 
 import { AppState } from '../../../../../store/types';
 import { UiControl } from '../../../../../store/ui-designer/types';
-import { ControlDisplay, ControlText } from '../../../../../../../shared/ui-model';
+import { UiControlDisplayData, UiControlTextData } from '../../../../../../../shared/project-manager';
 import { MemberType } from '../../../../../../../shared/component-model';
 import { getComponentMemberValueType } from '../../../../../store/ui-designer/selectors';
 import DeleteButton from '../../../../lib/delete-button';
-import { useTabSelector } from '../../../../lib/use-tab-selector';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { Group, Item } from '../../../../lib/properties-layout';
 import ResourceSelector from '../../common/resource-selector';
@@ -80,7 +79,7 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
   switch (appearence) {
     case 'display': {
       const { display } = control;
-      const updateDisplay = (props: Partial<ControlDisplay>) => {
+      const updateDisplay = (props: Partial<UiControlDisplayData>) => {
         const newDisplay = { ...display, ...props };
         update({ display: newDisplay });
       };
@@ -90,7 +89,7 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
 
     case 'text': {
       const { text } = control;
-      const updateText = (props: Partial<ControlText>) => {
+      const updateText = (props: Partial<UiControlTextData>) => {
         const newText = { ...text, ...props };
         update({ text: newText });
       };
@@ -100,13 +99,13 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
   }
 }
 
-const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; update: (props: Partial<ControlDisplay>) => void }> = ({ display, update }) => {
+const PropertiesControlDisplay: FunctionComponent<{ display: UiControlDisplayData; update: (props: Partial<UiControlDisplayData>) => void }> = ({ display, update }) => {
   const classes = useStyles();
   const memberValueType = useSelector((state: AppState) => getComponentMemberValueType(state, display.componentId, display.componentState));
   const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', createNewControlDisplayMapItem);
 
   const componentChange = (newValue: ComponentAndMember, newMemberValueType: string) => {
-    const props: Mutable<Partial<ControlDisplay>> = {
+    const props: Partial<Mutable<UiControlDisplayData>> = {
       componentId: newValue.component,
       componentState: newValue.member,
     };
@@ -155,7 +154,7 @@ const PropertiesControlDisplay: FunctionComponent<{ display: ControlDisplay; upd
   );
 };
 
-const PropertiesControlText: FunctionComponent<{ text: ControlText; update: (props: Partial<ControlText>) => void }> = ({ text, update }) => {
+const PropertiesControlText: FunctionComponent<{ text: UiControlTextData; update: (props: Partial<UiControlTextData>) => void }> = ({ text, update }) => {
   const classes = useStyles();
   const { onNew, onRemove, onUpdate } = useArrayManager(text, update, 'context', createNewControlTextContextItem);
   const fireAsync = useFireAsync();

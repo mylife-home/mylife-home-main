@@ -1,4 +1,4 @@
-import { Window, Control, DefaultWindow, Definition, DefinitionResource, DefinitionStyle } from './ui-model';
+import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem } from './ui-model';
 import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
@@ -9,13 +9,40 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
  */
 
 export interface UiProject {
-  definition: Definition;
-  componentData: UiComponentData;
+  resources: { [id: string]: UiResourceData };
+  styles: { [id: string]: UiStyleData };
+  windows: { [id: string]: UiWindowData };
+  defaultWindow: DefaultWindow;
+  components: { [id: string]: UiComponentData };
+  plugins: { [id: string]: UiPluginData; }; // id: instanceName:module.name
 }
 
+export type UiResourceData = Omit<Mutable<DefinitionResource>, 'id'>;
+export type UiStyleData = Omit<Mutable<DefinitionStyle>, 'id'>;
+
+export interface UiWindowData extends Omit<Mutable<Window>, 'id' | 'controls'> {
+  readonly controls: { [id: string]: UiControlData };
+}
+
+export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
+  readonly text: UiControlTextData;
+}
+
+export interface UiControlTextData extends Omit<ControlText, 'context'> {
+  readonly context: UiControlTextContextItemData[];
+}
+
+export interface UiControlTextContextItemData extends ControlTextContextItem {
+  testValue: any; // used only for designer render, not deployed
+}
+
+export type UiControlDisplayData = ControlDisplay;
+export type UiControlDisplayMapItemData = ControlDisplayMapItem;
+
+export type UiActionData = Action;
+
 export interface UiComponentData {
-  components: Component[]; // plugin points to plugin instanceName:module.name
-  plugins: { [id: string]: UiPluginData; }; // id: instanceName:module.name
+  plugin: string;
 }
 
 export interface UiPluginData extends Omit<Plugin, 'usage' | 'config'> {
@@ -113,6 +140,7 @@ export interface UiProjectInfo extends ProjectInfo {
   windowsCount: number;
   resourcesCount: number;
   resourcesSize: number;
+  stylesCount: number;
   componentsCount: number;
 }
 
@@ -154,12 +182,14 @@ export interface SetUiDefaultWindowNotification extends UpdateProjectNotificatio
 
 export interface SetUiComponentDataNotification extends UpdateProjectNotification {
   operation: 'set-ui-component-data';
-  componentData: UiComponentData;
+  components: { [id: string]: UiComponentData };
+  plugins: { [id: string]: UiPluginData; };
 }
 
 export interface SetUiResourceNotification extends UpdateProjectNotification {
   operation: 'set-ui-resource';
-  resource: DefinitionResource;
+  id: string;
+  resource: UiResourceData;
 }
 
 export interface ClearUiResourceNotification extends UpdateProjectNotification {
@@ -175,7 +205,8 @@ export interface RenameUiResourceNotification extends UpdateProjectNotification 
 
 export interface SetUiStyleNotification extends UpdateProjectNotification {
   operation: 'set-ui-style';
-  style: DefinitionStyle;
+  id: string;
+  style: UiStyleData;
 }
 
 export interface ClearUiStyleNotification extends UpdateProjectNotification {
@@ -191,7 +222,8 @@ export interface RenameUiStyleNotification extends UpdateProjectNotification {
 
 export interface SetUiWindowNotification extends UpdateProjectNotification {
   operation: 'set-ui-window';
-  window: Window;
+  id: string;
+  window: UiWindowData;
 }
 
 export interface ClearUiWindowNotification extends UpdateProjectNotification {
@@ -351,7 +383,8 @@ export interface SetDefaultWindowUiProjectCall extends UiProjectCall {
 
 export interface SetResourceUiProjectCall extends UiProjectCall {
   operation: 'set-resource';
-  resource: DefinitionResource;
+  id: string;
+  resource: UiResourceData;
 }
 
 export interface ClearResourceUiProjectCall extends UiProjectCall {
@@ -367,7 +400,8 @@ export interface RenameResourceUiProjectCall extends UiProjectCall {
 
 export interface SetStyleUiProjectCall extends UiProjectCall {
   operation: 'set-style';
-  style: DefinitionStyle;
+  id: string;
+  style: UiStyleData;
 }
 
 export interface ClearStyleUiProjectCall extends UiProjectCall {
@@ -406,7 +440,7 @@ export interface CloneWindowUiProjectCall extends UiProjectCall {
 export interface SetWindowPropertiesUiProjectCall extends UiProjectCall {
   operation: 'set-window-properties';
   id: string;
-  properties: Partial<Omit<Window, 'id' | 'controls'>>;
+  properties: Partial<Omit<UiWindowData, 'controls'>>;
 }
 
 export interface NewControlUiProjectCall extends UiProjectCall {
@@ -441,7 +475,7 @@ export interface SetControlPropertiesUiProjectCall extends UiProjectCall {
   operation: 'set-control-properties';
   windowId: string;
   id: string;
-  properties: Partial<Omit<Control, 'id'>>;
+  properties: Partial<UiControlData>;
 }
 
 /**

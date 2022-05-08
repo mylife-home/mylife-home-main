@@ -1,13 +1,16 @@
-import { UiProject, UiProjectInfo } from '../../../../shared/project-manager';
-import { DefinitionResource } from '../../../../shared/ui-model';
+import { UiProject, UiProjectInfo, UiResourceData } from '../../../../shared/project-manager';
 import { Store } from '../store';
 import { UiOpenedProject } from './opened-project';
 
 export class UiProjects extends Store<UiProject> {
   createNew(name: string) {
     const project: UiProject = {
-      definition: { resources: [], styles: [], windows: [], defaultWindow: { desktop: null, mobile: null } },
-      componentData: { components: [], plugins: {} },
+      resources: {},
+      styles: {},
+      windows: {},
+      defaultWindow: { desktop: null, mobile: null },
+      components: {},
+      plugins: {},
     };
 
     this.create(name, project);
@@ -17,10 +20,11 @@ export class UiProjects extends Store<UiProject> {
   getProjectInfo(name: string): UiProjectInfo {
     const project = this.getProject(name);
     return {
-      windowsCount: project.definition.windows.length,
-      resourcesCount: project.definition.resources.length,
-      resourcesSize: project.definition.resources.reduce((sum, res) => sum + resourceBinaryLength(res), 0),
-      componentsCount: project.componentData.components.length,
+      windowsCount: Object.keys(project.windows).length,
+      resourcesCount: Object.keys(project.resources).length,
+      resourcesSize: Object.values(project.resources).reduce((sum, res) => sum + resourceBinaryLength(res), 0),
+      stylesCount: Object.keys(project.styles).length,
+      componentsCount: Object.keys(project.components).length,
     };
   }
 
@@ -29,7 +33,7 @@ export class UiProjects extends Store<UiProject> {
   }
 }
 
-function resourceBinaryLength(resource: DefinitionResource) {
+function resourceBinaryLength(resource: UiResourceData) {
   // base64 length = 4 chars represents 3 binary bytes
   return (resource.data.length * 3) / 4;
 }
