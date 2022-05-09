@@ -19,6 +19,11 @@ const useStyles = makeStyles((theme) => ({
     padding: '2px',
     // display: 'table-cell',
     // verticalAlign: 'middle',
+
+    // For text children
+    fontSize: 16,
+    lineHeight: '24px',
+    fontWeight: 400
   },
   selected: {
     border: `1px solid ${theme.palette.primary.main}`,
@@ -30,10 +35,6 @@ const useStyles = makeStyles((theme) => ({
   },
   text: {
     // Note: must match UI render
-    margin: 'auto',
-    fontSize: 16,
-    lineHeight: '24px',
-    fontWeight: 400
   }
 }));
 
