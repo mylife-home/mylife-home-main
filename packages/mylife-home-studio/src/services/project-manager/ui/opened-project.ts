@@ -286,7 +286,7 @@ export class UiOpenedProject extends OpenedProject {
     this.executeUpdate(() => {
       const impacts = this.model.renameResource(id, newId);
 
-      this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id });
+      this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
 
       for (const window of impacts.windows) {
         this.notifyAllWindow(window);
@@ -321,7 +321,7 @@ export class UiOpenedProject extends OpenedProject {
     this.executeUpdate(() => {
       const impacts = this.model.renameStyle(id, newId);
 
-      this.notifyAll<RenameUiStyleNotification>({ operation: 'rename-ui-style', id });
+      this.notifyAll<RenameUiStyleNotification>({ operation: 'rename-ui-style', id, newId });
 
       for (const window of impacts.windows) {
         this.notifyAllWindow(window);
@@ -496,7 +496,7 @@ export class UiOpenedProject extends OpenedProject {
 
   private prepareComponentRefresh(componentData: NewComponentData) {
     const usage = this.model.collectComponentsUsage();
-    const { breakingOperations, usageToClear } = prepareMergeComponentData(this.components, usage, componentData);
+    const { breakingOperations, usageToClear } = prepareMergeComponentData(this.model.components, usage, componentData);
     const serverData: RefreshServerData = { componentData, usageToClear };
     return { breakingOperations, serverData };
   }
