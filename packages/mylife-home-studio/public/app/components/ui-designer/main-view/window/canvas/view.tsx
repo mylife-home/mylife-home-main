@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
     // For text children
     fontSize: 16,
-    lineHeight: '24px',
+    lineHeight: 1.5,
     fontWeight: 400
   },
   selected: {
