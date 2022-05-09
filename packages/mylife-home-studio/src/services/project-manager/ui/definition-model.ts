@@ -1,6 +1,6 @@
 import { components } from 'mylife-home-common';
 import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
-import { Window, DefinitionResource, DefaultWindow, Control, ControlDisplayMapItem, ControlDisplay, DefinitionStyle, Style } from '../../../../shared/ui-model';
+import { Window, DefaultWindow, Control, ControlDisplayMapItem, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';

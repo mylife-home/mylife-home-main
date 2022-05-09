@@ -1,4 +1,4 @@
-import { Window, Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem } from './ui-model';
+import { Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem, Style, Resource } from './ui-model';
 import { BindingConfig } from './core-model';
 import { Component, Plugin, PluginUsage } from './component-model';
 
@@ -12,6 +12,7 @@ export interface UiProject {
   resources: { [id: string]: UiResourceData };
   styles: { [id: string]: UiStyleData };
   windows: { [id: string]: UiWindowData };
+  templates: { [id: string]: UiTemplateData };
   defaultWindow: DefaultWindow;
   components: { [id: string]: UiComponentData };
   plugins: { [id: string]: UiPluginData; }; // id: instanceName:module.name
@@ -20,8 +21,20 @@ export interface UiProject {
 export type UiResourceData = Omit<Mutable<DefinitionResource>, 'id'>;
 export type UiStyleData = Omit<Mutable<DefinitionStyle>, 'id'>;
 
-export interface UiWindowData extends Omit<Mutable<Window>, 'id' | 'controls'> {
-  readonly controls: { [id: string]: UiControlData };
+export interface UiViewData {
+  title: string;
+  height: number;
+  width: number;
+  controls: { [id: string]: UiControlData };
+}
+
+export interface UiWindowData extends UiViewData {
+  style: Style;
+  backgroundResource: Resource;
+}
+
+export interface UiTemplateData extends UiViewData {
+  // TODO: components/plugins bindings
 }
 
 export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {

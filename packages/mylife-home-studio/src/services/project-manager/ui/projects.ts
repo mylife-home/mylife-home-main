@@ -8,6 +8,7 @@ export class UiProjects extends Store<UiProject> {
       resources: {},
       styles: {},
       windows: {},
+      templates: {},
       defaultWindow: { desktop: null, mobile: null },
       components: {},
       plugins: {},
