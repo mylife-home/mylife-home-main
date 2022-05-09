@@ -188,8 +188,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## studio
 
-- ui designer:
-  - ui styles: render it wysiwyg
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
