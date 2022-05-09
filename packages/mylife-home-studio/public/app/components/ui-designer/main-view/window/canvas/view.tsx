@@ -1,4 +1,5 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, CSSProperties, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -6,63 +7,72 @@ import Image from '../../common/image';
 import { useWindowState, useControlState } from '../window-state';
 import { useTextValue } from '../control-text-value';
 import { UiControlTextData } from '../../../../../../../shared/project-manager';
+import { getStylesMap } from '../../../../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
     height: '100%',
     width: '100%',
     border: `1px solid ${theme.palette.divider}`,
+
+    // Note: must match UI render
+    padding: '2px',
+    // display: 'table-cell',
+    // verticalAlign: 'middle',
   },
   selected: {
     border: `1px solid ${theme.palette.primary.main}`,
   },
-  content: {
+  image: {
+    // Note: must match UI render
     height: '100%',
     width: '100%',
   },
   text: {
-    // same than UI render for consistency
+    // Note: must match UI render
+    margin: 'auto',
     fontSize: 16,
     lineHeight: '24px',
     fontWeight: 400
   }
 }));
 
-const Wrapper: FunctionComponent<{ selected: boolean }> = ({ children, selected }) => {
+const Wrapper: FunctionComponent<{ style?: CSSProperties; selected: boolean }> = ({ style, children, selected }) => {
   const classes = useStyles();
 
-  return <div className={clsx(classes.wrapper, selected && classes.selected)}>{children}</div>;
+  return <div className={clsx(classes.wrapper, selected && classes.selected)} style={style}>{children}</div>;
 };
 
 export const CanvasWindowView = () => {
-  const { window, selected } = useWindowState();
   const classes = useStyles();
+  const { window, selected } = useWindowState();
+  const style = useObjectStyle(window.style);
 
   return (
-    <Wrapper selected={selected}>
-      <Image resource={window.backgroundResource} className={classes.content} />
+    <Wrapper selected={selected} style={style}>
+      <Image resource={window.backgroundResource} className={classes.image} />
     </Wrapper>
   );
 };
 
 export const CanvasControlView: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { control, selected } = useControlState(id);
   const classes = useStyles();
+  const { control, selected } = useControlState(id);
+  const style = useObjectStyle(control.style);
 
   return (
-    <Wrapper selected={selected}>
-      {control.text ? <TextView className={classes.content} text={control.text} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
+    <Wrapper selected={selected} style={style}>
+      {control.text ? <TextView className={classes.text} text={control.text} /> : <Image resource={control.display.defaultResource} className={classes.image} />}
     </Wrapper>
   );
 };
 
 const TextView: FunctionComponent<{ className?: string; text: UiControlTextData }> = ({ className, text }) => {
-  const classes = useStyles();
   const value = useTextValue(text);
   return (
-    <div className={clsx(className, classes.text)}>
+    <p className={className}>
       {value}
-    </div>
+    </p>
   )
 }
 
@@ -71,7 +81,24 @@ export const CanvasControlCreationView: FunctionComponent = () => {
 
   return (
     <Wrapper selected>
-      <div className={classes.content} />
+      <div className={classes.image} />
     </Wrapper>
   );
+}
+
+function useObjectStyle(style: string[]) {
+  const stylesMap = useSelector(getStylesMap);
+
+  return useMemo(() => {
+    const result: CSSProperties = {};
+
+    // Note: merge may not happen like in browser
+    for (const id of style) {
+      const { properties } = stylesMap[id];
+      Object.assign(result, properties);
+    }
+
+    return result;
+
+  }, [style, stylesMap]);
 }
