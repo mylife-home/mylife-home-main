@@ -171,8 +171,15 @@ export interface CoreProjectInfo extends ProjectInfo {
 
 export interface UpdateProjectNotification {
   operation: 'set-name' | 'reset'
-  | 'set-ui-default-window' | 'set-ui-component-data' | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource' | 'set-ui-style' | 'clear-ui-style' | 'rename-ui-style' | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
-  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin' | 'set-core-component' | 'clear-core-component' | 'rename-core-component' | 'set-core-binding' | 'clear-core-binding' | 'set-core-template' | 'clear-core-template' | 'rename-core-template';
+  | 'set-ui-default-window' | 'set-ui-component-data'
+  | 'set-ui-resource' | 'clear-ui-resource' | 'rename-ui-resource'
+  | 'set-ui-style' | 'clear-ui-style' | 'rename-ui-style'
+  | 'set-ui-window' | 'clear-ui-window' | 'rename-ui-window'
+  | 'set-ui-template' | 'clear-ui-template' | 'rename-ui-template'
+  | 'set-core-plugins' | 'set-core-plugin-toolbox-display' | 'set-core-plugin' | 'clear-core-plugin'
+  | 'set-core-component' | 'clear-core-component' | 'rename-core-component'
+  | 'set-core-binding' | 'clear-core-binding'
+  | 'set-core-template' | 'clear-core-template' | 'rename-core-template';
 }
 
 export interface SetNameProjectNotification extends UpdateProjectNotification {
@@ -246,6 +253,23 @@ export interface ClearUiWindowNotification extends UpdateProjectNotification {
 
 export interface RenameUiWindowNotification extends UpdateProjectNotification {
   operation: 'rename-ui-window';
+  id: string;
+  newId: string;
+}
+
+export interface SetUiTemplateNotification extends UpdateProjectNotification {
+  operation: 'set-ui-template';
+  id: string;
+  template: UiTemplateData;
+}
+
+export interface ClearUiTemplateNotification extends UpdateProjectNotification {
+  operation: 'clear-ui-template';
+  id: string;
+}
+
+export interface RenameUiTemplateNotification extends UpdateProjectNotification {
+  operation: 'rename-ui-template';
   id: string;
   newId: string;
 }
@@ -344,6 +368,7 @@ export interface UiProjectCall {
   | 'set-resource' | 'clear-resource' | 'rename-resource'
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
+  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties';
 }
 
@@ -456,9 +481,38 @@ export interface SetWindowPropertiesUiProjectCall extends UiProjectCall {
   properties: Partial<Omit<UiWindowData, 'controls'>>;
 }
 
+export interface NewTemplateUiProjectCall extends UiProjectCall {
+  operation: 'new-template';
+  id: string;
+}
+
+export interface ClearTemplateUiProjectCall extends UiProjectCall {
+  operation: 'clear-template';
+  id: string;
+}
+
+export interface RenameTemplateUiProjectCall extends UiProjectCall {
+  operation: 'rename-template';
+  id: string;
+  newId: string;
+}
+
+export interface CloneTemplateUiProjectCall extends UiProjectCall {
+  operation: 'clone-template';
+  id: string;
+  newId: string;
+}
+
+export interface SetTemplatePropertiesUiProjectCall extends UiProjectCall {
+  operation: 'set-template-properties';
+  id: string;
+  properties: Partial<Omit<UiTemplateData, 'controls'>>;
+}
+
 export interface NewControlUiProjectCall extends UiProjectCall {
   operation: 'new-control';
-  windowId: string;
+  viewType: 'window' | 'template';
+  viewId: string;
   id: string;
   x: number;
   y: number;
@@ -466,27 +520,31 @@ export interface NewControlUiProjectCall extends UiProjectCall {
 
 export interface ClearControlUiProjectCall extends UiProjectCall {
   operation: 'clear-control';
-  windowId: string;
+  viewType: 'window' | 'template';
+  viewId: string;
   id: string;
 }
 
 export interface RenameControlUiProjectCall extends UiProjectCall {
   operation: 'rename-control';
-  windowId: string;
+  viewType: 'window' | 'template';
+  viewId: string;
   id: string;
   newId: string;
 }
 
 export interface CloneControlUiProjectCall extends UiProjectCall {
   operation: 'clone-control';
-  windowId: string;
+  viewType: 'window' | 'template';
+  viewId: string;
   id: string;
   newId: string;
 }
 
 export interface SetControlPropertiesUiProjectCall extends UiProjectCall {
   operation: 'set-control-properties';
-  windowId: string;
+  viewType: 'window' | 'template';
+  viewId: string;
   id: string;
   properties: Partial<UiControlData>;
 }
