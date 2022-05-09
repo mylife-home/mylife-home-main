@@ -6,12 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { UiControlTextContextItemData } from '../../../../../../../shared/project-manager';
 import { getComponentsMap, getPluginsMap } from '../../../../../store/ui-designer/selectors';
 import TestValueEditor from './test-value-editor';
-
-interface TestResult {
-  result: string;
-  compileError: Error;
-  runtimeError: Error;
-}
+import { useTextValueDetails } from '../control-text-value';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -37,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 const TestPanel: FunctionComponent<{ format: string; context: UiControlTextContextItemData[], updateTestValue: (index: number, testValue: any) => void }> = ({ format, context, updateTestValue }) => {
   const classes = useStyles();
   const contextData = useContextData(context);
-  const { compileError, runtimeError, result } = useTest(format, context);
+  const { compileError, runtimeError, result } = useTextValueDetails(format, context);
 
   return (
     <div className={classes.container}>
@@ -77,42 +72,4 @@ function useContextData(context: UiControlTextContextItemData[]) {
     const state = plugin.members[item.componentState];
     return { ...item, valueType: state.valueType };
   }), [context, componentsMap, pluginsMap]);
-}
-
-function useTest(format: string, context: UiControlTextContextItemData[]): TestResult {
-  interface CompileResult {
-    executor: (...args: any[]) => string;
-    compileError: Error;
-  }
-
-  const { executor, compileError } = useMemo(() => {
-    const argNames = context.map(item => item.id).join(',');
-  
-    try {
-      const executor = new Function(argNames, format) as (...args: any[]) => string;
-      return { executor, compileError: null } as CompileResult;
-    } catch (compileError) {
-      return { executor: null, compileError } as CompileResult;
-    }
-  }, [format, context]);
-
-  return useMemo(() => {
-    if (compileError) {
-      return { result: null, compileError, runtimeError: null } as TestResult;
-    }
-
-    const args = context.map(item => item.testValue);
-    try {
-      const result = executor(...args);
-
-      if (typeof result !== 'string') {
-        throw new Error(`Result type is not a string: '${result}'`);
-      }
-
-      return { result, compileError: null, runtimeError: null } as TestResult;
-    } catch (runtimeError) {
-      return { result: null, compileError: null, runtimeError } as TestResult;
-    }
-
-  }, [context, executor, compileError]);
 }
