@@ -18,7 +18,7 @@ import {
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection, ActionPayloads, UiStyle } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiTemplate, UiControl, Selection, ActionPayloads, UiStyle } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -27,6 +27,7 @@ const initialState: UiDesignerState = {
   resources: createTable<UiResource>(),
   styles: createTable<UiStyle>(),
   windows: createTable<UiWindow>(),
+  templates: createTable<UiTemplate>(),
   controls: createTable<UiControl>(),
 };
 
@@ -50,6 +51,7 @@ export default createReducer(initialState, {
       resources: [],
       styles: [],
       windows: [],
+      templates: [],
       selection: DEFAULT_SELECTION,
       defaultWindow: { desktop: null, mobile: null },
     };
@@ -87,6 +89,7 @@ export default createReducer(initialState, {
       openedProject.resources = [];
       openedProject.styles = [];
       openedProject.windows = [];
+      openedProject.templates = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
     }
@@ -96,6 +99,7 @@ export default createReducer(initialState, {
     tableClear(state.resources);
     tableClear(state.styles);
     tableClear(state.windows);
+    tableClear(state.templates);
   },
 
   [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<ActionPayloads.UpdateProject>) => {
@@ -144,12 +148,14 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       tableRemoveAll(state.resources, openedProject.resources);
       tableRemoveAll(state.styles, openedProject.styles);
       tableRemoveAll(state.windows, openedProject.windows);
+      tableRemoveAll(state.templates, openedProject.templates);
 
       openedProject.components = [];
       openedProject.plugins = [];
       openedProject.resources = [];
       openedProject.styles = [];
       openedProject.windows = [];
+      openedProject.templates = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
 

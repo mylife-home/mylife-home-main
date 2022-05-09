@@ -22,13 +22,13 @@ export type UiResourceData = Omit<Mutable<DefinitionResource>, 'id'>;
 export type UiStyleData = Omit<Mutable<DefinitionStyle>, 'id'>;
 
 export interface UiViewData {
-  title: string;
   height: number;
   width: number;
   controls: { [id: string]: UiControlData };
 }
 
 export interface UiWindowData extends UiViewData {
+  title: string;
   style: Style;
   backgroundResource: Resource;
 }

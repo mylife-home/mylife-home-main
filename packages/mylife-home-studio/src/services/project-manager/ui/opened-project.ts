@@ -40,13 +40,14 @@ import {
   UiResourceData,
   UiStyleData,
   UiWindowData,
+  UiTemplateData,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
-import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel } from './definition-model';
+import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel, TemplateModel } from './definition-model';
 import { clone } from '../../../utils/object-utils';
 import { buildDeployDefinition } from './deploy';
 
@@ -61,6 +62,7 @@ export class UiOpenedProject extends OpenedProject {
   private project: UiProject;
   private defaultWindow: DefaultWindowModel;
   private windows: CollectionModel<UiWindowData, WindowModel>;
+  private templates: CollectionModel<UiTemplateData, TemplateModel>;
   private resources: CollectionModel<UiResourceData, ResourceModel>;
   private styles: CollectionModel<UiStyleData, StyleModel>;
   private components: ComponentsModel;
@@ -75,6 +77,7 @@ export class UiOpenedProject extends OpenedProject {
 
     this.defaultWindow = new DefaultWindowModel(this.project.defaultWindow);
     this.windows = new CollectionModel(this.project.windows, WindowModel);
+    this.templates = new CollectionModel(this.project.templates, TemplateModel);
     this.resources = new CollectionModel(this.project.resources, ResourceModel);
     this.styles = new CollectionModel(this.project.styles, StyleModel);
     this.components = new ComponentsModel({ components: this.project.components, plugins: this.project.plugins });
@@ -205,6 +208,10 @@ export class UiOpenedProject extends OpenedProject {
     this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', id: window.id, window: window.data });
   }
 
+  private notifyAllTemplate(template: TemplateModel) {
+    // TODO
+  }
+
   private notifyAllComponentData() {
     this.notifyAll<SetUiComponentDataNotification>({ operation: 'set-ui-component-data', components: this.project.components, plugins: this.project.plugins });
   }
@@ -239,6 +246,12 @@ export class UiOpenedProject extends OpenedProject {
           this.notifyAllWindow(window);
         }
       }
+
+      for (const template of this.templates) {
+        if (template.onClearResource(id)) {
+          this.notifyAllTemplate(template);
+        }
+      }
     });
   }
 
@@ -250,6 +263,12 @@ export class UiOpenedProject extends OpenedProject {
       for (const window of this.windows) {
         if (window.onRenameResource(id, newId)) {
           this.notifyAllWindow(window);
+        }
+      }
+
+      for (const template of this.templates) {
+        if (template.onRenameResource(id, newId)) {
+          this.notifyAllTemplate(template);
         }
       }
     });
@@ -278,6 +297,12 @@ export class UiOpenedProject extends OpenedProject {
           this.notifyAllWindow(window);
         }
       }
+
+      for (const template of this.templates) {
+        if (template.onClearStyle(id)) {
+          this.notifyAllTemplate(template);
+        }
+      }
     });
   }
 
@@ -289,6 +314,12 @@ export class UiOpenedProject extends OpenedProject {
       for (const window of this.windows) {
         if (window.onRenameStyle(id, newId)) {
           this.notifyAllWindow(window);
+        }
+      }
+
+      for (const template of this.templates) {
+        if (template.onRenameStyle(id, newId)) {
+          this.notifyAllTemplate(template);
         }
       }
     });

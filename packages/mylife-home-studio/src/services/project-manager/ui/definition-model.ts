@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData } from '../../../../shared/project-manager';
 import { Window, DefaultWindow, Control, ControlDisplayMapItem, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
@@ -11,6 +11,12 @@ const WINDOW_TEMPLATE: UiWindowData = {
   height: 500,
   width: 500,
   backgroundResource: null,
+  controls: {}
+};
+
+const TEMPLATE_TEMPLATE: UiTemplateData = {
+  height: 500,
+  width: 500,
   controls: {}
 };
 
@@ -190,23 +196,14 @@ export class DefaultWindowModel {
   }
 }
 
-export class WindowModel extends ModelBase {
+abstract class ViewModel extends ModelBase {
   private readonly controls: CollectionModel<UiControlData, ControlModel>;
+  abstract readonly data: UiViewData;
 
-  constructor(id: string, public readonly data: UiWindowData) {
+  constructor(id: string, data: UiViewData) {
     super(id);
 
-    this.controls = new CollectionModel(this.data.controls, ControlModel);
-  }
-
-  update(properties: Partial<Omit<Window, 'id' | 'controls'>>) {
-    const data = pickIfDefined(properties, 'title', 'style', 'backgroundResource', 'height', 'width');
-
-    if (data.style) {
-      data.style.sort();
-    }
-
-    Object.assign(this.data, data);
+    this.controls = new CollectionModel(data.controls, ControlModel);
   }
 
   newControl(controlId: string, x: number, y: number) {
@@ -244,13 +241,8 @@ export class WindowModel extends ModelBase {
    * @param newId
    * @returns `true` if the window has been changed, `false` otherwise
    */
-  onRenameResource(resourceId: string, newId: string) {
+   onRenameResource(resourceId: string, newId: string) {
     let changed = false;
-
-    if (this.data.backgroundResource === resourceId) {
-      this.data.backgroundResource = newId;
-      changed = true;
-    }
 
     for (const controlModel of this.controls) {
       if (controlModel.onRenameResource(resourceId, newId)) {
@@ -278,10 +270,6 @@ export class WindowModel extends ModelBase {
    onRenameStyle(styleId: string, newId: string) {
     let changed = false;
 
-    if (styleRename(this.data.style, styleId, newId)) {
-      changed = true;
-    }
-
     for (const controlModel of this.controls) {
       if (styleRename(controlModel.data.style, styleId, newId)) {
         changed = true;
@@ -298,10 +286,6 @@ export class WindowModel extends ModelBase {
    */
    onClearStyle(styleId: string) {
     let changed = false;
-
-    if (styleClear(this.data.style, styleId)) {
-      changed = true;
-    }
 
     for (const controlModel of this.controls) {
       if (styleClear(controlModel.data.style, styleId)) {
@@ -337,8 +321,6 @@ export class WindowModel extends ModelBase {
   }
 
   validate(context: ValidationContext) {
-    context.checkResourceId(this.data.backgroundResource, () => [{ type: 'window', id: this.id }], { optional: true });
-
     let index = 0;
     for (const controlModel of this.controls) {
       controlModel.validate(context, this.id, index++);
@@ -365,12 +347,112 @@ export class WindowModel extends ModelBase {
   }
 }
 
+export class WindowModel extends ViewModel {
+  constructor(id: string, public readonly data: UiWindowData) {
+    super(id, data);
+  }
+
+  update(properties: Partial<Omit<UiWindowData, 'controls'>>) {
+    const data = pickIfDefined(properties, 'title', 'style', 'backgroundResource', 'height', 'width');
+
+    if (data.style) {
+      data.style.sort();
+    }
+
+    Object.assign(this.data, data);
+  }
+
+  /**
+   * @param resourceId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onRenameResource(resourceId: string, newId: string) {
+    let changed = false;
+
+    if (this.data.backgroundResource === resourceId) {
+      this.data.backgroundResource = newId;
+      changed = true;
+    }
+
+    if (super.onRenameResource(resourceId, newId)) {
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  /**
+   * @param resourceId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+  onClearResource(resourceId: string) {
+    return this.onRenameResource(resourceId, null);
+  }
+
+  /**
+   * @param styleId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+   onRenameStyle(styleId: string, newId: string) {
+    let changed = false;
+
+    if (styleRename(this.data.style, styleId, newId)) {
+      changed = true;
+    }
+
+    if (super.onRenameStyle(styleId, newId)) {
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  /**
+   * @param styleId
+   * @param newId
+   * @returns `true` if the window has been changed, `false` otherwise
+   */
+   onClearStyle(styleId: string) {
+    let changed = false;
+
+    if (styleClear(this.data.style, styleId)) {
+      changed = true;
+    }
+
+    if (super.onClearStyle(styleId)) {
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  validate(context: ValidationContext) {
+    context.checkResourceId(this.data.backgroundResource, () => [{ type: 'window', id: this.id }], { optional: true });
+    super.validate(context);
+  }
+}
+
+export class TemplateModel extends ViewModel {
+  constructor(id: string, public readonly data: UiTemplateData) {
+    super(id, data);
+  }
+
+  update(properties: Partial<Omit<UiTemplateData, 'controls'>>) {
+    const data = pickIfDefined(properties, 'height', 'width');
+
+    Object.assign(this.data, data);
+  }
+}
+
 export class ControlModel extends ModelBase {
   constructor(id: string, public readonly data: UiControlData) {
     super(id);
   }
 
-  update(properties: Partial<Omit<Control, 'id'>>) {
+  update(properties: Partial<UiControlData>) {
     const data = pickIfDefined(properties, 'style', 'height', 'width', 'x', 'y', 'display', 'text', 'primaryAction', 'secondaryAction');
 
     if (data.style) {
@@ -791,6 +873,11 @@ export class ValidationContext {
 export function newWindow(windows: CollectionModel<UiWindowData, WindowModel>, id: string) {
   const newWindow = clone(WINDOW_TEMPLATE) as UiWindowData;
   return windows.set(id, newWindow);
+}
+
+export function newTemplate(templates: CollectionModel<UiTemplateData, TemplateModel>, id: string) {
+  const newTemplate = clone(TEMPLATE_TEMPLATE) as UiTemplateData;
+  return templates.set(id, newTemplate);
 }
 
 function pickIfDefined<T>(obj: Partial<T>, ...props: (keyof T)[]): Partial<T> {

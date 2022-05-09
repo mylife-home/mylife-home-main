@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData } from '../../../../shared/project-manager';
 import { DefaultWindow } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -85,6 +85,12 @@ export interface UiWindow extends Omit<UiWindowData, 'controls'> {
   controls: string[];
 }
 
+export interface UiTemplate extends Omit<UiTemplateData, 'controls'> {
+  id: string;
+  templatedId: string; // id in project
+  controls: string[];
+}
+
 export interface UiControl extends UiControlData {
   id: string;
   controlId: string; // id in window
@@ -112,6 +118,7 @@ export interface UiOpenedProject extends OpenedProjectBase {
   resources: string[];
   styles: string[];
   windows: string[];
+  templates: string[];
   defaultWindow: DefaultWindow;
   selection: Selection;
 }
@@ -123,6 +130,7 @@ export interface UiDesignerState {
   resources: Table<UiResource>;
   styles: Table<UiStyle>;
   windows: Table<UiWindow>;
+  templates: Table<UiTemplate>;
   controls: Table<UiControl>;
 }
 
