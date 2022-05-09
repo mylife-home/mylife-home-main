@@ -32,9 +32,12 @@ const useStyles = makeStyles((theme) => ({
     // Note: must match UI render
     height: '100%',
     width: '100%',
+
+    margin: 'auto'
   },
   text: {
     // Note: must match UI render
+    margin: 'auto'
   }
 }));
 
