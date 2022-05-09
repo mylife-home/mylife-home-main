@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { ControlTextContextItem } from '../../../../../../../shared/ui-model';
+import { UiControlTextContextItemData } from '../../../../../../../shared/project-manager';
 import { getComponentsMap, getPluginsMap } from '../../../../../store/ui-designer/selectors';
 import TestValueEditor from './test-value-editor';
 
@@ -12,8 +12,6 @@ interface TestResult {
   compileError: Error;
   runtimeError: Error;
 }
-
-type Values = { [id: string]: any; };
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -36,11 +34,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }), { name: 'window-test-panel'});
 
-const TestPanel: FunctionComponent<{ format: string; context: ControlTextContextItem[] }> = ({ format, context }) => {
+const TestPanel: FunctionComponent<{ format: string; context: UiControlTextContextItemData[], updateTestValue: (index: number, testValue: any) => void }> = ({ format, context, updateTestValue }) => {
   const classes = useStyles();
   const contextData = useContextData(context);
-  const { values, updateValue } = useValues(context);
-  const { compileError, runtimeError, result } = useTest(format, context, values);
+  const { compileError, runtimeError, result } = useTest(format, context);
 
   return (
     <div className={classes.container}>
@@ -58,7 +55,7 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
         <React.Fragment key={index} >
           <div className={classes.value}>
             <Typography className={classes.valueId}>{item.id}</Typography>
-            <TestValueEditor className={classes.valueEditor} value={values[item.id]} onChange={value => updateValue(item.id, value)} valueType={item.valueType} />
+            <TestValueEditor className={classes.valueEditor} value={item.testValue} onChange={value => updateTestValue(index, value)} valueType={item.valueType} />
           </div>
           <Typography className={classes.valueDetail} variant="caption">{`${item.componentId}.${item.componentState} - ${item.valueType}`}</Typography>
         </React.Fragment>
@@ -69,7 +66,7 @@ const TestPanel: FunctionComponent<{ format: string; context: ControlTextContext
 
 export default TestPanel;
 
-function useContextData(context: ControlTextContextItem[]) {
+function useContextData(context: UiControlTextContextItemData[]) {
   // TODO: move that into selector on control "getControlTextContextData(state, controlId)"
   const componentsMap = useSelector(getComponentsMap);
   const pluginsMap = useSelector(getPluginsMap);
@@ -82,27 +79,7 @@ function useContextData(context: ControlTextContextItem[]) {
   }), [context, componentsMap, pluginsMap]);
 }
 
-function useValues(context: ControlTextContextItem[]) {
-  const [values, setValues] = useState<Values>(valuesFromContext(context));
-
-  useEffect(() => {
-    setValues(valuesFromContext(context));
-  }, [context]);
-
-  const updateValue = useCallback((id: string, newValue: any) => setValues(values => ({ ...values, [id]: newValue })), [setValues]);
-
-  return { values, updateValue };
-}
-
-function valuesFromContext(context: ControlTextContextItem[]) {
-  const values: Values = {};
-  for (const { id } of context) {
-    values[id] = null;
-  }
-  return values;
-}
-
-function useTest(format: string, context: ControlTextContextItem[], values: Values): TestResult {
+function useTest(format: string, context: UiControlTextContextItemData[]): TestResult {
   interface CompileResult {
     executor: (...args: any[]) => string;
     compileError: Error;
@@ -124,7 +101,7 @@ function useTest(format: string, context: ControlTextContextItem[], values: Valu
       return { result: null, compileError, runtimeError: null } as TestResult;
     }
 
-    const args = context.map(item => values[item.id]);
+    const args = context.map(item => item.testValue);
     try {
       const result = executor(...args);
 
@@ -137,5 +114,5 @@ function useTest(format: string, context: ControlTextContextItem[], values: Valu
       return { result: null, compileError: null, runtimeError } as TestResult;
     }
 
-  }, [values, executor, compileError]);
+  }, [context, executor, compileError]);
 }

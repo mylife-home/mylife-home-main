@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useCallback, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
 import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -7,35 +7,37 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 
-import { ControlText } from '../../../../../../../shared/ui-model';
+import { UiControlTextContextItemData, UiControlTextData } from '../../../../../../../shared/project-manager';
 import { TransitionProps } from '../../../../dialogs/common';
 import SplitPane from '../../../../lib/split-pane';
 import { useTabPanelId, TabIdContext } from '../../../../lib/tab-panel';
 import CodeEditor from './code-editor';
 import TestPanel from './test-panel';
 
-export type DialogResult = { status: 'ok' | 'cancel'; format?: string };
+export type DialogResult = { status: 'ok' | 'cancel'; updateData?: Partial<UiControlTextData> };
 
 export function useFormatEditorDialog() {
-  const [text, setText] = useState<ControlText>();
-  const [onResult, setOnResult] = useState<(value: DialogResult) => void>();
   const tabId = useTabPanelId();
+  const [initialText, setInitialText] = useState<UiControlTextData>();
+  const [onResult, setOnResult] = useState<(result: DialogResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
     // bind modal to current tab
     return (
       <TabIdContext.Provider value={tabId}>
-        <FormatDialog open={open} hideModal={hideModal} onExited={onExited} text={text} onResult={onResult} />
+        <FormatDialog open={open} hideModal={hideModal} onExited={onExited} initialText={initialText} onResult={onResult} />
       </TabIdContext.Provider>
     );
-  }, [text, onResult, tabId]);
+  }, [initialText, onResult, tabId]);
 
-  return (text: ControlText) => new Promise<DialogResult>(resolve => {
-    setText(text);
-    setOnResult(() => resolve); // else useState think resolve is a state updater
+  return useCallback((initialText: UiControlTextData) => new Promise<DialogResult>(resolve => {
+    setInitialText(initialText);
+
+    // else useState think resolve is a state updater
+    setOnResult(() => resolve);
 
     showModal();
-  });
+  }), [setInitialText, setOnResult, showModal]);
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -52,17 +54,29 @@ interface FormatDialogProps {
   open: boolean;
   hideModal: () => void;
   onExited: () => void;
-  text: ControlText,
-  onResult: (value: DialogResult) => void;
+  initialText: UiControlTextData;
+  onResult: (result: DialogResult) => void;
 }
 
-const FormatDialog: FunctionComponent<FormatDialogProps> = ({ open, hideModal, onExited, text, onResult }) => {
+const FormatDialog: FunctionComponent<FormatDialogProps> = ({ open, hideModal, onExited, initialText, onResult }) => {
   const classes = useStyles();
   const [format, setFormat] = useState<string>();
+  const [context, setContext] = useState<UiControlTextContextItemData[]>();
 
   useEffect(() => {
-    setFormat(text.format);
-  }, [text]);
+    setFormat(initialText.format);
+    setContext(initialText.context);
+  }, [initialText]);
+
+  const updateTestValue = useCallback((index: number, testValue: any) => setContext(context => {
+    return context.map((item, itemIndex) => {
+      if (itemIndex === index) {
+        return { ...item, testValue };
+      } else {
+        return item;
+      }
+    });
+  }), [setContext]);
 
   const cancel = () => {
     hideModal();
@@ -71,7 +85,7 @@ const FormatDialog: FunctionComponent<FormatDialogProps> = ({ open, hideModal, o
 
   const validate = () => {
     hideModal();
-    onResult({ status: 'ok', format });
+    onResult({ status: 'ok', updateData: { format, context } });
   };
 
   return (
@@ -80,7 +94,7 @@ const FormatDialog: FunctionComponent<FormatDialogProps> = ({ open, hideModal, o
     
       <DialogContent dividers classes={{ root: classes.content }}>
         <SplitPane split="vertical" defaultSize={300} minSize={300}>
-          <TestPanel format={format} context={text.context} />
+          <TestPanel format={format} context={context} updateTestValue={updateTestValue} />
           <CodeEditor value={format} onChange={setFormat} />
         </SplitPane>
       </DialogContent>

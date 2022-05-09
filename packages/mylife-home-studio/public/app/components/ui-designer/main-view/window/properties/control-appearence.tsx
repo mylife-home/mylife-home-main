@@ -162,9 +162,9 @@ const PropertiesControlText: FunctionComponent<{ text: UiControlTextData; update
 
   const onEdit = () =>
     fireAsync(async () => {
-      const { status, format } = await showFormatEditorDialog(text);
+      const { status, updateData } = await showFormatEditorDialog(text);
       if (status === 'ok') {
-        update({ format });
+        update(updateData);
       }
     });
 
@@ -194,7 +194,7 @@ const PropertiesControlText: FunctionComponent<{ text: UiControlTextData; update
           <ComponentMemberSelector
             memberType={MemberType.STATE}
             value={{ component: item.componentId, member: item.componentState }}
-            onChange={(value) => onUpdate(index, { componentId: value.component, componentState: value.member })}
+            onChange={(value) => onUpdate(index, { componentId: value.component, componentState: value.member, testValue: null })}
           />
           <DeleteButton icon tooltip="Supprimer" onConfirmed={() => onRemove(index)} />
         </Item>
