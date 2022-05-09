@@ -20,6 +20,12 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     width: '100%',
   },
+  text: {
+    // same than UI render for consistency
+    fontSize: 16,
+    lineHeight: '24px',
+    fontWeight: 400
+  }
 }));
 
 const Wrapper: FunctionComponent<{ selected: boolean }> = ({ children, selected }) => {
@@ -51,9 +57,10 @@ export const CanvasControlView: FunctionComponent<{ id: string }> = ({ id }) => 
 };
 
 const TextView: FunctionComponent<{ className?: string; text: UiControlTextData }> = ({ className, text }) => {
+  const classes = useStyles();
   const value = useTextValue(text);
   return (
-    <div className={className}>
+    <div className={clsx(className, classes.text)}>
       {value}
     </div>
   )

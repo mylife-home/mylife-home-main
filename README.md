@@ -189,7 +189,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## studio
 
 - ui designer:
-  - controle texte : enregistrer les valeurs utilisées pour le test, comme valeur par défaut, et afficher une sortie wysiwyg (utile pour les textes statiques et meme pour tester les dynamiques)
   - ui styles: render it wysiwyg
 - core designer:
   - deploy:
