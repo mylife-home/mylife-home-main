@@ -2,9 +2,10 @@ import React, { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { TextIcon } from '../../../../lib/icons';
 import Image from '../../common/image';
 import { useWindowState, useControlState } from '../window-state';
+import { useTextValue } from '../control-text-value';
+import { UiControlTextData } from '../../../../../../../shared/project-manager';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -44,10 +45,19 @@ export const CanvasControlView: FunctionComponent<{ id: string }> = ({ id }) => 
 
   return (
     <Wrapper selected={selected}>
-      {control.text ? <TextIcon className={classes.content} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
+      {control.text ? <TextView className={classes.content} text={control.text} /> : <Image resource={control.display.defaultResource} className={classes.content} />}
     </Wrapper>
   );
 };
+
+const TextView: FunctionComponent<{ className?: string; text: UiControlTextData }> = ({ className, text }) => {
+  const value = useTextValue(text);
+  return (
+    <div className={className}>
+      {value}
+    </div>
+  )
+}
 
 export const CanvasControlCreationView: FunctionComponent = () => {
   const classes = useStyles();
