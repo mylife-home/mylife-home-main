@@ -269,10 +269,10 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
         tableRemoveAll(state.controls, existing.controls);
       }
 
-      const controlIds = setViewControls(state, openedProject, 'window', windowId, windowData.controls);
+      const controlIds = setViewControls(state, openedProject, 'window', id, windowData.controls);
 
       const window: UiWindow = {
-        id: `${openedProject.id}:${windowId}`,
+        id,
         windowId,
         controls: controlIds,
         ...prepareWindowData(openedProject, windowData, { adaptIds: true }),
@@ -334,10 +334,10 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
         tableRemoveAll(state.controls, existing.controls);
       }
 
-      const controlIds = setViewControls(state, openedProject, 'template', templateId, templateData.controls);
+      const controlIds = setViewControls(state, openedProject, 'template', id, templateData.controls);
 
       const template: UiTemplate = {
-        id: `${openedProject.id}:${templateId}`,
+        id,
         templateId,
         controls: controlIds,
         ...prepareTemplateData(openedProject, templateData),
@@ -506,7 +506,7 @@ function makeNullableId(openedProject: UiOpenedProject, id: string) {
 function setViewControls(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, controls: { [id: string]: UiControlData }) {
   return Object.entries(controls).map(([controlId, controlData]) => {
     const control: UiControl = {
-      id: `${openedProject.id}:${viewType}:${viewId}:${controlId}`,
+      id: `${viewId}:${viewType}:${controlId}`,
       controlId,
       ... prepareControlData(openedProject, controlData, { adaptIds: true })
     };
@@ -521,7 +521,7 @@ function renameViewControls(state: UiDesignerState, openedProject: UiOpenedProje
     const control = state.controls.byId[oldId];
 
     tableRemove(state.controls, oldId);
-    const newId = control.id = `${openedProject.id}:${viewType}:${view.id}:${control.controlId}`;
+    const newId = control.id = `${view.id}:${viewType}:${control.controlId}`;
     tableSet(state.controls, control, true);
 
     view.controls[index] = newId;
