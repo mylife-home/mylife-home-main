@@ -141,6 +141,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
+  - z-index (to make background as image control and be able to position them)
+  - enlever titre sur window (et ne pas afficher le titre + close button des popups, laisser en text static)
   - templates
     - need custom controls (VR/light "all" panel)
     - need custom windows (single VR management, later light dimmer) <= with custom title? or custom control and one window for each? (with repeted height/width)
