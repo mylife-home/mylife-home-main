@@ -116,7 +116,7 @@ export function useCreateControl() {
     const newId = makeUniqueId(existingNames, 'new-control');
     const { x, y } = position;
 
-    dispatch(newControl({ windowId, newId, x, y }));
+    dispatch(newControl({ viewType: 'window', viewId: windowId, newId, x, y }));
     const newFullId = `${windowId}:${newId}`;
     setSelection(newFullId);
   }, [dispatch, windowId, getExistingControlNames]);
