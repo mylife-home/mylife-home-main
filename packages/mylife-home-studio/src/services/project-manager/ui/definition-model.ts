@@ -360,7 +360,7 @@ export class ProjectModel {
   }
 
   clearTemplate(id: string) {
-    this.windows.clear(id);
+    this.templates.clear(id);
 
     const impacts = {
       windows: [] as WindowModel[],
@@ -383,7 +383,7 @@ export class ProjectModel {
   }
 
   renameTemplate(id: string, newId: string) {
-    this.windows.rename(id, newId);
+    this.templates.rename(id, newId);
 
     const impacts = {
       windows: [] as WindowModel[],
