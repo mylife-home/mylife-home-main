@@ -3,7 +3,7 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl, ActionPayloads, UiViewType } from './types';
+import { ActionTypes, UiControl, ActionPayloads, UiViewType } from './types';
 import {
   UiProjectCall,
   ClearResourceUiProjectCall,
@@ -28,6 +28,11 @@ import {
   SetStyleUiProjectCall,
   ClearStyleUiProjectCall,
   RenameStyleUiProjectCall,
+  NewTemplateUiProjectCall,
+  ClearTemplateUiProjectCall,
+  RenameTemplateUiProjectCall,
+  CloneTemplateUiProjectCall,
+  SetTemplatePropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -201,6 +206,54 @@ export default createProjectManagementEpic({
           return windowId;
         },
         valueMerger(prevValue: ActionPayloads.SetWindowProperties, newValue: ActionPayloads.SetWindowProperties): ActionPayloads.SetWindowProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
+      },
+    },
+
+    [ActionTypes.NEW_TEMPLATE]: {
+      mapper({ tabId, newId }: ActionPayloads.NewTemplate) {
+        const callData: NewTemplateUiProjectCall = { operation: 'new-template', id: newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_TEMPLATE]: {
+      mapper({ templateId }: ActionPayloads.ClearTemplate) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: ClearTemplateUiProjectCall = { operation: 'clear-template', id };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.RENAME_TEMPLATE]: {
+      mapper({ templateId, newId }: ActionPayloads.RenameTemplate) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: RenameTemplateUiProjectCall = { operation: 'rename-template', id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLONE_TEMPLATE]: {
+      mapper({ templateId, newId }: { templateId: string; newId: string }) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: CloneTemplateUiProjectCall = { operation: 'clone-template', id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.SET_TEMPLATE_PROPERTIES]: {
+      mapper({ templateId, properties }: ActionPayloads.SetTemplateProperties) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: SetTemplatePropertiesUiProjectCall = { operation: 'set-template-properties', id, properties };
+        return { tabId, callData };
+      },
+      debounce: {
+        keyBuilder({ templateId }: ActionPayloads.SetTemplateProperties) {
+          return templateId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetTemplateProperties, newValue: ActionPayloads.SetTemplateProperties): ActionPayloads.SetTemplateProperties {
           const properties = { ...prevValue.properties, ...newValue.properties };
           return { ...newValue, properties };
         }

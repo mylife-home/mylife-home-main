@@ -217,6 +217,23 @@ function fillViewWindowUsage(viewType: UiViewType, viewId: string, view: UiView,
   }
 }
 
+export function makeGetTemplateUsage() {
+  return createSelector(
+    getOpenedProject,
+    getWindowsMap,
+    getTemplatesMap,
+    getControlsMap,
+    (state: AppState, tabId: string, templateId: string) => templateId,
+    (project, windows, templates, controls, templateId) => {
+      const usage: Usage = [];
+
+      // TODO
+
+      return usage;
+    }
+  );
+};
+
 export function makeGetStyleUsage() {
   return createSelector(
     getOpenedProject,

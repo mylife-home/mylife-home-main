@@ -2,8 +2,9 @@ import React, { FunctionComponent } from 'react';
 
 import { useSelection } from '../selection';
 import Project from './project';
-import Windows from './windows';
+import { Windows, Templates } from './list';
 import Window from './window';
+import Template from './template';
 import Resources from './resources';
 import Styles from './styles';
 import Components from './components';
@@ -18,6 +19,10 @@ const Main: FunctionComponent = () => {
       return <Windows />;
     case 'window':
       return <Window id={selection.id} />;
+    case 'templates':
+      return <Templates />;
+    case 'template':
+      return <Template id={selection.id} />;
     case 'resources':
       return <Resources />;
     case 'styles':
