@@ -11,13 +11,15 @@ const WINDOW_TEMPLATE: UiWindowData = {
   height: 500,
   width: 500,
   backgroundResource: null,
-  controls: {}
+  controls: {},
+  templates: {}
 };
 
 const TEMPLATE_TEMPLATE: UiTemplateData = {
   height: 500,
   width: 500,
-  controls: {}
+  controls: {},
+  templates: {}
 };
 
 const CONTROL_TEMPLATE: UiControlData = {
@@ -476,6 +478,8 @@ export class ProjectModel {
 
           break;
         }
+
+        // TODO: template bindings
       }
     }
 
