@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { ById } from '../common/types';
 import { AppState } from '../types';
-import { UiControl, UiPlugin, UiView, UiViewType, Usage } from './types';
+import { UiControl, UiPlugin, UiTemplateInstance, UiView, UiViewType, Usage } from './types';
 
 const getUiDesigner = (state: AppState) => state.uiDesigner;
 const getOpenedProjects = (state: AppState) => getUiDesigner(state).openedProjects;
@@ -12,6 +12,7 @@ const getStylesTable = (state: AppState) => getUiDesigner(state).styles;
 const getWindowsTable = (state: AppState) => getUiDesigner(state).windows;
 const getTemplatesTable = (state: AppState) => getUiDesigner(state).templates;
 const getControlsTable = (state: AppState) => getUiDesigner(state).controls;
+const getTemplateInstancesTable = (state: AppState) => getUiDesigner(state).templateInstances;
 
 export const hasOpenedProjects = (state: AppState) => getOpenedProjects(state).allIds.length > 0;
 export const getOpenedProject = (state: AppState, tabId: string) => getOpenedProjects(state).byId[tabId];
@@ -49,6 +50,7 @@ export const getWindow = (state: AppState, windowId: string) => getWindowsTable(
 export const getTemplatesIds = (state: AppState, tabId: string) => getOpenedProject(state, tabId).templates;
 export const getTemplate = (state: AppState, templateId: string) => getTemplatesTable(state).byId[templateId];
 export const getControl = (state: AppState, controlId: string) => getControlsTable(state).byId[controlId];
+export const getTemplateInstance = (state: AppState, templateInstanceId: string) => getTemplateInstancesTable(state).byId[templateInstanceId];
 
 export const getComponentsMap = (state: AppState) => getComponentsTable(state).byId;
 export const getPluginsMap = (state: AppState) => getPluginsTable(state).byId;
@@ -57,6 +59,7 @@ export const getTemplatesMap = (state: AppState) => getTemplatesTable(state).byI
 export const getResourcesMap = (state: AppState) => getResourcesTable(state).byId;
 export const getStylesMap = (state: AppState) => getStylesTable(state).byId;
 export const getControlsMap = (state: AppState) => getControlsTable(state).byId;
+export const getTemplateInstancesMap = (state: AppState) => getTemplateInstancesTable(state).byId;
 
 export const getView = (state: AppState, viewType: UiViewType, viewId: string): UiView => {
   switch (viewType) {
@@ -233,17 +236,36 @@ export function makeGetTemplateUsage() {
     getOpenedProject,
     getWindowsMap,
     getTemplatesMap,
-    getControlsMap,
+    getTemplateInstancesMap,
     (state: AppState, tabId: string, templateId: string) => templateId,
-    (project, windows, templates, controls, templateId) => {
+    (project, windows, templates, templateInstances, templateId) => {
       const usage: Usage = [];
 
-      // TODO
+      for (const wid of project.windows) {
+        const window = windows[wid];
+        fillViewTemplateInstanceUsage('window', window.windowId, window, templateInstances, templateId, usage);
+      }
 
+      for (const tid of project.templates) {
+        const template = templates[tid];
+        fillViewTemplateInstanceUsage('template', template.templateId, template, templateInstances, templateId, usage);
+      }
       return usage;
     }
   );
 };
+
+function fillViewTemplateInstanceUsage(viewType: UiViewType, viewId: string, view: UiView, templateInstances: ById<UiTemplateInstance>, templateId: string, usage: Usage) {
+  for (const tid of view.templates) {
+    const templateInstance = templateInstances[tid];
+    if (templateInstance.templateId === templateId) {
+      usage.push([
+        { type: viewType, id: viewId },
+        { type: 'template-instance', id: templateInstance.templateInstanceId },
+      ]);
+    }
+  }
+}
 
 export function makeGetStyleUsage() {
   return createSelector(

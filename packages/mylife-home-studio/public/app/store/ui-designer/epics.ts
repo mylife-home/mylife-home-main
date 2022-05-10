@@ -33,6 +33,11 @@ import {
   RenameTemplateUiProjectCall,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
+  NewTemplateInstanceUiProjectCall,
+  ClearTemplateInstanceUiProjectCall,
+  RenameTemplateInstanceUiProjectCall,
+  CloneTemplateInstanceUiProjectCall,
+  SetTemplateInstancePropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -315,6 +320,64 @@ export default createProjectManagementEpic({
         }
       },
     },
+
+
+    [ActionTypes.NEW_TEMPLATE_INSTANCE]: {
+      mapper({ viewType, viewId, newId, templateId: fullTemplateId, x, y }: ActionPayloads.NewTemplateInstance) {
+        const { tabId, id } = extractIds(viewId);
+        const templateId = extractNullableId(fullTemplateId, tabId);
+        const callData: NewTemplateInstanceUiProjectCall = { operation: 'new-template-instance', viewType, viewId: id, id: newId, templateId, x, y };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId }: ActionPayloads.ClearTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: ClearTemplateInstanceUiProjectCall = { operation: 'clear-template-instance', viewType, viewId, id };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.RENAME_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId, newId }: ActionPayloads.RenameTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: RenameTemplateInstanceUiProjectCall = { operation: 'rename-template-instance', viewType, viewId, id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLONE_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId, newId }: ActionPayloads.CloneTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: CloneTemplateInstanceUiProjectCall = { operation: 'clone-template-instance', viewType, viewId, id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: {
+      mapper({ templateInstanceId, properties }: ActionPayloads.SetTemplateInstanceProperties) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+
+        const fixedProps = { ... properties };
+
+        if (fixedProps.templateId) {
+          fixedProps.templateId = extractNullableId(fixedProps.templateId, tabId);
+        }
+
+        const callData: SetTemplateInstancePropertiesUiProjectCall = { operation: 'set-template-instance-properties', viewType, viewId, id, properties: fixedProps };
+        return { tabId, callData };
+      },
+      debounce: {
+        keyBuilder({ templateInstanceId }: ActionPayloads.SetTemplateInstanceProperties) {
+          return templateInstanceId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetTemplateInstanceProperties, newValue: ActionPayloads.SetTemplateInstanceProperties): ActionPayloads.SetTemplateInstanceProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
+      },
+    },
   }
 });
 
@@ -400,4 +463,8 @@ function adaptControlLinks(input: ControlProperties, tabId: string): ControlProp
   }
 
   return control;
+}
+
+function extractTemplateInstanceIds(fullId: string) {
+  return extractControlIds(fullId);
 }
