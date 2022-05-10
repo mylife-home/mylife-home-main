@@ -1,6 +1,6 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject } from '../../../../shared/project-manager';
-import { Window, DefaultWindow, Control, ControlDisplayMapItem, Style } from '../../../../shared/ui-model';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData } from '../../../../shared/project-manager';
+import { DefaultWindow, ControlDisplayMapItem, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';
@@ -20,6 +20,12 @@ const TEMPLATE_TEMPLATE: UiTemplateData = {
   width: 500,
   controls: {},
   templates: {}
+};
+
+const TEMPLATE_INSTANCE_TEMPLATE: UiTemplateInstanceData = {
+  templateId: null,
+  x: null,
+  y: null,
 };
 
 const CONTROL_TEMPLATE: UiControlData = {
@@ -529,6 +535,7 @@ export class DefaultWindowModel {
 
 export abstract class ViewModel extends ModelBase {
   private readonly controls: CollectionModel<UiControlData, ControlModel>;
+  private readonly templates: CollectionModel<UiTemplateInstanceData, TemplateInstanceModel>;
   abstract readonly data: UiViewData;
   abstract readonly viewType: 'window' | 'template';
 
@@ -568,6 +575,37 @@ export abstract class ViewModel extends ModelBase {
     return this.controls.getById(controlId);
   }
 
+  newTemplateInstance(templateInstanceId: string, templateId: string, x: number, y: number) {
+    const newTemplateInstance = clone(TEMPLATE_INSTANCE_TEMPLATE) as UiTemplateInstanceData;
+    newTemplateInstance.templateId = templateId;
+    newTemplateInstance.x = x;
+    newTemplateInstance.y = y;
+
+    return this.templates.set(templateInstanceId, newTemplateInstance);
+  }
+
+  cloneTemplateInstance(templateInstanceId: string, newId: string) {
+    const source = this.templates.getById(templateInstanceId);
+
+    const newTemplateInstance = clone(source.data);
+    newTemplateInstance.x += 10;
+    newTemplateInstance.y += 10;
+
+    return this.templates.set(newId, newTemplateInstance);
+  }
+
+  clearTemplateInstance(templateInstanceId: string) {
+    this.templates.clear(templateInstanceId);
+  }
+
+  renameTemplateInstance(id: string, newId: string) {
+    return this.templates.rename(id, newId);
+  }
+
+  getTemplateInstance(templateInstanceId: string) {
+    return this.templates.getById(templateInstanceId);
+  }
+  
   /**
    * @param resourceId
    * @param newId
@@ -653,25 +691,48 @@ export abstract class ViewModel extends ModelBase {
   }
 
   /**
-   * @param windowId 
+   * @param templateId 
+   * @param newId 
    * @returns `true` if the view has been changed, `false` otherwise
    */
   onRenameTemplate(templateId: string, newId: string) {
-    return false;
+    let changed = false;
+
+    for (const templateInstanceModel of this.templates) {
+      if (templateInstanceModel.onRenameTemplate(templateId, newId)) {
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   /**
    * @param templateId 
-   * @returns `true` if the template has been changed, `false` otherwise
+   * @returns `true` if the view has been changed, `false` otherwise
    */
   onClearTemplate(templateId: string) {
-    return false;
+    let changed = false;
+
+    for (const templateInstanceModel of this.templates) {
+      if (templateInstanceModel.data.templateId === templateId) {
+        this.clearTemplateInstance(templateInstanceModel.id);
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 
   validate(context: ValidationContext) {
     let index = 0;
     for (const controlModel of this.controls) {
       controlModel.validate(context, this.viewType, this.id, index++);
+    }
+
+    index = 0;
+    for (const templateInstanceModel of this.templates) {
+      templateInstanceModel.validate(context, this.viewType, this.id, index++);
     }
   }
 
@@ -800,6 +861,42 @@ export class TemplateModel extends ViewModel {
     const data = pickIfDefined(properties, 'height', 'width');
 
     Object.assign(this.data, data);
+  }
+}
+
+export class TemplateInstanceModel extends ModelBase {
+  constructor(id: string, public readonly data: UiTemplateInstanceData) {
+    super(id);
+  }
+
+  update(properties: Partial<UiTemplateInstanceData>) {
+    const data = pickIfDefined(properties, 'x', 'y', 'templateId');
+
+    Object.assign(this.data, data);
+  }
+
+  /**
+   * @param templateId
+   * @param newId
+   * @returns `true` if the template instance has been changed, `false` otherwise
+   */
+   onRenameTemplate(templateId: string, newId: string) {
+    let changed = false;
+
+    if (this.data.templateId === templateId) {
+      this.data.templateId = newId;
+      changed = true;
+    }
+
+    return changed;
+  }
+
+  validate(context: ValidationContext, viewType: 'window' | 'template', viewId: string, index: number) {
+    context.checkId(this.id, () => [{ type: viewType, id: viewId }, { type: 'template-instance', id: index.toString() }]);
+
+    if (!this.data.templateId) {
+      context.addError('Template non défini', [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+    }
   }
 }
 
