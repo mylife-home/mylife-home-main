@@ -58,6 +58,17 @@ export const getResourcesMap = (state: AppState) => getResourcesTable(state).byI
 export const getStylesMap = (state: AppState) => getStylesTable(state).byId;
 export const getControlsMap = (state: AppState) => getControlsTable(state).byId;
 
+export const getView = (state: AppState, viewType: UiViewType, viewId: string): UiView => {
+  switch (viewType) {
+    case 'window':
+      return getWindow(state, viewId);
+    case 'template':
+      return getTemplate(state, viewId);
+    default:
+      throw new Error(`Unsupported view type: '${viewType}'`);
+  }
+}
+
 export const getComponentAndPlugin = (state: AppState, componentId: string) => {
   const component = getComponent(state, componentId);
   if (!component) {
