@@ -25,6 +25,7 @@ export interface UiViewData {
   height: number;
   width: number;
   controls: { [id: string]: UiControlData };
+  templates: { [id: string]: UiTemplateInstanceData };
 }
 
 export interface UiWindowData extends UiViewData {
@@ -34,15 +35,20 @@ export interface UiWindowData extends UiViewData {
 }
 
 export interface UiTemplateData extends UiViewData {
-  // TODO: components/plugins bindings
+}
+
+export interface UiTemplateInstanceData {
+  x: number;
+  y: number;
+  templateId: string;
 }
 
 export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
-  readonly text: UiControlTextData;
+  text: UiControlTextData;
 }
 
 export interface UiControlTextData extends Omit<ControlText, 'context'> {
-  readonly context: UiControlTextContextItemData[];
+  context: UiControlTextContextItemData[];
 }
 
 export interface UiControlTextContextItemData extends ControlTextContextItem {
