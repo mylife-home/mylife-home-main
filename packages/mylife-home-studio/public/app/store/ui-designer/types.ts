@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData } from '../../../../shared/project-manager';
 import { DefaultWindow } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -60,7 +60,7 @@ export namespace ActionPayloads {
   export type RenameWindow = { windowId: string; newId: string; };
   export type CloneWindow = { windowId: string; newId: string; };
   export type SetWindowProperties = { windowId: string; properties: Partial<Omit<UiWindow, 'id' | 'windowId' | 'controls'>>; };
-  export type NewControl = { windowId: string; newId: string; x: number; y: number; };
+  export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };
   export type CloneControl = { controlId: string; newId: string; };
@@ -79,16 +79,19 @@ export interface UiStyle extends UiStyleData {
   styleId: string; // id in project
 }
 
-export interface UiWindow extends Omit<UiWindowData, 'controls'> {
+export type UiViewType = 'window' | 'template';
+
+export interface UiView extends Omit<UiViewData, 'controls'> {
   id: string;
-  windowId: string; // id in project
   controls: string[];
 }
 
-export interface UiTemplate extends Omit<UiTemplateData, 'controls'> {
-  id: string;
-  templatedId: string; // id in project
-  controls: string[];
+export interface UiWindow extends UiView, Omit<UiWindowData, 'controls'> {
+  windowId: string; // id in project
+}
+
+export interface UiTemplate extends UiView, Omit<UiTemplateData, 'controls'> {
+  templateId: string; // id in project
 }
 
 export interface UiControl extends UiControlData {
@@ -96,7 +99,7 @@ export interface UiControl extends UiControlData {
   controlId: string; // id in window
 }
 
-export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'styles' | 'components';
+export type SelectionType = 'project' | 'windows' | 'window' | 'templates' | 'template' | 'resources' | 'styles' | 'components';
 
 export interface Selection {
   type: SelectionType;
