@@ -46,6 +46,26 @@ export function useGetExistingControlNames() {
   return useCallback(() => new Set(view.controls.map(id => controlsMap[id].controlId)), [view.controls, controlsMap]);
 }
 
+export function useViewState() {
+  const { viewType, viewId, selection, setSelection } = useContext(Context);
+  const view = useSelector((state: AppState) => getView(state, viewType, viewId));
+  const dispatch = useDispatch();
+
+  const resize = useCallback((size: { width: number; height: number; }) => {
+    switch(viewType) {
+      case 'window':
+        return dispatch(setWindowProperties({ windowId: viewId, properties: size }));
+      case 'template':
+        return dispatch(setTemplateProperties({ templateId: viewId, properties: size }));
+    }
+  }, [dispatch, viewType, viewId]);
+
+  const selected = selection === null;
+  const select = useCallback(() => setSelection(null), [setSelection]);
+
+  return { viewType, view, resize, selected, select };
+}
+
 export function useWindowState() {
   const { viewType, viewId, selection, setSelection } = useContext(Context);
   const window = useSelector((state: AppState) => getWindow(state, viewId));

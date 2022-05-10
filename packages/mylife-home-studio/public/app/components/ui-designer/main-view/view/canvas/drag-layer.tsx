@@ -2,11 +2,11 @@ import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { useWindowState, useControlState } from '../view-state';
+import { useViewState, useControlState } from '../view-state';
 import { ItemTypes, useCanvasDragLayer, ComponentData, CreateComponentData, MoveComponentData, ResizeComponentData } from './dnd';
 import { useContainerRect } from './container';
 import { Position, Size } from './types';
-import { CanvasWindowView, CanvasControlView, CanvasControlCreationView } from './view';
+import { CanvasViewView, CanvasControlView, CanvasControlCreationView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   layer: {
@@ -58,24 +58,24 @@ function createPreview(componentData: ComponentData) {
 
     case ItemTypes.RESIZE: {
       const resizeData = componentData as ResizeComponentData;
-      return resizeData.id ? <ControlPreview id={resizeData.id} currentSize={resizeData.newSize} /> : <WindowPreview currentSize={resizeData.newSize} />;
+      return resizeData.id ? <ControlPreview id={resizeData.id} currentSize={resizeData.newSize} /> : <ViewPreview currentSize={resizeData.newSize} />;
     }
   }
 }
 
 export default DragLayer;
 
-const WindowPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
+const ViewPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
   const classes = useStyles();
-  const { window } = useWindowState();
+  const { view } = useViewState();
   const getContainerRect = useContainerRect();
 
-  const size = currentSize || { width: window.width, height: window.height };
+  const size = currentSize || { width: view.width, height: view.height };
   const { left, top } = getContainerRect();
 
   return (
     <div className={classes.component} style={{ left, top, ...currentSize }}>
-      <CanvasWindowView />
+      <CanvasViewView />
       <PreviewLabel size={size} />
     </div>
   );

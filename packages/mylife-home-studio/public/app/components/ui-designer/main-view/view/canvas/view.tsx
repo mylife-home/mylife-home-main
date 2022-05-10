@@ -4,10 +4,11 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Image from '../../common/image';
-import { useWindowState, useControlState } from '../view-state';
+import { useViewState, useControlState } from '../view-state';
 import { useTextValue } from '../control-text-value';
 import { UiControlTextData } from '../../../../../../../shared/project-manager';
 import { getStylesMap } from '../../../../../store/ui-designer/selectors';
+import { UiWindow } from '../../../../../store/ui-designer/types';
 
 const useStyles = makeStyles((theme) => ({
   wrapper: {
@@ -47,14 +48,17 @@ const Wrapper: FunctionComponent<{ style?: CSSProperties; selected: boolean }> =
   return <div className={clsx(classes.wrapper, selected && classes.selected)} style={style}>{children}</div>;
 };
 
-export const CanvasWindowView = () => {
+export const CanvasViewView = () => {
   const classes = useStyles();
-  const { window, selected } = useWindowState();
-  const style = useObjectStyle(window.style);
+  const { viewType, view, selected } = useViewState();
+  const window = viewType === 'window' ? view as UiWindow : null;
+  const style = useObjectStyle(window?.style || []);
 
   return (
     <Wrapper selected={selected} style={style}>
-      <Image resource={window.backgroundResource} className={classes.image} />
+      {window && (
+        <Image resource={window.backgroundResource} className={classes.image} />
+      )}
     </Wrapper>
   );
 };
