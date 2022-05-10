@@ -132,11 +132,27 @@ export default createReducer(initialState, {
 
   // Apply this change right away to improve designer UX, and debounce server update requests
   // Note that server update will apply anyway
+  [ActionTypes.SET_TEMPLATE_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetTemplateProperties>) => {
+    const { templateId, properties } = action.payload;
+    const template = state.templates.byId[templateId];
+    Object.assign(template, properties);
+  },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
   [ActionTypes.SET_CONTROL_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetControlProperties>) => {
     const { controlId, properties } = action.payload;
     const control = state.controls.byId[controlId];
     Object.assign(control, properties);
     control.style.sort();
+  },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
+  [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetTemplateInstanceProperties>) => {
+    const { templateInstanceId, properties } = action.payload;
+    const templateInstance = state.templateInstances.byId[templateInstanceId];
+    Object.assign(templateInstance, properties);
   },
 });
 
