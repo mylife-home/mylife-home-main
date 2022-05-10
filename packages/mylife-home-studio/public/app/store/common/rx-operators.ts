@@ -1,7 +1,7 @@
 import { StateObservable } from 'redux-observable';
 import { asyncScheduler, Observable, of, Operator, OperatorFunction, SchedulerLike, Subscriber, Subscription, TeardownLogic } from 'rxjs';
 
-import { catchError, debounceTime, filter, groupBy, mergeMap, map, tap, withLatestFrom } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, tap, withLatestFrom } from 'rxjs/operators';
 import { Notification } from '../../../../shared/protocol';
 import { setError } from '../status/actions';
 import { AppState } from '../types';
@@ -53,22 +53,24 @@ export function filterFromState<ActionType>(state$: StateObservable<AppState>, p
  * If key is null or different, the debounce is stopped, and the pending action is emitted BEFORE the resetting action
  * 
  * @param keyBuilder 
+ * @param valueMerger 
  * @param dueTime
  * @param scheduler
  */
-export function debounceTimeKey<T>(keyBuilder: (value: T) => string, dueTime: number, scheduler: SchedulerLike = asyncScheduler) {
-  return (source: Observable<T>) => source.lift(new DebounceTimeKeyOperator(keyBuilder, dueTime, scheduler));
+export function debounceTimeKey<T>(keyBuilder: (value: T) => string, valueMerger: (prevValue: T, newValue: T) => T, dueTime: number, scheduler: SchedulerLike = asyncScheduler) {
+  return (source: Observable<T>) => source.lift(new DebounceTimeKeyOperator(keyBuilder, valueMerger, dueTime, scheduler));
 }
 
 class DebounceTimeKeyOperator<T> implements Operator<T, T> {
   constructor(
     private readonly keyBuilder: (value: T) => string,
+    private readonly valueMerger: (prevValue: T, newValue: T) => T,
     private readonly dueTime: number,
     private readonly scheduler: SchedulerLike) {
   }
 
   call(subscriber: Subscriber<T>, source: any): TeardownLogic {
-    return source.subscribe(new DebounceTimeKeySubscriber(subscriber, this.keyBuilder, this.dueTime, this.scheduler));
+    return source.subscribe(new DebounceTimeKeySubscriber(subscriber, this.keyBuilder, this.valueMerger, this.dueTime, this.scheduler));
   }
 }
 
@@ -87,6 +89,7 @@ class DebounceTimeKeySubscriber<T> extends Subscriber<T> {
   constructor(
     destination: Subscriber<T>,
     private readonly keyBuilder: (value: T) => string,
+    private readonly valueMerger: (prevValue: T, newValue: T) => T,
     private readonly dueTime: number,
     private readonly scheduler: SchedulerLike) {
     super(destination);
@@ -107,7 +110,13 @@ class DebounceTimeKeySubscriber<T> extends Subscriber<T> {
     }
 
     this.clearDebounce();
-    this.lastValue = value;
+
+    if (this.hasValue) {
+      this.lastValue = this.valueMerger(this.lastValue, value);
+    } else {
+      this.lastValue = value;
+    }
+
     this.lastKey = key;
     this.hasValue = true;
     this.add(this.debouncedSubscription = this.scheduler.schedule(dispatchNext, this.dueTime, this));

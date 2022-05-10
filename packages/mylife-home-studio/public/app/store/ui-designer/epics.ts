@@ -196,8 +196,14 @@ export default createProjectManagementEpic({
         const callData: SetWindowPropertiesUiProjectCall = { operation: 'set-window-properties', id, properties: fixedProps };
         return { tabId, callData };
       },
-      debounce({ windowId }: ActionPayloads.SetWindowProperties) {
-        return windowId;
+      debounce: {
+        keyBuilder({ windowId }: ActionPayloads.SetWindowProperties) {
+          return windowId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetWindowProperties, newValue: ActionPayloads.SetWindowProperties): ActionPayloads.SetWindowProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
       },
     },
 
@@ -246,8 +252,14 @@ export default createProjectManagementEpic({
         const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', viewType, viewId, id, properties: fixedProps };
         return { tabId, callData };
       },
-      debounce({ controlId }: ActionPayloads.SetControlProperties) {
-        return controlId;
+      debounce: {
+        keyBuilder({ controlId }: ActionPayloads.SetControlProperties) {
+          return controlId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetControlProperties, newValue: ActionPayloads.SetControlProperties): ActionPayloads.SetControlProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
       },
     },
   }

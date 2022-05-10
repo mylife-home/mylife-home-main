@@ -20,6 +20,11 @@ interface MapperResult {
   callData: ProjectCall;
 }
 
+interface ActionData {
+  tabId: string;
+  debounceKey: string;
+}
+
 interface Parameters<TOpenedProject extends OpenedProjectBase> {
   // defines
   projectType: ProjectType;
@@ -42,7 +47,10 @@ interface Parameters<TOpenedProject extends OpenedProjectBase> {
   callMappers: { [actionType: string]: {
     mapper: (payload: any) => MapperResult;
     resultMapper?: (payload: ProjectCallResult) => unknown;
-    debounce?: (payload: any) => string; // key builder for debouncing
+    debounce?: {
+      keyBuilder: (payload: any) => string;
+      valueMerger: (prevValue: any, newValue: any) => any;
+    }
   } }
 }
 
@@ -138,14 +146,31 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
     const debounced$ = action$.pipe(
       map(action => ({ action, data: buildActionData(action) })),
       groupBy(actionWithData => actionWithData.data.tabId),
-      mergeMap(group => group.pipe(debounceTimeKey(actionWithData => actionWithData.data.debounceKey, 3000))),
+      mergeMap(group => group.pipe(debounceTimeKey(actionWithData => actionWithData.data.debounceKey, valueMerger, 3000))),
       map(actionWithData => actionWithData.action)
     );
 
     return epics(debounced$, state$);
   }
 
-  function buildActionData(action: Action) {
+  function valueMerger(prevActionWithData: { action: Action, data: ActionData }, nextActionWithData: { action: Action, data: ActionData }) {
+    // We need to merge to we forcully have a debounce, no need to check
+    const { valueMerger } = callMappers[nextActionWithData.action.type].debounce;
+    const newPayload = valueMerger(
+      (prevActionWithData.action as PayloadAction).payload,
+      (nextActionWithData.action as PayloadAction).payload
+    );
+
+    return {
+      ...nextActionWithData,
+      action: {
+        ...nextActionWithData.action,
+        payload: newPayload
+      }
+    };
+  }
+
+  function buildActionData(action: Action): ActionData {
     if (action.type === TabActionTypes.CLOSE) {
       return { tabId: (action as PayloadAction<TabIdAction>).payload.id, debounceKey: null };
     }
@@ -160,7 +185,7 @@ export function createProjectManagementEpic<TOpenedProject extends OpenedProject
       return { tabId, debounceKey: null };
     }
 
-    const debounceKey = callMapper.debounce((action as PayloadAction).payload);
+    const debounceKey = callMapper.debounce.keyBuilder((action as PayloadAction).payload);
     return { tabId, debounceKey: `${action.type}$${debounceKey}` };
   }
 

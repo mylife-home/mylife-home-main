@@ -189,8 +189,13 @@ export default createProjectManagementEpic({
         const callData: ConfigureComponentCoreProjectCall = { operation: 'configure-component', templateId, componentId: id, configId, configValue };
         return { tabId, callData };
       },
-      debounce({ componentId, configId }: ActionPayloads.ConfigureComponent) {
-        return `${componentId}:${configId}`;
+      debounce: {
+        keyBuilder({ componentId, configId }: ActionPayloads.ConfigureComponent) {
+          return `${componentId}:${configId}`;
+        },
+        valueMerger(prevValue: ActionPayloads.ConfigureComponent, newValue: ActionPayloads.ConfigureComponent) {
+          return newValue;
+        }
       }
     },
     [ActionTypes.RENAME_COMPONENT]: {
