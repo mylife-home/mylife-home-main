@@ -16,8 +16,6 @@ import { useSelection } from '../selection';
 import { WindowsActions, WindowActions } from './common/window-actions';
 import { TemplatesActions, TemplateActions } from './common/template-actions';
 
-// TODO: merge code
-
 const useStyles = makeStyles((theme) => ({
   list: {
     width: 900,
