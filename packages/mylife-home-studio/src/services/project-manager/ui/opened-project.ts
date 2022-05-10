@@ -37,10 +37,6 @@ import {
   SetUiStyleNotification,
   ClearUiStyleNotification,
   RenameUiStyleNotification,
-  UiResourceData,
-  UiStyleData,
-  UiWindowData,
-  UiTemplateData,
   SetUiTemplateNotification,
   ClearTemplateUiProjectCall,
   NewTemplateUiProjectCall,
@@ -49,6 +45,11 @@ import {
   ClearUiTemplateNotification,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
+  NewTemplateInstanceUiProjectCall,
+  ClearTemplateInstanceUiProjectCall,
+  RenameTemplateInstanceUiProjectCall,
+  CloneTemplateInstanceUiProjectCall,
+  SetTemplateInstancePropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -206,6 +207,26 @@ export class UiOpenedProject extends OpenedProject {
   
       case 'set-control-properties':
         this.setControlProperties(callData as SetControlPropertiesUiProjectCall);
+        break;
+
+      case 'new-template-instance':
+        this.newTemplateInstance(callData as NewTemplateInstanceUiProjectCall);
+        break;
+
+      case 'clear-template-instance':
+        this.clearTemplateInstance(callData as ClearTemplateInstanceUiProjectCall);
+        break;
+
+      case 'rename-template-instance':
+        this.renameTemplateInstance(callData as RenameTemplateInstanceUiProjectCall);
+        break;
+        
+      case 'clone-template-instance':
+        this.cloneTemplateInstance(callData as CloneTemplateInstanceUiProjectCall);
+        break;
+  
+      case 'set-template-instance-properties':
+        this.setTemplateInstanceProperties(callData as SetTemplateInstancePropertiesUiProjectCall);
         break;
 
       default:
@@ -470,6 +491,47 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private setControlProperties({ viewType, viewId, id, properties }: SetControlPropertiesUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const controlModel = viewModel.getControl(id);
+      controlModel.update(properties);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private newTemplateInstance({ viewType, viewId, id, templateId, x, y }: NewTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.newTemplateInstance(id, templateId, x, y);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private clearTemplateInstance({ viewType, viewId, id }: ClearTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.clearTemplateInstance(id);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private renameTemplateInstance({ viewType, viewId, id, newId }: RenameTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.renameTemplateInstance(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private cloneTemplateInstance({ viewType, viewId, id, newId }: CloneTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.cloneTemplateInstance(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceProperties({ viewType, viewId, id, properties }: SetTemplateInstancePropertiesUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
       const controlModel = viewModel.getControl(id);

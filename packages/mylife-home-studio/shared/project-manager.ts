@@ -375,7 +375,8 @@ export interface UiProjectCall {
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
   | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties'
-  | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties';
+  | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
+  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'set-template-instance-properties';
 }
 
 export interface UiValidationError {
@@ -553,6 +554,47 @@ export interface SetControlPropertiesUiProjectCall extends UiProjectCall {
   viewId: string;
   id: string;
   properties: Partial<UiControlData>;
+}
+
+export interface NewTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'new-template-instance';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  templateId: string;
+  x: number;
+  y: number;
+}
+
+export interface ClearTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'clear-template-instance';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+}
+
+export interface RenameTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'rename-template-instance';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  newId: string;
+}
+
+export interface CloneTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'clone-template-instance';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  newId: string;
+}
+
+export interface SetTemplateInstancePropertiesUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-properties';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  properties: Partial<UiTemplateInstanceData>;
 }
 
 /**

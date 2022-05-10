@@ -21,6 +21,8 @@ export function buildDeployDefinition(project: UiProject) {
     definition.windows.push({ id, controls: buildControls(controls), ...window });
   }
 
+  // TODO: instantiate templates
+
   return definition;
 }
 
