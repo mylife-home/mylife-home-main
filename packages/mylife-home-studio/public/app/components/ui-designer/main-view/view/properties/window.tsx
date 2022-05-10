@@ -10,7 +10,7 @@ import StyleSelector from '../../common/style-selector';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import ElementPathBreadcrumbs from '../../common/element-path-breadcrumbs';
 import StringEditor from '../../common/string-editor';
-import { useWindowState } from '../window-state';
+import { useWindowState } from '../view-state';
 import { useSnapValue } from '../snap';
 
 const useStyles = makeStyles((theme) => ({

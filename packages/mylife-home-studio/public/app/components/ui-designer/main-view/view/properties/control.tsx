@@ -13,7 +13,7 @@ import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import StyleSelector from '../../common/style-selector';
-import { useControlState, useGetExistingControlNames } from '../window-state';
+import { useControlState, useGetExistingControlNames } from '../view-state';
 import { useSnapValue } from '../snap';
 import PropertiesControlAppearence from './control-appearence';
 import PropertiesControlActions from './control-actions';

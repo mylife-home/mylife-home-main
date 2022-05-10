@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { useWindowState, useControlState } from '../window-state';
+import { useWindowState, useControlState } from '../view-state';
 import { ItemTypes, useCanvasDragLayer, ComponentData, CreateComponentData, MoveComponentData, ResizeComponentData } from './dnd';
 import { useContainerRect } from './container';
 import { Position, Size } from './types';

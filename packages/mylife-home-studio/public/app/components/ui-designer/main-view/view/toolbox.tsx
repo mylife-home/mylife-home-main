@@ -9,11 +9,13 @@ import Divider from '@material-ui/core/Divider';
 
 import { ImageIcon } from '../../../lib/icons';
 import QuickAccess from '../../../lib/quick-access';
-import { useSelection, useCreateControl, SelectionType, useSelectableControlList } from './window-state';
+import { useSelection, useCreateControl, SelectionType, useSelectableControlList, useViewType } from './view-state';
 import { useCreatable } from './canvas/dnd';
 import { useSnapEditor } from './snap';
 import PropertiesWindow from './properties/window';
+import PropertiesTemplate from './properties/template';
 import PropertiesControl from './properties/control';
+import { UiViewType } from '../../../../store/ui-designer/types';
 
 const useStyles = makeStyles(
   (theme) => ({
@@ -65,12 +67,13 @@ const useStyles = makeStyles(
 const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
   const { type, id } = useSelection();
+  const viewType = useViewType();
 
   return (
     <div className={clsx(classes.container, className)}>
       <Controls />
       <Divider />
-      {getProperties(type, id, classes.properties)}
+      {getProperties(viewType, type, id, classes.properties)}
     </div>
   );
 };
@@ -136,10 +139,15 @@ function buildMarks() {
   return marks;
 }
 
-function getProperties(type: SelectionType, id: string, className: string) {
+function getProperties(viewType: UiViewType, type: SelectionType, id: string, className: string) {
   switch (type) {
-    case 'window':
-      return <PropertiesWindow className={className} />;
+    case 'view':
+      switch (viewType) {
+        case 'window':
+          return <PropertiesWindow className={className} />;
+        case 'template':
+          return <PropertiesTemplate className={className} />;
+      }
     case 'control':
       return <PropertiesControl id={id} className={className} />;
   }

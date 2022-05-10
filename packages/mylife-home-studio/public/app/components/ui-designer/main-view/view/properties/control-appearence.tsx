@@ -21,7 +21,7 @@ import ResourceSelector from '../../common/resource-selector';
 import ComponentMemberSelector, { ComponentAndMember } from '../../common/component-member-selector';
 import { createNewControlDisplay, createNewControlDisplayMapItem, createNewControlText, createNewControlTextContextItem } from '../../common/templates';
 import StringEditor from '../../common/string-editor';
-import { useControlState } from '../window-state';
+import { useControlState } from '../view-state';
 import TypeEditor from './type-editor';
 import { useFormatEditorDialog } from './format-editor-dialog';
 

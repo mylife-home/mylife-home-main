@@ -3,7 +3,7 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useWindowState, useControlState } from '../window-state';
+import { useWindowState, useControlState } from '../view-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';

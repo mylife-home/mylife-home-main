@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Image from '../../common/image';
-import { useWindowState, useControlState } from '../window-state';
+import { useWindowState, useControlState } from '../view-state';
 import { useTextValue } from '../control-text-value';
 import { UiControlTextData } from '../../../../../../../shared/project-manager';
 import { getStylesMap } from '../../../../../store/ui-designer/selectors';
