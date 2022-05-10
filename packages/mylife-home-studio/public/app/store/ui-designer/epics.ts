@@ -346,10 +346,10 @@ function extractNullableId(fullId: string, expectedTabId: string) {
 function extractControlIds(fullId: string): { tabId: string; viewType: UiViewType; viewId: string; id: string; } {
   // first extract tab
   const { tabId, id: remaining1 } = extractIds(fullId);
-  // then extract viewType
-  const { tabId: viewType, id: remaining2 } = extractIds(remaining1);
   // then extract viewId
-  const { tabId: viewId, id } = extractIds(remaining2);
+  const { tabId: viewId, id: remaining2 } = extractIds(remaining1);
+  // then extract viewType
+  const { tabId: viewType, id } = extractIds(remaining2);
 
   return { tabId, viewType: viewType as UiViewType, viewId, id };
 }
