@@ -142,6 +142,12 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
   - z-index (to make background as image control and be able to position them)
+    - ajouter une interface Positionable avec { x, y, zIndex } pour TemplateInstance et Control
+    - zIndex influe sur l'ordre de rendu des controles (donc dans un template c'est pondéré)
+    - pas de modifs sur la UI, ca influe juste l'ordre au déploiement dans la liste de contrôles d'une fenetre
+    - dans le designer, rendre les contrôles dans le bon ordre
+    - le background de la fenetre est toujours avec le zIndex le plus petit
+    - plus tard, supprimer le background de fenetre ?
   - enlever titre sur window (et ne pas afficher le titre + close button des popups, laisser en text static)
   - templates
     - need custom controls (VR/light "all" panel)
