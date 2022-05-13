@@ -6,28 +6,35 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useSnapValue } from '../snap';
 import { useContainerRect } from './container';
 import { Position, ResizeDirection, Size } from './types';
-import { createNewControl } from '../../common/templates';
+import { newControlSize } from '../../common/templates';
 
 export const ItemTypes = {
-  CREATE: Symbol('dnd-canvas-create'),
+  CREATE_CONTROL: Symbol('dnd-canvas-create-control'),
+  CREATE_TEMPLATE_INSTANCE: Symbol('dnd-canvas-create-template-instance'),
   MOVE: Symbol('dnd-canvas-move'),
   RESIZE: Symbol('dnd-canvas-resize'),
 };
 
-const SUPPORTED_ITEM_TYPES = new Set([ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE]);
+const SUPPORTED_ITEM_TYPES = new Set([ItemTypes.CREATE_CONTROL, ItemTypes.CREATE_TEMPLATE_INSTANCE, ItemTypes.MOVE, ItemTypes.RESIZE]);
 
 interface DragItem {
   type: symbol;
 }
 
-interface CreateDragItem extends DragItem {
-  type: typeof ItemTypes.CREATE;
+interface CreateControlDragItem extends DragItem {
+  type: typeof ItemTypes.CREATE_CONTROL;
   // no additional data
+}
+
+interface CreateTemplateInstanceDragItem extends DragItem {
+  type: typeof ItemTypes.CREATE_TEMPLATE_INSTANCE;
+  size: Size;
 }
 
 interface MoveDragItem extends DragItem {
   type: typeof ItemTypes.MOVE;
-  id: string; // control id being moved
+  elementType: 'control' | 'template-instance';
+  elementId: string; // control/templateInstance id being moved
   position: Position;
 }
 
@@ -43,15 +50,22 @@ export interface ComponentData {
   type: symbol;
 }
 
-export interface CreateComponentData extends ComponentData {
-  type: typeof ItemTypes.CREATE;
+export interface CreateControlComponentData extends ComponentData {
+  type: typeof ItemTypes.CREATE_CONTROL;
   newPosition: Position;
   newSize: Size;
 }
 
+export interface CreateTemplateInstanceComponentData extends ComponentData {
+  type: typeof ItemTypes.CREATE_TEMPLATE_INSTANCE;
+  newPosition: Position;
+  size: Size;
+}
+
 export interface MoveComponentData extends ComponentData {
   type: typeof ItemTypes.MOVE;
-  id: string; // control id being moved
+  elementType: 'control' | 'template-instance';
+  elementId: string; // control/templateInstance id being moved
   newPosition: Position;
 }
 
@@ -65,22 +79,22 @@ export function useDroppable() {
   const computeComponentData = useComputeComponentData();
 
   const [, ref] = useDrop({
-    accept: [ItemTypes.CREATE, ItemTypes.MOVE, ItemTypes.RESIZE],
+    accept: [ItemTypes.CREATE_CONTROL, ItemTypes.CREATE_TEMPLATE_INSTANCE, ItemTypes.MOVE, ItemTypes.RESIZE],
     drop: computeComponentData,
   });
 
   return ref;
 }
 
-export function useCreatable(onCreate: (position: Position) => void) {
+export function useControlCreatable(onCreate: (position: Position) => void) {
   const [, ref, preview] = useDrag({
-    item: { type: ItemTypes.CREATE },
-    end(item: CreateDragItem, monitor) {
+    item: { type: ItemTypes.CREATE_CONTROL },
+    end(item: CreateControlDragItem, monitor) {
       if (!monitor.didDrop()) {
         return;
       }
 
-      const result = monitor.getDropResult() as CreateComponentData;
+      const result = monitor.getDropResult() as CreateControlComponentData;
       onCreate(result.newPosition);
     }
   });
@@ -90,9 +104,27 @@ export function useCreatable(onCreate: (position: Position) => void) {
   return ref;
 }
 
-export function useMoveable(id: string, position: Position, onMove: (newPosition: Position) => void) {
+export function useTemplateInstanceCreatable(size: Size, onCreate: (position: Position) => void) {
+  const [, ref, preview] = useDrag({
+    item: { type: ItemTypes.CREATE_TEMPLATE_INSTANCE, size },
+    end(item: CreateTemplateInstanceDragItem, monitor) {
+      if (!monitor.didDrop()) {
+        return;
+      }
+
+      const result = monitor.getDropResult() as CreateTemplateInstanceComponentData;
+      onCreate(result.newPosition);
+    }
+  });
+
+  useHidePreview(preview);
+
+  return ref;
+}
+
+export function useMoveable(elementType: 'control' | 'template-instance', elementId: string, position: Position, onMove: (newPosition: Position) => void) {
   const [{ isDragging }, ref, preview] = useDrag({
-    item: { type: ItemTypes.MOVE, id, position },
+    item: { type: ItemTypes.MOVE, elementType, elementId, position },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -162,9 +194,12 @@ function computeComponentData(item: DragItem, monitor: CommonMonitor, api: Compu
   }
 
   switch (item.type) {
-    case ItemTypes.CREATE:
-      return computeCreateComponentData(item as CreateDragItem, monitor, api);
+    case ItemTypes.CREATE_CONTROL:
+      return computeCreateControlComponentData(item as CreateControlDragItem, monitor, api);
 
+    case ItemTypes.CREATE_TEMPLATE_INSTANCE:
+      return computeCreateTemplateInstanceComponentData(item as CreateTemplateInstanceDragItem, monitor, api);
+  
     case ItemTypes.MOVE:
       return computeMoveComponentData(item as MoveDragItem, monitor, api);
 
@@ -174,7 +209,7 @@ function computeComponentData(item: DragItem, monitor: CommonMonitor, api: Compu
   }
 }
 
-function computeCreateComponentData(item: CreateDragItem, monitor: CommonMonitor, api: ComputeApi): CreateComponentData {
+function computeCreateControlComponentData(item: CreateControlDragItem, monitor: CommonMonitor, api: ComputeApi): CreateControlComponentData {
   const cursorOffset = monitor.getClientOffset();
   if (!cursorOffset) {
     return null;
@@ -196,6 +231,29 @@ function computeCreateComponentData(item: CreateDragItem, monitor: CommonMonitor
   };
 }
 
+function computeCreateTemplateInstanceComponentData(item: CreateTemplateInstanceDragItem, monitor: CommonMonitor, api: ComputeApi): CreateTemplateInstanceComponentData {
+  const cursorOffset = monitor.getClientOffset();
+  if (!cursorOffset) {
+    return null;
+  }
+
+  const position = api.clientOffsetToPosition(cursorOffset);
+
+  const { size } = item;
+
+  // the cursor is on the center of the control
+  const newPosition = api.snapPosition({
+    x: position.x - size.width / 2,
+    y: position.y - size.height / 2
+  });
+
+  return {
+    type: item.type,
+    newPosition,
+    size
+  };
+}
+
 function computeMoveComponentData(item: MoveDragItem, monitor: CommonMonitor, api: ComputeApi): MoveComponentData {
   const delta = monitor.getDifferenceFromInitialOffset();
   if (!delta) {
@@ -209,7 +267,8 @@ function computeMoveComponentData(item: MoveDragItem, monitor: CommonMonitor, ap
 
   return {
     type: item.type,
-    id: item.id,
+    elementType: item.elementType,
+    elementId: item.elementId,
     newPosition,
   };
 }
@@ -262,7 +321,7 @@ class ComputeApi {
 
   get newControlSize() {
     if (!ComputeApi._newControlSize) {
-      const { width, height } = createNewControl();
+      const { width, height } = newControlSize();
       ComputeApi._newControlSize = { width, height };
     }
     return ComputeApi._newControlSize;

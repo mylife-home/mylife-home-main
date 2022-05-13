@@ -2,11 +2,11 @@ import React, { FunctionComponent } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { useWindowState, useControlState } from '../window-state';
-import { ItemTypes, useCanvasDragLayer, ComponentData, CreateComponentData, MoveComponentData, ResizeComponentData } from './dnd';
+import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
+import { ItemTypes, useCanvasDragLayer, ComponentData, CreateControlComponentData, CreateTemplateInstanceComponentData, MoveComponentData, ResizeComponentData } from './dnd';
 import { useContainerRect } from './container';
 import { Position, Size } from './types';
-import { CanvasWindowView, CanvasControlView, CanvasControlCreationView } from './view';
+import { CanvasViewView, CanvasControlView, CanvasControlCreationView, CanvasTemplateInstanceView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   layer: {
@@ -46,36 +46,46 @@ const DragLayer: FunctionComponent = () => {
 
 function createPreview(componentData: ComponentData) {
   switch (componentData.type) {
-    case ItemTypes.CREATE: {
-      const createData = componentData as CreateComponentData;
+    case ItemTypes.CREATE_CONTROL: {
+      const createData = componentData as CreateControlComponentData;
       return <CreateControlPreview currentPosition={createData.newPosition} currentSize={createData.newSize} />;
+    }
+
+    case ItemTypes.CREATE_TEMPLATE_INSTANCE: {
+      const createData = componentData as CreateTemplateInstanceComponentData;
+      return <CreateControlPreview currentPosition={createData.newPosition} currentSize={createData.size} />;
     }
 
     case ItemTypes.MOVE: {
       const moveData = componentData as MoveComponentData;
-      return <ControlPreview id={moveData.id} currentPosition={moveData.newPosition} />;
+      switch (moveData.elementType) {
+        case 'control':
+          return <ControlPreview id={moveData.elementId} currentPosition={moveData.newPosition} />;
+        case 'template-instance':
+          return <TemplateInstancePreview id={moveData.elementId} currentPosition={moveData.newPosition} />;
+      }
     }
 
     case ItemTypes.RESIZE: {
       const resizeData = componentData as ResizeComponentData;
-      return resizeData.id ? <ControlPreview id={resizeData.id} currentSize={resizeData.newSize} /> : <WindowPreview currentSize={resizeData.newSize} />;
+      return resizeData.id ? <ControlPreview id={resizeData.id} currentSize={resizeData.newSize} /> : <ViewPreview currentSize={resizeData.newSize} />;
     }
   }
 }
 
 export default DragLayer;
 
-const WindowPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
+const ViewPreview: FunctionComponent<{ currentSize?: Size }> = ({ currentSize }) => {
   const classes = useStyles();
-  const { window } = useWindowState();
+  const { view } = useViewState();
   const getContainerRect = useContainerRect();
 
-  const size = currentSize || { width: window.width, height: window.height };
+  const size = currentSize || { width: view.width, height: view.height };
   const { left, top } = getContainerRect();
 
   return (
     <div className={classes.component} style={{ left, top, ...currentSize }}>
-      <CanvasWindowView />
+      <CanvasViewView />
       <PreviewLabel size={size} />
     </div>
   );
@@ -95,6 +105,24 @@ const ControlPreview: FunctionComponent<{ id: string; currentPosition?: Position
     <div className={classes.component} style={{ ...offset, ...size }}>
       <CanvasControlView id={id} />
       <PreviewLabel position={currentPosition} size={currentSize} />
+    </div>
+  );
+};
+
+const TemplateInstancePreview: FunctionComponent<{ id: string; currentPosition?: Position }> = ({ id, currentPosition }) => {
+  const classes = useStyles();
+  const { templateInstance, template } = useTemplateInstanceState(id);
+  const getContainerRect = useContainerRect();
+
+  const position = currentPosition || { x: templateInstance.x, y: templateInstance.y };
+  const { left, top } = getContainerRect();
+  const offset = { left: position.x + left, top: position.y + top };
+  const size = { width: template.width, height: template.height };
+
+  return (
+    <div className={classes.component} style={{ ...offset, ...size }}>
+      <CanvasTemplateInstanceView id={id} />
+      <PreviewLabel position={currentPosition} />
     </div>
   );
 };

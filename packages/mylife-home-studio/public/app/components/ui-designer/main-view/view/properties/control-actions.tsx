@@ -13,7 +13,7 @@ import { Group, Item } from '../../../../lib/properties-layout';
 import { createNewControlActionComponent, createNewControlActionWindow } from '../../common/templates';
 import WindowSelector from '../../common/window-selector';
 import ComponentMemberSelector from '../../common/component-member-selector';
-import { useControlState } from '../window-state';
+import { useControlState } from '../view-state';
 
 type ActionType = 'primaryAction' | 'secondaryAction';
 

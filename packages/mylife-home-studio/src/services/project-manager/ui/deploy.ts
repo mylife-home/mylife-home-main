@@ -1,5 +1,5 @@
-import { UiControlData, UiProject, UiControlTextData } from '../../../../shared/project-manager';
-import { Definition, Control, ControlText } from '../../../../shared/ui-model';
+import { UiControlData, UiProject, UiControlTextData, UiViewData } from '../../../../shared/project-manager';
+import { Definition, Window, Control, ControlText } from '../../../../shared/ui-model';
 
 export function buildDeployDefinition(project: UiProject) {
   const definition: Definition = {
@@ -17,21 +17,31 @@ export function buildDeployDefinition(project: UiProject) {
     definition.styles.push({ id, ...style });
   }
 
-  for (const [id, { controls, ... window }] of Object.entries(project.windows)) {
-    definition.windows.push({ id, controls: buildControls(controls), ...window });
+  for (const [id, window] of Object.entries(project.windows)) {
+    const controls: Control[] = [];
+    addViewElements(project, controls, 0, 0, [], window);
+
+    definition.windows.push({ ...window, id, controls });
   }
 
   return definition;
 }
 
-function buildControls(projectControls: { [id: string]: UiControlData }) {
-  const controls: Control[] = [];
-
-  for (const [id, control] of Object.entries(projectControls)) {
-    controls.push({ id, ... control, text: buildText(control.text) });
+function addViewElements(project: UiProject, controls: Control[], xBase: number, yBase: number, pathBase: string[], view: UiViewData) {
+  for (const [id, templateInstance] of Object.entries(view.templates)) {
+    const template = project.templates[templateInstance.templateId];
+    const path = [...pathBase, id];
+    const x = xBase + templateInstance.x;
+    const y = yBase + templateInstance.y;
+    addViewElements(project, controls, x, y, path, template);
   }
 
-  return controls;
+  for (const [id, control] of Object.entries(view.controls)) {
+    const path = [...pathBase, id];
+    const x = xBase + control.x;
+    const y = yBase + control.y;
+    controls.push({ ... control, id: path.join(':'), x, y, text: buildText(control.text) });
+  }
 }
 
 function buildText(text: UiControlTextData): ControlText {

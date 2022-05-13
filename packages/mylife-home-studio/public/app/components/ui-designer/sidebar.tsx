@@ -3,12 +3,12 @@ import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Actions from './actions';
-import { ProjectIcon, WindowIcon, ResourceIcon, StyleIcon, ComponentIcon } from '../lib/icons';
+import { ProjectIcon, WindowIcon, TemplateIcon, ResourceIcon, StyleIcon, ComponentIcon } from '../lib/icons';
 import { SideBarList, SideBarDivider, Section, Item } from '../lib/sidebar-layout';
 import { useSelection } from './selection';
 import { useTabSelector } from '../lib/use-tab-selector';
 import { AppState } from '../../store/types';
-import { getWindowsIds, getWindow } from '../../store/ui-designer/selectors';
+import { getWindowsIds, getWindow, getTemplatesIds, getTemplate } from '../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -30,6 +30,8 @@ const SideBar: FunctionComponent = () => {
         <Project />
         <SideBarDivider />
         <Windows />
+        <SideBarDivider />
+        <Templates />
         <SideBarDivider />
         <Resources />
         <SideBarDivider />
@@ -72,6 +74,28 @@ const WindowItem: FunctionComponent<{ id: string; }> = ({ id }) => {
 
   return (
     <Item title={window.windowId} icon={WindowIcon} onClick={() => select({ type: 'window', id })} />
+  );
+};
+
+const Templates: FunctionComponent = () => {
+  const { select } = useSelection();
+  const templatesIds = useTabSelector(getTemplatesIds);
+  return (
+    <>
+      <Section title="Templates" icon={TemplateIcon} onClick={() => select({ type: 'templates' })} />
+      {templatesIds.map((id) => (
+        <TemplateItem key={id} id={id} />
+      ))}
+    </>
+  );
+};
+
+const TemplateItem: FunctionComponent<{ id: string; }> = ({ id }) => {
+  const { select } = useSelection();
+  const template = useSelector((state: AppState) => getTemplate(state, id));
+
+  return (
+    <Item title={template.templateId} icon={TemplateIcon} onClick={() => select({ type: 'template', id })} />
   );
 };
 

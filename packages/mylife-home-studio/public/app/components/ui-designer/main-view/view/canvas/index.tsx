@@ -3,12 +3,12 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useWindowState, useControlState } from '../window-state';
+import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
 import CanvasItem from './item';
-import { CanvasWindowView, CanvasControlView } from './view';
+import { CanvasViewView, CanvasControlView, CanvasTemplateInstanceView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
-  const { window } = useWindowState();
+  const { view } = useViewState();
 
   return (
     <CanvasContainerContextProvider>
@@ -33,7 +33,11 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
 
               <CanvasWindow />
 
-              {window.controls.map(id => (
+              {view.templates.map(id => (
+                <CanvasTemplateInstance key={id} id={id} />
+              ))}
+
+              {view.controls.map(id => (
                 <CanvasControl key={id} id={id} />
               ))}
 
@@ -61,11 +65,11 @@ const DropContainer: FunctionComponent<{ style?: React.CSSProperties, className?
 }
 
 const CanvasWindow: FunctionComponent = () => {
-  const { window, update, selected, select } = useWindowState();
+  const { view, resize, selected, select } = useViewState();
 
   return (
-    <CanvasItem size={{ width: window.width, height: window.height }} onResize={(size) => update(size)} selected={selected} onSelect={select}>
-      <CanvasWindowView />
+    <CanvasItem size={{ width: view.width, height: view.height }} onResize={(size) => resize(size)} selected={selected} onSelect={select}>
+      <CanvasViewView />
     </CanvasItem>
   );
 };
@@ -75,6 +79,7 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
 
   return (
     <CanvasItem
+      type='control'
       id={id}
       size={{ width: control.width, height: control.height }}
       position={{ x: control.x, y: control.y }}
@@ -84,6 +89,24 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
       onSelect={select}
     >
       <CanvasControlView id={id} />
+    </CanvasItem>
+  );
+};
+
+const CanvasTemplateInstance: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { templateInstance, template, update, selected, select } = useTemplateInstanceState(id);
+
+  return (
+    <CanvasItem
+      type='template-instance'
+      id={id}
+      size={{ width: template.width, height: template.height }}
+      position={{ x: templateInstance.x, y: templateInstance.y }}
+      selected={selected}
+      onMove={(position) => update(position)}
+      onSelect={select}
+    >
+      <CanvasTemplateInstanceView id={id} />
     </CanvasItem>
   );
 };

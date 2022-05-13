@@ -15,10 +15,15 @@ import {
   RenameUiStyleNotification,
   ClearUiStyleNotification,
   UiPluginData,
+  SetUiTemplateNotification,
+  ClearUiTemplateNotification,
+  RenameUiTemplateNotification,
+  UiControlData,
+  UiTemplateInstanceData,
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
-import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiControl, Selection, ActionPayloads, UiStyle } from './types';
+import { ActionTypes, UiDesignerState, UiOpenedProject, DesignerTabActionData, UiComponent, UiPlugin, UiResource, UiWindow, UiTemplate, UiControl, Selection, ActionPayloads, UiStyle, UiViewType, UiView, UiTemplateInstance } from './types';
 
 const initialState: UiDesignerState = {
   openedProjects: createTable<UiOpenedProject>(),
@@ -27,7 +32,9 @@ const initialState: UiDesignerState = {
   resources: createTable<UiResource>(),
   styles: createTable<UiStyle>(),
   windows: createTable<UiWindow>(),
+  templates: createTable<UiTemplate>(),
   controls: createTable<UiControl>(),
+  templateInstances: createTable<UiTemplateInstance>(),
 };
 
 const DEFAULT_SELECTION: Selection = { type: 'project' };
@@ -50,6 +57,7 @@ export default createReducer(initialState, {
       resources: [],
       styles: [],
       windows: [],
+      templates: [],
       selection: DEFAULT_SELECTION,
       defaultWindow: { desktop: null, mobile: null },
     };
@@ -87,6 +95,7 @@ export default createReducer(initialState, {
       openedProject.resources = [];
       openedProject.styles = [];
       openedProject.windows = [];
+      openedProject.templates = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
     }
@@ -96,6 +105,7 @@ export default createReducer(initialState, {
     tableClear(state.resources);
     tableClear(state.styles);
     tableClear(state.windows);
+    tableClear(state.templates);
   },
 
   [ActionTypes.UPDATE_PROJECT]: (state, action: PayloadAction<ActionPayloads.UpdateProject>) => {
@@ -122,11 +132,27 @@ export default createReducer(initialState, {
 
   // Apply this change right away to improve designer UX, and debounce server update requests
   // Note that server update will apply anyway
+  [ActionTypes.SET_TEMPLATE_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetTemplateProperties>) => {
+    const { templateId, properties } = action.payload;
+    const template = state.templates.byId[templateId];
+    Object.assign(template, properties);
+  },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
   [ActionTypes.SET_CONTROL_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetControlProperties>) => {
     const { controlId, properties } = action.payload;
     const control = state.controls.byId[controlId];
     Object.assign(control, properties);
     control.style.sort();
+  },
+
+  // Apply this change right away to improve designer UX, and debounce server update requests
+  // Note that server update will apply anyway
+  [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetTemplateInstanceProperties>) => {
+    const { templateInstanceId, properties } = action.payload;
+    const templateInstance = state.templateInstances.byId[templateInstanceId];
+    Object.assign(templateInstance, properties);
   },
 });
 
@@ -144,12 +170,14 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       tableRemoveAll(state.resources, openedProject.resources);
       tableRemoveAll(state.styles, openedProject.styles);
       tableRemoveAll(state.windows, openedProject.windows);
+      tableRemoveAll(state.templates, openedProject.templates);
 
       openedProject.components = [];
       openedProject.plugins = [];
       openedProject.resources = [];
       openedProject.styles = [];
       openedProject.windows = [];
+      openedProject.templates = [];
       openedProject.selection = DEFAULT_SELECTION;
       openedProject.defaultWindow = { desktop: null, mobile: null };
 
@@ -251,31 +279,23 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
     case 'set-ui-window': {
       const { id: windowId, window: windowData } = update as SetUiWindowNotification;
-      const { controls } = windowData;
 
       const id = `${openedProject.id}:${windowId}`;
 
       const existing = state.windows.byId[id];
       if (existing) {
         tableRemoveAll(state.controls, existing.controls);
+        tableRemoveAll(state.templateInstances, existing.templates);
       }
 
-      const controlIds = Object.entries(controls).map(([controlId, controlData]) => {
-        const control: UiControl = {
-          id: `${openedProject.id}:${windowId}:${controlId}`,
-          controlId,
-          ... prepareControlData(openedProject, controlData, { adaptIds: true })
-        };
-
-        tableSet(state.controls, control, true);
-
-        return control.id;
-      });
+      const controlIds = setViewControls(state, openedProject, 'window', id, windowData.controls);
+      const templateInstanceIds = setViewTemplateInstances(state, openedProject, 'window', id, windowData.templates);
 
       const window: UiWindow = {
-        id: `${openedProject.id}:${windowId}`,
+        id,
         windowId,
         controls: controlIds,
+        templates: templateInstanceIds,
         ...prepareWindowData(openedProject, windowData, { adaptIds: true }),
       };
 
@@ -290,6 +310,7 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
 
       const window = state.windows.byId[id];
       tableRemoveAll(state.controls, window.controls);
+      tableRemoveAll(state.templateInstances, window.templates);
 
       tableRemove(state.windows, id);
       arrayRemove(openedProject.windows, id);
@@ -320,15 +341,78 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
         openedProject.selection.id = newId;
       }
 
-      for (const [index, oldId] of window.controls.entries()) {
-        const control = state.controls.byId[oldId];
+      renameViewControls(state, 'window', window);
+      renameViewTemplateInstances(state, 'window', window);
 
-        tableRemove(state.controls, oldId);
-        const newId = control.id = `${window.id}:${control.controlId}`;
-        tableSet(state.controls, control, true);
+      break;
+    }
 
-        window.controls[index] = newId;
+    case 'set-ui-template': {
+      const { id: templateId, template: templateData } = update as SetUiTemplateNotification;
+
+      const id = `${openedProject.id}:${templateId}`;
+
+      const existing = state.templates.byId[id];
+      if (existing) {
+        tableRemoveAll(state.controls, existing.controls);
+        tableRemoveAll(state.templateInstances, existing.templates);
       }
+
+      const controlIds = setViewControls(state, openedProject, 'template', id, templateData.controls);
+      const templateInstanceIds = setViewTemplateInstances(state, openedProject, 'template', id, templateData.templates);
+
+      const template: UiTemplate = {
+        id,
+        templateId,
+        controls: controlIds,
+        templates: templateInstanceIds,
+        ...prepareTemplateData(templateData),
+      };
+
+      tableSet(state.templates, template, true);
+      arraySet(openedProject.templates, template.id, true);
+      break;
+    }
+
+    case 'clear-ui-template': {
+      const { id: templateId } = update as ClearUiTemplateNotification;
+      const id = `${openedProject.id}:${templateId}`;
+
+      const template = state.templates.byId[id];
+      tableRemoveAll(state.controls, template.controls);
+      tableRemoveAll(state.templateInstances, template.templates);
+
+      tableRemove(state.templates, id);
+      arrayRemove(openedProject.templates, id);
+
+      if (openedProject.selection.type === 'template' && openedProject.selection.id === id) {
+        openedProject.selection = DEFAULT_SELECTION;
+      }
+
+      break;
+    }
+
+    case 'rename-ui-template': {
+      const { id: templateId, newId: newResourceId } = update as RenameUiTemplateNotification;
+      const oldId = `${openedProject.id}:${templateId}`;
+      const newId = `${openedProject.id}:${newResourceId}`;
+
+      const template = state.templates.byId[oldId];
+      tableRemove(state.templates, oldId);
+      arrayRemove(openedProject.templates, oldId);
+
+      template.id = newId;
+      template.templateId = newResourceId;
+
+      tableSet(state.templates, template, true);
+      arraySet(openedProject.templates, template.id, true);
+
+      if (openedProject.selection.type === 'template' && openedProject.selection.id === oldId) {
+        openedProject.selection.id = newId;
+      }
+
+      renameViewControls(state, 'template', template);
+      renameViewTemplateInstances(state, 'template', template);
 
       break;
     }
@@ -370,7 +454,7 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
   openedProject.components.sort();
 }
 
-function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls'>, { adaptIds }: { adaptIds: boolean }) {
+function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls' | 'templates'>, { adaptIds }: { adaptIds: boolean }) {
   const { title, style, height, width, backgroundResource } = window;
 
   return {
@@ -378,6 +462,12 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
     style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
     backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
   };
+}
+
+function prepareTemplateData(template: Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>) {
+  const { height, width } = template;
+
+  return { height, width };
 }
 
 function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {
@@ -433,10 +523,71 @@ function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiCont
   return controlData;
 }
 
+function prepareTemplateInstanceData(openedProject: UiOpenedProject, templateInstance: Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>, { adaptIds }: { adaptIds: boolean }) {
+  const { x, y, templateId } = templateInstance;
+
+  return {
+    x, y,
+    templateId: prepareNullableId(openedProject, templateId, { adaptIds })
+  };
+}
+
 function prepareNullableId(openedProject: UiOpenedProject, id: string, { adaptIds }: { adaptIds: boolean }) {
   return adaptIds ? makeNullableId(openedProject, id) : id;
 }
 
 function makeNullableId(openedProject: UiOpenedProject, id: string) {
   return id ? `${openedProject.id}:${id}` : id;
+}
+
+function setViewControls(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, controls: { [id: string]: UiControlData }) {
+  return Object.entries(controls).map(([controlId, controlData]) => {
+    const control: UiControl = {
+      id: `${viewId}:${viewType}:${controlId}`,
+      controlId,
+      ... prepareControlData(openedProject, controlData, { adaptIds: true })
+    };
+
+    tableSet(state.controls, control, true);
+
+    return control.id;
+  });
+}
+
+function renameViewControls(state: UiDesignerState, viewType: UiViewType, view: UiView) {
+  for (const [index, oldId] of view.controls.entries()) {
+    const control = state.controls.byId[oldId];
+
+    tableRemove(state.controls, oldId);
+    const newId = control.id = `${view.id}:${viewType}:${control.controlId}`;
+    tableSet(state.controls, control, true);
+
+    view.controls[index] = newId;
+  }
+}
+
+function setViewTemplateInstances(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, templates: { [id: string]: UiTemplateInstanceData }) {
+  return Object.entries(templates).map(([templateInstanceId, templateInstanceData]) => {
+    const templateInstance: UiTemplateInstance = {
+      id: `${viewId}:${viewType}:${templateInstanceId}`,
+      templateInstanceId,
+      ... prepareTemplateInstanceData(openedProject, templateInstanceData, { adaptIds: true })
+    };
+
+    tableSet(state.templateInstances, templateInstance, true);
+
+    return templateInstance.id;
+  });
+}
+
+function renameViewTemplateInstances(state: UiDesignerState, viewType: UiViewType, view: UiView) {
+  for (const [index, oldId] of view.templates.entries()) {
+    const templateInstance = state.templateInstances.byId[oldId];
+
+    tableRemove(state.templateInstances, oldId);
+    const newId = templateInstance.id = `${view.id}:${viewType}:${templateInstance.templateInstanceId}`;
+    tableSet(state.templateInstances, templateInstance, true);
+
+    view.templates[index] = newId;
+  }
 }

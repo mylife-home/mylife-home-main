@@ -3,7 +3,7 @@ import { TabType } from '../tabs/types';
 import { updateUiDesignerTab } from '../tabs/actions';
 import { setNotifier, clearAllNotifiers, removeOpenedProject, updateProject } from './actions';
 import { hasOpenedProjects, getOpenedProject, getOpenedProjectsIdAndProjectIdList, getOpenedProjectIdByNotifierId } from './selectors';
-import { ActionTypes, DefaultWindow, UiResource, UiWindow, UiControl, ActionPayloads } from './types';
+import { ActionTypes, UiControl, ActionPayloads, UiViewType } from './types';
 import {
   UiProjectCall,
   ClearResourceUiProjectCall,
@@ -28,6 +28,16 @@ import {
   SetStyleUiProjectCall,
   ClearStyleUiProjectCall,
   RenameStyleUiProjectCall,
+  NewTemplateUiProjectCall,
+  ClearTemplateUiProjectCall,
+  RenameTemplateUiProjectCall,
+  CloneTemplateUiProjectCall,
+  SetTemplatePropertiesUiProjectCall,
+  NewTemplateInstanceUiProjectCall,
+  ClearTemplateInstanceUiProjectCall,
+  RenameTemplateInstanceUiProjectCall,
+  CloneTemplateInstanceUiProjectCall,
+  SetTemplateInstancePropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -196,46 +206,100 @@ export default createProjectManagementEpic({
         const callData: SetWindowPropertiesUiProjectCall = { operation: 'set-window-properties', id, properties: fixedProps };
         return { tabId, callData };
       },
-      debounce({ windowId }: ActionPayloads.SetWindowProperties) {
-        return windowId;
+      debounce: {
+        keyBuilder({ windowId }: ActionPayloads.SetWindowProperties) {
+          return windowId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetWindowProperties, newValue: ActionPayloads.SetWindowProperties): ActionPayloads.SetWindowProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
+      },
+    },
+
+    [ActionTypes.NEW_TEMPLATE]: {
+      mapper({ tabId, newId }: ActionPayloads.NewTemplate) {
+        const callData: NewTemplateUiProjectCall = { operation: 'new-template', id: newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_TEMPLATE]: {
+      mapper({ templateId }: ActionPayloads.ClearTemplate) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: ClearTemplateUiProjectCall = { operation: 'clear-template', id };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.RENAME_TEMPLATE]: {
+      mapper({ templateId, newId }: ActionPayloads.RenameTemplate) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: RenameTemplateUiProjectCall = { operation: 'rename-template', id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLONE_TEMPLATE]: {
+      mapper({ templateId, newId }: { templateId: string; newId: string }) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: CloneTemplateUiProjectCall = { operation: 'clone-template', id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.SET_TEMPLATE_PROPERTIES]: {
+      mapper({ templateId, properties }: ActionPayloads.SetTemplateProperties) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: SetTemplatePropertiesUiProjectCall = { operation: 'set-template-properties', id, properties };
+        return { tabId, callData };
+      },
+      debounce: {
+        keyBuilder({ templateId }: ActionPayloads.SetTemplateProperties) {
+          return templateId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetTemplateProperties, newValue: ActionPayloads.SetTemplateProperties): ActionPayloads.SetTemplateProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
       },
     },
 
     [ActionTypes.NEW_CONTROL]: {
-      mapper({ windowId, newId, x, y }: ActionPayloads.NewControl) {
-        const { tabId, id } = extractIds(windowId);
-        const callData: NewControlUiProjectCall = { operation: 'new-control', windowId: id, id: newId, x, y };
+      mapper({ viewType, viewId, newId, x, y, type }: ActionPayloads.NewControl) {
+        const { tabId, id } = extractIds(viewId);
+        const callData: NewControlUiProjectCall = { operation: 'new-control', viewType, viewId: id, id: newId, x, y, type };
         return { tabId, callData };
       },
     },
 
     [ActionTypes.CLEAR_CONTROL]: {
       mapper({ controlId }: ActionPayloads.ClearControl) {
-        const { tabId, windowId, id } = extractControlIds(controlId);
-        const callData: ClearControlUiProjectCall = { operation: 'clear-control', windowId, id };
+        const { tabId, viewType, viewId, id } = extractControlIds(controlId);
+        const callData: ClearControlUiProjectCall = { operation: 'clear-control', viewType, viewId, id };
         return { tabId, callData };
       },
     },
 
     [ActionTypes.RENAME_CONTROL]: {
       mapper({ controlId, newId }: ActionPayloads.RenameControl) {
-        const { tabId, windowId, id } = extractControlIds(controlId);
-        const callData: RenameControlUiProjectCall = { operation: 'rename-control', windowId, id, newId };
+        const { tabId, viewType, viewId, id } = extractControlIds(controlId);
+        const callData: RenameControlUiProjectCall = { operation: 'rename-control', viewType, viewId, id, newId };
         return { tabId, callData };
       },
     },
 
     [ActionTypes.CLONE_CONTROL]: {
       mapper({ controlId, newId }: ActionPayloads.CloneControl) {
-        const { tabId, windowId, id } = extractControlIds(controlId);
-        const callData: CloneControlUiProjectCall = { operation: 'clone-control', windowId, id, newId };
+        const { tabId, viewType, viewId, id } = extractControlIds(controlId);
+        const callData: CloneControlUiProjectCall = { operation: 'clone-control', viewType, viewId, id, newId };
         return { tabId, callData };
       },
     },
 
     [ActionTypes.SET_CONTROL_PROPERTIES]: {
       mapper({ controlId, properties }: ActionPayloads.SetControlProperties) {
-        const { tabId, windowId, id } = extractControlIds(controlId);
+        const { tabId, viewType, viewId, id } = extractControlIds(controlId);
 
         const fixedProps = adaptControlLinks(properties, tabId);
 
@@ -243,11 +307,75 @@ export default createProjectManagementEpic({
           fixedProps.style = fixedProps.style.map(id => extractNullableId(id, tabId));
         }
 
-        const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', windowId, id, properties: fixedProps };
+        const callData: SetControlPropertiesUiProjectCall = { operation: 'set-control-properties', viewType, viewId, id, properties: fixedProps };
         return { tabId, callData };
       },
-      debounce({ controlId }: ActionPayloads.SetControlProperties) {
-        return controlId;
+      debounce: {
+        keyBuilder({ controlId }: ActionPayloads.SetControlProperties) {
+          return controlId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetControlProperties, newValue: ActionPayloads.SetControlProperties): ActionPayloads.SetControlProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
+      },
+    },
+
+
+    [ActionTypes.NEW_TEMPLATE_INSTANCE]: {
+      mapper({ viewType, viewId, newId, templateId: fullTemplateId, x, y }: ActionPayloads.NewTemplateInstance) {
+        const { tabId, id } = extractIds(viewId);
+        const templateId = extractNullableId(fullTemplateId, tabId);
+        const callData: NewTemplateInstanceUiProjectCall = { operation: 'new-template-instance', viewType, viewId: id, id: newId, templateId, x, y };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId }: ActionPayloads.ClearTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: ClearTemplateInstanceUiProjectCall = { operation: 'clear-template-instance', viewType, viewId, id };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.RENAME_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId, newId }: ActionPayloads.RenameTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: RenameTemplateInstanceUiProjectCall = { operation: 'rename-template-instance', viewType, viewId, id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLONE_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId, newId }: ActionPayloads.CloneTemplateInstance) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const callData: CloneTemplateInstanceUiProjectCall = { operation: 'clone-template-instance', viewType, viewId, id, newId };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: {
+      mapper({ templateInstanceId, properties }: ActionPayloads.SetTemplateInstanceProperties) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+
+        const fixedProps = { ... properties };
+
+        if (fixedProps.templateId) {
+          fixedProps.templateId = extractNullableId(fixedProps.templateId, tabId);
+        }
+
+        const callData: SetTemplateInstancePropertiesUiProjectCall = { operation: 'set-template-instance-properties', viewType, viewId, id, properties: fixedProps };
+        return { tabId, callData };
+      },
+      debounce: {
+        keyBuilder({ templateInstanceId }: ActionPayloads.SetTemplateInstanceProperties) {
+          return templateInstanceId;
+        },
+        valueMerger(prevValue: ActionPayloads.SetTemplateInstanceProperties, newValue: ActionPayloads.SetTemplateInstanceProperties): ActionPayloads.SetTemplateInstanceProperties {
+          const properties = { ...prevValue.properties, ...newValue.properties };
+          return { ...newValue, properties };
+        }
       },
     },
   }
@@ -278,13 +406,15 @@ function extractNullableId(fullId: string, expectedTabId: string) {
   return id;
 }
 
-function extractControlIds(fullId: string): { tabId: string; windowId: string; id: string; } {
+function extractControlIds(fullId: string): { tabId: string; viewType: UiViewType; viewId: string; id: string; } {
   // first extract tab
-  const { tabId, id: remaining } = extractIds(fullId);
-  // then extract windowId
-  const { tabId: windowId, id } = extractIds(remaining);
+  const { tabId, id: remaining1 } = extractIds(fullId);
+  // then extract viewId
+  const { tabId: viewId, id: remaining2 } = extractIds(remaining1);
+  // then extract viewType
+  const { tabId: viewType, id } = extractIds(remaining2);
 
-  return { tabId, windowId, id };
+  return { tabId, viewType: viewType as UiViewType, viewId, id };
 }
 
 function adaptControlLinks(input: ControlProperties, tabId: string): ControlProperties {
@@ -333,4 +463,8 @@ function adaptControlLinks(input: ControlProperties, tabId: string): ControlProp
   }
 
   return control;
+}
+
+function extractTemplateInstanceIds(fullId: string) {
+  return extractControlIds(fullId);
 }

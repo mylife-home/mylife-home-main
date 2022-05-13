@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiTemplateInstanceData } from '../../../../shared/project-manager';
 import { DefaultWindow } from '../../../../shared/ui-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
@@ -28,11 +28,21 @@ export const enum ActionTypes {
   RENAME_WINDOW = 'ui-designer/rename-window',
   CLONE_WINDOW = 'ui-designer/clone-window',
   SET_WINDOW_PROPERTIES = 'ui-designer/set-window-properties',
+  NEW_TEMPLATE = 'ui-designer/new-template',
+  CLEAR_TEMPLATE = 'ui-designer/clear-template',
+  RENAME_TEMPLATE = 'ui-designer/rename-template',
+  CLONE_TEMPLATE = 'ui-designer/clone-template',
+  SET_TEMPLATE_PROPERTIES = 'ui-designer/set-template-properties',
   NEW_CONTROL = 'ui-designer/new-control',
   CLEAR_CONTROL = 'ui-designer/clear-control',
   RENAME_CONTROL = 'ui-designer/rename-control',
   CLONE_CONTROL = 'ui-designer/clone-control',
   SET_CONTROL_PROPERTIES = 'ui-designer/set-control-properties',
+  NEW_TEMPLATE_INSTANCE = 'ui-designer/new-template-instance',
+  CLEAR_TEMPLATE_INSTANCE = 'ui-designer/clear-template-instance',
+  RENAME_TEMPLATE_INSTANCE = 'ui-designer/rename-template-instance',
+  CLONE_TEMPLATE_INSTANCE = 'ui-designer/clone-template-instance',
+  SET_TEMPLATE_INSTANCE_PROPERTIES = 'ui-designer/set-template-instance-properties',
 }
 
 export namespace ActionPayloads {
@@ -59,12 +69,22 @@ export namespace ActionPayloads {
   export type ClearWindow = { windowId: string; };
   export type RenameWindow = { windowId: string; newId: string; };
   export type CloneWindow = { windowId: string; newId: string; };
-  export type SetWindowProperties = { windowId: string; properties: Partial<Omit<UiWindow, 'id' | 'windowId' | 'controls'>>; };
-  export type NewControl = { windowId: string; newId: string; x: number; y: number; };
+  export type SetWindowProperties = { windowId: string; properties: Partial<Omit<UiWindow, 'id' | 'windowId' | 'controls' | 'templates'>>; };
+  export type NewTemplate = { tabId: string; newId: string; };
+  export type ClearTemplate = { templateId: string; };
+  export type RenameTemplate = { templateId: string; newId: string; };
+  export type CloneTemplate = { templateId: string; newId: string; };
+  export type SetTemplateProperties = { templateId: string; properties: Partial<Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>>; };
+  export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; type: 'display' | 'text' };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };
   export type CloneControl = { controlId: string; newId: string; };
   export type SetControlProperties = { controlId: string; properties: Partial<Omit<UiControl, 'id' | 'controlId'>>; };
+  export type NewTemplateInstance = { viewType: UiViewType; viewId: string; newId: string; templateId: string; x: number; y: number; };
+  export type ClearTemplateInstance = { templateInstanceId: string; };
+  export type RenameTemplateInstance = { templateInstanceId: string; newId: string; };
+  export type CloneTemplateInstance = { templateInstanceId: string; newId: string; };
+  export type SetTemplateInstanceProperties = { templateInstanceId: string; properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>; };
 }
 
 export { DesignerTabActionData, DefaultWindow };
@@ -79,18 +99,33 @@ export interface UiStyle extends UiStyleData {
   styleId: string; // id in project
 }
 
-export interface UiWindow extends Omit<UiWindowData, 'controls'> {
+export type UiViewType = 'window' | 'template';
+
+export interface UiView extends Omit<UiViewData, 'controls' | 'templates'> {
   id: string;
-  windowId: string; // id in project
   controls: string[];
+  templates: string[];
+}
+
+export interface UiWindow extends UiView, Omit<UiWindowData, 'controls' | 'templates'> {
+  windowId: string; // id in project
+}
+
+export interface UiTemplate extends UiView, Omit<UiTemplateData, 'controls' | 'templates'> {
+  templateId: string; // id in project
+}
+
+export interface UiTemplateInstance extends UiTemplateInstanceData {
+  id: string;
+  templateInstanceId: string; // id in view
 }
 
 export interface UiControl extends UiControlData {
   id: string;
-  controlId: string; // id in window
+  controlId: string; // id in view
 }
 
-export type SelectionType = 'project' | 'windows' | 'window' | 'resources' | 'styles' | 'components';
+export type SelectionType = 'project' | 'windows' | 'window' | 'templates' | 'template' | 'resources' | 'styles' | 'components';
 
 export interface Selection {
   type: SelectionType;
@@ -112,6 +147,7 @@ export interface UiOpenedProject extends OpenedProjectBase {
   resources: string[];
   styles: string[];
   windows: string[];
+  templates: string[];
   defaultWindow: DefaultWindow;
   selection: Selection;
 }
@@ -123,7 +159,9 @@ export interface UiDesignerState {
   resources: Table<UiResource>;
   styles: Table<UiStyle>;
   windows: Table<UiWindow>;
+  templates: Table<UiTemplate>;
   controls: Table<UiControl>;
+  templateInstances: Table<UiTemplateInstance>;
 }
 
 export { UiElementPath, UiElementPathNode };

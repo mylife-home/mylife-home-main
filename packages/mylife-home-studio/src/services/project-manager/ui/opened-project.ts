@@ -37,17 +37,26 @@ import {
   SetUiStyleNotification,
   ClearUiStyleNotification,
   RenameUiStyleNotification,
-  UiResourceData,
-  UiStyleData,
-  UiWindowData,
+  SetUiTemplateNotification,
+  ClearTemplateUiProjectCall,
+  NewTemplateUiProjectCall,
+  RenameTemplateUiProjectCall,
+  RenameUiTemplateNotification,
+  ClearUiTemplateNotification,
+  CloneTemplateUiProjectCall,
+  SetTemplatePropertiesUiProjectCall,
+  NewTemplateInstanceUiProjectCall,
+  ClearTemplateInstanceUiProjectCall,
+  RenameTemplateInstanceUiProjectCall,
+  CloneTemplateInstanceUiProjectCall,
+  SetTemplateInstancePropertiesUiProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
 import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
-import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ValidationContext, ComponentUsage, newWindow, StyleModel } from './definition-model';
-import { clone } from '../../../utils/object-utils';
+import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ComponentUsage, StyleModel, TemplateModel, ProjectModel, ViewModel } from './definition-model';
 import { buildDeployDefinition } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
@@ -58,12 +67,8 @@ interface RefreshServerData {
 }
 
 export class UiOpenedProject extends OpenedProject {
+  private model: ProjectModel;
   private project: UiProject;
-  private defaultWindow: DefaultWindowModel;
-  private windows: CollectionModel<UiWindowData, WindowModel>;
-  private resources: CollectionModel<UiResourceData, ResourceModel>;
-  private styles: CollectionModel<UiStyleData, StyleModel>;
-  private components: ComponentsModel;
 
   constructor(private readonly owner: UiProjects, name: string) {
     super('ui', name);
@@ -72,12 +77,7 @@ export class UiOpenedProject extends OpenedProject {
 
   protected reloadModel() {
     this.project = this.owner.getProject(this.name);
-
-    this.defaultWindow = new DefaultWindowModel(this.project.defaultWindow);
-    this.windows = new CollectionModel(this.project.windows, WindowModel);
-    this.resources = new CollectionModel(this.project.resources, ResourceModel);
-    this.styles = new CollectionModel(this.project.styles, StyleModel);
-    this.components = new ComponentsModel({ components: this.project.components, plugins: this.project.plugins });
+    this.model = new ProjectModel(this.project);
   }
 
   protected emitAllState(notifier: SessionNotifier) {
@@ -96,6 +96,10 @@ export class UiOpenedProject extends OpenedProject {
 
     for (const [id, window] of Object.entries(this.project.windows)) {
       notifier.notify({ operation: 'set-ui-window', id, window } as SetUiWindowNotification);
+    }
+
+    for (const [id, template] of Object.entries(this.project.templates)) {
+      notifier.notify({ operation: 'set-ui-template', id, template } as SetUiTemplateNotification);
     }
   }
 
@@ -165,6 +169,26 @@ export class UiOpenedProject extends OpenedProject {
         this.setWindowProperties(callData as SetWindowPropertiesUiProjectCall);
         break;
 
+      case 'new-template':
+        this.newTemplate(callData as NewTemplateUiProjectCall);
+        break;
+
+      case 'clear-template':
+        this.clearTemplate(callData as ClearTemplateUiProjectCall);
+        break;
+
+      case 'rename-template':
+        this.renameTemplate(callData as RenameTemplateUiProjectCall);
+        break;
+
+      case 'clone-template':
+        this.cloneTemplate(callData as CloneTemplateUiProjectCall);
+        break;
+  
+      case 'set-template-properties':
+        this.setTemplateProperties(callData as SetTemplatePropertiesUiProjectCall);
+        break;
+  
       case 'new-control':
         this.newControl(callData as NewControlUiProjectCall);
         break;
@@ -185,6 +209,26 @@ export class UiOpenedProject extends OpenedProject {
         this.setControlProperties(callData as SetControlPropertiesUiProjectCall);
         break;
 
+      case 'new-template-instance':
+        this.newTemplateInstance(callData as NewTemplateInstanceUiProjectCall);
+        break;
+
+      case 'clear-template-instance':
+        this.clearTemplateInstance(callData as ClearTemplateInstanceUiProjectCall);
+        break;
+
+      case 'rename-template-instance':
+        this.renameTemplateInstance(callData as RenameTemplateInstanceUiProjectCall);
+        break;
+        
+      case 'clone-template-instance':
+        this.cloneTemplateInstance(callData as CloneTemplateInstanceUiProjectCall);
+        break;
+  
+      case 'set-template-instance-properties':
+        this.setTemplateInstanceProperties(callData as SetTemplateInstancePropertiesUiProjectCall);
+        break;
+
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -198,210 +242,316 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private notifyAllDefaultWindow() {
-    this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow: this.defaultWindow.data });
+    this.notifyAll<SetUiDefaultWindowNotification>({ operation: 'set-ui-default-window', defaultWindow: this.model.defaultWindow.data });
   }
 
   private notifyAllWindow(window: WindowModel) {
     this.notifyAll<SetUiWindowNotification>({ operation: 'set-ui-window', id: window.id, window: window.data });
   }
 
+  private notifyAllTemplate(template: TemplateModel) {
+    this.notifyAll<SetUiTemplateNotification>({ operation: 'set-ui-template', id: template.id, template: template.data });
+  }
+
+  private notifyAllView(view: ViewModel) {
+    if (view instanceof WindowModel) {
+      this.notifyAllWindow(view);
+    } else if (view instanceof TemplateModel) {
+      this.notifyAllTemplate(view);
+    }
+  }
+
   private notifyAllComponentData() {
     this.notifyAll<SetUiComponentDataNotification>({ operation: 'set-ui-component-data', components: this.project.components, plugins: this.project.plugins });
   }
 
+  private notifyAllResource(resource: ResourceModel) {
+    this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', id: resource.id, resource: resource.data });
+  }
+
+  private notifyAllStyle(style: StyleModel) {
+    this.notifyAll<SetUiStyleNotification>({ operation: 'set-ui-style', id: style.id, style: style.data });
+  }
+
   private setDefaultWindow({ defaultWindow }: SetDefaultWindowUiProjectCall) {
     this.executeUpdate(() => {
-      this.defaultWindow.set(defaultWindow);
+      this.model.setDefaultWindow(defaultWindow);
       this.notifyAllDefaultWindow();
     });
   }
 
   private setResource({ id, resource }: SetResourceUiProjectCall) {
     this.executeUpdate(() => {
-      const existing = this.resources.findById(id);
-      if (existing) {
-        existing.update(resource);
-      } else {
-        this.resources.set(id, resource);
-      }
-
-      this.notifyAll<SetUiResourceNotification>({ operation: 'set-ui-resource', id, resource });
+      const resourceModel = this.model.setResource(id, resource);
+      this.notifyAllResource(resourceModel);
     });
   }
 
   private clearResource({ id }: ClearResourceUiProjectCall) {
     this.executeUpdate(() => {
-      this.resources.clear(id);
+      const impacts = this.model.clearResource(id);
+
       this.notifyAll<ClearUiResourceNotification>({ operation: 'clear-ui-resource', id });
 
-      for (const window of this.windows) {
-        if (window.onClearResource(id)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
       }
     });
   }
 
   private renameResource({ id, newId }: RenameResourceUiProjectCall) {
     this.executeUpdate(() => {
-      this.resources.rename(id, newId);
+      const impacts = this.model.renameResource(id, newId);
+
       this.notifyAll<RenameUiResourceNotification>({ operation: 'rename-ui-resource', id, newId });
 
-      for (const window of this.windows) {
-        if (window.onRenameResource(id, newId)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
       }
     });
   }
 
   private setStyle({ id, style }: SetStyleUiProjectCall) {
     this.executeUpdate(() => {
-      const existing = this.styles.findById(id);
-      if (existing) {
-        existing.update(style);
-      } else {
-        this.styles.set(id, style);
-      }
-      
-      this.notifyAll<SetUiStyleNotification>({ operation: 'set-ui-style', id, style });
+      const styleModel = this.model.setStyle(id, style);
+      this.notifyAllStyle(styleModel);
     });
   }
 
   private clearStyle({ id }: ClearStyleUiProjectCall) {
     this.executeUpdate(() => {
-      this.styles.clear(id);
+      const impacts = this.model.clearStyle(id);
+
       this.notifyAll<ClearUiStyleNotification>({ operation: 'clear-ui-style', id });
 
-      for (const window of this.windows) {
-        if (window.onClearStyle(id)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
       }
     });
   }
 
   private renameStyle({ id, newId }: RenameStyleUiProjectCall) {
     this.executeUpdate(() => {
-      this.styles.rename(id, newId);
+      const impacts = this.model.renameStyle(id, newId);
+
       this.notifyAll<RenameUiStyleNotification>({ operation: 'rename-ui-style', id, newId });
 
-      for (const window of this.windows) {
-        if (window.onRenameStyle(id, newId)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
       }
     });
   }
 
   private newWindow({ id }: NewWindowUiProjectCall) {
     this.executeUpdate(() => {
-      const model = newWindow(this.windows, id);
+      const model = this.model.newWindow(id);
       this.notifyAllWindow(model);
     });
   }
 
   private clearWindow({ id }: ClearWindowUiProjectCall) {
     this.executeUpdate(() => {
-      this.windows.clear(id);
+      const impacts = this.model.clearWindow(id);
+
       this.notifyAll<ClearUiWindowNotification>({ operation: 'clear-ui-window', id });
 
-      if (this.defaultWindow.onClearWindow(id)) {
+      if (impacts.defaultWindow) {
         this.notifyAllDefaultWindow();
       }
 
-      for (const window of this.windows) {
-        if (window.onClearWindow(id)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
       }
     });
   }
 
   private renameWindow({ id, newId }: RenameWindowUiProjectCall) {
     this.executeUpdate(() => {
-      this.windows.rename(id, newId);
+      const impacts = this.model.renameWindow(id, newId);
+
       this.notifyAll<RenameUiWindowNotification>({ operation: 'rename-ui-window', id, newId });
 
-      if (this.defaultWindow.onRenameWindow(id, newId)) {
+      if (impacts.defaultWindow) {
         this.notifyAllDefaultWindow();
       }
 
-      for (const window of this.windows) {
-        if (window.onRenameWindow(id, newId)) {
-          this.notifyAllWindow(window);
-        }
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
       }
     });
   }
 
   private cloneWindow({ id, newId }: CloneWindowUiProjectCall) {
     this.executeUpdate(() => {
-      const source = this.windows.getById(id);
-      const newWindow = clone(source.data);
-      const model = this.windows.set(newId, newWindow);
+      const model = this.model.cloneWindow(id, newId);
       this.notifyAllWindow(model);
     });
   }
 
   private setWindowProperties({ id, properties }: SetWindowPropertiesUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(id);
+      const windowModel = this.model.getWindow(id);
       windowModel.update(properties);
       this.notifyAllWindow(windowModel);
     });
   }
 
-  private newControl({ windowId, id, x, y }: NewControlUiProjectCall) {
+  private newTemplate({ id }: NewTemplateUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(windowId);
-      windowModel.newControl(id, x, y);
-      this.notifyAllWindow(windowModel);
+      const model = this.model.newTemplate(id);
+      this.notifyAllTemplate(model);
     });
   }
 
-  private clearControl({ windowId, id }: ClearControlUiProjectCall) {
+  private clearTemplate({ id }: ClearTemplateUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(windowId);
-      windowModel.clearControl(id);
-      this.notifyAllWindow(windowModel);
+      const impacts = this.model.clearTemplate(id);
+
+      this.notifyAll<ClearUiTemplateNotification>({ operation: 'clear-ui-template', id });
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
     });
   }
 
-  private renameControl({ windowId, id, newId }: RenameControlUiProjectCall) {
+  private renameTemplate({ id, newId }: RenameTemplateUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(windowId);
-      windowModel.renameControl(id, newId);
-      this.notifyAllWindow(windowModel);
+      const impacts = this.model.renameTemplate(id, newId);
+
+      this.notifyAll<RenameUiTemplateNotification>({ operation: 'rename-ui-template', id, newId });
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
     });
   }
 
-  private cloneControl({ windowId, id, newId }: CloneControlUiProjectCall) {
+  private cloneTemplate({ id, newId }: CloneTemplateUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(windowId);
-      windowModel.cloneControl(id, newId);
-      this.notifyAllWindow(windowModel);
+      const model = this.model.cloneTemplate(id, newId);
+      this.notifyAllTemplate(model);
     });
   }
 
-  private setControlProperties({ windowId, id, properties }: SetControlPropertiesUiProjectCall) {
+  private setTemplateProperties({ id, properties }: SetTemplatePropertiesUiProjectCall) {
     this.executeUpdate(() => {
-      const windowModel = this.windows.getById(windowId);
-      const controlModel = windowModel.getControl(id);
+      const templateModel = this.model.getTemplate(id);
+      templateModel.update(properties);
+      this.notifyAllTemplate(templateModel);
+    });
+  }
+
+  private newControl({ viewType, viewId, id, x, y, type }: NewControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.newControl(id, type, x, y);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private clearControl({ viewType, viewId, id }: ClearControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.clearControl(id);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private renameControl({ viewType, viewId, id, newId }: RenameControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.renameControl(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private cloneControl({ viewType, viewId, id, newId }: CloneControlUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.cloneControl(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setControlProperties({ viewType, viewId, id, properties }: SetControlPropertiesUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const controlModel = viewModel.getControl(id);
       controlModel.update(properties);
-      this.notifyAllWindow(windowModel);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private newTemplateInstance({ viewType, viewId, id, templateId, x, y }: NewTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.newTemplateInstance(id, templateId, x, y);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private clearTemplateInstance({ viewType, viewId, id }: ClearTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.clearTemplateInstance(id);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private renameTemplateInstance({ viewType, viewId, id, newId }: RenameTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.renameTemplateInstance(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private cloneTemplateInstance({ viewType, viewId, id, newId }: CloneTemplateInstanceUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      viewModel.cloneTemplateInstance(id, newId);
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceProperties({ viewType, viewId, id, properties }: SetTemplateInstancePropertiesUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+      templateInstanceModel.update(properties);
+      this.notifyAllView(viewModel);
     });
   }
 
   private validate(): ValidateUiProjectCallResult {
-    const context = new ValidationContext(this.windows, this.resources, this.components);
+    const errors = this.model.validate();
 
-    this.defaultWindow.validate(context);
-    for (const window of this.windows) {
-      window.validate(context);
-    }
-
-    return { errors: context.errors };
+    return { errors };
   }
 
   private refreshComponentsFromOnline(): RefreshComponentsUiProjectCallResult {
@@ -415,44 +565,28 @@ export class UiOpenedProject extends OpenedProject {
   }
 
   private prepareComponentRefresh(componentData: NewComponentData) {
-    const usage = this.collectComponentsUsage();
-    const { breakingOperations, usageToClear } = prepareMergeComponentData(this.components, usage, componentData);
+    const usage = this.model.collectComponentsUsage();
+    const { breakingOperations, usageToClear } = prepareMergeComponentData(this.model.components, usage, componentData);
     const serverData: RefreshServerData = { componentData, usageToClear };
     return { breakingOperations, serverData };
-  }
-
-  private collectComponentsUsage() {
-    const usage: ComponentUsage[] = [];
-
-    for (const window of this.windows) {
-      window.collectComponentsUsage(usage);
-    }
-
-    return usage;
   }
 
   private applyRefreshComponents({ serverData }: ApplyRefreshComponentsUiProjectCall) {
     this.executeUpdate(() => {
       const { componentData, usageToClear } = serverData as RefreshServerData;
-      this.components.apply(componentData);
-      this.clearComponentsUsage(usageToClear);
-      this.notifyAllComponentData();
-    });
-  }
+      this.model.components.apply(componentData);
+      const impacts = this.model.clearComponentsUsage(usageToClear);
 
-  private clearComponentsUsage(usage: ComponentUsage[]) {
-    for (const item of usage) {
-      const node = item.path[0];
-      if (node.type !== 'window') {
-        continue; // paranoia
-      }
-
-      const window = this.windows.findById(node.id);
-      const changed = window.clearComponentUsage(item);
-      if (changed) {
+      for (const window of impacts.windows) {
         this.notifyAllWindow(window);
       }
-    }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
+
+      this.notifyAllComponentData();
+    });
   }
 
   private async deploy(): Promise<DeployUiProjectCallResult> {
