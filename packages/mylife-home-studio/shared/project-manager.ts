@@ -523,6 +523,7 @@ export interface NewControlUiProjectCall extends UiProjectCall {
   id: string;
   x: number;
   y: number;
+  type: 'display' | 'text';
 }
 
 export interface ClearControlUiProjectCall extends UiProjectCall {

@@ -1,9 +1,11 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData } from '../../../../shared/project-manager';
-import { DefaultWindow, ControlDisplayMapItem, Style } from '../../../../shared/ui-model';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextData } from '../../../../shared/project-manager';
+import { DefaultWindow, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
 import { clone } from '../../../utils/object-utils';
+
+// Note: same than templates on client
 
 const WINDOW_TEMPLATE: UiWindowData = {
   title: 'Nouvelle fenêtre',
@@ -35,15 +37,22 @@ const CONTROL_TEMPLATE: UiControlData = {
   style: [],
   height: 50,
   width: 50,
-  display: {
-    componentId: null,
-    componentState: null,
-    defaultResource: null,
-    map: [],
-  },
+  display: null,
   text: null,
   primaryAction: null,
   secondaryAction: null,
+};
+
+const CONTROL_DISPLAY_TEMPLATE: UiControlDisplayData = {
+  componentId: null,
+  componentState: null,
+  defaultResource: null,
+  map: [],
+};
+
+const CONTROL_TEXT_TEMPLATE: UiControlTextData = {
+  context: [],
+  format: `return '';`,
 };
 
 export interface ComponentUsage {
@@ -543,12 +552,23 @@ export abstract class ViewModel extends ModelBase {
     super(id);
 
     this.controls = new CollectionModel(data.controls, ControlModel);
+    this.templates = new CollectionModel(data.templates, TemplateInstanceModel);
   }
 
-  newControl(controlId: string, x: number, y: number) {
-    const newControl = clone(CONTROL_TEMPLATE) as UiControlData;
+  newControl(controlId: string, type: 'display' | 'text', x: number, y: number) {
+    const newControl = clone(CONTROL_TEMPLATE);
     newControl.x = x;
     newControl.y = y;
+
+    switch(type) {
+      case 'display':
+        newControl.display = clone(CONTROL_DISPLAY_TEMPLATE);
+        break;
+
+      case 'text':
+        newControl.text = clone(CONTROL_TEXT_TEMPLATE);
+        break;
+    }
 
     return this.controls.set(controlId, newControl);
   }
@@ -1037,7 +1057,7 @@ export class ControlModel extends ModelBase {
     }
   }
 
-  private validateTextValue(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateTextValue(item: UiControlDisplayMapItemData, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.min !== null || item.max !== null) {
       context.addError(`Le type 'text' ne doit pas utiliser min/max`, pathBuilder());
     }
@@ -1047,7 +1067,7 @@ export class ControlModel extends ModelBase {
     }
   }
 
-  private validateEnumValue(item: ControlDisplayMapItem, values: readonly any[], context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateEnumValue(item: UiControlDisplayMapItemData, values: readonly any[], context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.min !== null || item.max !== null) {
       context.addError(`Le type 'enum' ne doit pas utiliser min/max`, pathBuilder());
     }
@@ -1057,7 +1077,7 @@ export class ControlModel extends ModelBase {
     }
   }
 
-  private validateFloatValue(item: ControlDisplayMapItem, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateFloatValue(item: UiControlDisplayMapItemData, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
       context.addError(`Le type 'float' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }
@@ -1075,7 +1095,7 @@ export class ControlModel extends ModelBase {
     }
   }
 
-  private validateRangeValue(item: ControlDisplayMapItem, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
+  private validateRangeValue(item: UiControlDisplayMapItemData, min: number, max: number, context: ValidationContext, pathBuilder: PathBuilder) {
     if (item.value !== null) {
       context.addError(`Le type 'range' ne doit pas utiliser valeur mais min/max`, pathBuilder());
     }

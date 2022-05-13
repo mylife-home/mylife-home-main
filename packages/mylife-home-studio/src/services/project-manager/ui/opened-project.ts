@@ -458,10 +458,10 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private newControl({ viewType, viewId, id, x, y }: NewControlUiProjectCall) {
+  private newControl({ viewType, viewId, id, x, y, type }: NewControlUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
-      viewModel.newControl(id, x, y);
+      viewModel.newControl(id, type, x, y);
       this.notifyAllView(viewModel);
     });
   }

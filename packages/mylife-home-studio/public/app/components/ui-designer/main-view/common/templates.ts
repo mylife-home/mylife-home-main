@@ -14,21 +14,6 @@ const CONTROL_TEXT_TEMPLATE: UiControlTextData = {
   format: `return '';`,
 };
 
-const CONTROL_TEMPLATE: UiControl = {
-  id: null,
-  controlId: null,
-  x: null,
-  y: null,
-
-  style: null,
-  height: 50,
-  width: 50,
-  display: CONTROL_DISPLAY_TEMPLATE,
-  text: null,
-  primaryAction: null,
-  secondaryAction: null,
-};
-
 const CONTROL_DISPLAY_MAP_ITEM_TEMPLATE: UiControlDisplayMapItemData = {
   min: null,
   max: null,
@@ -59,11 +44,12 @@ const CONTROL_ACTION_WINDOW_TEMPLATE: UiActionData = {
   },
 };
 
-/**
- * Note: control will miss id, x, y
- */
-export function createNewControl() {
-  return clone(CONTROL_TEMPLATE);
+// Same than server side
+export function newControlSize() {
+  return {
+    height: 50,
+    width: 50,
+  };
 }
 
 export function createNewControlDisplay() {

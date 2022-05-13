@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { AppState } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, setControlProperties, cloneControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
-import { getControl, getView, getWindow, getTemplate, getControlsMap } from '../../../../store/ui-designer/selectors';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
+import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiTemplate, UiControl, UiViewType } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
 
@@ -12,7 +12,7 @@ interface ContextProps {
   viewType: UiViewType;
   viewId: string;
 
-  selection: string; // control id or null for view itself
+  selection: string; // control id or null for view itself ///// FIXME: can also be template instance
   setSelection: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -157,7 +157,7 @@ export function useSelection() {
   }, [selection]);
 }
 
-export function useCreateControl() {
+export function useCreateControl(type: 'display' | 'text') {
   const { viewType, viewId, setSelection } = useContext(Context);
   const dispatch = useDispatch();
   const getExistingControlNames = useGetExistingControlNames();
@@ -167,10 +167,26 @@ export function useCreateControl() {
     const newId = makeUniqueId(existingNames, 'new-control');
     const { x, y } = position;
 
-    dispatch(newControl({ viewType, viewId, newId, x, y }));
+    dispatch(newControl({ viewType, viewId, newId, x, y, type }));
     const newFullId = `${viewId}:${viewType}:${newId}`;
     setSelection(newFullId);
-  }, [dispatch, viewType, viewId, getExistingControlNames]);
+  }, [dispatch, viewType, viewId, type, getExistingControlNames]);
+}
+
+export function useCreateTemplateInstance(templateId: string) {
+  const { viewType, viewId, setSelection } = useContext(Context);
+  const dispatch = useDispatch();
+  const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
+  
+  return useCallback((position: Position) => {
+    const existingNames = getExistingTemplateInstanceNames();
+    const newId = makeUniqueId(existingNames, 'new-template');
+    const { x, y } = position;
+
+    dispatch(newTemplateInstance({ viewType, viewId, newId, x, y, templateId }));
+    const newFullId = `${viewId}:${viewType}:${newId}`;
+    setSelection(newFullId);
+  }, [dispatch, viewType, viewId, templateId, getExistingTemplateInstanceNames]);
 }
 
 export function useSelectableControlList() {
@@ -184,4 +200,9 @@ export function useSelectableControlList() {
 export function useViewType() {
   const { viewType } = useContext(Context);
   return viewType;
+}
+
+export function useViewId() {
+  const { viewId } = useContext(Context);
+  return viewId;
 }

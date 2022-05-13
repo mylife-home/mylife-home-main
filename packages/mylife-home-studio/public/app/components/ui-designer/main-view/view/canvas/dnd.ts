@@ -6,7 +6,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useSnapValue } from '../snap';
 import { useContainerRect } from './container';
 import { Position, ResizeDirection, Size } from './types';
-import { createNewControl } from '../../common/templates';
+import { newControlSize } from '../../common/templates';
 
 export const ItemTypes = {
   CREATE_CONTROL: Symbol('dnd-canvas-create-control'),
@@ -318,7 +318,7 @@ class ComputeApi {
 
   get newControlSize() {
     if (!ComputeApi._newControlSize) {
-      const { width, height } = createNewControl();
+      const { width, height } = newControlSize();
       ComputeApi._newControlSize = { width, height };
     }
     return ComputeApi._newControlSize;

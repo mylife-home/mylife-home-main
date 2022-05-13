@@ -266,9 +266,9 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.NEW_CONTROL]: {
-      mapper({ viewType, viewId, newId, x, y }: ActionPayloads.NewControl) {
+      mapper({ viewType, viewId, newId, x, y, type }: ActionPayloads.NewControl) {
         const { tabId, id } = extractIds(viewId);
-        const callData: NewControlUiProjectCall = { operation: 'new-control', viewType, viewId: id, id: newId, x, y };
+        const callData: NewControlUiProjectCall = { operation: 'new-control', viewType, viewId: id, id: newId, x, y, type };
         return { tabId, callData };
       },
     },
