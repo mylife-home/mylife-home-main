@@ -3,12 +3,12 @@ import { AutoSizer } from 'react-virtualized';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { useViewState, useControlState } from '../view-state';
+import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
 import { useDroppable } from './dnd';
 import { CanvasContainerContextProvider, CanvasContainer } from './container';
 import DragLayer from './drag-layer';
 import CanvasItem from './item';
-import { CanvasViewView, CanvasControlView } from './view';
+import { CanvasViewView, CanvasControlView, CanvasTemplateInstanceView } from './view';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -32,6 +32,10 @@ const Canvas: FunctionComponent<{ className?: string }> = ({ className }) => {
             <CanvasContainer className={classes.wrapper}>
 
               <CanvasWindow />
+
+              {view.templates.map(id => (
+                <CanvasTemplateInstance key={id} id={id} />
+              ))}
 
               {view.controls.map(id => (
                 <CanvasControl key={id} id={id} />
@@ -84,6 +88,23 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
       onSelect={select}
     >
       <CanvasControlView id={id} />
+    </CanvasItem>
+  );
+};
+
+const CanvasTemplateInstance: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { templateInstance, template, update, selected, select } = useTemplateInstanceState(id);
+
+  return (
+    <CanvasItem
+      id={id}
+      size={{ width: template.width, height: template.height }}
+      position={{ x: templateInstance.x, y: templateInstance.y }}
+      selected={selected}
+      onMove={(position) => update(position)}
+      onSelect={select}
+    >
+      <CanvasTemplateInstanceView id={id} />
     </CanvasItem>
   );
 };

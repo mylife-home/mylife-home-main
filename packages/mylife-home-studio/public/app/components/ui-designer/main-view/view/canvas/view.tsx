@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Image from '../../common/image';
-import { useViewState, useControlState } from '../view-state';
+import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
 import { useTextValue } from '../control-text-value';
 import { UiControlTextData } from '../../../../../../../shared/project-manager';
 import { getStylesMap } from '../../../../../store/ui-designer/selectors';
@@ -93,6 +93,16 @@ export const CanvasControlCreationView: FunctionComponent = () => {
     </Wrapper>
   );
 }
+
+export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ id }) => {
+  const { template, selected } = useTemplateInstanceState(id);
+
+  return (
+    <Wrapper selected={selected}>
+      TODO children
+    </Wrapper>
+  );
+};
 
 function useObjectStyle(style: string[]) {
   const stylesMap = useSelector(getStylesMap);

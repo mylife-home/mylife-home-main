@@ -153,6 +153,7 @@ export function useControlState(id: string) {
 export function useTemplateInstanceState(id: string) {
   const { viewType, viewId, selection, setSelection } = useContext(Context);
   const templateInstance = useSelector((state: AppState) => getTemplateInstance(state, id));
+  const template = useSelector((state: AppState) => getTemplate(state, templateInstance.templateId));
   const dispatch = useDispatch();
   const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
 
@@ -182,7 +183,7 @@ export function useTemplateInstanceState(id: string) {
   const selected = selection.type === 'template-instance' && selection.id === id;
   const select = useCallback(() => setSelection({ type: 'template-instance', id }), [setSelection]);
 
-  return { templateInstance, update, duplicate, rename, remove, selected, select };
+  return { templateInstance, template, update, duplicate, rename, remove, selected, select };
 }
 
 export function useSelection() {

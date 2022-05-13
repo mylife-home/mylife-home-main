@@ -13,7 +13,7 @@ export interface CanvasItemProps {
   onSelect: () => void;
 
   size: Size;
-  onResize: (size: Size) => void;
+  onResize?: (size: Size) => void;
   // no position => not movable
   position?: Position;
   onMove?: (position: Position) => void;
@@ -28,16 +28,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, id = null, size, onResize, position, onMove, selected, onSelect }) => {
+const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, id = null, size, onResize = null, position, onMove, selected, onSelect }) => {
+  const classes = useStyles();
+
   const onMouseDown = (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     onSelect();
   };
 
-  const content = (
+  const content = onResize ? (
     <ResizableItem id={id} size={size} onResize={onResize}>
       {children}
     </ResizableItem>
+  ) : (
+    <div className={classes.resizable} style={{ width: size.width, height: size.height }}>
+      {children}
+    </div>
   );
 
   if(position) {
