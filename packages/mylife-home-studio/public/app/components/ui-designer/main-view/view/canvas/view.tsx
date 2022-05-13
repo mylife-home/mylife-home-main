@@ -1,7 +1,7 @@
 import React, { FunctionComponent, CSSProperties, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+import { darken, makeStyles } from '@material-ui/core/styles';
 
 import Image from '../../common/image';
 import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
@@ -48,7 +48,11 @@ const useStyles = makeStyles((theme) => ({
   },
   templateElement: {
     position: 'absolute',
-    border: `1px solid red`,
+    border: `1px solid ${theme.palette.divider}`,
+  },
+  templateInstanceWrapper: {
+    background: darken(theme.palette.background.paper, 0.03),
+    opacity: 0.5,
   }
 }));
 
@@ -104,11 +108,12 @@ export const CanvasControlCreationView: FunctionComponent = () => {
 }
 
 export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
   const { template, selected } = useTemplateInstanceState(id);
 
   return (
     <Wrapper selected={selected}>
-      <TemplateContent id={template.id} />
+      <TemplateContent id={template.id} className={classes.templateInstanceWrapper} />
     </Wrapper>
   );
 };
@@ -116,7 +121,7 @@ export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ 
 const ControlItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const control = useSelector((state: AppState) => getControl(state, id));
-  
+
   return (
     <div style={{ height: control.height, width: control.width, left: control.x, top: control.y }} className={classes.templateElement}>
       <ControlContent id={id} />
@@ -147,12 +152,12 @@ const TemplateInstanceItem: FunctionComponent<{ id: string }> = ({ id }) => {
   );
 };
 
-const TemplateContent: FunctionComponent<{ id: string }> = ({ id }) => {
+const TemplateContent: FunctionComponent<{ className?: string; id: string }> = ({ className,id }) => {
   const classes = useStyles();
   const template = useSelector((state: AppState) => getTemplate(state, id));
 
   return (
-    <div className={classes.templateContainer}>
+    <div className={clsx(classes.templateContainer, className)}>
       {template.templates.map(id => (
         <TemplateInstanceItem key={id} id={id} />
       ))}
