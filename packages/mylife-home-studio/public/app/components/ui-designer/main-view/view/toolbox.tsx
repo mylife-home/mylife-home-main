@@ -16,12 +16,13 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import { ImageIcon, TextIcon, TemplateIcon } from '../../../lib/icons';
 import QuickAccess from '../../../lib/quick-access';
 import { useTabSelector } from '../../../lib/use-tab-selector';
-import { useSelection, useCreateControl, useCreateTemplateInstance, SelectionType, useSelectableControlList, useViewType, useViewId } from './view-state';
+import { useSelection, useCreateControl, useCreateTemplateInstance, SelectionType, useSelectableElementList, useViewType, useViewId } from './view-state';
 import { useControlCreatable, useTemplateInstanceCreatable } from './canvas/dnd';
 import { useSnapEditor } from './snap';
 import PropertiesWindow from './properties/window';
 import PropertiesTemplate from './properties/template';
 import PropertiesControl from './properties/control';
+import PropertiesTemplateInstance from './properties/template-instance';
 import { AppState } from '../../../../store/types';
 import { UiViewType } from '../../../../store/ui-designer/types';
 import { getTemplatesIds, getTemplate } from '../../../../store/ui-designer/selectors';
@@ -65,7 +66,7 @@ const useStyles = makeStyles(
       paddingLeft: theme.spacing(4),
       paddingRight: theme.spacing(4),
     },
-    controlSelector: {
+    elementSelector: {
       margin: theme.spacing(2),
       flex: 1,
     },
@@ -84,7 +85,7 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
 
   return (
     <div className={clsx(classes.container, className)}>
-      <Controls />
+      <Elements />
       <Divider />
       {getProperties(viewType, type, id, classes.properties)}
     </div>
@@ -93,20 +94,20 @@ const Toolbox: FunctionComponent<{ className?: string }> = ({ className }) => {
 
 export default Toolbox;
 
-const Controls: FunctionComponent = () => {
+const Elements: FunctionComponent = () => {
   const classes = useStyles();
-  const { controlsList, selectControl } = useSelectableControlList();
+  const { elementsList, selectElement } = useSelectableElementList();
 
   return (
     <div className={classes.controls}>
-      <NewControlTemplateInstance />
+      <NewElement />
       <SnapEditor />
-      <QuickAccess className={classes.controlSelector} list={controlsList} onSelect={selectControl} />
+      <QuickAccess className={classes.elementSelector} list={elementsList} onSelect={selectElement} />
     </div>
   );
 };
 
-const NewControlTemplateInstance: FunctionComponent = () => {
+const NewElement: FunctionComponent = () => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const templatesIds = useTabSelector(getTemplatesIds);
@@ -264,5 +265,7 @@ function getProperties(viewType: UiViewType, type: SelectionType, id: string, cl
       }
     case 'control':
       return <PropertiesControl id={id} className={className} />;
+    case 'template-instance':
+      return <PropertiesTemplateInstance id={id} className={className} />;
   }
 }

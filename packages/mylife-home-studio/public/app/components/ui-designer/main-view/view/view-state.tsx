@@ -3,17 +3,20 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { makeUniqueId } from '../../../lib/make-unique-id';
 import { AppState } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl } from '../../../../store/ui-designer/actions';
-import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap } from '../../../../store/ui-designer/selectors';
-import { UiWindow, UiTemplate, UiControl, UiViewType } from '../../../../store/ui-designer/types';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties } from '../../../../store/ui-designer/actions';
+import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
+import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
+
+export type SelectionType = 'view' | 'control' | 'template-instance';
+type Selection = { type: SelectionType; id: string; };
 
 interface ContextProps {
   viewType: UiViewType;
   viewId: string;
 
-  selection: string; // control id or null for view itself ///// FIXME: can also be template instance
-  setSelection: React.Dispatch<React.SetStateAction<string>>;
+  selection: Selection;
+  setSelection: React.Dispatch<React.SetStateAction<Selection>>;
 }
 
 const Context = createContext<ContextProps>(null);
@@ -30,10 +33,10 @@ export const ViewStateProvider: FunctionComponent<{ viewType: UiViewType; viewId
 };
 
 function useSelectionFactory(viewType: UiViewType, viewId: string) {
-  const [selection, setSelection] = useState<string>(null);
+  const [selection, setSelection] = useState<Selection>({ type: 'view', id: null });
 
   // reset selection on view change (= switch to another view)
-  useEffect(() => { setSelection(null); }, [viewType, viewId]);
+  useEffect(() => { setSelection({ type: 'view', id: null }); }, [viewType, viewId]);
 
   return { selection, setSelection };
 }
@@ -68,8 +71,8 @@ export function useViewState() {
     }
   }, [dispatch, viewType, viewId]);
 
-  const selected = selection === null;
-  const select = useCallback(() => setSelection(null), [setSelection]);
+  const selected = selection.type === 'view';
+  const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
   return { viewType, view, resize, selected, select };
 }
@@ -87,8 +90,8 @@ export function useWindowState() {
     dispatch(setWindowProperties({ windowId: viewId, properties }));
   }, [dispatch, viewId]);
 
-  const selected = selection === null;
-  const select = useCallback(() => setSelection(null), [setSelection]);
+  const selected = selection.type === 'view';
+  const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
   return { window, update, selected, select };
 }
@@ -106,8 +109,8 @@ export function useTemplateState() {
     dispatch(setTemplateProperties({ templateId: viewId, properties }));
   }, [dispatch, viewId]);
 
-  const selected = selection === null;
-  const select = useCallback(() => setSelection(null), [setSelection]);
+  const selected = selection.type === 'view';
+  const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
   return { template, update, selected, select };
 }
@@ -127,34 +130,64 @@ export function useControlState(id: string) {
     const newId = makeUniqueId(existingNames, control.controlId);
     dispatch(cloneControl({ controlId: id, newId }));
     const newFullId = `${viewId}:${viewType}:${newId}`;
-    setSelection(newFullId);
+    setSelection({ type: 'control', id: newFullId });
   }, [dispatch, viewType, viewId, id, control.controlId, getExistingControlNames]);
 
   const rename = useCallback((newId: string) => {
     dispatch(renameControl({ controlId: id, newId }));
     const newFullId = `${viewId}:${viewType}:${newId}`;
-    setSelection(newFullId);
+    setSelection({ type: 'control', id: newFullId });
   }, [dispatch, viewType, viewId, id, setSelection]);
 
   const remove = useCallback(() => {
     dispatch(clearControl({ controlId: id }));
-    setSelection(null);
+    setSelection({ type: 'view', id: null });
   }, [dispatch, id, setSelection]);
 
-  const selected = selection === id;
-  const select = useCallback(() => setSelection(id), [setSelection]);
+  const selected = selection.type === 'control' && selection.id === id;
+  const select = useCallback(() => setSelection({ type: 'control', id }), [setSelection]);
 
   return { control, update, duplicate, rename, remove, selected, select };
 }
 
-export type SelectionType = 'control' | 'view';
+export function useTemplateInstanceState(id: string) {
+  const { viewType, viewId, selection, setSelection } = useContext(Context);
+  const templateInstance = useSelector((state: AppState) => getTemplateInstance(state, id));
+  const dispatch = useDispatch();
+  const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
+
+  const update = useCallback((properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>) => {
+    dispatch(setTemplateInstanceProperties({ templateInstanceId: id, properties }));
+  }, [dispatch, id]);
+
+  const duplicate = useCallback(() => {
+    const existingNames = getExistingTemplateInstanceNames();
+    const newId = makeUniqueId(existingNames, templateInstance.templateInstanceId);
+    dispatch(cloneTemplateInstance({ templateInstanceId: id, newId }));
+    const newFullId = `${viewId}:${viewType}:${newId}`;
+    setSelection({ type: 'template-instance', id: newFullId });
+  }, [dispatch, viewType, viewId, id, templateInstance.templateInstanceId, getExistingTemplateInstanceNames]);
+
+  const rename = useCallback((newId: string) => {
+    dispatch(renameTemplateInstance({ templateInstanceId: id, newId }));
+    const newFullId = `${viewId}:${viewType}:${newId}`;
+    setSelection({ type: 'template-instance', id: newFullId });
+  }, [dispatch, viewType, viewId, id, setSelection]);
+
+  const remove = useCallback(() => {
+    dispatch(clearTemplateInstance({ templateInstanceId: id }));
+    setSelection({ type: 'view', id: null });
+  }, [dispatch, id, setSelection]);
+
+  const selected = selection.type === 'template-instance' && selection.id === id;
+  const select = useCallback(() => setSelection({ type: 'template-instance', id }), [setSelection]);
+
+  return { templateInstance, update, duplicate, rename, remove, selected, select };
+}
 
 export function useSelection() {
   const { selection } = useContext(Context);
-  return useMemo(() => {
-    const type: SelectionType = selection ? 'control' : 'view';
-    return { type, id: selection };
-  }, [selection]);
+  return selection;
 }
 
 export function useCreateControl(type: 'display' | 'text') {
@@ -169,7 +202,7 @@ export function useCreateControl(type: 'display' | 'text') {
 
     dispatch(newControl({ viewType, viewId, newId, x, y, type }));
     const newFullId = `${viewId}:${viewType}:${newId}`;
-    setSelection(newFullId);
+    setSelection({ type: 'control', id: newFullId });
   }, [dispatch, viewType, viewId, type, getExistingControlNames]);
 }
 
@@ -185,16 +218,73 @@ export function useCreateTemplateInstance(templateId: string) {
 
     dispatch(newTemplateInstance({ viewType, viewId, newId, x, y, templateId }));
     const newFullId = `${viewId}:${viewType}:${newId}`;
-    setSelection(newFullId);
+    setSelection({ type: 'template-instance', id: newFullId });
   }, [dispatch, viewType, viewId, templateId, getExistingTemplateInstanceNames]);
 }
 
-export function useSelectableControlList() {
+export function useSelectableElementList() {
   const { viewType, viewId, setSelection } = useContext(Context);
   const view = useSelector((state: AppState) => getView(state, viewType, viewId));
   const controlsMap = useSelector(getControlsMap);
-  const controlsList = useMemo(() => view.controls.map(id => ({ id, label: controlsMap[id].controlId })), [view.controls, controlsMap]);
-  return { controlsList, selectControl: setSelection };
+  const templateInstancesMap = useSelector(getTemplateInstancesMap);
+
+  const elementsList = useMemo(() => {
+    const items = [
+      ...view.controls.map(id => ({ id: `control:${id}`, label: controlsMap[id].controlId })),
+      ...view.templates.map(id => ({ id:`template-instance:${id}`, label: templateInstancesMap[id].templateInstanceId }))
+    ];
+
+    // check for duplicate labels and add suffix
+    const map = new Map<string, { id: string; label: string }[]>();
+    for (const item of items) {
+      let list = map.get(item.label);
+      if (!list) {
+        list = [];
+        map.set(item.label, list);
+      }
+
+      list.push(item);
+    }
+
+    for (const list of map.values()) {
+      if (list.length > 1) {
+        for (const item of list) {
+          if (item.id.startsWith('control:')) {
+            item.label += ' (Contrôle)';
+          } else if (item.id.startsWith('template-instance:')) {
+            item.label += ' (Template)';
+          }
+        }
+      }
+    }
+
+    items.sort((a, b) => {
+      if (a.label < b.label) {
+        return -1;
+      } else if ( a.label > b.label) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return items;
+    
+  }, [view.controls, view.templates, controlsMap, templateInstancesMap]);
+
+  const selectElement = useCallback((value: string) => {
+    const sepPos = value.indexOf(':');
+    if (sepPos < 0) {
+      throw new Error(`Bad value: '${value}'`);
+    }
+
+    const type = value.substring(0, sepPos) as SelectionType;
+    const id = value.substring(sepPos + 1);
+
+    setSelection({ type, id });
+  }, [setSelection]);
+
+  return { elementsList, selectElement };
 }
 
 export function useViewType() {
