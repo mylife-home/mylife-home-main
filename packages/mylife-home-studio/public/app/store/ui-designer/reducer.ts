@@ -289,7 +289,7 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
       }
 
       const controlIds = setViewControls(state, openedProject, 'window', id, windowData.controls);
-      const templateInstanceIds = setViewTemplateInstances(state, openedProject, 'template', id, windowData.templates);
+      const templateInstanceIds = setViewTemplateInstances(state, openedProject, 'window', id, windowData.templates);
 
       const window: UiWindow = {
         id,
