@@ -542,8 +542,8 @@ export class UiOpenedProject extends OpenedProject {
   private setTemplateInstanceProperties({ viewType, viewId, id, properties }: SetTemplateInstancePropertiesUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
-      const controlModel = viewModel.getControl(id);
-      controlModel.update(properties);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+      templateInstanceModel.update(properties);
       this.notifyAllView(viewModel);
     });
   }
