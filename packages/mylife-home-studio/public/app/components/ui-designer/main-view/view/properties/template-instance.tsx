@@ -12,7 +12,7 @@ import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
-import StyleSelector from '../../common/style-selector';
+import TemplateSelector from '../../common/template-selector';
 import { useTemplateInstanceState, useGetExistingTemplateInstanceNames } from '../view-state';
 import { useSnapValue } from '../snap';
 import { AppState } from '../../../../../store/types';
@@ -78,6 +78,9 @@ const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; 
 
         <Item title={'Identifiant'}>
           <ReadonlyStringEditor value={templateInstance.templateInstanceId} />
+        </Item>
+        <Item title={'Template'}>
+          <TemplateSelector value={templateInstance.templateId} onChange={(value) => update({ templateId: value })} />
         </Item>
         <Item title={'X'}>
           <SnappedIntegerEditor snap={snap} value={templateInstance.x} onChange={(value) => update({ x: value })} />
