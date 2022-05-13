@@ -7,7 +7,8 @@ import Image from '../../common/image';
 import { useViewState, useControlState, useTemplateInstanceState } from '../view-state';
 import { useTextValue } from '../control-text-value';
 import { UiControlTextData } from '../../../../../../../shared/project-manager';
-import { getStylesMap } from '../../../../../store/ui-designer/selectors';
+import { AppState } from '../../../../../store/types';
+import { getControl, getStylesMap, getTemplateInstance, getTemplate } from '../../../../../store/ui-designer/selectors';
 import { UiWindow } from '../../../../../store/ui-designer/types';
 
 const useStyles = makeStyles((theme) => ({
@@ -39,6 +40,15 @@ const useStyles = makeStyles((theme) => ({
   text: {
     // Note: must match UI render
     margin: 'auto'
+  },
+  templateContainer: {
+    height: '100%',
+    width: '100%',
+    position: 'relative',
+  },
+  templateElement: {
+    position: 'absolute',
+    border: `1px solid red`,
   }
 }));
 
@@ -64,13 +74,12 @@ export const CanvasViewView = () => {
 };
 
 export const CanvasControlView: FunctionComponent<{ id: string }> = ({ id }) => {
-  const classes = useStyles();
   const { control, selected } = useControlState(id);
   const style = useObjectStyle(control.style);
 
   return (
     <Wrapper selected={selected} style={style}>
-      {control.text ? <TextView className={classes.text} text={control.text} /> : <Image resource={control.display.defaultResource} className={classes.image} />}
+      <ControlContent id={id} />
     </Wrapper>
   );
 };
@@ -99,9 +108,60 @@ export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ 
 
   return (
     <Wrapper selected={selected}>
-      TODO children
+      <TemplateContent id={template.id} />
     </Wrapper>
   );
+};
+
+const ControlItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const control = useSelector((state: AppState) => getControl(state, id));
+  
+  return (
+    <div style={{ height: control.height, width: control.width, left: control.x, top: control.y }} className={classes.templateElement}>
+      <ControlContent id={id} />
+    </div>
+  );
+};
+
+const ControlContent: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const control = useSelector((state: AppState) => getControl(state, id));
+
+  return control.text ? (
+    <TextView className={classes.text} text={control.text} />
+  ) : (
+    <Image resource={control.display.defaultResource} className={classes.image} />
+  );
+};
+
+const TemplateInstanceItem: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const templateInstance = useSelector((state: AppState) => getTemplateInstance(state, id));
+  const template = useSelector((state: AppState) => getTemplate(state, templateInstance.templateId));
+
+  return (
+    <div style={{ height: template.height, width: template.width, left: templateInstance.x, top: templateInstance.y }} className={clsx(classes.templateContainer, classes.templateElement)}>
+      <TemplateContent id={templateInstance.templateId} />
+    </div>
+  );
+};
+
+const TemplateContent: FunctionComponent<{ id: string }> = ({ id }) => {
+  const classes = useStyles();
+  const template = useSelector((state: AppState) => getTemplate(state, id));
+
+  return (
+    <div className={classes.templateContainer}>
+      {template.templates.map(id => (
+        <TemplateInstanceItem key={id} id={id} />
+      ))}
+
+      {template.controls.map(id => (
+        <ControlItem key={id} id={id} />
+      ))}
+    </div>
+  )
 };
 
 function useObjectStyle(style: string[]) {

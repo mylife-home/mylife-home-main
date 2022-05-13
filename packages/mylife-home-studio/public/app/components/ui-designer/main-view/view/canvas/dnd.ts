@@ -33,7 +33,8 @@ interface CreateTemplateInstanceDragItem extends DragItem {
 
 interface MoveDragItem extends DragItem {
   type: typeof ItemTypes.MOVE;
-  id: string; // control id being moved
+  elementType: 'control' | 'template-instance';
+  elementId: string; // control/templateInstance id being moved
   position: Position;
 }
 
@@ -63,7 +64,8 @@ export interface CreateTemplateInstanceComponentData extends ComponentData {
 
 export interface MoveComponentData extends ComponentData {
   type: typeof ItemTypes.MOVE;
-  id: string; // control id being moved
+  elementType: 'control' | 'template-instance';
+  elementId: string; // control/templateInstance id being moved
   newPosition: Position;
 }
 
@@ -120,9 +122,9 @@ export function useTemplateInstanceCreatable(size: Size, onCreate: (position: Po
   return ref;
 }
 
-export function useMoveable(id: string, position: Position, onMove: (newPosition: Position) => void) {
+export function useMoveable(elementType: 'control' | 'template-instance', elementId: string, position: Position, onMove: (newPosition: Position) => void) {
   const [{ isDragging }, ref, preview] = useDrag({
-    item: { type: ItemTypes.MOVE, id, position },
+    item: { type: ItemTypes.MOVE, elementType, elementId, position },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -265,7 +267,8 @@ function computeMoveComponentData(item: MoveDragItem, monitor: CommonMonitor, ap
 
   return {
     type: item.type,
-    id: item.id,
+    elementType: item.elementType,
+    elementId: item.elementId,
     newPosition,
   };
 }

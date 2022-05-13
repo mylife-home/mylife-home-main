@@ -7,6 +7,7 @@ import { Position, Size, ResizeDirection } from './types';
 
 export interface CanvasItemProps {
   className?: string;
+  type?: 'control' | 'template-instance';
   id?: string;
 
   selected: boolean;
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, id = null, size, onResize = null, position, onMove, selected, onSelect }) => {
+const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, type = null, id = null, size, onResize = null, position, onMove, selected, onSelect }) => {
   const classes = useStyles();
 
   const onMouseDown = (e: { stopPropagation: () => void }) => {
@@ -48,7 +49,7 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, i
 
   if(position) {
     return (
-      <MoveableItem className={className} id={id} onMouseDown={onMouseDown} position={position} onMove={onMove}>
+      <MoveableItem className={className} type={type} id={id} onMouseDown={onMouseDown} position={position} onMove={onMove}>
         {content}
       </MoveableItem>
     );
@@ -64,14 +65,15 @@ const CanvasItem: FunctionComponent<CanvasItemProps> = ({ className, children, i
 export default CanvasItem;
 
 interface MoveableItemProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+  type: 'control' | 'template-instance';
   id: string;
   position: Position;
   onMove: (position: Position) => void;
 }
 
-const MoveableItem: FunctionComponent<MoveableItemProps> = ({ id, position, onMove, className, ...props }) => {
+const MoveableItem: FunctionComponent<MoveableItemProps> = ({ type, id, position, onMove, className, ...props }) => {
   const classes = useStyles();
-  const { ref, isMoving } = useMoveable(id, position, onMove);
+  const { ref, isMoving } = useMoveable(type, id, position, onMove);
   return <div {...props} className={clsx(className, classes.moveable)} ref={ref} style={{ left: position.x, top: position.y, opacity: isMoving ? 0 : 1 }} />;
 };
 
