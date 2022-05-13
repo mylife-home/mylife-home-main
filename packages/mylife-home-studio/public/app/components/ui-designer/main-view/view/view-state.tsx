@@ -46,6 +46,14 @@ export function useGetExistingControlNames() {
   return useCallback(() => new Set(view.controls.map(id => controlsMap[id].controlId)), [view.controls, controlsMap]);
 }
 
+export function useGetExistingTemplateInstanceNames() {
+  const { viewType, viewId } = useContext(Context);
+  const view = useSelector((state: AppState) => getView(state, viewType, viewId));
+  const templateInstancesMap = useSelector(getTemplateInstancesMap);
+
+  return useCallback(() => new Set(view.templates.map(id => templateInstancesMap[id].templateInstanceId)), [view.templates, templateInstancesMap]);
+}
+
 export function useViewState() {
   const { viewType, viewId, selection, setSelection } = useContext(Context);
   const view = useSelector((state: AppState) => getView(state, viewType, viewId));

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
 import { useViewState, useControlState } from '../view-state';
-import { ItemTypes, useCanvasDragLayer, ComponentData, CreateComponentData, MoveComponentData, ResizeComponentData } from './dnd';
+import { ItemTypes, useCanvasDragLayer, ComponentData, CreateControlComponentData, CreateTemplateInstanceComponentData, MoveComponentData, ResizeComponentData } from './dnd';
 import { useContainerRect } from './container';
 import { Position, Size } from './types';
 import { CanvasViewView, CanvasControlView, CanvasControlCreationView } from './view';
@@ -46,9 +46,14 @@ const DragLayer: FunctionComponent = () => {
 
 function createPreview(componentData: ComponentData) {
   switch (componentData.type) {
-    case ItemTypes.CREATE: {
-      const createData = componentData as CreateComponentData;
+    case ItemTypes.CREATE_CONTROL: {
+      const createData = componentData as CreateControlComponentData;
       return <CreateControlPreview currentPosition={createData.newPosition} currentSize={createData.newSize} />;
+    }
+
+    case ItemTypes.CREATE_TEMPLATE_INSTANCE: {
+      const createData = componentData as CreateTemplateInstanceComponentData;
+      return <CreateControlPreview currentPosition={createData.newPosition} currentSize={createData.size} />;
     }
 
     case ItemTypes.MOVE: {
