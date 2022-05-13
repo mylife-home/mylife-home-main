@@ -425,6 +425,10 @@ export class UiOpenedProject extends OpenedProject {
 
       this.notifyAll<ClearUiTemplateNotification>({ operation: 'clear-ui-template', id });
 
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
       for (const template of impacts.templates) {
         this.notifyAllTemplate(template);
       }
@@ -436,6 +440,10 @@ export class UiOpenedProject extends OpenedProject {
       const impacts = this.model.renameTemplate(id, newId);
 
       this.notifyAll<RenameUiTemplateNotification>({ operation: 'rename-ui-template', id, newId });
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
 
       for (const template of impacts.templates) {
         this.notifyAllTemplate(template);
