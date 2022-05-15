@@ -49,6 +49,13 @@ export function useGetExistingControlNames() {
   return useCallback(() => new Set(view.controls.map(id => controlsMap[id].controlId)), [view.controls, controlsMap]);
 }
 
+export function useGetViewExistingControlNames(viewType: UiViewType, viewId: string) {
+  const view = useSelector((state: AppState) => getView(state, viewType, viewId));
+  const controlsMap = useSelector(getControlsMap);
+
+  return useCallback(() => new Set(view.controls.map(id => controlsMap[id].controlId)), [view.controls, controlsMap]);
+}
+
 export function useGetExistingTemplateInstanceNames() {
   const { viewType, viewId } = useContext(Context);
   const view = useSelector((state: AppState) => getView(state, viewType, viewId));
@@ -119,19 +126,10 @@ export function useControlState(id: string) {
   const { viewType, viewId, selection, setSelection } = useContext(Context);
   const control = useSelector((state: AppState) => getControl(state, id));
   const dispatch = useDispatch();
-  const getExistingControlNames = useGetExistingControlNames();
 
   const update = useCallback((properties: Partial<Omit<UiControl, 'id' | 'controlId'>>) => {
     dispatch(setControlProperties({ controlId: id, properties }));
   }, [dispatch, id]);
-
-  const duplicate = useCallback(() => {
-    const existingNames = getExistingControlNames();
-    const newId = makeUniqueId(existingNames, control.controlId);
-    dispatch(cloneControl({ controlId: id, newId }));
-    const newFullId = `${viewId}:${viewType}:${newId}`;
-    setSelection({ type: 'control', id: newFullId });
-  }, [dispatch, viewType, viewId, id, control.controlId, getExistingControlNames]);
 
   const rename = useCallback((newId: string) => {
     dispatch(renameControl({ controlId: id, newId }));
@@ -147,7 +145,26 @@ export function useControlState(id: string) {
   const selected = selection.type === 'control' && selection.id === id;
   const select = useCallback(() => setSelection({ type: 'control', id }), [setSelection]);
 
-  return { control, update, duplicate, rename, remove, selected, select };
+  return { control, update, rename, remove, selected, select };
+}
+
+export function useControlDuplicate(id: string, targetViewType: UiViewType, targetViewId: string) {
+  const { viewType, viewId, setSelection } = useContext(Context);
+  const control = useSelector((state: AppState) => getControl(state, id));
+  const dispatch = useDispatch();
+  const getViewExistingControlNames = useGetViewExistingControlNames(targetViewType, targetViewId);
+
+  return useCallback(() => {
+    const existingNames = getViewExistingControlNames();
+    const newId = makeUniqueId(existingNames, control.controlId);
+    dispatch(cloneControl({ controlId: id, newId, targetViewType: viewType, targetViewId: viewId }));
+
+    if (targetViewType === viewType && targetViewId === viewId) {
+      const newFullId = `${targetViewId}:${targetViewType}:${newId}`;
+      setSelection({ type: 'control', id: newFullId });
+    }
+
+  }, [dispatch, targetViewType, targetViewId, viewType, viewId, id, control.controlId, getViewExistingControlNames]);
 }
 
 export function useTemplateInstanceState(id: string) {

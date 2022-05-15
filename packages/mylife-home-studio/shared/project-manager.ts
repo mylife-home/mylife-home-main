@@ -547,6 +547,8 @@ export interface CloneControlUiProjectCall extends UiProjectCall {
   viewId: string;
   id: string;
   newId: string;
+  targetViewType: 'window' | 'template';
+  targetViewId: string;
 }
 
 export interface SetControlPropertiesUiProjectCall extends UiProjectCall {

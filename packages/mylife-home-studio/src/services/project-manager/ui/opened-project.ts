@@ -490,11 +490,12 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private cloneControl({ viewType, viewId, id, newId }: CloneControlUiProjectCall) {
+  private cloneControl({ viewType, viewId, id, newId, targetViewType, targetViewId }: CloneControlUiProjectCall) {
     this.executeUpdate(() => {
-      const viewModel = this.model.getView(viewType, viewId);
-      viewModel.cloneControl(id, newId);
-      this.notifyAllView(viewModel);
+      const sourceControl = this.model.getView(viewType, viewId).getControl(id);
+      const targetViewModel = this.model.getView(targetViewType, targetViewId);
+      targetViewModel.cloneControl(sourceControl, newId);
+      this.notifyAllView(targetViewModel);
     });
   }
 

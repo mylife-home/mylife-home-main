@@ -573,10 +573,8 @@ export abstract class ViewModel extends ModelBase {
     return this.controls.set(controlId, newControl);
   }
 
-  cloneControl(controlId: string, newId: string) {
-    const source = this.controls.getById(controlId);
-
-    const newControl = clone(source.data);
+  cloneControl(sourceControl: ControlModel, newId: string) {
+    const newControl = clone(sourceControl.data);
     newControl.x += 10;
     newControl.y += 10;
 

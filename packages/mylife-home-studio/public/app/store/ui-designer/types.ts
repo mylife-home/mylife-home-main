@@ -78,7 +78,7 @@ export namespace ActionPayloads {
   export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; type: 'display' | 'text' };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };
-  export type CloneControl = { controlId: string; newId: string; };
+  export type CloneControl = { controlId: string; newId: string; targetViewType: UiViewType; targetViewId: string; };
   export type SetControlProperties = { controlId: string; properties: Partial<Omit<UiControl, 'id' | 'controlId'>>; };
   export type NewTemplateInstance = { viewType: UiViewType; viewId: string; newId: string; templateId: string; x: number; y: number; };
   export type ClearTemplateInstance = { templateInstanceId: string; };

@@ -290,9 +290,10 @@ export default createProjectManagementEpic({
     },
 
     [ActionTypes.CLONE_CONTROL]: {
-      mapper({ controlId, newId }: ActionPayloads.CloneControl) {
+      mapper({ controlId, newId, targetViewType, targetViewId: fullTargetViewId }: ActionPayloads.CloneControl) {
         const { tabId, viewType, viewId, id } = extractControlIds(controlId);
-        const callData: CloneControlUiProjectCall = { operation: 'clone-control', viewType, viewId, id, newId };
+        const targetViewId = extractNullableId(fullTargetViewId, tabId);
+        const callData: CloneControlUiProjectCall = { operation: 'clone-control', viewType, viewId, id, newId, targetViewType, targetViewId };
         return { tabId, callData };
       },
     },

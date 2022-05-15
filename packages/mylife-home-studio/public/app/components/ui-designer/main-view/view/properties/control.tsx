@@ -1,8 +1,12 @@
-import React, { FunctionComponent, useEffect, useMemo } from 'react';
+import React, { FunctionComponent, useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 
@@ -10,6 +14,7 @@ import DeleteButton from '../../../../lib/delete-button';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
+import { WindowIcon, TemplateIcon } from '../../../../lib/icons';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import StyleSelector from '../../common/style-selector';
@@ -44,7 +49,7 @@ export default PropertiesControl;
 
 const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
-  const { control, update, duplicate, rename, remove } = useControlState(id);
+  const { control, update, rename, remove } = useControlState(id);
   const getExistingControlNames = useGetExistingControlNames();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
@@ -63,11 +68,7 @@ const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: strin
     <div className={className}>
       <Group title={'Contrôle'}>
         <div className={classes.actions}>
-          <Tooltip title="Dupliquer">
-            <IconButton onClick={duplicate}>
-              <FileCopyIcon />
-            </IconButton>
-          </Tooltip>
+          <DuplicateButton />
 
           <Tooltip title="Renommer">
             <IconButton onClick={onRename}>
@@ -101,5 +102,50 @@ const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: strin
       <PropertiesControlAppearence id={id} />
       <PropertiesControlActions id={id} />
     </div>
+  );
+};
+
+const DuplicateButton: FunctionComponent = () => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <Tooltip title="Dupliquer">
+        <IconButton onClick={handleClick}>
+          <FileCopyIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Menu
+        getContentAnchorEl={null}
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={handleClose}
+      >
+        <DuplicateOnSelfMenuItem onClose={handleClose} />
+      </Menu>
+    </>
+  );
+};
+
+const DuplicateOnSelfMenuItem: FunctionComponent<{ onClose: () => void; }> = ({ onClose }) => {
+  return (
+    <MenuItem onClick={onClose}>
+      <ListItemIcon>
+        <WindowIcon />
+      </ListItemIcon>
+
+      <ListItemText>
+        SELF
+      </ListItemText>
+    </MenuItem>
   );
 };
