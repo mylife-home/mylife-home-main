@@ -59,7 +59,7 @@ const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; 
 
   return (
     <div className={className}>
-      <Group title={'Contrôle'}>
+      <Group title={'Instance de template'}>
         <div className={classes.actions}>
           <Tooltip title="Dupliquer">
             <IconButton onClick={duplicate}>
