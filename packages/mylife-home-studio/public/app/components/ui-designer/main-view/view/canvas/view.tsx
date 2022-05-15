@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.divider}`,
 
     // Note: must match UI render
-    padding: '2px',
+    padding: 2,
     // display: 'table-cell',
     // verticalAlign: 'middle',
 
@@ -27,7 +27,10 @@ const useStyles = makeStyles((theme) => ({
     lineHeight: 1.5,
     fontWeight: 400
   },
-  selected: {
+  wrapperNoPadding: {
+    padding: 0,
+  },
+  wrapperSelected: {
     border: `1px solid ${theme.palette.primary.main}`,
   },
   image: {
@@ -56,10 +59,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Wrapper: FunctionComponent<{ style?: CSSProperties; selected: boolean }> = ({ style, children, selected }) => {
+const Wrapper: FunctionComponent<{ style?: CSSProperties; noPadding?: boolean; selected: boolean }> = ({ style, children, noPadding = false, selected }) => {
   const classes = useStyles();
 
-  return <div className={clsx(classes.wrapper, selected && classes.selected)} style={style}>{children}</div>;
+  return <div className={clsx(classes.wrapper, { [classes.wrapperNoPadding]: noPadding, [classes.wrapperSelected]: selected })} style={style}>{children}</div>;
 };
 
 export const CanvasViewView = () => {
@@ -112,7 +115,7 @@ export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ 
   const { template, selected } = useTemplateInstanceState(id);
 
   return (
-    <Wrapper selected={selected}>
+    <Wrapper selected={selected} noPadding>
       <TemplateContent id={template.id} className={classes.templateInstanceWrapper} />
     </Wrapper>
   );
@@ -121,9 +124,10 @@ export const CanvasTemplateInstanceView: FunctionComponent<{ id: string }> = ({ 
 const ControlItem: FunctionComponent<{ id: string }> = ({ id }) => {
   const classes = useStyles();
   const control = useSelector((state: AppState) => getControl(state, id));
+  const style = useObjectStyle(control.style);
 
   return (
-    <div style={{ height: control.height, width: control.width, left: control.x, top: control.y }} className={classes.templateElement}>
+    <div style={{ ...style, height: control.height, width: control.width, left: control.x, top: control.y }} className={classes.templateElement}>
       <ControlContent id={id} />
     </div>
   );
