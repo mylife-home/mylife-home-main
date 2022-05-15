@@ -550,8 +550,15 @@ export abstract class ViewModel extends ModelBase {
 
   constructor(id: string, data: UiViewData) {
     super(id);
+    const owner = this;
 
-    this.controls = new CollectionModel(data.controls, ControlModel);
+    class BoundControlModel extends ControlModel {
+      constructor(id: string, data: UiControlData) {
+        super(owner, id, data);
+      }
+    }
+
+    this.controls = new CollectionModel(data.controls, BoundControlModel);
     this.templates = new CollectionModel(data.templates, TemplateInstanceModel);
   }
 
@@ -575,8 +582,14 @@ export abstract class ViewModel extends ModelBase {
 
   cloneControl(sourceControl: ControlModel, newId: string) {
     const newControl = clone(sourceControl.data);
-    newControl.x += 10;
-    newControl.y += 10;
+
+    if (sourceControl.owner === this) {
+      newControl.x += 10;
+      newControl.y += 10;
+    } else {
+      newControl.x = 10;
+      newControl.y = 10;
+    }
 
     return this.controls.set(newId, newControl);
   }
@@ -919,7 +932,7 @@ export class TemplateInstanceModel extends ModelBase {
 }
 
 export class ControlModel extends ModelBase {
-  constructor(id: string, public readonly data: UiControlData) {
+  constructor(public readonly owner: ViewModel, id: string, public readonly data: UiControlData) {
     super(id);
   }
 

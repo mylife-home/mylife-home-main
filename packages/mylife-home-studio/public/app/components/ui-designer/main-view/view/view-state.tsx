@@ -2,7 +2,9 @@ import React, { FunctionComponent, createContext, useContext, useCallback, useMe
 import { useDispatch, useSelector } from 'react-redux';
 
 import { makeUniqueId } from '../../../lib/make-unique-id';
-import { AppState } from '../../../../store/types';
+import { useFireAsync } from '../../../lib/use-error-handling';
+import { useSnackbar } from '../../../dialogs/snackbar';
+import { AppState, AsyncDispatch } from '../../../../store/types';
 import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties } from '../../../../store/ui-designer/actions';
 import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance } from '../../../../store/ui-designer/types';
@@ -149,22 +151,28 @@ export function useControlState(id: string) {
 }
 
 export function useControlDuplicate(id: string, targetViewType: UiViewType, targetViewId: string) {
+  const dispatch = useDispatch<AsyncDispatch>();
+  const fireAsync = useFireAsync();
+  const { enqueueSnackbar } = useSnackbar();
   const { viewType, viewId, setSelection } = useContext(Context);
   const control = useSelector((state: AppState) => getControl(state, id));
-  const dispatch = useDispatch();
   const getViewExistingControlNames = useGetViewExistingControlNames(targetViewType, targetViewId);
 
   return useCallback(() => {
-    const existingNames = getViewExistingControlNames();
-    const newId = makeUniqueId(existingNames, control.controlId);
-    dispatch(cloneControl({ controlId: id, newId, targetViewType: viewType, targetViewId: viewId }));
-
-    if (targetViewType === viewType && targetViewId === viewId) {
-      const newFullId = `${targetViewId}:${targetViewType}:${newId}`;
-      setSelection({ type: 'control', id: newFullId });
-    }
-
-  }, [dispatch, targetViewType, targetViewId, viewType, viewId, id, control.controlId, getViewExistingControlNames]);
+    fireAsync(async () => {
+      const existingNames = getViewExistingControlNames();
+      const newId = makeUniqueId(existingNames, control.controlId);
+      await dispatch(cloneControl({ controlId: id, newId, targetViewType, targetViewId }));
+  
+      if (targetViewType === viewType && targetViewId === viewId) {
+        const newFullId = `${targetViewId}:${targetViewType}:${newId}`;
+        setSelection({ type: 'control', id: newFullId });
+      } else {
+        enqueueSnackbar('Contrôle dupliqué', { variant: 'success' });
+      }
+  
+    });
+  }, [fireAsync, enqueueSnackbar, dispatch, targetViewType, targetViewId, viewType, viewId, id, control.controlId, getViewExistingControlNames]);
 }
 
 export function useTemplateInstanceState(id: string) {
