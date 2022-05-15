@@ -141,6 +141,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - control cannot go outside of window (create, move, resize)
   - on window resize, compute control position ratio + force then to be inside window if on borders
   - on window resize window cannot be smaller that larger of its control
+  - control multi select (pour duplication/suppression/déplacement)
   - z-index (to make background as image control and be able to position them)
     - ajouter une interface Positionable ou Element avec { x, y, zIndex } pour TemplateInstance et Control
     - zIndex influe sur l'ordre de rendu des controles (donc dans un template c'est pondéré)
