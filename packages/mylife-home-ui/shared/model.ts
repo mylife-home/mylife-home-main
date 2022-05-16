@@ -11,7 +11,6 @@ export type DefaultWindow = { [type: string]: string; };
 
 export interface Window {
   readonly id: string;
-  readonly title: string;
   readonly style: Style;
   readonly height: number;
   readonly width: number;

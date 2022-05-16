@@ -75,8 +75,8 @@
 }
 
 .mylife-window-popup {
-  @extend .modal-dialog;
-  @extend .modal-xl;
+  // @extend .modal-dialog;
+  // @extend .modal-xl;
 
   position: fixed;
   top: 50%;
@@ -84,7 +84,7 @@
   -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 
-  max-width: unset;
+  background-color: #fff;
 }
 
 .mylife-window-container {

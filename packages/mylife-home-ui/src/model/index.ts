@@ -32,7 +32,6 @@ const DEFAULT_DEFINITION: Definition = {
   resources: [],
   windows: [{
     id: 'default-window',
-    title: 'Default window',
     style: [],
     width: 300,
     height: 100,
