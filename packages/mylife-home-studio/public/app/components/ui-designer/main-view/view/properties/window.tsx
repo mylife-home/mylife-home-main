@@ -32,9 +32,6 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
         <Item title={'Identifiant'}>
           <ReadonlyStringEditor value={window.windowId} />
         </Item>
-        <Item title={'Titre'}>
-          <StringEditor value={window.title} onChange={(value) => update({ title: value })} />
-        </Item>
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={window.width} onChange={(value) => update({ width: value })} />
         </Item>

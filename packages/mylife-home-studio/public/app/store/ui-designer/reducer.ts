@@ -455,10 +455,10 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
 }
 
 function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls' | 'templates'>, { adaptIds }: { adaptIds: boolean }) {
-  const { title, style, height, width, backgroundResource } = window;
+  const { style, height, width, backgroundResource } = window;
 
   return {
-    title, height, width,
+    height, width,
     style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
     backgroundResource: prepareNullableId(openedProject, backgroundResource, { adaptIds })
   };

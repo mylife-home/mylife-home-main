@@ -8,7 +8,6 @@ import { clone } from '../../../utils/object-utils';
 // Note: same than templates on client
 
 const WINDOW_TEMPLATE: UiWindowData = {
-  title: 'Nouvelle fenêtre',
   style: [],
   height: 500,
   width: 500,
@@ -797,7 +796,7 @@ export class WindowModel extends ViewModel {
   }
 
   update(properties: Partial<Omit<UiWindowData, 'controls'>>) {
-    const data = pickIfDefined(properties, 'title', 'style', 'backgroundResource', 'height', 'width');
+    const data = pickIfDefined(properties, 'style', 'backgroundResource', 'height', 'width');
 
     if (data.style) {
       data.style.sort();

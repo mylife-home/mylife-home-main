@@ -29,7 +29,6 @@ export interface UiViewData {
 }
 
 export interface UiWindowData extends UiViewData {
-  title: string;
   style: Style;
   backgroundResource: Resource;
 }
