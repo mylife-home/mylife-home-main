@@ -149,7 +149,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - dans le designer, rendre les contrôles dans le bon ordre
     - le background de la fenetre est toujours avec le zIndex le plus petit
     - plus tard, supprimer le background de fenetre ?
-  - enlever titre sur window (et ne pas afficher le titre + close button des popups, laisser en text static)
   - dynamic templates
     - need custom controls (VR/light "all" panel)
     - need to bind on several components
