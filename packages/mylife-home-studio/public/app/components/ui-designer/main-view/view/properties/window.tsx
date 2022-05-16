@@ -38,7 +38,7 @@ const PropertiesWindow: FunctionComponent<{ className?: string }> = ({ className
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={window.width} onChange={(value) => update({ width: value })} />
         </Item>
-        <Item title={'Longueur'}>
+        <Item title={'Hauteur'}>
           <SnappedIntegerEditor snap={snap} value={window.height} onChange={(value) => update({ height: value })} />
         </Item>
         <Item title={'Style'} multiline>

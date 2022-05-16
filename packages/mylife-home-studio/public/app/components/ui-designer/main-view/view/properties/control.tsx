@@ -97,7 +97,7 @@ const UnsafePropertiesControl: FunctionComponent<{ className?: string; id: strin
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={control.width} onChange={(value) => update({ width: value })} />
         </Item>
-        <Item title={'Longueur'}>
+        <Item title={'Hauteur'}>
           <SnappedIntegerEditor snap={snap} value={control.height} onChange={(value) => update({ height: value })} />
         </Item>
         <Item title={'Style'} multiline>

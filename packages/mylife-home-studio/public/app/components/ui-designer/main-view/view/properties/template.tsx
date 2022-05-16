@@ -32,7 +32,7 @@ const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ classNa
         <Item title={'Largeur'}>
           <SnappedIntegerEditor snap={snap} value={template.width} onChange={(value) => update({ width: value })} />
         </Item>
-        <Item title={'Longueur'}>
+        <Item title={'Hauteur'}>
           <SnappedIntegerEditor snap={snap} value={template.height} onChange={(value) => update({ height: value })} />
         </Item>
       </Group>
