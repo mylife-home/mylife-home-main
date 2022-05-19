@@ -92,7 +92,7 @@ export namespace ActionPayloads {
   export type SetTemplateInstanceProperties = { templateInstanceId: string; properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>; };
 }
 
-export { DesignerTabActionData, DefaultWindow };
+export { DesignerTabActionData, DefaultWindow, MemberType };
 
 export interface UiResource extends UiResourceData {
   id: string;

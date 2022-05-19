@@ -9,11 +9,15 @@ import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import ElementPathBreadcrumbs from '../../common/element-path-breadcrumbs';
 import { useTemplateState } from '../view-state';
 import { useSnapValue } from '../snap';
+import TemplateExports from './template-exports';
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
     flex: 1,
     margin: theme.spacing(1),
+  },
+  newButton: {
+    color: theme.palette.success.main,
   },
 }));
 
@@ -44,6 +48,8 @@ const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ classNa
           </Item>
         ))}
       </Group>
+
+      <TemplateExports />
     </div>
   );
 };

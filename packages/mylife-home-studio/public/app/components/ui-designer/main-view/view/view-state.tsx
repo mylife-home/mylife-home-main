@@ -5,9 +5,9 @@ import { makeUniqueId } from '../../../lib/make-unique-id';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useSnackbar } from '../../../dialogs/snackbar';
 import { AppState, AsyncDispatch } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties } from '../../../../store/ui-designer/actions';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties, clearTemplateExport, setTemplateExport } from '../../../../store/ui-designer/actions';
 import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
-import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance } from '../../../../store/ui-designer/types';
+import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance, MemberType } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
 
 export type SelectionType = 'view' | 'control' | 'template-instance';
@@ -118,10 +118,18 @@ export function useTemplateState() {
     dispatch(setTemplateProperties({ templateId: viewId, properties }));
   }, [dispatch, viewId]);
 
+  const setExport = useCallback((exportId: string, memberType: MemberType, valueType: string) => {
+    dispatch(setTemplateExport({ templateId: viewId, exportId, memberType, valueType }));
+  }, [dispatch, viewId]);
+
+  const clearExport = useCallback((exportId: string) => {
+    dispatch(clearTemplateExport({ templateId: viewId, exportId }));
+  }, [dispatch, viewId]);
+
   const selected = selection.type === 'view';
   const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
-  return { template, update, selected, select };
+  return { template, update, setExport, clearExport, selected, select };
 }
 
 export function useControlState(id: string) {
