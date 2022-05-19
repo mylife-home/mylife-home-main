@@ -44,8 +44,8 @@ import {
   ClearUiTemplateNotification,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
-  SetTemplateBindingUiProjectCall,
-  ClearTemplateBindingUiProjectCall,
+  SetTemplateExportUiProjectCall,
+  ClearTemplateExportUiProjectCall,
   NewTemplateInstanceUiProjectCall,
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
@@ -190,12 +190,12 @@ export class UiOpenedProject extends OpenedProject {
         this.setTemplateProperties(callData as SetTemplatePropertiesUiProjectCall);
         break;
 
-      case 'set-template-binding':
-        this.setTemplateBinding(callData as SetTemplateBindingUiProjectCall);
+      case 'set-template-export':
+        this.setTemplateExport(callData as SetTemplateExportUiProjectCall);
         break;
 
-      case 'clear-template-binding':
-        this.clearTemplateBinding(callData as ClearTemplateBindingUiProjectCall);
+      case 'clear-template-export':
+        this.clearTemplateExport(callData as ClearTemplateExportUiProjectCall);
         break;
     
       case 'new-control':
@@ -475,18 +475,18 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setTemplateBinding({ id, bindingId, memberType, valueType }: SetTemplateBindingUiProjectCall) {
+  private setTemplateExport({ id, bindingId, memberType, valueType }: SetTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
       const templateModel = this.model.getTemplate(id);
-      templateModel.setBinding(bindingId, memberType, valueType);
+      templateModel.setExport(bindingId, memberType, valueType);
       this.notifyAllTemplate(templateModel);
     });
   }
 
-  private clearTemplateBinding({ id, bindingId }: ClearTemplateBindingUiProjectCall) {
+  private clearTemplateExport({ id, bindingId }: ClearTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
       const templateModel = this.model.getTemplate(id);
-      templateModel.clearBinding(bindingId);
+      templateModel.clearExport(bindingId);
       this.notifyAllTemplate(templateModel);
     });
   }

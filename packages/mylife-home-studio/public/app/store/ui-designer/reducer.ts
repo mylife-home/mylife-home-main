@@ -465,9 +465,9 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
 }
 
 function prepareTemplateData(template: Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>) {
-  const { height, width, bindings } = template;
+  const { height, width, exports } = template;
 
-  return { height, width, bindings };
+  return { height, width, exports };
 }
 
 function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {

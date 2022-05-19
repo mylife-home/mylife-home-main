@@ -33,8 +33,8 @@ import {
   RenameTemplateUiProjectCall,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
-  SetTemplateBindingUiProjectCall,
-  ClearTemplateBindingUiProjectCall,
+  SetTemplateExportUiProjectCall,
+  ClearTemplateExportUiProjectCall,
   NewTemplateInstanceUiProjectCall,
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
@@ -267,18 +267,18 @@ export default createProjectManagementEpic({
       },
     },
 
-    [ActionTypes.SET_TEMPLATE_BINDING]: {
-      mapper({ templateId, bindingId, memberType, valueType }: ActionPayloads.SetTemplateBinding) {
+    [ActionTypes.SET_TEMPLATE_EXPORT]: {
+      mapper({ templateId, exportId, memberType, valueType }: ActionPayloads.SetTemplateExport) {
         const { tabId, id } = extractIds(templateId);
-        const callData: SetTemplateBindingUiProjectCall = { operation: 'set-template-binding', id, bindingId, memberType, valueType };
+        const callData: SetTemplateExportUiProjectCall = { operation: 'set-template-export', id, exportId, memberType, valueType };
         return { tabId, callData };
       },
     },
 
-    [ActionTypes.CLEAR_TEMPLATE_BINDING]: {
-      mapper({ templateId, bindingId }: ActionPayloads.ClearTemplateBinding) {
+    [ActionTypes.CLEAR_TEMPLATE_EXPORT]: {
+      mapper({ templateId, exportId }: ActionPayloads.ClearTemplateExport) {
         const { tabId, id } = extractIds(templateId);
-        const callData: ClearTemplateBindingUiProjectCall = { operation: 'clear-template-binding', id, bindingId };
+        const callData: ClearTemplateExportUiProjectCall = { operation: 'clear-template-export', id, exportId };
         return { tabId, callData };
       },
     },

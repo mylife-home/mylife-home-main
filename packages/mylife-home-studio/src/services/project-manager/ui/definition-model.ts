@@ -894,14 +894,14 @@ export class TemplateModel extends ViewModel {
     Object.assign(this.data, data);
   }
 
-  setBinding(bindingId: string, memberType: MemberType, valueType: string) {
+  setExport(exportId: string, memberType: MemberType, valueType: string) {
     // TODO: usage checks
-    this.data.bindings[bindingId] = { memberType, valueType, description: null };
+    this.data.exports[exportId] = { memberType, valueType, description: null };
   }
 
-  clearBinding(bindingId: string) {
+  clearExport(exportId: string) {
     // TODO: usage checks
-    delete this.data.bindings[bindingId];
+    delete this.data.exports[exportId];
   }
 }
 

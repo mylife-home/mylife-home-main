@@ -34,8 +34,8 @@ export const enum ActionTypes {
   RENAME_TEMPLATE = 'ui-designer/rename-template',
   CLONE_TEMPLATE = 'ui-designer/clone-template',
   SET_TEMPLATE_PROPERTIES = 'ui-designer/set-template-properties',
-  SET_TEMPLATE_BINDING = 'ui-designer/set-template-binding',
-  CLEAR_TEMPLATE_BINDING = 'ui-designer/clear-template-binding',
+  SET_TEMPLATE_EXPORT = 'ui-designer/set-template-export',
+  CLEAR_TEMPLATE_EXPORT = 'ui-designer/clear-template-export',
   NEW_CONTROL = 'ui-designer/new-control',
   CLEAR_CONTROL = 'ui-designer/clear-control',
   RENAME_CONTROL = 'ui-designer/rename-control',
@@ -78,8 +78,8 @@ export namespace ActionPayloads {
   export type RenameTemplate = { templateId: string; newId: string; };
   export type CloneTemplate = { templateId: string; newId: string; };
   export type SetTemplateProperties = { templateId: string; properties: Partial<Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>>; };
-  export type SetTemplateBinding = { templateId: string; bindingId: string; memberType: MemberType; valueType: string; };
-  export type ClearTemplateBinding = { templateId: string; bindingId: string; };
+  export type SetTemplateExport = { templateId: string; exportId: string; memberType: MemberType; valueType: string; };
+  export type ClearTemplateExport = { templateId: string; exportId: string; };
   export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; type: 'display' | 'text' };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };

@@ -34,7 +34,7 @@ export interface UiWindowData extends UiViewData {
 }
 
 export interface UiTemplateData extends UiViewData {
-  bindings: { [name: string]: Member; };
+  exports: { [name: string]: Member; };
 }
 
 export interface UiTemplateInstanceData {
@@ -374,7 +374,7 @@ export interface UiProjectCall {
   | 'set-resource' | 'clear-resource' | 'rename-resource'
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
-  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-binding' | 'clear-template-binding'
+  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-export' | 'clear-template-export'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
   | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'set-template-instance-properties';
 }
@@ -516,18 +516,18 @@ export interface SetTemplatePropertiesUiProjectCall extends UiProjectCall {
   properties: Partial<Omit<UiTemplateData, 'controls'>>;
 }
 
-export interface SetTemplateBindingUiProjectCall extends UiProjectCall {
-  operation: 'set-template-binding';
+export interface SetTemplateExportUiProjectCall extends UiProjectCall {
+  operation: 'set-template-export';
   id: string;
-  bindingId: string;
+  exportId: string;
   memberType: MemberType;
   valueType: string;
 }
 
-export interface ClearTemplateBindingUiProjectCall extends UiProjectCall {
-  operation: 'clear-template-binding';
+export interface ClearTemplateExportUiProjectCall extends UiProjectCall {
+  operation: 'clear-template-export';
   id: string;
-  bindingId: string;
+  exportId: string;
 }
 
 export interface NewControlUiProjectCall extends UiProjectCall {
