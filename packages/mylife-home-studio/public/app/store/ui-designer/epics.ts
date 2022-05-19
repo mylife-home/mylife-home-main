@@ -33,6 +33,8 @@ import {
   RenameTemplateUiProjectCall,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
+  SetTemplateBindingUiProjectCall,
+  ClearTemplateBindingUiProjectCall,
   NewTemplateInstanceUiProjectCall,
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
@@ -262,6 +264,22 @@ export default createProjectManagementEpic({
           const properties = { ...prevValue.properties, ...newValue.properties };
           return { ...newValue, properties };
         }
+      },
+    },
+
+    [ActionTypes.SET_TEMPLATE_BINDING]: {
+      mapper({ templateId, bindingId, memberType, valueType }: ActionPayloads.SetTemplateBinding) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: SetTemplateBindingUiProjectCall = { operation: 'set-template-binding', id, bindingId, memberType, valueType };
+        return { tabId, callData };
+      },
+    },
+
+    [ActionTypes.CLEAR_TEMPLATE_BINDING]: {
+      mapper({ templateId, bindingId }: ActionPayloads.ClearTemplateBinding) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: ClearTemplateBindingUiProjectCall = { operation: 'clear-template-binding', id, bindingId };
+        return { tabId, callData };
       },
     },
 

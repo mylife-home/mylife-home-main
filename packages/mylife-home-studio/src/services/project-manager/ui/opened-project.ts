@@ -24,7 +24,6 @@ import {
   RefreshComponentsFromProjectUiProjectCall,
   RefreshComponentsUiProjectCallResult,
   ApplyRefreshComponentsUiProjectCall,
-  UiComponentData,
   DeployUiProjectCallResult,
   NewWindowUiProjectCall,
   SetWindowPropertiesUiProjectCall,
@@ -45,6 +44,8 @@ import {
   ClearUiTemplateNotification,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
+  SetTemplateBindingUiProjectCall,
+  ClearTemplateBindingUiProjectCall,
   NewTemplateInstanceUiProjectCall,
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
@@ -55,8 +56,8 @@ import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
-import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
-import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ComponentUsage, StyleModel, TemplateModel, ProjectModel, ViewModel } from './definition-model';
+import { loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
+import { WindowModel, ResourceModel, ComponentUsage, StyleModel, TemplateModel, ProjectModel, ViewModel } from './definition-model';
 import { buildDeployDefinition } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
@@ -188,7 +189,15 @@ export class UiOpenedProject extends OpenedProject {
       case 'set-template-properties':
         this.setTemplateProperties(callData as SetTemplatePropertiesUiProjectCall);
         break;
-  
+
+      case 'set-template-binding':
+        this.setTemplateBinding(callData as SetTemplateBindingUiProjectCall);
+        break;
+
+      case 'clear-template-binding':
+        this.clearTemplateBinding(callData as ClearTemplateBindingUiProjectCall);
+        break;
+    
       case 'new-control':
         this.newControl(callData as NewControlUiProjectCall);
         break;
@@ -462,6 +471,22 @@ export class UiOpenedProject extends OpenedProject {
     this.executeUpdate(() => {
       const templateModel = this.model.getTemplate(id);
       templateModel.update(properties);
+      this.notifyAllTemplate(templateModel);
+    });
+  }
+
+  private setTemplateBinding({ id, bindingId, memberType, valueType }: SetTemplateBindingUiProjectCall) {
+    this.executeUpdate(() => {
+      const templateModel = this.model.getTemplate(id);
+      templateModel.setBinding(bindingId, memberType, valueType);
+      this.notifyAllTemplate(templateModel);
+    });
+  }
+
+  private clearTemplateBinding({ id, bindingId }: ClearTemplateBindingUiProjectCall) {
+    this.executeUpdate(() => {
+      const templateModel = this.model.getTemplate(id);
+      templateModel.clearBinding(bindingId);
       this.notifyAllTemplate(templateModel);
     });
   }

@@ -893,6 +893,16 @@ export class TemplateModel extends ViewModel {
 
     Object.assign(this.data, data);
   }
+
+  setBinding(bindingId: string, memberType: MemberType, valueType: string) {
+    // TODO: usage checks
+    this.data.bindings[bindingId] = { memberType, valueType, description: null };
+  }
+
+  clearBinding(bindingId: string) {
+    // TODO: usage checks
+    delete this.data.bindings[bindingId];
+  }
 }
 
 export class TemplateInstanceModel extends ModelBase {

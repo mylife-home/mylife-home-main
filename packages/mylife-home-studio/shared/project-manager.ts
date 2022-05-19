@@ -1,6 +1,6 @@
 import { Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem, Style, Resource } from './ui-model';
 import { BindingConfig } from './core-model';
-import { Component, Plugin, PluginUsage, Member } from './component-model';
+import { Component, Plugin, PluginUsage, Member, MemberType } from './component-model';
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -374,7 +374,7 @@ export interface UiProjectCall {
   | 'set-resource' | 'clear-resource' | 'rename-resource'
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
-  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties'
+  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-binding' | 'clear-template-binding'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
   | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'set-template-instance-properties';
 }
@@ -514,6 +514,20 @@ export interface SetTemplatePropertiesUiProjectCall extends UiProjectCall {
   operation: 'set-template-properties';
   id: string;
   properties: Partial<Omit<UiTemplateData, 'controls'>>;
+}
+
+export interface SetTemplateBindingUiProjectCall extends UiProjectCall {
+  operation: 'set-template-binding';
+  id: string;
+  bindingId: string;
+  memberType: MemberType;
+  valueType: string;
+}
+
+export interface ClearTemplateBindingUiProjectCall extends UiProjectCall {
+  operation: 'clear-template-binding';
+  id: string;
+  bindingId: string;
 }
 
 export interface NewControlUiProjectCall extends UiProjectCall {
