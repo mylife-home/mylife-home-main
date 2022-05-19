@@ -19,7 +19,7 @@ const WINDOW_TEMPLATE: UiWindowData = {
 const TEMPLATE_TEMPLATE: UiTemplateData = {
   height: 500,
   width: 500,
-  bindings: {},
+  exports: {},
   controls: {},
   templates: {}
 };

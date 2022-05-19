@@ -475,18 +475,18 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setTemplateExport({ id, bindingId, memberType, valueType }: SetTemplateExportUiProjectCall) {
+  private setTemplateExport({ id, exportId, memberType, valueType }: SetTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
       const templateModel = this.model.getTemplate(id);
-      templateModel.setExport(bindingId, memberType, valueType);
+      templateModel.setExport(exportId, memberType, valueType);
       this.notifyAllTemplate(templateModel);
     });
   }
 
-  private clearTemplateExport({ id, bindingId }: ClearTemplateExportUiProjectCall) {
+  private clearTemplateExport({ id, exportId }: ClearTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
       const templateModel = this.model.getTemplate(id);
-      templateModel.clearExport(bindingId);
+      templateModel.clearExport(exportId);
       this.notifyAllTemplate(templateModel);
     });
   }
