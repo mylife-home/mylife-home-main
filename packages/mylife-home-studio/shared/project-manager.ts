@@ -1,6 +1,6 @@
 import { Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem, Style, Resource } from './ui-model';
 import { BindingConfig } from './core-model';
-import { Component, Plugin, PluginUsage } from './component-model';
+import { Component, Plugin, PluginUsage, Member } from './component-model';
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -34,6 +34,7 @@ export interface UiWindowData extends UiViewData {
 }
 
 export interface UiTemplateData extends UiViewData {
+  bindings: { [name: string]: Member; };
 }
 
 export interface UiTemplateInstanceData {
