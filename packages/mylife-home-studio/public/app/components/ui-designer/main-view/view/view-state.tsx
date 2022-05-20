@@ -5,7 +5,7 @@ import { makeUniqueId } from '../../../lib/make-unique-id';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useSnackbar } from '../../../dialogs/snackbar';
 import { AppState, AsyncDispatch } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties, clearTemplateExport, setTemplateExport } from '../../../../store/ui-designer/actions';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, moveTemplateInstance, setTemplateInstanceTemplate, setTemplateInstanceBinding, clearTemplateExport, setTemplateExport } from '../../../../store/ui-designer/actions';
 import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance, MemberType } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
@@ -190,8 +190,16 @@ export function useTemplateInstanceState(id: string) {
   const dispatch = useDispatch();
   const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
 
-  const update = useCallback((properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>) => {
-    dispatch(setTemplateInstanceProperties({ templateInstanceId: id, properties }));
+  const move = useCallback((x: number, y: number) => {
+    dispatch(moveTemplateInstance({ templateInstanceId: id, x, y }));
+  }, [dispatch, id]);
+
+  const setTemplate = useCallback((templateId: string) => {
+    dispatch(setTemplateInstanceTemplate({ templateInstanceId: id, templateId }));
+  }, [dispatch, id]);
+
+  const setBinding = useCallback((exportId: string, componentId: string, memberName: string) => {
+    dispatch(setTemplateInstanceBinding({ templateInstanceId: id, exportId, componentId, memberName }));
   }, [dispatch, id]);
 
   const duplicate = useCallback(() => {
@@ -216,7 +224,7 @@ export function useTemplateInstanceState(id: string) {
   const selected = selection.type === 'template-instance' && selection.id === id;
   const select = useCallback(() => setSelection({ type: 'template-instance', id }), [setSelection]);
 
-  return { templateInstance, template, update, duplicate, rename, remove, selected, select };
+  return { templateInstance, template, move, setTemplate, setBinding, duplicate, rename, remove, selected, select };
 }
 
 export function useSelection() {

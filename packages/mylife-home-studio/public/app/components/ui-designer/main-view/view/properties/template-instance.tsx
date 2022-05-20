@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useMemo } from 'react';
+import React, { FunctionComponent, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -13,6 +13,7 @@ import { Group, Item } from '../../../../lib/properties-layout';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import TemplateSelector from '../../common/template-selector';
+import ComponentMemberSelector from '../../common/component-member-selector';
 import { useTemplateInstanceState, useGetExistingTemplateInstanceNames } from '../view-state';
 import { useSnapValue } from '../snap';
 import { AppState } from '../../../../../store/types';
@@ -42,12 +43,13 @@ export default PropertiesTemplateInstance;
 
 const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
-  const { templateInstance, update, duplicate, rename, remove } = useTemplateInstanceState(id);
+  const { templateInstance, template, move, setTemplate, setBinding, duplicate, rename, remove } = useTemplateInstanceState(id);
   const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
   const existingNames = useMemo(() => Array.from(getExistingTemplateInstanceNames()), [getExistingTemplateInstanceNames]);
   const showRenameDialog = useRenameDialog(existingNames, templateInstance.templateInstanceId, 'Entrer un nom d\'instance de template');
+  const exportIds = useMemo(() => Object.keys(template.exports).sort(), [template.exports]);
 
   const onRename = () =>
     fireAsync(async () => {
@@ -80,15 +82,38 @@ const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; 
           <ReadonlyStringEditor value={templateInstance.templateInstanceId} />
         </Item>
         <Item title={'Template'}>
-          <TemplateSelector value={templateInstance.templateId} onChange={(value) => update({ templateId: value })} />
+          <TemplateSelector value={templateInstance.templateId} onChange={(value) => setTemplate(value)} />
         </Item>
         <Item title={'X'}>
-          <SnappedIntegerEditor snap={snap} value={templateInstance.x} onChange={(value) => update({ x: value })} />
+          <SnappedIntegerEditor snap={snap} value={templateInstance.x} onChange={(value) => move(value, undefined)} />
         </Item>
         <Item title={'Y'}>
-          <SnappedIntegerEditor snap={snap} value={templateInstance.y} onChange={(value) => update({ y: value })} />
+          <SnappedIntegerEditor snap={snap} value={templateInstance.y} onChange={(value) => move(undefined, value)} />
         </Item>
       </Group>
+
+      <Group title={'Bindings'}>
+        {exportIds.map(exportId => (
+          <Binding key={exportId} id={id} exportId={exportId} />
+        ))}
+      </Group>
     </div>
+  );
+};
+
+const Binding: FunctionComponent<{ id: string; exportId: string; }> = ({ id, exportId }) => {
+  const { templateInstance, template, setBinding } = useTemplateInstanceState(id);
+  const exportData = template.exports[exportId];
+  const binding = templateInstance.bindings[exportId];
+
+  return (
+    <Item title={exportId}>
+      <ComponentMemberSelector
+        memberType={exportData.memberType}
+        filter={(name, member) => member.valueType === exportData.valueType}
+        value={{ component: binding.componentId, member: binding.memberName }}
+        onChange={(value) => setBinding(exportId, value.component, value.member)}
+      />
+    </Item>
   );
 };
