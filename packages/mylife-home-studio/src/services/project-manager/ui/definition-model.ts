@@ -914,6 +914,8 @@ export class TemplateModel extends ViewModel {
     if (!exportData) {
       throw new Error(`Export '${exportId}' does not exist on template '${this.id}'`);
     }
+
+    return exportData;
   }
 }
 
