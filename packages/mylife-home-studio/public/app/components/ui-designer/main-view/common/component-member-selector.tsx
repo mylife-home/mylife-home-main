@@ -50,7 +50,7 @@ const ComponentMemberSelector: FunctionComponent<ComponentMemberSelectorProps> =
       className={classes.component}
       options={options}
       getOptionLabel={getOptionLabel}
-      renderOption={(option: Option) => <OptionDisplay option={option} />}
+      renderOption={(option: Option) => <OptionRenderer option={option} />}
       getOptionSelected={getOptionSelected}
       renderInput={(params) => <TextField {...params} variant="outlined" />}
       value={trimInput(value)}
@@ -72,7 +72,7 @@ const useOptionStyles = makeStyles((theme) => ({
   },
 }), { name: 'component-member-selector-options' });
 
-const OptionDisplay: FunctionComponent<{ option: Option }> = ({ option }) => {
+const OptionRenderer: FunctionComponent<{ option: Option }> = ({ option }) => {
   const classes = useOptionStyles();
   const component = useSelector((state: AppState) => getComponent(state, option.component));
   const text = option.component ? `${component.componentId}.${option.member}` : option.member;
@@ -139,7 +139,7 @@ function getOptionSelected(option: Option, value: ComponentAndMember) {
 // Because of its storage in the model, values are always provided/expected, but can contain null values if unset.
 
 function trimInput(value: ComponentAndMember) {
-  return value && value.component && value.member ? value : null;
+  return value?.member ? value : null;
 }
 
 function formatOutput(value: ComponentAndMember) {
