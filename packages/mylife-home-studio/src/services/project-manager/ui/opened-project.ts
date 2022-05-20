@@ -50,7 +50,9 @@ import {
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
   CloneTemplateInstanceUiProjectCall,
-  SetTemplateInstancePropertiesUiProjectCall,
+  MoveTemplateInstanceUiProjectCall,
+  SetTemplateInstanceTemplateUiProjectCall,
+  SetTemplateInstanceBindingUiProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -234,10 +236,18 @@ export class UiOpenedProject extends OpenedProject {
         this.cloneTemplateInstance(callData as CloneTemplateInstanceUiProjectCall);
         break;
   
-      case 'set-template-instance-properties':
-        this.setTemplateInstanceProperties(callData as SetTemplateInstancePropertiesUiProjectCall);
+      case 'move-template-instance':
+        this.moveTemplateInstanceProperties(callData as MoveTemplateInstanceUiProjectCall);
         break;
-
+  
+      case 'set-template-instance-template':
+        this.setTemplateInstanceTemplate(callData as SetTemplateInstanceTemplateUiProjectCall);
+        break;
+  
+      case 'set-template-instance-binding':
+        this.setTemplateInstanceBinding(callData as SetTemplateInstanceBindingUiProjectCall);
+        break;
+      
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -565,11 +575,33 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setTemplateInstanceProperties({ viewType, viewId, id, properties }: SetTemplateInstancePropertiesUiProjectCall) {
+  private moveTemplateInstanceProperties({ viewType, viewId, id, x, y }: MoveTemplateInstanceUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
       const templateInstanceModel = viewModel.getTemplateInstance(id);
-      templateInstanceModel.update(properties);
+      templateInstanceModel.move(x, y);
+
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceTemplate({ viewType, viewId, id, templateId }: SetTemplateInstanceTemplateUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+      const template = this.model.getTemplate(templateId);
+      templateInstanceModel.setTemplate(template);
+
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceBinding({ viewType, viewId, id, exportId, componentId, memberName }: SetTemplateInstanceBindingUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+      templateInstanceModel.setBinding(exportId, componentId, memberName);
+
       this.notifyAllView(viewModel);
     });
   }

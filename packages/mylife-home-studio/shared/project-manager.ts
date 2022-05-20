@@ -384,7 +384,7 @@ export interface UiProjectCall {
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
   | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-export' | 'clear-template-export'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
-  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'set-template-instance-properties';
+  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'move-template-instance' | 'set-template-instance-template' | 'set-template-instance-binding';
 }
 
 export interface UiValidationError {
@@ -614,12 +614,31 @@ export interface CloneTemplateInstanceUiProjectCall extends UiProjectCall {
   newId: string;
 }
 
-export interface SetTemplateInstancePropertiesUiProjectCall extends UiProjectCall {
-  operation: 'set-template-instance-properties';
+export interface MoveTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'move-template-instance';
   viewType: 'window' | 'template';
   viewId: string;
   id: string;
-  properties: Partial<UiTemplateInstanceData>;
+  x: number;
+  y: number;
+}
+
+export interface SetTemplateInstanceTemplateUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-template';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  templateId: string;
+}
+
+export interface SetTemplateInstanceBindingUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-binding';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  exportId: string;
+  componentId: string;
+  memberName: string;
 }
 
 /**

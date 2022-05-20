@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextData } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextData, UiTemplateInstanceBinding } from '../../../../shared/project-manager';
 import { DefaultWindow, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
@@ -64,16 +64,10 @@ export interface ComponentUsage {
 
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
-interface WithId {
-  readonly id: string;
-
-  rename(newId: string): void;
-}
-
-class ModelBase implements WithId {
+class ModelBase {
   private _id: string;
 
-  constructor(id: string) {
+  constructor(public readonly project: ProjectModel, id: string) {
     this._id = id;
   }
 
@@ -90,12 +84,12 @@ interface IdContainer {
   hasId(id: string): boolean;
 }
 
-export class CollectionModel<TData, TModel extends WithId> implements IdContainer {
+export class CollectionModel<TData, TModel extends ModelBase> implements IdContainer {
   private readonly map = new Map<string, TModel>();
 
-  constructor(public readonly data: { [id: string]: TData; }, private readonly ModelFactory: new (id: string, data: TData) => TModel) {
+  constructor(public readonly project: ProjectModel, public readonly data: { [id: string]: TData; }, private readonly ModelFactory: new (project: ProjectModel, id: string, data: TData) => TModel) {
     for (const [id, itemData] of Object.entries(data)) {
-      const item = new this.ModelFactory(id, itemData);
+      const item = new this.ModelFactory(this.project, id, itemData);
       this.map.set(item.id, item);
     }
   }
@@ -125,7 +119,7 @@ export class CollectionModel<TData, TModel extends WithId> implements IdContaine
 
   set(id: string, itemData: TData) {
     this.checkNewId(id);
-    const item = new this.ModelFactory(id, itemData);
+    const item = new this.ModelFactory(this.project, id, itemData);
 
     // replace or insert
     this.data[item.id] = itemData;
@@ -184,10 +178,10 @@ export class ProjectModel {
 
   constructor(data: UiProject) {
     this.defaultWindow = new DefaultWindowModel(data.defaultWindow);
-    this.windows = new CollectionModel(data.windows, WindowModel);
-    this.templates = new CollectionModel(data.templates, TemplateModel);
-    this.resources = new CollectionModel(data.resources, ResourceModel);
-    this.styles = new CollectionModel(data.styles, StyleModel);
+    this.windows = new CollectionModel(this, data.windows, WindowModel);
+    this.templates = new CollectionModel(this, data.templates, TemplateModel);
+    this.resources = new CollectionModel(this, data.resources, ResourceModel);
+    this.styles = new CollectionModel(this, data.styles, StyleModel);
     this.components = new ComponentsModel({ components: data.components, plugins: data.plugins });
   }
 
@@ -474,7 +468,7 @@ export class ProjectModel {
     for (const item of usage) {
       const node = item.path[0];
 
-      switch(node.type) {
+      switch (node.type) {
         case 'window': {
           const window = this.getWindow(node.id);
           const changed = window.clearComponentUsage(item);
@@ -549,18 +543,18 @@ export abstract class ViewModel extends ModelBase {
   abstract readonly data: UiViewData;
   abstract readonly viewType: 'window' | 'template';
 
-  constructor(id: string, data: UiViewData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, data: UiViewData) {
+    super(project, id);
     const owner = this;
 
     class BoundControlModel extends ControlModel {
-      constructor(id: string, data: UiControlData) {
-        super(owner, id, data);
+      constructor(project: ProjectModel, id: string, data: UiControlData) {
+        super(owner, project, id, data);
       }
     }
 
-    this.controls = new CollectionModel(data.controls, BoundControlModel);
-    this.templates = new CollectionModel(data.templates, TemplateInstanceModel);
+    this.controls = new CollectionModel(this.project, data.controls, BoundControlModel);
+    this.templates = new CollectionModel(this.project, data.templates, TemplateInstanceModel);
   }
 
   newControl(controlId: string, type: 'display' | 'text', x: number, y: number) {
@@ -568,7 +562,7 @@ export abstract class ViewModel extends ModelBase {
     newControl.x = x;
     newControl.y = y;
 
-    switch(type) {
+    switch (type) {
       case 'display':
         newControl.display = clone(CONTROL_DISPLAY_TEMPLATE);
         break;
@@ -637,7 +631,7 @@ export abstract class ViewModel extends ModelBase {
   getTemplateInstance(templateInstanceId: string) {
     return this.templates.getById(templateInstanceId);
   }
-  
+
   /**
    * @param resourceId
    * @param newId
@@ -789,8 +783,8 @@ export abstract class ViewModel extends ModelBase {
 }
 
 export class WindowModel extends ViewModel {
-  constructor(id: string, public readonly data: UiWindowData) {
-    super(id, data);
+  constructor(project: ProjectModel, id: string, public readonly data: UiWindowData) {
+    super(project, id, data);
   }
 
   get viewType(): 'window' {
@@ -881,8 +875,8 @@ export class WindowModel extends ViewModel {
 }
 
 export class TemplateModel extends ViewModel {
-  constructor(id: string, public readonly data: UiTemplateData) {
-    super(id, data);
+  constructor(project: ProjectModel, id: string, public readonly data: UiTemplateData) {
+    super(project, id, data);
   }
 
   get viewType(): 'template' {
@@ -904,17 +898,69 @@ export class TemplateModel extends ViewModel {
     // TODO: usage checks
     delete this.data.exports[exportId];
   }
+
+  prepareBindings() {
+    const bindings: { [name: string]: UiTemplateInstanceBinding; } = {};
+
+    for (const exportId of Object.keys(this.data.exports)) {
+      bindings[exportId] = { componentId: null, memberName: null };
+    }
+
+    return bindings;
+  }
+
+  getExportData(exportId: string) {
+    const exportData = this.data.exports[exportId];
+    if (!exportData) {
+      throw new Error(`Export '${exportId}' does not exist on template '${this.id}'`);
+    }
+  }
 }
 
 export class TemplateInstanceModel extends ModelBase {
-  constructor(id: string, public readonly data: UiTemplateInstanceData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, public readonly data: UiTemplateInstanceData) {
+    super(project, id);
   }
 
-  update(properties: Partial<UiTemplateInstanceData>) {
-    const data = pickIfDefined(properties, 'x', 'y', 'templateId');
+  get template() {
+    if (this.data.templateId) {
+      return this.project.getTemplate(this.data.templateId);
+    } else {
+      return null;
+    }
+  }
 
-    Object.assign(this.data, data);
+  move(x: number, y: number) {
+    if (x != null) {
+      this.data.x = x;
+    }
+
+    if (y != null) {
+      this.data.y = y;
+    }
+  }
+
+  setTemplate(template: TemplateModel) {
+    this.data.templateId = template.id;
+
+    // reset bindings
+    this.data.bindings = template.prepareBindings();
+  }
+
+  setBinding(exportId: string, componentId: string, memberName: string) {
+    const binding = this.data.bindings[exportId];
+    if (!binding) {
+      throw new Error(`Binding from export '${exportId}' not found on template '${this.template.id}'`);
+    }
+
+    const exportData = this.template.getExportData(exportId);
+    const valueType = this.project.components.findComponentMemberValueType(componentId, memberName, exportData.memberType);
+    if (!valueType || exportData.valueType !== valueType) {
+      throw new Error(`Binding mismatch: cannot bind '${componentId}.${memberName}' on export '${exportId}'`);
+    }
+
+    binding.componentId = componentId;
+    binding.memberName = memberName;
   }
 
   /**
@@ -922,7 +968,7 @@ export class TemplateInstanceModel extends ModelBase {
    * @param newId
    * @returns `true` if the template instance has been changed, `false` otherwise
    */
-   onRenameTemplate(templateId: string, newId: string) {
+  onRenameTemplate(templateId: string, newId: string) {
     let changed = false;
 
     if (this.data.templateId === templateId) {
@@ -943,8 +989,8 @@ export class TemplateInstanceModel extends ModelBase {
 }
 
 export class ControlModel extends ModelBase {
-  constructor(public readonly owner: ViewModel, id: string, public readonly data: UiControlData) {
-    super(id);
+  constructor(public readonly owner: ViewModel, project: ProjectModel, id: string, public readonly data: UiControlData) {
+    super(project, id);
   }
 
   update(properties: Partial<UiControlData>) {
@@ -1256,8 +1302,8 @@ export class ControlModel extends ModelBase {
 }
 
 export class ResourceModel extends ModelBase {
-  constructor(id: string, public readonly data: UiResourceData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, public readonly data: UiResourceData) {
+    super(project, id);
   }
 
   update(resource: UiResourceData) {
@@ -1267,8 +1313,8 @@ export class ResourceModel extends ModelBase {
 }
 
 export class StyleModel extends ModelBase {
-  constructor(id: string, public readonly data: UiStyleData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, public readonly data: UiStyleData) {
+    super(project, id);
   }
 
   update(style: UiStyleData) {
