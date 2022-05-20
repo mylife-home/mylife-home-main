@@ -33,8 +33,10 @@ export interface UiWindowData extends UiViewData {
   backgroundResource: Resource;
 }
 
+export type UiTemplateExport = Omit<Member, 'description'>;
+
 export interface UiTemplateData extends UiViewData {
-  exports: { [name: string]: Member; };
+  exports: { [name: string]: UiTemplateExport; };
 }
 
 export interface UiTemplateInstanceData {

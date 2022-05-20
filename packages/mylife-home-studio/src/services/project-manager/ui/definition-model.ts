@@ -896,7 +896,7 @@ export class TemplateModel extends ViewModel {
 
   setExport(exportId: string, memberType: MemberType, valueType: string) {
     // TODO: usage checks
-    this.data.exports[exportId] = { memberType, valueType, description: null };
+    this.data.exports[exportId] = { memberType, valueType };
   }
 
   clearExport(exportId: string) {
