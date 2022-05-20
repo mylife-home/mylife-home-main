@@ -602,12 +602,13 @@ export abstract class ViewModel extends ModelBase {
   }
 
   newTemplateInstance(templateInstanceId: string, templateId: string, x: number, y: number) {
+    const template = this.project.getTemplate(templateId);
     const newTemplateInstance = clone(TEMPLATE_INSTANCE_TEMPLATE) as UiTemplateInstanceData;
-    newTemplateInstance.templateId = templateId;
     newTemplateInstance.x = x;
     newTemplateInstance.y = y;
 
-    return this.templates.set(templateInstanceId, newTemplateInstance);
+    const model = this.templates.set(templateInstanceId, newTemplateInstance);
+    model.setTemplate(template);
   }
 
   cloneTemplateInstance(templateInstanceId: string, newId: string) {
