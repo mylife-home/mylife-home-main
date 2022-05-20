@@ -43,4 +43,6 @@ export const newTemplateInstance = createAsyncAction<ActionPayloads.NewTemplateI
 export const clearTemplateInstance = createAsyncAction<ActionPayloads.ClearTemplateInstance>(ActionTypes.CLEAR_TEMPLATE_INSTANCE);
 export const renameTemplateInstance = createAsyncAction<ActionPayloads.RenameTemplateInstance>(ActionTypes.RENAME_TEMPLATE_INSTANCE);
 export const cloneTemplateInstance = createAsyncAction<ActionPayloads.CloneTemplateInstance>(ActionTypes.CLONE_TEMPLATE_INSTANCE);
-export const setTemplateInstanceProperties = createAsyncAction<ActionPayloads.SetTemplateInstanceProperties>(ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES);
+export const moveTemplateInstance = createAsyncAction<ActionPayloads.MoveTemplateInstance>(ActionTypes.MOVE_TEMPLATE_INSTANCE);
+export const setTemplateInstanceTemplate = createAsyncAction<ActionPayloads.SetTemplateInstanceTemplate>(ActionTypes.SET_TEMPLATE_INSTANCE_TEMPLATE);
+export const setTemplateInstanceBinding = createAsyncAction<ActionPayloads.SetTemplateInstanceBinding>(ActionTypes.SET_TEMPLATE_INSTANCE_BINDING);

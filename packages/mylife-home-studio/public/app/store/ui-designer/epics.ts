@@ -39,7 +39,9 @@ import {
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
   CloneTemplateInstanceUiProjectCall,
-  SetTemplateInstancePropertiesUiProjectCall,
+  MoveTemplateInstanceUiProjectCall,
+  SetTemplateInstanceTemplateUiProjectCall,
+  SetTemplateInstanceBindingUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -374,28 +376,41 @@ export default createProjectManagementEpic({
       },
     },
 
-    [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: {
-      mapper({ templateInstanceId, properties }: ActionPayloads.SetTemplateInstanceProperties) {
+    [ActionTypes.MOVE_TEMPLATE_INSTANCE]: {
+      mapper({ templateInstanceId, x, y }: ActionPayloads.MoveTemplateInstance) {
         const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
-
-        const fixedProps = { ... properties };
-
-        if (fixedProps.templateId) {
-          fixedProps.templateId = extractNullableId(fixedProps.templateId, tabId);
-        }
-
-        const callData: SetTemplateInstancePropertiesUiProjectCall = { operation: 'set-template-instance-properties', viewType, viewId, id, properties: fixedProps };
+        const callData: MoveTemplateInstanceUiProjectCall = { operation: 'move-template-instance', viewType, viewId, id, x, y };
         return { tabId, callData };
       },
       debounce: {
-        keyBuilder({ templateInstanceId }: ActionPayloads.SetTemplateInstanceProperties) {
+        keyBuilder({ templateInstanceId }: ActionPayloads.MoveTemplateInstance) {
           return templateInstanceId;
         },
-        valueMerger(prevValue: ActionPayloads.SetTemplateInstanceProperties, newValue: ActionPayloads.SetTemplateInstanceProperties): ActionPayloads.SetTemplateInstanceProperties {
-          const properties = { ...prevValue.properties, ...newValue.properties };
-          return { ...newValue, properties };
+        valueMerger(prevValue: ActionPayloads.MoveTemplateInstance, newValue: ActionPayloads.MoveTemplateInstance): ActionPayloads.MoveTemplateInstance {
+          return { ...prevValue, ...newValue };
         }
       },
+    },
+
+
+    [ActionTypes.SET_TEMPLATE_INSTANCE_TEMPLATE]: {
+      mapper({ templateInstanceId, templateId: fullTemplateId }: ActionPayloads.SetTemplateInstanceTemplate) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const templateId = extractNullableId(fullTemplateId, tabId);
+
+        const callData: SetTemplateInstanceTemplateUiProjectCall = { operation: 'set-template-instance-template', viewType, viewId, id, templateId };
+        return { tabId, callData };
+      }
+    },
+  
+
+    [ActionTypes.SET_TEMPLATE_INSTANCE_BINDING]: {
+      mapper({ templateInstanceId, exportId, componentId: fullComponentId, memberName }: ActionPayloads.SetTemplateInstanceBinding) {
+        const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
+        const componentId = extractNullableId(fullComponentId, tabId);
+        const callData: SetTemplateInstanceBindingUiProjectCall = { operation: 'set-template-instance-binding', viewType, viewId, id, exportId, componentId, memberName };
+        return { tabId, callData };
+      }
     },
   }
 });

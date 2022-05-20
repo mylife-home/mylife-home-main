@@ -45,7 +45,9 @@ export const enum ActionTypes {
   CLEAR_TEMPLATE_INSTANCE = 'ui-designer/clear-template-instance',
   RENAME_TEMPLATE_INSTANCE = 'ui-designer/rename-template-instance',
   CLONE_TEMPLATE_INSTANCE = 'ui-designer/clone-template-instance',
-  SET_TEMPLATE_INSTANCE_PROPERTIES = 'ui-designer/set-template-instance-properties',
+  MOVE_TEMPLATE_INSTANCE = 'ui-designer/move-template-instance',
+  SET_TEMPLATE_INSTANCE_TEMPLATE = 'ui-designer/set-template-instance-template',
+  SET_TEMPLATE_INSTANCE_BINDING = 'ui-designer/set-template-instance-binding',
 }
 
 export namespace ActionPayloads {
@@ -89,7 +91,9 @@ export namespace ActionPayloads {
   export type ClearTemplateInstance = { templateInstanceId: string; };
   export type RenameTemplateInstance = { templateInstanceId: string; newId: string; };
   export type CloneTemplateInstance = { templateInstanceId: string; newId: string; };
-  export type SetTemplateInstanceProperties = { templateInstanceId: string; properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>; };
+  export type MoveTemplateInstance = { templateInstanceId: string; x: number; y: number; };
+  export type SetTemplateInstanceTemplate = { templateInstanceId: string; templateId: string; };
+  export type SetTemplateInstanceBinding = { templateInstanceId: string; exportId: string; componentId: string; memberName: string; };
 }
 
 export { DesignerTabActionData, DefaultWindow, MemberType };
