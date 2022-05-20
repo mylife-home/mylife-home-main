@@ -28,6 +28,7 @@ const TEMPLATE_INSTANCE_TEMPLATE: UiTemplateInstanceData = {
   templateId: null,
   x: null,
   y: null,
+  bindings: {}
 };
 
 const CONTROL_TEMPLATE: UiControlData = {

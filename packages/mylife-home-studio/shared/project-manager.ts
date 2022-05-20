@@ -40,9 +40,15 @@ export interface UiTemplateData extends UiViewData {
 }
 
 export interface UiTemplateInstanceData {
+  templateId: string;
   x: number;
   y: number;
-  templateId: string;
+  bindings: { [name: string]: UiTemplateInstanceBinding; };
+}
+
+export interface UiTemplateInstanceBinding {
+  componentId: string;
+  memberName: string;
 }
 
 export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
