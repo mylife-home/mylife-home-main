@@ -41,6 +41,8 @@ const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ classNa
         </Item>
       </Group>
 
+      <TemplateExports />
+
       <Group title={'Utilisation'}>
         {usage.map((item, index) => (
           <Item key={index}>
@@ -48,8 +50,6 @@ const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ classNa
           </Item>
         ))}
       </Group>
-
-      <TemplateExports />
     </div>
   );
 };
