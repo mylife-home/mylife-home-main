@@ -8,7 +8,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import HomeIcon from '@material-ui/icons/Home';
 
 import { UiElementPath, UiElementPathNode } from '../../../../store/ui-designer/types';
-import { WindowIcon, TemplateIcon, ImageIcon, TextIcon, ActionIcon } from '../../../lib/icons';
+import { WindowIcon, TemplateIcon, ImageIcon, TextIcon, ActionIcon, BindingIcon } from '../../../lib/icons';
 
 const useStyles = makeStyles((theme) => ({
   node: {
@@ -99,6 +99,13 @@ function renderIcon(node: UiElementPathNode, className: string) {
       return (
         <Tooltip title="Item de mapping d'image">
           <ImageIcon className={className} />
+        </Tooltip>
+      );
+
+    case 'template-binding':
+      return (
+        <Tooltip title="Binding">
+          <BindingIcon className={className} />
         </Tooltip>
       );
 

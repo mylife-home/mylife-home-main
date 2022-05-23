@@ -1005,6 +1005,11 @@ export class TemplateModel extends ViewModel {
 
     return exportData;
   }
+
+  getExportValueType(memberName: string, memberType: MemberType) {
+    const exportData = this.data.exports[memberName];
+    return exportData?.memberType === memberType ? exportData.valueType : null;
+  }
 }
 
 export class TemplateInstanceModel extends ModelBase {
@@ -1062,8 +1067,7 @@ export class TemplateInstanceModel extends ModelBase {
         return null;
       }
 
-      const exportData = this.owner.data.exports[memberName];
-      return exportData.memberType === memberType ? exportData.valueType : null;
+      return this.owner.getExportValueType(memberName, memberType);
     }
   }
 
@@ -1109,6 +1113,25 @@ export class TemplateInstanceModel extends ModelBase {
 
     if (!this.data.templateId) {
       context.addError('Template non défini', [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+    }
+
+    const { exports } = this.template.data;
+
+    for (const bindingId of Object.keys(this.data.bindings)) {
+      if (!exports[bindingId]) {
+        context.addError(`Binding sur export '${bindingId}' inexistant`, [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+      }
+    }
+
+    for (const [bindingId, exportData] of Object.entries(exports)) {
+      const bindingData = this.data.bindings[bindingId];
+      if (!bindingData) {
+        context.addError(`Binding inexistant sur export '${bindingId}'`, [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+        continue;
+      }
+
+      const pathBuilder = () => [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }, { type: 'template-binding', id: bindingId }];
+      context.checkComponent(this.owner, bindingData.componentId, bindingData.memberName, pathBuilder, exportData);
     }
   }
 }
@@ -1242,7 +1265,7 @@ export class ControlModel extends ModelBase {
       context.checkResourceId(item.resource, () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'map-item', id: index.toString() }]);
     }
 
-    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
+    const valueType = context.checkComponent(this.owner, display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
     if (!valueType) {
       return;
     }
@@ -1346,6 +1369,7 @@ export class ControlModel extends ModelBase {
       context.checkId(item.id, () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'context-item', id: index.toString() }]);
 
       context.checkComponent(
+        this.owner, 
         item.componentId,
         item.componentState,
         () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'context-item', id: item.id }],
@@ -1375,6 +1399,7 @@ export class ControlModel extends ModelBase {
 
     if (action.component) {
       context.checkComponent(
+        this.owner, 
         action.component.id,
         action.component.action,
         () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'action', id: type }],
@@ -1526,30 +1551,31 @@ class ValidationContext {
     }
   }
 
-  checkComponent(componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null, optional = false }: { memberType: MemberType, valueType?: string | string[]; optional?: boolean; }) {
-    if (!componentId) {
+  checkComponent(ownerView: ViewModel, componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null, optional = false }: { memberType: MemberType, valueType?: string | string[]; optional?: boolean; }) {
+    if ((componentId === null && !(ownerView instanceof TemplateModel)) || !memberName) {
       if (!optional) {
         this.addError(`Le composant n'est pas défini.`, pathBuilder());
       }
       return null;
     }
 
-    if (!this.components.has(componentId)) {
+    if (componentId !== null && !this.components.has(componentId)) {
       this.addError(`Le composant '${componentId}' n'existe pas.`, pathBuilder());
       return null;
     }
 
     const buildErrorPrefix = () => {
+      const suffix = componentId ? ` du composant '${componentId}'` : ` de l'export template`;
       switch (memberType) {
         case MemberType.STATE:
-          return `L'état '${memberName}' du composant '${componentId}'`;
+          return `L'état '${memberName}' ${suffix}`;
 
         case MemberType.ACTION:
-          return `L'action '${memberName}' du composant '${componentId}'`;
+          return `L'action '${memberName}' ${suffix}`;
       }
     };
 
-    const actualValueType = this.components.findComponentMemberValueType(componentId, memberName, memberType);
+    const actualValueType = this.getValueType(ownerView, componentId, memberName, memberType);
     if (!actualValueType) {
       this.addError(`${buildErrorPrefix()} n'existe pas.`, pathBuilder());
       return null;
@@ -1567,6 +1593,14 @@ class ValidationContext {
     }
 
     return actualValueType;
+  }
+
+  private getValueType(ownerView: ViewModel, componentId: string, memberName: string, memberType: MemberType) {
+    if (componentId) {
+      return this.components.findComponentMemberValueType(componentId, memberName, memberType);
+    } else {
+      return (ownerView as TemplateModel).getExportValueType(memberName, memberType);
+    }
   }
 }
 
