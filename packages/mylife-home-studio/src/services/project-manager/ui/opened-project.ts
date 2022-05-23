@@ -487,17 +487,29 @@ export class UiOpenedProject extends OpenedProject {
 
   private setTemplateExport({ id, exportId, memberType, valueType }: SetTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
-      const templateModel = this.model.getTemplate(id);
-      templateModel.setExport(exportId, memberType, valueType);
-      this.notifyAllTemplate(templateModel);
+      const impacts = this.model.setTemplateExport(id, exportId, memberType, valueType);
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
     });
   }
 
   private clearTemplateExport({ id, exportId }: ClearTemplateExportUiProjectCall) {
     this.executeUpdate(() => {
-      const templateModel = this.model.getTemplate(id);
-      templateModel.clearExport(exportId);
-      this.notifyAllTemplate(templateModel);
+      const impacts = this.model.clearTemplateExport(id, exportId);
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
     });
   }
 
