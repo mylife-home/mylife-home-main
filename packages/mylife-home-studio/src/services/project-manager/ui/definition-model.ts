@@ -536,8 +536,6 @@ export class ProjectModel {
 
           break;
         }
-
-        // TODO: template bindings
       }
     }
 
@@ -847,19 +845,37 @@ export abstract class ViewModel extends ModelBase {
     for (const controlModel of this.controls) {
       controlModel.collectComponentsUsage(usage, this.viewType, this.id);
     }
+
+    for (const templateInstanceModel of this.templates) {
+      templateInstanceModel.collectComponentsUsage(usage, this.viewType, this.id);
+    }
   }
 
   clearComponentUsage(usage: ComponentUsage) {
     const node = usage.path[1];
-    if (node.type !== 'control') {
-      return false; // paranoia
-    }
 
-    const controlModel = this.controls.findById(node.id);
-    if (!controlModel) {
-      return false; // paranoia
+    switch(node.type) {
+      case 'control': {
+        const controlModel = this.controls.findById(node.id);
+        if (!controlModel) {
+          return false; // paranoia
+        }
+    
+        return controlModel.clearComponentUsage(usage);
+      }
+
+      case 'template-instance': {
+        const templateInstanceModel = this.templates.findById(node.id);
+        if (!templateInstanceModel) {
+          return false; // paranoia
+        }
+    
+        return templateInstanceModel.clearComponentUsage(usage);
+      }
+
+      default:
+        return false;
     }
-    return controlModel.clearComponentUsage(usage);
   }
 }
 
@@ -1133,6 +1149,32 @@ export class TemplateInstanceModel extends ModelBase {
       const pathBuilder = () => [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }, { type: 'template-binding', id: bindingId }];
       context.checkComponent(this.owner, bindingData.componentId, bindingData.memberName, pathBuilder, exportData);
     }
+  }
+
+  collectComponentsUsage(usage: ComponentUsage[], viewType: 'window' | 'template', viewId: string) {
+    for (const [bindingId, bindingData] of Object.entries(this.data.bindings)) {
+      if (bindingData.componentId && bindingData.memberName) {
+        usage.push({
+          componentId: bindingData.componentId,
+          memberName: bindingData.memberName,
+          path: [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }, { type: 'template-binding', id: bindingId }]
+        });
+      }
+    }
+  }
+
+  clearComponentUsage(usage: ComponentUsage) {
+    let changed = false;
+
+    for (const [bindingId, bindingData] of Object.entries(this.data.bindings)) {
+      if (bindingData.componentId && bindingData.memberName) {
+        bindingData.componentId = null;
+        bindingData.memberName = null;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 }
 
