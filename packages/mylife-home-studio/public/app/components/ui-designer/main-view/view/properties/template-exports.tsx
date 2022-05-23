@@ -1,28 +1,30 @@
 import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
 import clsx from 'clsx';
-import { useSelector, useDispatch } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
-import SvgIcon from '@material-ui/core/SvgIcon';
 import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import { StateIcon, ActionIcon } from '../../../../lib/icons';
 import { Group, Item } from '../../../../lib/properties-layout';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import DeleteButton from '../../../../lib/delete-button';
-import { AppState } from '../../../../../store/types';
+import { useFireAsync } from '../../../../lib/use-error-handling';
 import { MemberType } from '../../../../../store/ui-designer/types';
-import { MemberItem, makeGetTemplateCandidateExports } from '../../../../../store/ui-designer/selectors';
-import { setTemplateExport, clearTemplateExport } from '../../../../../store/ui-designer/actions';
+import { MemberItem, makeGetTemplateCandidateExports, makeGetTemplateUsage } from '../../../../../store/ui-designer/selectors';
 import { useTemplateState } from '../view-state';
+import { useRemoveUsageConfirmDialog } from '../../common/remove-usage-confirm-dialog';
 
 const useStyles = makeStyles((theme) => ({
-  button: {
+  newButton: {
     color: theme.palette.success.main,
+  },
+  deleteButton: {
+    color: theme.palette.error.main,
   },
   target: {
     marginLeft: theme.spacing(1),
@@ -62,6 +64,26 @@ const ExportItem: FunctionComponent<{ id: string; }> = ({ id }) => {
   const { template, clearExport } = useTemplateState();
   const { memberType, valueType } = template.exports[id];
   const Icon = getMemberIcon(memberType);
+  const fireAsync = useFireAsync();
+  const showRemoveUsageConfirmDialog = useRemoveUsageConfirmDialog();
+  const getTemplateUsage = useMemo(() => makeGetTemplateUsage(), []);
+  const usage = useTabSelector((state, tabId) => getTemplateUsage(state, tabId, template.id));
+
+  const onRemove = () => {
+    clearExport(id);
+  };
+
+  const onRemoveWithUsage = () => fireAsync(async () => {
+    const { status } = await showRemoveUsageConfirmDialog({ 
+      title: 'Supprimer l\'export',
+      message: 'L\'export est utilisé :',
+      usage
+    });
+    
+    if (status === 'ok') {
+      clearExport(id);
+    }
+  });
 
   return (
     <Item title={
@@ -76,7 +98,15 @@ const ExportItem: FunctionComponent<{ id: string; }> = ({ id }) => {
         </Typography>
       </div>
 
-      <DeleteButton icon tooltip="Supprimer" onConfirmed={() => clearExport(id)} />
+      {usage.length === 0 ? (
+        <DeleteButton icon tooltip="Supprimer" onConfirmed={onRemove} />
+      ) : (
+        <Tooltip title="Supprimer">
+          <IconButton className={classes.deleteButton} onClick={onRemoveWithUsage}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      )}
     </Item>
   );
 };
@@ -111,7 +141,7 @@ const NewItem: FunctionComponent = () => {
       
       <MemberSelector className={classes.target} list={candidates} value={member} onSelect={setMember} />
 
-      <IconButton className={classes.button} onClick={onNewClick} disabled={!valid || !id}>
+      <IconButton className={classes.newButton} onClick={onNewClick} disabled={!valid || !id}>
         <AddIcon />
       </IconButton>
 
