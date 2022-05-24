@@ -48,20 +48,43 @@ const useStyles = makeStyles((theme) => ({
     flex: 1
   },
   targetType: {
-
-  }
+  },
+  dialogBulkPattern: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  dialogBulkPatternIcon: {
+    marginRight: theme.spacing(1)
+  },
+  dialogBulkPatternId: {
+    width: 150
+  },
+  dialogBulkPatternValueType: {
+    width: 150
+  },
+  dialogBulkPatternText: {
+  },
 }), { name: 'template-exports' });
 
 const TemplateExports: FunctionComponent = () => {
-  const { template } = useTemplateState();
+  const { template, setBulkPatterns } = useTemplateState();
   const exportIds = useMemo(() => Object.keys(template.exports).sort(), [template.exports]);
+  const fireAsync = useFireAsync();
+  const showBulkPatternEditor = useBulkPatternEditor();
+
+  const handleBulkPatternClick = () => fireAsync(async () => {
+    const { status, bulkPatterns } = await showBulkPatternEditor(template.exports);
+    if (status === 'ok') {
+      setBulkPatterns(bulkPatterns);
+    }
+  });
 
   return (
     <Group title={
       <>
         Exports
         <Tooltip title="Gérer les patterns l'association de bindings">
-          <IconButton>
+          <IconButton onClick={handleBulkPatternClick}>
             <SettingsInputComponentIcon />
           </IconButton>
         </Tooltip>
@@ -283,7 +306,7 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
   };
 
   return (
-    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} maxWidth="xl" fullWidth>
+    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel}>
       <DialogTitle id="dialog-title">Gestion des patterns de binding</DialogTitle>
     
       <DialogContent dividers>
@@ -297,25 +320,19 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
           };
         
           return (
-            <Item key={exportId} title={
-              <>
-                {Icon && <Icon className={classes.titleIcon} />}
-                {exportId}
-              </>
-            }>
-              <div className={clsx(classes.target, classes.targetLabel)}>
-                <Typography variant="overline" className={classes.targetType}>
-                  {valueType}
-                </Typography>
-              </div>
+            <div key={exportId} className={classes.dialogBulkPattern}>
+              <Icon className={classes.dialogBulkPatternIcon} />
+              <Typography className={classes.dialogBulkPatternId}>{exportId}</Typography>
+              <Typography className={classes.dialogBulkPatternValueType} variant="overline">{valueType}</Typography>
               
               <TextField
+                className={classes.dialogBulkPatternText}
                 variant="outlined"
                 value={value}
                 onChange={handleChange}
+                fullWidth
               />
-
-            </Item>
+            </div>
           );
         })}
       </DialogContent>

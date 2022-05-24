@@ -5,7 +5,7 @@ import { makeUniqueId } from '../../../lib/make-unique-id';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useSnackbar } from '../../../dialogs/snackbar';
 import { AppState, AsyncDispatch } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, moveTemplateInstance, setTemplateInstanceTemplate, setTemplateInstanceBindings, clearTemplateExport, setTemplateExport } from '../../../../store/ui-designer/actions';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, moveTemplateInstance, setTemplateInstanceTemplate, setTemplateInstanceBindings, clearTemplateExport, setTemplateExport, setTemplateBulkPatterns } from '../../../../store/ui-designer/actions';
 import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
 import { UiWindow, UiTemplate, UiControl, UiViewType, MemberType } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
@@ -126,10 +126,14 @@ export function useTemplateState() {
     dispatch(clearTemplateExport({ templateId: viewId, exportId }));
   }, [dispatch, viewId]);
 
+  const setBulkPatterns = useCallback((patterns: { [exportId: string]: string }) => {
+    dispatch(setTemplateBulkPatterns({ templateId: viewId, patterns }));
+  }, [dispatch, viewId]);
+
   const selected = selection.type === 'view';
   const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
-  return { template, update, setExport, clearExport, selected, select };
+  return { template, update, setExport, clearExport, setBulkPatterns, selected, select };
 }
 
 export function useControlState(id: string) {
