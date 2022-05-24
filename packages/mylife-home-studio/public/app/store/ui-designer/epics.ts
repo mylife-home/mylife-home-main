@@ -41,7 +41,8 @@ import {
   CloneTemplateInstanceUiProjectCall,
   MoveTemplateInstanceUiProjectCall,
   SetTemplateInstanceTemplateUiProjectCall,
-  SetTemplateInstanceBindingUiProjectCall,
+  SetTemplateInstanceBindingsUiProjectCall,
+  SetTemplateBulkPatternsUiProjectCall,
 } from '../../../../shared/project-manager';
 
 type ControlProperties = Partial<Omit<UiControl, 'id' | 'controlId'>>;
@@ -285,6 +286,14 @@ export default createProjectManagementEpic({
       },
     },
 
+    [ActionTypes.SET_TEMPLATE_BULK_PATTERNS]: {
+      mapper({ templateId, patterns }: ActionPayloads.SetTemplateBulkPatterns) {
+        const { tabId, id } = extractIds(templateId);
+        const callData: SetTemplateBulkPatternsUiProjectCall = { operation: 'set-template-bulk-patterns', id, patterns };
+        return { tabId, callData };
+      },
+    },
+
     [ActionTypes.NEW_CONTROL]: {
       mapper({ viewType, viewId, newId, x, y, type }: ActionPayloads.NewControl) {
         const { tabId, id } = extractIds(viewId);
@@ -404,11 +413,17 @@ export default createProjectManagementEpic({
     },
   
 
-    [ActionTypes.SET_TEMPLATE_INSTANCE_BINDING]: {
-      mapper({ templateInstanceId, exportId, componentId: fullComponentId, memberName }: ActionPayloads.SetTemplateInstanceBinding) {
+    [ActionTypes.SET_TEMPLATE_INSTANCE_BINDINGS]: {
+      mapper({ templateInstanceId, bindings }: ActionPayloads.SetTemplateInstanceBindings) {
         const { tabId, viewType, viewId, id } = extractTemplateInstanceIds(templateInstanceId);
-        const componentId = extractNullableId(fullComponentId, tabId);
-        const callData: SetTemplateInstanceBindingUiProjectCall = { operation: 'set-template-instance-binding', viewType, viewId, id, exportId, componentId, memberName };
+
+        const newBindings: typeof bindings = {};
+        for (const [key, bindingData] of Object.entries(bindings)) {
+          const componentId = extractNullableId(bindingData.componentId, tabId);
+          newBindings[key] = { componentId, memberName: bindingData.memberName };
+        }
+        
+        const callData: SetTemplateInstanceBindingsUiProjectCall = { operation: 'set-template-instance-bindings', viewType, viewId, id, bindings: newBindings };
         return { tabId, callData };
       }
     },

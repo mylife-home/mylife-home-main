@@ -28,6 +28,7 @@ export function buildDeployDefinition(project: UiProject) {
 }
 
 function addViewElements(project: UiProject, controls: Control[], xBase: number, yBase: number, pathBase: string[], view: UiViewData) {
+  // TODO: bindings
   for (const [id, templateInstance] of Object.entries(view.templates)) {
     const template = project.templates[templateInstance.templateId];
     const path = [...pathBase, id];

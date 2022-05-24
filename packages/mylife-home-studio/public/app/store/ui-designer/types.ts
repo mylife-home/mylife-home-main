@@ -36,6 +36,7 @@ export const enum ActionTypes {
   SET_TEMPLATE_PROPERTIES = 'ui-designer/set-template-properties',
   SET_TEMPLATE_EXPORT = 'ui-designer/set-template-export',
   CLEAR_TEMPLATE_EXPORT = 'ui-designer/clear-template-export',
+  SET_TEMPLATE_BULK_PATTERNS = 'ui-designer/set-template-bulk-patterns',
   NEW_CONTROL = 'ui-designer/new-control',
   CLEAR_CONTROL = 'ui-designer/clear-control',
   RENAME_CONTROL = 'ui-designer/rename-control',
@@ -47,7 +48,7 @@ export const enum ActionTypes {
   CLONE_TEMPLATE_INSTANCE = 'ui-designer/clone-template-instance',
   MOVE_TEMPLATE_INSTANCE = 'ui-designer/move-template-instance',
   SET_TEMPLATE_INSTANCE_TEMPLATE = 'ui-designer/set-template-instance-template',
-  SET_TEMPLATE_INSTANCE_BINDING = 'ui-designer/set-template-instance-binding',
+  SET_TEMPLATE_INSTANCE_BINDINGS = 'ui-designer/set-template-instance-bindings',
 }
 
 export namespace ActionPayloads {
@@ -82,6 +83,7 @@ export namespace ActionPayloads {
   export type SetTemplateProperties = { templateId: string; properties: Partial<Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>>; };
   export type SetTemplateExport = { templateId: string; exportId: string; memberType: MemberType; valueType: string; };
   export type ClearTemplateExport = { templateId: string; exportId: string; };
+  export type SetTemplateBulkPatterns = { templateId: string; patterns: { [exportId: string]: string }; };
   export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; type: 'display' | 'text' };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };
@@ -93,7 +95,7 @@ export namespace ActionPayloads {
   export type CloneTemplateInstance = { templateInstanceId: string; newId: string; };
   export type MoveTemplateInstance = { templateInstanceId: string; x: number; y: number; };
   export type SetTemplateInstanceTemplate = { templateInstanceId: string; templateId: string; };
-  export type SetTemplateInstanceBinding = { templateInstanceId: string; exportId: string; componentId: string; memberName: string; };
+  export type SetTemplateInstanceBindings = { templateInstanceId: string; bindings: { [exportId: string]: { componentId: string; memberName: string; } }; };
 }
 
 export { DesignerTabActionData, DefaultWindow, MemberType };

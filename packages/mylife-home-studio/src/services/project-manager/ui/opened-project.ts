@@ -52,7 +52,8 @@ import {
   CloneTemplateInstanceUiProjectCall,
   MoveTemplateInstanceUiProjectCall,
   SetTemplateInstanceTemplateUiProjectCall,
-  SetTemplateInstanceBindingUiProjectCall,
+  SetTemplateInstanceBindingsUiProjectCall,
+  SetTemplateBulkPatternsUiProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
@@ -200,6 +201,10 @@ export class UiOpenedProject extends OpenedProject {
         this.clearTemplateExport(callData as ClearTemplateExportUiProjectCall);
         break;
     
+      case 'set-template-bulk-patterns':
+        this.setTemplateBulkPatterns(callData as SetTemplateBulkPatternsUiProjectCall);
+        break;
+
       case 'new-control':
         this.newControl(callData as NewControlUiProjectCall);
         break;
@@ -244,8 +249,8 @@ export class UiOpenedProject extends OpenedProject {
         this.setTemplateInstanceTemplate(callData as SetTemplateInstanceTemplateUiProjectCall);
         break;
   
-      case 'set-template-instance-binding':
-        this.setTemplateInstanceBinding(callData as SetTemplateInstanceBindingUiProjectCall);
+      case 'set-template-instance-bindings':
+        this.setTemplateInstanceBindings(callData as SetTemplateInstanceBindingsUiProjectCall);
         break;
       
       default:
@@ -513,6 +518,15 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
+  private setTemplateBulkPatterns({ id, patterns }: SetTemplateBulkPatternsUiProjectCall) {
+    this.executeUpdate(() => {
+      const template = this.model.getTemplate(id);
+      template.setBulkPatterns(patterns);
+
+      this.notifyAllTemplate(template);
+    });
+  }
+
   private newControl({ viewType, viewId, id, x, y, type }: NewControlUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
@@ -608,11 +622,14 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setTemplateInstanceBinding({ viewType, viewId, id, exportId, componentId, memberName }: SetTemplateInstanceBindingUiProjectCall) {
+  private setTemplateInstanceBindings({ viewType, viewId, id, bindings }: SetTemplateInstanceBindingsUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
       const templateInstanceModel = viewModel.getTemplateInstance(id);
-      templateInstanceModel.setBinding(exportId, componentId, memberName);
+
+      for (const [exportId, { componentId, memberName }] of Object.entries(bindings)) {
+        templateInstanceModel.setBinding(exportId, componentId, memberName);
+      }
 
       this.notifyAllView(viewModel);
     });

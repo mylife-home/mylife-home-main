@@ -33,7 +33,9 @@ export interface UiWindowData extends UiViewData {
   backgroundResource: Resource;
 }
 
-export type UiTemplateExport = Omit<Member, 'description'>;
+export interface UiTemplateExport extends Omit<Member, 'description'> {
+  bulkPattern: string;
+}
 
 export interface UiTemplateData extends UiViewData {
   exports: { [name: string]: UiTemplateExport; };
@@ -382,9 +384,9 @@ export interface UiProjectCall {
   | 'set-resource' | 'clear-resource' | 'rename-resource'
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
-  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-export' | 'clear-template-export'
+  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-export' | 'clear-template-export' | 'set-template-bulk-patterns'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
-  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'move-template-instance' | 'set-template-instance-template' | 'set-template-instance-binding';
+  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'move-template-instance' | 'set-template-instance-template' | 'set-template-instance-bindings';
 }
 
 export interface UiValidationError {
@@ -538,6 +540,12 @@ export interface ClearTemplateExportUiProjectCall extends UiProjectCall {
   exportId: string;
 }
 
+export interface SetTemplateBulkPatternsUiProjectCall extends UiProjectCall {
+  operation: 'set-template-bulk-patterns';
+  id: string;
+  patterns: { [exportId: string]: string };
+}
+
 export interface NewControlUiProjectCall extends UiProjectCall {
   operation: 'new-control';
   viewType: 'window' | 'template';
@@ -631,14 +639,12 @@ export interface SetTemplateInstanceTemplateUiProjectCall extends UiProjectCall 
   templateId: string;
 }
 
-export interface SetTemplateInstanceBindingUiProjectCall extends UiProjectCall {
-  operation: 'set-template-instance-binding';
+export interface SetTemplateInstanceBindingsUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-bindings';
   viewType: 'window' | 'template';
   viewId: string;
   id: string;
-  exportId: string;
-  componentId: string;
-  memberName: string;
+  bindings: { [exportId: string]: { componentId: string; memberName: string; } };
 }
 
 /**

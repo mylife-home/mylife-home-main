@@ -987,7 +987,7 @@ export class TemplateModel extends ViewModel {
   }
 
   setExport(exportId: string, memberType: MemberType, valueType: string) {
-    this.data.exports[exportId] = { memberType, valueType };
+    this.data.exports[exportId] = { memberType, valueType, bulkPattern: null };
   }
 
   clearExport(exportId: string) {
@@ -1000,6 +1000,18 @@ export class TemplateModel extends ViewModel {
 
     for (const templateInstance of this.templates) {
       templateInstance.onClearTemplateExport(exportId);
+    }
+  }
+
+  setBulkPatterns(patterns: { [exportId: string]: string }) {
+    // check input data
+    for (const exportId of Object.keys(patterns)) {
+      this.getExportData(exportId);
+    }
+
+    for (const [exportId, bulkPattern] of Object.entries(patterns)) {
+      const exportData = this.getExportData(exportId);
+      exportData.bulkPattern = bulkPattern;
     }
   }
 
