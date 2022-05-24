@@ -16,9 +16,6 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     margin: theme.spacing(1),
   },
-  newButton: {
-    color: theme.palette.success.main,
-  },
 }));
 
 const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ className }) => {

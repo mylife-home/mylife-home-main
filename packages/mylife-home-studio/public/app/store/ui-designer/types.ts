@@ -1,5 +1,5 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiTemplateInstanceData } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiTemplateInstanceData, UiTemplateExport } from '../../../../shared/project-manager';
 import { DefaultWindow } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
@@ -98,7 +98,7 @@ export namespace ActionPayloads {
   export type SetTemplateInstanceBindings = { templateInstanceId: string; bindings: { [exportId: string]: { componentId: string; memberName: string; } }; };
 }
 
-export { DesignerTabActionData, DefaultWindow, MemberType };
+export { DesignerTabActionData, DefaultWindow, MemberType, UiTemplateExport };
 
 export interface UiResource extends UiResourceData {
   id: string;

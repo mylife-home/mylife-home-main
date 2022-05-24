@@ -1,20 +1,28 @@
-import React, { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import React, { FunctionComponent, useCallback, useMemo, useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
+import { useModal } from 'react-modal-hook';
 import IconButton from '@material-ui/core/IconButton';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 
+import { TransitionProps } from '../../../../dialogs/common';
 import { StateIcon, ActionIcon } from '../../../../lib/icons';
 import { Group, Item } from '../../../../lib/properties-layout';
 import { useTabSelector } from '../../../../lib/use-tab-selector';
 import DeleteButton from '../../../../lib/delete-button';
 import { useFireAsync } from '../../../../lib/use-error-handling';
-import { MemberType } from '../../../../../store/ui-designer/types';
+import { MemberType, UiTemplateExport } from '../../../../../store/ui-designer/types';
 import { MemberItem, makeGetTemplateCandidateExports, makeGetTemplateUsage } from '../../../../../store/ui-designer/selectors';
 import { useTemplateState } from '../view-state';
 import { useRemoveUsageConfirmDialog } from '../../common/remove-usage-confirm-dialog';
@@ -49,7 +57,16 @@ const TemplateExports: FunctionComponent = () => {
   const exportIds = useMemo(() => Object.keys(template.exports).sort(), [template.exports]);
 
   return (
-    <Group title="Exports">
+    <Group title={
+      <>
+        Exports
+        <Tooltip title="Gérer les patterns l'association de bindings">
+          <IconButton>
+            <SettingsInputComponentIcon />
+          </IconButton>
+        </Tooltip>
+      </>
+    }>
       {exportIds.map(id => (<ExportItem key={id} id={id} />))}
 
       <NewItem />
@@ -204,3 +221,109 @@ function getOptionSelected(option: MemberItem, value: MemberItem) {
 
   return option.memberType === value.memberType && option.valueType === value.valueType;
 }
+
+type DialogResult = { status: 'ok' | 'cancel'; bulkPatterns?: { [exportId: string]: string; } };
+
+function useBulkPatternEditor() {
+  const [initialExports, setInitialExports] = useState<{ [exportId: string]: UiTemplateExport; }>();
+  const [onResult, setOnResult] = useState<(result: DialogResult) => void>();
+
+  const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
+    return (
+      <BulkPatternDialog open={open} hideModal={hideModal} onExited={onExited} initialExports={initialExports} onResult={onResult} />
+    );
+  }, [initialExports, onResult]);
+
+  return useCallback((initialExports: { [exportId: string]: UiTemplateExport; }) => new Promise<DialogResult>(resolve => {
+    setInitialExports(initialExports);
+
+    // else useState think resolve is a state updater
+    setOnResult(() => resolve);
+
+    showModal();
+  }), [setInitialExports, setOnResult, showModal]);
+}
+
+interface BulkPatternDialogProps {
+  open: boolean;
+  hideModal: () => void;
+  onExited: () => void;
+  initialExports: { [exportId: string]: UiTemplateExport; };
+  onResult: (result: DialogResult) => void;
+}
+
+const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hideModal, onExited, initialExports, onResult }) => {
+  const classes = useStyles();
+  const [bulkPatterns, setBulkPatterns] = useState<{ [exportId: string]: string; }>({});
+
+  const exportData = useMemo(() => Object.keys(initialExports).sort().map(exportId => {
+    const data = initialExports[exportId];
+    return { exportId, memberType: data.memberType, valueType: data.valueType };
+  }), [initialExports]);
+
+  useEffect(() => {
+    const values: typeof bulkPatterns = {};
+    for(const [exportId, { bulkPattern }] of Object.entries(initialExports)) {
+      values[exportId] = bulkPattern;
+    }
+
+    setBulkPatterns(values);
+  }, [initialExports]);
+
+  const updateBulkPattern = useCallback((exportId: string, pattern: string) => setBulkPatterns(bulkPatterns => ({ ...bulkPatterns, [exportId]: pattern })), [setBulkPatterns]);
+
+  const cancel = () => {
+    hideModal();
+    onResult({ status: 'cancel' });
+  };
+
+  const validate = () => {
+    hideModal();
+    onResult({ status: 'ok', bulkPatterns });
+  };
+
+  return (
+    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} maxWidth="xl" fullWidth>
+      <DialogTitle id="dialog-title">Gestion des patterns de binding</DialogTitle>
+    
+      <DialogContent dividers>
+        {exportData.map(({ exportId, memberType, valueType}) => {
+          const value = bulkPatterns[exportId] || '';
+          const Icon = getMemberIcon(memberType);
+
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { value } = e.target;
+            updateBulkPattern(exportId, value || null);
+          };
+        
+          return (
+            <Item key={exportId} title={
+              <>
+                {Icon && <Icon className={classes.titleIcon} />}
+                {exportId}
+              </>
+            }>
+              <div className={clsx(classes.target, classes.targetLabel)}>
+                <Typography variant="overline" className={classes.targetType}>
+                  {valueType}
+                </Typography>
+              </div>
+              
+              <TextField
+                variant="outlined"
+                value={value}
+                onChange={handleChange}
+              />
+
+            </Item>
+          );
+        })}
+      </DialogContent>
+    
+      <DialogActions>
+        <Button color="primary" onClick={validate}>OK</Button>
+        <Button onClick={cancel}>Annuler</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
