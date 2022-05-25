@@ -18,6 +18,8 @@ import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponen
 import { TransitionProps } from '../../../../dialogs/common';
 import { ActionIcon, StateIcon } from '../../../../lib/icons';
 import DeleteButton from '../../../../lib/delete-button';
+import { useTabSelector } from '../../../../lib/use-tab-selector';
+import { useTabPanelId, TabIdContext } from '../../../../lib/tab-panel';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
@@ -29,7 +31,7 @@ import { useTemplateInstanceState, useGetExistingTemplateInstanceNames } from '.
 import { useSnapValue } from '../snap';
 import { AppState } from '../../../../../store/types';
 import { MemberType, UiTemplateExport, UiTemplateInstanceBinding } from '../../../../../store/ui-designer/types';
-import { getTemplateInstance } from '../../../../../store/ui-designer/selectors';
+import { getTemplateInstance, makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -151,12 +153,15 @@ const Binding: FunctionComponent<{ id: string; exportId: string; }> = ({ id, exp
 type DialogResult = { status: 'ok' | 'cancel'; bindings?: { [bindingId: string]: UiTemplateInstanceBinding; } };
 
 function useBulkPatternEditor() {
+  const tabId = useTabPanelId();
   const [exportData, setExportData] = useState<{ [exportId: string]: UiTemplateExport; }>();
   const [onResult, setOnResult] = useState<(result: DialogResult) => void>();
 
   const [showModal, hideModal] = useModal(({ in: open, onExited }: TransitionProps) => {
     return (
-      <BulkPatternDialog open={open} hideModal={hideModal} onExited={onExited} exportData={exportData} onResult={onResult} />
+      <TabIdContext.Provider value={tabId}>
+        <BulkPatternDialog open={open} hideModal={hideModal} onExited={onExited} exportData={exportData} onResult={onResult} />
+      </TabIdContext.Provider>
     );
   }, [exportData, onResult]);
 
@@ -204,19 +209,8 @@ interface BulkPatternDialogProps {
 
 const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hideModal, onExited, exportData, onResult }) => {
   const [pattern, setPattern] = useState<string>('');
-  const [bindings, setBindings] = useState<{ [bindingId: string]: UiTemplateInstanceBinding; }>({});
-  // TODO: components
-
-  useEffect(() => {
-    const values: typeof bindings = {};
-    for(const exportId of Object.keys(exportData)) {
-      values[exportId] = { componentId: null, memberName: null };
-    }
-
-    setBindings(values);
-  }, [exportData]);
-
-  const setBinding = useCallback((exportId: string, componentId: string, memberName: string) => setBindings(bindings => ({ ...bindings, [exportId]: { componentId, memberName } })), [setBindings]);
+  const componentData = useComponentData();
+  const bindings = useBindingsMatcher(componentData, exportData, pattern);
 
   const cancel = () => {
     hideModal();
@@ -298,4 +292,41 @@ function getMemberIcon(memberType: MemberType) {
     case MemberType.ACTION:
       return ActionIcon;
   }
+}
+
+type ComponentData = { componentId: string; componentDisplayId: string; memberName: string, memberType: MemberType, valueType: string }[];
+
+function useComponentData() {
+  const getComponentsAndPlugins = useMemo(() => makeGetComponentsAndPlugins(), []);
+  const componentsAndPlugins = useTabSelector(getComponentsAndPlugins);
+
+  return useMemo(() => {
+    const list: ComponentData = [];
+
+    for (const { component, plugin } of componentsAndPlugins) {
+      for (const [memberName, member] of Object.entries(plugin.members)) {
+        list.push({
+          componentId: component.id,
+          componentDisplayId: component.componentId,
+          memberName,
+          memberType: member.memberType,
+          valueType: member.valueType
+        });
+      }
+    }
+
+    return list;
+  }, [componentsAndPlugins]);
+}
+
+function useBindingsMatcher(componentData: ComponentData, exportData: { [exportId: string]: UiTemplateExport; }, pattern: string) {
+  
+  return useMemo(() => {
+    const bindings: { [exportId: string]: UiTemplateInstanceBinding } = {};
+    for(const exportId of Object.keys(exportData)) {
+      bindings[exportId] = { componentId: null, memberName: null };
+    }
+  
+    return bindings;
+  }, [componentData, exportData, pattern]);
 }
