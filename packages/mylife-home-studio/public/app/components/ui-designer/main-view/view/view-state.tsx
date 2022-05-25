@@ -5,9 +5,9 @@ import { makeUniqueId } from '../../../lib/make-unique-id';
 import { useFireAsync } from '../../../lib/use-error-handling';
 import { useSnackbar } from '../../../dialogs/snackbar';
 import { AppState, AsyncDispatch } from '../../../../store/types';
-import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, setTemplateInstanceProperties } from '../../../../store/ui-designer/actions';
+import { setWindowProperties, setTemplateProperties, newControl, newTemplateInstance, setControlProperties, cloneControl, clearControl, renameControl, clearTemplateInstance, renameTemplateInstance, cloneTemplateInstance, moveTemplateInstance, setTemplateInstanceTemplate, setTemplateInstanceBindings, clearTemplateExport, setTemplateExport, setTemplateBulkPatterns } from '../../../../store/ui-designer/actions';
 import { getControl, getView, getWindow, getTemplate, getControlsMap, getTemplateInstancesMap, getTemplateInstance } from '../../../../store/ui-designer/selectors';
-import { UiWindow, UiTemplate, UiControl, UiViewType, UiTemplateInstance } from '../../../../store/ui-designer/types';
+import { UiWindow, UiTemplate, UiControl, UiViewType, MemberType } from '../../../../store/ui-designer/types';
 import { Position } from './canvas/types';
 
 export type SelectionType = 'view' | 'control' | 'template-instance';
@@ -118,10 +118,22 @@ export function useTemplateState() {
     dispatch(setTemplateProperties({ templateId: viewId, properties }));
   }, [dispatch, viewId]);
 
+  const setExport = useCallback((exportId: string, memberType: MemberType, valueType: string) => {
+    dispatch(setTemplateExport({ templateId: viewId, exportId, memberType, valueType }));
+  }, [dispatch, viewId]);
+
+  const clearExport = useCallback((exportId: string) => {
+    dispatch(clearTemplateExport({ templateId: viewId, exportId }));
+  }, [dispatch, viewId]);
+
+  const setBulkPatterns = useCallback((patterns: { [exportId: string]: string }) => {
+    dispatch(setTemplateBulkPatterns({ templateId: viewId, patterns }));
+  }, [dispatch, viewId]);
+
   const selected = selection.type === 'view';
   const select = useCallback(() => setSelection({ type: 'view', id: null }), [setSelection]);
 
-  return { template, update, selected, select };
+  return { template, update, setExport, clearExport, setBulkPatterns, selected, select };
 }
 
 export function useControlState(id: string) {
@@ -182,8 +194,20 @@ export function useTemplateInstanceState(id: string) {
   const dispatch = useDispatch();
   const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
 
-  const update = useCallback((properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>) => {
-    dispatch(setTemplateInstanceProperties({ templateInstanceId: id, properties }));
+  const move = useCallback((x: number, y: number) => {
+    dispatch(moveTemplateInstance({ templateInstanceId: id, x, y }));
+  }, [dispatch, id]);
+
+  const setTemplate = useCallback((templateId: string) => {
+    dispatch(setTemplateInstanceTemplate({ templateInstanceId: id, templateId }));
+  }, [dispatch, id]);
+
+  const setBinding = useCallback((exportId: string, componentId: string, memberName: string) => {
+    dispatch(setTemplateInstanceBindings({ templateInstanceId: id, bindings: { [exportId]: { componentId, memberName } } }));
+  }, [dispatch, id]);
+
+  const setBindings = useCallback((bindings: { [exportId: string]: { componentId: string, memberName: string } }) => {
+    dispatch(setTemplateInstanceBindings({ templateInstanceId: id, bindings }));
   }, [dispatch, id]);
 
   const duplicate = useCallback(() => {
@@ -208,7 +232,7 @@ export function useTemplateInstanceState(id: string) {
   const selected = selection.type === 'template-instance' && selection.id === id;
   const select = useCallback(() => setSelection({ type: 'template-instance', id }), [setSelection]);
 
-  return { templateInstance, template, update, duplicate, rename, remove, selected, select };
+  return { templateInstance, template, move, setTemplate, setBinding, setBindings, duplicate, rename, remove, selected, select };
 }
 
 export function useSelection() {

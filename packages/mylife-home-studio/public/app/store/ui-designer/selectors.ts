@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { ById } from '../common/types';
 import { AppState } from '../types';
-import { UiControl, UiPlugin, UiTemplateInstance, UiView, UiViewType, Usage } from './types';
+import { UiControl, UiPlugin, UiTemplateInstance, UiView, UiViewType, Usage, MemberType } from './types';
 
 const getUiDesigner = (state: AppState) => state.uiDesigner;
 const getOpenedProjects = (state: AppState) => getUiDesigner(state).openedProjects;
@@ -318,3 +318,31 @@ export const getSelection = (state: AppState, tabId: string) => {
   const project = getOpenedProject(state, tabId);
   return project.selection;
 }
+
+export interface MemberItem {
+  memberType: MemberType;
+  valueType: string;
+}
+
+export function makeGetTemplateCandidateExports() {
+  return createSelector(
+    (state: AppState, tabId: string) => getOpenedProject(state, tabId).plugins,
+    getPluginsMap,
+    (projectPlugins, plugins) => {
+      const set = new Set<string>();
+      const list: MemberItem[] = [];
+    
+      for (const pluginId of projectPlugins) {
+        const plugin = plugins[pluginId];
+          for (const { memberType, valueType } of Object.values(plugin.members)) {
+          const hash = `${memberType}:${valueType}`;
+          if (!set.has(hash)) {
+            list.push({ memberType, valueType });
+          }
+        }
+      }
+    
+      return list;
+        }
+  );
+};

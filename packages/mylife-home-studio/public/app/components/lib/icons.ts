@@ -10,6 +10,7 @@ import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
 import ImageIcon from '@material-ui/icons/Image';
 import BrushIcon from '@material-ui/icons/Brush';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
+import PowerIcon from '@material-ui/icons/Power';
 
 export const ProjectIcon = AccountTreeIcon;
 
@@ -26,3 +27,4 @@ export const ResourceIcon = ImageIcon;
 export const StyleIcon = BrushIcon;
 export { ImageIcon };
 export const TextIcon = TextFieldsIcon;
+export const BindingIcon = PowerIcon;

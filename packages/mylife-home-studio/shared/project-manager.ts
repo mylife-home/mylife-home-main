@@ -1,6 +1,6 @@
 import { Control, DefaultWindow, DefinitionResource, DefinitionStyle, ControlDisplay, ControlText, Action, ControlTextContextItem, ControlDisplayMapItem, Style, Resource } from './ui-model';
 import { BindingConfig } from './core-model';
-import { Component, Plugin, PluginUsage } from './component-model';
+import { Component, Plugin, PluginUsage, Member, MemberType } from './component-model';
 
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -33,13 +33,24 @@ export interface UiWindowData extends UiViewData {
   backgroundResource: Resource;
 }
 
+export interface UiTemplateExport extends Omit<Member, 'description'> {
+  bulkPattern: string;
+}
+
 export interface UiTemplateData extends UiViewData {
+  exports: { [name: string]: UiTemplateExport; };
 }
 
 export interface UiTemplateInstanceData {
+  templateId: string;
   x: number;
   y: number;
-  templateId: string;
+  bindings: { [name: string]: UiTemplateInstanceBinding; };
+}
+
+export interface UiTemplateInstanceBinding {
+  componentId: string;
+  memberName: string;
 }
 
 export interface UiControlData extends Omit<Mutable<Control>, 'id' | 'text'> {
@@ -373,9 +384,9 @@ export interface UiProjectCall {
   | 'set-resource' | 'clear-resource' | 'rename-resource'
   | 'set-style' | 'clear-style' | 'rename-style'
   | 'new-window' | 'clear-window' | 'rename-window' | 'clone-window' | 'set-window-properties'
-  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties'
+  | 'new-template' | 'clear-template' | 'rename-template' | 'clone-template' | 'set-template-properties' | 'set-template-export' | 'clear-template-export' | 'set-template-bulk-patterns'
   | 'new-control' | 'clear-control' | 'rename-control' | 'clone-control' | 'set-control-properties'
-  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'set-template-instance-properties';
+  | 'new-template-instance' | 'clear-template-instance' | 'rename-template-instance' | 'clone-template-instance' | 'move-template-instance' | 'set-template-instance-template' | 'set-template-instance-bindings';
 }
 
 export interface UiValidationError {
@@ -515,6 +526,26 @@ export interface SetTemplatePropertiesUiProjectCall extends UiProjectCall {
   properties: Partial<Omit<UiTemplateData, 'controls'>>;
 }
 
+export interface SetTemplateExportUiProjectCall extends UiProjectCall {
+  operation: 'set-template-export';
+  id: string;
+  exportId: string;
+  memberType: MemberType;
+  valueType: string;
+}
+
+export interface ClearTemplateExportUiProjectCall extends UiProjectCall {
+  operation: 'clear-template-export';
+  id: string;
+  exportId: string;
+}
+
+export interface SetTemplateBulkPatternsUiProjectCall extends UiProjectCall {
+  operation: 'set-template-bulk-patterns';
+  id: string;
+  patterns: { [exportId: string]: string };
+}
+
 export interface NewControlUiProjectCall extends UiProjectCall {
   operation: 'new-control';
   viewType: 'window' | 'template';
@@ -591,12 +622,29 @@ export interface CloneTemplateInstanceUiProjectCall extends UiProjectCall {
   newId: string;
 }
 
-export interface SetTemplateInstancePropertiesUiProjectCall extends UiProjectCall {
-  operation: 'set-template-instance-properties';
+export interface MoveTemplateInstanceUiProjectCall extends UiProjectCall {
+  operation: 'move-template-instance';
   viewType: 'window' | 'template';
   viewId: string;
   id: string;
-  properties: Partial<UiTemplateInstanceData>;
+  x: number;
+  y: number;
+}
+
+export interface SetTemplateInstanceTemplateUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-template';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  templateId: string;
+}
+
+export interface SetTemplateInstanceBindingsUiProjectCall extends UiProjectCall {
+  operation: 'set-template-instance-bindings';
+  viewType: 'window' | 'template';
+  viewId: string;
+  id: string;
+  bindings: { [exportId: string]: { componentId: string; memberName: string; } };
 }
 
 /**

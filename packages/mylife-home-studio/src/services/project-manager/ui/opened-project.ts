@@ -24,7 +24,6 @@ import {
   RefreshComponentsFromProjectUiProjectCall,
   RefreshComponentsUiProjectCallResult,
   ApplyRefreshComponentsUiProjectCall,
-  UiComponentData,
   DeployUiProjectCallResult,
   NewWindowUiProjectCall,
   SetWindowPropertiesUiProjectCall,
@@ -45,18 +44,23 @@ import {
   ClearUiTemplateNotification,
   CloneTemplateUiProjectCall,
   SetTemplatePropertiesUiProjectCall,
+  SetTemplateExportUiProjectCall,
+  ClearTemplateExportUiProjectCall,
   NewTemplateInstanceUiProjectCall,
   ClearTemplateInstanceUiProjectCall,
   RenameTemplateInstanceUiProjectCall,
   CloneTemplateInstanceUiProjectCall,
-  SetTemplateInstancePropertiesUiProjectCall,
+  MoveTemplateInstanceUiProjectCall,
+  SetTemplateInstanceTemplateUiProjectCall,
+  SetTemplateInstanceBindingsUiProjectCall,
+  SetTemplateBulkPatternsUiProjectCall,
 } from '../../../../shared/project-manager';
 import { SessionNotifier } from '../../session-manager';
 import { OpenedProject } from '../opened-project';
 import { Services } from '../..';
 import { UiProjects } from './projects';
-import { ComponentsModel, loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
-import { CollectionModel, DefaultWindowModel, WindowModel, ResourceModel, ComponentUsage, StyleModel, TemplateModel, ProjectModel, ViewModel } from './definition-model';
+import { loadCoreProjectComponentData, loadOnlineComponentData, NewComponentData, prepareMergeComponentData } from './component-model';
+import { WindowModel, ResourceModel, ComponentUsage, StyleModel, TemplateModel, ProjectModel, ViewModel } from './definition-model';
 import { buildDeployDefinition } from './deploy';
 
 const log = logger.createLogger('mylife:home:studio:services:project-manager:ui:opened-project');
@@ -188,7 +192,19 @@ export class UiOpenedProject extends OpenedProject {
       case 'set-template-properties':
         this.setTemplateProperties(callData as SetTemplatePropertiesUiProjectCall);
         break;
-  
+
+      case 'set-template-export':
+        this.setTemplateExport(callData as SetTemplateExportUiProjectCall);
+        break;
+
+      case 'clear-template-export':
+        this.clearTemplateExport(callData as ClearTemplateExportUiProjectCall);
+        break;
+    
+      case 'set-template-bulk-patterns':
+        this.setTemplateBulkPatterns(callData as SetTemplateBulkPatternsUiProjectCall);
+        break;
+
       case 'new-control':
         this.newControl(callData as NewControlUiProjectCall);
         break;
@@ -225,10 +241,18 @@ export class UiOpenedProject extends OpenedProject {
         this.cloneTemplateInstance(callData as CloneTemplateInstanceUiProjectCall);
         break;
   
-      case 'set-template-instance-properties':
-        this.setTemplateInstanceProperties(callData as SetTemplateInstancePropertiesUiProjectCall);
+      case 'move-template-instance':
+        this.moveTemplateInstanceProperties(callData as MoveTemplateInstanceUiProjectCall);
         break;
-
+  
+      case 'set-template-instance-template':
+        this.setTemplateInstanceTemplate(callData as SetTemplateInstanceTemplateUiProjectCall);
+        break;
+  
+      case 'set-template-instance-bindings':
+        this.setTemplateInstanceBindings(callData as SetTemplateInstanceBindingsUiProjectCall);
+        break;
+      
       default:
         throw new Error(`Unhandled call: ${callData.operation}`);
     }
@@ -466,6 +490,43 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
+  private setTemplateExport({ id, exportId, memberType, valueType }: SetTemplateExportUiProjectCall) {
+    this.executeUpdate(() => {
+      const impacts = this.model.setTemplateExport(id, exportId, memberType, valueType);
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
+    });
+  }
+
+  private clearTemplateExport({ id, exportId }: ClearTemplateExportUiProjectCall) {
+    this.executeUpdate(() => {
+      const impacts = this.model.clearTemplateExport(id, exportId);
+
+      for (const window of impacts.windows) {
+        this.notifyAllWindow(window);
+      }
+
+      for (const template of impacts.templates) {
+        this.notifyAllTemplate(template);
+      }
+    });
+  }
+
+  private setTemplateBulkPatterns({ id, patterns }: SetTemplateBulkPatternsUiProjectCall) {
+    this.executeUpdate(() => {
+      const template = this.model.getTemplate(id);
+      template.setBulkPatterns(patterns);
+
+      this.notifyAllTemplate(template);
+    });
+  }
+
   private newControl({ viewType, viewId, id, x, y, type }: NewControlUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
@@ -540,11 +601,36 @@ export class UiOpenedProject extends OpenedProject {
     });
   }
 
-  private setTemplateInstanceProperties({ viewType, viewId, id, properties }: SetTemplateInstancePropertiesUiProjectCall) {
+  private moveTemplateInstanceProperties({ viewType, viewId, id, x, y }: MoveTemplateInstanceUiProjectCall) {
     this.executeUpdate(() => {
       const viewModel = this.model.getView(viewType, viewId);
       const templateInstanceModel = viewModel.getTemplateInstance(id);
-      templateInstanceModel.update(properties);
+      templateInstanceModel.move(x, y);
+
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceTemplate({ viewType, viewId, id, templateId }: SetTemplateInstanceTemplateUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+      const template = this.model.getTemplate(templateId);
+      templateInstanceModel.setTemplate(template);
+
+      this.notifyAllView(viewModel);
+    });
+  }
+
+  private setTemplateInstanceBindings({ viewType, viewId, id, bindings }: SetTemplateInstanceBindingsUiProjectCall) {
+    this.executeUpdate(() => {
+      const viewModel = this.model.getView(viewType, viewId);
+      const templateInstanceModel = viewModel.getTemplateInstance(id);
+
+      for (const [exportId, { componentId, memberName }] of Object.entries(bindings)) {
+        templateInstanceModel.setBinding(exportId, componentId, memberName);
+      }
+
       this.notifyAllView(viewModel);
     });
   }

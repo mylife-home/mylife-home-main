@@ -9,6 +9,7 @@ import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import ElementPathBreadcrumbs from '../../common/element-path-breadcrumbs';
 import { useTemplateState } from '../view-state';
 import { useSnapValue } from '../snap';
+import TemplateExports from './template-exports';
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbs: {
@@ -36,6 +37,8 @@ const PropertiesTemplate: FunctionComponent<{ className?: string }> = ({ classNa
           <SnappedIntegerEditor snap={snap} value={template.height} onChange={(value) => update({ height: value })} />
         </Item>
       </Group>
+
+      <TemplateExports />
 
       <Group title={'Utilisation'}>
         {usage.map((item, index) => (

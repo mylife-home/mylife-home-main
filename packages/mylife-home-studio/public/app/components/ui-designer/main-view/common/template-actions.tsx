@@ -76,8 +76,8 @@ export const TemplateActions: FunctionComponent<{ id: string }> = ({ id }) => {
   const onRemoveWithUsage = () =>
     fireAsync(async () => {
       const { status } = await showRemoveUsageConfirmDialog({ 
-        title: 'Supprimer la fenêtre',
-        message: 'La fenêtre est utilisée :',
+        title: 'Supprimer le template',
+        message: 'Le template est utilisé :',
         usage
       });
       

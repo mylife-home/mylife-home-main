@@ -1,6 +1,7 @@
 import { Component } from '../../../../shared/component-model';
-import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiTemplateInstanceData } from '../../../../shared/project-manager';
+import { UiBreakingOperation, UiPluginData, UiElementPath, UiElementPathNode, UpdateProjectNotification, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiTemplateInstanceData, UiTemplateExport, UiTemplateInstanceBinding } from '../../../../shared/project-manager';
 import { DefaultWindow } from '../../../../shared/ui-model';
+import { MemberType } from '../../../../shared/component-model';
 import { DesignerTabActionData, OpenedProjectBase } from '../common/designer-types';
 import { Table } from '../common/types';
 
@@ -33,6 +34,9 @@ export const enum ActionTypes {
   RENAME_TEMPLATE = 'ui-designer/rename-template',
   CLONE_TEMPLATE = 'ui-designer/clone-template',
   SET_TEMPLATE_PROPERTIES = 'ui-designer/set-template-properties',
+  SET_TEMPLATE_EXPORT = 'ui-designer/set-template-export',
+  CLEAR_TEMPLATE_EXPORT = 'ui-designer/clear-template-export',
+  SET_TEMPLATE_BULK_PATTERNS = 'ui-designer/set-template-bulk-patterns',
   NEW_CONTROL = 'ui-designer/new-control',
   CLEAR_CONTROL = 'ui-designer/clear-control',
   RENAME_CONTROL = 'ui-designer/rename-control',
@@ -42,7 +46,9 @@ export const enum ActionTypes {
   CLEAR_TEMPLATE_INSTANCE = 'ui-designer/clear-template-instance',
   RENAME_TEMPLATE_INSTANCE = 'ui-designer/rename-template-instance',
   CLONE_TEMPLATE_INSTANCE = 'ui-designer/clone-template-instance',
-  SET_TEMPLATE_INSTANCE_PROPERTIES = 'ui-designer/set-template-instance-properties',
+  MOVE_TEMPLATE_INSTANCE = 'ui-designer/move-template-instance',
+  SET_TEMPLATE_INSTANCE_TEMPLATE = 'ui-designer/set-template-instance-template',
+  SET_TEMPLATE_INSTANCE_BINDINGS = 'ui-designer/set-template-instance-bindings',
 }
 
 export namespace ActionPayloads {
@@ -75,6 +81,9 @@ export namespace ActionPayloads {
   export type RenameTemplate = { templateId: string; newId: string; };
   export type CloneTemplate = { templateId: string; newId: string; };
   export type SetTemplateProperties = { templateId: string; properties: Partial<Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>>; };
+  export type SetTemplateExport = { templateId: string; exportId: string; memberType: MemberType; valueType: string; };
+  export type ClearTemplateExport = { templateId: string; exportId: string; };
+  export type SetTemplateBulkPatterns = { templateId: string; patterns: { [exportId: string]: string }; };
   export type NewControl = { viewType: UiViewType; viewId: string; newId: string; x: number; y: number; type: 'display' | 'text' };
   export type ClearControl = { controlId: string; };
   export type RenameControl = { controlId: string; newId: string; };
@@ -84,10 +93,12 @@ export namespace ActionPayloads {
   export type ClearTemplateInstance = { templateInstanceId: string; };
   export type RenameTemplateInstance = { templateInstanceId: string; newId: string; };
   export type CloneTemplateInstance = { templateInstanceId: string; newId: string; };
-  export type SetTemplateInstanceProperties = { templateInstanceId: string; properties: Partial<Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>>; };
+  export type MoveTemplateInstance = { templateInstanceId: string; x: number; y: number; };
+  export type SetTemplateInstanceTemplate = { templateInstanceId: string; templateId: string; };
+  export type SetTemplateInstanceBindings = { templateInstanceId: string; bindings: { [exportId: string]: { componentId: string; memberName: string; } }; };
 }
 
-export { DesignerTabActionData, DefaultWindow };
+export { DesignerTabActionData, DefaultWindow, MemberType, UiTemplateExport, UiTemplateInstanceBinding };
 
 export interface UiResource extends UiResourceData {
   id: string;

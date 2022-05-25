@@ -20,6 +20,7 @@ import {
   RenameUiTemplateNotification,
   UiControlData,
   UiTemplateInstanceData,
+  UiTemplateInstanceBinding,
 } from '../../../../shared/project-manager';
 import { createTable, tableAdd, tableRemove, tableSet, tableRemoveAll, tableClear, arrayAdd, arraySet, arrayRemove } from '../common/reducer-tools';
 import { ActionTypes as TabsActionTypes, UpdateTabAction, NewTabAction, TabType } from '../tabs/types';
@@ -149,10 +150,17 @@ export default createReducer(initialState, {
 
   // Apply this change right away to improve designer UX, and debounce server update requests
   // Note that server update will apply anyway
-  [ActionTypes.SET_TEMPLATE_INSTANCE_PROPERTIES]: (state, action: PayloadAction<ActionPayloads.SetTemplateInstanceProperties>) => {
-    const { templateInstanceId, properties } = action.payload;
+  [ActionTypes.MOVE_TEMPLATE_INSTANCE]: (state, action: PayloadAction<ActionPayloads.MoveTemplateInstance>) => {
+    const { templateInstanceId, x, y } = action.payload;
     const templateInstance = state.templateInstances.byId[templateInstanceId];
-    Object.assign(templateInstance, properties);
+
+    if (x != null) {
+      templateInstance.x = x;
+    }
+
+    if (y != null) {
+      templateInstance.y = y;
+    }
   },
 });
 
@@ -422,7 +430,7 @@ function applyProjectUpdate(state: UiDesignerState, openedProject: UiOpenedProje
   }
 }
 
-function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProject, components: { [id: string]: UiComponentData }, plugins: { [id: string]: UiPluginData }) {
+function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProject, components: { [id: string]: UiComponentData; }, plugins: { [id: string]: UiPluginData; }) {
   tableRemoveAll(state.plugins, openedProject.plugins);
   tableRemoveAll(state.components, openedProject.components);
   openedProject.plugins = [];
@@ -454,7 +462,7 @@ function updateComponentData(state: UiDesignerState, openedProject: UiOpenedProj
   openedProject.components.sort();
 }
 
-function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls' | 'templates'>, { adaptIds }: { adaptIds: boolean }) {
+function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow, 'id' | 'windowId' | 'controls' | 'templates'>, { adaptIds }: { adaptIds: boolean; }) {
   const { style, height, width, backgroundResource } = window;
 
   return {
@@ -465,15 +473,15 @@ function prepareWindowData(openedProject: UiOpenedProject, window: Omit<UiWindow
 }
 
 function prepareTemplateData(template: Omit<UiTemplate, 'id' | 'templateId' | 'controls' | 'templates'>) {
-  const { height, width } = template;
+  const { height, width, exports } = template;
 
-  return { height, width };
+  return { height, width, exports };
 }
 
-function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean }) {
+function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiControl, 'id' | 'controlId'>, { adaptIds }: { adaptIds: boolean; }) {
   const { style, height, width, x, y, display, text, primaryAction, secondaryAction } = control;
 
-  const controlData = { 
+  const controlData = {
     height, width, x, y, display, text, primaryAction, secondaryAction,
     style: style.map(id => prepareNullableId(openedProject, id, { adaptIds })),
   };
@@ -484,20 +492,20 @@ function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiCont
     }
 
     if (controlData[aid].window) {
-      controlData[aid] = { 
-        ... controlData[aid],
+      controlData[aid] = {
+        ...controlData[aid],
         window: {
-          ... controlData[aid].window,
+          ...controlData[aid].window,
           id: prepareNullableId(openedProject, controlData[aid].window.id, { adaptIds })
         },
       };
     }
-    
+
     if (controlData[aid].component) {
-      controlData[aid] = { 
-        ... controlData[aid],
+      controlData[aid] = {
+        ...controlData[aid],
         component: {
-          ... controlData[aid].component,
+          ...controlData[aid].component,
           id: prepareNullableId(openedProject, controlData[aid].component.id, { adaptIds })
         },
       };
@@ -523,16 +531,26 @@ function prepareControlData(openedProject: UiOpenedProject, control: Omit<UiCont
   return controlData;
 }
 
-function prepareTemplateInstanceData(openedProject: UiOpenedProject, templateInstance: Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>, { adaptIds }: { adaptIds: boolean }) {
-  const { x, y, templateId } = templateInstance;
+function prepareTemplateInstanceData(openedProject: UiOpenedProject, templateInstance: Omit<UiTemplateInstance, 'id' | 'templateInstanceId'>, { adaptIds }: { adaptIds: boolean; }) {
+  const { x, y, templateId, bindings } = templateInstance;
+
+  const newBindings: { [name: string]: UiTemplateInstanceBinding; } = {};
+
+  for (const [exportId, { componentId, ...bindingData }] of Object.entries(bindings)) {
+    newBindings[exportId] = {
+      ...bindingData,
+      componentId: prepareNullableId(openedProject, componentId, { adaptIds }),
+    };
+  }
 
   return {
+    templateId: prepareNullableId(openedProject, templateId, { adaptIds }),
     x, y,
-    templateId: prepareNullableId(openedProject, templateId, { adaptIds })
+    bindings: newBindings
   };
 }
 
-function prepareNullableId(openedProject: UiOpenedProject, id: string, { adaptIds }: { adaptIds: boolean }) {
+function prepareNullableId(openedProject: UiOpenedProject, id: string, { adaptIds }: { adaptIds: boolean; }) {
   return adaptIds ? makeNullableId(openedProject, id) : id;
 }
 
@@ -540,12 +558,12 @@ function makeNullableId(openedProject: UiOpenedProject, id: string) {
   return id ? `${openedProject.id}:${id}` : id;
 }
 
-function setViewControls(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, controls: { [id: string]: UiControlData }) {
+function setViewControls(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, controls: { [id: string]: UiControlData; }) {
   return Object.entries(controls).map(([controlId, controlData]) => {
     const control: UiControl = {
       id: `${viewId}:${viewType}:${controlId}`,
       controlId,
-      ... prepareControlData(openedProject, controlData, { adaptIds: true })
+      ...prepareControlData(openedProject, controlData, { adaptIds: true })
     };
 
     tableSet(state.controls, control, true);
@@ -566,12 +584,12 @@ function renameViewControls(state: UiDesignerState, viewType: UiViewType, view: 
   }
 }
 
-function setViewTemplateInstances(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, templates: { [id: string]: UiTemplateInstanceData }) {
+function setViewTemplateInstances(state: UiDesignerState, openedProject: UiOpenedProject, viewType: UiViewType, viewId: string, templates: { [id: string]: UiTemplateInstanceData; }) {
   return Object.entries(templates).map(([templateInstanceId, templateInstanceData]) => {
     const templateInstance: UiTemplateInstance = {
       id: `${viewId}:${viewType}:${templateInstanceId}`,
       templateInstanceId,
-      ... prepareTemplateInstanceData(openedProject, templateInstanceData, { adaptIds: true })
+      ...prepareTemplateInstanceData(openedProject, templateInstanceData, { adaptIds: true })
     };
 
     tableSet(state.templateInstances, templateInstance, true);

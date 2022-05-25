@@ -1,5 +1,5 @@
 import { components } from 'mylife-home-common';
-import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextData } from '../../../../shared/project-manager';
+import { UiValidationError, UiElementPath, UiWindowData, UiControlData, UiResourceData, UiStyleData, UiTemplateData, UiViewData, UiProject, UiTemplateInstanceData, UiControlDisplayData, UiControlDisplayMapItemData, UiControlTextData, UiTemplateInstanceBinding } from '../../../../shared/project-manager';
 import { DefaultWindow, Style } from '../../../../shared/ui-model';
 import { MemberType } from '../../../../shared/component-model';
 import { ComponentsModel } from './component-model';
@@ -19,6 +19,7 @@ const WINDOW_TEMPLATE: UiWindowData = {
 const TEMPLATE_TEMPLATE: UiTemplateData = {
   height: 500,
   width: 500,
+  exports: {},
   controls: {},
   templates: {}
 };
@@ -27,6 +28,7 @@ const TEMPLATE_INSTANCE_TEMPLATE: UiTemplateInstanceData = {
   templateId: null,
   x: null,
   y: null,
+  bindings: {}
 };
 
 const CONTROL_TEMPLATE: UiControlData = {
@@ -62,16 +64,10 @@ export interface ComponentUsage {
 
 export type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
-interface WithId {
-  readonly id: string;
-
-  rename(newId: string): void;
-}
-
-class ModelBase implements WithId {
+class ModelBase {
   private _id: string;
 
-  constructor(id: string) {
+  constructor(public readonly project: ProjectModel, id: string) {
     this._id = id;
   }
 
@@ -88,12 +84,12 @@ interface IdContainer {
   hasId(id: string): boolean;
 }
 
-export class CollectionModel<TData, TModel extends WithId> implements IdContainer {
+export class CollectionModel<TData, TModel extends ModelBase> implements IdContainer {
   private readonly map = new Map<string, TModel>();
 
-  constructor(public readonly data: { [id: string]: TData; }, private readonly ModelFactory: new (id: string, data: TData) => TModel) {
+  constructor(public readonly project: ProjectModel, public readonly data: { [id: string]: TData; }, private readonly ModelFactory: new (project: ProjectModel, id: string, data: TData) => TModel) {
     for (const [id, itemData] of Object.entries(data)) {
-      const item = new this.ModelFactory(id, itemData);
+      const item = new this.ModelFactory(this.project, id, itemData);
       this.map.set(item.id, item);
     }
   }
@@ -123,7 +119,7 @@ export class CollectionModel<TData, TModel extends WithId> implements IdContaine
 
   set(id: string, itemData: TData) {
     this.checkNewId(id);
-    const item = new this.ModelFactory(id, itemData);
+    const item = new this.ModelFactory(this.project, id, itemData);
 
     // replace or insert
     this.data[item.id] = itemData;
@@ -182,10 +178,10 @@ export class ProjectModel {
 
   constructor(data: UiProject) {
     this.defaultWindow = new DefaultWindowModel(data.defaultWindow);
-    this.windows = new CollectionModel(data.windows, WindowModel);
-    this.templates = new CollectionModel(data.templates, TemplateModel);
-    this.resources = new CollectionModel(data.resources, ResourceModel);
-    this.styles = new CollectionModel(data.styles, StyleModel);
+    this.windows = new CollectionModel(this, data.windows, WindowModel);
+    this.templates = new CollectionModel(this, data.templates, TemplateModel);
+    this.resources = new CollectionModel(this, data.resources, ResourceModel);
+    this.styles = new CollectionModel(this, data.styles, StyleModel);
     this.components = new ComponentsModel({ components: data.components, plugins: data.plugins });
   }
 
@@ -434,6 +430,54 @@ export class ProjectModel {
     }
   }
 
+  setTemplateExport(id: string, exportId: string, memberType: MemberType, valueType: string) {
+    const template = this.getTemplate(id);
+    template.setExport(exportId, memberType, valueType);
+
+    const impacts = {
+      windows: [] as WindowModel[],
+      templates: [template],
+    };
+
+    for (const window of this.windows) {
+      if (window.onSetTemplateExport(id, exportId)) {
+        impacts.windows.push(window);
+      }
+    }
+
+    for (const template of this.templates) {
+      if (template.onSetTemplateExport(id, exportId)) {
+        impacts.templates.push(template);
+      }
+    }
+
+    return impacts;
+  }
+
+  clearTemplateExport(id: string, exportId: string) {
+    const template = this.getTemplate(id);
+    template.clearExport(exportId);
+
+    const impacts = {
+      windows: [] as WindowModel[],
+      templates: [template],
+    };
+
+    for (const window of this.windows) {
+      if (window.onClearTemplateExport(id, exportId)) {
+        impacts.windows.push(window);
+      }
+    }
+
+    for (const template of this.templates) {
+      if (template.onClearTemplateExport(id, exportId)) {
+        impacts.templates.push(template);
+      }
+    }
+
+    return impacts;
+  }
+
   validate() {
     const context = new ValidationContext(this.windows, this.resources, this.components);
 
@@ -472,7 +516,7 @@ export class ProjectModel {
     for (const item of usage) {
       const node = item.path[0];
 
-      switch(node.type) {
+      switch (node.type) {
         case 'window': {
           const window = this.getWindow(node.id);
           const changed = window.clearComponentUsage(item);
@@ -492,8 +536,6 @@ export class ProjectModel {
 
           break;
         }
-
-        // TODO: template bindings
       }
     }
 
@@ -542,23 +584,29 @@ export class DefaultWindowModel {
 }
 
 export abstract class ViewModel extends ModelBase {
-  private readonly controls: CollectionModel<UiControlData, ControlModel>;
-  private readonly templates: CollectionModel<UiTemplateInstanceData, TemplateInstanceModel>;
+  protected readonly controls: CollectionModel<UiControlData, ControlModel>;
+  protected readonly templates: CollectionModel<UiTemplateInstanceData, TemplateInstanceModel>;
   abstract readonly data: UiViewData;
   abstract readonly viewType: 'window' | 'template';
 
-  constructor(id: string, data: UiViewData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, data: UiViewData) {
+    super(project, id);
     const owner = this;
 
     class BoundControlModel extends ControlModel {
-      constructor(id: string, data: UiControlData) {
-        super(owner, id, data);
+      constructor(project: ProjectModel, id: string, data: UiControlData) {
+        super(owner, project, id, data);
       }
     }
 
-    this.controls = new CollectionModel(data.controls, BoundControlModel);
-    this.templates = new CollectionModel(data.templates, TemplateInstanceModel);
+    class BoundTemplateInstanceModel extends TemplateInstanceModel {
+      constructor(project: ProjectModel, id: string, data: UiTemplateInstanceData) {
+        super(owner, project, id, data);
+      }
+    }
+
+    this.controls = new CollectionModel(this.project, data.controls, BoundControlModel);
+    this.templates = new CollectionModel(this.project, data.templates, BoundTemplateInstanceModel);
   }
 
   newControl(controlId: string, type: 'display' | 'text', x: number, y: number) {
@@ -566,7 +614,7 @@ export abstract class ViewModel extends ModelBase {
     newControl.x = x;
     newControl.y = y;
 
-    switch(type) {
+    switch (type) {
       case 'display':
         newControl.display = clone(CONTROL_DISPLAY_TEMPLATE);
         break;
@@ -606,12 +654,13 @@ export abstract class ViewModel extends ModelBase {
   }
 
   newTemplateInstance(templateInstanceId: string, templateId: string, x: number, y: number) {
+    const template = this.project.getTemplate(templateId);
     const newTemplateInstance = clone(TEMPLATE_INSTANCE_TEMPLATE) as UiTemplateInstanceData;
-    newTemplateInstance.templateId = templateId;
     newTemplateInstance.x = x;
     newTemplateInstance.y = y;
 
-    return this.templates.set(templateInstanceId, newTemplateInstance);
+    const model = this.templates.set(templateInstanceId, newTemplateInstance);
+    model.setTemplate(template);
   }
 
   cloneTemplateInstance(templateInstanceId: string, newId: string) {
@@ -635,7 +684,7 @@ export abstract class ViewModel extends ModelBase {
   getTemplateInstance(templateInstanceId: string) {
     return this.templates.getById(templateInstanceId);
   }
-  
+
   /**
    * @param resourceId
    * @param newId
@@ -754,6 +803,32 @@ export abstract class ViewModel extends ModelBase {
     return changed;
   }
 
+  onSetTemplateExport(templateId: string, exportId: string) {
+    let changed = false;
+
+    for (const templateInstanceModel of this.templates) {
+      if (templateInstanceModel.data.templateId === templateId) {
+        templateInstanceModel.initBinding(exportId);
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
+  onClearTemplateExport(templateId: string, exportId: string) {
+    let changed = false;
+
+    for (const templateInstanceModel of this.templates) {
+      if (templateInstanceModel.data.templateId === templateId) {
+        templateInstanceModel.clearBinding(exportId);
+        changed = true;
+      }
+    }
+
+    return changed;
+  }
+
   validate(context: ValidationContext) {
     let index = 0;
     for (const controlModel of this.controls) {
@@ -770,25 +845,43 @@ export abstract class ViewModel extends ModelBase {
     for (const controlModel of this.controls) {
       controlModel.collectComponentsUsage(usage, this.viewType, this.id);
     }
+
+    for (const templateInstanceModel of this.templates) {
+      templateInstanceModel.collectComponentsUsage(usage, this.viewType, this.id);
+    }
   }
 
   clearComponentUsage(usage: ComponentUsage) {
     const node = usage.path[1];
-    if (node.type !== 'control') {
-      return false; // paranoia
-    }
 
-    const controlModel = this.controls.findById(node.id);
-    if (!controlModel) {
-      return false; // paranoia
+    switch(node.type) {
+      case 'control': {
+        const controlModel = this.controls.findById(node.id);
+        if (!controlModel) {
+          return false; // paranoia
+        }
+    
+        return controlModel.clearComponentUsage(usage);
+      }
+
+      case 'template-instance': {
+        const templateInstanceModel = this.templates.findById(node.id);
+        if (!templateInstanceModel) {
+          return false; // paranoia
+        }
+    
+        return templateInstanceModel.clearComponentUsage(usage);
+      }
+
+      default:
+        return false;
     }
-    return controlModel.clearComponentUsage(usage);
   }
 }
 
 export class WindowModel extends ViewModel {
-  constructor(id: string, public readonly data: UiWindowData) {
-    super(id, data);
+  constructor(project: ProjectModel, id: string, public readonly data: UiWindowData) {
+    super(project, id, data);
   }
 
   get viewType(): 'window' {
@@ -879,8 +972,8 @@ export class WindowModel extends ViewModel {
 }
 
 export class TemplateModel extends ViewModel {
-  constructor(id: string, public readonly data: UiTemplateData) {
-    super(id, data);
+  constructor(project: ProjectModel, id: string, public readonly data: UiTemplateData) {
+    super(project, id, data);
   }
 
   get viewType(): 'template' {
@@ -892,17 +985,126 @@ export class TemplateModel extends ViewModel {
 
     Object.assign(this.data, data);
   }
+
+  setExport(exportId: string, memberType: MemberType, valueType: string) {
+    this.data.exports[exportId] = { memberType, valueType, bulkPattern: null };
+  }
+
+  clearExport(exportId: string) {
+    delete this.data.exports[exportId];
+
+    // clear export usage
+    for (const control of this.controls) {
+      control.onClearTemplateExport(exportId);
+    }
+
+    for (const templateInstance of this.templates) {
+      templateInstance.onClearTemplateExport(exportId);
+    }
+  }
+
+  setBulkPatterns(patterns: { [exportId: string]: string }) {
+    // check input data
+    for (const exportId of Object.keys(patterns)) {
+      this.getExportData(exportId);
+    }
+
+    for (const [exportId, bulkPattern] of Object.entries(patterns)) {
+      const exportData = this.getExportData(exportId);
+      exportData.bulkPattern = bulkPattern;
+    }
+  }
+
+  prepareBindings() {
+    const bindings: { [name: string]: UiTemplateInstanceBinding; } = {};
+
+    for (const exportId of Object.keys(this.data.exports)) {
+      bindings[exportId] = { componentId: null, memberName: null };
+    }
+
+    return bindings;
+  }
+
+  getExportData(exportId: string) {
+    const exportData = this.data.exports[exportId];
+    if (!exportData) {
+      throw new Error(`Export '${exportId}' does not exist on template '${this.id}'`);
+    }
+
+    return exportData;
+  }
+
+  getExportValueType(memberName: string, memberType: MemberType) {
+    const exportData = this.data.exports[memberName];
+    return exportData?.memberType === memberType ? exportData.valueType : null;
+  }
 }
 
 export class TemplateInstanceModel extends ModelBase {
-  constructor(id: string, public readonly data: UiTemplateInstanceData) {
-    super(id);
+  constructor(public readonly owner: ViewModel, project: ProjectModel, id: string, public readonly data: UiTemplateInstanceData) {
+    super(project, id);
   }
 
-  update(properties: Partial<UiTemplateInstanceData>) {
-    const data = pickIfDefined(properties, 'x', 'y', 'templateId');
+  get template() {
+    if (this.data.templateId) {
+      return this.project.getTemplate(this.data.templateId);
+    } else {
+      return null;
+    }
+  }
 
-    Object.assign(this.data, data);
+  move(x: number, y: number) {
+    if (x != null) {
+      this.data.x = x;
+    }
+
+    if (y != null) {
+      this.data.y = y;
+    }
+  }
+
+  setTemplate(template: TemplateModel) {
+    this.data.templateId = template.id;
+
+    // reset bindings
+    this.data.bindings = template.prepareBindings();
+  }
+
+  setBinding(exportId: string, componentId: string, memberName: string) {
+    const binding = this.data.bindings[exportId];
+    if (!binding) {
+      throw new Error(`Binding from export '${exportId}' not found on template '${this.template.id}'`);
+    }
+
+    const exportData = this.template.getExportData(exportId);
+    const valueType = this.getValueType(componentId, memberName, exportData.memberType);
+    if (!valueType || exportData.valueType !== valueType) {
+      throw new Error(`Binding mismatch: cannot bind '${componentId || '<template>'}.${memberName}' on export '${exportId}'`);
+    }
+
+    binding.componentId = componentId;
+    binding.memberName = memberName;
+  }
+
+  private getValueType(componentId: string, memberName: string, memberType: MemberType) {
+    if (componentId) {
+      return this.project.components.findComponentMemberValueType(componentId, memberName, memberType);
+    } else {
+      // No component -> use template export
+      if (!(this.owner instanceof TemplateModel)) {
+        return null;
+      }
+
+      return this.owner.getExportValueType(memberName, memberType);
+    }
+  }
+
+  initBinding(exportId: string) {
+    this.data.bindings[exportId] = { componentId: null, memberName: null };
+  }
+
+  clearBinding(exportId: string) {
+    delete this.data.bindings[exportId];
   }
 
   /**
@@ -910,12 +1112,25 @@ export class TemplateInstanceModel extends ModelBase {
    * @param newId
    * @returns `true` if the template instance has been changed, `false` otherwise
    */
-   onRenameTemplate(templateId: string, newId: string) {
+  onRenameTemplate(templateId: string, newId: string) {
     let changed = false;
 
     if (this.data.templateId === templateId) {
       this.data.templateId = newId;
       changed = true;
+    }
+
+    return changed;
+  }
+
+  onClearTemplateExport(memberName: string) {
+    let changed = false;
+
+    for (const binding of Object.values(this.data.bindings)) {
+      if (binding.componentId === null && binding.memberName === memberName) {
+        binding.memberName = null;
+        changed = true;
+      }
     }
 
     return changed;
@@ -927,12 +1142,57 @@ export class TemplateInstanceModel extends ModelBase {
     if (!this.data.templateId) {
       context.addError('Template non défini', [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
     }
+
+    const { exports } = this.template.data;
+
+    for (const bindingId of Object.keys(this.data.bindings)) {
+      if (!exports[bindingId]) {
+        context.addError(`Binding sur export '${bindingId}' inexistant`, [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+      }
+    }
+
+    for (const [bindingId, exportData] of Object.entries(exports)) {
+      const bindingData = this.data.bindings[bindingId];
+      if (!bindingData) {
+        context.addError(`Binding inexistant sur export '${bindingId}'`, [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }]);
+        continue;
+      }
+
+      const pathBuilder = () => [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }, { type: 'template-binding', id: bindingId }];
+      context.checkComponent(this.owner, bindingData.componentId, bindingData.memberName, pathBuilder, exportData);
+    }
+  }
+
+  collectComponentsUsage(usage: ComponentUsage[], viewType: 'window' | 'template', viewId: string) {
+    for (const [bindingId, bindingData] of Object.entries(this.data.bindings)) {
+      if (bindingData.componentId && bindingData.memberName) {
+        usage.push({
+          componentId: bindingData.componentId,
+          memberName: bindingData.memberName,
+          path: [{ type: viewType, id: viewId }, { type: 'template-instance', id: this.id }, { type: 'template-binding', id: bindingId }]
+        });
+      }
+    }
+  }
+
+  clearComponentUsage(usage: ComponentUsage) {
+    let changed = false;
+
+    for (const [bindingId, bindingData] of Object.entries(this.data.bindings)) {
+      if (bindingData.componentId && bindingData.memberName) {
+        bindingData.componentId = null;
+        bindingData.memberName = null;
+        changed = true;
+      }
+    }
+
+    return changed;
   }
 }
 
 export class ControlModel extends ModelBase {
-  constructor(public readonly owner: ViewModel, id: string, public readonly data: UiControlData) {
-    super(id);
+  constructor(public readonly owner: ViewModel, project: ProjectModel, id: string, public readonly data: UiControlData) {
+    super(project, id);
   }
 
   update(properties: Partial<UiControlData>) {
@@ -1001,6 +1261,40 @@ export class ControlModel extends ModelBase {
     return changed;
   }
 
+  onClearTemplateExport(memberName: string) {
+    let changed = false;
+
+    const { display, text } = this.data;
+    if (display) {
+      if (display.componentId === null && display.componentState === memberName) {
+        asMutable(display).componentState = null;
+        changed = true;
+      }
+    }
+
+    if (text) {
+      for (const item of text.context) {
+        if (item.componentId === null && item.componentState === memberName) {
+          asMutable(item).componentState = null;
+          changed = true;
+        }
+      }
+    }
+
+    for (const type of ['primaryAction', 'secondaryAction'] as ('primaryAction' | 'secondaryAction')[]) {
+      const component = this.data[type]?.component;
+
+      if (component) {
+        if (component.id === null && component.action === memberName) {
+          asMutable(component).action = null;
+          changed = true;
+        }
+      }
+    }
+
+    return changed;
+  }
+
   validate(context: ValidationContext, viewType: 'window' | 'template', viewId: string, index: number) {
     context.checkId(this.id, () => [{ type: viewType, id: viewId }, { type: 'control', id: index.toString() }]);
 
@@ -1025,7 +1319,7 @@ export class ControlModel extends ModelBase {
       context.checkResourceId(item.resource, () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'map-item', id: index.toString() }]);
     }
 
-    const valueType = context.checkComponent(display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
+    const valueType = context.checkComponent(this.owner, display.componentId, display.componentState, pathBuilder, { memberType: MemberType.STATE, optional: display.map.length === 0 });
     if (!valueType) {
       return;
     }
@@ -1129,6 +1423,7 @@ export class ControlModel extends ModelBase {
       context.checkId(item.id, () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'context-item', id: index.toString() }]);
 
       context.checkComponent(
+        this.owner, 
         item.componentId,
         item.componentState,
         () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'context-item', id: item.id }],
@@ -1158,6 +1453,7 @@ export class ControlModel extends ModelBase {
 
     if (action.component) {
       context.checkComponent(
+        this.owner, 
         action.component.id,
         action.component.action,
         () => [{ type: viewType, id: viewId }, { type: 'control', id: this.id }, { type: 'action', id: type }],
@@ -1244,8 +1540,8 @@ export class ControlModel extends ModelBase {
 }
 
 export class ResourceModel extends ModelBase {
-  constructor(id: string, public readonly data: UiResourceData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, public readonly data: UiResourceData) {
+    super(project, id);
   }
 
   update(resource: UiResourceData) {
@@ -1255,8 +1551,8 @@ export class ResourceModel extends ModelBase {
 }
 
 export class StyleModel extends ModelBase {
-  constructor(id: string, public readonly data: UiStyleData) {
-    super(id);
+  constructor(project: ProjectModel, id: string, public readonly data: UiStyleData) {
+    super(project, id);
   }
 
   update(style: UiStyleData) {
@@ -1309,30 +1605,31 @@ class ValidationContext {
     }
   }
 
-  checkComponent(componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null, optional = false }: { memberType: MemberType, valueType?: string | string[]; optional?: boolean; }) {
-    if (!componentId) {
+  checkComponent(ownerView: ViewModel, componentId: string, memberName: string, pathBuilder: PathBuilder, { memberType, valueType = null, optional = false }: { memberType: MemberType, valueType?: string | string[]; optional?: boolean; }) {
+    if ((componentId === null && !(ownerView instanceof TemplateModel)) || !memberName) {
       if (!optional) {
         this.addError(`Le composant n'est pas défini.`, pathBuilder());
       }
       return null;
     }
 
-    if (!this.components.has(componentId)) {
+    if (componentId !== null && !this.components.has(componentId)) {
       this.addError(`Le composant '${componentId}' n'existe pas.`, pathBuilder());
       return null;
     }
 
     const buildErrorPrefix = () => {
+      const suffix = componentId ? ` du composant '${componentId}'` : ` de l'export template`;
       switch (memberType) {
         case MemberType.STATE:
-          return `L'état '${memberName}' du composant '${componentId}'`;
+          return `L'état '${memberName}' ${suffix}`;
 
         case MemberType.ACTION:
-          return `L'action '${memberName}' du composant '${componentId}'`;
+          return `L'action '${memberName}' ${suffix}`;
       }
     };
 
-    const actualValueType = this.components.findComponentMemberValueType(componentId, memberName, memberType);
+    const actualValueType = this.getValueType(ownerView, componentId, memberName, memberType);
     if (!actualValueType) {
       this.addError(`${buildErrorPrefix()} n'existe pas.`, pathBuilder());
       return null;
@@ -1350,6 +1647,14 @@ class ValidationContext {
     }
 
     return actualValueType;
+  }
+
+  private getValueType(ownerView: ViewModel, componentId: string, memberName: string, memberType: MemberType) {
+    if (componentId) {
+      return this.components.findComponentMemberValueType(componentId, memberName, memberType);
+    } else {
+      return (ownerView as TemplateModel).getExportValueType(memberName, memberType);
+    }
   }
 }
 

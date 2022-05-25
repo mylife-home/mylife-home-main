@@ -94,7 +94,7 @@ const CanvasControl: FunctionComponent<{ id: string }> = ({ id }) => {
 };
 
 const CanvasTemplateInstance: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { templateInstance, template, update, selected, select } = useTemplateInstanceState(id);
+  const { templateInstance, template, move, selected, select } = useTemplateInstanceState(id);
 
   return (
     <CanvasItem
@@ -103,7 +103,7 @@ const CanvasTemplateInstance: FunctionComponent<{ id: string }> = ({ id }) => {
       size={{ width: template.width, height: template.height }}
       position={{ x: templateInstance.x, y: templateInstance.y }}
       selected={selected}
-      onMove={(position) => update(position)}
+      onMove={(position) => move(position.x, position.y)}
       onSelect={select}
     >
       <CanvasTemplateInstanceView id={id} />
