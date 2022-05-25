@@ -31,7 +31,7 @@ import { useTemplateInstanceState, useGetExistingTemplateInstanceNames } from '.
 import { useSnapValue } from '../snap';
 import { AppState } from '../../../../../store/types';
 import { MemberType, UiTemplateExport, UiTemplateInstanceBinding } from '../../../../../store/ui-designer/types';
-import { getTemplateInstance, makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
+import { getComponentsMap, getTemplateInstance, makeGetComponentsAndPlugins } from '../../../../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
   actions: {
@@ -264,20 +264,22 @@ interface BindingListProps {
 
 const BindingList: FunctionComponent<BindingListProps> = ({ exportData, bindings }) => {
   const classes = useDialogStyles();
+  const componentMap = useSelector(getComponentsMap);
+
   return (
     <div className={classes.bindings}>
       {Object.keys(exportData).sort().map(exportId => {
         const { memberType, valueType, bulkPattern } = exportData[exportId];
         const Icon = getMemberIcon(memberType);
         const binding = bindings[exportId];
-        const value = binding?.memberName ? `${binding.componentId}.${binding.memberName}` : '';
+        const value = binding?.memberName ? `${componentMap[binding.componentId].componentId}.${binding.memberName}` : '';
 
         return (
           <div key={exportId} className={classes.binding}>
             <Icon className={classes.bindingIcon} />
             <Typography className={classes.bindingId}>{exportId}</Typography>
             <Typography className={classes.bindingType} variant="overline">{valueType}</Typography>
-            <TextField className={classes.bindingValue} disabled variant="outlined" placeholder={bulkPattern} value={value} />
+            <TextField className={classes.bindingValue} InputProps={{ readOnly: true }} variant="outlined" placeholder={bulkPattern} value={value} />
           </div>
         );
       })}
@@ -320,13 +322,34 @@ function useComponentData() {
 }
 
 function useBindingsMatcher(componentData: ComponentData, exportData: { [exportId: string]: UiTemplateExport; }, pattern: string) {
+  const componentsByValue = useMemo(() => {
+    const components: { [value: string]: typeof componentData[number] } = {};
+
+    for (const item of componentData) {
+      const value = `${item.componentDisplayId}.${item.memberName}`;
+      components[value] = item;
+    }
+
+    return components;
+
+  }, [componentData]);
   
   return useMemo(() => {
     const bindings: { [exportId: string]: UiTemplateInstanceBinding } = {};
-    for(const exportId of Object.keys(exportData)) {
+
+    for (const [exportId, { memberType, valueType, bulkPattern }] of Object.entries(exportData)) {
       bindings[exportId] = { componentId: null, memberName: null };
+
+      // Try to find match
+      const value = bulkPattern.replace('{{pattern}}', pattern);
+      const candidate = componentsByValue[value];
+
+      if (candidate && candidate.memberType === memberType && candidate.valueType === valueType) {
+        bindings[exportId].componentId = candidate.componentId;
+        bindings[exportId].memberName = candidate.memberName;
+      }
     }
   
     return bindings;
-  }, [componentData, exportData, pattern]);
+  }, [componentsByValue, exportData, pattern]);
 }
