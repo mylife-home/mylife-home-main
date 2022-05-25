@@ -11,6 +11,10 @@ import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
@@ -211,6 +215,7 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
   const [pattern, setPattern] = useState<string>('');
   const componentData = useComponentData();
   const bindings = useBindingsMatcher(componentData, exportData, pattern);
+  const filteredComponentData = useMemo(() => componentData.filter(({ value }) => value.includes(pattern)), [componentData, pattern]);
 
   const cancel = () => {
     hideModal();
@@ -242,10 +247,12 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
           value={pattern}
           onChange={e => setPattern(e.target.value)}
           fullWidth
+          helperText="Pattern"
         />
 
         <BindingList exportData={exportData} bindings={bindings} />
 
+        <ComponentList componentData={filteredComponentData} />
 
       </DialogContent>
     
@@ -287,6 +294,24 @@ const BindingList: FunctionComponent<BindingListProps> = ({ exportData, bindings
   );
 };
 
+const ComponentList: FunctionComponent<{ componentData: ComponentData }> = ({ componentData }) => {
+  return (
+    <List>
+      {componentData.slice(0, 20).map(component => {
+        const Icon = getMemberIcon(component.memberType);
+        return (
+          <ListItem key={component.value}>
+            <ListItemIcon>
+              <Icon />
+            </ListItemIcon>
+            <ListItemText primary={component.value} secondary={component.valueType} />
+          </ListItem>
+        );
+      })}
+    </List>
+  );
+}
+
 function getMemberIcon(memberType: MemberType) {
   switch (memberType) {
     case MemberType.STATE:
@@ -296,7 +321,7 @@ function getMemberIcon(memberType: MemberType) {
   }
 }
 
-type ComponentData = { componentId: string; componentDisplayId: string; memberName: string, memberType: MemberType, valueType: string }[];
+type ComponentData = { value: string; componentId: string; memberName: string, memberType: MemberType, valueType: string }[];
 
 function useComponentData() {
   const getComponentsAndPlugins = useMemo(() => makeGetComponentsAndPlugins(), []);
@@ -308,8 +333,8 @@ function useComponentData() {
     for (const { component, plugin } of componentsAndPlugins) {
       for (const [memberName, member] of Object.entries(plugin.members)) {
         list.push({
+          value: `${component.componentId}.${memberName}`,
           componentId: component.id,
-          componentDisplayId: component.componentId,
           memberName,
           memberType: member.memberType,
           valueType: member.valueType
@@ -326,8 +351,7 @@ function useBindingsMatcher(componentData: ComponentData, exportData: { [exportI
     const components: { [value: string]: typeof componentData[number] } = {};
 
     for (const item of componentData) {
-      const value = `${item.componentDisplayId}.${item.memberName}`;
-      components[value] = item;
+      components[item.value] = item;
     }
 
     return components;
