@@ -149,15 +149,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - dans le designer, rendre les contrôles dans le bon ordre
     - le background de la fenetre est toujours avec le zIndex le plus petit
     - plus tard, supprimer le background de fenetre ?
-  - dynamic templates
-    - need custom controls (VR/light "all" panel)
-    - need to bind on several components
-      - define template actions/members of certain value types to bind (as "template imports" ?)
-      - at template use, provide bindings
-      - ease bindings with pattern on components binding
-        - template can provide a pattern like "{{id}}-set0.value", "{{id}}-set20.value" to bind its exports
-        - at template use, one can provide an id and auto-fill all (or part of) bindings at once.
-        - This is only a filling helper, and validation is the same than for manual binding settings
 - core-designer
   - deploy en ligne: ajouter un progress
   - ne pas crasher si un projet n'est pas valide
@@ -197,6 +188,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+- ui designer:
+  - crash if click on bulk bindings if template has no bulk pattern
+  - bindings window scroll properly bindings (left pane)
 
 ## core
 
