@@ -27,6 +27,7 @@ import { useTabPanelId, TabIdContext } from '../../../../lib/tab-panel';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
+import SplitPane from '../../../../lib/split-pane';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import TemplateSelector from '../../common/template-selector';
@@ -180,6 +181,21 @@ function useBulkPatternEditor() {
 }
 
 const useDialogStyles = makeStyles((theme) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'row',
+    height: 500,
+    maxHeight: 500,
+    padding: 0
+  },
+  leftPane: {
+    paddingLeft: theme.spacing(6),
+    paddingRight: theme.spacing(6),
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    width: 400,
+    borderRight: `1px solid ${theme.palette.divider}`,
+  },
   bindings: {
     display: 'flex',
     flexDirection: 'column',
@@ -201,6 +217,24 @@ const useDialogStyles = makeStyles((theme) => ({
   bindingValue: {
     width: 200
   },
+  list: {
+    overflowY: 'auto',
+    width: 300
+  },
+  listItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listItemIcon: {
+    marginRight: theme.spacing(1)
+  },
+  listItemValue: {
+    width: 200
+  },
+  listItemType: {
+    width: 100
+  }
 }), { name: 'properties-template-instance-bulk-pattern-dialog' });
 
 interface BulkPatternDialogProps {
@@ -212,6 +246,7 @@ interface BulkPatternDialogProps {
 }
 
 const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hideModal, onExited, exportData, onResult }) => {
+  const classes = useDialogStyles();
   const [pattern, setPattern] = useState<string>('');
   const componentData = useComponentData();
   const bindings = useBindingsMatcher(componentData, exportData, pattern);
@@ -237,23 +272,23 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
   };
 
   return (
-    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel}>
+    <Dialog aria-labelledby="dialog-title" open={open} onExited={onExited} onClose={cancel} maxWidth={false}>
       <DialogTitle id="dialog-title">Pattern de sélection de bindings</DialogTitle>
     
-      <DialogContent dividers>
+      <DialogContent dividers className={classes.container}>
+        <div className={classes.leftPane}>
+          <TextField
+            variant="outlined"
+            value={pattern}
+            onChange={e => setPattern(e.target.value)}
+            fullWidth
+            helperText="Pattern"
+          />
 
-        <TextField
-          variant="outlined"
-          value={pattern}
-          onChange={e => setPattern(e.target.value)}
-          fullWidth
-          helperText="Pattern"
-        />
+          <BindingList exportData={exportData} bindings={bindings} />
+        </div>
 
-        <BindingList exportData={exportData} bindings={bindings} />
-
-        <ComponentList componentData={filteredComponentData} />
-
+        <ComponentList componentData={filteredComponentData} onClick={setPattern} />
       </DialogContent>
     
       <DialogActions>
@@ -294,17 +329,17 @@ const BindingList: FunctionComponent<BindingListProps> = ({ exportData, bindings
   );
 };
 
-const ComponentList: FunctionComponent<{ componentData: ComponentData }> = ({ componentData }) => {
+const ComponentList: FunctionComponent<{ componentData: ComponentData; onClick: (value: string) => void; }> = ({ componentData, onClick }) => {
+  const classes = useDialogStyles();
   return (
-    <List>
+    <List className={classes.list} dense>
       {componentData.slice(0, 20).map(component => {
         const Icon = getMemberIcon(component.memberType);
         return (
-          <ListItem key={component.value}>
-            <ListItemIcon>
-              <Icon />
-            </ListItemIcon>
-            <ListItemText primary={component.value} secondary={component.valueType} />
+          <ListItem key={component.value} button className={classes.listItem} onClick={() => onClick(component.value)}>
+            <Icon className={classes.listItemIcon} />
+            <Typography className={classes.listItemValue}>{component.value}</Typography>
+            <Typography className={classes.listItemType} variant="overline">{component.valueType}</Typography>
           </ListItem>
         );
       })}
