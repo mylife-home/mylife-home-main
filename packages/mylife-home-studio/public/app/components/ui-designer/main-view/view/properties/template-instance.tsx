@@ -9,11 +9,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
 
 import { TransitionProps } from '../../../../dialogs/common';
+import { ActionIcon, StateIcon } from '../../../../lib/icons';
 import DeleteButton from '../../../../lib/delete-button';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useRenameDialog } from '../../../../dialogs/rename';
@@ -25,7 +28,7 @@ import ComponentMemberSelector from '../../common/component-member-selector';
 import { useTemplateInstanceState, useGetExistingTemplateInstanceNames } from '../view-state';
 import { useSnapValue } from '../snap';
 import { AppState } from '../../../../../store/types';
-import { UiTemplateExport, UiTemplateInstanceBinding } from '../../../../../store/ui-designer/types';
+import { MemberType, UiTemplateExport, UiTemplateInstanceBinding } from '../../../../../store/ui-designer/types';
 import { getTemplateInstance } from '../../../../../store/ui-designer/selectors';
 
 const useStyles = makeStyles((theme) => ({
@@ -167,6 +170,30 @@ function useBulkPatternEditor() {
   }), [setExportData, setOnResult, showModal]);
 }
 
+const useDialogStyles = makeStyles((theme) => ({
+  bindings: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  binding: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bindingIcon: {
+    marginRight: theme.spacing(1)
+  },
+  bindingId: {
+    width: 100
+  },
+  bindingType: {
+    width: 100
+  },
+  bindingValue: {
+    width: 200
+  },
+}), { name: 'properties-template-instance-bulk-pattern-dialog' });
+
 interface BulkPatternDialogProps {
   open: boolean;
   hideModal: () => void;
@@ -176,7 +203,6 @@ interface BulkPatternDialogProps {
 }
 
 const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hideModal, onExited, exportData, onResult }) => {
-  const classes = useStyles();
   const [pattern, setPattern] = useState<string>('');
   const [bindings, setBindings] = useState<{ [bindingId: string]: UiTemplateInstanceBinding; }>({});
   // TODO: components
@@ -216,14 +242,17 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
       <DialogTitle id="dialog-title">Pattern de sélection de bindings</DialogTitle>
     
       <DialogContent dividers>
-        {Object.keys(exportData).sort().map(exportId => {
 
-          return (
-            <div key={exportId}>
-              TODO {exportId}
-            </div>
-          );
-        })}
+        <TextField
+          variant="outlined"
+          value={pattern}
+          onChange={e => setPattern(e.target.value)}
+          fullWidth
+        />
+
+        <BindingList exportData={exportData} bindings={bindings} />
+
+
       </DialogContent>
     
       <DialogActions>
@@ -233,3 +262,40 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
     </Dialog>
   );
 };
+
+interface BindingListProps {
+  exportData: { [exportId: string]: UiTemplateExport; };
+  bindings: { [bindingId: string]: UiTemplateInstanceBinding; };
+}
+
+const BindingList: FunctionComponent<BindingListProps> = ({ exportData, bindings }) => {
+  const classes = useDialogStyles();
+  return (
+    <div className={classes.bindings}>
+      {Object.keys(exportData).sort().map(exportId => {
+        const { memberType, valueType, bulkPattern } = exportData[exportId];
+        const Icon = getMemberIcon(memberType);
+        const binding = bindings[exportId];
+        const value = binding?.memberName ? `${binding.componentId}.${binding.memberName}` : '';
+
+        return (
+          <div key={exportId} className={classes.binding}>
+            <Icon className={classes.bindingIcon} />
+            <Typography className={classes.bindingId}>{exportId}</Typography>
+            <Typography className={classes.bindingType} variant="overline">{valueType}</Typography>
+            <TextField className={classes.bindingValue} disabled variant="outlined" placeholder={bulkPattern} value={value} />
+          </div>
+        );
+      })}
+    </ div>
+  );
+};
+
+function getMemberIcon(memberType: MemberType) {
+  switch (memberType) {
+    case MemberType.STATE:
+      return StateIcon;
+    case MemberType.ACTION:
+      return ActionIcon;
+  }
+}
