@@ -188,9 +188,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
-- ui designer:
-  - crash if click on bulk bindings if template has no bulk pattern
-  - bindings window scroll properly bindings (left pane)
 
 ## core
 

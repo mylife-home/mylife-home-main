@@ -83,11 +83,13 @@ const TemplateExports: FunctionComponent = () => {
     <Group title={
       <>
         Exports
-        <Tooltip title="Gérer les patterns l'association de bindings">
-          <IconButton onClick={handleBulkPatternClick}>
-            <SettingsInputComponentIcon />
-          </IconButton>
-        </Tooltip>
+        {exportIds.length > 0 && (
+          <Tooltip title="Gérer les patterns l'association de bindings">
+            <IconButton onClick={handleBulkPatternClick}>
+              <SettingsInputComponentIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </>
     }>
       {exportIds.map(id => (<ExportItem key={id} id={id} />))}

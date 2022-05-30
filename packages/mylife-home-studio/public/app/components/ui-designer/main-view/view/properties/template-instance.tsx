@@ -13,8 +13,6 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import EditIcon from '@material-ui/icons/Edit';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
@@ -27,7 +25,6 @@ import { useTabPanelId, TabIdContext } from '../../../../lib/tab-panel';
 import { useFireAsync } from '../../../../lib/use-error-handling';
 import { useRenameDialog } from '../../../../dialogs/rename';
 import { Group, Item } from '../../../../lib/properties-layout';
-import SplitPane from '../../../../lib/split-pane';
 import SnappedIntegerEditor from '../../common/snapped-integer-editor';
 import ReadonlyStringEditor from '../../common/readonly-string-editor';
 import TemplateSelector from '../../common/template-selector';
@@ -62,13 +59,14 @@ export default PropertiesTemplateInstance;
 
 const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; id: string }> = ({ className, id }) => {
   const classes = useStyles();
-  const { templateInstance, template, move, setTemplate, setBindings, setBinding, duplicate, rename, remove } = useTemplateInstanceState(id);
+  const { templateInstance, template, move, setTemplate, setBindings, duplicate, rename, remove } = useTemplateInstanceState(id);
   const getExistingTemplateInstanceNames = useGetExistingTemplateInstanceNames();
   const snap = useSnapValue();
   const fireAsync = useFireAsync();
   const existingNames = useMemo(() => Array.from(getExistingTemplateInstanceNames()), [getExistingTemplateInstanceNames]);
   const showRenameDialog = useRenameDialog(existingNames, templateInstance.templateInstanceId, 'Entrer un nom d\'instance de template');
   const exportIds = useMemo(() => Object.keys(template.exports).sort(), [template.exports]);
+  const canUseBulkPattern = useMemo(() => Object.values(template.exports).some(item => item.bulkPattern), [template.exports]);
   const showBulkPatternEditor = useBulkPatternEditor();
 
   const onRename = () =>
@@ -123,11 +121,13 @@ const UnsafePropertiesTemplateInstance: FunctionComponent<{ className?: string; 
       <Group title={
       <>
         Bindings
-        <Tooltip title="Gérer l'association de bindings à l'aide de pattern">
-          <IconButton onClick={handleBulkPatternClick}>
-            <SettingsInputComponentIcon />
-          </IconButton>
-        </Tooltip>
+        {canUseBulkPattern && (
+          <Tooltip title="Gérer l'association de bindings à l'aide de pattern">
+            <IconButton onClick={handleBulkPatternClick}>
+              <SettingsInputComponentIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </>
     }>
         {exportIds.map(exportId => (
@@ -189,16 +189,24 @@ const useDialogStyles = makeStyles((theme) => ({
     padding: 0
   },
   leftPane: {
+    width: 400,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  pattern: {
     paddingLeft: theme.spacing(6),
     paddingRight: theme.spacing(6),
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
-    width: 400,
-    borderRight: `1px solid ${theme.palette.divider}`,
   },
   bindings: {
+    borderTop: `1px solid ${theme.palette.divider}`,
     display: 'flex',
     flexDirection: 'column',
+    overflowY: 'auto',
+    paddingLeft: theme.spacing(6),
+    paddingRight: theme.spacing(6),
   },
   binding: {
     display: 'flex',
@@ -278,11 +286,13 @@ const BulkPatternDialog: FunctionComponent<BulkPatternDialogProps> = ({ open, hi
       <DialogContent dividers className={classes.container}>
         <div className={classes.leftPane}>
           <TextField
+            className={classes.pattern}
             variant="outlined"
             value={pattern}
             onChange={e => setPattern(e.target.value)}
             fullWidth
             helperText="Pattern"
+            autoFocus
           />
 
           <BindingList exportData={exportData} bindings={bindings} />
@@ -307,10 +317,11 @@ interface BindingListProps {
 const BindingList: FunctionComponent<BindingListProps> = ({ exportData, bindings }) => {
   const classes = useDialogStyles();
   const componentMap = useSelector(getComponentsMap);
+  const exportIds = useMemo(() => Object.entries(exportData).filter(([, value]) => value.bulkPattern).map(([key]) => key).sort(), [exportData]);
 
   return (
     <div className={classes.bindings}>
-      {Object.keys(exportData).sort().map(exportId => {
+      {exportIds.map(exportId => {
         const { memberType, valueType, bulkPattern } = exportData[exportId];
         const Icon = getMemberIcon(memberType);
         const binding = bindings[exportId];
@@ -397,6 +408,10 @@ function useBindingsMatcher(componentData: ComponentData, exportData: { [exportI
     const bindings: { [exportId: string]: UiTemplateInstanceBinding } = {};
 
     for (const [exportId, { memberType, valueType, bulkPattern }] of Object.entries(exportData)) {
+      if (!bulkPattern) {
+        continue;
+      }
+
       bindings[exportId] = { componentId: null, memberName: null };
 
       // Try to find match
