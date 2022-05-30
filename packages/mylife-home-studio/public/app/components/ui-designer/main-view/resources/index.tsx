@@ -145,11 +145,11 @@ const ResourceItem: FunctionComponent<{ id: string; selected: boolean; onSelect:
         return;
       }
 
-      const resource = await fileToResource(file);
-      resource.id = id; // keep old name, as we replace
-      setResource(resource);
+      const newResource = await fileToResource(file);
+      newResource.id = resource.id; // keep old name, as we replace
+      newResource.resourceId = resource.resourceId;
+      setResource(newResource);
     });
-
     
   const onRemoveWithUsage = () =>
     fireAsync(async () => {
