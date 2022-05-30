@@ -244,7 +244,7 @@ function useCreate(definition: ComponentDefinition) {
   const tabId = useTabPanelId();
   const templateId = useSelector((state: AppState) => getActiveTemplateId(state, tabId));
   const dispatch = useDispatch();
-  const makeNewId = useMakeNewId();
+  const makeNewId = useMakeNewId(!!templateId);
   const selectComponent = useSelectComponent();
   const fireAsync = useFireAsync();
   const waitForComponentId = useWaitForComponentId();
@@ -262,19 +262,21 @@ function useCreate(definition: ComponentDefinition) {
   );
 }
 
-function useMakeNewId() {
+function useMakeNewId(isTemplate: boolean) {
   const componentIds = useTabSelector(getComponentIds);
   const componentsMap = useSelector(getComponentsMap);
   const set = useMemo(() => new Set(componentIds.map(id => componentsMap[id].componentId)), [componentIds, componentsMap]);
 
   return useCallback(() => {
+    const prefix = isTemplate ? '{{id}}-' : '';
+
     for (let i = 1; ; ++i) {
-      const candidate = `new-${i}`;
+      const candidate = `${prefix}new-${i}`;
       if (!set.has(candidate)) {
         return candidate;
       }
     }
-  }, [set]);
+  }, [set, isTemplate]);
 }
 
 /**
