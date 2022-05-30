@@ -82,14 +82,19 @@ export const getComponentAndPlugin = (state: AppState, componentId: string) => {
   return { component, plugin };
 };
 
-export const getComponentMemberValueType = (state: AppState, componentId: string, memberName: string) => {
-  const componentAndPlugin = getComponentAndPlugin(state, componentId);
-  if (!componentAndPlugin) {
+export const getComponentMemberValueType = (state: AppState, templateId: string, componentId: string, memberName: string) => {
+  if (!memberName) {
     return;
   }
 
-  const { plugin } = componentAndPlugin;
-  return plugin.members[memberName]?.valueType;
+  if (componentId) {
+    const componentAndPlugin = getComponentAndPlugin(state, componentId);
+    const { plugin } = componentAndPlugin;
+    return plugin.members[memberName]?.valueType;
+  } else {
+    const template = getTemplate(state, templateId);
+    return template.exports[memberName]?.valueType;
+  }
 };
 
 export function makeGetComponentsAndPlugins() {

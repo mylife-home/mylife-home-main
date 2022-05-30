@@ -140,6 +140,7 @@ export function useControlState(id: string) {
   const { viewType, viewId, selection, setSelection } = useContext(Context);
   const control = useSelector((state: AppState) => getControl(state, id));
   const dispatch = useDispatch();
+  const templateId = viewType === 'template' ? viewId : null;
 
   const update = useCallback((properties: Partial<Omit<UiControl, 'id' | 'controlId'>>) => {
     dispatch(setControlProperties({ controlId: id, properties }));
@@ -159,7 +160,7 @@ export function useControlState(id: string) {
   const selected = selection.type === 'control' && selection.id === id;
   const select = useCallback(() => setSelection({ type: 'control', id }), [setSelection]);
 
-  return { control, update, rename, remove, selected, select };
+  return { control, update, rename, remove, selected, select, templateId };
 }
 
 export function useControlDuplicate(id: string, targetViewType: UiViewType, targetViewId: string) {

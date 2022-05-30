@@ -42,7 +42,7 @@ const useStyles = makeStyles(
 type Appearence = 'display' | 'text';
 
 const PropertiesControlAppearence: FunctionComponent<{ id: string }> = ({ id }) => {
-  const { control, update } = useControlState(id);
+  const { control, update, templateId } = useControlState(id);
 
   const appearence: Appearence = control.display ? 'display' : 'text';
   const setAppearence = (newAppearence: Appearence) => {
@@ -68,14 +68,14 @@ const PropertiesControlAppearence: FunctionComponent<{ id: string }> = ({ id }) 
         <FormControlLabel value="text" control={<Radio color="primary" />} label="Texte" />
       </RadioGroup>
 
-      {getAppearenceElement(appearence, control, update)}
+      {getAppearenceElement(appearence, control, templateId, update)}
     </Group>
   );
 };
 
 export default PropertiesControlAppearence;
 
-function getAppearenceElement(appearence: Appearence, control: UiControl, update: (props: Partial<UiControl>) => void) {
+function getAppearenceElement(appearence: Appearence, control: UiControl, templateId: string, update: (props: Partial<UiControl>) => void) {
   switch (appearence) {
     case 'display': {
       const { display } = control;
@@ -84,7 +84,7 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
         update({ display: newDisplay });
       };
 
-      return <PropertiesControlDisplay display={display} update={updateDisplay} />;
+      return <PropertiesControlDisplay display={display} templateId={templateId} update={updateDisplay} />;
     }
 
     case 'text': {
@@ -99,9 +99,9 @@ function getAppearenceElement(appearence: Appearence, control: UiControl, update
   }
 }
 
-const PropertiesControlDisplay: FunctionComponent<{ display: UiControlDisplayData; update: (props: Partial<UiControlDisplayData>) => void }> = ({ display, update }) => {
+const PropertiesControlDisplay: FunctionComponent<{ display: UiControlDisplayData; templateId: string; update: (props: Partial<UiControlDisplayData>) => void }> = ({ display, templateId, update }) => {
   const classes = useStyles();
-  const memberValueType = useSelector((state: AppState) => getComponentMemberValueType(state, display.componentId, display.componentState));
+  const memberValueType = useSelector((state: AppState) => getComponentMemberValueType(state, templateId, display.componentId, display.componentState));
   const { onNew, onRemove, onUpdate } = useArrayManager(display, update, 'map', createNewControlDisplayMapItem);
 
   const componentChange = (newValue: ComponentAndMember, newMemberValueType: string) => {
