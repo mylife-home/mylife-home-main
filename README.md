@@ -186,6 +186,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 ## studio
 
 - core designer:
+  - cannot add control in template which is instantiated many times, because "new-1" will be a duplicate => by default in template choose {{id}}-new-1
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 - ui designer:
