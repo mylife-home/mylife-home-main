@@ -75,17 +75,32 @@ export class Client extends EventEmitter {
     }
 
     tools.fireAsync(async () => {
-      const oldExecId = this.executions.getByDevice(deviceURL);
-      if (oldExecId) {
-        log.debug(`Canceling execution '${oldExecId}'`);
-        await this.api.cancel(oldExecId);
-        this.executions.removeByDevice(deviceURL);
-      }
+      await this.cancel(deviceURL);
 
       const execId = await this.api.execute({ actions: [{ deviceURL, commands: [{ name: command, parameters: args }] }] });
       this.executions.set(deviceURL, execId);
       log.debug(`Started execution '${execId}' of command '${command}' on device '${deviceURL}'`);
     });
+  }
+
+  interrupt(deviceURL: string) {
+    if (!this.online) {
+      log.warn(`Client is offline, cannot interrupt on device '${deviceURL}'.`);
+      return;
+    }
+
+    tools.fireAsync(async () => {
+      await this.cancel(deviceURL);
+    });
+  }
+
+  private async cancel(deviceURL: string) {
+    const oldExecId = this.executions.getByDevice(deviceURL);
+    if (oldExecId) {
+      log.debug(`Canceling execution '${oldExecId}'`);
+      await this.api.cancel(oldExecId);
+      this.executions.removeByDevice(deviceURL);
+    }
   }
 
   private _online = false;

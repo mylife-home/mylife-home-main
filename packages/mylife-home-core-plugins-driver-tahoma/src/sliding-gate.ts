@@ -60,6 +60,13 @@ export class SlidingGate {
     }
   }
 
+  @m.action
+  interrupt(arg: boolean) {
+    if (this.online && arg) {
+      this.store.interrupt(this.deviceURL);
+    }
+  }
+
   private readonly refreshOnline = () => {
     this.online = this.store.online && !!this.store.getDevice(this.deviceURL);
   }

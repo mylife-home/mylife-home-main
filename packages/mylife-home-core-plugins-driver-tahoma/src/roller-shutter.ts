@@ -80,6 +80,13 @@ export class RollerShutter {
     }
   }
 
+  @m.action
+  interrupt(arg: boolean) {
+    if (this.online && arg) {
+      this.store.interrupt(this.deviceURL);
+    }
+  }
+
   private readonly refreshOnline = () => {
     const online = this.store.online && !!this.store.getDevice(this.deviceURL);
     if (this.online === online) {

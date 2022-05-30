@@ -89,6 +89,12 @@ export class Store extends EventEmitter {
     }
   }
 
+  interrupt(deviceURL: string) {
+    if (this.client) {
+      this.client.interrupt(deviceURL);
+    }
+  }
+
   get online() {
     return !!this.client && this.client.online;
   }
