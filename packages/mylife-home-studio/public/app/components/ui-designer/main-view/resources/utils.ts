@@ -16,7 +16,7 @@ export function formatBinaryLength(resource: UiResource) {
 export function download(resource: UiResource) {
   const a = document.createElement('a');
   const url = makeDataUrl(resource);
-  const name = `${resource.id}.${mime.getExtension(resource.mime) || 'unknown'}`;
+  const name = `${resource.resourceId}.${mime.getExtension(resource.mime) || 'unknown'}`;
   document.body.appendChild(a);
   a.style.display = 'none';
   a.href = url
