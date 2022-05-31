@@ -125,7 +125,7 @@ const BoolEditor: FunctionComponent<ItemProps> = ({ item, onChange }) => {
       className={classes.component}
       label="Valeur"
       labelPlacement="start"
-      control={<Checkbox color="primary" checked={(item.value as boolean) || false} onChange={(e) => onChange({ value: e.target.checked })} />}
+      control={<Checkbox color="primary" checked={(item.value as boolean) || false} indeterminate={item.value == null} onChange={(e) => onChange({ value: e.target.checked })} />}
     />
   );
 };
