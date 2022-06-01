@@ -147,7 +147,7 @@ export class ModelManager extends EventEmitter {
 }
 
 function computeHash(data: Buffer) {
-  return crypto.createHash('md5').update(data).digest('base64');
+  return crypto.createHash('md5').update(data).digest('base64url');
 }
 
 function translateWindows(windows: Window[], resourceTranslation: Map<string, string>) {
