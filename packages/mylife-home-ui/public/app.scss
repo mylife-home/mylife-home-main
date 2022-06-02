@@ -20,9 +20,48 @@ $secondary: #6c757d;
   }
 }
 
+
+@keyframes ripple {
+  from {
+    opacity: 1;
+    transform: scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
 .mylife-control-button {
-  &:not(:disabled),
-  &:not(.disabled) {
+
+  // Ripple effect
+  
+  &:after {
+    display: none;
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+    
+    width: 100px;
+    height: 100px;
+    margin-top: -50px;
+    margin-left: -50px;
+    
+    top: 50%;
+    left: 50%;
+  
+    animation: ripple 0.1s ease-out;
+    opacity: 0;
+  }
+
+  &.active:after {
+    display: block;
+  }
+
+  // ---
+
+  &:not(:disabled) {
     cursor: pointer;
   }
 
@@ -118,4 +157,36 @@ $secondary: #6c757d;
     height: 100%;
   }
 
+}
+
+@keyframes mylife-flash {
+  0% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.mylife-feedback {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  height: 50px;
+  width: 50px;
+  opacity: 0;
+
+  &.flashing {
+    will-change: auto;
+    animation: mylife-flash 0.5s;
+  }
 }

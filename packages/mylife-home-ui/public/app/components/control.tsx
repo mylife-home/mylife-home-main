@@ -13,11 +13,12 @@ type ControlProps = {
 
 const Control: FunctionComponent<ControlProps> = ({ windowId, controlId }) => {
   const { control, onActionPrimary, onActionSecondary } = useConnect(windowId, controlId);
-  const { onTouchStart, onTouchEnd, onMouseDown, onMouseUp } = useInputActions(onActionPrimary, onActionSecondary);
+  const { isActive, onTouchStart, onTouchEnd, onMouseDown, onMouseUp } = useInputActions(onActionPrimary, onActionSecondary);
+
   return (
     <div
       style={getStyleSizePosition(control)}
-      className={clsx(control.active ? 'mylife-control-button' : 'mylife-control-inactive', ...control.style)}
+      className={clsx(control.active ? 'mylife-control-button' : 'mylife-control-inactive', isActive && 'active', ...control.style)}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onMouseDown={onMouseDown}
