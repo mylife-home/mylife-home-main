@@ -171,7 +171,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## ui
 
-- faire CSS à la main
 - styles
   - add custom functions like text controls but which returns boolean to add a class or not
 
