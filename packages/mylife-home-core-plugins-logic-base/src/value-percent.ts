@@ -3,6 +3,7 @@ import { components } from 'mylife-home-core';
 import m = components.metadata;
 
 @m.plugin({ usage: m.PluginUsage.LOGIC })
+@m.config({ name: 'toggleThreshold', type: m.ConfigType.INTEGER, description: 'Valeur partir de laquelle toggle passe a 0% ou 100%' })
 export class ValuePercent {
   private readonly toggleThreshold: number;
 
