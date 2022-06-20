@@ -16,6 +16,7 @@ import './constant-byte';
 // value
 import './value-binary';
 import './value-nullable-percent';
+import './value-percent';
 
 // bool
 import './bool-and';
