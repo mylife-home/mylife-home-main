@@ -7,6 +7,8 @@ import './binary-to-percent';
 import './percent-to-binary';
 import './switch-to-button';
 import './binary-to-pulse';
+import './percent-to-byte';
+import './byte-to-percent';
 
 // constants
 import './constant-bool';
