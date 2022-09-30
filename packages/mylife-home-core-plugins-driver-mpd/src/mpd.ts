@@ -167,7 +167,8 @@ export class MPD {
 
       this.online = true;
       this.playing = data.state === 'play';
-      this.volume = parseInt(data.volume);
+      // Note: VolumeIO does not provide volume control on MPD clients for now
+      this.volume = data.volume ? parseInt(data.volume) : 0;
     });
   };
 
