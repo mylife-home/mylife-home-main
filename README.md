@@ -174,6 +174,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - styles
   - add custom functions like text controls but which returns boolean to add a class or not
 
+## core
+
+- isolation: use web worker to have separate event loop + error management/bubbling per plugin. This will cause single plugin crash and restart instead of whole core.
+
 # TODO
 
 ## studio
