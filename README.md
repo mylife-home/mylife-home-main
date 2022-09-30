@@ -176,7 +176,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 ## core
 
-- isolation: use web worker to have separate event loop + error management/bubbling per plugin. This will cause single plugin crash and restart instead of whole core.
+- isolation: use nodejs worker threads to have separate event loop + error management/bubbling per plugin. This will cause single plugin crash and restart instead of whole core.
 
 # TODO
 
