@@ -165,7 +165,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - quand on a une étape de type recette, il faudrait pouvoir afficher le detail de la recette en popup (voire pouvoir naviguer dessus)
   - update immediat du store, et debounce au niveau des epics comme designers
 - logs
-  - pouvoir c/c des logs
+  - integrer les logs mongo
 - create action payload types like core-designer/ui-designer everywhere
 - async actions are broken on debounce (action dropped => promise never fullfilled/rejected)
 
@@ -185,6 +185,10 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+- logs
+  - pouvoir c/c des logs
+  - pouvoir DL les logs
+  - avoir une UI qui ressemble plus a esphome dashboard, avec une console texte plutot qu'une grille pour l'affichage
 
 ## core
 
