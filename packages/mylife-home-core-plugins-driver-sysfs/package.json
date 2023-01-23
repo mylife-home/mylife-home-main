@@ -26,6 +26,7 @@
     "mylife-home-common": "^1.0.0",
     "mylife-home-core": "^1.0.0",
     "reflect-metadata": "^0.1.13",
-    "epoll": "^4.0.1"
+    "epoll": "^4.0.1",
+    "node-gyp": "^9.3.1"
   }
 }
