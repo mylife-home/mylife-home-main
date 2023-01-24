@@ -7,6 +7,8 @@ import { addLineBreaks } from '../lib/add-line-breaks';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
 
+const lineHeight = 18;
+
 const useStyles = makeStyles((theme) => ({
   row: {
     marginLeft: theme.spacing(2),
@@ -40,7 +42,12 @@ const Console: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ 
     <div className={className}>
       <AutoSizer>
         {({ height, width }) => (
-          <List height={height} width={width} rowCount={data.length} rowHeight={16} rowRenderer={({ index, style }) => {
+          <List height={height} width={width} rowCount={data.length} rowHeight={({ index }) => {
+            const { err } = data[index];
+            // stacktraces are multiline
+            const lineCount = err ? err.stack.split('\n').length : 1;
+            return lineCount * lineHeight;
+          }} rowRenderer={({ index, style }) => {
             const item = data[index];
             return (
               <span key={item.id} className={classes.row} style={style}>
@@ -115,6 +122,7 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
   return (
     <span className={classes.error}>
       {value.message}
+      {' - '}
       {addLineBreaks(value.stack)}
     </span>
   );
