@@ -4,6 +4,10 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 
 import DebouncedTextField from '../lib/debounced-text-field';
 import LevelSelector from './level-selector';
@@ -35,6 +39,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+export type CriteriaDisplay = 'console' | 'table';
+
 export interface CriteriaDefinition {
   name: string;
   instance: string;
@@ -42,6 +48,7 @@ export interface CriteriaDefinition {
   error: boolean;
   levelMin: number;
   levelMax: number;
+  display: CriteriaDisplay;
 }
 
 type SetCriteria = (updater: (prevState: CriteriaDefinition) => CriteriaDefinition) => void;
@@ -61,6 +68,7 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
   const [errorChecked, errorIndeterminate, changeError] = useCheckboxValue(criteria, setCriteria, 'error');
   const [levelMin, setMinLevel] = useLevelMinValue(criteria, setCriteria);
   const [levelMax, setMaxLevel] = useLevelMaxValue(criteria, setCriteria);
+  const [display, setDisplay] = useDisplayValue(criteria, setCriteria);
 
   return (
     <div className={clsx(classes.container, className)}>
@@ -70,6 +78,11 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
       <LevelSelector label='Niveau min' className={classes.level} value={levelMin} onChange={setMinLevel} />
       <LevelSelector label='Niveau max' className={classes.level} value={levelMax} onChange={setMaxLevel} />
       <FormControlLabel label='Contient une erreur' control={<Checkbox color='primary' checked={errorChecked} indeterminate={errorIndeterminate} onChange={changeError}/>} />
+
+      <RadioGroup row value={display} onChange={event => setDisplay(event.target.value as CriteriaDisplay)}>
+        <FormControlLabel value="console" control={<Radio color="primary" />} label="Console" />
+        <FormControlLabel value="table" control={<Radio color="primary" />} label="Table" />
+      </RadioGroup>
     </div>
   );
 };
@@ -125,4 +138,12 @@ function computeNewMax(prevMax: number, newMin: number) {
 
 function computeNewMin(prevMin: number, newMax: number) {
   return prevMin === null || newMax === null || prevMin <= newMax ? prevMin : newMax;
+}
+
+function useDisplayValue(criteria: CriteriaDefinition, setCriteria: SetCriteria): [CriteriaDisplay, (newValue: CriteriaDisplay) => void] {
+  const changeValue = useCallback((newValue: CriteriaDisplay) => {
+    setCriteria(prevState => ({ ...prevState, display: newValue || null }));
+  }, [setCriteria]);
+
+  return [criteria.display, changeValue];
 }
