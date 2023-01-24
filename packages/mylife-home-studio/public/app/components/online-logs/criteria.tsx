@@ -6,9 +6,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
+import IconButton from '@material-ui/core/IconButton';
+import GetAppIcon from '@material-ui/icons/GetApp';
 
+import { IconWithBadge } from '../lib/toolbar';
 import DebouncedTextField from '../lib/debounced-text-field';
 import LevelSelector from './level-selector';
 
@@ -57,9 +58,10 @@ interface CriteriaProps {
   className?: string;
   criteria: CriteriaDefinition;
   setCriteria: SetCriteria;
+  onDownload: (type: 'csv' | 'jsonl') => void;
 }
 
-const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCriteria }) => {
+const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCriteria, onDownload }) => {
   const classes = useStyles();
 
   const [name, setName] = useTextValue(criteria, setCriteria, 'name');
@@ -72,6 +74,20 @@ const Criteria: FunctionComponent<CriteriaProps> = ({ className, criteria, setCr
 
   return (
     <div className={clsx(classes.container, className)}>
+      <IconButton onClick={() => onDownload('csv')}>
+        <IconWithBadge
+          main={<GetAppIcon />}
+          badge={<span>CSV</span>}
+        />
+      </IconButton>
+
+      <IconButton onClick={() => onDownload('jsonl')}>
+        <IconWithBadge
+          main={<GetAppIcon />}
+          badge={<span>JSONL</span>}
+        />
+      </IconButton>
+
       <DebouncedTextField label='Nom' className={classes.name} value={name} onChange={setName} />
       <DebouncedTextField label='Instance' className={classes.instance} value={instance} onChange={setInstance} />
       <DebouncedTextField label='Message' className={classes.message} value={message} onChange={setMessage} />

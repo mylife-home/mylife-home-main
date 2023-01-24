@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import matcher from 'matcher';
 
+import { useAction } from '../lib/use-actions';
+import { downloadFile } from '../../store/online-logs/actions';
 import { getItems } from '../../store/online-logs/selectors';
 import Criteria, { CriteriaDefinition } from './criteria';
 import Console from './console';
@@ -39,10 +41,11 @@ const OnlineLogs: FunctionComponent = () => {
   const classes = useStyles();
   const [criteria, setCriteria] = useState(defaultCriteria);
   const data = useData(criteria);
+  const download = useAction(downloadFile);
 
   return (
     <div className={classes.container}>
-      <Criteria className={classes.criteria} criteria={criteria} setCriteria={setCriteria} />
+      <Criteria className={classes.criteria} criteria={criteria} setCriteria={setCriteria} onDownload={type => download({ type })}/>
 
       {criteria.display === 'console' && (
         <Console className={classes.list} data={data} />
