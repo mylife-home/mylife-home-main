@@ -185,10 +185,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
-- logs
-  - pouvoir c/c des logs
-  - pouvoir DL les logs
-  - avoir une UI qui ressemble plus a esphome dashboard, avec une console texte plutot qu'une grille pour l'affichage
 
 ## core
 
