@@ -12,7 +12,7 @@ import VirtualizedTable, { ColumnDefinition } from '../lib/virtualized-table';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
 
-const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ className, data }) => {
+const Table: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ className, data }) => {
   const levelRenderer = (value: number) => (
     <Level value={value} />
   );
@@ -39,7 +39,7 @@ const List: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ cla
   );
 };
 
-export default List;
+export default Table;
 
 const Level: FunctionComponent<{ value: number }> = ({ value }) => {
   const classes = useLevelStyles();

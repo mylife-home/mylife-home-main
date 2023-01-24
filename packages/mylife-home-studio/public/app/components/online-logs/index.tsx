@@ -5,7 +5,8 @@ import matcher from 'matcher';
 
 import { getItems } from '../../store/online-logs/selectors';
 import Criteria, { CriteriaDefinition } from './criteria';
-import List from './list';
+import Console from './console';
+import Table from './table';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -30,7 +31,8 @@ const defaultCriteria: CriteriaDefinition = {
   message: null,
   error: null,
   levelMin: null,
-  levelMax: null
+  levelMax: null,
+  display: 'console',
 };
 
 const OnlineLogs: FunctionComponent = () => {
@@ -41,7 +43,14 @@ const OnlineLogs: FunctionComponent = () => {
   return (
     <div className={classes.container}>
       <Criteria className={classes.criteria} criteria={criteria} setCriteria={setCriteria} />
-      <List className={classes.list} data={data} />
+
+      {criteria.display === 'console' && (
+        <Console className={classes.list} data={data} />
+      )}
+
+      {criteria.display === 'table' && (
+        <Table className={classes.list} data={data} />
+      )}
     </div>
   );
 };
@@ -84,6 +93,6 @@ function useData(criteria: CriteriaDefinition) {
       items = items.filter(item => item.level <= criteria.levelMax);
     }
 
-    return items.slice().reverse();
+    return items;
   }, [data, criteria]);
 }
