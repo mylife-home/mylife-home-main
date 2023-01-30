@@ -1,15 +1,15 @@
 import React, { FunctionComponent } from 'react';
 import { makeStyles, darken } from '@material-ui/core/styles';
-import { AutoSizer, List } from 'react-virtualized';
 import clsx from 'clsx';
 
 import { addLineBreaks } from '../lib/add-line-breaks';
 import { LogItem, LogError } from '../../store/online-logs/types';
 import { findLevelByValue, useLevelStyles, getLevelClass } from './levels';
 
-const lineHeight = 18;
-
 const useStyles = makeStyles((theme) => ({
+  list: {
+    overflowY: 'auto',
+  },
   row: {
     marginLeft: theme.spacing(2),
     fontFamily: 'monospace',
@@ -39,37 +39,25 @@ const Console: FunctionComponent<{ className?: string; data: LogItem[]; }> = ({ 
   const classes = useStyles();
 
   return (
-    <div className={className}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <List height={height} width={width} rowCount={data.length} rowHeight={({ index }) => {
-            const { err } = data[index];
-            // stacktraces are multiline
-            const lineCount = err ? err.stack.split('\n').length : 1;
-            return lineCount * lineHeight;
-          }} rowRenderer={({ index, style }) => {
-            const item = data[index];
-            return (
-              <span key={item.id} className={classes.row} style={style}>
-                <Timestamp value={item.time} />
-                <Space />
-                <Level value={item.level} />
-                <Space />
-                <Location instanceName={item.instanceName} name={item.name} />
-                <Space />
-                <Message value={item.msg} />
-                {item.err && (
-                  <>
-                    <Space />
-                    <Error value={item.err} />
-                  </>
-                )}
-                <LineEnd />
-              </span>
-            );
-          }} />
-        )}
-      </AutoSizer>
+    <div className={clsx(className, classes.list)}>
+      {data.map(item => (
+        <span key={item.id} className={classes.row}>
+          <Timestamp value={item.time} />
+          <Space />
+          <Level value={item.level} />
+          <Space />
+          <Location instanceName={item.instanceName} name={item.name} />
+          <Space />
+          <Message value={item.msg} />
+          {item.err && (
+            <>
+              <Space />
+              <Error value={item.err} />
+            </>
+          )}
+          <LineEnd />
+        </span>
+      ))}
     </div>
   );
 };
@@ -121,8 +109,6 @@ const Error: FunctionComponent<{ value: LogError }> = ({ value }) => {
   const classes = useStyles();
   return (
     <span className={classes.error}>
-      {value.message}
-      {' - '}
       {addLineBreaks(value.stack)}
     </span>
   );
