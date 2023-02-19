@@ -185,6 +185,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - core designer:
   - deploy:
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
+- git:
+  - bug impossible de commit une suppression un fichier de projet
 
 ## core
 
