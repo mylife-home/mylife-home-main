@@ -1,0 +1,77 @@
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "avg",
+      "plugin": "logic-base.float-to-nullable-percent",
+      "config": {
+        "usedCount": 2
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "val1",
+      "plugin": "logic-base.value-float",
+      "config": {
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "val2",
+      "plugin": "logic-base.value-float",
+      "config": {
+      }
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "val1",
+      "sourceState": "value",
+      "targetComponent": "avg",
+      "targetAction": "set0"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "val2",
+      "sourceState": "value",
+      "targetComponent": "avg",
+      "targetAction": "set1"
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "percent",
+      "plugin": "logic-base.float-to-percent",
+      "config": {
+        "min": 3.3,
+        "max": 0
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "val",
+      "plugin": "logic-base.value-float",
+      "config": {
+      }
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "val",
+      "sourceState": "value",
+      "targetComponent": "percent",
+      "targetAction": "setValue"
+    }
+  }
+]
