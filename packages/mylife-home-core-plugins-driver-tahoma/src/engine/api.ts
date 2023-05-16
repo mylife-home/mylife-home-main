@@ -128,7 +128,8 @@ export class API extends EventEmitter {
 
     const responseData = await new Promise<Buffer>((resolve, reject) => {
       try {
-        const url = `https://tahomalink.com/enduser-mobile-web/enduserAPI${query}`;
+        // const url = `https://tahomalink.com/enduser-mobile-web/enduserAPI${query}`;
+        const url = `https://ha101-1.overkiz.com/enduser-mobile-web/enduserAPI${query}`;
         const request = https.request(url, { method, timeout: 10000 }, (response) => {
           response.on('error', (err) => {
             reject(err);
