@@ -194,6 +194,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 
 - bugs:
   - pirev: rpi 0 is wrongly printed in 'instance info' as 'arm' only => cf https://github.com/samjrdn/pirev-node/issues/17
+- plugins:
+  - sunrise/sunset : https://www.home-assistant.io/integrations/sun/
+  - meteo : https://www.home-assistant.io/integrations/open_meteo/
 
 ## collector
 
