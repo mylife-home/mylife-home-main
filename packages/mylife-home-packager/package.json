@@ -91,6 +91,7 @@
     "mylife-home-core-plugins-driver-sysfs": "^1.0.0",
     "mylife-home-core-plugins-driver-tahoma": "^1.0.0",
     "mylife-home-core-plugins-logic-base": "^1.0.0",
+    "mylife-home-core-plugins-logic-clim": "^1.0.0",
     "mylife-home-core-plugins-logic-colors": "^1.0.0",
     "mylife-home-core-plugins-logic-selectors": "^1.0.0",
     "mylife-home-core-plugins-logic-timers": "^1.0.0",

@@ -43,6 +43,7 @@ export const projects = {
       'driver-sysfs': buildCorePluginProjectConfiguration('driver-sysfs', { nativeModules: ['epoll/build/Release/epoll.node'] }),
       'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
       'logic-base': buildCorePluginProjectConfiguration('logic-base'),
+      'logic-clim': buildCorePluginProjectConfiguration('logic-clim'),
       'logic-colors': buildCorePluginProjectConfiguration('logic-colors'),
       'logic-selectors': buildCorePluginProjectConfiguration('logic-selectors'),
       'logic-timers': buildCorePluginProjectConfiguration('logic-timers'),

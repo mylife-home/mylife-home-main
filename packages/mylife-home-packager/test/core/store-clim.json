@@ -1,0 +1,67 @@
+[
+  {
+    "type": "component",
+    "config": {
+      "id": "temp-sel",
+      "plugin": "logic-clim.temperature-selector",
+      "config": {
+        "initial": 26
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mode-sel",
+      "plugin": "logic-clim.mode-selector",
+      "config": {
+        "temperatureThreshold": 24
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "temp-to-float",
+      "plugin": "logic-clim.temperature-to-float",
+      "config": {
+      }
+    }
+  },
+  {
+    "type": "component",
+    "config": {
+      "id": "mode-ui",
+      "plugin": "logic-clim.ui-state-mode",
+      "config": {
+      }
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "temp-sel",
+      "sourceState": "value",
+      "targetComponent": "mode-sel",
+      "targetAction": "setTemperature"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "temp-sel",
+      "sourceState": "value",
+      "targetComponent": "temp-to-float",
+      "targetAction": "setValue"
+    }
+  },
+  {
+    "type": "binding",
+    "config": {
+      "sourceComponent": "mode-sel",
+      "sourceState": "mode",
+      "targetComponent": "mode-ui",
+      "targetAction": "setValue"
+    }
+  }
+]
