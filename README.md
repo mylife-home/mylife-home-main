@@ -189,6 +189,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - bug impossible d'enlever une image de fond de fenetre
 - git:
   - bug impossible de commit une suppression de fichier de projet/deploy recipe
+  - très lent
+- fichiers:
+  - download ne fonctionne plus
 
 ## core
 
