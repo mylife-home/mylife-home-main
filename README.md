@@ -193,8 +193,6 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - deploy:
   - fichiers: download ne fonctionne plus
 
-_Note: l'initramfs d'alpine fait des scan de dossier. Quand il y a trop de fichiers de backups apparemment cela cree des problèmes d'apkcache_
-
 ## core
 
 - bugs:
@@ -219,3 +217,7 @@ _Note: l'initramfs d'alpine fait des scan de dossier. Quand il y a trop de fichi
 ```
 GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ```
+
+## alpine
+
+- l'initramfs d'alpine fait des scan de dossiers sur les disques. Quand il y a trop de dossiers de backups apparemment cela cree des problèmes d'apkcache
