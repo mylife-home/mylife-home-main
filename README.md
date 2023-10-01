@@ -187,6 +187,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
     - pourquoi ap-entree est toujours modifié ? => config avec 'é' => voir diff charset windows/linux/OSX du client ?!?
 - ui designer:
   - bug impossible d'enlever une image de fond de fenetre
+  - bug impossible de tester les display texts
 - git:
   - bug impossible de commit une suppression de fichier de projet/deploy recipe
   - très lent
