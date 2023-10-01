@@ -192,7 +192,8 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - très lent
 - deploy:
   - fichiers: download ne fonctionne plus
-  - des fois le apk mylife ne sont pas dans le cache de l'image générée ? (sans erreur)
+
+_Note: l'initramfs d'alpine fait des scan de dossier. Quand il y a trop de fichiers de backups apparemment cela cree des problèmes d'apkcache_
 
 ## core
 
