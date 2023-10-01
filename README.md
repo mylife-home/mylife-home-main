@@ -190,8 +190,9 @@ In Chrome: [chrome://inspect](chrome://inspect)
 - git:
   - bug impossible de commit une suppression de fichier de projet/deploy recipe
   - très lent
-- fichiers:
-  - download ne fonctionne plus
+- deploy:
+  - fichiers: download ne fonctionne plus
+  - des fois le apk mylife ne sont pas dans le cache de l'image générée ? (sans erreur)
 
 ## core
 
