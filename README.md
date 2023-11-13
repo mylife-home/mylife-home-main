@@ -154,6 +154,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - ne pas crasher si un projet n'est pas valide
   - on doit d'abord cliquer pour selectionner le composant avant de pouvoir drag depuis un membre, c est dommage + pareil pour move
   - recherche rapide pour plugins dans la liste
+  - une modification de plugin sur un commentaire (de config/membre) ne doit pas empecher l'update
 - git
   - drop gitconvex
   - changement de branche
