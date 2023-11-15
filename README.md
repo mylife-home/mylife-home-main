@@ -169,6 +169,7 @@ In Chrome: [chrome://inspect](chrome://inspect)
   - integrer les logs mongo
 - create action payload types like core-designer/ui-designer everywhere
 - async actions are broken on debounce (action dropped => promise never fullfilled/rejected)
+- instance view : add scroll bar when too many to display
 
 ## ui
 
