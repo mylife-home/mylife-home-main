@@ -1,6 +1,6 @@
 {
   "name": "mylife-home-core-plugins-driver-tahoma",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "MyLife Home Core Plugins Driver Tahoma",
   "author": "Vincent Trumpff",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
@@ -25,9 +25,9 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "mylife-home-common": "^1.0.0",
-    "mylife-home-core": "^1.0.0",
-    "reflect-metadata": "^0.1.13",
-    "async-mutex": "^0.3.2"
+    "async-mutex": "^0.3.2",
+    "mylife-home-common": "^1.0.6",
+    "mylife-home-core": "^1.0.20",
+    "reflect-metadata": "^0.1.13"
   }
 }

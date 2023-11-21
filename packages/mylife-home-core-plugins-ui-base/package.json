@@ -1,6 +1,6 @@
 {
   "name": "mylife-home-core-plugins-ui-base",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "MyLife Home Core Plugins UI Base",
   "author": "Vincent Trumpff",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
@@ -22,8 +22,8 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "mylife-home-common": "^1.0.0",
-    "mylife-home-core": "^1.0.0",
+    "mylife-home-common": "^1.0.6",
+    "mylife-home-core": "^1.0.20",
     "reflect-metadata": "^0.1.13"
   }
 }

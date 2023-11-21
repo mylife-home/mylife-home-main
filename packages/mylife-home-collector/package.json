@@ -1,6 +1,6 @@
 {
   "name": "mylife-home-collector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MyLife Home Collector",
   "author": "Vincent Trumpff",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
@@ -30,6 +30,6 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "mylife-home-common": "^1.0.0"
+    "mylife-home-common": "^1.0.6"
   }
 }

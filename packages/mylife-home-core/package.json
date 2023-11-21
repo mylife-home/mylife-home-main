@@ -1,6 +1,6 @@
 {
   "name": "mylife-home-core",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "MyLife Home Core",
   "author": "Vincent Trumpff",
   "homepage": "https://github.com/mylife-home/mylife-home-main#readme",
@@ -29,7 +29,7 @@
     "typescript": "^4.1.5"
   },
   "dependencies": {
-    "mylife-home-common": "^1.0.0",
+    "mylife-home-common": "^1.0.6",
     "reflect-metadata": "^0.1.13"
   }
 }
