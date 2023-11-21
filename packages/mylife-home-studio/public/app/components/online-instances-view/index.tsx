@@ -20,7 +20,10 @@ import Actions from './actions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(3),
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
   },
   noWrap: {
     whiteSpace: 'nowrap'
@@ -39,7 +42,7 @@ const OnlineInstancesView: FunctionComponent = () => {
 
   return (
     <TableContainer className={classes.root}>
-      <Table>
+      <Table stickyHeader>
 
         <TableHead>
           <TableRow>
