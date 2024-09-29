@@ -5,12 +5,15 @@ import { noop, name, withTempPath, run } from './utils';
 export interface DockerTaskOptions {
   readonly config: string;
   readonly binaries: string;
-  readonly imageTag: string;
+  readonly imageTags: string[];
   readonly publish?: boolean;
 }
 
 export function createDockerTask(options: DockerTaskOptions) {
   const basePath = path.resolve(path.join(__dirname, '..'));
+  const publishTasks = options.publish ? 
+    options.imageTags.map(tag => name(`docker push ${tag}`, () => run('docker', 'push', tag))) :
+    [];
 
   return withTempPath('docker-build-', tempPathRef => series(
     parallel(
@@ -19,10 +22,11 @@ export function createDockerTask(options: DockerTaskOptions) {
     ),
     name('docker build', () => {
       const dockerFilePath =  path.join(basePath, options.config, 'Dockerfile');
-      return run('docker', 'build', '--pull', '--no-cache', '-t', options.imageTag, '-f', dockerFilePath, tempPathRef.path);
+      const tags = options.imageTags.map(tag => ['-t', tag]).flat();
+      return run('docker', 'build', '--pull', '--no-cache', ...tags, '-f', dockerFilePath, tempPathRef.path);
     }),
-    options.publish ? name('docker push', () => run('docker', 'push', options.imageTag)) : noop,
-    name('summary', async () => { console.log(`create docker image: '${options.imageTag}'`) }),
+    ...publishTasks,
+    name('summary', async () => { console.log(`create docker image: '${options.imageTags[0]}'`) }),
   ));
 
   function makeSourcePath(relative: string) {

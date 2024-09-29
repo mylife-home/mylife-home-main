@@ -189,26 +189,26 @@ function createPublishPluginsTask() {
 const publishUi = series(
   buildProdUi,
   createNpmPublishTask({ binariesGlob: 'dist/prod/ui/**/*', repositoryName: 'mylife-home-ui' }),
-  createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: `vincenttr/mylife-home-ui:${projects.ui.version}`, publish: true })
+  createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTags: [`vincenttr/mylife-home-ui:${projects.ui.version}`, `vincenttr/mylife-home-ui:latest`], publish: true })
 );
 
 const publishStudio = series(
   buildProdStudio,
   createNpmPublishTask({ binariesGlob: 'dist/prod/studio/**/*', repositoryName: 'mylife-home-studio' }),
-  createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: `vincenttr/mylife-home-studio:${projects.studio.version}`, publish: true })
+  createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTags: [`vincenttr/mylife-home-studio:${projects.studio.version}`, `vincenttr/mylife-home-studio:latest`], publish: true })
 );
 
 const publishCollector = series(
   buildProdCollector,
   createNpmPublishTask({ binariesGlob: 'dist/prod/collector/**/*', repositoryName: 'mylife-home-collector' }),
-  createDockerTask({ config: 'docker/collector', binaries: 'dist/prod/collector', imageTag: `vincenttr/mylife-home-collector:${projects.collector.version}`, publish: true })
+  createDockerTask({ config: 'docker/collector', binaries: 'dist/prod/collector', imageTags: [`vincenttr/mylife-home-collector:${projects.collector.version}`, `vincenttr/mylife-home-collector:latest`], publish: true })
 );
 
 // Testing images
-const dockerBuildTestingCore = createDockerTask({ config: 'docker/core', binaries: 'dist/prod/core', imageTag: 'mylife-home-core:testing' });
-const dockerBuildTestingUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTag: 'mylife-home-ui:testing' });
-const dockerBuildTestingStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTag: 'mylife-home-studio:testing' });
-const dockerBuildTestingCollector = createDockerTask({ config: 'docker/collector', binaries: 'dist/prod/collector', imageTag: 'mylife-home-collector:testing' });
+const dockerBuildTestingCore = createDockerTask({ config: 'docker/core', binaries: 'dist/prod/core', imageTags: ['mylife-home-core:testing'] });
+const dockerBuildTestingUi = createDockerTask({ config: 'docker/ui', binaries: 'dist/prod/ui', imageTags: ['mylife-home-ui:testing'] });
+const dockerBuildTestingStudio = createDockerTask({ config: 'docker/studio', binaries: 'dist/prod/studio', imageTags: ['mylife-home-studio:testing'] });
+const dockerBuildTestingCollector = createDockerTask({ config: 'docker/collector', binaries: 'dist/prod/collector', imageTags: ['mylife-home-collector:testing'] });
 
 export = {
   'clean': () => del(globs.dist.all),
