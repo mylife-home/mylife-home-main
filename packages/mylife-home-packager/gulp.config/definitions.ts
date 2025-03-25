@@ -40,7 +40,6 @@ export const projects = {
       'driver-lirc': buildCorePluginProjectConfiguration('driver-lirc'),
       'driver-mpd': buildCorePluginProjectConfiguration('driver-mpd'),
       'driver-sensors': buildCorePluginProjectConfiguration('driver-sensors'),
-      'driver-sysfs': buildCorePluginProjectConfiguration('driver-sysfs', { nativeModules: ['epoll/build/Release/epoll.node'] }),
       'driver-tahoma': buildCorePluginProjectConfiguration('driver-tahoma'),
       'logic-base': buildCorePluginProjectConfiguration('logic-base'),
       'logic-clim': buildCorePluginProjectConfiguration('logic-clim'),
