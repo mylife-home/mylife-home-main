@@ -224,3 +224,4 @@ GIT_SSH_COMMAND='ssh -i /ssh_key' git *
 ## alpine
 
 - l'initramfs d'alpine fait des scan de dossiers sur les disques. Quand il y a trop de dossiers de backups apparemment cela cree des problèmes d'apkcache
+- remettre à l'heure : `chronyc -a makestep`
